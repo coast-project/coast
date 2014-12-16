@@ -721,71 +721,72 @@ public:
 	}
 };//lint !e1509
 
-class AnythingParser
-{
+class AnythingParser {
 	// really implement the grammar of Anythings
 	// needs to be friend of Anything to set Anything's internals
 public:
-	AnythingParser(InputContext &c): fContext(c) {}
-	bool    DoParse(Anything &a); // returns false if there was a syntax error
-	bool    DoParseSequence(Anything &a, ParserXrefHandler &xrefs);
-	bool    MakeSimpleAny(AnythingToken &tok, Anything &a);
+	AnythingParser(InputContext &c) :
+			fContext(c) {
+	}
+	bool DoParse(Anything &a); // returns false if there was a syntax error
+	bool DoParseSequence(Anything &a, ParserXrefHandler &xrefs);
+	bool MakeSimpleAny(AnythingToken &tok, Anything &a);
 
 private:
-	void 	ImportIncludeAny(Anything &element, const String &url);
-	void    Error(String const &msg, String const &toktext);
+	void ImportIncludeAny(Anything &element, const String &url);
+	void Error(String const &msg, String const &toktext);
 	InputContext &fContext;
 };
 
-Anything::Anything(Allocator *a) 		: fAnyImp(0)
-{
+Anything::Anything(Allocator *a) :
+		fAnyImp(0) {
 	SetAllocator(a);
 }
-Anything::Anything(AnyImpl *ai) 			: fAnyImp(ai)
-{
+Anything::Anything(AnyImpl *ai) :
+		fAnyImp(ai) {
 	SetAllocator(ai ? ai->MyAllocator() : coast::storage::Current());
 }
-Anything::Anything(int i, Allocator *a) 			: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(i, a))
-{
+Anything::Anything(int i, Allocator *a) :
+		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(i, a)) {
 	SetAllocator(a);
 }
 #if !defined(BOOL_NOT_SUPPORTED)
-Anything::Anything(bool b, Allocator *a) 		: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(b, a))
-{
+Anything::Anything(bool b, Allocator *a) :
+		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(b, a)) {
 	SetAllocator(a);
 }
 #endif
-Anything::Anything(long i, Allocator *a) 			: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(i, a))
-{
+Anything::Anything(long i, Allocator *a) :
+		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(i, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(float f, Allocator *a)  			: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyDoubleImpl(f, a))
-{
+Anything::Anything(float f, Allocator *a) :
+		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyDoubleImpl(f, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(double d, Allocator *a) 			: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyDoubleImpl(d, a))
-{
+Anything::Anything(double d, Allocator *a) :
+		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyDoubleImpl(d, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(IFAObject *o, Allocator *a) 				: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyObjectImpl(o, a))
-{
+Anything::Anything(IFAObject *o, Allocator *a) :
+		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyObjectImpl(o, a)) {
 	SetAllocator(a);   // PS: Only for transient pointers NO checking!!
 }
-Anything::Anything(const String &s, Allocator *a) 			: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyStringImpl(s, a))
-{
+Anything::Anything(const String &s, Allocator *a) :
+		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyStringImpl(s, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(const char *s, long len, Allocator *a)	: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyStringImpl(s, len, a))
-{
+Anything::Anything(const char *s, long len, Allocator *a) :
+		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyStringImpl(s, len, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(void *buf, long len, Allocator *a)		: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyBinaryBufImpl(buf, len, a))
-{
+Anything::Anything(void *buf, long len, Allocator *a) :
+		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyBinaryBufImpl(buf, len, a)) {
 	SetAllocator(a);
 }
 
-Anything::Anything(const Anything &any, Allocator *a) : fAnyImp(0)
-{
+Anything::Anything(const Anything &any, Allocator *a) :
+		fAnyImp(0) {
 	SetAllocator(a);
 	if (GetAllocator() == any.GetAllocator()) {
 		// add reference
@@ -804,13 +805,12 @@ Anything::Anything(const Anything &any, Allocator *a) : fAnyImp(0)
 		SetAllocator(a);    // remember allocator or make it sane in case of errors
 	}
 }
-Anything::Anything(ArrayMarker m, Allocator *a):fAnyImp(new ((a) ? a : coast::storage::Current()) AnyArrayImpl(a))
-{
+Anything::Anything(ArrayMarker m, Allocator *a) :
+		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyArrayImpl(a)) {
 	SetAllocator(a);
 }
 
-Anything::~Anything()
-{
+Anything::~Anything() {
 	if (GetImpl()) {
 		GetImpl()->Unref();
 		fAnyImp = 0;
@@ -1421,7 +1421,7 @@ bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, ch
 			return true;
 		}
 	} else {
-		// calculate key values into anything; cache hasvalues and size information
+		// calculate key values into anything; cache hash values and size information
 		// assume we have at least one delimSlot in path
 		register const char *tokPtr = path;
 		if (!tokPtr || *tokPtr == delimSlot) {
@@ -1453,7 +1453,7 @@ bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, ch
 						return false;
 					}
 				}
-				// calculate hashvalue while iterating for next delimSlot
+				// calculate hash value while iterating for next delimSlot
 				long keylen = 0;
 				long h = IFAHash(tokPtr, keylen, delimSlot, delimIdx);
 				// find the index with precalculated hash and sizes
@@ -1473,17 +1473,15 @@ bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, ch
 	return false;
 }
 
-Allocator *Anything::GetAllocator() const
-{
+Allocator *Anything::GetAllocator() const {
 	if (GetImpl()) {
 		return GetImplAllocator();
 	}
-	return reinterpret_cast<Allocator *>(bits&~0x01);
+	return reinterpret_cast<Allocator *>(bits & ~0x01);
 }
 
-bool Anything::SetAllocator(Allocator *a)
-{
-	if ( !GetImpl() || !fAlloc ) {
+bool Anything::SetAllocator(Allocator *a) {
+	if (!GetImpl() || !fAlloc) {
 		fAlloc = (a) ? a : coast::storage::Current();
 		bits |= 0x01;
 		return (a != 0);
@@ -1491,28 +1489,26 @@ bool Anything::SetAllocator(Allocator *a)
 	return false;
 }
 
-Allocator *Anything::GetImplAllocator() const
-{
+Allocator *Anything::GetImplAllocator() const {
 	if (GetImpl()) {
 		return GetImpl()->MyAllocator();
 	}
 	return 0;
 }
 
-AnyImpl const *Anything::GetImpl() const
-{
+AnyImpl const *Anything::GetImpl() const {
 	if (bits & 0x01) {
 		return 0;
 	} else {
 		return fAnyImp;
 	}
 }
-AnyImpl  *Anything::GetImpl()
-{
+AnyImpl *Anything::GetImpl() {
 	if (bits & 0x01) {
 		return 0;
 	} else {
-		return const_cast<AnyImpl*>(fAnyImp); // TODO: silently throws away constness!!!!
+		//!@TODO: silently throws away constness!!!!
+		return const_cast<AnyImpl*>(fAnyImp);
 	}
 }
 

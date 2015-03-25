@@ -333,9 +333,10 @@ long SSLSocket::GetWriteCount() const
 bool SSLSocket::CheckPeerCertificate(SSL *ssl,  Anything &sslinfo)
 {
 	StartTrace(SSLSocket.CheckPeerCertificate);
+	TraceAny(sslinfo, "ssl info");
 	fPeerCert = SSL_get_peer_certificate(ssl);
 	bool ret = (fPeerCert != NULL);
-	Trace("peer cert " << ret ? "OK" : "MISSING");
+	Trace("peer cert " << (ret ? "OK" : "MISSING"));
 	long verifyresult = SSL_get_verify_result(ssl);
 	ReportSSLError(sslinfo["Peer"]["SSLCertVerifyStatus"]["SSL"]["ErrorDesc"], verifyresult);
 	ret = (verifyresult == X509_V_OK);

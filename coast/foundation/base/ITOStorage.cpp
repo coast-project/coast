@@ -166,8 +166,10 @@ namespace {
 	public:
 		StorageInitializer() {
 			const char *pEnvVar = getenv("COAST_TRACE_STORAGE");
-			long lLevel = ((pEnvVar != 0) ? atol(pEnvVar) : 0);
-			statisticLevel = lLevel;
+			long lLevel = 0;
+			if ( pEnvVar != 0 && coast::system::StrToL(lLevel, pEnvVar) ) {
+				statisticLevel = lLevel;
+			}
 			InitFinisManager::IFMTrace("storage::Initialized\n");
 		}
 		~StorageInitializer();

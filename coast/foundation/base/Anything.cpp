@@ -7,6 +7,7 @@
  */
 
 #include "AnyImpls.h"
+#include "SystemBase.h"
 #include "SystemFile.h"
 #include "SystemLog.h"
 #include "StringStream.h"
@@ -2144,19 +2145,37 @@ bool AnythingParser::MakeSimpleAny(AnythingToken &tok, Anything &any)
 			break;
 			// long impl.
 		case AnythingToken::eDecimalNumber:
-			any = atol(tok.Text().cstr()); // correct? should this be atol(tok.Text().cstr())?
-			break;
+			{
+				long number = 0;
+				if ( coast::system::StrToL(number, tok.Text().cstr()) ) {
+					any = number;
+				}
+				break;
+			}
 		case AnythingToken::eOctalNumber:
-			any = static_cast<long>(strtoul(tok.Text().cstr(), 0, 8)); // AB: use explicit cast to make g++ happy
-			// we do not check for conversion errors here
-			break;
+			{
+				unsigned long number = 0;
+				if ( coast::system::StrToUL(number, tok.Text().cstr(), 8) ) {
+					any = static_cast<long>(number);
+				}
+				break;
+			}
 		case AnythingToken::eHexNumber:
-			any = static_cast<long>(strtoul(tok.Text().cstr(), 0, 16)); // AB: use explicit cast to make g++ happy
-			// we do not check for conversion errors here
-			break;
+			{
+				unsigned long number = 0;
+				if ( coast::system::StrToUL(number, tok.Text().cstr(), 16) ) {
+					any = static_cast<long>(number);
+				}
+				break;
+			}
 		case AnythingToken::eFloatNumber:
-			any = atof(tok.Text());
-			// we do not check for conversion errors here
+			{
+				double number = 0.0;
+				if ( coast::system::StrToD(number, tok.Text().cstr()) ) {
+					any = number;
+				}
+				break;
+			}
 			break;
 		case AnythingToken::eBinaryBuf:
 			// oops we cannot yet assign a binary-buf impl ?
@@ -2164,9 +2183,13 @@ bool AnythingParser::MakeSimpleAny(AnythingToken &tok, Anything &any)
 			any = Anything(reinterpret_cast<void *>(const_cast<char *>(tok.Text().cstr())), tok.Text().Length(), a);
 			break;
 		case AnythingToken::eObject:
-			// make it an AnyObjectImpl
-			any = Anything(reinterpret_cast<IFAObject *>(atol(tok.Text().cstr())), a);
-			break;
+			{
+				unsigned long number = 0;
+				if ( coast::system::StrToUL(number, tok.Text().cstr(), 10) ) {
+					any = Anything(reinterpret_cast<IFAObject *>(number), a);
+				}
+				break;
+			}
 		case AnythingToken::eNullSym:
 			Error("unexpected EOF token encountered", "");
 			return false;

@@ -274,7 +274,6 @@ int SSLSocket::SSLVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 	StartTrace(SSLSocket.SSLVerifyCallback);
 	SSL *ssl  = NULL;;
 	Anything *pAppData = NULL;
-	SSLSocketArgs *pSSLSocketArgs;
 	X509 *cert;
 	int depth = 0;
 	int err = 0;
@@ -295,7 +294,6 @@ int SSLSocket::SSLVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx)
 		err = X509_V_ERR_CERT_CHAIN_TOO_LONG;
 		X509_STORE_CTX_set_error(ctx, err);
 	}
-	pSSLSocketArgs = (SSLSocketArgs *) (*pAppData)["SSLSocketArgs"].AsIFAObject(0);
 	cert = X509_STORE_CTX_get_current_cert(ctx);
 	(*pAppData)["Chain"]["Subjects"].Append(SSLSocketUtils::GetPeerAsString(cert));
 	(*pAppData)["Chain"]["Issuers"].Append(SSLSocketUtils::GetPeerIssuerAsString(cert));

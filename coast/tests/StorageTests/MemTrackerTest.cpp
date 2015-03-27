@@ -11,10 +11,10 @@
 #include "ITOStorage.h"
 #include "Tracer.h"
 #include "MemHeader.h"
-#include "AllocatorNewDelete.h"
 
-MemTrackerTest::MemTrackerTest(TString tstrName) :
-		TestCaseType(tstrName) {
+MemTrackerTest::MemTrackerTest(TString tstrName)
+	: TestCaseType(tstrName)
+{
 	StartTrace(MemTrackerTest.Ctor);
 }
 

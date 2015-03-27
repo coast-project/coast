@@ -10,7 +10,6 @@
 #include "SystemLog.h"
 #include "SystemBase.h"
 #include "MemHeader.h"
-#include "AllocatorNewDelete.h"
 #include <cstring>
 #include "InitFinisManager.h"
 

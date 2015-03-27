@@ -29,3 +29,38 @@ if _sconsider_dist < pkg_resources.parse_version("0.5.dev"):
     }
     SConsider.createTargets(packagename, buildSettings)
 
+elif _sconsider_dist >= pkg_resources.parse_version("0.5.dev"):
+    includeTarget = SConsider.EnvBuilder(
+        export=[SConsider.EnvBuilder().include(Dir('.'))]
+    ).build().RegisterPackageTarget(
+        packagename=packagename,
+        targetname='include'
+    )
+
+    libDepends = []
+
+    libbuilderfunc = SConsider.createPackageSharedLibrary
+    if SConsider.EnvBuilder().build()["PLATFORM"] == "win32":
+        libbuilderfunc = SConsider.createPackageStaticLibrary
+
+    lib = libbuilderfunc(
+        packagename,
+        packagename,
+        SConsider.listFiles(['*.cpp']),
+        depend=[includeTarget] + libDepends,
+        pkg_local=[lambda env: env.allowUnresolvedLinkSymbols()]
+    )
+
+    libs = SConsider.EnvBuilder().depend(lib).build().RegisterPackageTarget(
+        packagename=packagename,
+        targetname='libs'
+    )
+
+    SConsider.EnvBuilder().depend(
+        includeTarget,
+        libs
+    ).build().RegisterPackageTarget(
+        packagename=packagename,
+        targetname=packagename
+    )
+

@@ -597,6 +597,9 @@ void MultifunctionListBoxRenderer::RenderBoxRow(std::ostream &reply, Context &c,
 					if (config.IsDefined("Size")) {
 						rendererConfig["Size"] = config["Size"].DeepClone();
 					}
+					if (config.IsDefined("Maxlength")) {
+						rendererConfig["Maxlength"] = config["Maxlength"].DeepClone();
+					}
 					if (config.IsDefined("Multiple")) {
 						rendererConfig["Multiple"] = config["Multiple"].DeepClone();
 					}
@@ -853,7 +856,7 @@ bool MultifunctionListBoxRenderer::RenderPrevButton(std::ostream &reply, Context
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
-			buttonConfig["Label"] = "  <  ";
+			buttonConfig["Label"] = "  &lt;  ";
 			if (roButton.IsDefined("Label")) {
 				// override default
 				buttonConfig["Label"] = roButton["Label"].DeepClone();
@@ -881,7 +884,7 @@ bool MultifunctionListBoxRenderer::RenderNextButton(std::ostream &reply, Context
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
-			buttonConfig["Label"] = "  >  ";
+			buttonConfig["Label"] = "  &gt;  ";
 			if (roButton.IsDefined("Label")) {
 				// override default
 				buttonConfig["Label"] = roButton["Label"].DeepClone();
@@ -997,7 +1000,7 @@ bool MultifunctionListBoxRenderer::RenderSaveButton(std::ostream &reply, Context
 		}
 	}
 
-	saveFunction << ENDL << "<script language=\"JavaScript1.2\" type=\"text/javascript\">" << ENDL;
+	saveFunction << ENDL << "<script type=\"text/javascript\">" << ENDL;
 	saveFunction << "function " << strBoxName << "_SaveButtonClicked(buttonObj)" << ENDL;
 	saveFunction << "{" << ENDL;
 	saveFunction << "	var bIsModified = " << strProps << ".IsModified();" << ENDL;
@@ -1077,7 +1080,7 @@ bool MultifunctionListBoxRenderer::RenderResetButton(std::ostream &reply, Contex
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
-			buttonConfig["Label"] = "�nderungen zur�cksetzen";
+			buttonConfig["Label"] = "&Auml;nderungen zur&uuml;cksetzen";
 			if (roButton.IsDefined("Label")) {
 				// override default
 				buttonConfig["Label"] = roButton["Label"].DeepClone();
@@ -1130,7 +1133,7 @@ bool MultifunctionListBoxRenderer::RenderAddButton(std::ostream &reply, Context 
 			strFormPath = String("document.forms['") << strFormName << "']";
 		}
 	}
-	addFunction << ENDL << "<script language=\"JavaScript1.2\" type=\"text/javascript\">" << ENDL;
+	addFunction << ENDL << "<script type=\"text/javascript\">" << ENDL;
 	addFunction << "function " << strBoxName << "_AddButtonClicked(buttonObj)" << ENDL;
 	addFunction << "{" << ENDL;
 	addFunction << "	var bIsAdded = " << strProps << ".IsAdded();" << ENDL;
@@ -1178,7 +1181,7 @@ bool MultifunctionListBoxRenderer::RenderAddButton(std::ostream &reply, Context 
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
-			buttonConfig["Label"] = "Hinzuf�gen";
+			buttonConfig["Label"] = "Hinzuf&uuml;gen";
 			if (roButton.IsDefined("Label")) {
 				// override default
 				buttonConfig["Label"] = roButton["Label"].DeepClone();
@@ -1237,12 +1240,12 @@ bool MultifunctionListBoxRenderer::RenderDeleteButton(std::ostream &reply, Conte
 		}
 	}
 
-	deleteFunction << ENDL << "<script language=\"JavaScript1.2\" type=\"text/javascript\">" << ENDL;
+	deleteFunction << ENDL << "<script type=\"text/javascript\">" << ENDL;
 	deleteFunction << "function " << strBoxName << "_DeleteButtonClicked(buttonObj)" << ENDL;
 	deleteFunction << "{" << ENDL;
 	deleteFunction << "	listbox=" << strFormPath << ".elements['fld_" << strBoxName << "'];" << ENDL;
 	deleteFunction << "	row=listbox.selectedIndex;" << ENDL;
-	deleteFunction << "	var bDoDelete = ((row>=0) && confirm('Wollen Sie die selektierte Zeile wirklich löschen?') );" << ENDL;
+	deleteFunction << "	var bDoDelete = ((row>=0) && confirm('Wollen Sie die selektierte Zeile wirklich l&ouml;schen?') );" << ENDL;
 
 	if (bDoButton && roButton.IsDefined("PreDoScript")) {
 		Render(deleteFunction, c, roButton["PreDoScript"]);
@@ -1274,7 +1277,7 @@ bool MultifunctionListBoxRenderer::RenderDeleteButton(std::ostream &reply, Conte
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
-			buttonConfig["Label"] = "Löschen";
+			buttonConfig["Label"] = "L&ouml;schen";
 			if (roButton.IsDefined("Label")) {
 				// override default
 				buttonConfig["Label"] = roButton["Label"].DeepClone();
@@ -1534,20 +1537,20 @@ void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c
 		if (bHasOnChangeScript || bFoundEditFields || bFoundPulldownFields || bHasPrintButton || bHasExportButton) {
 			if (bBoxEditable || bHasPrintButton || bHasExportButton) {
 				// load scripts for client-side rendering and management of edit functionality
-				reply << "\n<script language=\"JavaScript1.2\" type=\"text/javascript\" src=\"";
+				reply << "\n<script type=\"text/javascript\" src=\"";
 				ROAnything roPath;
 				if (c.Lookup("FilePath", roPath)) {
 					Render(reply, c, roPath);
 				}
 				reply << "ChangeableData.js\"></script>\n";
-				reply << "<script language=\"JavaScript1.2\" type=\"text/javascript\" src=\"";
+				reply << "<script type=\"text/javascript\" src=\"";
 				if (c.Lookup("FilePath", roPath)) {
 					Render(reply, c, roPath);
 				}
 				reply << "OptionBoxScripts.js\"></script>\n";
 			}
 			// fill in script part now
-			reply << "\n<script language=\"JavaScript1.2\" type=\"text/javascript\">\n";
+			reply << "\n<script type=\"text/javascript\">\n";
 			reply << "  <!-- hide from old browsers\n";
 
 			// OnChange script for SelectBox
@@ -2014,7 +2017,7 @@ void ColumnInputFieldRenderer::RenderEditField(std::ostream &reply, Context &c, 
 
 		textFieldConfig["Name"] = String("edt") << strBoxName << "_" << strCellName;
 		textFieldConfig["Size"] = listItem["Width"].DeepClone();
-		textFieldConfig["Maxlength"] = listItem["Width"].DeepClone();
+		textFieldConfig["Maxlength"] = listItem.IsDefined("Maxlength") ? listItem["Maxlength"].DeepClone() : listItem["Width"].DeepClone();
 
 		// check if we can re-use the value from the last request as default
 		ROAnything roField;
@@ -2065,7 +2068,7 @@ void ColumnInputFieldRenderer::RenderEditField(std::ostream &reply, Context &c, 
 			strKeyDownHandler << "." << strFieldName << ".onkeydown=";
 
 			// render script for register and handle the keydownevent
-			strEventHandler << "\n<script language=\"JavaScript1.2\" type=\"text/javascript\">\n";
+			strEventHandler << "\n<script type=\"text/javascript\">\n";
 			if (roDataType.IsDefined("Validate")) {
 				strEventHandler << "function Event_" << strFieldName <<  "(e)\n";
 				strEventHandler << "{\n";

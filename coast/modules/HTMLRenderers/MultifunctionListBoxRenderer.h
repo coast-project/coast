@@ -118,6 +118,7 @@
 			/Name			Rendererspec	mandatory, display name of the column
 			/IntName		Rendererspec	optional, default is value of Name slot, internal name of the column, used for added/changed/deleted anything creation when box is editable
 			/Width			Rendererspec	mandatory, width of column
+			/Maxlength		Rendererspec    optional, if not defined, value of Width will be used
 			/Value			Rendererspec	mandatory, value for the column entry which is looked up each time the column gets rendererd
 			/Align			Rendererspec	optional, alignment datacolumns, { left, center, right }, default left
 			/HeaderAlign	Rendererspec	optional, alignment of header, { left, center, right }, default center

@@ -6,28 +6,24 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-// =========================================================================
-
 #ifndef _LDAPDataAccessImpls_H
 #define _LDAPDataAccessImpls_H
 
-
 #include "DataAccessImpl.h"
-
-//--- other includes ---
 #include "PersistentLDAPConnection.h"
 
-//---- LDAPAbstractDAI ----------------------------------------------------------
 //! Mother of all LDAP DA Impl classes.
 /*!
 \par Configuration
 \code
 {
-	/LDAPServer		optional, default = localhost
-	/LDAPPort		optional, default = 389
-	/LDAPTimeout	optional, default = 10 sec
-	/LDAPBindName	optional, default = Anonymous
-	/LDAPBindPW		optional (mandatory, if BindName is defined)
+	/LDAPServer			optional, default = localhost
+	/LDAPPort			optional, default = 389
+	/LDAPTimeout		optional, default = 10 sec
+	/LDAPBindName		optional, default = Anonymous
+	/LDAPBindPW			optional (mandatory, if BindName is defined)
+	/SuppressErrorCodes optional, default none, list of LDAP error codes to suppress from being logged to SystemLog,
+						example: { 32 49 } # suppress "No such object" and "Invalid credentials" messages on SystemLog/console
 }
 \endcode
 
@@ -116,9 +112,6 @@ private:
 	LDAPConnection *LDAPConnectionFactory(ROAnything cp);
 };
 
-// =========================================================================
-
-//---- LDAPModifyDAI ----------------------------------------------------------
 //! Implements an LDAP modify DA.
 /*!
 <B>Configuration:</B> See LDAPAbstractDAI<br>
@@ -208,9 +201,6 @@ private:
 	LDAPModifyDAI &operator=(const LDAPModifyDAI &);
 };
 
-// =========================================================================
-
-//---- LDAPAddDAI ----------------------------------------------------------
 //! Implements an LDAP add DA.
 /*!
 <B>Configuration:</B> See LDAPAbstractDAI<br>
@@ -266,9 +256,6 @@ private:
 	LDAPAddDAI &operator=(const LDAPAddDAI &);
 };
 
-// =========================================================================
-
-//---- LDAPCompareDAI ----------------------------------------------------------
 //! Implements an LDAP compare DA.
 /*!
 <B>Configuration:</B> See LDAPAbstractDAI<br>
@@ -309,9 +296,6 @@ private:
 	LDAPCompareDAI &operator=(const LDAPCompareDAI &);
 };
 
-// =========================================================================
-
-//---- LDAPDeleteDAI ----------------------------------------------------------
 //! Implements an LDAP delete DA.
 /*!
 <B>Configuration:</B> See LDAPAbstractDAI<br>
@@ -348,9 +332,6 @@ private:
 
 };
 
-// =========================================================================
-
-//---- LDAPSearchDAI ----------------------------------------------------------
 //! Implements an LDAP search DA.
 /*!
 <B>Configuration:</B> See LDAPAbstractDAI<br>

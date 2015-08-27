@@ -43,8 +43,14 @@
 				LDAPSearchTest_LanguageAttr
 				LDAPSearchTest_AttrsOnly
 				LDAPSearchTest_Filter
-				LDAPSearchTest_WrongDN
+				/LDAPSearchTest_WrongDN {
+					LDAPSearchTest_WrongDN_SuppressSyslog
+				}
+				/LDAPSearchTest_WrongPW {
+					LDAPSearchTest_WrongPW_SuppressSyslog
+				}
 				LDAPSearchTest_EmptyResult
+				LDAPSearchTest_SuppressTest_NoSyslogSuppression
 				LDAPSearchTest_BinaryValue
 
 				LDAPSearchQuery_LookupTkrefactor_NotPooled
@@ -118,7 +124,12 @@
 				LDAPSearchTest_LanguageAttr
 				LDAPSearchTest_AttrsOnly
 				LDAPSearchTest_Filter
-				LDAPSearchTest_WrongDN
+				/LDAPSearchTest_WrongDN {
+					LDAPSearchTest_WrongDN_SuppressSyslog
+				}
+				/LDAPSearchTest_WrongPW {
+					LDAPSearchTest_WrongPW_SuppressSyslog
+				}
 				LDAPSearchTest_EmptyResult
 
 				LDAPSearchQuery_LookupTkrefactor_NotPooled
@@ -181,7 +192,12 @@
 				LDAPSearchTest_LanguageAttr
 				LDAPSearchTest_AttrsOnly
 				LDAPSearchTest_Filter
-				LDAPSearchTest_WrongDN
+				/LDAPSearchTest_WrongDN {
+					LDAPSearchTest_WrongDN_SuppressSyslog
+				}
+				/LDAPSearchTest_WrongPW {
+					LDAPSearchTest_WrongPW_SuppressSyslog
+				}
 				LDAPSearchTest_EmptyResult
 
 				LDAPSearchQuery_LookupTkrefactor_NotPooled
@@ -896,6 +912,28 @@
 				}
 			}
 		}
+		/LDAPSearchTest_WrongDN_SuppressSyslog_NotPooled
+		{
+			/TmpStore	%LDAPConfig_NotPooled
+			/TheAction
+			{
+				/CallDA 	LDAPSearchTest_WrongDN_SuppressSyslog
+			}
+			/ExpectedResult	0
+			/Result
+			{
+				/TmpStore
+				{
+					/LDAPError {
+						/LDAPSearchTest_WrongDN_SuppressSyslog {
+							/Msg ignore
+							/LdapCode 32
+							/LdapMsg ignore
+						}
+					}
+				}
+			}
+		}
 
 		/LDAPSearchTest_WrongDN_Pooled
 		{
@@ -913,6 +951,117 @@
 						/LDAPSearchTest_WrongDN {
 							/Msg ignore
 							/LdapCode 32
+							/LdapMsg ignore
+						}
+					}
+				}
+			}
+		}
+		/LDAPSearchTest_WrongDN_SuppressSyslog_Pooled
+		{
+			/TmpStore	%LDAPConfig_Pooled
+			/TheAction
+			{
+				/CallDA 	LDAPSearchTest_WrongDN_SuppressSyslog
+			}
+			/ExpectedResult	0
+			/Result
+			{
+				/TmpStore
+				{
+					/LDAPError {
+						/LDAPSearchTest_WrongDN_SuppressSyslog {
+							/Msg ignore
+							/LdapCode 32
+							/LdapMsg ignore
+						}
+					}
+				}
+			}
+		}
+
+		/LDAPSearchTest_WrongPW_NotPooled
+		{
+			/TmpStore	%LDAPConfig_NotPooled
+			/TheAction
+			{
+				/CallDA 	LDAPSearchTest_WrongPW
+			}
+			/ExpectedResult	0
+			/Result
+			{
+				/TmpStore
+				{
+					/LDAPError {
+						/LDAPSearchTest_WrongPW {
+							/Msg ignore
+							/LdapCode 49
+							/LdapMsg ignore
+						}
+					}
+				}
+			}
+		}
+		/LDAPSearchTest_WrongPW_SuppressSyslog_NotPooled
+		{
+			/TmpStore	%LDAPConfig_NotPooled
+			/TheAction
+			{
+				/CallDA 	LDAPSearchTest_WrongPW_SuppressSyslog
+			}
+			/ExpectedResult	0
+			/Result
+			{
+				/TmpStore
+				{
+					/LDAPError {
+						/LDAPSearchTest_WrongPW_SuppressSyslog {
+							/Msg ignore
+							/LdapCode 49
+							/LdapMsg ignore
+						}
+					}
+				}
+			}
+		}
+		/LDAPSearchTest_WrongPW_Pooled
+		{
+			/TmpStore	%LDAPConfig_Pooled
+			/TheAction
+			{
+				/CallDA 	LDAPSearchTest_WrongPW
+			}
+			/ExpectedResult	0
+			/Result
+			{
+				/TmpStore
+				{
+					/LDAPError {
+						/LDAPSearchTest_WrongPW {
+							/Msg ignore
+							/LdapCode 49
+							/LdapMsg ignore
+						}
+					}
+				}
+			}
+		}
+		/LDAPSearchTest_WrongPW_SuppressSyslog_Pooled
+		{
+			/TmpStore	%LDAPConfig_Pooled
+			/TheAction
+			{
+				/CallDA 	LDAPSearchTest_WrongPW_SuppressSyslog
+			}
+			/ExpectedResult	0
+			/Result
+			{
+				/TmpStore
+				{
+					/LDAPError {
+						/LDAPSearchTest_WrongPW_SuppressSyslog {
+							/Msg ignore
+							/LdapCode 49
 							/LdapMsg ignore
 						}
 					}

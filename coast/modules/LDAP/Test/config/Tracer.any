@@ -102,6 +102,10 @@
 	/LDAPConnectionManager {
 		/MainSwitch						401
 		/EnableAll						401
+		/Init {
+			/MainSwitch					401
+			/TraceConfig 				-40
+		}
 	}
 	/LDAPErrorHandler {
 		/MainSwitch						401

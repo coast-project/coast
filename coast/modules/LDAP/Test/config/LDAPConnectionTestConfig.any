@@ -115,7 +115,7 @@
 			/ConnectRet 	"eBindNok"
 			/Error {
 				/Msg "LDAP request failed."
-				/LdapCode 32 # 32:openldap, 49:SunOne
+				/LdapCode 32 # 32:SunOne, 49:openldap
 				/LdapMsg "No such object"
 				/LdapConnectionParams {
 					/Server "##LDAPHOST##"

@@ -341,7 +341,7 @@ long LDAPConnectionManager::ReGetLockedSlot(long maxConnections, const String &p
 bool LDAPConnectionManager::Init(const ROAnything config)
 {
 	StartTrace(LDAPConnectionManager.Init);
-	TraceAny(config, "Config: ");
+	SubTraceAny(TraceConfig, config, "Config: ");
 	ROAnything moduleConfig;
 	((ROAnything)config).LookupPath(moduleConfig, "LDAPConnectionManager");
 	TraceAny(moduleConfig, "moduleConfig");

@@ -62,12 +62,13 @@ protected:
 	ParameterMapper *fIn;
 	ResultMapper *fOut;
 	String fName;
-	Anything fQueryParams, fConnectionParams;
+	Anything fQueryParams, fConnectionParams, fErrorSuppressCodes;
 	eRetryState fRetryState;
 
 private:
 	void PutLDAPError(Anything &error);
-	String WriteSysLog(Anything error, String &msg);
+	void WriteSysLog(Anything &error, String const &msg);
+	String CreateMessageAsString(Anything &error);
 };
 
 #endif

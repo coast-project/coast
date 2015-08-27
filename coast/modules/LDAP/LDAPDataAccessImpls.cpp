@@ -40,11 +40,8 @@ bool LDAPAbstractDAI::Exec( Context &ctx, ParameterMapper *getter, ResultMapper 
 	StartTrace(LDAPAbstractDAI.Exec);
 	Trace("Executing LDAP data access: " << fName);
 	LDAPErrorHandler eh(ctx, getter, putter, fName);
-
-	bool ret( false );
-	if ( (ret = DoExec(ctx, getter, putter, eh)) == true ) {
-		// LDAP transaction completed successfully
-		return ret;
+	if (DoExec(ctx, getter, putter, eh)) {
+		return true;
 	}
 	if ( eh.GetRetryState() == LDAPErrorHandler::eRetry ) {
 		Trace("Will try a rebind (LDAP might have been restarted.) for DataAccess: " << fName);
@@ -53,7 +50,7 @@ bool LDAPAbstractDAI::Exec( Context &ctx, ParameterMapper *getter, ResultMapper 
 		eh.SetRetryState(LDAPErrorHandler::eIsInRetrySequence);
 		return DoExec(ctx, getter, putter, eh);
 	}
-	return ret;
+	return false;
 }
 
 LDAPConnection *LDAPAbstractDAI::LDAPConnectionFactory(ROAnything cp)

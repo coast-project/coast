@@ -10,35 +10,62 @@
 #include "StringStream.h"
 #include "TimeStamp.h"
 #include "Context.h"
+#include <algorithm>
 
-LDAPErrorHandler::LDAPErrorHandler(Context &ctx, ParameterMapper *in, ResultMapper *out, String daName)
-	: fCtx(ctx), fIn(in), fOut(out), fName(daName), fRetryState(eNoRetry)
-{}
+namespace {
+	char const * const ErrorSuppressionKey = "SuppressErrorCodes";
+	char const * const BindPWSlotname = "LdapConnectionParams.BindPW";
+	struct wipeoutPasswordEntry {
+		Anything &errorAny;
+		Anything password, fakepass;
+		wipeoutPasswordEntry(Anything &error) : errorAny(error), fakepass("WipedOut") {
+			if ( errorAny.LookupPath(password, BindPWSlotname) ) {
+				errorAny["LdapConnectionParams"]["BindPW"] = fakepass;
+			}
+		}
+		~wipeoutPasswordEntry() {
+			if ( not password.IsNull() ) {
+				errorAny["LdapConnectionParams"]["BindPW"] = password;
+			}
+		}
+	};
+}
 
-void LDAPErrorHandler::HandleSessionError(LDAP *handle, String msg)
-{
+LDAPErrorHandler::LDAPErrorHandler(Context &ctx, ParameterMapper *in, ResultMapper *out, String daName) :
+		fCtx(ctx),
+		fIn(in),
+		fOut(out),
+		fName(daName),
+		fRetryState(eNoRetry) {
+	fIn->Get(ErrorSuppressionKey, fErrorSuppressCodes, fCtx);
+}
+
+void LDAPErrorHandler::HandleSessionError(LDAP *handle, String msg) {
 	StartTrace(LDAPErrorHandler.HandleSessionError);
-
 	Anything error;
 	error["Msg"] = msg;
+	bool logToSyslog = true;
 	if (handle) {
-		int rc;
+		int rc = 0;
 		ldap_get_option(handle, LDAP_OPT_ERROR_NUMBER, &rc);
 		error["LdapCode"] = rc;
 		error["LdapMsg"] = ldap_err2string(rc);
+		logToSyslog = std::find(fErrorSuppressCodes.begin(), fErrorSuppressCodes.end(), static_cast<long>(rc))
+				== fErrorSuppressCodes.end();
 	} else {
-		if ( fRetryState == eNoRetry ) {
+		if (fRetryState == eNoRetry) {
 			error["LdapMsg"] = "Connection does not exist (no handle available).";
 		} else {
 			error["LdapMsg"] = "Connection failure using LDAPPooledConnections.";
 		}
 	}
-
 	// get connection parameters + append
 	error["LdapConnectionParams"] = GetConnectionParams().DeepClone();
-
-	String msgAsString = WriteSysLog(error, msg);
-	error["MsgAsString"] = msgAsString;
+	Trace("" << (logToSyslog?"not ":"") << "suppressing error message to SystemLog");
+	if (logToSyslog) {
+		WriteSysLog(error, msg);
+	}
+	error["MsgAsString"] = CreateMessageAsString(error);
 	PutLDAPError(error);
 }
 
@@ -71,25 +98,26 @@ void LDAPErrorHandler::HandleError(String msg, Anything args, String argDescr)
 
 	// get query parameters + append
 	error["LdapQueryParams"] = GetQueryParams().DeepClone();
-
-	String msgAsString = WriteSysLog(error, msg);
-	error["MsgAsString"] = msgAsString;
+	WriteSysLog(error, msg);
+	error["MsgAsString"] = CreateMessageAsString(error);
 	PutLDAPError(error);
 }
 
-String LDAPErrorHandler::WriteSysLog(Anything error, String &msg)
+void LDAPErrorHandler::WriteSysLog(Anything &error, String const &msg)
 {
-	Anything anyOldPWD;
-	if ( error.LookupPath(anyOldPWD, "LdapConnectionParams.BindPW") ) {
-		error["LdapConnectionParams"]["BindPW"] = "WipedOut";
+	wipeoutPasswordEntry nopassentry(error);
+	String sSysLog(1024);
+	{
+		OStringStream ossSysLog(&sSysLog);
+		error.PrintOn(ossSysLog, false);
 	}
-	String sSysLog;
-	OStringStream ossSysLog(&sSysLog);
-	error.PrintOn(ossSysLog, false);
-	ossSysLog.flush();
-	// log all ldap session errors in SystemLog
 	SystemLog::Error(TimeStamp::Now().AsStringWithZ() << " " <<  msg << " " << fName << " " << sSysLog);
-	String msgAsString;
+}
+
+String LDAPErrorHandler::CreateMessageAsString(Anything &error)
+{
+	wipeoutPasswordEntry nopassentry(error);
+	String msgAsString(1024);
 	msgAsString << "LdapDataAccess: [" << fName << "]";
 	for ( long l = 0; l < error.GetSize(); ++l ) {
 		if ( error[l].GetType() == AnyArrayType ) {
@@ -101,10 +129,6 @@ String LDAPErrorHandler::WriteSysLog(Anything error, String &msg)
 		} else {
 			msgAsString << " " << error.SlotName(l) << " [" << error[l].AsString() << "]";
 		}
-	}
-	// Restore password
-	if ( !anyOldPWD.IsNull() ) {
-		error["LdapConnectionParams"]["BindPW"] = anyOldPWD.AsCharPtr();
 	}
 	return msgAsString;
 }

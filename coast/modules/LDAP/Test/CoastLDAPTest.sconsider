@@ -34,6 +34,7 @@ defaults = None
 
 
 def setUp(target, source, env):
+    env['ENV']['COAST_LOGONCERR'] = 3
     relDir = env.getTargetBaseInstallDir()
     configdir = relDir.Dir('config')
     replaceConfigParams(env, relDir, configdir)

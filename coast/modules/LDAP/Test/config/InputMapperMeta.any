@@ -123,6 +123,17 @@
 		/LDAPBase		"o=10601,c=TX,dc=##BINDDC##"	# c=TX does not exist
 		/LDAPScope		"subtree"
 	}
+	/LDAPSearchTest_WrongDN_SuppressSyslog {
+		/SuppressErrorCodes { 32 }
+	}
+	/LDAPSearchTest_WrongPW {
+		/LDAPBase		"o=10601,c=CH,dc=##BINDDC##"
+		/LDAPBindPW		"##WRONGBINDPW##"
+		/LDAPScope		"subtree"
+	}
+	/LDAPSearchTest_WrongPW_SuppressSyslog {
+		/SuppressErrorCodes { 32 49 }
+	}
 
 	/LDAPSearchTest_EmptyResult {
 		/LDAPBase		"o=10601,c=CH,dc=##BINDDC##"

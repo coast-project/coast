@@ -85,13 +85,13 @@
 		/EnableAll	10
 	}
 	/ConfNamedObject {
-		/MainSwitch 10
+		/MainSwitch 0
 		/EnableAll	10
 		/DoLoadConfig	10
 		/IntFinalize 10
 	}
 	/CacheHandlerImpl {
-		/MainSwitch 10
+		/MainSwitch 0
 		/EnableAll	10
 	}
 	/MappersModule {
@@ -254,6 +254,10 @@
 		/EnableAll 11
 	}
 	/RenderedKeyResultMapper {
+		/MainSwitch 11
+		/EnableAll 11
+	}
+	/AnythingLookupPathResultMapper {
 		/MainSwitch 11
 		/EnableAll 11
 	}

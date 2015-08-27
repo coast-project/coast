@@ -11,6 +11,7 @@
 #include "Registry.h"
 #include "Server.h"
 #include "ServerUtils.h"
+#include "AnythingUtils.h"
 
 RegCacheImpl(RequestProcessor)
 ; // FindRequestProcessor()
@@ -93,6 +94,11 @@ bool RequestProcessor::DoHandleVerifyRequestError(std::iostream &Ios, Context &c
 
 bool RequestProcessor::DoHandleReadInputError(std::iostream &Ios, Context &ctx) {
 	StartTrace(RequestProcessor.DoHandleReadInputError);
+	char const *message = "Parsing input character stream as Anything failed";
+	Anything anyMessage = message;
+	StorePutter::Operate(anyMessage, ctx, "Tmp", ctx.Lookup("RequestProcessorErrorSlot", "ReadInput.Error"), true);
+	SystemLog::Log(SystemLog::eWARNING, message);
+	// we cannot continue processing as the structure is corrupt
 	return false;
 }
 
@@ -166,8 +172,11 @@ bool RequestProcessor::IntProcessRequest(std::iostream &Ios, Context &ctx) {
 
 bool RequestProcessor::DoReadInput(std::iostream &Ios, Context &ctx) {
 	Anything args;
-	args.Import(Ios);
-	StatTraceAny(RequestProcessor.DoReadInput, args, "request arguments", coast::storage::Current());
+	bool anyImportSuccessful = args.Import(Ios);
+	StatTraceAny(RequestProcessor.DoReadInput, args, "request anything" << (anyImportSuccessful?"":" import failed!"), coast::storage::Current());
+	if (not anyImportSuccessful) {
+		return false;
+	}
 	ctx.PushRequest(args);
 	return true;
 }

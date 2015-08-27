@@ -434,14 +434,13 @@ namespace coast {
 
 		String RemoveUnwantedChars(const String &instr, const String &badOnes)
 		{
-			StartTrace(URLUtils.RemoveUnwantedChars);
+			StartTrace1(URLUtils.RemoveUnwantedChars, "removing: " << badOnes << " from [" << instr << "]");
 			String work(instr);
 			long pos;
 			while ( (pos = work.FirstCharOf(badOnes)) >= 0 ) {
-				long remainder = pos + 1;
-				work.ReplaceAt(pos, ((const char *)work) + remainder, work.Length() - remainder);
-				work.Trim(work.Length() - 1);
+				work.erase(pos, 1);
 			}
+			Trace("returning [" << work << "]");
 			return work;
 		}
 

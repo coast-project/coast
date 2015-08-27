@@ -12,15 +12,13 @@
 #include "LDAPAPI.h"
 #include "Mapper.h"
 
-//---- LDAPErrorHandler ----------------------------------------------------------
 //! Handles LDAP Errors
 class LDAPErrorHandler
 {
 public:
 	enum eRetryState { eRetry, eIsInRetrySequence, eNoRetry };
-	//--- constructors
 	LDAPErrorHandler(Context &ctx, ParameterMapper *getter, ResultMapper *putter, String daName);
-	virtual ~LDAPErrorHandler();
+	virtual ~LDAPErrorHandler() {}
 
 	// handle session error with message
 	virtual void HandleSessionError(LDAP *ldap, String msg);
@@ -31,9 +29,9 @@ public:
 	// handle other error (general implementation)
 	virtual void HandleError(String msg, Anything args = Anything(), String argDescr = "AdditionalInfo");
 
-	// get last error description of the assiciated DAImpl
+	// get last error description of the associated DAImpl
 	// (returns false, if none was found)
-	virtual bool GetError(Anything &error);
+	virtual bool GetLDAPError(Anything &error);
 
 	ROAnything GetQueryParams();
 	ROAnything GetConnectionParams();
@@ -68,7 +66,7 @@ protected:
 	eRetryState fRetryState;
 
 private:
-	void WriteError(Anything &error);
+	void PutLDAPError(Anything &error);
 	String WriteSysLog(Anything error, String &msg);
 };
 

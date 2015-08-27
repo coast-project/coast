@@ -61,7 +61,7 @@ void ErrorHandlerTest::HandleConnectionErrorTest()
 	t_assertm( !plc.Connect(cp, eh), "Could connect, but shouldn't!");
 
 	Anything error;
-	t_assertm(eh.GetError(error), "Found no error, but should!");
+	t_assertm(eh.GetLDAPError(error), "Found no error, but should!");
 	TraceAny(error, "connection error:");
 
 	if ( !error.IsNull() ) {
@@ -85,10 +85,10 @@ void ErrorHandlerTest::HandleErrorTest()
 	info["num"] = 123;
 
 	Anything error;
-	t_assert(!eh.GetError(error));
+	t_assert(!eh.GetLDAPError(error));
 
 	eh.HandleError("HandleError1");
-	t_assert(eh.GetError(error));
+	t_assert(eh.GetLDAPError(error));
 	TraceAny(error, "Error1");
 	assertEqual(error["Msg"].AsString(), "HandleError1");
 	assertEqual(error.GetSize(), 3L);
@@ -96,7 +96,7 @@ void ErrorHandlerTest::HandleErrorTest()
 	t_assert(!(fCtx->GetTmpStore().IsDefined("LDAPError")));
 
 	eh.HandleError("HandleError2", info);
-	t_assert(eh.GetError(error));
+	t_assert(eh.GetLDAPError(error));
 	TraceAny(error, "Error2");
 	assertEqual(error["Msg"].AsString(), "HandleError2");
 	assertAnyEqual(error["AdditionalInfo"], info);
@@ -104,7 +104,7 @@ void ErrorHandlerTest::HandleErrorTest()
 	t_assert(!(fCtx->GetTmpStore().IsDefined("LDAPError")));
 
 	eh.HandleError("HandleError3", info, "MyErrorArgs");
-	t_assert(eh.GetError(error));
+	t_assert(eh.GetLDAPError(error));
 	TraceAny(error, "Error3");
 	assertEqual(error["Msg"].AsString(), "HandleError3");
 	assertAnyEqual(error["MyErrorArgs"], info);

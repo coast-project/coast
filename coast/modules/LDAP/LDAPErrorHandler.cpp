@@ -15,12 +15,6 @@ LDAPErrorHandler::LDAPErrorHandler(Context &ctx, ParameterMapper *in, ResultMapp
 	: fCtx(ctx), fIn(in), fOut(out), fName(daName), fRetryState(eNoRetry)
 {}
 
-LDAPErrorHandler::~LDAPErrorHandler()
-{
-	fCtx.GetTmpStore().Remove("LDAPConnectionParams");
-	fCtx.GetTmpStore().Remove("LDAPQueryParams");
-}
-
 void LDAPErrorHandler::HandleSessionError(LDAP *handle, String msg)
 {
 	StartTrace(LDAPErrorHandler.HandleSessionError);
@@ -45,7 +39,7 @@ void LDAPErrorHandler::HandleSessionError(LDAP *handle, String msg)
 
 	String msgAsString = WriteSysLog(error, msg);
 	error["MsgAsString"] = msgAsString;
-	WriteError(error);
+	PutLDAPError(error);
 }
 
 void LDAPErrorHandler::HandleUnbindError(LDAP *handle)
@@ -80,7 +74,7 @@ void LDAPErrorHandler::HandleError(String msg, Anything args, String argDescr)
 
 	String msgAsString = WriteSysLog(error, msg);
 	error["MsgAsString"] = msgAsString;
-	WriteError(error);
+	PutLDAPError(error);
 }
 
 String LDAPErrorHandler::WriteSysLog(Anything error, String &msg)
@@ -115,19 +109,19 @@ String LDAPErrorHandler::WriteSysLog(Anything error, String &msg)
 	return msgAsString;
 }
 
-void LDAPErrorHandler::WriteError(Anything &error)
+void LDAPErrorHandler::PutLDAPError(Anything &error)
 {
-	StartTrace(LDAPErrorHandler.WriteError);
-	String key("LDAPError.");
-	key << fName;
+	StartTrace(LDAPErrorHandler.PutLDAPError);
+	String key;
+	key << "LDAPError." << fName;
 	Trace("WriteKey: " << key);
 	TraceAny(error, "Error content:");
 	fOut->Put(key, error, fCtx);
 }
 
-bool LDAPErrorHandler::GetError(Anything &error)
+bool LDAPErrorHandler::GetLDAPError(Anything &error)
 {
-	StartTrace(LDAPErrorHandler.GetError);
+	StartTrace(LDAPErrorHandler.GetLDAPError);
 	String key;
 	key << "LDAPError." << fName;
 	Trace("ReadKey: " << key);

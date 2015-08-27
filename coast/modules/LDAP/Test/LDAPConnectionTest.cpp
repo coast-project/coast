@@ -69,7 +69,7 @@ void LDAPConnectionTest::ConnectionTest()
 			Trace("Connect result: " << result);
 			// check for errors
 			Anything error;
-			if ( !eh.GetError(error) ) {
+			if ( !eh.GetLDAPError(error) ) {
 				Trace("No error reported.");
 			} else {
 				TraceAny(error, "Error description:");

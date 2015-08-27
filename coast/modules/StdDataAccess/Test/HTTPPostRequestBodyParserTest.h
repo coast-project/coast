@@ -11,10 +11,8 @@
 
 #include "FoundationTestTypes.h"
 
-//!TestCases description
 class HTTPPostRequestBodyParserTest : public testframework::TestCaseWithConfig {
 public:
-	//!TestCase constructor
 	//! \param name name of the test
 	HTTPPostRequestBodyParserTest(TString tstrName);
 
@@ -23,12 +21,10 @@ public:
 
 	TString getConfigFileName();
 
-	//!describe this testcase
 	void ReadToBoundaryTest();
-	//!describe this testcase
 	void ParseMultiPartTest();
-	//!describe this testcase
 	void ReadMultiPartPost();
 	void ReadToBoundaryTestWithStreamFailure();
+	void ReadMultiPartPostBody();
 };
 #endif

@@ -16,6 +16,18 @@ Accept-Language: de-CH,en\r\n\
 Accept-Charset: iso-8859-1,*,utf-8\r\n\
 \r\n"
 
+	/CommonInputExtended
+"Connection: Keep-Alive\r\n\
+User-Agent: Mozilla/4.7 [en] (WinNT; U)\r\n\
+Host: sentosa.hsr.loc:2929\r\n\
+Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, image/png, */*\r\n\
+Accept-Encoding: gzip\r\n\
+Accept-Language: de-CH,en\r\n\
+Accept-Charset: iso-8859-1,*,utf-8\r\n\
+REMOTE_DN: uid=myuser,ou=xxfu,o=99999,c=CH,dc=cgcd,dc=hsr.loc\r\n\
+REMOTE_USER: 99999-myuser\r\n\
+\r\n"
+
 	/ExtendedInput
 "Date: Fri, 05 Dec 2003 12:41:30 GMT\r\n\
 Server: Apache/1.3.26 (Unix) Debian GNU/Linux mod_ssl/2.8.9 OpenSSL/0.9.6g\r\n\
@@ -99,6 +111,43 @@ Content-Length: 542\r\n\
 					"*"
 					"utf-8"
 				}
+			}
+		}
+		/SplitHeadersAndFieldsDefaultExtendedTest {
+			/Input %CommonInputExtended
+			/NormalizeTag 0
+			/HeaderLength 348
+			/IsMultiPart	0
+			/BoundaryLength 0
+			/ContentLength	-1
+			/Expected {
+				/CONNECTION	{
+					"Keep-Alive"
+				}
+				/USER-AGENT "Mozilla/4.7 [en] (WinNT; U)"
+				/HOST "sentosa.hsr.loc:2929"
+				/ACCEPT {
+					"image/gif"
+					"image/x-xbitmap"
+					"image/jpeg"
+					"image/pjpeg"
+					"image/png"
+					"*/*"
+				}
+				/ACCEPT-ENCODING {
+					"gzip"
+				}
+				/ACCEPT-LANGUAGE {
+					"de-CH"
+					"en"
+				}
+				/ACCEPT-CHARSET {
+					"iso-8859-1"
+					"*"
+					"utf-8"
+				}
+				/REMOTE_USER "99999-myuser"
+				/REMOTE_DN "uid=myuser,ou=xxfu,o=99999,c=CH,dc=cgcd,dc=hsr.loc"
 			}
 		}
 		/SetCookieFieldsNotSplitTest {

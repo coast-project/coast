@@ -8,7 +8,7 @@ Accept-Language: de-CH,en
 Accept-Charset: iso-8859-1,*,utf-8
 Cookie: FDState=b64:YnMwOu4iKD8l5K80Z5LG39oHcsbTEn6JqyOg$S7vR895cREzXc0cb$$HevoEUvHu8bOyjeljLFm1$VQWe4Iot$0rQAB-l2e3ICCoA4jd4fLv0AFrT6s0amAhkfW9ybZl9ygErgykJAzKNw8v
 Content-type: multipart/form-data; boundary=---------------------------210003122518197
-Content-Length: 1710
+Content-Length: 1510
 
 -----------------------------210003122518197
 Content-Disposition: form-data; name="Datei"; filename="G:\DEVELOP\coast\foundation\Test\config\UmlautTest.any"

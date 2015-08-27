@@ -38,6 +38,10 @@ namespace {
 
 //	Anything const headersREProgram = RECompiler().compile(coast::http::constants::splitFieldsRegularExpression);
 
+	String shiftedHeaderKey(String const &key, coast::urlutils::NormalizeTag const shiftFlag) {
+		return coast::urlutils::Normalize(key, shiftFlag);
+	}
+
 	void StoreKeyValue(Anything &headers, String const& strKey, String const &strValue)
 	{
 		StartTrace(MIMEHeader.StoreKeyValue);
@@ -46,16 +50,15 @@ namespace {
 		if ( multivalueRE.ContainedIn(strKey) ) {
 			Anything &anyValues = headers[strKey];
 			coast::urlutils::Split(strValue, coast::http::constants::headerArgumentsDelimiter, anyValues, coast::http::constants::headerArgumentsDelimiter, coast::urlutils::eUpshift);
-		} else if ( strKey.IsEqual(coast::http::constants::contentDispositionSlotname)) {
+		} else if (strKey.IsEqual(coast::http::constants::contentDispositionSlotname)) {
 			Anything &anyValues = headers[strKey];
 			coast::urlutils::Split(strValue, coast::http::constants::contentDispositionDelimiter, anyValues, coast::http::constants::keyValueDelimiter, coast::urlutils::eUpshift);
+		} else if (strKey.IsEqual(coast::http::constants::boundarySlotname)) {
+			Trace("Explicit boundary header found with value [" << strValue << "], overwriting potentially existing value [" << ROAnything(headers)[strKey].AsString() << "]");
+			headers[strKey] = strValue;
 		} else {
 			coast::urlutils::AppendValueTo(headers, strKey, strValue);
 		}
-	}
-
-	String shiftedHeaderKey(String const &key, coast::urlutils::NormalizeTag const shiftFlag) {
-		return coast::urlutils::Normalize(key, shiftFlag);
 	}
 
 	void CheckMultipartBoundary(String const &contenttype, Anything &header, coast::urlutils::NormalizeTag const shiftFlag) {

@@ -19,7 +19,7 @@ namespace coast {
 		enum URLCheckStatus {
 			eOk, eSuspiciousChar
 		};
-		//! remove \\r\\n or only \\r at end of line
+		//! remove \\r\\n or only \\r|\\n at end of line
 		String& TrimENDL(String &line);
 		//!removes blanks from start or end
 		String& TrimBlanks(String &str, bool front = true);

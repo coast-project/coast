@@ -88,6 +88,24 @@
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
 			/Expected {
+				/Return			1
+				/Request {
+					/REQUEST_METHOD "GET"
+					/REQUEST_URI "/alibaba"
+					/SERVER_PROTOCOL "HTTP/1.0"
+					/header {
+						/X-EVIL "GET /gaga HTTP/1.0"
+					}
+				}
+			}
+		}
+		/InvalidRequestLineTerminationEnforced {
+			/RequestLine 	"GET /alibaba HTTP/1.0\nX-Evil: GET /gaga HTTP/1.0\r\n\r\n"
+			/URISizeLimit		271
+			/LineSizeLimit		4096
+			/RequestSizeLimit	5120
+			/EnforceCRLFTerminatedURI 1
+			/Expected {
 				/Return			0
 				/Request {
 					/header *

@@ -53,11 +53,13 @@ namespace {
 	void HandleFirstLine(Context &ctx, Anything &request, String &line) {
 		StartTrace(HTTPRequestReader.HandleFirstLine);
 		long llen = line.Length();
+		MIMEHeader::InvalidLineException invalidTerminationException("Invalid request line termination", line);
 		if (not coast::urlutils::TrimENDL(line).Length()) {
 			throw MIMEHeader::InvalidLineException("Empty request line", line);
 		}
-		if (line.Length() > llen - 2L) {
-			throw MIMEHeader::InvalidLineException("Invalid request line termination", line);
+		bool const enforceCRLFTerminatedURI = ctx.Lookup("EnforceCRLFTerminatedURI", 0L) != 0;
+		if (line.Length() > llen - 2L && enforceCRLFTerminatedURI) {
+			throw invalidTerminationException;
 		}
 		ParseRequestLine(ctx, request, line);
 	}

@@ -55,11 +55,12 @@ namespace coast {
 		}
 
 		String& TrimENDL(String &line) {
-			// we cut off \r\n at end of line
 			long llen = line.Length();
 			if (line[(long)(llen-2)] == '\r' && line[(long)(llen-1)] == '\n') {
 				line.Trim(llen - 2);
 			} else if (line[(long)(llen-1)] == '\r') {
+				line.Trim(llen - 1);
+			} else if (line[(long)(llen-1)] == '\n') {
 				line.Trim(llen - 1);
 			}
 			return line;

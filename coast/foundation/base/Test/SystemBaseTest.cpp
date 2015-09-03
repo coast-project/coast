@@ -14,39 +14,33 @@ using namespace coast;
 #include "DiffTimer.h"
 #include "SystemLog.h"
 
-SystemBaseTest::SystemBaseTest(TString tname)
-	: TestCaseType(tname)
-{
-}
-
-void SystemBaseTest::DoSingleSelectTest()
-{
+void SystemBaseTest::DoSingleSelectTest() {
 	StartTrace(SystemBaseTest.DoSingleSelectTest);
 #if !defined(WIN32) // select not possible on non-socket handles on WIN32
 	// assume writability of stdout
 	int result = system::DoSingleSelect(STDOUT_FILENO, 100, false, true);
 	assertEqual(1L, result);
-	if ( result < 0 ) {
+	if (result < 0) {
 		SYSERROR("error in DoSingleSelect [" << SystemLog::LastSysError() << "]");
 	}
 
 	// just wait 100ms
 	const long waittime = 1000L;
-	DiffTimer dt(DiffTimer::eMilliseconds);//1ms accuracy
+	DiffTimer dt(DiffTimer::eMilliseconds); //1ms accuracy
 	// wait for stdin, only test cases where we really have a timeout (==0)
 	int iSSRet = system::DoSingleSelect(STDIN_FILENO, waittime, false, false);
-	if ( t_assertm(iSSRet >= 0, "expected select to timeout or succeed") ) {
-		if ( iSSRet == 0L) {
+	if (t_assertm(iSSRet >= 0, "expected select to timeout or succeed")) {
+		if (iSSRet == 0L) {
 			long difft = dt.Diff();
 			Trace("time waited: " << difft << "ms, return code of function:" << iSSRet);
 			difft -= waittime;
 			Trace("difference to expected waittime of " << waittime << "ms : " << difft << "ms");
 			// need some tolerance on some systems, eg. older SunOS5.6
 			t_assertm(difft >= -10, TString("assume waiting long enough >=-10ms, diff was:") << difft << "ms");
-			t_assertm(difft < waittime / 5, (const char *)(String("assume 20% (20ms) accuracy, but was ") << difft));
+			t_assertm(difft < waittime / 5, (const char * )(String("assume 20% (20ms) accuracy, but was ") << difft));
 		}
 	} else {
-	  SYSERROR("error in DoSingleSelect [" << SystemLog::LastSysError() << "]");
+		SYSERROR("error in DoSingleSelect [" << SystemLog::LastSysError() << "]");
 	}
 #endif
 	// sanity check negative value
@@ -55,18 +49,18 @@ void SystemBaseTest::DoSingleSelectTest()
 	// cannot think of case forcing select really fail, i.e. return -1
 }
 
-void SystemBaseTest::MicroSleepTest()
-{
-	DiffTimer::eResolution resolution( DiffTimer::eMicroseconds );
+void SystemBaseTest::MicroSleepTest() {
+	DiffTimer::eResolution resolution(DiffTimer::eMicroseconds);
 	DiffTimer dt(resolution); // microsecond accuracy
 	const long SLEEP = resolution / 10; // = 100000L; // 100ms
 	t_assert(system::MicroSleep(SLEEP));
 	long sleptdelta = dt.Diff() - SLEEP;
-	t_assertm(SLEEP / 5 > abs(sleptdelta), (const char *)(String( "expected sleeping with 20% = 20'000 microsecs (0.02s) accuracy -- but was ") << sleptdelta << " microseconds"));
+	t_assertm(SLEEP / 5 > abs(sleptdelta),
+			(const char * )(String("expected sleeping with 20% = 20'000 microsecs (0.02s) accuracy -- but was ")
+					<< sleptdelta << " microseconds"));
 }
 
-void SystemBaseTest::GetProcessEnvironmentTest()
-{
+void SystemBaseTest::GetProcessEnvironmentTest() {
 	Anything env;
 	system::GetProcessEnvironment(env);
 	t_assert(env.IsDefined("PATH"));
@@ -74,15 +68,13 @@ void SystemBaseTest::GetProcessEnvironmentTest()
 	t_assert(env.GetSize() > 1);
 }
 
-void SystemBaseTest::allocFreeTests()
-{
+void SystemBaseTest::allocFreeTests() {
 	void *vp = coast::storage::Current()->Calloc(32, sizeof(char));
 	t_assert(vp != 0);
 	coast::storage::Current()->Free(vp);
 }
 
-void SystemBaseTest::TimeTest ()
-{
+void SystemBaseTest::TimeTest() {
 	time_t now = ::time(0);
 
 	struct tm agmtime;
@@ -99,9 +91,17 @@ void SystemBaseTest::TimeTest ()
 	assertEqual(agmtime.tm_min, alocaltime.tm_min);
 }
 
+void SystemBaseTest::GenTimeStampTest() {
+	const time_t refTime = 1234567890;
+	const String expectedStringLocal = "20090214003130";
+	const String expectedStringGmt = "20090213233130";
+	assertCharPtrEqual(expectedStringLocal, coast::system::GenTimeStamp("%Y%m%d%H%M%S", true, refTime));
+	assertCharPtrEqual(expectedStringGmt, coast::system::GenTimeStamp("%Y%m%d%H%M%S", false, refTime));
+	assertCharPtrEqual(expectedStringLocal.SubString(0,8), coast::system::GenTimeStamp("%Y%m%d", true, refTime));
+}
+
 #if !defined(WIN32)
-void SystemBaseTest::LockFileTest()
-{
+void SystemBaseTest::LockFileTest() {
 	StartTrace(SystemBaseTest.GetFileSizeTest);
 	String lockFile(system::GetTempPath().Append(system::Sep()).Append("LockFileTest.lck"));
 	bool ret = system::GetLockFileState(lockFile);
@@ -114,7 +114,7 @@ void SystemBaseTest::LockFileTest()
 void SystemBaseTest::SnPrintf_ReturnsBytesOfContentWrittenWithoutTerminatingZero() {
 	{
 		const int bufSize = 64;
-		char buf[bufSize] = {'X'};
+		char buf[bufSize] = { 'X' };
 		int bytesWritten = coast::system::SnPrintf(buf, bufSize, "%s", "123456789");
 		assertEqual(9, bytesWritten);
 		assertCharPtrEqual("123456789", buf);
@@ -122,7 +122,7 @@ void SystemBaseTest::SnPrintf_ReturnsBytesOfContentWrittenWithoutTerminatingZero
 	}
 	{
 		const int bufSize = 10;
-		char buf[bufSize] = {'X'};
+		char buf[bufSize] = { 'X' };
 		int bytesWritten = coast::system::SnPrintf(buf, bufSize, "%s", "123456789");
 		assertEqual(9, bytesWritten);
 		assertCharPtrEqual("123456789", buf);
@@ -133,33 +133,33 @@ void SystemBaseTest::SnPrintf_ReturnsBytesOfContentWrittenWithoutTerminatingZero
 void SystemBaseTest::SnPrintf_ReturnsBytesRequiredWithoutTerminatingZero() {
 	{
 		const int bufSize = 9;
-		char buf[bufSize] = {'X'};
+		char buf[bufSize] = { 'X' };
 		int bytesRequired = coast::system::SnPrintf(buf, bufSize, "%s", "12345678901234567890");
 		assertEqual(20, bytesRequired);
 		assertCharPtrEqual("12345678", buf);
-		assertEqual(buf[bufSize-1], '\0');
+		assertEqual(buf[bufSize - 1], '\0');
 	}
 }
 
 void SystemBaseTest::SnPrintf_WritesTerminatingZeroEvenWhenTruncatingBuffer() {
 	{
 		const int bufSize = 9;
-		char buf[bufSize] = {0};
+		char buf[bufSize] = { 0 };
 		int bytesRequired = coast::system::SnPrintf(buf, bufSize, "%s", "123456789");
 		assertEqual(9, bytesRequired);
 		assertCharPtrEqual("12345678", buf);
-		assertEqual(buf[bufSize-1], '\0');
+		assertEqual(buf[bufSize - 1], '\0');
 	}
 }
 
-Test *SystemBaseTest::suite ()
-{
+Test *SystemBaseTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, SystemBaseTest, DoSingleSelectTest);
 	ADD_CASE(testSuite, SystemBaseTest, GetProcessEnvironmentTest);
 	ADD_CASE(testSuite, SystemBaseTest, allocFreeTests);
 	ADD_CASE(testSuite, SystemBaseTest, MicroSleepTest);
 	ADD_CASE(testSuite, SystemBaseTest, TimeTest);
+	ADD_CASE(testSuite, SystemBaseTest, GenTimeStampTest);
 	ADD_CASE(testSuite, SystemBaseTest, SnPrintf_ReturnsBytesOfContentWrittenWithoutTerminatingZero);
 	ADD_CASE(testSuite, SystemBaseTest, SnPrintf_ReturnsBytesRequiredWithoutTerminatingZero);
 	ADD_CASE(testSuite, SystemBaseTest, SnPrintf_WritesTerminatingZeroEvenWhenTruncatingBuffer);

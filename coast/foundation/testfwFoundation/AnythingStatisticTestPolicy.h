@@ -195,14 +195,7 @@ namespace testframework
 
 		String GenTimeStamp() {
 			StartTrace(AnythingStatisticTestPolicy.GenTimeStamp);
-			const int dateSz = 40;
-			time_t now = time(0);
-			struct tm res, *tt;
-			tt = coast::system::LocalTime(&now, &res);
-
-			char date[dateSz];
-			strftime(date, dateSz, "%Y%m%d%H%M%S", tt);
-			return date;
+			return coast::system::GenTimeStamp();
 		}
 	};
 

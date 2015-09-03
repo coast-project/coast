@@ -129,6 +129,19 @@ namespace coast {
 		#endif
 		}
 
+		String GenTimeStamp(char const *format, bool const useLocalTime, time_t const referenceTime) {
+			struct tm res, *tt;
+			if (useLocalTime) {
+				tt = system::LocalTime(&referenceTime, &res);
+			} else {
+				tt = system::GmTime(&referenceTime, &res);
+			}
+			const int dateSz = 128L;
+			char date[dateSz];
+			strftime(date, dateSz, format, tt);
+			return date;
+		}
+
 		void AscTime( const struct tm *pTime, String &strTime )
 		{
 		#if defined WIN32

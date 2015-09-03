@@ -73,6 +73,13 @@ namespace coast {
 			\return pointer to converted time value, actual it is a pointer to the given res variable */
 		struct tm *GmTime( const time_t *timer, struct tm *res );
 
+		//! Generate a local or gmt time string based on your format specification
+		/*! \param format output string format according to strftime format specification
+			\param useLocalTime specifies if local or gmt time is used
+			\param referenceTime time_t reference value to convert
+			\return local or gmt time formatted as String according to the format specification */
+		String GenTimeStamp(char const *format = "%Y%m%d%H%M%S", bool const useLocalTime = true, time_t const referenceTime = time(0));
+
 		//! convert given time to time string
 		/*! \param time time value to be converted
 			\param strTime converted time string */

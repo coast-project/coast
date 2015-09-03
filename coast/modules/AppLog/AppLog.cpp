@@ -404,7 +404,6 @@ String AppLogModule::GetSeverityText(eLogLevel iLevel)
 	return "unknown";
 }
 
-//---- AppLogChannel ---------------------------------------------------------------------------------------
 RegisterObject(AppLogChannel, AppLogChannel);
 RegCacheImpl(AppLogChannel);
 
@@ -688,19 +687,9 @@ void AppLogChannel::WriteHeader(std::ostream &os)
 String AppLogChannel::GenTimeStamp(const String &format)
 {
 	StartTrace(AppLogChannel.GenTimeStamp);
-	const int dateSz = 40;
-	time_t now = time(0);
-	struct tm res, *tt;
-	tt = system::LocalTime(&now, &res);
-
-	// NOTICE: array is limited to gcMaxDateArraySize chars
-	char date[dateSz];
-	strftime(date, dateSz, format, tt);
-	Trace("generated timestamp [" << date << "]");
-	return date;
+	return coast::system::GenTimeStamp(format.cstr());
 }
 
-//--- LogRotator ----------------------
 AppLogModule::LogRotator::LogRotator(const char *rotateTime, const char *everyNSecondsTime, long lRotateSecond, long leveryNSeconds, bool isGmTime)
 	: Thread("LogRotator")
 	, fRotateSecond(lRotateSecond)

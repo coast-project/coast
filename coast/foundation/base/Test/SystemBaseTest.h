@@ -11,28 +11,21 @@
 
 #include "FoundationTestTypes.h"
 
-class SystemBaseTest : public testframework::TestCase
-{
+class SystemBaseTest: public testframework::TestCase {
 public:
-	SystemBaseTest(TString tstrName);
-
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
-
+	SystemBaseTest(TString tname) :
+			TestCaseType(tname) {
+	}
+	static Test *suite();
 	void GetProcessEnvironmentTest();
-
 #if !defined(WIN32)
 	void LockFileTest();
 #endif
-
 	void DoSingleSelectTest();
 	void MicroSleepTest();
-
-	//!storage tests
 	void allocFreeTests();
-
 	void TimeTest();
-
+	void GenTimeStampTest();
 	void SnPrintf_ReturnsBytesOfContentWrittenWithoutTerminatingZero();
 	void SnPrintf_ReturnsBytesRequiredWithoutTerminatingZero();
 	void SnPrintf_WritesTerminatingZeroEvenWhenTruncatingBuffer();

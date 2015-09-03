@@ -19,6 +19,9 @@ namespace coast {
 			//!< <tt>COAST_LOGONCERR</tt> controls the level of severities shown on the console. See below for possible values.
 			const char * const envnameLogonCerr = "COAST_LOGONCERR";
 			//!< Enabling <tt>COAST_LOGONCERR_WITH_TIMESTAMP</tt> will prepend a timestamp to all messages logged to the console.
+			const char * const envnameLogonCerrWithTimestamp = "COAST_LOGONCERR_WITH_TIMESTAMP";
+			String formatMessage(const char *level, const char *msg);
+			String formatMessageTimeStamp(const char *level, const char *msg);
 		}
 	}
 }
@@ -36,10 +39,16 @@ The values of <tt>COAST_LOGONCERR</tt> and <tt>COAST_DOLOG</tt> control the leve
 All messages with a severity above or equal the specified value will log onto the appropriate channel.<br>
 The loggers default behavior is to write ALERT messages into syslog and ERROR and ALERT messages to the console.
 
+Enabling <tt>COAST_LOGONCERR_WITH_TIMESTAMP</tt> will prepend a timestamp to all messages logged to the console.
+Even more control over console message formatting is possible by defining your own formatter function and replacing it
+in your code using SystemLog::replaceMessageFormatter(&myFormatterFunction). Check the SysLogTests to get an idea.
 */
 class SystemLog {
 	friend class SysLogTest;
 public:
+	typedef String (*messageFormatterFunctionType)(const char *, const char *);
+	typedef boost::shared_ptr<SystemLog> SystemLogPtr;
+
 	//! module initialization
 	static void Init(const char *appId);
 
@@ -102,6 +111,8 @@ public:
 	static void WriteToStdout(const char *msg, long length = -1);
 	static void WriteToStdout(const String &msg);
 
+	static SystemLog::messageFormatterFunctionType replaceMessageFormatter(SystemLog::messageFormatterFunctionType newFormatter);
+
 protected:
 	SystemLog() {
 	}
@@ -119,6 +130,11 @@ protected:
 
 	//!write log messages to cerr if preprocessor flags are set accordingly
 	virtual void DoTraceLevel(const char *level, const char *msg);
+
+	//!format the message which we later log to the console
+	virtual String DoFormatTraceLevelMessage(const char *level, const char *msg);
+
+	static SystemLogPtr replaceSysLog(SystemLogPtr newLogger);
 };
 
 #define	SYSDEBUG(msg) \

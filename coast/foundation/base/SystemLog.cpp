@@ -43,16 +43,33 @@ protected:
 };
 #endif
 
-using namespace coast;
+namespace coast {
+	namespace system {
+		namespace log {
+			String formatMessage(const char *level, const char *msg) {
+				String finalMessage(128L);
+				finalMessage.Append(level).Append(msg).Append('\n');
+				return finalMessage;
+			}
+			String formatMessageTimeStamp(const char *level, const char *msg) {
+				String finalMessage(128L);
+				finalMessage.Append(coast::system::GenTimeStamp()).Append(' ');
+				finalMessage.Append(level).Append(msg).Append('\n');
+				return finalMessage;
+			}
+		}
+	}
+}
 
 namespace {
 	class SystemLogInitializer {
-		typedef boost::shared_ptr<SystemLog> SystemLogPtr;
+		typedef SystemLog::SystemLogPtr SystemLogPtr;
 		SystemLogPtr fSysLog;
 		SystemLog::eLogLevel fDoSystemLevelLog;
 		SystemLog::eLogLevel fDoLogOnCerr;
+		SystemLog::messageFormatterFunctionType currentMessageFormatter;
 	public:
-		SystemLogInitializer() : fSysLog(), fDoSystemLevelLog(SystemLog::eALERT), fDoLogOnCerr(SystemLog::eERR) {
+		SystemLogInitializer() : fSysLog(), fDoSystemLevelLog(SystemLog::eALERT), fDoLogOnCerr(SystemLog::eERR), currentMessageFormatter(&coast::system::log::formatMessage) {
 			Init(0);
 			InitFinisManager::IFMTrace("SystemLog::Initialized\n");
 		}
@@ -77,6 +94,12 @@ namespace {
 			if ((SystemLog::eNone < iValue) && (iValue < SystemLog::eLast)) {
 				fDoLogOnCerr = static_cast<SystemLog::eLogLevel>(iValue);
 			}
+			strValue = coast::system::EnvGet(coast::system::log::envnameLogonCerrWithTimestamp);
+			if (strValue.AsLong(0L)) {
+				currentMessageFormatter = &coast::system::log::formatMessageTimeStamp;
+			} else {
+				currentMessageFormatter = &coast::system::log::formatMessage;
+			}
 			// open the syslog channel for this application
 			// there is always only one syslog channel per application
 #if defined(WIN32)
@@ -94,14 +117,31 @@ namespace {
 			}
 			return fSysLog.get();
 		}
+		SystemLogPtr replaceSysLog(SystemLogPtr newLogger) {
+			SystemLogPtr oldLogger = fSysLog;
+			fSysLog = newLogger;
+			return oldLogger;
+		}
 		bool doLogToSystem(SystemLog::eLogLevel const &level) const {
 			return level >= fDoSystemLevelLog;
 		}
 		bool doLogToCerr(SystemLog::eLogLevel const &level) const {
 			return level >= fDoLogOnCerr;
 		}
+		SystemLog::messageFormatterFunctionType getCurrentMessageFormatter() {
+			return currentMessageFormatter;
+		}
+		SystemLog::messageFormatterFunctionType replaceMessageFormatter(SystemLog::messageFormatterFunctionType newFormatter) {
+			SystemLog::messageFormatterFunctionType oldFormatter = currentMessageFormatter;
+			currentMessageFormatter = newFormatter;
+			return oldFormatter;
+		}
 	};
     typedef coast::utility::singleton_default<SystemLogInitializer> SystemLogInitializerSingleton;
+}
+
+SystemLog::SystemLogPtr SystemLog::replaceSysLog(SystemLog::SystemLogPtr newLogger) {
+	return SystemLogInitializerSingleton::instance().replaceSysLog(newLogger);
 }
 
 void SystemLog::Init(const char *appId) {
@@ -192,7 +232,7 @@ String SystemLog::SysErrorMsg(long errnum) {
 }
 
 String SystemLog::LastSysError() {
-	int iError(system::GetSystemError());
+	int iError(coast::system::GetSystemError());
 	if (iError != 0) {
 		return SysErrorMsg(iError);
 	}
@@ -262,11 +302,16 @@ void SystemLog::DoLog(eLogLevel level, const char *msg) {
 	}
 }
 
+String SystemLog::DoFormatTraceLevelMessage(const char *level, const char *msg) {
+	return (*SystemLogInitializerSingleton::instance().getCurrentMessageFormatter())(level, msg);
+}
+
 void SystemLog::DoTraceLevel(const char *level, const char *msg) {
-	String finalMessage(level, strlen(level), coast::storage::Global());
-	finalMessage.Append(msg);
-	finalMessage.Append('\n');
-	SystemLog::WriteToStderr(finalMessage, finalMessage.Length());
+	SystemLog::WriteToStderr(DoFormatTraceLevelMessage(level, msg));
+}
+
+SystemLog::messageFormatterFunctionType	SystemLog::replaceMessageFormatter(SystemLog::messageFormatterFunctionType newFormatter) {
+	return SystemLogInitializerSingleton::instance().replaceMessageFormatter(newFormatter);
 }
 
 void SystemLog::DoLogTrace(eLogLevel level, const char *logMsg) {

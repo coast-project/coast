@@ -15,11 +15,14 @@ class SysLogTest: public testframework::TestCase {
 protected:
 	void setUp();
 public:
-	SysLogTest(TString tstrName);
-	~SysLogTest();
+	SysLogTest(TString tname) :
+			TestCaseType(tname) {
+	}
 	static Test *suite();
 	void tearDown();
 	void TestFlags();
+	void TestFormatter();
+	void TestFormatterChangeByEnv();
 };
 
 #endif

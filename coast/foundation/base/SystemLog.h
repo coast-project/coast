@@ -11,6 +11,18 @@
 
 #include "ITOString.h"//lint !e537
 
+namespace coast {
+	namespace system {
+		namespace log {
+			//!< <tt>COAST_DOLOG</tt> controls the level of severities shown in the syslog. See below for possible values.
+			const char * const envnameDoLog = "COAST_DOLOG";
+			//!< <tt>COAST_LOGONCERR</tt> controls the level of severities shown on the console. See below for possible values.
+			const char * const envnameLogonCerr = "COAST_LOGONCERR";
+			//!< Enabling <tt>COAST_LOGONCERR_WITH_TIMESTAMP</tt> will prepend a timestamp to all messages logged to the console.
+		}
+	}
+}
+
 /*! <b>API for syslog access</b>
 This is the Coast system logging API. It is used for system-level and application-level logging.
 The values of <tt>COAST_LOGONCERR</tt> and <tt>COAST_DOLOG</tt> control the level of severities shown either on the console or in the syslog. Possible values are:
@@ -21,10 +33,9 @@ The values of <tt>COAST_LOGONCERR</tt> and <tt>COAST_DOLOG</tt> control the leve
 4: ERROR
 5: ALERT
 </pre>
-All messages with a severity above or equal the specified value will log on the appropriate channel.<br>
-The loggers behavior is to write ALERT messages into syslog and to log ERROR and ALERT messages to the console by default.
+All messages with a severity above or equal the specified value will log onto the appropriate channel.<br>
+The loggers default behavior is to write ALERT messages into syslog and ERROR and ALERT messages to the console.
 
-The flag <tt>COAST_TRACE_STATICALLOC</tt> shows you the allocation and deletion of all statically allocated objects used in Coast.
 */
 class SystemLog {
 	friend class SysLogTest;
@@ -68,7 +79,6 @@ public:
 
 	//! for use by the Assert() macro defined in foundation.h
 	static int LogAssert(const char *file, long line, const char *assertion);
-	/*--- utilities ------------------------------------*/
 
 	//! provides error messages as strings for errno values
 	//! const char *SysErrorMsg(long errnum) maps the error number in errnum

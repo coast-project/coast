@@ -17,6 +17,13 @@ class Registry;
 class InstallerPolicy;
 class TerminationPolicy;
 
+namespace coast {
+	namespace wdbase {
+		//!< Enabling <tt>COAST_TRACE_STATICALLOC</tt> shows you the allocation and deletion of all statically allocated objects.
+		const char * const envnameTraceStaticalloc = "COAST_TRACE_STATICALLOC";
+	}
+}
+
 //!defines api to support registerable objects; objects registered with a name in a category
 class RegisterableObject: public NamedObject, public coast::AllocatorNewDelete {
 	friend class WDModuleTest;

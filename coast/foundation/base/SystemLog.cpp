@@ -67,12 +67,12 @@ namespace {
 			} else {
 				appId = "Coast";
 			}
-			String strValue = system::EnvGet("COAST_DOLOG");
+			String strValue = coast::system::EnvGet(coast::system::log::envnameDoLog);
 			int iValue = static_cast<int>(strValue.AsLong(SystemLog::eNone));
 			if ((SystemLog::eNone < iValue) && (iValue < SystemLog::eLast)) {
 				fDoSystemLevelLog = static_cast<SystemLog::eLogLevel>(iValue);
 			}
-			strValue = system::EnvGet("COAST_LOGONCERR");
+			strValue = coast::system::EnvGet(coast::system::log::envnameLogonCerr);
 			iValue = static_cast<int>(strValue.AsLong(SystemLog::eNone));
 			if ((SystemLog::eNone < iValue) && (iValue < SystemLog::eLast)) {
 				fDoLogOnCerr = static_cast<SystemLog::eLogLevel>(iValue);

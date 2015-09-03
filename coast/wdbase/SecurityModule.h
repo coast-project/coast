@@ -188,13 +188,6 @@ public:
 	 what: Standard URLUtils decryption, does not decrypt serious URL's
 	 */
 	static bool UnscrambleState(Anything &state, const String &s);
-
-protected:
-	static String fgScrambler;
-	static String fgEncoder;
-	static String fgSigner;
-	static String fgCompressor;
-
 };
 
 #define RegisterSecurityItem(name)		RegisterObject(name, SecurityItem)

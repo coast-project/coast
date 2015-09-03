@@ -10,74 +10,77 @@
 #include "LDAPMessageEntry.h"
 #include "Tracer.h"
 #if defined(USE_OPENLDAP)
-static const long fgOptNetworkTimeout = LDAP_OPT_NETWORK_TIMEOUT;
-static const String fgstrOptNetworkTimeout = String("LDAP_OPT_NETWORK_TIMEOUT", -1, coast::storage::Global());
-static unsigned long ldap_utf8getcc( const char **src )
-{
-	char UTF8len[64]
-	= {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	   2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 6
-	  };
+namespace {
+	const long fgOptNetworkTimeout = LDAP_OPT_NETWORK_TIMEOUT;
+	const String fgstrOptNetworkTimeout = String("LDAP_OPT_NETWORK_TIMEOUT", -1, coast::storage::Global());
+	unsigned long ldap_utf8getcc( const char **src ) {
+		char UTF8len[64]
+		= {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		   2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 6
+		  };
 
-	register unsigned long c;
-	register const unsigned char *s = (const unsigned char *) * src;
-	switch (UTF8len [(*s >> 2) & 0x3F]) {
-		case 0: /* erroneous: s points to the middle of a character. */
-			c = (*s++) & 0x3F;
-			goto more5;
-		case 1:
-			c = (*s++);
-			break;
-		case 2:
-			c = (*s++) & 0x1F;
-			goto more1;
-		case 3:
-			c = (*s++) & 0x0F;
-			goto more2;
-		case 4:
-			c = (*s++) & 0x07;
-			goto more3;
-		case 5:
-			c = (*s++) & 0x03;
-			goto more4;
-		case 6:
-			c = (*s++) & 0x01;
-			goto more5;
-		more5:
-			if ((*s & 0xC0) != 0x80) {
+		register unsigned long c;
+		register const unsigned char *s = (const unsigned char *) * src;
+		switch (UTF8len [(*s >> 2) & 0x3F]) {
+			case 0: /* erroneous: s points to the middle of a character. */
+				c = (*s++) & 0x3F;
+				goto more5;
+			case 1:
+				c = (*s++);
 				break;
-			}
-			c = (c << 6) | ((*s++) & 0x3F);
-		more4:
-			if ((*s & 0xC0) != 0x80) {
+			case 2:
+				c = (*s++) & 0x1F;
+				goto more1;
+			case 3:
+				c = (*s++) & 0x0F;
+				goto more2;
+			case 4:
+				c = (*s++) & 0x07;
+				goto more3;
+			case 5:
+				c = (*s++) & 0x03;
+				goto more4;
+			case 6:
+				c = (*s++) & 0x01;
+				goto more5;
+			more5:
+				if ((*s & 0xC0) != 0x80) {
+					break;
+				}
+				c = (c << 6) | ((*s++) & 0x3F);
+			more4:
+				if ((*s & 0xC0) != 0x80) {
+					break;
+				}
+				c = (c << 6) | ((*s++) & 0x3F);
+			more3:
+				if ((*s & 0xC0) != 0x80) {
+					break;
+				}
+				c = (c << 6) | ((*s++) & 0x3F);
+			more2:
+				if ((*s & 0xC0) != 0x80) {
+					break;
+				}
+				c = (c << 6) | ((*s++) & 0x3F);
+			more1:
+				if ((*s & 0xC0) != 0x80) {
+					break;
+				}
+				c = (c << 6) | ((*s++) & 0x3F);
 				break;
-			}
-			c = (c << 6) | ((*s++) & 0x3F);
-		more3:
-			if ((*s & 0xC0) != 0x80) {
-				break;
-			}
-			c = (c << 6) | ((*s++) & 0x3F);
-		more2:
-			if ((*s & 0xC0) != 0x80) {
-				break;
-			}
-			c = (c << 6) | ((*s++) & 0x3F);
-		more1:
-			if ((*s & 0xC0) != 0x80) {
-				break;
-			}
-			c = (c << 6) | ((*s++) & 0x3F);
-			break;
+		}
+		*src = (const char *)s;
+		return c;
 	}
-	*src = (const char *)s;
-	return c;
 }
 #else
-static const long fgOptNetworkTimeout = LDAP_X_OPT_CONNECT_TIMEOUT;
-static const String fgstrOptNetworkTimeout = String("LDAP_X_OPT_CONNECT_TIMEOUT", -1, coast::storage::Global());
+namespace {
+	const long fgOptNetworkTimeout = LDAP_X_OPT_CONNECT_TIMEOUT;
+	const String fgstrOptNetworkTimeout = String("LDAP_X_OPT_CONNECT_TIMEOUT", -1, coast::storage::Global());
+}
 #endif
 
 LDAPConnection::LDAPConnection(ROAnything connectionParams)

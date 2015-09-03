@@ -11,7 +11,6 @@
 
 #include "Action.h"
 
-//---- ListAction ----------------------------------------------------------
 //! Action counterpart of the ListRenderer -> Loops over an Anything and calls /EntryAction for each slot.
 /*!
 \par Configuration
@@ -31,33 +30,32 @@
 }
 \endcode
 */
-class ListAction : public Action
-{
+class ListAction: public Action {
 public:
-	//--- constructors
-	ListAction(const char *name);
-	~ListAction();
+	ListAction(const char* name) :
+			Action(name) {
+	}
 
 	/*! DoSomething method for configured Actions
-		\param transitionToken (in/out) the event passed by the caller, can be modified.
-		\param ctx the context the action runs within.
-		\param config the configuration of the action.
-		\return true if each call to /EntryAction returned true, false otherwise. */
+	 \param transitionToken (in/out) the event passed by the caller, can be modified.
+	 \param ctx the context the action runs within.
+	 \param config the configuration of the action.
+	 \return true if each call to /EntryAction returned true, false otherwise. */
 	virtual bool DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
 
 protected:
 	/*! Gets called for each entry
-		\param transitionToken (in/out) the event passed by the caller, can be modified.
-		\param ctx the context the action runs within
-		\param entryAction the configuration of the action to execute
-		\return true if execution of EntryAction returned true, false otherwise. */
+	 \param transitionToken (in/out) the event passed by the caller, can be modified.
+	 \param ctx the context the action runs within
+	 \param entryAction the configuration of the action to execute
+	 \return true if execution of EntryAction returned true, false otherwise. */
 	virtual bool ExecEntry(String &transitionToken, Context &ctx, const ROAnything &entryAction);
 
 	/*! gets the List Data from context
-		\param ctx the context the action runs within
-		\param config the configuration of the action
-		\param roaList a reference to the list we work on
-		\return true if the list could be found in the context */
+	 \param ctx the context the action runs within
+	 \param config the configuration of the action
+	 \param roaList a reference to the list we work on
+	 \return true if the list could be found in the context */
 	bool GetList(Context &ctx, const ROAnything &config, ROAnything &roaList);
 };
 

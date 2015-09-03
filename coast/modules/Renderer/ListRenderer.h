@@ -11,7 +11,6 @@
 
 #include "Renderer.h"
 
-//---- ListRenderer -----------------------------------------------------------
 //! Renders output for all entries in a given list using a configurable renderer specification
 /*!
 \par Configuration
@@ -61,8 +60,9 @@ Process Overview:
 class ListRenderer : public Renderer
 {
 public:
-	ListRenderer(const char *name);
-	~ListRenderer();
+	ListRenderer(const char* name) :
+			Renderer(name) {
+	}
 
 	/*! generates output on reply driven by config using the context given
 		\param reply stream to generate output on

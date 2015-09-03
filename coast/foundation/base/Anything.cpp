@@ -33,7 +33,10 @@ using namespace coast;
 #define anyTraceAny(any, msg)
 #endif
 
-static const String fgStrEmpty(coast::storage::Global()); //avoid temporary
+namespace {
+	//!< avoid temporary
+	const String fgStrEmpty(coast::storage::Global());
+}
 
 //--- auxiliary calculating hash value and the length of the key
 long IFAHash(const char *key, long &len, char stop1, char stop2)

@@ -175,10 +175,12 @@ bool SecurityItem::DoLoadKeyFile(const char *name, String &key) {
 	return false;
 }
 
-String SecurityModule::fgScrambler(coast::storage::Global());
-String SecurityModule::fgEncoder(coast::storage::Global());
-String SecurityModule::fgSigner(coast::storage::Global());
-String SecurityModule::fgCompressor(coast::storage::Global());
+namespace {
+	String fgScrambler(coast::storage::Global());
+	String fgEncoder(coast::storage::Global());
+	String fgSigner(coast::storage::Global());
+	String fgCompressor(coast::storage::Global());
+}
 
 bool SecurityModule::Init(const ROAnything config) {
 	StartTrace( SecurityModule.Init );

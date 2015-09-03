@@ -17,20 +17,20 @@ RegisterAliasSecurityItem(tc, TableCompressor);
 
 TableCompressor::TableCompressor(const char *name)
 	: Compressor(name)
-	, fMap(coast::storage::Global())
+	, fMap(Anything::ArrayMarker(), coast::storage::Global())
 {
-	StartTrace1(TableCompressor.Ctor, "Name: <" << NotNull(name) << ">");
+	StatTrace(TableCompressor.Ctor, "Name: <" << NotNull(name) << ">", coast::storage::Current());
 }
 
 TableCompressor::~TableCompressor()
 {
-	StartTrace1(TableCompressor.Dtor, "Name: <" << fName << ">");
+	StatTrace(TableCompressor.Dtor, "Name: <" << fName << ">", coast::storage::Current());
 }
 
 bool TableCompressor::Init(ROAnything config)
 {
 	StartTrace(TableCompressor.Init);
-	TraceAny(config, "Config: ");
+	SubTraceAny(Config, config, "Config: ");
 
 	ROAnything tableCompressorConfig;
 	if ( config.LookupPath(tableCompressorConfig, "SecurityModule.TableCompressor") ) {
@@ -51,14 +51,18 @@ void TableCompressor::DoCompress(String &scrambledText, const Anything &dataIn)
 	ROAnything keyTable(GetKey2UriMap());
 	ROAnything valTable(GetVal2UriMap());
 	ROAnything valMapTags(GetValMapTags());
+	TraceAny(valTable, "value mappings");
+	TraceAny(valMapTags, "value map tags");
 	Anything dataOut;
 
 //	 compress it by short keys in table
+	TraceAny(dataIn, "data to compress");
 	long dataSz = dataIn.GetSize();
 	for (long i = 0; i < dataSz; ++i) {
 		const char *slotname = dataIn.SlotName(i);
 		if (slotname) {
 			if ( keyTable.IsDefined(slotname) ) {
+				Trace("compressing defined slot [" << slotname << "]");
 				const char *extSlotname = keyTable[slotname].AsCharPtr();
 				String intVal = dataIn[i].AsCharPtr(); // in cases we are interested in it is always a string
 				// map some well defined entities e.g. role, page, action
@@ -73,14 +77,18 @@ void TableCompressor::DoCompress(String &scrambledText, const Anything &dataIn)
 					} else {
 						dataOut[extSlotname] = dataIn[i];
 					}
+					Trace("mapped [" << slotname << "] to [" << extSlotname << "] value [" << dataOut[extSlotname].AsString() << "]");
 				}
 			} else {
 				dataOut[slotname] = dataIn[i];
+				Trace("adding undefined slot [" << slotname << "] value [" << dataOut[slotname].AsString() << "]");
 			}
 		} else {
+			Trace("appending unnamed entry with value [" << dataIn[i].AsString() << "]");
 			dataOut.Append(dataIn[i]);
 		}
 	}
+	TraceAny(dataOut, "compressed output");
 	OStringStream os(&scrambledText);
 	dataOut.PrintOn(os, false);
 

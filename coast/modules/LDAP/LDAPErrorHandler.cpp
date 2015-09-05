@@ -72,15 +72,13 @@ void LDAPErrorHandler::HandleSessionError(LDAP *handle, String msg) {
 void LDAPErrorHandler::HandleUnbindError(LDAP *handle)
 {
 	StartTrace(LDAPErrorHandler.HandleUnbindError);
-
 	int rc;
 	String msg;
-	msg << TimeStamp::Now().AsStringWithZ();
 	if ( handle ) {
 		ldap_get_option(handle, LDAP_OPT_ERROR_NUMBER, &rc);
-		msg << " LdapCode: [" << rc << "] LdapMsg: [" << ldap_err2string(rc) << "] ldap_unbind";
+		msg << "LdapCode: [" << rc << "] LdapMsg: [" << ldap_err2string(rc) << "] ldap_unbind";
 	} else {
-		msg << " LdapCode: [no valid handle] LdapMsg: [no valid handle] ldap_unbind";
+		msg << "LdapCode: [no valid handle] LdapMsg: [no valid handle] ldap_unbind";
 	}
 	SystemLog::Error(msg);
 	Trace(msg);
@@ -111,7 +109,7 @@ void LDAPErrorHandler::WriteSysLog(Anything &error, String const &msg)
 		OStringStream ossSysLog(&sSysLog);
 		error.PrintOn(ossSysLog, false);
 	}
-	SystemLog::Error(TimeStamp::Now().AsStringWithZ() << " " <<  msg << " " << fName << " " << sSysLog);
+	SystemLog::Error(String(msg) << " " << fName << " " << sSysLog);
 }
 
 String LDAPErrorHandler::CreateMessageAsString(Anything &error)

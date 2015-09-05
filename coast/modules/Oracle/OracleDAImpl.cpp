@@ -307,7 +307,7 @@ void OracleDAImpl::Error( Context &ctx, ResultMapper *pResultMapper, String str 
 	String strErr( "OracleDAImpl::" );
 	strErr.Append( str );
 	StartTrace1(OracleDAImpl.Error, strErr);
-	SystemLog::Warning( TimeStamp::Now().AsStringWithZ().Append( ' ' ).Append( strErr ) );
+	SystemLog::Warning(strErr);
 	if ( pResultMapper ) {
 		pResultMapper->Put( "Messages", strErr, ctx );
 	}

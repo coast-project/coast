@@ -935,7 +935,7 @@ void SybCTnewDA::Warning(DaParams &params, String str)
 	StartTrace(SybCTnewDA.Warning);
 	String strErr("SybCTnewDA::");
 	strErr.Append(str);
-	SystemLog::Warning( TimeStamp::Now().AsStringWithZ().Append(' ').Append(strErr) );
+	SystemLog::Warning(strErr);
 	ResultMapper *pResultMapper = params.fpOut;
 	Context &aContext( *(params.fpContext) );
 	if ( pResultMapper ) {
@@ -948,7 +948,7 @@ void SybCTnewDA::Error(DaParams &params, String str)
 	StartTrace(SybCTnewDA.Error);
 	String strErr("SybCTnewDA::");
 	strErr.Append(str);
-	SystemLog::Error( TimeStamp::Now().AsStringWithZ().Append(' ').Append(strErr) );
+	SystemLog::Error(strErr);
 	ResultMapper *pResultMapper( params.fpOut );
 	Context &aContext( *(params.fpContext) );
 	if ( pResultMapper ) {

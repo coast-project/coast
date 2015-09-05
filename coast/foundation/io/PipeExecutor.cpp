@@ -328,8 +328,8 @@ bool PipeExecutor::ForkAndRun(Anything parm, Anything env)
 				fPipe = new Pipe(outp.GetReadFd(), inp.GetWriteFd(), true, fTimeout);
 			} else {
 				// we failed to fork
-				String msg(strTime);
-				msg.Append(" fork failed for child pid ").Append( static_cast<long>(fChildPid) ).Append(" with sysmsg [").Append( SystemLog::LastSysError() ).Append(']');
+				String msg;
+				msg.Append("fork failed for child pid ").Append( static_cast<long>(fChildPid) ).Append(" with sysmsg [").Append( SystemLog::LastSysError() ).Append(']');
 				SystemLog::Error(msg);
 			}
 #else

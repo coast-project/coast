@@ -11,39 +11,6 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>org.nic_nac_project.lothar.sconsbuilder.SConsBuilder</name>
-			<arguments>
-				<dictionary>
-					<key>buildconfiguration</key>
-					<value>debug</value>
-				</dictionary>
-				<dictionary>
-					<key>buildconfigurations</key>
-					<value>release\ndebug\ncoverage</value>
-				</dictionary>
-				<dictionary>
-					<key>commandlineargs</key>
-					<value>-u</value>
-				</dictionary>
-				<dictionary>
-					<key>numjobs</key>
-					<value>1</value>
-				</dictionary>
-				<dictionary>
-					<key>showcommands</key>
-					<value>false</value>
-				</dictionary>
-				<dictionary>
-					<key>usecache</key>
-					<value>false</value>
-				</dictionary>
-				<dictionary>
-					<key>verbosity</key>
-					<value>1</value>
-				</dictionary>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
 			<name>org.eclipse.cdt.managedbuilder.core.ScannerConfigBuilder</name>
 			<triggers>full,incremental,</triggers>
 			<arguments>
@@ -56,7 +23,6 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>org.nic_nac_project.lothar.sconsbuilder.SConsNature</nature>
 		<nature>org.eclipse.cdt.core.cnature</nature>
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.python.pydev.pythonNature</nature>

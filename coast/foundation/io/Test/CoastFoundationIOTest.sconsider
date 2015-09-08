@@ -135,8 +135,8 @@ if _sconsider_dist < pkg_resources.parse_version("0.5.dev"):
     buildSettings = {
         packagename: {
             'linkDependencies': [
-                'CoastFoundation.IO',
-                'CoastFoundation.Miscellaneous',
+                'CoastFoundationIO',
+                'CoastFoundationMiscellaneous',
                 'testfwFoundation'],
             'sourceFiles': SConsider.listFiles(
                 ['*.cpp']),

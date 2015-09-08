@@ -27,23 +27,27 @@ void SSLCertificateTest::ClientCertificateTest()
 {
 	StartTrace(SSLCertificateTest.ClientCertificateTest);
 	ROAnything cConfig;
-	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetTestCaseConfig());
+	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
 	while ( aEntryIterator.Next(cConfig) ) {
+		TString strCase;
+		if (!aEntryIterator.SlotName(strCase)) {
+			strCase << "idx:" << aEntryIterator.Index();
+		}
 		SSLConnector sc(cConfig["Config"], (SSL_CTX *) NULL); // add a new connector type using a config
 		std::iostream *s1 = sc.GetStream();
 		Socket *s = sc.Use();
 		Anything clientInfo(sc.ClientInfo());
-		assertEqual(cConfig["Results"]["SSLCertVerifyStatus"].AsBool(1), clientInfo["SSL"]["Peer"]["SSLCertVerifyStatus"]["SSL"]["Ok"].AsBool(0));
-		assertEqual(cConfig["Results"]["AppLevelCertVerifyStatus"].AsBool(1), clientInfo["SSL"]["Peer"]["AppLevelCertVerifyStatus"].AsBool(0));
+		assertEqualm(cConfig["Results"]["SSLCertVerifyStatus"].AsBool(1), clientInfo["SSL"]["Peer"]["SSLCertVerifyStatus"]["SSL"]["Ok"].AsBool(0), TString("Failed at ") << strCase);
+		assertEqualm(cConfig["Results"]["AppLevelCertVerifyStatus"].AsBool(1), clientInfo["SSL"]["Peer"]["AppLevelCertVerifyStatus"].AsBool(0), TString("Failed at ") << strCase);
 		if ( cConfig["Results"]["GetRequestOk"].AsBool(1) ) {
 			if (t_assert(s1 != NULL) && t_assert(s != NULL)) {
-				assertEqual(cConfig["Results"]["IsCertCheckPassed"].AsBool(1), s->IsCertCheckPassed(cConfig["Config"]));
+				assertEqualm(cConfig["Results"]["IsCertCheckPassed"].AsBool(1), s->IsCertCheckPassed(cConfig["Config"]), TString("Failed at ") << strCase);
 				TraceAny(s->ClientInfo(), "peer info");
 				(*s1) << "GET / HTTP/1.0" << ENDL << ENDL << std::flush;
 				String reply;
 				getline(*s1, reply);
-				assertEqual(cConfig["Results"]["GetRequestOk"].AsBool(1) , !!(*s1));
-				assertEqual( "HTTP", reply.SubString(0, 4)) ;
+				assertEqualm(cConfig["Results"]["GetRequestOk"].AsBool(1) , !!(*s1), TString("Failed at ") << strCase);
+				assertEqualm( "HTTP", reply.SubString(0, 4), TString("Failed at ") << strCase);
 				while (getline(*s1, reply));
 			}
 		}

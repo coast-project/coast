@@ -56,12 +56,11 @@ def setUp(target, source, env):
     command.extend(shlex.split(
         "-h {Server!s} --port={Port!s} -u {Username!s} --password={Password!s} --connect_timeout={ConnectTimeout!s}".format(**defaults['MySQL'])))
     res = SomeUtils.runCommand(
-        command,
-        logpath=logDir.abspath,
-        filename=path.File('dropTestDefinitions.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env)
-    )
+        command, logpath=logDir.abspath, filename=path.File(
+            'dropTestDefinitions.sql').abspath,
+        filter=lambda string: SomeUtils.multiple_replace(
+            searchreplacespec, string),
+        env=SomeUtils.getFlatENV(env))
     if res != 0:
         raise SConsider.SkipTest(
             'failed to drop test database (rc=' +
@@ -69,12 +68,11 @@ def setUp(target, source, env):
             '), check error log')
 
     res = SomeUtils.runCommand(
-        command,
-        logpath=logDir.abspath,
-        filename=path.File('TestDBDefinition.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env)
-    )
+        command, logpath=logDir.abspath, filename=path.File(
+            'TestDBDefinition.sql').abspath,
+        filter=lambda string: SomeUtils.multiple_replace(
+            searchreplacespec, string),
+        env=SomeUtils.getFlatENV(env))
     if res != 0:
         raise SConsider.SkipTest(
             'failed to load test database (rc=' +

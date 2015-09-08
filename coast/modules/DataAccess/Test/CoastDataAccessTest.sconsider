@@ -12,12 +12,23 @@
 import pkg_resources
 pkg_resources.require(["SConsider"])
 import SConsider
-from stat import *
-
 Import('*')
+
+
+def setUp(target, source, env):
+    #    env['ENV']['COAST_LOGONCERR']=3
+    #    env['ENV']['COAST_TRACE_STORAGE']=0
+    #    env['ENV']['COAST_TRACE_INITFINIS']=1
+    pass
+
+
+def tearDown(target, source, env):
+    pass
+
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5.dev"):
+    from stat import *
     buildSettings = {
         packagename: {
             'linkDependencies': ['CoastDataAccess', 'testfwWDBase'],

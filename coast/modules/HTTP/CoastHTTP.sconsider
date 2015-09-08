@@ -21,13 +21,16 @@ if _sconsider_dist < pkg_resources.parse_version("0.5.dev"):
     buildSettings = {
         packagename: {
             'includeSubdir': '',
-            'linkDependencies': ['CoastSecurity', 'CoastRegex', 'CoastDataAccess'],
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
+            'linkDependencies': [
+                'CoastSecurity',
+                'CoastRegex',
+                'CoastDataAccess'],
+            'sourceFiles': SConsider.listFiles(
+                ['*.cpp']),
             'targetType': 'LibraryShared',
             'public': {
-                'includes': SConsider.listFiles(['*.h']),
-            }
-        }
-    }
+                'includes': SConsider.listFiles(
+                    ['*.h']),
+            }}}
 
     SConsider.createTargets(packagename, buildSettings)

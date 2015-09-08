@@ -1,0 +1,63 @@
+# vim: set et ai ts=4 sw=4:
+# -------------------------------------------------------------------------
+# Copyright (c) 2010, Peter Sommerlad and IFS Institute for Software
+# at HSR Rapperswil, Switzerland
+# All rights reserved.
+#
+# This library/application is free software; you can redistribute and/or
+# modify it under the terms of the license that is included with this
+# library/application in the file license.txt.
+# -------------------------------------------------------------------------
+
+import pkg_resources
+pkg_resources.require(["SConsider"])
+import SConsider
+Import('*')
+
+
+def setUp(target, source, env):
+    #    env['ENV']['COAST_LOGONCERR'] = 3
+    #    env['ENV']['COAST_TRACE_STORAGE'] = 2
+    #    env['ENV']['COAST_TRACE_INITFINIS'] = 1
+    pass
+
+
+def tearDown(target, source, env):
+    pass
+
+_sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
+if _sconsider_dist < pkg_resources.parse_version("0.5.dev"):
+    pass
+elif _sconsider_dist >= pkg_resources.parse_version("0.5.dev"):
+    import os
+    reltargetdir = os.path.join('tests', packagename)
+
+    def setRelTargetDir(env):
+        env.setRelativeTargetDirectory(reltargetdir)
+
+    programDepends = ['testfw.testfw']
+
+    bin_name = packagename
+    bin_target = SConsider.createPackageProgram(
+        packagename, bin_name, SConsider.listFiles(['*.cpp']),
+        depend=programDepends, pkg_local=[setRelTargetDir])
+    bins = SConsider.EnvBuilder().depend(bin_target).build().RegisterPackageTarget(
+        packagename=packagename, targetname='bins')
+
+    scriptTarget = SConsider.createPackageProgramScript(
+        packagename, bin_name, bin_target, pkg_local=[setRelTargetDir])
+    scripts = SConsider.EnvBuilder().depend(scriptTarget).build(
+    ).RegisterPackageTarget(packagename=packagename, targetname='scripts')
+
+    testTarget = SConsider.createPackageTestTarget(packagename, bin_name, scriptTarget, settings={
+        'setUp': setUp,
+        'tearDown': tearDown,
+        #              'runParams': '',
+    })
+
+    # do not add to tests alias as some tests intentionally fail!
+    #SConsider.createAlias('tests', testTarget)
+
+    SConsider.EnvBuilder().depend(
+        bins, scripts).build().RegisterPackageTarget(
+        packagename=packagename, targetname=packagename)

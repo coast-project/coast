@@ -13,7 +13,7 @@
 		CoastSecurity
 		CoastStdDataAccess
 		CoastActions
-		CoastPerfTestTest
+		CoastPerfTestTestLib
 	}
 
 	/StressServer6666 {

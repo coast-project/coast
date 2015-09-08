@@ -12,18 +12,19 @@
 import pkg_resources
 pkg_resources.require(["SConsider"])
 import SConsider
-
 Import('*')
 
-_sconsider_dist = pkg_resources.get_distribution('SConsider').parsed_version
+_sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5.dev"):
     buildSettings = {
         packagename: {
+            'linkDependencies': [
+                'CoastFoundationBase',
+            ],
             'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'LibraryShared',
-            'lazylinking': True,
             'public': {
-                'includes': SConsider.listFiles(['*.h']),
+                'includes': SConsider.listFiles(['*.h', '*.hpp']),
             }
         }
     }
@@ -37,18 +38,11 @@ elif _sconsider_dist >= pkg_resources.parse_version("0.5.dev"):
         packagename=packagename,
         targetname='include')
 
-    libDepends = []
+    libDepends = ['CoastFoundationBase.CoastFoundationBase']
 
-    if SConsider.EnvBuilder().build()["PLATFORM"] == "win32":
-        lib = SConsider.createPackageStaticLibrary(
-            packagename, packagename, SConsider.listFiles(['*.cpp']),
-            depend=[includeTarget] + libDepends,
-            pkg_local=[lambda env: env.allowUnresolvedLinkSymbols()])
-    else:
-        lib = SConsider.createPackageSharedLibrary(
-            packagename, packagename, SConsider.listFiles(['*.cpp']),
-            depend=[includeTarget] + libDepends,
-            pkg_local=[lambda env: env.allowUnresolvedLinkSymbols()])
+    lib = SConsider.createPackageSharedLibrary(
+        packagename, packagename, SConsider.listFiles(
+            ['*.cpp']), depend=[includeTarget] + libDepends)
     libs = SConsider.EnvBuilder().depend(lib).build().RegisterPackageTarget(
         packagename=packagename, targetname='libs')
 

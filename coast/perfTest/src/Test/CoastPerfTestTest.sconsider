@@ -16,11 +16,9 @@ import Anything
 import os
 import socket
 import re
-import threading
 import shutil
-from stat import *
-import ServerExtensions
-from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+import threading
+from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 Import('*')
@@ -51,7 +49,8 @@ def setUp(target, source, env):
     try:
         defaults = Anything.loadFromFile('Defaults.any')
     except IOError:
-        pass
+        raise SCons.Errors.UserError(
+            "Could not load 'Defaults.any' which is required to setup tests,\n check COAST_ROOT/COAST_PATH setting of Anything!")
 
     tdirabs = tdir.abspath
     logpath = env.getLogInstallDir()
@@ -78,11 +77,13 @@ def tearDown(target, source, env):
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5.dev"):
+    from stat import *
     buildSettings = {
         packagename: {
             'targetType': 'LibraryShared',
             'sourceFiles': SConsider.listFiles(['*.cpp']),
             'includeSubdir': '',
+            'targetName': packagename + 'Lib',
             'linkDependencies': [
                 'testfwWDBase',
                 'CoastPerfTest',

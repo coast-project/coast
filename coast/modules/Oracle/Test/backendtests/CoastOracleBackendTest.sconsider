@@ -11,27 +11,24 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
-import os
-import re
-import sys
 import SConsider
-import Anything
-from stat import *
-import SomeUtils
-
 Import('*')
 
+import Anything
+from SomeUtils import multiple_replace, runCommand
+
 defaults = None
+helperscriptTarget = 'oracle.script_sqlplus'
 
 
 def setUp(target, source, env):
-    target = SConsider.packageRegistry.getPackageTarget('oracle', 'sqlplus')
+    target = registry.getRealTarget(helperscriptTarget)
     if not target:
         raise SConsider.SkipTest(
             'required sqlplus executable not found, skipping test')
 
     env['ENV']['NLS_LANG'] = '.WE8ISO8859P1'
-    configDir = 'backendtests/config'
+    configDir = 'config'
     env['ENV']['COAST_PATH'] = configDir
 #    env['ENV']['COAST_TRACE_INITFINIS'] = 1
 #    env['ENV']['COAST_LOGONCERR'] = 3
@@ -63,50 +60,44 @@ def setUp(target, source, env):
 
     connectstring = "{Username1!s}/{Password1!s}@{Server!s}:{Port!s}/{sid!s}".format(
         **defaults['Oracle'])
-    res = SomeUtils.runCommand(
+    res = runCommand(
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_dropschema.sql').abspath,
-        env=SomeUtils.getFlatENV(env)
+        env=SConsider.getFlatENV(env)
     )
     if res != 0:
         raise SConsider.SkipTest(
-            'failed to drop test schema (rc=' +
-            str(res) +
-            '), check error log')
-    res = SomeUtils.runCommand(
+            'failed to drop test schema (rc=' + str(res) + '), check error log')
+    res = runCommand(
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_schema.sql').abspath,
-        env=SomeUtils.getFlatENV(env)
+        env=SConsider.getFlatENV(env)
     )
-    res = SomeUtils.runCommand(
+    res = runCommand(
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_grant.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env)
+        filter=lambda string: multiple_replace(searchreplacespec, string),
+        env=SConsider.getFlatENV(env)
     )
     if res != 0:
         raise SConsider.SkipTest(
-            'failed to grant permissions (rc=' +
-            str(res) +
-            '), check error log')
+            'failed to grant permissions (rc=' + str(res) + '), check error log')
 
     connectstring = "{Username2!s}/{Password2!s}@{Server!s}:{Port!s}/{sid!s}".format(
         **defaults['Oracle'])
-    res = SomeUtils.runCommand(
+    res = runCommand(
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_synonym.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env)
+        filter=lambda string: multiple_replace(searchreplacespec, string),
+        env=SConsider.getFlatENV(env)
     )
     if res != 0:
         raise SConsider.SkipTest(
-            'failed to create synonyms (rc=' +
-            str(res) +
-            '), check error log')
+            'failed to create synonyms (rc=' + str(res) + '), check error log')
 
 
 def tearDown(target, source, env):
@@ -115,44 +106,56 @@ def tearDown(target, source, env):
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5.dev"):
-    buildSettings = {
-        packagename: {
-            'targetType': 'ProgramTest',
-            'linkDependencies': [
-                'CoastOracle',
-                'testfwWDBase',
-            ],
-            'requires': [
-                'CoastAppLog',
-                'CoastRenderers',
-            ],
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
-            'copyFiles': [
-                (SConsider.findFiles(
-                    ['config'], ['.any', '.txt', '.tst', '.sql']), S_IRUSR | S_IRGRP | S_IROTH),
-            ],
-        },
-        'backendTests': {
-            'targetType': 'ProgramTest',
-            'linkDependencies': [
-                'CoastOracle',
-                'testfwWDBase',
-            ],
-            'requires': [
-                'CoastAppLog',
-                'CoastRenderers',
-                'oracle.sqlplus',
-            ],
-            'sourceFiles': SConsider.listFiles(['backendtests/*.cpp']),
-            'copyFiles': [
-                (SConsider.findFiles(
-                    ['backendtests/config'], ['.any', '.txt', '.tst', '.sql']), S_IRUSR | S_IRGRP | S_IROTH),
-            ],
-            'runConfig': {
-                'setUp': setUp,
-                'tearDown': tearDown,
-            },
-        },
-    }
+    pass
+elif _sconsider_dist >= pkg_resources.parse_version("0.5.dev"):
+    import os
+    reltargetdir = os.path.join('backendtests', packagename)
 
-    SConsider.createTargets(packagename, buildSettings)
+    def setRelTargetDir(env):
+        env.setRelativeTargetDirectory(reltargetdir)
+
+    programDepends = [
+        'testfwWDBase.testfwWDBase',
+        'CoastOracle.CoastOracle',
+    ]
+
+    bin_name = packagename
+    bin_target = SConsider.createPackageProgram(
+        packagename, bin_name, SConsider.listFiles(['*.cpp']),
+        depend=programDepends, pkg_local=[setRelTargetDir])
+    bins = SConsider.EnvBuilder().depend(bin_target).build().RegisterPackageTarget(
+        packagename=packagename, targetname='bins')
+
+    from stat import *
+    copyFiles = [
+        (SConsider.listFiles(
+            ['config/*.any', 'config/*.txt', 'config/*.tst', 'config/*.sql']),
+         S_IRUSR | S_IRGRP | S_IROTH), ]
+    copyTarget = SConsider.createCopyFilesTarget(
+        packagename, 'configfiles', lambda env: env.getTargetBaseInstallDir(),
+        copyFiles, pkg_local=[setRelTargetDir])
+
+    scriptRequireNodes = [
+        'CoastAppLog.CoastAppLog',
+        'CoastRenderers.CoastRenderers',
+        helperscriptTarget,
+        'oracle.lib_ociicus',
+    ]
+
+    scriptTarget = SConsider.createPackageProgramScript(
+        packagename, bin_name, bin_target, depend=copyTarget,
+        require=scriptRequireNodes, pkg_local=[setRelTargetDir])
+    scripts = SConsider.EnvBuilder().depend(scriptTarget).build(
+    ).RegisterPackageTarget(packagename=packagename, targetname='scripts')
+
+    testTarget = SConsider.createPackageTestTarget(packagename, bin_name, scriptTarget, settings={
+        'setUp': setUp,
+        'tearDown': tearDown,
+        #              'runParams': '',
+    })
+
+    SConsider.createAlias('backendtests', testTarget)
+
+    SConsider.EnvBuilder().depend(
+        bins, scripts).build().RegisterPackageTarget(
+        packagename=packagename, targetname=packagename)

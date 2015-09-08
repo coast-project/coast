@@ -76,24 +76,22 @@ def setUp(target, source, env):
         "-U {Username!s} -P {Password!s} -S {Server!s}".format(**defaults['Sybase'])))
     command.extend(['-I', configdir.File('interfaces').abspath])
     res = SomeUtils.runCommand(
-        command,
-        logpath=logDir.abspath,
-        filename=configdir.File('dropPub2.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env)
-    )
+        command, logpath=logDir.abspath, filename=configdir.File(
+            'dropPub2.sql').abspath,
+        filter=lambda string: SomeUtils.multiple_replace(
+            searchreplacespec, string),
+        env=SomeUtils.getFlatENV(env))
     if res != 0:
         raise SConsider.SkipTest(
             'failed to drop test database (rc=' +
             str(res) +
             '), check error log')
     res = SomeUtils.runCommand(
-        command,
-        logpath=logDir.abspath,
-        filename=configdir.File('createPub2.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env)
-    )
+        command, logpath=logDir.abspath, filename=configdir.File(
+            'createPub2.sql').abspath,
+        filter=lambda string: SomeUtils.multiple_replace(
+            searchreplacespec, string),
+        env=SomeUtils.getFlatENV(env))
     if res != 0:
         raise SConsider.SkipTest(
             'failed to create test database (rc=' +

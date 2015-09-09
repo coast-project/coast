@@ -3003,6 +3003,12 @@ void StringTest::TestFirstCharOf()
 	// String on which method is executed is empty
 	String empty;
 	assertEqual(-1L, empty.FirstCharOf("0123456789"));
+
+	String pwd("abcDEF1hik");
+	assertEqual(6L, pwd.FirstCharOf("0123456789"));
+
+	String pwd1("abcDEFhik");
+	assertEqual(-1L, pwd1.FirstCharOf("0123456789"));
 }
 
 void StringTest::TestContainsCharAbove()

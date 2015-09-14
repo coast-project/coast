@@ -144,7 +144,7 @@
 		/SSLVerifyDepth 1
 		/SSLVerifyPeerCert 0
 		/SSLVerifyFailIfNoPeerCert 1
-		/ServerCipherList "HIGH:-SSLv2:+SSLv3"
+		/ServerCipherList "SSLv2:+SSLv3"
 		/ServerRSALength 2048
 		/ServerDHLength 1024
 	}
@@ -156,7 +156,7 @@
 		/SSLVerifyDepth 1
 		/SSLVerifyPeerCert 0
 		/SSLVerifyFailIfNoPeerCert 1
-		/ServerCipherList "HIGH:+SSLv2:-SSLv3"
+		/ServerCipherList "SSLv2:-SSLv3"
 		/ServerRSALength 2048
 		/ServerDHLength 1024
 	}

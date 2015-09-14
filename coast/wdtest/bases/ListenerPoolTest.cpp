@@ -179,48 +179,52 @@ void ListenerPoolTest::DoSendReceive(Connector *c, Anything toSend)
 	}
 }
 
-void ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, String msg, bool iosGoodAfterSend, bool iosGoodBeforeSend)
+bool ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, String msg, bool iosGoodAfterSend, bool iosGoodBeforeSend)
 {
 	StartTrace(ListenerPoolTest.DoSendReceive);
 	std::iostream *Ios = c->GetStream();
+	bool testsWereSuccessful = false;
 	if ( iosGoodBeforeSend ) {
-		t_assertm(Ios != (std::iostream *) NULL, "Expected iostream not to be 0");
+		testsWereSuccessful = t_assertm(Ios != (std::iostream *) NULL, "Expected iostream not to be 0");
 	} else {
-		t_assertm(Ios == (std::iostream *) NULL, "Expected iostream to be 0");
+		testsWereSuccessful = t_assertm(Ios == (std::iostream *) NULL, "Expected iostream to be 0");
 	}
 	if (Ios) {
 		*Ios << msg << std::endl;
 		if (iosGoodAfterSend) {
-			t_assertm(!!(*Ios), "Expected iostream state to be good after send");
+			testsWereSuccessful = t_assertm(!!(*Ios), "Expected iostream state to be good after send") && testsWereSuccessful;
 		} else {
-			t_assertm(!(*Ios), "Expected iostream state to be bad  after send");
+			testsWereSuccessful = t_assertm(!(*Ios), "Expected iostream state to be bad  after send") && testsWereSuccessful;
 		}
 		String reply;
 		*Ios >> reply;
-		t_assertm(Ios->fail(), "Expected iostream state to be fail.");
+		testsWereSuccessful = t_assertm(Ios->fail(), "Expected iostream state to be fail.") && testsWereSuccessful;
 	}
+	return testsWereSuccessful;
 }
 
-void ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, Anything toSend, bool iosGoodAfterSend, bool iosGoodBeforeSend)
+bool ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, Anything toSend, bool iosGoodAfterSend, bool iosGoodBeforeSend)
 {
 	StartTrace(ListenerPoolTest.DoSendReceive);
 	std::iostream *Ios = c->GetStream();
+	bool testsWereSuccessful = false;
 	if ( iosGoodBeforeSend ) {
-		t_assertm(Ios != (std::iostream *) NULL, "Expected iostream not to be 0");
+		testsWereSuccessful = t_assertm(Ios != (std::iostream *) NULL, "Expected iostream not to be 0");
 	} else {
-		t_assertm(Ios == (std::iostream *) NULL, "Expected iostream to be 0");
+		testsWereSuccessful = t_assertm(Ios == (std::iostream *) NULL, "Expected iostream to be 0");
 	}
 	if (Ios) {
 		toSend.Export(*Ios);
 		if (iosGoodAfterSend) {
-			t_assertm(!!(*Ios), "Expected iostream state to be good after send");
+			testsWereSuccessful = t_assertm(!!(*Ios), "Expected iostream state to be good after send") && testsWereSuccessful;
 		} else {
-			t_assertm(!(*Ios), "Expected iostream state to be bad  after send");
+			testsWereSuccessful = t_assertm(!(*Ios), "Expected iostream state to be bad  after send") && testsWereSuccessful;
 		}
 		String reply;
 		*Ios >> reply;
-		t_assertm(Ios->fail(), "Expected iostream state to be fail.");
+		testsWereSuccessful = t_assertm(Ios->fail(), "Expected iostream state to be fail.") && testsWereSuccessful;
 	}
+	return testsWereSuccessful;
 }
 
 void ListenerPoolTest::InitFailureTest()

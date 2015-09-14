@@ -19,7 +19,7 @@
 
 	/SSLHighCipherHost	"##HOSTNAME##"		# fqdn if available
 	/SSLHighCipherPort	43014
-	/SSLHighCipherList  "HIGH:"
+	/SSLHighCipherList  "HIGH"
 
 	/CertDirRelative		"##certdir_rel##"
 	/CertDirAbsolute		"##certdir_abs##"

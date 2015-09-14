@@ -62,10 +62,13 @@ void SimpleListenerPoolTest::DoTestConnect()
 	StartTrace(SimpleListenerPoolTest.DoTestConnect);
 
 	ROAnything cConfig;
-	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetConfig()["SimpleListenerPoolTest"]);
+	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetConfig()["SimpleListenerPoolTest"]);
 	while ( aEntryIterator.Next(cConfig) ) {
+		TString caseName;
+		if ( !aEntryIterator.SlotName(caseName) ) {
+			caseName << "At index: " << aEntryIterator.Index();
+		}
 		TraceAny(cConfig, "cConfig");
-
 		Connector c("localhost",
 					cConfig["PortToUse"].AsLong(0L),
 					cConfig["TimeoutToUse"].AsLong(0L),
@@ -74,9 +77,9 @@ void SimpleListenerPoolTest::DoTestConnect()
 					cConfig["UseThreadLocalMemory"].AsBool(0));
 
 		if ( cConfig["DoSendReceiveWithFailure"].AsLong(0) ) {
-			DoSendReceiveWithFailure(&c, cConfig["Data"].DeepClone(),
+			t_assertm(DoSendReceiveWithFailure(&c, cConfig["Data"].DeepClone(),
 									 cConfig["IOSGoodAfterSend"].AsLong(0),
-									 cConfig["IOSGoodBeforeSend"].AsLong(1));
+									 cConfig["IOSGoodBeforeSend"].AsLong(1)), caseName);
 		} else {
 			DoSendReceive(&c, cConfig["Data"].DeepClone());
 		}

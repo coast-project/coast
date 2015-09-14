@@ -78,13 +78,18 @@ void SSLListenerPoolTest::DoTestConnect()
 {
 	StartTrace(SSLListenerPoolTest.DoTestConnect);
 	ROAnything cConfig;
-	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetConfig()["SSLListenerPoolTest"]);
+	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetConfig()["SSLListenerPoolTest"]);
 	while ( aEntryIterator.Next(cConfig) ) {
+		TString caseName;
+		if ( !aEntryIterator.SlotName(caseName) ) {
+			caseName << "At index: " << aEntryIterator.Index();
+		}
 		TraceAny(cConfig, "cConfig");
 		Trace(cConfig["SSLConnector"].AsLong(1));
 		Anything data = cConfig["Data"].DeepClone();
 		long connectsToDo = cConfig["NumberOfConnects"].AsLong(1L);
 		for ( long l = 0; l < connectsToDo; l++ ) {
+			caseName << " @" << l;
 			Trace("At connect Nr.: " << l);
 			if ( ((connectsToDo - 1) == l) && data.IsDefined("LastChecksToDo") ) {
 				data["ChecksToDo"] = data["LastChecksToDo"];
@@ -101,9 +106,9 @@ void SSLListenerPoolTest::DoTestConnect()
 					}
 					SSLConnector sc(connectorConfig);
 					if ( cConfig["DoSendReceiveWithFailure"].AsLong(0) ) {
-						DoSendReceiveWithFailure(&sc, data,
+						t_assertm(DoSendReceiveWithFailure(&sc, data,
 												 cConfig["IOSGoodAfterSend"].AsLong(0),
-												 cConfig["IOSGoodBeforeSend"].AsLong(1));
+												 cConfig["IOSGoodBeforeSend"].AsLong(1)), caseName);
 					} else {
 						DoSendReceive(&sc, data);
 					}
@@ -112,9 +117,9 @@ void SSLListenerPoolTest::DoTestConnect()
 									(SSL_CTX *) NULL, (const char *) NULL, 0L, cConfig["UseThreadLocalMemory"].AsBool(0));
 
 					if ( cConfig["DoSendReceiveWithFailure"].AsLong(0) ) {
-						DoSendReceiveWithFailure(&sc, data,
+						t_assertm(DoSendReceiveWithFailure(&sc, data,
 												 cConfig["IOSGoodAfterSend"].AsLong(0),
-												 cConfig["IOSGoodBeforeSend"].AsLong(1));
+												 cConfig["IOSGoodBeforeSend"].AsLong(1)), caseName);
 					} else {
 						DoSendReceive(&sc, data);
 					}
@@ -123,9 +128,9 @@ void SSLListenerPoolTest::DoTestConnect()
 				Trace("Using configured NON SSL connector");
 				Connector c("localhost", cConfig["PortToUse"].AsLong(0L), cConfig["TimeoutToUse"].AsLong(0L), String(), 0L, cConfig["UseThreadLocalMemory"].AsBool(0));
 				if ( cConfig["DoSendReceiveWithFailure"].AsLong(0) ) {
-					DoSendReceiveWithFailure(&c, data,
+					t_assertm(DoSendReceiveWithFailure(&c, data,
 											 cConfig["IOSGoodAfterSend"].AsLong(0),
-											 cConfig["IOSGoodBeforeSend"].AsLong(1));
+											 cConfig["IOSGoodBeforeSend"].AsLong(1)), caseName);
 				} else {
 					DoSendReceive(&c, data);
 				}

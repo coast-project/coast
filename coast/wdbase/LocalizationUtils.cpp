@@ -76,8 +76,7 @@ const char *LocalizationUtils::FindLanguageKey(Context &c, const char *dftLang)
 	TraceAny(header, "header");
 	long i = 0, sz = 0;
 
-	ROAnything langKeyMap = c.Lookup("LanguageKeyMap");
-	TraceAny(langKeyMap, "LanguageKeyMap");
+	TraceAny(c.Lookup("LanguageKeyMap"), "LanguageKeyMap");
 
 	if ( useBrowserPrefs && header.IsDefined("ACCEPT-LANGUAGE") ) {
 		// Do not check fgLanguageMap.GetSize() == 0 since there might be no data to intialize it!

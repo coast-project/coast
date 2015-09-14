@@ -153,12 +153,11 @@ void MetaRegistryImpl::FinalizeRegArray() {
 	for (long i = sz - 1; i >= 0; --i) {
 		Registry *r = dynamic_cast<Registry *>(fRegistryArray[i].AsIFAObject(0));
 		if (r) {
-			const char *pName = r->GetName();
-			Trace("Registry[" << pName << "]->AliasTerminate()");
+			Trace("Registry[" << r->GetName() << "]->AliasTerminate()");
 			const char *category = fRegistryArray.SlotName(i);
 			AliasTerminator at(NotNull(category));
 			r->Terminate(&at);
-			Trace("delete Registry[" << pName << "]");
+			Trace("delete Registry[" << r->GetName() << "]");
 			delete r;
 			Trace("Registry deleted");
 		}

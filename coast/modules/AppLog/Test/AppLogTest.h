@@ -15,7 +15,7 @@ class Context;
 class AppLogTest: public testframework::TestCaseWithCaseConfigDllAndModuleLoading {
 public:
 	AppLogTest(TString tstrName) :
-		TestCaseType(tstrName) {
+			TestCaseType(tstrName) {
 	}
 	//!builds up a suite of testcases for this test
 	static Test *suite();
@@ -45,8 +45,9 @@ public:
 
 protected:
 	//! utility method to check the log files
-	void CheckFile(Context &ctx, const char *channelname, String expected, bool bExpectSuccess = true);
-	void CheckFileAfterChannelTermination(Context &ctx, const char *strLogFilename, String expected, bool bExpectSuccess = true);
+	void CheckFile(Context& ctx, const char *channelname, String expected, bool bExpectSuccess = true);
+	void CheckFileAfterChannelTermination(Context& ctx, const char *strLogFilename, String expected,
+	        bool bExpectSuccess = true);
 	void LogRotatorTestsCommon();
 };
 

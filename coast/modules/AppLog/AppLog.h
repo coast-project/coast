@@ -77,26 +77,26 @@ public:
 	};
 
 	//!bottleneck routine for logging
-	static bool Log(Context &ctx, const char *logChannel, eLogLevel iLevel);
+	static bool Log(Context& ctx, const char *logChannel, eLogLevel iLevel);
 
 	//!bottleneck routine for logging
-	static bool Log(Context &ctx, const char *logChannel, const ROAnything &config, eLogLevel iLevel);
+	static bool Log(Context& ctx, const char *logChannel, const ROAnything& config, eLogLevel iLevel);
 
 	//!bottleneck routine for logging
-	static bool Log(Context &ctx, const char *logChannel, const String &strMessage, eLogLevel iLevel);
+	static bool Log(Context& ctx, const char *logChannel, const String& strMessage, eLogLevel iLevel);
 
 	//!Trigger immediate log rotation. Does not interfere with LogRotator thread because
 	//!Rotate() uses Mutex.
-	static bool RotateSpecificLog(Context &ctx, const char *logchannel);
+	static bool RotateSpecificLog(Context& ctx, const char *logchannel);
 
 	static String GetSeverityText(eLogLevel iLevel);
 
 protected:
-	static AppLogChannel *FindLogger(Context &ctx, const char *logChannel);
+	static AppLogChannel *FindLogger(Context& ctx, const char *logChannel);
 	AppLogChannel *GetLogChannel(const char *servername, const char *logChannel);
 
 	//!Opens the log streams for one server
-	bool MakeChannels(const char *servername, const Anything &config);
+	bool MakeChannels(const char *servername, const Anything& config);
 
 	/*! Start thread to rotate log files
 	 \param rotateTime hour:minute to rotate logfiles at
@@ -182,16 +182,16 @@ class AppLogChannel: public RegisterableObject {
 	// block the following default elements of this class
 	// because they're not allowed to be used
 	AppLogChannel();
-	AppLogChannel(const AppLogChannel &);
-	AppLogChannel &operator=(const AppLogChannel &);
+	AppLogChannel(const AppLogChannel&);
+	AppLogChannel& operator=(const AppLogChannel&);
 public:
 	AppLogChannel(const char *name);
 	virtual ~AppLogChannel();
 
-	bool InitClone(const char *name, const Anything &channel);
+	bool InitClone(const char *name, const Anything& channel);
 
-	bool Log(Context &ctx, AppLogModule::eLogLevel iLevel);
-	bool LogAll(Context &ctx, AppLogModule::eLogLevel iLevel, const ROAnything &config);
+	bool Log(Context& ctx, AppLogModule::eLogLevel iLevel);
+	bool LogAll(Context& ctx, AppLogModule::eLogLevel iLevel, const ROAnything& config);
 
 	bool Rotate(bool overrideDoNotRotateLogs = false);
 	void FlushItems();
@@ -199,7 +199,7 @@ public:
 		return fChannelInfo;
 	}
 
-	static String GenTimeStamp(const String &format);
+	static String GenTimeStamp(const String& format);
 
 	/*! @copydoc IFAObject::Clone(Allocator *) */
 	IFAObject *Clone(Allocator *a) const {
@@ -209,15 +209,15 @@ public:
 	RegCacheDef (AppLogChannel);
 
 protected:
-	virtual bool DoInitClone(const char *name, const Anything &channel);
-	bool GetLogDirectories(ROAnything channel, String &logdir, String &rotatedir);
-	bool RotateLog(const String &logdirName, const String &rotatedirName, String &logfileName);
+	virtual bool DoInitClone(const char *name, const Anything& channel);
+	virtual void DoCreateLogMsg(Context& ctx, AppLogModule::eLogLevel iLevel, String& logMsg, const ROAnything& config);
+	virtual void WriteHeader(std::ostream& os);
+	virtual String GetAbsoluteLogPathIfExisting(String const& absOrRelLogpath) const;
 
-	std::ostream *OpenLogStream(ROAnything channel, String &logfileName);
+	bool GetLogDirectories(ROAnything channel, String& logdir, String& rotatedir);
+	bool RotateLog(const String& logdirName, const String& rotatedirName, String& logfileName);
 
-	void WriteHeader(std::ostream &os);
-
-	virtual void DoCreateLogMsg(Context &ctx, AppLogModule::eLogLevel iLevel, String &logMsg, const ROAnything &config);
+	std::ostream *OpenLogStream(ROAnything channel, String& logfileName);
 
 	AppLogModule::eLogLevel GetSeverity() const {
 		return fSeverity;

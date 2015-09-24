@@ -131,7 +131,7 @@ bool AppLogModule::MakeChannels(const char *servername, const Anything &config) 
 					}
 				}
 				if (!pChannel || !pChannel->Rotate()) {
-					SYSERROR("LogChannel [" << strChannelName << "] failed to open logfile");
+					SystemLog::Error(String("AppLogChannel [") << strChannelName << "] failed to initialize.");
 					return false;
 				}
 				fLogConnections[servername][strChannelName] = pChannel;
@@ -261,40 +261,39 @@ bool AppLogModule::TerminateLogFlusher() {
 }
 
 AppLogChannel *AppLogModule::GetLogChannel(const char *servername, const char *logChannel) {
-	StartTrace1(AppLogModule.GetLogChannel, "server [" << servername << "] LogChannel [" << NotNull(logChannel) << "]");
+	StartTrace1(AppLogModule.GetLogChannel,
+	        "server [" << servername << "] AppLogChannel [" << NotNull(logChannel) << "]");
 	AppLogChannel *logger = NULL;
 	ROAnything loggerConfig;
 	if (servername && logChannel && fROLogConnections.LookupPath(loggerConfig, servername)
 	        && loggerConfig.IsDefined(logChannel)) {
 		logger = SafeCast(loggerConfig[logChannel].AsIFAObject(0), AppLogChannel);
+		if (logger) {
+			return logger;
+		}
+		SystemLog::Error(String("AppLogChannel [") << servername << "." << NotNull(logChannel) << "] not valid.");
 	} else {
-		SYSERROR("log channel [" << servername << '.' << NotNull(logChannel) << "] not found");
+		SystemLog::Error(String("AppLogChannel [") << servername << '.' << NotNull(logChannel) << "] not found");
 	}
-	return logger;
+	return 0;
 }
 
 AppLogChannel *AppLogModule::FindLogger(Context &ctx, const char *logChannel) {
-	StartTrace1(AppLogModule.FindLogger, "LogChannel [" << NotNull(logChannel) << "]");
-	AppLogChannel *logger = NULL;
+	StartTrace1(AppLogModule.FindLogger, "AppLogChannel [" << NotNull(logChannel) << "]");
 	if (fgAppLogModule) {
 		Server *s = ctx.GetServer();
-		if (s) {
-			String servername;
-			if (s->GetName(servername)) {
-				logger = fgAppLogModule->GetLogChannel(servername, logChannel);
-				if (!logger) {
-					SYSERROR("log channel [" << servername << "." << NotNull(logChannel) << "] returned no logger object");
-				}
-			}
-		} else {
-			SYSERROR("Server not set in Context when looking for channel [" << logChannel << "]. Please use ctx.SetServer(...) before logging.");
+		String servername;
+		if (s && s->GetName(servername)) {
+			return fgAppLogModule->GetLogChannel(servername, logChannel);
 		}
+		SystemLog::Error(
+		        String("AppLogChannel [") << NotNull(logChannel) << "]: Server could not be retrieved from Context.");
 	}
-	return logger;
+	return 0;
 }
 
 bool AppLogModule::Log(Context &ctx, const char *logChannel, eLogLevel iLevel) {
-	StartTrace1(AppLogModule.Log, "LogChannel [" << NotNull(logChannel) << "], Severity:" << (long) iLevel);
+	StartTrace1(AppLogModule.Log, "AppLogChannel [" << NotNull(logChannel) << "], Severity:" << (long) iLevel);
 	AppLogChannel *logger = FindLogger(ctx, logChannel);
 	if (logger) {
 		Trace("logger found");
@@ -305,7 +304,7 @@ bool AppLogModule::Log(Context &ctx, const char *logChannel, eLogLevel iLevel) {
 }
 
 bool AppLogModule::Log(Context &ctx, const char *logChannel, const ROAnything &config, eLogLevel iLevel) {
-	StartTrace1(AppLogModule.Log, "(config) LogChannel [" << NotNull(logChannel) << "], Severity:" << (long) iLevel);
+	StartTrace1(AppLogModule.Log, "(config) AppLogChannel [" << NotNull(logChannel) << "], Severity:" << (long) iLevel);
 	TraceAny(config, "Config: ");
 	AppLogChannel *logger = FindLogger(ctx, logChannel);
 	if (logger) {
@@ -316,7 +315,8 @@ bool AppLogModule::Log(Context &ctx, const char *logChannel, const ROAnything &c
 }
 
 bool AppLogModule::Log(Context &ctx, const char *logChannel, const String &strMessage, eLogLevel iLevel) {
-	StartTrace1(AppLogModule.Log, "(message) LogChannel [" << NotNull(logChannel) << "], Severity:" << (long) iLevel);
+	StartTrace1(AppLogModule.Log,
+	        "(message) AppLogChannel [" << NotNull(logChannel) << "], Severity:" << (long) iLevel);
 	Anything anyMessage(strMessage);
 	return Log(ctx, logChannel, anyMessage, iLevel);
 }
@@ -458,15 +458,17 @@ bool AppLogChannel::LogAll(Context &ctx, AppLogModule::eLogLevel iLevel, const R
 				{
 					fBuffer.Append(logMsg);
 					++fItemsInBuffer;
-					if ((fItemsInBuffer % fItemsToBuffer))
+					if (fItemsInBuffer % fItemsToBuffer) {
 						return true;
+					}
 					DoFlushItems();
 					return (!!(*fLogStream));
 				}
 			}
 		}
+		return fSuppressEmptyLines ? true : false;
 	}
-	return fSuppressEmptyLines ? true : false;
+	return false;
 }
 
 void AppLogChannel::DoCreateLogMsg(Context &ctx, AppLogModule::eLogLevel iLevel, String &logMsg,
@@ -482,34 +484,40 @@ void AppLogChannel::DoCreateLogMsg(Context &ctx, AppLogModule::eLogLevel iLevel,
 	Trace("message to log [" << logMsg << "]");
 }
 
-bool AppLogChannel::GetLogDirectories(ROAnything channel, String &logdir, String &rotatedir) {
-	StartTrace(AppLogChannel.GetLogDirectories);
-	logdir = channel["LogDir"].AsCharPtr();
-	rotatedir = channel["RotateDir"].AsCharPtr();
-
+String AppLogChannel::GetAbsoluteLogPathIfExisting(String const& absOrRelLogpath) const {
+	StartTrace(AppLogChannel.GetAbsoluteLogPathIfExisting);
+	String logdir = absOrRelLogpath;
 	if (!system::IsAbsolutePath(logdir)) {
 		Trace("log path is non-absolute [" << logdir << "]");
 		logdir = system::GetRootDir();
-		logdir << system::Sep() << channel["LogDir"].AsCharPtr();
+		logdir << system::Sep() << absOrRelLogpath;
 	}
-	Trace("current logfile-path [" << logdir << "]");
-
-	if (!system::IsAbsolutePath(rotatedir)) {
-		Trace("rotate path is non-absolute [" << rotatedir << "]");
-		rotatedir = system::GetRootDir();
-		rotatedir << system::Sep() << channel["RotateDir"].AsCharPtr();
-	}
-	Trace("current rotate-path [" << rotatedir << "]");
-	bool bGoAhead = true;
+	Trace("current logpath [" << logdir << "]");
 	if (!system::IsDirectory(logdir)) {
-		SYSERROR("log directory [" << logdir << "] does not exist! please create it first");
-		bGoAhead = false;
+		return String();
 	}
-	if (!system::IsDirectory(rotatedir)) {
-		SYSERROR("rotate directory [" << rotatedir << "] does not exist! please create it first");
-		bGoAhead = false;
+	return logdir;
+}
+
+bool AppLogChannel::GetLogDirectories(ROAnything channel, String& logdir, String& rotatedir) {
+	StartTrace(AppLogChannel.GetLogDirectories);
+	logdir = GetAbsoluteLogPathIfExisting(channel["LogDir"].AsString());
+	Trace("current logfile-path [" << logdir << "]");
+	if (logdir.empty()) {
+		SystemLog::Error(
+		        String("Log directory [") << logdir
+		                << "] does not exist!\nPlease create it first having the correct ownership and permissions set.");
+		return false;
 	}
-	return bGoAhead;
+	rotatedir = GetAbsoluteLogPathIfExisting(channel["RotateDir"].AsString());
+	Trace("current rotate-path [" << rotatedir << "]");
+	if (rotatedir.empty()) {
+		SystemLog::Error(
+		        String("Rotate directory [") << rotatedir
+		                << "] does not exist!\nPlease create it first having the correct ownership and permissions set.");
+		return false;
+	}
+	return true;
 }
 
 std::ostream *AppLogChannel::OpenLogStream(ROAnything channel, String &logfileName) {
@@ -540,7 +548,7 @@ bool AppLogChannel::RotateLog(const String &logdirName, const String &rotatedirN
 	newLogFileName << system::Sep();
 
 	String stampedLogFileName(logfileName);
-	stampedLogFileName << "." << GenTimeStamp("%Y%m%d%H%M%S");
+	stampedLogFileName << "." << coast::system::GenTimeStamp("%Y%m%d%H%M%S");
 	Trace("rotate LogFileName [" << stampedLogFileName << "]");
 	newLogFileName << stampedLogFileName;
 
@@ -575,7 +583,6 @@ bool AppLogChannel::RotateLog(const String &logdirName, const String &rotatedirN
 
 bool AppLogChannel::Rotate(bool overrideDoNotRotateLogs) {
 	StartTrace(AppLogChannel.Rotate);
-	bool bSuccess = true;
 	// check if this channel must be rotated
 	TraceAny(GetChannelInfo(), "channel info");
 	std::ostream *pStream = NULL;
@@ -589,18 +596,18 @@ bool AppLogChannel::Rotate(bool overrideDoNotRotateLogs) {
 		if (fLogStream) {
 			DoFlushItems();
 			delete fLogStream;
-			fLogStream = NULL;
+			fLogStream = 0;
 		}
 		String logfileName;
 		fLogStream = OpenLogStream(GetChannelInfo(), logfileName);
 		if (fLogStream) {
 			WriteHeader (*fLogStream);
 		} else {
-			SYSERROR("Rotation of [" << logfileName << "] failed");
+			SystemLog::Error(String("Could not open logfile [") << logfileName << "] for writing.");
 		}
-		bSuccess = (fLogStream != NULL);
+		return fLogStream != 0;
 	}
-	return bSuccess;
+	return true;
 }
 
 void AppLogChannel::WriteHeader(std::ostream &os) {

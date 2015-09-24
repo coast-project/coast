@@ -24,9 +24,8 @@
 	}
 }
 \endcode
-*/
-class LoggingMapper : public ResultMapper
-{
+ */
+class LoggingMapper: public ResultMapper {
 public:
 	//--- constructors
 	LoggingMapper(const char *name);
@@ -36,16 +35,16 @@ public:
 protected:
 	//! Major hook for subclasses that want to do something with their config passed as script. The default is to interpret the script and put a value for every script item used. Recursion will be stopped by DoFinalPutAny which places its value under slot key below given DoGetDestinationSlot()
 	/*! \param key the key usually defines the associated kind of output-value
-		\param value the value to be mapped
-		\param ctx the context of the invocation
-		\param script current mapper configuration as ROAnything
-		\return returns true if the mapping was successful otherwise false */
-	virtual bool DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything script);
+	 \param value the value to be mapped
+	 \param ctx the context of the invocation
+	 \param script current mapper configuration as ROAnything
+	 \return returns true if the mapping was successful otherwise false */
+	virtual bool DoPutAny(const char *key, Anything& value, Context& ctx, ROAnything script);
 
 private:
 	LoggingMapper();
-	LoggingMapper(const LoggingMapper &);
-	LoggingMapper &operator=(const LoggingMapper &);
+	LoggingMapper(const LoggingMapper&);
+	LoggingMapper& operator=(const LoggingMapper&);
 };
 
 #endif

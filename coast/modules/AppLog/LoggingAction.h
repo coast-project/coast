@@ -26,16 +26,16 @@
 class LoggingAction: public Action {
 public:
 	LoggingAction(const char *name) :
-		Action(name) {
+			Action(name) {
 	}
 
 protected:
 	//! Logs on the Channel defined by <I>config /Channel</I>
 	/*!	\param transitionToken (in/out) the event passed by the caller, can be modified.
-		\param ctx the context the action runs within.
-		\param config the configuration of the action.
-		\return true if the action run successfully, false if an error occurred. */
-	virtual bool DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
+	 \param ctx the context the action runs within.
+	 \param config the configuration of the action.
+	 \return true if the action run successfully, false if an error occurred. */
+	virtual bool DoExecAction(String& transitionToken, Context& ctx, const ROAnything& config);
 };
 
 //! Triggers logging of timing entries onto a channel
@@ -52,23 +52,24 @@ protected:
 class TimeLoggingAction: public Action {
 public:
 	TimeLoggingAction(const char *name) :
-		Action(name) {
+			Action(name) {
 	}
 
 protected:
 	//! Logs timing entries defined by <I>config /TimeEntries</I> on the Channel defined by <I>config /Channel</I>
 	/*!	\param transitionToken (in/out) the event passed by the caller, can be modified.
-		\param ctx the context the action runs within.
-		\param config the configuration of the action.
-		\return true if the action run successfully, false if an error occurred. */
-	virtual bool DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
+	 \param ctx the context the action runs within.
+	 \param config the configuration of the action.
+	 \return true if the action run successfully, false if an error occurred. */
+	virtual bool DoExecAction(String& transitionToken, Context& ctx, const ROAnything& config);
 
 	//! generate logentries by traversing substructures of different paths
 	/*!	\param entryPath the path traversed so far
-		\param entry the entry to be logged; it can contain substructures or be an array
-		\param ctx the context
-		\param channel the channel to log to */
-	virtual bool GenLogEntries(const String &strSection, const ROAnything &entry, Context &ctx, const String &channel, AppLogModule::eLogLevel iLevel);
+	 \param entry the entry to be logged; it can contain substructures or be an array
+	 \param ctx the context
+	 \param channel the channel to log to */
+	virtual bool GenLogEntries(const String& strSection, const ROAnything& entry, Context& ctx, const String& channel,
+	        AppLogModule::eLogLevel iLevel);
 };
 
 #endif

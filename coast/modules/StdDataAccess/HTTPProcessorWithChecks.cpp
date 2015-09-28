@@ -19,12 +19,6 @@
 RegisterRequestProcessor(HTTPProcessorWithChecks);
 
 namespace {
-	void LogWarning(Context& ctx, long const errorcode, String const& msg, String const& content, String const& component) {
-		StartTrace(HTTPProcessorWithChecks.LogWarning);
-		Anything anyMessage = coast::http::GenerateErrorMessageAny(ctx, errorcode, msg, content, component);
-		Context::PushPopEntry<Anything> aLogEntry(ctx, "HTTPProcessorWarning", anyMessage, ctx.Lookup("RequestProcessorErrorSlot", "HTTPProcessor.Error"));
-		AppLogModule::Log(ctx, "SecurityLog", AppLogModule::eWARNING);
-	}
 	bool PostOrGetValuePresent(Context& ctx, ROAnything roaHeaders, String const& msg) {
 		StartTrace(HTTPProcessorWithChecks.PostOrGetValuePresent);
 		String work(64L);
@@ -43,22 +37,11 @@ namespace {
 		}
 		return false;
 	}
-	bool HasUriPathResolved(Context &ctx, String &urlPath) {
-		StartTrace(HTTPProcessorWithChecks.HasUriPathResolved);
+	bool UriChangedDuringPathCleanup(Context &ctx, String const &urlPath) {
+		StartTrace(HTTPProcessorWithChecks.UriChangedDuringPathCleanup);
 		// "path" part of URL had to be normalized. This may indicate an attack.
 		String normalizedUrl = coast::urlutils::CleanUpUriPath(urlPath);
-		if (urlPath.Length() != normalizedUrl.Length()) {
-			if (ctx.Lookup("FixDirectoryTraversial", 0L)) {
-				// alter the original url
-				coast::http::PutErrorMessageIntoContext(ctx, 200, "Directory traversal attack detected and normalized. "
-						"Request not rejected because of FixDirectoryTraversial setting", urlPath, "HTTPProcessorWithChecks::DoPrepareContextRequest");
-				urlPath = coast::urlutils::urlEncode(normalizedUrl, ctx.Lookup("URLEncodeExclude", "/?"));
-			} else {
-				coast::http::PutErrorMessageIntoContext(ctx, 400, "Directory traversal attack", urlPath, "HTTPProcessorWithChecks::DoPrepareContextRequest");
-				return false;
-			}
-		}
-		return true;
+		return urlPath.Length() != normalizedUrl.Length();
 	}
 	bool HasAllPathCharactersUrlEncoded(Context &ctx, String const &urlPath) {
 		StartTrace(HTTPProcessorWithChecks.HasAllPathCharactersUrlEncoded);
@@ -77,8 +60,8 @@ namespace {
 				ctx.Lookup("CheckUrlPathContainsUnsafeCharsAsciiOverride", ""),
 				!(ctx.Lookup("CheckUrlPathContainsUnsafeCharsDoNotCheckExtendedAscii", 0L)));
 	}
-	bool DecodeAllUrlCharacters(Context &ctx, String &urlPath) {
-		StartTrace(HTTPProcessorWithChecks.DecodeAllUrlCharacters);
+	bool DecodedUrlContainedSuspiciousCharacters(Context &ctx, String &urlPath) {
+		StartTrace(HTTPProcessorWithChecks.DecodedUrlContainedSuspiciousCharacters);
 		// Are all chars which must be URL-encoded really encoded?
 		coast::urlutils::URLCheckStatus eUrlCheckStatus = coast::urlutils::eOk;
 		String normalizedUrl;
@@ -88,12 +71,11 @@ namespace {
 			normalizedUrl = coast::urlutils::urlDecode(urlPath, eUrlCheckStatus, false);
 		}
 		if (eUrlCheckStatus == coast::urlutils::eSuspiciousChar) {
-			// We are done, invalid request
 			coast::http::PutErrorMessageIntoContext(ctx, 400, "Encoded char above 0x255 detected", urlPath, "HTTPProcessorWithChecks::DoPrepareContextRequest");
-			return false;
+			return true;
 		}
 		urlPath = normalizedUrl;
-		return true;
+		return false;
 	}
 	struct RequestURISplitHelper {
 		Anything &fRequest;
@@ -128,8 +110,6 @@ namespace {
 bool HTTPProcessorWithChecks::DoPrepareContextRequest(std::iostream &Ios, Context &ctx, Anything &request, HTTPRequestReader &reader) {
 	StartTrace(HTTPProcessorWithChecks.DoPrepareContextRequest);
 	MethodTimer(HTTPProcessorWithChecks.DoPrepareContextRequest, "Preparing request for context", ctx);
-	// modify request line arguments as requested
-
 	RequestURISplitHelper splitHelper(request);
 	if ( not HasAllPathCharactersUrlEncoded(ctx, splitHelper.fPath) ) {
 		coast::http::PutErrorMessageIntoContext(ctx, 400, "Not all unsafe chars URL encoded", splitHelper.fPath, "HTTPProcessorWithChecks::DoVerifyRequest");
@@ -138,20 +118,26 @@ bool HTTPProcessorWithChecks::DoPrepareContextRequest(std::iostream &Ios, Contex
 	if ( not HasAllArgsCharactersUrlEncoded(ctx, splitHelper.fArgs) ) {
 		String reason("Argument string (after ");
 		reason << splitHelper.fArgSep << ") was not correctly encoded. Request not rejected.";
-		coast::http::PutErrorMessageIntoContext(ctx, 200, reason, splitHelper.fArgs, "HTTPProcessorWithChecks::DoVerifyRequestv");
+		coast::http::PutErrorMessageIntoContext(ctx, 200, reason, splitHelper.fArgs, "HTTPProcessorWithChecks::DoVerifyRequest");
 	}
-	if ( not DecodeAllUrlCharacters(ctx, splitHelper.fPath) ) {
+	if ( DecodedUrlContainedSuspiciousCharacters(ctx, splitHelper.fPath) ) {
 		return false;
 	}
 	if ( UrlPathContainsUnsafeChars(ctx, splitHelper.fPath) ) {
 		coast::http::PutErrorMessageIntoContext(ctx, 400, "Decoded URL path contains unsafe char", splitHelper.fPath, "HTTPProcessorWithChecks::DoVerifyRequest");
 		return false;
 	}
-	if ( not HasUriPathResolved(ctx, splitHelper.fPath) ) {
-		return false;
+	if ( UriChangedDuringPathCleanup(ctx, splitHelper.fPath) ) {
+		if (ctx.Lookup("FixDirectoryTraversial", 0L)) {
+			coast::http::PutErrorMessageIntoContext(ctx, 200, "Directory traversal attack detected and normalized. "
+					"Request not rejected because of FixDirectoryTraversial setting", splitHelper.fPath, "HTTPProcessorWithChecks::DoPrepareContextRequest");
+			splitHelper.fPath = coast::urlutils::CleanUpUriPath(splitHelper.fPath);
+		} else {
+			coast::http::PutErrorMessageIntoContext(ctx, 400, "Directory traversal attack", splitHelper.fPath, "HTTPProcessorWithChecks::DoPrepareContextRequest");
+			return false;
+		}
 	}
 	request["REQUEST_URI"] = splitHelper.merge();
-
 	return HTTPProcessor::DoPrepareContextRequest(Ios, ctx, request, reader);
 }
 

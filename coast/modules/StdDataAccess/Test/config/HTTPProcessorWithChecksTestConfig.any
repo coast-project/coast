@@ -119,19 +119,6 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		/DeepRelativeBackMovementAttack {
-			/RequestLine 	"GET /aa/bb/cc/dd/ee/ff/gg/hh/ii/fims-api-info/../../../../../etc/passwd HTTP/1.1\r\n\r\n"
-			/Expected {
-				/Request {
-					/env *
-				}
-				/ErrorsSlotname "ReadInput.Error"
-				/ErrorMessages {
-					/:0.ErrorMessage	"Directory traversal attack"
-				}
-				/Reply "HTTP/1.1 400 Bad Request"
-			}
-		}
 		/EncodedCharactersTraversalAttack {
 			/RequestLine 	"GET %2Fftimage/subimage/%2E.%2F%2E%2E%2Fetc%2Fshadow HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -171,6 +158,19 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
+		/DeepRelativeBackMovementAttack {
+			/RequestLine 	"GET /aa/bb/cc/dd/ee/ff/gg/hh/ii/fims-api-info/../../../../../etc/passwd HTTP/1.1\r\n\r\n"
+			/Expected {
+				/Request {
+					/env *
+				}
+				/ErrorsSlotname "ReadInput.Error"
+				/ErrorMessages {
+					/:0.ErrorMessage	"Directory traversal attack"
+				}
+				/Reply "HTTP/1.1 400 Bad Request"
+			}
+		}
 		/EncodedDeepRelativeBackMovementAttack {
 			/RequestLine 	"GET /aa/bb/cc/dd/ee/ff/gg/hh/ii/fims-api-info/%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc/passwd HTTP/1.1\r\n\r\n"
 			/Expected {
@@ -197,8 +197,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 46 "old traversal attack tests"
-		/DirectoryTraversalOverride {
+		/FixDirectoryTraversalRelativeMove {
 			/RequestLine 	"GET /ftimage/subimage/../../etc/shadow HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
 			/Expected {
@@ -214,8 +213,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 47
-		{
+		/FixDirectoryTraversalRelativeMoveUnicode {
 			/RequestLine 	"GET %u002Fftimage/subimage%u002F%u002E%u002E%u002F%2E%2E%2Fetc%2Fshadow HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
 			/Expected {
@@ -231,7 +229,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 48
+		/FixDirectoryTraversalRelativeMoveEncoded
 		{
 			/RequestLine 	"GET %2Fftimage/subimage/%2E.%2F%2E%2E%2Fetc%2Fshadow HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -248,7 +246,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 49
+		/FixDirectoryTraversalManyRelativeMoves
 		{
 			/RequestLine 	"GET /ftimage/../../../etc/shadow HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -265,7 +263,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 50
+		/FixDirectoryTraversalManyRelativeMovesEncoded
 		{
 			/RequestLine 	"GET %2Fftimage%2F%2E%2E%2F%2E%2E%2F%2E%2E%2Fetc%2Fshadow HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -282,11 +280,10 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 51
+		/FixDirectoryTraversalManyRelativeMovesEncodedUnicode
 		{
 			/RequestLine 	"GET %2Fftimage%u002F%u002E%2E/%2E%2E%2F.%2E/etc%2Fshadow HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
-			/URLEncodeExclude   "/?"
 			/Expected {
 				/Request {
 					/env {
@@ -300,7 +297,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 52
+		/FixDirectoryTraversalManyRelativeMovesWithoutServiceName
 		{
 			/RequestLine 	"GET /../../../../etc/shadow HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -317,7 +314,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 53
+		/FixDirectoryTraversalManyRelativeMovesWithoutServiceNameEncoded
 		{
 			/RequestLine 	"GET %2F%2E%2E%2F%2E%2E%2F%2E%2E%2F%2E%2E%2Fetc%2Fshadow HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -334,7 +331,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 54
+		/FixDirectoryTraversalRelativeMoveToRoot
 		{
 			/RequestLine 	"GET /ftimage/../../.. HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -351,7 +348,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 55
+		/FixDirectoryTraversalRelativeMoveToRootEncodedUnicode
 		{
 			/RequestLine 	"GET /ftimage%2F%2E%u002E%2F%2E%2E%2F%2E%2E HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -368,7 +365,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 56
+		/FixDirectoryTraversalRelativeMovesBeyondRootEncoded
 		{
 			/RequestLine 	"GET /ftimage%2F%2E%2E%2F%2E%2E%2F%2E%2E HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -385,7 +382,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 57
+		/FixDirectoryTraversalRelativeMovesBeyondRootTrailingSlash
 		{
 			/RequestLine 	"GET /ftimage/../../../ HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -402,7 +399,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 58
+		/FixDirectoryTraversalRelativeMovesBeyondRootTrailingSlashUnicode
 		{
 			/RequestLine 	"GET /ftimage%2F%2E%u002E%2F%2E%2E%2F%u002E%2E%2F HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -419,7 +416,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 59
+		/FixDirectoryTraversalRelativeDir
 		{
 			/RequestLine 	"GET /. HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -436,11 +433,10 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 60
+		/FixDirectoryTraversalRelativeDir
 		{
 			/RequestLine 	"GET %2F%2E HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
-			/URLEncodeExclude   "/?"
 			/Expected {
 				/Request {
 					/env {
@@ -454,11 +450,10 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 61
+		/FixDirectoryTraversalRelativeDirs
 		{
 			/RequestLine	"GET /./. HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
-			/URLEncodeExclude   "/?"
 			/Expected {
 				/Request {
 					/env {
@@ -472,7 +467,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 62
+		/FixDirectoryTraversalRelativeDirsEncoded
 		{
 			/RequestLine	"GET %2F%2E%2F%2E HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -489,7 +484,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 63
+		/FixDirectoryTraversalRelativeDirWithservicename
 		{
 			/RequestLine	"GET /ftimage/./ HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -506,7 +501,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 64
+		/FixDirectoryTraversalRelativeDirWithservicenameEncoded
 		{
 			/RequestLine	"GET %2Fftimage%2F%2E%2F HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -523,7 +518,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 65
+		/FixDirectoryTraversalRelativeDirsWithservicename
 		{
 			/RequestLine	"GET /ftimage/./. HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -540,7 +535,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 66
+		/FixDirectoryTraversalRelativeDirsWithservicename
 		{
 			/RequestLine	"GET %2Fftimage%2F%2E%2F%2E HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -557,7 +552,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 67
+		/FixDirectoryTraversalRelativeDirServicename
 		{
 			/RequestLine	 "GET /ftimage/. HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -574,7 +569,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 68
+		/FixDirectoryTraversalRelativeDirServicename
 		{
 			/RequestLine	 "GET %2Fftimage%2F%2E HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -591,7 +586,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 69
+		/FixDirectoryTraversalRelativeMoveWithArgs
 		{
 			/RequestLine 	"GET /ftimage/foo/..?fobaz&..&..&X HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -608,7 +603,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 70
+		/FixDirectoryTraversalRelativeMoveWithArgsEncoded
 		{
 			/RequestLine 	"GET %2Fftimage%2Ffoo%2F%2E%2E?fobaz&..&..&X HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -625,8 +620,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# Arguments are not unescaped!
-		# 71
+		/FixDirectoryTraversalRelativeMoveWithArgsUnescaped
 		{
 			/RequestLine 	"GET %2Fftimage%2Ffoo%2F%2E%2E?fobaz%2F%u002F&..&..&X HTTP/1.0\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -643,8 +637,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# Directory traversal cleanup, more elaborate cases
-		# 72
+		/FixDirectoryTraversalDeepRelativeBackMovementAttack
 		{
 			/RequestLine 	"GET /aa/bb/cc/dd/ee/ff/gg/hh/ii/fims-api-info/../../../../../etc/passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -661,7 +654,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 73
+		/FixDirectoryTraversalDeepRelativeBackMovementAttackEncoded
 		{
 			/RequestLine 	"GET /aa/bb/cc/dd/ee/ff/gg/hh/ii/fims-api-info/%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc/passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -678,7 +671,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 74
+		/FixDirectoryTraversalDeepRelativeBackMovement
 		{
 			/RequestLine 	"GET /../../../../../etc/passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -695,7 +688,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 75
+		/FixDirectoryTraversalDeepRelativeBackMovementEncoded
 		{
 			/RequestLine 	"GET %2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc/passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -712,7 +705,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 76
+		/FixDirectoryTraversalRelativeBackMovement
 		{
 			/RequestLine 	"GET ../../../../../etc/passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -729,7 +722,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 77
+		/FixDirectoryTraversalRelativeBackMovement
 		{
 			/RequestLine 	"GET %2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc/passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -746,47 +739,10 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 78
-		{
-			/RequestLine 	"GET /etc%2f%2e%2fpasswd HTTP/1.1\r\n\r\n"
-			/FixDirectoryTraversial		1
-			/URLEncodeExclude   "/?"
-			/Expected {
-				/Request {
-					/env {
-						/REQUEST_URI "/etc/passwd"
-					}
-				}
-				/ErrorsSlotname "ReadInput.Error"
-				/ErrorMessages {
-					/:0.ErrorMessage	"Directory traversal attack detected and normalized. Request not rejected because of FixDirectoryTraversial setting"
-				}
-				/Reply "HTTP/1.1 404 Not Found"
-			}
-		}
-		# 79
-		{
-			/RequestLine 	"GET /etc/./././passwd HTTP/1.1\r\n\r\n"
-			/FixDirectoryTraversial		1
-			/URLEncodeExclude   "/?"
-			/Expected {
-				/Request {
-					/env {
-						/REQUEST_URI "/etc/passwd"
-					}
-				}
-				/ErrorsSlotname "ReadInput.Error"
-				/ErrorMessages {
-					/:0.ErrorMessage	"Directory traversal attack detected and normalized. Request not rejected because of FixDirectoryTraversial setting"
-				}
-				/Reply "HTTP/1.1 404 Not Found"
-			}
-		}
-		# 80
+		/FixDirectoryTraversialWithRelativeDir
 		{
 			/RequestLine 	"GET /etc/./passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
-			/URLEncodeExclude   "/?"
 			/Expected {
 				/Request {
 					/env {
@@ -800,7 +756,41 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 81
+		/FixDirectoryTraversialWithRelativeDirEncoded
+		{
+			/RequestLine 	"GET /etc%2f%2e%2fpasswd HTTP/1.1\r\n\r\n"
+			/FixDirectoryTraversial		1
+			/Expected {
+				/Request {
+					/env {
+						/REQUEST_URI "/etc/passwd"
+					}
+				}
+				/ErrorsSlotname "ReadInput.Error"
+				/ErrorMessages {
+					/:0.ErrorMessage	"Directory traversal attack detected and normalized. Request not rejected because of FixDirectoryTraversial setting"
+				}
+				/Reply "HTTP/1.1 404 Not Found"
+			}
+		}
+		/FixDirectoryTraversialWithRelativeDirs
+		{
+			/RequestLine 	"GET /etc/./././passwd HTTP/1.1\r\n\r\n"
+			/FixDirectoryTraversial		1
+			/Expected {
+				/Request {
+					/env {
+						/REQUEST_URI "/etc/passwd"
+					}
+				}
+				/ErrorsSlotname "ReadInput.Error"
+				/ErrorMessages {
+					/:0.ErrorMessage	"Directory traversal attack detected and normalized. Request not rejected because of FixDirectoryTraversial setting"
+				}
+				/Reply "HTTP/1.1 404 Not Found"
+			}
+		}
+		/FixDirectoryTraversialWithRelativeDirsEncoded
 		{
 			/RequestLine 	"GET /etc%2f%2e%2f%2f%2e%2f%2f%2e%2fpasswd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -817,7 +807,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 82
+		/FixDirectoryTraversialWithRelativeDirStart
 		{
 			/RequestLine 	"GET ./etc/passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -834,7 +824,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 83
+		/FixDirectoryTraversialWithRelativeDirStartEncoded
 		{
 			/RequestLine 	"GET %2e%2fetc/passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -851,24 +841,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 84
-		{
-			/RequestLine 	"GET %2e%2f%2e%2f%2e%2fetc/passwd HTTP/1.1\r\n\r\n"
-			/FixDirectoryTraversial		1
-			/Expected {
-				/Request {
-					/env {
-						/REQUEST_URI "etc/passwd"
-					}
-				}
-				/ErrorsSlotname "ReadInput.Error"
-				/ErrorMessages {
-					/:0.ErrorMessage	"Directory traversal attack detected and normalized. Request not rejected because of FixDirectoryTraversial setting"
-				}
-				/Reply "HTTP/1.1 404 Not Found"
-			}
-		}
-		# 85
+		/FixDirectoryTraversialWithRelativeDirsStart
 		{
 			/RequestLine 	"GET ./././etc/passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
@@ -885,15 +858,14 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 86
-		# Url with blank
+		/FixDirectoryTraversialWithRelativeDirsStartEncoded
 		{
-			/RequestLine 	"GET ./././etc/passwd/my%20blank.gif HTTP/1.1\r\n\r\n"
+			/RequestLine 	"GET %2e%2f%2e%2f%2e%2fetc/passwd HTTP/1.1\r\n\r\n"
 			/FixDirectoryTraversial		1
 			/Expected {
 				/Request {
 					/env {
-						/REQUEST_URI "etc/passwd/my%20blank.gif"
+						/REQUEST_URI "etc/passwd"
 					}
 				}
 				/ErrorsSlotname "ReadInput.Error"
@@ -903,11 +875,26 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 87
-		# URLEncodeExclude set to ("/?=")
+		/FixDirectoryTraversialWithRelativeDirAndBlank
+		{
+			/RequestLine 	"GET ./././etc/passwd/my%20blank.gif HTTP/1.1\r\n\r\n"
+			/FixDirectoryTraversial		1
+			/Expected {
+				/Request {
+					/env {
+						/REQUEST_URI "etc/passwd/my blank.gif"
+					}
+				}
+				/ErrorsSlotname "ReadInput.Error"
+				/ErrorMessages {
+					/:0.ErrorMessage	"Directory traversal attack detected and normalized. Request not rejected because of FixDirectoryTraversial setting"
+				}
+				/Reply "HTTP/1.1 404 Not Found"
+			}
+		}
+		/FixDirectoryTraversialWithRelativeDirAndEqualChar
 		{
 			/RequestLine 	"GET ./././etc/passwd/my%3Dequals.gif HTTP/1.1\r\n\r\n"
-			/URLEncodeExclude  "/?="
 			/FixDirectoryTraversial		1
 			/Expected {
 				/Request {
@@ -922,7 +909,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 89
+		/FixDirectoryTraversialWithExhaustiveDecode
 		# multiple encodings. Only with FixDirectoryTraversial the modified request will be seen
 		# and only if there had something to be fixed in the directory structure
 		{
@@ -942,8 +929,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 90
-		# multiple encodings.No FixDirectoryTraversial given
+		/DontFixDirectoryTraversialWithExhaustiveDecode
 		{
 			/RequestLine 	"GET /ftimage%252F../image/my.gif HTTP/1.0\r\n\r\n"
 			/URLExhaustiveDecode	1
@@ -959,7 +945,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 91
+		/FixDirectoryTraversialWithExhaustiveDecode
 		# %%%25%25%32%35%25%25%37%35002%%%u0075004%u0035 evaluates to a .
 		{
 			/RequestLine 	"GET /ftimage%252F.%%%25%25%32%35%25%25%37%35002%%%u0075004%u0035/image/my.gif HTTP/1.0\r\n\r\n"
@@ -991,8 +977,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 13
-		# Arguments are not unescaped!
+		/ArgumentsAreNotDecoded
 		{
 			/RequestLine 	"GET %2Fftimage%2Ffoo?fobaz%2F%u002F&..&..&X HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1004,8 +989,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 14
-		# Request with terminating ? ( Must be removed, since a URI with terminating ? is not likely to be found )
+		/RemoveEmptyQueryChar
 		{
 			/RequestLine 	"GET /kimdojo? HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1017,7 +1001,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 15
+		/RemoveEmptyQueryCharEncoded
 		{
 			/RequestLine 	"GET %2Fkimdojo? HTTP/1.1\r\n\r\n"
 			/Expected {
@@ -1029,7 +1013,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 16
+		/OnlyQueryCharGiven
 		{
 			/RequestLine 	"GET ? HTTP/1.1\r\n\r\n"
 			/Expected {
@@ -1041,7 +1025,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 17
+		/RemoveEmptyQueryCharForRoot
 		{
 			/RequestLine 	"GET /? HTTP/1.1\r\n\r\n"
 			/Expected {
@@ -1053,8 +1037,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 20
-		# Argument checking
+		/QueryArgumentsCorrectlyEncodedRelative
 		{
 			/RequestLine 	"GET ?bar=%4B%69%6D-dojo& HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1066,7 +1049,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 21
+		/QueryArgumentsCorrectlyEncodedForRoot
 		{
 			/RequestLine 	"GET /?bar=%4B%69%6D-dojo& HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1078,7 +1061,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 22
+		/QueryArgumentsIncorrectlyEncodedForEncodedRoot
 		{
 			/RequestLine 	"GET %2F?bar=%4B%69%6D-~dojo& HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1093,8 +1076,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 23
-		# Override ~{} in argument check
+		/QueryArgumentsCorrectlyEncodedWithOverrideSet
 		{
 			/RequestLine 	"GET %2F?bar=%4B%69%6D-~{dojo}& HTTP/1.0\r\n\r\n"
 			/CheckUrlArgEncodingOverride	"%=-~{}&"
@@ -1107,7 +1089,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 24
+		/QueryArgumentsCorrectlyEncodedWithservicename
 		{
 			/RequestLine 	"GET /ftimage/image.gif?bar=%4B%69%6D-dojo& HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1119,7 +1101,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 25
+		/QueryArgumentsCorrectlyEncodedWithservicenameUnicode
 		{
 			/RequestLine 	"GET /ftimage/image.gif?bar=%u004B%u0069%u006D-dojo& HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1131,7 +1113,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 26
+		/QueryArgumentsWithservicenameEncodedWIthIllegalArgumentChar
 		{
 			/RequestLine 	"GET %2Fftimage%2Fimage.gif?bar=%4B%69%6D-dojo~& HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1147,8 +1129,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 27
-		# args above hex FF
+		/argsabovehexFF
 		{
 			/RequestLine 	"GET /ftimage/image.gif?bar=%u01FF-dojo& HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1160,8 +1141,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 28
-		# Wrong path encodings, 4 cases basing on same url
+		/Wrongpathencodings4casesbasingonsameurl
 		{
 			/RequestLine 	"GET /ftimage~/image.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1176,7 +1156,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 30
+		/Wrongpathencodings4casesbasingonsameurlEncoded
 		{
 			/RequestLine 	"GET /ftimage%21/image.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1188,20 +1168,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 32
-		{
-			/RequestLine 	"GET /ftimage/image.gif?bar=%u01FF-dojo& HTTP/1.0\r\n\r\n"
-			/Expected {
-				/Request {
-					/env {
-						/REQUEST_URI "/ftimage/image.gif?bar=%u01FF-dojo&"
-					}
-				}
-				/Reply "HTTP/1.1 404 Not Found"
-			}
-		}
-		# 34
-		# not encoded blanks trigger end of path parsing
+		/NotEncodedBlankStringTriggerEndofPathParsing
 		{
 			/RequestLine 	"GET /ftimage/image withblank.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1216,7 +1183,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 35
+		/EncodedBlankStringResultsInBlankStringImageName
 		{
 			/RequestLine 	"GET /ftimage/image%20withblank.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1228,8 +1195,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 37
-		# \ is not allowed
+		/BackslashNotAllowedUnencoded
 		{
 			/RequestLine 	"GET /ftimage\image/my.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1244,8 +1210,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 38
-		# after first pass of decoding there are still encoded sequences
+		/AfterFirstPassOfDecodingThereAreStillEncodedSequences
 		{
 			/RequestLine 	"GET /ftimage%255Cimage/my.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1260,8 +1225,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 39
-		# %25%35%63 evaluates to \ which is not valid
+		/"%25%35%63EvaluatesToBackslashWhichIsNotValid"
 		{
 			/RequestLine 	"GET /ftimage%25%35%63../image/my.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1276,8 +1240,6 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 40
-		# after first pass of decoding there are still encoded sequences
 		/StillEncodedCharactersAfterFirstDecoding {
 			/RequestLine 	"GET /ftimage%255C../ HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1292,8 +1254,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 41
-		# %%35c evaluates to \
+		/"%%35cEvaluatesToBackslash"
 		{
 			/RequestLine 	"GET /ftimage%%35c../image/my.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1308,9 +1269,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-
-		# 42
-		# this are encoded chars > ascii 127 (//), thus invalid
+		/EncodedCharsAboveAscii127
 		{
 			/RequestLine 	"GET /ftimage%C0%AF%C0%AF/image/my.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1325,8 +1284,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 44
-		# %255C evaluates to \
+		/"%255CEvaluatesToBackslash"
 		{
 			/RequestLine 	"GET /ftimage%255C../image/my.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1341,8 +1299,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 45
-		# after one-time url decoding there are no more escaped squences, but invalid chars (same as 41)
+		/AfterOneTimeUrlDecodingThereAreNoMoreEscapedSquencesButInvalidChars
 		{
 			/RequestLine 	"GET /ftimage%255C..%255C..%255C../image/my.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1357,9 +1314,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 88
-		#  multiple encodings.
-		# after first pass of decoding there are still encoded sequences
+		/StillEncodedSsequencesAfterFirstPassOfDecoding
 		{
 			/RequestLine 	"GET /ftimage%252Fimage/my.gif HTTP/1.0\r\n\r\n"
 			/URLExhaustiveDecode	0
@@ -1375,8 +1330,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 92
-		# Char above hex 255  (unicode)
+		/UnicodeCharAboveHex255
 		{
 			/RequestLine 	"GET /ftimage/%u0900/my.gif HTTP/1.0\r\n\r\n"
 			/URLExhaustiveDecode	1
@@ -1393,40 +1347,49 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 93
-		# We accept $-_.+/?%= as unencoded chars in a URL
-		# Now we allow ] to be unencoded
+		/EqualsIsAllowedUnencoded
 		{
 			/RequestLine 	"GET /ftimage/my=equals.gif HTTP/1.0\r\n\r\n"
-			/CheckUrlEncodingOverride	"]"
 			/Expected {
 				/Request {
 					/env {
 						/REQUEST_URI "/ftimage/my=equals.gif"
 					}
 				}
+				/ErrorsSlotname "ReadInput.Error"
+				/ErrorMessages {
+					/:0.ErrorMessage	"Not all unsafe chars URL encoded"
+				}
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 94
-		# but with ] the request is invalid
+		/"Allow]ToBeUnencodedInAdditionTo$-_.+/?%=ButOverrideCheckFails"
 		{
-			/RequestLine 	"GET /ftimage/my]equals.gif HTTP/1.0\r\n\r\n"
+			/RequestLine 	"GET /ftimage/my=]equals.gif HTTP/1.0\r\n\r\n"
+			/CheckUrlEncodingOverride	"]"
 			/Expected {
 				/Request {
 					/env {
 					}
 				}
-				/ErrorsSlotname "ReadInput.Error"
-				/ErrorMessages {
-					/:0.ErrorMessage	"Not all unsafe chars URL encoded"
-				}
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 95
-		# Not allowed chars in URL-path, default is "<>\"#%{}|\\^~[]`" ( after decoding )
-		# x84=� is extended ascii
+		/"Allow]ToBeUnencoded"
+		{
+			/RequestLine 	"GET /ftimage/my=]equals.gif HTTP/1.0\r\n\r\n"
+			/CheckUrlEncodingOverride	"]"
+			/CheckUrlPathContainsUnsafeCharsOverride	"<>\"#%{}|\\^~`"
+			/Expected {
+				/Request {
+					/env {
+						/REQUEST_URI "/ftimage/my=]equals.gif"
+					}
+				}
+				/Reply "HTTP/1.1 404 Not Found"
+			}
+		}
+		/ExtendedAsciiNotAllowedInURL
 		{
 			/RequestLine 	"GET /ftimage/%u0084umlaut.gif HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1441,8 +1404,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
-		# 96
-		# Now allow  0xe4=a 0xf6=ö
+		/UmlautsAllowedInUrlByOverride
 		{
 			/RequestLine 	"GET /ftimage/%u00e4%f6umlaut.gif HTTP/1.0\r\n\r\n"
 			/CheckUrlPathContainsUnsafeCharsAsciiOverride "\xe4\xf6"
@@ -1455,9 +1417,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 98
-		# Override the default set of allowed chars in URL-path ( after decoding ) < = 0x3c
-		# by removing it from the list
+		/"RemoveLessChar(%3c)FromDefaultSetOfOverrideChars"
 		{
 			/RequestLine 	"GET /ftimage/%3csmaller.gif HTTP/1.0\r\n\r\n"
 			/CheckUrlPathContainsUnsafeCharsOverride ">\"#%{}|\\^~[]`"
@@ -1470,8 +1430,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 99
-		# this are encoded chars > ascii 127 (//), do not complain because CheckUrlPathContainsUnsafeCharsDoNotCheckExtendedAscii
+		/ExtendedAsciiCharsAbove127AllowedByOverride
 		{
 			/RequestLine 	"GET /ftimage%C0%AF%C0%AF/image/my.gif HTTP/1.0\r\n\r\n"
 			/CheckUrlPathContainsUnsafeCharsDoNotCheckExtendedAscii 1
@@ -1484,8 +1443,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 100
-		# this request contains ; as delimiter
+		/SemicolonIsAllowedByRequestUriSplitter
 		{
 			/RequestLine 	"GET /ftimage/my.gif;ali=baba&gu^gus=da^da& HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1497,8 +1455,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 101
-		# this request contains ; as url encoded (3B) delimiter
+		/EncodedSemicolonIsAllowedByRequestUriSplitter
 		{
 			/RequestLine 	"GET /ftimage/my.gif%3Bali%3Dbaba HTTP/1.0\r\n\r\n"
 			/Expected {
@@ -1510,11 +1467,9 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 102
-		# this request contains ; as url encoded (3B) delimiter, exhaustive decoding
+		/DeepEncodedSemicolonIsAllowedByRequestUriSplitter
 		{
 			/RequestLine 	"GET /ftimage/my.gif%3Bali%3Dbaba HTTP/1.0\r\n\r\n"
-			/URLEncodeExclude  "/?="
 			/URLExhaustiveDecode	1
 			/FixDirectoryTraversial 1
 			/Expected {
@@ -1526,11 +1481,9 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 103
-		# this request contains ? as url encoded (3F) delimiter, exhaustive decoding
+		/EncodedQuestionMarkIsAllowedByRequestUriSplitter
 		{
 			/RequestLine 	"GET /ftimage/my.gif%3Fali%3Dbaba HTTP/1.0\r\n\r\n"
-			/URLEncodeExclude  "/?="
 			/URLExhaustiveDecode	1
 			/FixDirectoryTraversial 1
 			/Expected {
@@ -1542,28 +1495,25 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
-		# 104
-		# this request is derived from the production environment
+		/CoastEncodedUrlCorrectlyHandled
 		{
-			/RequestLine "GET /HIKU/X1=b64-Qmxvd2Zpc2hTY3JhbWJsZXIwLXX96LrMgzOhIOcV7UOg61cdj1zWDFjS-5Sc5kBT1Ny3DnBw$AqWARyPsxgNSEL-CKTFYIxOYDvUe-kVh8T8seKxEXwt1Jz3jbhFRL8F2H-dTzBQNREXwEb0vgSAbokMbTV2sKe3OMUycbR1XMJltJBBQmCLJftLOTB2BykamEifZr6HLCbpBWo=/X2=b64-Qmxvd2Zpc2hTY3JhbWJsZXIwLXX96LrMgzOh6cFdF2$cQwDVlebcVn528YGqxQD87Rx6mVExoiV0QSqQa8fhbZBIEgvJZkK9KM-1FHwMOVDED$OX$P747922UaPe2z0w-hc7Zbikt4J5lXw6LnMMxbVpUpY6Eq2GMZiX$BJHK6ShTTPp-pNtVJQH1bycxbhjYIGK-RUKctRb9GBGE7BQjs3YnjLtZgfCZb23LbVBp$VAMNaQGIDBcLj8s$wSRyukoU0zIaMNBRY40OrmY-Kbn-QdFfgpqrrn87NhvKa0LUwxDM97kKF9Huct16OuXMz3d43TdbHxcWPNG2JtamCFBlu99ef4auFCb5$irXyZVVAMja38EkcrpKFNM5ACilatcPTSo$l1LKcXgjLrsKOtWrR7i6T-Ycd8fSFk9CGQ6QXjGvrFDYatzRVKzzr5I5LwdoMvyye287qoJk-9lVnamBAh-A85YK3buLyily958HqK7dlaDJDpllUN4MsntvO6qCZPvZVZ2pgQIfgPOWCt27i8opcvefB6iu3ZVT$TewEFDpPOrThqpUvt8CMzljEkhjLNZTHUrlcV3vlEKro9ndQe6uxNFVGn32lwQz9NXNC02s8DBEJepA$Su1OW7BKBXusyGtZkElbWACaYuDdeN5c6VIesEOWsLhAacnJPII689AK3xKwnLV7KFjTIdGBp-eBmIsHnRwCLzFHhDFJ$eiUUMfxTcKZPD6iJf3kKALE4C6bdkUluWVZMElzMd4E161n1 HTTP/1.0\r\n\r\n"
-			/CheckUrlEncodingOverride	"$-_.+/?%;="
+			/RequestLine "GET /HOHO/X1=b64-Qmxvd2Zpc2hTY3JhbWJsZXIwLXX96LrMgzOhIOcV7UOg61cdj1zWDFjS-5Sc5kBT1Ny3DnBw$AqWARyPsxgNSEL-CKTFYIxOYDvUe-kVh8T8seKxEXwt1Jz3jbhFRL8F2H-dTzBQNREXwEb0vgSAbokMbTV2sKe3OMUycbR1XMJltJBBQmCLJftLOTB2BykamEifZr6HLCbpBWo=/X2=b64-Qmxvd2Zpc2hTY3JhbWJsZXIwLXX96LrMgzOh6cFdF2$cQwDVlebcVn528YGqxQD87Rx6mVExoiV0QSqQa8fhbZBIEgvJZkK9KM-1FHwMOVDED$OX$P747922UaPe2z0w-hc7Zbikt4J5lXw6LnMMxbVpUpY6Eq2GMZiX$BJHK6ShTTPp-pNtVJQH1bycxbhjYIGK-RUKctRb9GBGE7BQjs3YnjLtZgfCZb23LbVBp$VAMNaQGIDBcLj8s$wSRyukoU0zIaMNBRY40OrmY-Kbn-QdFfgpqrrn87NhvKa0LUwxDM97kKF9Huct16OuXMz3d43TdbHxcWPNG2JtamCFBlu99ef4auFCb5$irXyZVVAMja38EkcrpKFNM5ACilatcPTSo$l1LKcXgjLrsKOtWrR7i6T-Ycd8fSFk9CGQ6QXjGvrFDYatzRVKzzr5I5LwdoMvyye287qoJk-9lVnamBAh-A85YK3buLyily958HqK7dlaDJDpllUN4MsntvO6qCZPvZVZ2pgQIfgPOWCt27i8opcvefB6iu3ZVT$TewEFDpPOrThqpUvt8CMzljEkhjLNZTHUrlcV3vlEKro9ndQe6uxNFVGn32lwQz9NXNC02s8DBEJepA$Su1OW7BKBXusyGtZkElbWACaYuDdeN5c6VIesEOWsLhAacnJPII689AK3xKwnLV7KFjTIdGBp-eBmIsHnRwCLzFHhDFJ$eiUUMfxTcKZPD6iJf3kKALE4C6bdkUluWVZMElzMd4E161n1 HTTP/1.0\r\n\r\n"
 			/URISizeLimit			2048
-			/URLEncodeExclude			"/?;"
 			/Expected {
 				/Request {
 					/env {
-						/REQUEST_URI "/HIKU/X1=b64-Qmxvd2Zpc2hTY3JhbWJsZXIwLXX96LrMgzOhIOcV7UOg61cdj1zWDFjS-5Sc5kBT1Ny3DnBw$AqWARyPsxgNSEL-CKTFYIxOYDvUe-kVh8T8seKxEXwt1Jz3jbhFRL8F2H-dTzBQNREXwEb0vgSAbokMbTV2sKe3OMUycbR1XMJltJBBQmCLJftLOTB2BykamEifZr6HLCbpBWo=/X2=b64-Qmxvd2Zpc2hTY3JhbWJsZXIwLXX96LrMgzOh6cFdF2$cQwDVlebcVn528YGqxQD87Rx6mVExoiV0QSqQa8fhbZBIEgvJZkK9KM-1FHwMOVDED$OX$P747922UaPe2z0w-hc7Zbikt4J5lXw6LnMMxbVpUpY6Eq2GMZiX$BJHK6ShTTPp-pNtVJQH1bycxbhjYIGK-RUKctRb9GBGE7BQjs3YnjLtZgfCZb23LbVBp$VAMNaQGIDBcLj8s$wSRyukoU0zIaMNBRY40OrmY-Kbn-QdFfgpqrrn87NhvKa0LUwxDM97kKF9Huct16OuXMz3d43TdbHxcWPNG2JtamCFBlu99ef4auFCb5$irXyZVVAMja38EkcrpKFNM5ACilatcPTSo$l1LKcXgjLrsKOtWrR7i6T-Ycd8fSFk9CGQ6QXjGvrFDYatzRVKzzr5I5LwdoMvyye287qoJk-9lVnamBAh-A85YK3buLyily958HqK7dlaDJDpllUN4MsntvO6qCZPvZVZ2pgQIfgPOWCt27i8opcvefB6iu3ZVT$TewEFDpPOrThqpUvt8CMzljEkhjLNZTHUrlcV3vlEKro9ndQe6uxNFVGn32lwQz9NXNC02s8DBEJepA$Su1OW7BKBXusyGtZkElbWACaYuDdeN5c6VIesEOWsLhAacnJPII689AK3xKwnLV7KFjTIdGBp-eBmIsHnRwCLzFHhDFJ$eiUUMfxTcKZPD6iJf3kKALE4C6bdkUluWVZMElzMd4E161n1"
+						/REQUEST_URI "/HOHO/X1=b64-Qmxvd2Zpc2hTY3JhbWJsZXIwLXX96LrMgzOhIOcV7UOg61cdj1zWDFjS-5Sc5kBT1Ny3DnBw$AqWARyPsxgNSEL-CKTFYIxOYDvUe-kVh8T8seKxEXwt1Jz3jbhFRL8F2H-dTzBQNREXwEb0vgSAbokMbTV2sKe3OMUycbR1XMJltJBBQmCLJftLOTB2BykamEifZr6HLCbpBWo=/X2=b64-Qmxvd2Zpc2hTY3JhbWJsZXIwLXX96LrMgzOh6cFdF2$cQwDVlebcVn528YGqxQD87Rx6mVExoiV0QSqQa8fhbZBIEgvJZkK9KM-1FHwMOVDED$OX$P747922UaPe2z0w-hc7Zbikt4J5lXw6LnMMxbVpUpY6Eq2GMZiX$BJHK6ShTTPp-pNtVJQH1bycxbhjYIGK-RUKctRb9GBGE7BQjs3YnjLtZgfCZb23LbVBp$VAMNaQGIDBcLj8s$wSRyukoU0zIaMNBRY40OrmY-Kbn-QdFfgpqrrn87NhvKa0LUwxDM97kKF9Huct16OuXMz3d43TdbHxcWPNG2JtamCFBlu99ef4auFCb5$irXyZVVAMja38EkcrpKFNM5ACilatcPTSo$l1LKcXgjLrsKOtWrR7i6T-Ycd8fSFk9CGQ6QXjGvrFDYatzRVKzzr5I5LwdoMvyye287qoJk-9lVnamBAh-A85YK3buLyily958HqK7dlaDJDpllUN4MsntvO6qCZPvZVZ2pgQIfgPOWCt27i8opcvefB6iu3ZVT$TewEFDpPOrThqpUvt8CMzljEkhjLNZTHUrlcV3vlEKro9ndQe6uxNFVGn32lwQz9NXNC02s8DBEJepA$Su1OW7BKBXusyGtZkElbWACaYuDdeN5c6VIesEOWsLhAacnJPII689AK3xKwnLV7KFjTIdGBp-eBmIsHnRwCLzFHhDFJ$eiUUMfxTcKZPD6iJf3kKALE4C6bdkUluWVZMElzMd4E161n1"
 					}
 				}
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
+		/CheckHeaderFieldsButDontReject
 		{
 			/RequestLine 	"GET /alibaba HTTP/1.0\r\nX-Evil: GET /gaga HTTP/1.0\r\n\r\n"
 			/URISizeLimit		271
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 0
 			/Expected {
@@ -1582,12 +1532,12 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
+		/CheckHeaderFieldsAndRejectGET
 		{
 			/RequestLine 	"GET /alibaba HTTP/1.0\r\nX-Evil: GET /gaga HTTP/1.0\r\n\r\n"
 			/URISizeLimit		271
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1602,12 +1552,12 @@
 				/Reply	"HTTP/1.1 400 Bad Request"
 			}
 		}
+		/CheckHeaderFieldsAndRejectPOST
 		{
 			/RequestLine 	"GET /alibaba HTTP/1.0\r\nX-Evil: POST\r\n\r\n"
 			/URISizeLimit		271
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1622,12 +1572,12 @@
 				/Reply	"HTTP/1.1 400 Bad Request"
 			}
 		}
+		/CheckHeaderFieldsWithRejectIgnoreInvalidHeaderContent
 		{
 			/RequestLine 	"GET /alibaba HTTP/1.0\r\nX-Evil: vGET\r\n\r\n"
 			/URISizeLimit		271
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1644,12 +1594,12 @@
 				/Reply	"HTTP/1.1 404 Not Found"
 			}
 		}
+		/CheckHeaderFieldsWithRejectIgnoreInvalidHeaderContentAgain
 		{
 			/RequestLine 	"GET /alibaba HTTP/1.0\r\nX-Evil: vGET /gaga HTTP1.0\r\n\r\n"
 			/URISizeLimit		271
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1666,12 +1616,12 @@
 				/Reply	"HTTP/1.1 404 Not Found"
 			}
 		}
+		/EmptyRequestLineIsNotValid
 		{
 			/RequestLine "\r\n\r\n"
 			/URISizeLimit		271
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5121
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1682,12 +1632,12 @@
 				/Reply	"HTTP/1.1 400 Bad Request"
 			}
 		}
+		/RequestLineWithEmptyUrlIsNotValid
 		{
 			/RequestLine "GET  HTTP/1.0\r\n\r\n"
 			/URISizeLimit		271
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1698,12 +1648,12 @@
 				/Reply	"HTTP/1.1 400 Bad Request"
 			}
 		}
+		/RequestLineFailsBecauseOfLimitedURISize
 		{
 			/RequestLine "GET /12345678 HTTP/1.0\r\n\r\n"
 			/URISizeLimit		8
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1714,12 +1664,12 @@
 				/Reply	"HTTP/1.1 414 Request-URI Too Large"
 			}
 		}
+		/RequestLineFailsBecauseOfLimitedLineSize
 		{
 			/RequestLine "GET /12345 HTTP/1.0\r\n\r\n"
 			/URISizeLimit		271
 			/LineSizeLimit		8
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1730,12 +1680,12 @@
 				/Reply	"HTTP/1.1 413 Request Entity Too Large"
 			}
 		}
+		/RequestLineFailsBecauseOfLimitedRequestSize
 		{
 			/RequestLine "GET / HTTP/1.0\r\n\r\n"
 			/URISizeLimit		271
 			/LineSizeLimit		4096
 			/RequestSizeLimit	8
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1746,12 +1696,12 @@
 				/Reply	"HTTP/1.1 413 Request Entity Too Large"
 			}
 		}
+		/InvalidRequestMethod
 		{
 			/RequestLine "xxGET / HTTP/1.0\r\n\r\n"
 			/URISizeLimit		271
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1762,6 +1712,7 @@
 				/Reply "HTTP/1.1 405 Method Not Allowed"
 			}
 		}
+		/RenegotiationAttackRejectedBecauseOfHeaderFieldWithGetRequest
 		{
 			/RequestLine {
 				"POST /alibaba HTTP/1.0\r\n"
@@ -1774,7 +1725,6 @@
 			/URISizeLimit		1024
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1803,6 +1753,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
+		/RenegotiationAttackRejectedBecauseOfHeaderFieldWithPOSTRequest
 		{
 			/RequestLine {
 				"GET /alibaba HTTP/1.0" "\r\n" "X-Evil: POST" "\r\n" "\r\n"
@@ -1810,7 +1761,6 @@
 			/URISizeLimit		1024
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1833,6 +1783,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
+		/RenegotiationAttackRejectedBecauseOfHeaderFieldWithGETRequest
 		{
 			/RequestLine {
 				"GET /alibaba HTTP/1.0" "\r\n" "X-Evil: GET" "\r\n" "\r\n"
@@ -1840,7 +1791,6 @@
 			/URISizeLimit		1024
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1863,6 +1813,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
+		/RenegotiationAttackBecauseOfHeaderFieldWithGETRequestButNotRejected
 		{
 			/RequestLine {
 				"GET /alibaba HTTP/1.0" "\r\n" "X-Evil: GET" "\r\n" "\r\n"
@@ -1870,7 +1821,6 @@
 			/URISizeLimit		1024
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 0
 			/Expected {
@@ -1889,6 +1839,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
+		/RenegotiationAttackWithHeaderFieldsButInvalidGETRequest
 		{
 			/RequestLine {
 				"GET /alibaba HTTP/1.0" "\r\n" "X-Evil: xGET" "\r\n" "\r\n"
@@ -1896,7 +1847,6 @@
 			/URISizeLimit		1024
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1915,6 +1865,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
+		/RenegotiationAttackRejectedInMimeMultipart
 		{
 			/RequestLine {
 				"POST /alibaba HTTP/1.0\r\n"
@@ -1928,7 +1879,6 @@
 			/URISizeLimit		1024
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1951,6 +1901,7 @@
 				/Reply "HTTP/1.1 400 Bad Request"
 			}
 		}
+		/RenegotiationAttackInMimeMultipartButInvalidMimePart
 		{
 			/RequestLine {
 				"POST /alibaba HTTP/1.0\r\n"
@@ -1964,7 +1915,6 @@
 			/URISizeLimit		1024
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {
@@ -1984,6 +1934,7 @@
 				/Reply "HTTP/1.1 404 Not Found"
 			}
 		}
+		/RenegotiationAttackInMimeMultipartButInvalidGetRequest
 		{
 			/RequestLine {
 				"POST /alibaba HTTP/1.0\r\n"
@@ -1997,7 +1948,6 @@
 			/URISizeLimit		1024
 			/LineSizeLimit		4096
 			/RequestSizeLimit	5120
-			/URLEncodeExclude   "/?"
 			/CheckHeaderFields	1
 			/RejectRequestsWithInvalidHeaders 1
 			/Expected {

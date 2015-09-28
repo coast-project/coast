@@ -959,6 +959,20 @@
 			}
 			/Expected	"barBar, yupGugus baryup"
 		}
+		/StringReplaceRendererTest3 {
+			/Env {
+				/MyString "fooBar, gagaGugus foogaga"
+			}
+			/Renderer {
+				/StringReplaceRenderer {
+					/String	{ /ContextLookupRenderer MyString }
+					/ReplaceConfig {
+						/" "	"%20"
+					}
+				}
+			}
+			/Expected	"fooBar,%20gagaGugus%20foogaga"
+		}
 		/ComputeDateRendererTest0 {
 			/Env {
 			}

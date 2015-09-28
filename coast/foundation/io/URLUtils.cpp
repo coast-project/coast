@@ -448,7 +448,9 @@ namespace coast {
 		// decodes the given string into res by expanding %XX and %uXXXXX escapes
 		String urlDecode(const String &instr, bool replacePlusByBlank)
 		{
-			StartTrace1(URLUtils.urlDecode, "dispatch [" << instr.SubString(0,100L).Append(instr.Length()>100?"...":"") << "]");
+			long const tracePrefixLength=80L;
+			long const traceSuffixLength=20L;
+			StartTrace1(URLUtils.urlDecode, "dispatch [" << instr.SubString(0,tracePrefixLength).Append(instr.Length()>tracePrefixLength?String("...").Append(instr.SubString(instr.Length()-traceSuffixLength)):"") << "]");
 			URLCheckStatus eUrlCheckStatus;
 			return urlDecode(instr, eUrlCheckStatus, replacePlusByBlank);
 		}
@@ -456,7 +458,9 @@ namespace coast {
 		// decodes the given string into res by expanding %XX and %uXXXXX escapes
 		String urlDecode(const String &instr, URLCheckStatus &eUrlCheckStatus, bool replacePlusByBlank)
 		{
-			StartTrace1(URLUtils.urlDecode, "[" << instr.SubString(0,100L).Append(instr.Length()>100?"...":"") << "]");
+			long const tracePrefixLength=80L;
+			long const traceSuffixLength=20L;
+			StartTrace1(URLUtils.urlDecode, "[" << instr.SubString(0,tracePrefixLength).Append(instr.Length()>tracePrefixLength?String("...").Append(instr.SubString(instr.Length()-traceSuffixLength)):"") << "]");
 			String res, str(instr);
 			eUrlCheckStatus = eOk;
 			if ( replacePlusByBlank ) {
@@ -543,16 +547,20 @@ namespace coast {
 			if ( overrideUnsafe.Length() > 0L ) {
 				base = overrideUnsafe;
 			}
-			bool containsExtendedAscii = ( asciiExtended && (str.ContainsCharAbove(127, overrideAscii) != -1L));
-			bool containsUnsaveChar = (str.FirstCharOf(base) != -1L);
-			Trace ("containsExtendedAscii: " << containsExtendedAscii << " containsUnsaveChar: " << containsUnsaveChar);
+			long extendedCharIndex = str.ContainsCharAbove(127, overrideAscii);
+			bool containsExtendedAscii = (asciiExtended && (extendedCharIndex != -1L));
+			long unsaveCharIndex = str.FirstCharOf(base);
+			bool containsUnsaveChar = (unsaveCharIndex != -1L);
+			Trace ("overrideAscii [" << overrideAscii << "] overrideUnsafe [" << base << "]");
+			Trace ("containsExtendedAscii: " << extendedCharIndex << " containsUnsaveChar: " << unsaveCharIndex);
+			Trace ("containsExtendedAscii: " << (containsExtendedAscii?str.SubString(extendedCharIndex, 1):"") << " containsUnsaveChar: " << (containsUnsaveChar?str.SubString(unsaveCharIndex, 1):""));
 			return ( containsUnsaveChar || containsExtendedAscii);
 		}
 
 		// encode the given char *p into res by expanding problematic characters into %XX escapes suitable for msajax
 		String MSUrlEncode(const String &str)
 		{
-			StartTrace(URLUtils.urlEncode);
+			StartTrace(URLUtils.MSUrlEncode);
 			String result;
 			char c;
 

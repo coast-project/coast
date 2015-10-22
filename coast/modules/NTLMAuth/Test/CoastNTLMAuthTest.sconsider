@@ -34,6 +34,7 @@ if _sconsider_dist < pkg_resources.parse_version("0.5.dev"):
         packagename: {
             'linkDependencies': [
                 'CoastNTLMAuth',
+                'CoastRenderers',
                 'testfwWDBase'],
             'sourceFiles': SConsider.listFiles(
                 ['*.cpp']),

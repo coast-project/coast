@@ -77,7 +77,7 @@ public:
 	virtual int UnblockRequests();
 	virtual int QuitRunLoop();
 
-	//---- registry api
+	//! looking up default global application if name left 0
 	RegCacheDef(Server);	// FindServer()
 
 	//! Register a StatObserver on the WorkerPoolManager of this server
@@ -256,7 +256,6 @@ class ServerThread: public Thread
 public:
 	ServerThread();
 	ServerThread(Server *aServer);
-	virtual ~ServerThread();
 
 	void Run();
 

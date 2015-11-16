@@ -143,12 +143,14 @@ RegisterServer(Server);
 Mutex Server::fgReInitMutex("Reinit");
 bool Server::fgInReInit = false;
 
-
 //RegCacheImpl(Server);	// FindServer()
 // implement FindServer by hand since it uses Application's registry entries
 // guard against misuse by SafeCast
-Server *Server::FindServer(const char *name)
-{
+Server *Server::FindServer(const char *name) {
+	if (not name) {
+		String DefaultAppOrServerName;
+		return SafeCast(Application::GetGlobalApplication(DefaultAppOrServerName), Server);
+	}
 	return SafeCast(Application::FindApplication(name), Server);
 }
 
@@ -818,18 +820,15 @@ ServerThread::ServerThread(Server *aServer)
 {
 }
 
-ServerThread::~ServerThread()
-{
-}
-
 void ServerThread::DoStartedHook(ROAnything config)
 {
 	StartTrace(ServerThread.DoStartedHook);
 	const char *serverName = "Server";
-	if ( fServer == NULL ) {
+	if ( not fServer ) {
 		if ( config.IsDefined("ServerName") ) {
 			serverName = config["ServerName"].AsCharPtr(serverName);
 		}
+		//!@FIXME: shouldn't we fail without valid ServerName here? We could end up having more than one thread controlling a default Server.
 		fServer = Server::FindServer(serverName);
 	} else {
 		serverName = fServer->GetName();

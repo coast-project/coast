@@ -18,12 +18,7 @@
 		AppLogModule
 	}
 
-	/Server {
-		TestServer
-	}
 	/Servers {
-		/Server	{
-		}
 	}
 
 	/Actions {
@@ -74,18 +69,11 @@
 		"Query [" { /Lookup Query } "]"
 	}
 
-######## Test specific section ########
-
 	/RunOnly {
 	}
 	/TestCases {
-
-	# ------ data access tests for refactored data access 16/03/04 --------
-
-		# This test also covers the case of an unknown mapper name
-
 		/LoggingMapperTest {
-			# uses default mappers: ParameterMapper / ResultMapper
+			/Server Server
 			/TmpStore {
 				/In	XYZ
 			}

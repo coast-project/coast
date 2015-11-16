@@ -40,6 +40,10 @@
 		/MainSwitch						10
 		/EnableAll						10
 	}
+	/Application {
+		/MainSwitch						10
+		/EnableAll						10
+	}
 	/TestServer {
 		/MainSwitch						10
 		/EnableAll						10

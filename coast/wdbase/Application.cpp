@@ -134,11 +134,12 @@ Application *Application::GetGlobalApplication(String &applicationName)
 	Application *application = 0;
 	if (!fgConfig.IsNull()) {
 		Anything applicationConf;
-
 		if (fgConfig.LookupPath(applicationConf, "Application") ) {
+			TraceAny(applicationConf, "Iterating over application config");
 			for (long i = 0, sz = applicationConf.GetSize() && !application; i < sz; ++i) {
 				// iterate over the applicationname list
 				applicationName = applicationConf[i].AsCharPtr(0);
+				Trace("testing for appname [" << applicationName << "]");
 				if ( applicationName.Length() > 0 ) {
 					// return the first application object found by name
 					application = Application::FindApplication(applicationName);
@@ -148,6 +149,7 @@ Application *Application::GetGlobalApplication(String &applicationName)
 		} else {
 			// if no application object is configured in the config any
 			// return the first in the list
+			Trace("Iterating over registered Application/Server entries");
 			RegistryIterator ri(MetaRegistry::instance().GetRegistry("Application"), false);
 			for ( ; ri.HasMore() && !application ; application = SafeCast(ri.Next(applicationName), Application));
 		}

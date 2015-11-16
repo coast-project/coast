@@ -15,7 +15,6 @@
 class Context;
 class AppLogChannel;
 
-//---- AppLogModule -----------------------------------------------------------
 //! Provide an API for application logging
 /*!
 AppLog defines calling API (AppLogClient) for logging items directly
@@ -53,14 +52,13 @@ conveniently. The method of this class are called by Coast
 }
 \endcode
 
-*/
-class AppLogModule : public WDModule
-{
+ */
+class AppLogModule: public WDModule {
 	friend class AppLogChannel;
 	friend class AppLogTest;
 public:
 	AppLogModule(const char *name);
-    virtual bool Init(const ROAnything config);
+	virtual bool Init(const ROAnything config);
 	virtual bool Finis();
 
 	/*! define importancy levels in increasing order for easier */
@@ -101,10 +99,11 @@ protected:
 	bool MakeChannels(const char *servername, const Anything &config);
 
 	/*! Start thread to rotate log files
-		\param rotateTime hour:minute to rotate logfiles at
-		\param lRotateSecond second in day when to rotate the log files
-		\return true in case the rotator thread could be initialized and started */
-	bool StartLogRotator(const char *rotateTime, long lRotateSecond, const char *lEveryNSecondsTime, long leveryNSeconds, bool isGmTime);
+	 \param rotateTime hour:minute to rotate logfiles at
+	 \param lRotateSecond second in day when to rotate the log files
+	 \return true in case the rotator thread could be initialized and started */
+	bool StartLogRotator(const char *rotateTime, long lRotateSecond, const char *lEveryNSecondsTime,
+	        long leveryNSeconds, bool isGmTime);
 	bool TerminateLogRotator();
 	bool DoRotateLogs();
 	bool StartLogFlusher(long leveryNSeconds);
@@ -116,36 +115,36 @@ protected:
 	Anything fLogConnections;
 	ROAnything fROLogConnections;
 
-	class LogRotator : public Thread
-	{
+	class LogRotator: public Thread {
 		friend class AppLogTest;
 	public:
-		LogRotator(const char *rotateTime, const char *everyNSecondsTime, long lRotateSecond = 0L, long lEveryNSeconds = 0L, bool isGmTime = false);
+		LogRotator(const char *rotateTime, const char *everyNSecondsTime, long lRotateSecond = 0L, long lEveryNSeconds =
+		        0L, bool isGmTime = false);
 
 	protected:
 		long GetSecondsToWait();
-		long ParseTimeString( const char *time);
+		long ParseTimeString(const char *time);
 		void Run();
 		//! when to rotate
 		long fRotateSecond;
 		long fEveryNSeconds;
 		bool fIsGmTime;
-	} *fRotator;
+	}*fRotator;
 	// gcc 2.95.x fix: friend declaration must be after nested class declaration
 	friend class LogRotator;
-	class LogFlusher : public Thread
-	{
+	class LogFlusher: public Thread {
 		long fEveryNSeconds;
 	public:
-		LogFlusher(long lEveryNSeconds = 60L) : Thread("LogFlusher"), fEveryNSeconds(lEveryNSeconds) {}
+		LogFlusher(long lEveryNSeconds = 60L) :
+				Thread("LogFlusher"), fEveryNSeconds(lEveryNSeconds) {
+		}
 	protected:
 		void Run();
-	} *fFlusher;
+	}*fFlusher;
 
 	static AppLogModule *fgAppLogModule;
 };
 
-//---- AppLogChannel -----------------------------------------------------------
 //! Handles logging into a specific channel
 /*!
 \par Configuration
@@ -176,8 +175,7 @@ During the rendering process of Format, the following fields exist in the Contex
 \endcode
 
 */
-class AppLogChannel : public RegisterableObject
-{
+class AppLogChannel: public RegisterableObject {
 	friend class AppLogTest;
 	// use careful, you inhibit subclass use
 	//--- private class api
@@ -208,7 +206,7 @@ public:
 		return new (a) AppLogChannel("ClonedAppLogChannel");
 	}
 
-	RegCacheDef(AppLogChannel);
+	RegCacheDef (AppLogChannel);
 
 protected:
 	virtual bool DoInitClone(const char *name, const Anything &channel);

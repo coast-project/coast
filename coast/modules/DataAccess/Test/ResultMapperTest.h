@@ -19,7 +19,7 @@ public:
 	}
 	virtual ~PathTestMapper() {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) PathTestMapper(fName);
 	}

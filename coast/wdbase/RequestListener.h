@@ -36,7 +36,7 @@ public:
 	}
 	//!registry interface
 	RegCacheDef(AcceptorFactory); // FindAcceptorFactory()
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) AcceptorFactory(fName);
 	}

@@ -738,7 +738,7 @@ private:
 	bool SetRunningState(ERunningState state, WorkerParamType args);
 
 	//! disallow clones for now
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return (IFAObject *)0;
 	}

@@ -16,9 +16,9 @@ class RequestProcessor : public RegisterableObject
 {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	RequestProcessor(const char *processorName);
+	RequestProcessor(const char *name);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) RequestProcessor(fName);
 	}

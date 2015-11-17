@@ -33,7 +33,7 @@ public:
 	};
 	virtual bool AnalyseReply(Context &ctx);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) HttpFlowController(fName);
 	}

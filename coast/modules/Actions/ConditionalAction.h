@@ -12,7 +12,7 @@
 #include "Action.h"
 
 //---- ConditionalAction ----------------------------------------------------------
-//! <b>Dispatches on success of a call to another Action</c>
+//! <b>Dispatches on success of a call to another Action</b>
 /*! @section ConditionalActionDescription Description
  * The purpose of this Action is to catch the return code of the \c Call Action and
  * dispatch another Action script based on this return code.

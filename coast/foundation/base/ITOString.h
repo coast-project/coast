@@ -96,7 +96,7 @@ public:
 	 * It would be 'unnatural' for our String interface to be sensitive to character sequence terminating characters.
 	 * @param is input stream to read from
 	 * @param length number of characters to copy at most from is
-	 * @delim delimiting character in stream
+	 * @param delim delimiting character in stream
 	 * @return reference to ourselfes for convenient multi-appends
 	 */
 	String &Append(std::istream &is, long length, char delim);

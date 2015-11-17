@@ -19,7 +19,7 @@ class Base64 :  public Encoder
 public:
 	Base64(const char *name): Encoder(name) {}
 	virtual ~Base64() {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) Base64(fName);
 	}
@@ -50,7 +50,7 @@ class Base64Regular :  public Base64
 public:
 	Base64Regular(const char *name): Base64(name) {}
 	virtual ~Base64Regular() {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) Base64Regular(fName);
 	}

@@ -31,7 +31,7 @@ public:
 	//!named object shared by all requests
 	LoopbackProcessor(const char *processorName);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) LoopbackProcessor(fName);
 	}

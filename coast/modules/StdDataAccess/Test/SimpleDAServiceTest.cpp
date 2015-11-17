@@ -84,7 +84,7 @@ public:
 		;
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		StartTrace(TestHTTPProcessor.Clone);
 		return new (a) TestHTTPProcessor(fName);

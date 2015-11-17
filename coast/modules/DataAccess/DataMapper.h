@@ -21,7 +21,7 @@ public:
 			EagerParameterMapper(name) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) FixedSizeMapper(fName);
 	}
@@ -40,7 +40,7 @@ public:
 			EagerParameterMapper(name) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) UpperCaseMapper(fName);
 	}
@@ -62,7 +62,7 @@ public:
 			EagerParameterMapper(name) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) LookupMapper(fName);
 	}
@@ -80,7 +80,7 @@ public:
 			EagerParameterMapper(name) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) RendererMapper(fName);
 	}

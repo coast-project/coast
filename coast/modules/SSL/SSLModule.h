@@ -50,7 +50,7 @@ public:
 	SSLAcceptorFactory(const char *SSLAcceptorFactoryName) :
 		AcceptorFactory(SSLAcceptorFactoryName) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) SSLAcceptorFactory(fName);
 	}

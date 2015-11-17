@@ -32,7 +32,7 @@ class NameUsingOutputMapper : public EagerResultMapper
 {
 public:
 	NameUsingOutputMapper(const char *name);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
 
 	virtual bool DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything config);

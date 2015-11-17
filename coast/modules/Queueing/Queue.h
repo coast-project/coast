@@ -289,7 +289,7 @@ public:
 	}
 
 	//! Cloning of a queue is not allowed.
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return NULL;
 	}

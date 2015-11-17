@@ -77,7 +77,7 @@ public:
 		ParameterMapper(name) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) HTTPHeaderParameterMapper(fName);
 	}
@@ -96,7 +96,7 @@ public:
 		ResultMapper(name) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) HTTPBodyResultMapper(fName);
 	}
@@ -116,7 +116,7 @@ public:
 		ParameterMapper(name) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) HTTPBodyParameterMapper(fName);
 	}

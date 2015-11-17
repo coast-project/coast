@@ -28,7 +28,7 @@ class URI2FileNameMapper : public ParameterMapper
 public:
 	//--- constructors
 	URI2FileNameMapper(const char *name) : ParameterMapper(name) {};
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) URI2FileNameMapper(fName);
 	};

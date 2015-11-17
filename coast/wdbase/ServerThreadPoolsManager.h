@@ -19,7 +19,7 @@ public:
 	ServerThreadPoolsManager(const char *ServerThreadPoolsManagerName);
 	virtual ~ServerThreadPoolsManager();
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) ServerThreadPoolsManager(fName);
 	}

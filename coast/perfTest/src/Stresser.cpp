@@ -77,7 +77,7 @@ public:
 
 	Anything Run(long id);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) DummyStresser(fName);
 	}

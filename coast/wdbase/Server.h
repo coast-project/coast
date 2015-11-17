@@ -55,7 +55,7 @@ public:
 	Server(const char *serverName);
 	virtual ~Server();
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) Server(fName);
 	}
@@ -218,7 +218,7 @@ public:
 	MasterServer(const char *name) :
 		Server(name), fNumServers(0), fServerThreads(0) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) MasterServer(fName);
 	}

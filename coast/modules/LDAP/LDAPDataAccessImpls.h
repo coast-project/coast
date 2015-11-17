@@ -57,7 +57,7 @@ public:
 	LDAPAbstractDAI(const char *name) : DataAccessImpl(name) {};
 	~LDAPAbstractDAI() {};
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) LDAPAbstractDAI(fName);
 	};
@@ -163,7 +163,7 @@ public:
 	LDAPModifyDAI(const char *name) : LDAPAbstractDAI(name) {};
 	~LDAPModifyDAI() {};
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) LDAPModifyDAI(fName);
 	};
@@ -231,7 +231,7 @@ public:
 	LDAPAddDAI(const char *name) : LDAPModifyDAI(name) {};
 	~LDAPAddDAI() {};
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) LDAPAddDAI(fName);
 	};
@@ -275,7 +275,7 @@ public:
 	LDAPCompareDAI(const char *name) : LDAPAbstractDAI(name) {};
 	~LDAPCompareDAI() {};
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) LDAPCompareDAI(fName);
 	};
@@ -313,7 +313,7 @@ public:
 	LDAPDeleteDAI(const char *name) : LDAPAbstractDAI(name) {};
 	~LDAPDeleteDAI() {};
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) LDAPDeleteDAI(fName);
 	};
@@ -353,7 +353,7 @@ public:
 	LDAPSearchDAI(const char *name) : LDAPAbstractDAI(name) {};
 	~LDAPSearchDAI() {};
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) LDAPSearchDAI(fName);
 	};

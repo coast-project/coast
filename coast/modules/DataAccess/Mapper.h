@@ -51,7 +51,7 @@ class ParameterMapper : public HierarchConfNamed {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	ParameterMapper(const char *name);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
 
 	//---- registry api
@@ -300,7 +300,7 @@ public:
 		ParameterMapper(name) {
 	}
 	EagerParameterMapper(const char *name, ROAnything config);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) EagerParameterMapper(fName);
 	}
@@ -355,7 +355,7 @@ class ResultMapper : public HierarchConfNamed {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	ResultMapper(const char *name);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
 
 	//---- registry api
@@ -541,7 +541,7 @@ public:
 		ResultMapper(name) {
 	}
 	EagerResultMapper(const char *name, ROAnything config);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) EagerResultMapper(fName);
 	}
@@ -569,7 +569,7 @@ public:
 	RootMapper(const char *name) :
 		ResultMapper(name) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) RootMapper(fName);
 	}
@@ -611,7 +611,7 @@ public:
 	ConfigMapper(const char *name) :
 		EagerParameterMapper(name) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) ConfigMapper(fName);
 	}

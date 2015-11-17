@@ -37,7 +37,7 @@ public:
 	TestSessionFactory(const char *testSessionFactoryName, SessionListManagerTest *slmt = 0);
 	~TestSessionFactory();
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) TestSessionFactory(fName, fTest);
 	}

@@ -11,17 +11,15 @@
 
 #include "Action.h"
 
-//---- ServerManagement ----------------------------------------------------------------
-//@{ \deprecated
-//! Executes a server command.
-//@}
+//@deprecated
+//! Used to execute a server command
 class ServerManagement : public Action
 {
 public:
 	ServerManagement(const char *name);
 	bool DoAction(String &action, Context &c);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) ServerManagement(fName);
 	}

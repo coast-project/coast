@@ -93,7 +93,7 @@ class AnyLongImpl: public coast::SegStorAllocatorNewDelete<AnyLongImpl>, public 
 public:
 	AnyLongImpl(long l, Allocator *a);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	AnyImpl *Clone(Allocator *a) const;
 
 	AnyImplType GetType() const {
@@ -129,7 +129,7 @@ public:
 		AnyImpl(a), fObject(o) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	AnyImpl *Clone(Allocator *a) const;
 
 	AnyImplType GetType() const {
@@ -173,7 +173,7 @@ class AnyDoubleImpl: public coast::SegStorAllocatorNewDelete<AnyDoubleImpl>, pub
 public:
 	AnyDoubleImpl(double d, Allocator *a);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	AnyImpl *Clone(Allocator *a) const;
 
 	AnyImplType GetType() const {
@@ -209,7 +209,7 @@ public:
 		AnyImpl(a), fBuf(buf, len, a) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	AnyImpl *Clone(Allocator *a) const;
 
 	AnyImplType GetType() const {
@@ -253,7 +253,7 @@ public:
 		AnyImpl(a), fString(s, a) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	AnyImpl *Clone(Allocator *a) const;
 
 	AnyImplType GetType() const {
@@ -370,7 +370,7 @@ public:
 	AnyArrayImpl(Allocator *a);
 	~AnyArrayImpl();
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	AnyImpl *Clone(Allocator *a) const;
 
 	Anything &At(long i);

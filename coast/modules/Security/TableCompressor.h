@@ -21,7 +21,7 @@ public:
 	TableCompressor(const char *name);
 	~TableCompressor();
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) TableCompressor(fName);
 	}

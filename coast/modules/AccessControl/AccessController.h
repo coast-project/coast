@@ -22,7 +22,7 @@ public:
 
 	RegCacheDef(UserDataAccessController);	// creates FindUserDataAccessController()
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		Assert(false);    // do not instantiate
 		return 0;
@@ -60,7 +60,7 @@ public:
 
 	RegCacheDef(TokenDataAccessController);	// creates FindTokenDataAccessController()
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		Assert(false);    // do not instantiate
 		return 0;
@@ -92,7 +92,7 @@ public:
 
 	RegCacheDef(EntityDataAccessController);	// creates FindEntityDataAccessController()
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		Assert(false);    // do not instantiate
 		return 0;

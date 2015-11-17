@@ -43,7 +43,7 @@ public:
 	//--- constructors
 	BasicAccessManager(const char *name) : AccessManager(name) {}
 	~BasicAccessManager() {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) BasicAccessManager(fName);
 	}

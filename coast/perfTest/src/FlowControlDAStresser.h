@@ -28,7 +28,7 @@ public:
 	virtual Anything Run(long id);
 
 	//-- Cloning interface
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) FlowControlDAStresser(fName);
 	}

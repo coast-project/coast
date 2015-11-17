@@ -308,7 +308,7 @@ public:
 		return ROAnything( fErrorMessages )[fErrorMessages.GetSize() - 1L].AsString( "" );
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return NULL;
 	}

@@ -57,7 +57,7 @@ public:
 	StreamToAnythingMapper(const char *name)
 		: AnythingLookupPathResultMapper(name) {}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) StreamToAnythingMapper(fName);
 	}
@@ -80,7 +80,7 @@ public:
 	AnythingToStreamMapper(const char *name)
 		: ParameterMapper(name) {}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) AnythingToStreamMapper(fName);
 	}

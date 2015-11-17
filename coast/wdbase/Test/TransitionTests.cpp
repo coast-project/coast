@@ -46,7 +46,7 @@ public:
 	LoginAction(const char *name);
 
 	virtual bool DoAction(String &action, Context &);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) LoginAction(fName);
 	}

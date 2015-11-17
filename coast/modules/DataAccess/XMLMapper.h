@@ -41,7 +41,7 @@ class XMLMapper : public ResultMapper
 public:
 	//--- constructors
 	XMLMapper(const char *name);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
 	// ignores the SelectScript-Hook, operates directly on fConfig (FIXME?)
 	virtual bool DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything);

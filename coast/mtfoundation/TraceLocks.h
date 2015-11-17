@@ -9,7 +9,8 @@
 #ifndef _TraceLocks_H
 #define _TraceLocks_H
 
-//! Helper macros to trace aquiring and releasing of locks.
+//!@deprecated
+//! Helper macros to trace aquiring and releasing of locks. Use TRACE_LOCKS_IMPL of Threads instead.
 /*! \file
 Since the normal trace options alter the behaviour of locking conditions
 these macros allow you to write output to syslog while running the optimized

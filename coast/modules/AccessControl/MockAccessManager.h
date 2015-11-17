@@ -59,7 +59,7 @@ public:
 	//--- constructors
 	MockAccessManager(const char *name) : AccessManager(name) {}
 	~MockAccessManager() {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) MockAccessManager(fName);
 	}

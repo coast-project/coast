@@ -78,7 +78,7 @@ public:
 	Scrambler(const char *name) :
 		SecurityItem(name) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) Scrambler(fName);
 	}
@@ -101,7 +101,7 @@ public:
 	Signer(const char *name) :
 		SecurityItem(name) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) Signer(fName);
 	}
@@ -121,7 +121,7 @@ public:
 	Encoder(const char *name) :
 		SecurityItem(name) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) Encoder(fName);
 	}
@@ -139,7 +139,7 @@ public:
 	Compressor(const char *name) :
 		SecurityItem(name) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) Compressor(fName);
 	}

@@ -201,7 +201,7 @@ public:
 
 	static String GenTimeStamp(const String& format);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) AppLogChannel("ClonedAppLogChannel");
 	}

@@ -32,7 +32,7 @@ namespace coast
 		static void *operator new[](std::size_t sz, Allocator *a) throw();
 
 		/*! delegate operator used for new arrays
-		 * @param sz size of memory block to allocate
+		 * @param size size of memory block to allocate
 		 */
 		static void* operator new[](std::size_t size) throw();
 

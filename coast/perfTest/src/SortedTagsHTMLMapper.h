@@ -19,7 +19,7 @@ public:
 	SortedTagsHTMLMapper(const char *SortedTagsHTMLMapperName) :
 		ResultMapper(SortedTagsHTMLMapperName) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) SortedTagsHTMLMapper(fName);
 	}

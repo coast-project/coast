@@ -29,7 +29,7 @@ class LoggingMapper: public ResultMapper {
 public:
 	//--- constructors
 	LoggingMapper(const char *name);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
 
 protected:

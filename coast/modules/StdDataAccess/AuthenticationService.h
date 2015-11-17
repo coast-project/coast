@@ -17,7 +17,7 @@ public:
 	AuthenticationService(const char *authenticationServiceHandlerName) :
 		ServiceHandler(authenticationServiceHandlerName) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) AuthenticationService(fName);
 	}

@@ -19,7 +19,7 @@ public:
 	//--- constructors
 	CgiParams(const char *name);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
 
 	//! fills value with a CGI environment on key "cgienv" otherwise delegates up

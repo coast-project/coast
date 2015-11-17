@@ -16,7 +16,7 @@ class URLEncoder : public Encoder
 public:
 	URLEncoder(const char *name);
 	virtual ~URLEncoder();
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) URLEncoder(fName);
 	}

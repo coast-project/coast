@@ -114,7 +114,7 @@ namespace {
 	{
 		StartTrace(System.CheckPath);
 		bool result = false;
-#if defined(WIN32) //!@TODO: symlinks seem to be supported since vista
+#if defined(WIN32) //!TODO: symlinks seem to be supported since vista
 		bIsSymbolicLink = false;
 #else
 		while ( !(result = (lstat64(path, stbuf) == 0)) && coast::system::SyscallWasInterrupted() ) {
@@ -1063,7 +1063,7 @@ namespace coast {
 			return mystat.st_nlink;
 		}
 
-#if !defined(WIN32) //!@TODO:symlinks are supported since vista
+#if !defined(WIN32) //!TODO:symlinks are supported since vista
 		DirStatusCode CreateSymbolicLink(const char *filename, const char *symlinkname)
 		{
 			StartTrace1(System.CreateSymbolicLink, "directory [" << NotNull(filename) << "] link [" << NotNull(symlinkname) << "]");

@@ -17,7 +17,7 @@ class MD5Signer: public Signer {
 	MD5Signer &operator=(const MD5Signer &);
 public:
 	MD5Signer(const char *name);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) MD5Signer(fName);
 	}

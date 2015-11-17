@@ -64,7 +64,7 @@ public:
 	virtual void CleanupAfterStep(Context & ctx);
 	virtual void Init(Context & ctx);
 	RegCacheDef(FlowController);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) FlowController(fName);
 	}

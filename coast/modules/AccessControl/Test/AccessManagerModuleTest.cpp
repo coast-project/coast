@@ -18,7 +18,7 @@ class TestAccessManager : public AccessManager
 {
 public:
 	TestAccessManager(const char *name) : AccessManager(name) {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) TestAccessManager(fName);
 	}
@@ -50,7 +50,7 @@ class MyAccessManager : public TestAccessManager
 {
 public:
 	MyAccessManager(const char *name) : TestAccessManager(name) {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) MyAccessManager(fName);
 	}

@@ -229,7 +229,7 @@ protected:
 	 * -# LookupStores(), eg, RoleStore before SessionStore
 	 * -# LookupLocalized(), eg. using LocalizedStrings
 	 * -# LookupObjects(), eg. objects which hooked themselves into the context to get looked up
-	 * -# LookupRequest(), eg. env, query or anything inside #fRequest
+	 * -# LookupRequest(), eg. env, query or anything inside fRequest
 		\param key the key we are looking for
 		\param result the ROAnything that provides the result
 		\param delim the delimiter for structured keys
@@ -262,7 +262,7 @@ protected:
 		\return returns true if key is found otherwise false */
 	bool LookupObjects(const char *key, ROAnything &result, char delim, char indexdelim) const;
 
-	/*! Lookup information from the contexts request, eg. env, query or anything inside #fRequest
+	/*! Lookup information from the contexts request, eg. env, query or anything inside fRequest
 		\param key the key we are looking for
 		\param result the ROAnything that provides the result
 		\param delim the delimiter for structured keys

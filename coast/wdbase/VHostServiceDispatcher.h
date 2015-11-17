@@ -22,7 +22,7 @@ class VHostServiceDispatcher: public RendererDispatcher {
 public:
 	VHostServiceDispatcher(const char *dispatcherName) : RendererDispatcher(dispatcherName) {}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) VHostServiceDispatcher(fName);
 	}

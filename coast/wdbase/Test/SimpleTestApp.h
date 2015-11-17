@@ -21,7 +21,7 @@ public:
 	SimpleTestApp(const char *AppName);
 	~SimpleTestApp();
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) SimpleTestApp(fName);
 	}
@@ -62,7 +62,7 @@ public:
 	SimpleTestServer(const char *AppName);
 	~SimpleTestServer();
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) SimpleTestServer(fName);
 	}

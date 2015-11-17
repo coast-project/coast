@@ -82,7 +82,7 @@ public:
 	MSAjaxFixFieldLengthResultMapper(const char *name) :
 		ResultMapper(name) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) MSAjaxFixFieldLengthResultMapper(fName);
 	}

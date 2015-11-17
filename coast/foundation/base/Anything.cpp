@@ -1511,7 +1511,7 @@ AnyImpl *Anything::GetImpl() {
 	if (bits & 0x01) {
 		return 0;
 	} else {
-		//!@TODO: silently throws away constness!!!!
+		//!TODO: silently throws away constness!!!!
 		return const_cast<AnyImpl*>(fAnyImp);
 	}
 }

@@ -26,7 +26,7 @@ class UnscrambleUrl : public Application
 {
 public:
 	UnscrambleUrl(const char *n) : Application(n) {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) UnscrambleUrl(fName);
 	}

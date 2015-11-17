@@ -55,7 +55,7 @@ public:
 	AnythingLookupPathResultMapper(const char *name)
 		: ResultMapper(name) {}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) AnythingLookupPathResultMapper(fName);
 	}

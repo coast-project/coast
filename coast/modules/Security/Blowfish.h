@@ -17,7 +17,7 @@ class BlowfishScrambler :  public Scrambler
 public:
 	BlowfishScrambler(const char *name);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) BlowfishScrambler(fName);
 	}
@@ -75,7 +75,7 @@ class BlowfishCBCScrambler : public BlowfishScrambler
 public:
 	BlowfishCBCScrambler(const char *name): BlowfishScrambler(name), fIvec0(0), fIvec1(0) {}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) BlowfishCBCScrambler(fName);
 	}

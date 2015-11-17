@@ -82,7 +82,7 @@ class SessionUnlockTestDAImpl : public DataAccessImpl
 public:
 	SessionUnlockTestDAImpl(const char *name): DataAccessImpl(name) {}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) SessionUnlockTestDAImpl(fName);
 	}

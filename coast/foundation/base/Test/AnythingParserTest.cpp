@@ -1134,7 +1134,7 @@ void AnythingParserTest::parseTestFiles() {
 
 class myObject: public IFAObject {
 public:
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return (IFAObject*) this;
 	}

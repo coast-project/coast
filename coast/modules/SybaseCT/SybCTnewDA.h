@@ -51,7 +51,7 @@ class SybCTnewDA : public IFAObject, public coast::AllocatorNewDelete
 		Allocator	*fAllocator;
 	} EX_COLUMN_DATA;
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return NULL;
 	};

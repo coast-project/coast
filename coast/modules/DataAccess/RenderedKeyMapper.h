@@ -57,7 +57,7 @@ public:
 	RenderedKeyResultMapper(const char *name) :
 		ResultMapper(name) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) RenderedKeyResultMapper(fName);
 	}
@@ -115,7 +115,7 @@ public:
 		ParameterMapper(name) {
 	}
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) RenderedKeyParameterMapper(fName);
 	}

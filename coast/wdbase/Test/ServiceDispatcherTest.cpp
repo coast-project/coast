@@ -16,7 +16,7 @@ public:
 	TestService(const char *serviceHandlerName) :
 			ServiceHandler(serviceHandlerName) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) TestService(fName);
 	}

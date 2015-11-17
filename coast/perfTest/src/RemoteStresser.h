@@ -28,7 +28,7 @@ public:
 	//! \return an Anything containing collected data
 	virtual Anything Run(long id);
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) RemoteStresser(fName);
 	}

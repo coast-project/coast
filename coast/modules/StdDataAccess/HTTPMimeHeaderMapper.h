@@ -26,7 +26,7 @@ public:
 	HTTPMimeHeaderMapper(const char *name) :
 		EagerResultMapper(name) {
 	}
-    /*! @copydoc IFAObject::Clone(Allocator *) */
+    /*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) HTTPMimeHeaderMapper(fName);
 	}

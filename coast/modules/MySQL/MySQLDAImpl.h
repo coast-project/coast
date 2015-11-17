@@ -19,7 +19,7 @@ public:
 	MySQLDAImpl(const char *name);
 	~MySQLDAImpl();
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
 
 	//! executes the transaction

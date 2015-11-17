@@ -117,7 +117,7 @@ class SlotnameOutputMapper : public NameUsingOutputMapper
 {
 public:
 	SlotnameOutputMapper(const char *name) : NameUsingOutputMapper(name) {};
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) SlotnameOutputMapper(fName);
 	};

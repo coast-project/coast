@@ -8,10 +8,8 @@
 
 #include "AllocatorNewDelete.h"
 
-namespace coast
-{
-	void *AllocatorNewDelete::operator new(size_t sz, Allocator *a) throw()
-	{
+namespace coast {
+	void *AllocatorNewDelete::operator new(std::size_t sz, Allocator *a) throw () {
 		if (a) {
 			void *ptr = a->Calloc(1, sz + memory::AlignedSize<Allocator *>::value);//lint !e1550
 			memory::allocatorFor(ptr) = a; // remember address of responsible Allocator
@@ -20,8 +18,7 @@ namespace coast
 		return a;
 	}
 
-	void *AllocatorNewDelete::operator new[](size_t sz, Allocator *a) throw()
-	{
+	void *AllocatorNewDelete::operator new[](std::size_t sz, Allocator *a) throw () {
 		if (a) {
 			return operator new(sz, a);
 		} else {

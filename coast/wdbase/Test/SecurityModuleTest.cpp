@@ -34,7 +34,7 @@ public:
 	}
 	virtual ~TestScrambler() {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) TestScrambler(fName);
 	}

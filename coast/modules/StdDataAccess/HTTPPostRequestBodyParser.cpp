@@ -38,6 +38,7 @@ bool HTTPPostRequestBodyParser::DoParseBody(std::istream &input) {
 	if (fHeader.Lookup(coast::http::constants::contentTypeSlotname, contenttype) && contenttype.AsString().Contains(coast::http::constants::contentTypeAnything) != -1) {
 		// there must be exactly one anything in the body handle our special format more efficient than the standard cases
 		Anything a;
+		//!@FIXME: limit number of bytes to read from stream (memory denial of service)
 		if (not a.Import(input) || a.IsNull()) {
 			Trace("" << coast::http::constants::contentTypeAnything << " - syntax error");
 			return false;
@@ -51,10 +52,12 @@ bool HTTPPostRequestBodyParser::DoParseBody(std::istream &input) {
 	long contentLength = fHeader.GetContentLength();
 	if (contentLength >= 0) {
 		Trace("content length: " << contentLength);
+		//!@FIXME: limit number of bytes to read from stream (memory denial of service)
 		fUnparsedContent.Append(input, contentLength);
 		readSuccess = (fUnparsedContent.Length() == contentLength);
 	} else {
 		Trace("get everything until eof()");
+		//!@FIXME: limit number of bytes to read from stream (memory denial of service)
 		while (input.good()) {
 			fUnparsedContent.Append(input, 4096);
 		}
@@ -132,6 +135,7 @@ bool HTTPPostRequestBodyParser::DoParseMultiPart(std::istream &input, const Stri
 	StartTrace(HTTPPostRequestBodyParser.DoParseMultiPart);
 	bool endReached = false;
 
+	//!@FIXME: limit number of bytes to read from stream (memory denial of service)
 	while (!endReached && input.good()) {
 		// reaching eof is an error since end of input is determined by separators
 		String body;

@@ -37,7 +37,7 @@ public:
 	}
 	//!registry interface
 	RegCacheDef(ServiceDispatcher);
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) ServiceDispatcher(fName);
 	}
@@ -65,7 +65,7 @@ public:
 	RendererDispatcher(const char *rendererDispatcherName) :
 		ServiceDispatcher(rendererDispatcherName) {
 	}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) RendererDispatcher(fName);
 	}

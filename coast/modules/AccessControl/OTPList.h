@@ -37,7 +37,7 @@ public:
 	//---- registry interface
 	RegCacheDef(OTPList);	// FindOTPList()
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		Assert(false);
 		return 0;

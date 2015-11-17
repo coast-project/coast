@@ -24,7 +24,7 @@ class FileUDAC : public UserDataAccessController
 public:
 	// constructors
 	FileUDAC(const char *name) : UserDataAccessController(name), fUserDataMutex("fUserdataMutex") {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		FileUDAC *fudac = new (a) FileUDAC(fName);
 		// prevent deletion by terminators
@@ -65,7 +65,7 @@ class FileTDAC : public TokenDataAccessController
 public:
 	// constructors
 	FileTDAC(const char *name) : TokenDataAccessController(name), fTokenDataMutex("fTokenDataMutex") {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		FileTDAC *ftdac = new (a) FileTDAC(fName);
 		// prevent deletion by terminators
@@ -98,7 +98,7 @@ class FileEDAC : public EntityDataAccessController
 public:
 	// constructors
 	FileEDAC(const char *name) : EntityDataAccessController(name), fEntityDataMutex("fEntityDataMutex") {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		FileEDAC *fedac = new (a) FileEDAC(fName);
 		// prevent deletion by terminators
@@ -155,7 +155,7 @@ class MockUDAC : public FileUDAC
 public:
 	MockUDAC(const char *name) : FileUDAC(name) {};
 	virtual ~MockUDAC() {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) MockUDAC(fName);
 	}
@@ -203,7 +203,7 @@ class MockTDAC : public FileTDAC
 public:
 	MockTDAC(const char *name) : FileTDAC(name) {};
 	virtual ~MockTDAC() {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) MockTDAC(fName);
 	}
@@ -254,7 +254,7 @@ class MockEDAC : public FileEDAC
 public:
 	MockEDAC(const char *name) : FileEDAC(name) {};
 	virtual ~MockEDAC() {}
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) MockEDAC(fName);
 	}

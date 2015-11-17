@@ -58,7 +58,7 @@ public:
 	MockOTPList(const char *name) : OTPList(name) {};
 	~MockOTPList() {};
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return new (a) MockOTPList(fName);
 	}

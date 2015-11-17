@@ -30,7 +30,7 @@ public:
 	ReadXMLFileDAImpl(const char *name);
 	~ReadXMLFileDAImpl();
 
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
 
 	//! executes the transaction

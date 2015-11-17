@@ -187,7 +187,7 @@ public:
 	}
 
 	//! Public api to return reference to this object instead of cloning, e.g. like a singleton
-	/*! @copydoc IFAObject::Clone(Allocator *) */
+	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
 		return const_cast<NotCloned*> (this);
 	}
@@ -346,7 +346,7 @@ protected:
 
 	//! Subclassed implementation of the LookupInterface, which checks if the key can be found inside our configuration of any of our super classes.
 	/*! @copydetails LookupInterface::DoLookup() */
-	virtual bool DoLookup(const char *key, class ROAnything &resultconst, char delim, char indexdelim) const;
+	virtual bool DoLookup(const char *key, class ROAnything &result, char delim, char indexdelim) const;
 };
 
 #endif

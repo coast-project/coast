@@ -6,12 +6,9 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-//#define TRACE_LOCKS
-
 #include "SessionListManager.h"
 #include "SystemBase.h"
 #include "URLFilter.h"
-#include "TraceLocks.h"
 #include "Session.h"
 #include "PeriodicAction.h"
 #include "TimeStamp.h"
@@ -163,7 +160,6 @@ Session *SessionListManager::DoMakeSession(Context &ctx) {
 
 Session *SessionListManager::MakeSession(Context &ctx) {
 	StartTrace(SessionListManager.MakeSession);
-	TRACE_LOCK_START("MakeSession");
 	Session *session = 0;
 	long sessionsCount = GetNumberOfSessions();
 	Trace("fSessionsCount: " << sessionsCount << " fMaxSessionsAllowed: " << fMaxSessionsAllowed);
@@ -192,7 +188,6 @@ void SessionListManager::DisableSession(const String &sessionId, Context &ctx)
 {
 	StartTrace(SessionListManager.DisableSession);
 	Trace("Session to remove: " << sessionId);
-	TRACE_LOCK_START("DisableSession");
 	Session *s = 0;
 	Anything session;
 	{
@@ -255,7 +250,6 @@ String &SessionListManager::InitSession(String &id, Session *session, Context &c
 void SessionListManager::AddSession(const String &id, Session *session, Context &ctx)
 {
 	StartTrace(SessionListManager.AddSession);
-	TRACE_LOCK_START("AddSession");
 	{
 		LockUnlockEntry mutex(fSessionsMutex);
 
@@ -273,7 +267,6 @@ void SessionListManager::AddSession(const String &id, Session *session, Context 
 Session *SessionListManager::IntLookupSession(const String &id, Context &ctx)
 {
 	StartTrace1(SessionListManager.IntLookupSession, "id <" << id << ">");
-	TRACE_LOCK_START("IntLookupSession");
 	Session *s = 0;
 	{
 		LockUnlockEntry mutex(fSessionsMutex);
@@ -302,7 +295,6 @@ Session *SessionListManager::IntLookupSession(const String &id, Context &ctx)
 
 void SessionListManager::GetNextId(String &s, Context &ctx)
 {
-	TRACE_LOCK_START("GetNextId");
 	LockUnlockEntry mutex(fNextIdMutex);
 	// take timestamp as session key
 	HRTIME lastId = fNextId;
@@ -393,7 +385,6 @@ Session *SessionListManager::PrepareSession(Session *session, bool &isBusy, Cont
 long SessionListManager::CleanupSessions(Context &ctx, bool forceLock)
 {
 	StartTrace(SessionListManager.CleanupSessions);
-	TRACE_LOCK_START("CleanupSessions");
 	long szActiveBefore = 0;
 	long szActiveAfter = 0;
 	long szDisabled = 0;
@@ -494,7 +485,6 @@ void SessionListManager::DoDeleteSessions(const Anything &sessions2Delete, Conte
 void SessionListManager::ForcedSessionCleanUp(Context &ctx)
 {
 	StartTrace(SessionListManager.ForcedSessionCleanUp);
-	TRACE_LOCK_START("ForcedSessionCleanUp");
 	long szNumberOfSessions = 0;
 	{
 		LockUnlockEntry me(fSessionsMutex);
@@ -518,7 +508,6 @@ void SessionListManager::ForcedSessionCleanUp(Context &ctx)
 long SessionListManager::GetNumberOfSessions()
 {
 	StartTrace(SessionListManager.GetNumberOfSessions);
-	TRACE_LOCK_START("GetNumberOfSessions");
 	LockUnlockEntry me(fSessionsMutex);
 	return fSessions.GetSize();
 }
@@ -630,21 +619,18 @@ String SessionListManager::FilterQueryAndGetId(Context &ctx) {
 void SessionListManager::EnterReInit()
 {
 	StartTrace(SessionListManager.EnterReInit);
-	TRACE_LOCK_START("EnterReInit");
 	fSessionsMutex.Lock();
 }
 
 void SessionListManager::LeaveReInit()
 {
 	StartTrace(SessionListManager.LeaveReInit);
-	TRACE_LOCK_START("LeaverReInit");
 	fSessionsMutex.Unlock();
 }
 
 bool SessionListManager::SessionListInfo(Anything &sessionListInfo, Context &ctx, const ROAnything &config)
 {
 	StartTrace(SessionListManager.SessionListInfo);
-	TRACE_LOCK_START("SessionListInfo");
 	if (fSessionsMutex.TryLock()) {
 		sessionListInfo["List"] = Anything(Anything::ArrayMarker());
 		ctx.GetTmpStore()["SessionInfo"] = sessionListInfo["List"];
@@ -678,7 +664,6 @@ bool SessionListManager::SessionListInfo(Anything &sessionListInfo, Context &ctx
 bool SessionListManager::GetASessionsInfo(Anything &sessionInfo, const String &sessionId, Context &ctx, const ROAnything &config)
 {
 	StartTrace(SessionListManager.GetASessionsInfo);
-	TRACE_LOCK_START("GetASessionsInfo");
 	Session *originalSession = ctx.GetSession();
 	Session *s = (Session *) NULL;
 	LockUnlockEntry mutex(fSessionsMutex);

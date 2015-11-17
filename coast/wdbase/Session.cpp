@@ -6,10 +6,7 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-//#define TRACE_LOCKS
-
 #include "Session.h"
-#include "TraceLocks.h"
 #include "Role.h"
 #include "Page.h"
 #include "Renderer.h"
@@ -96,7 +93,6 @@ void Session::ResetAccessTime() {
 }
 
 void Session::ResetTimeAndFlags() {
-	TRACE_LOCK_START("ResetTimeAndFlags");
 	if (fMutex.TryLock()) {
 		fTerminated = false;
 		ResetAccessTime();
@@ -185,7 +181,6 @@ String Session::GetRoleName(Context &ctx, String const &strDefaultRolename) cons
 }
 
 bool Session::IsBusy() {
-	TRACE_LOCK_START("IsBusy");
 	bool isBusy = true;
 	if (fMutex.TryLock()) {
 		isBusy = false;
@@ -196,7 +191,6 @@ bool Session::IsBusy() {
 
 void Session::Notify(ESessionEvt evt, Context &ctx) {
 	StartTrace1(Session.Notify, "trying to get session lock");
-	TRACE_LOCK_START("Notify");
 	LockUnlockEntry me(fMutex);
 	Trace("got session lock");
 	IntNotify(evt, ctx);
@@ -235,7 +229,6 @@ void Session::RemoveFromStore(const char *key) {
 }
 
 bool Session::MakeInvalid(Context &ctx) {
-	TRACE_LOCK_START("MakeInvalid");
 	if (fMutex.TryLock()) {
 		StartTrace1(Session.MakeInvalid, "Session id: <" << fId << ">");
 		String logMsg("Session: <");
@@ -257,7 +250,6 @@ bool Session::IsTerminated() {
 	StartTrace(Session.IsTerminated);
 	// assumption if s can't aqcuire its internal lock
 	// the session is not terminated
-	TRACE_LOCK_START("IsTerminated");
 	bool isTerminated = false;
 	if (fMutex.TryLock()) {
 		isTerminated = fTerminated;
@@ -271,7 +263,6 @@ bool Session::IsDeletable(long secs, Context &ctx, bool roleNotRelevant) {
 	StartTrace1(Session.IsDeletable, "secs: " << secs << " roleNotRelevant: " << (roleNotRelevant ? "true" : "false"));
 	// assumption if Session can't acquire its internal lock
 	// the session is not terminated
-	TRACE_LOCK_START("CheckTimeout");
 	String msg;
 	bool isDeletable = false;
 	bool isUnRefed = false;
@@ -336,7 +327,6 @@ namespace {
 
 bool Session::Verify(Context &ctx) {
 	StartTrace(Session.Verify);
-	TRACE_LOCK_START("Verify");
 	LockUnlockEntry mutex(fMutex);
 	if (fTerminated) {
 		String logMsg(fId);
@@ -357,7 +347,6 @@ bool Session::RenderNextPage(std::ostream &reply, Context &ctx, const ROAnything
 	StartTrace(Session.RenderNextPage);
 	bool status = false;
 	if (fMutex.TryLock()) {
-		TRACE_LOCK_START("RenderNextPage");
 		AccessTimer at(this);
 		++fAccessCounter;
 		status = DoRenderNextPage(reply, ctx);

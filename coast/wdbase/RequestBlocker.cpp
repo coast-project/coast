@@ -6,9 +6,7 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-//#define TRACE_LOCKS
 #include "RequestBlocker.h"
-#include "TraceLocks.h"
 #include "SystemLog.h"
 
 RequestBlocker *RequestBlocker::fgRequestBlocker = 0;
@@ -38,7 +36,6 @@ RequestBlocker::~RequestBlocker()
 bool RequestBlocker::Block()
 {
 	StartTrace(RequestBlocker.Block);
-	TRACE_LOCK_START("Block");
 	if ( IsBlocked() == true) {
 		return true;
 	}
@@ -53,9 +50,6 @@ bool RequestBlocker::Block()
 bool RequestBlocker::UnBlock()
 {
 	StartTrace(RequestBlocker.UnBlock);
-
-	TRACE_LOCK_START("UnBlock");
-
 	if ( IsBlocked() == false) {
 		return true;
 	}
@@ -70,8 +64,6 @@ bool RequestBlocker::UnBlock()
 bool RequestBlocker::IsBlocked()
 {
 	StartTrace(RequestBlocker.IsBlocked);
-	TRACE_LOCK_START("IsBlocked");
-
 	bool theState = false;
 	{
 		LockUnlockEntry me(fRequestBlockerRWLock, RWLock::eReading);

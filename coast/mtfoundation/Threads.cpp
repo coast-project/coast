@@ -11,7 +11,6 @@
 #include "SystemLog.h"
 #include "DiffTimer.h"
 #include "StringStream.h"
-#include "TraceLocks.h"
 #include "MT_Storage.h"
 #include <cstring>
 #if !defined(WIN32)
@@ -1035,7 +1034,6 @@ void Mutex::Lock()
 	} else {
 		StatTrace(Mutex.Lock, "TryLock success, Id: " <<  GetId() << " CallId: " << Thread::MyId(), coast::storage::Current());
 	}
-	TRACE_LOCK_ACQUIRE(fName);
 }
 
 void Mutex::Unlock()
@@ -1067,7 +1065,6 @@ void Mutex::Unlock()
 		SystemLog::WriteToStderr(logMsg << "\n");
 #endif
 	}
-	TRACE_LOCK_RELEASE(fName);
 }
 
 bool Mutex::TryLock()
@@ -1129,11 +1126,6 @@ bool Mutex::TryLock()
 		}
 	}
 #endif
-#ifdef TRACE_LOCKS
-	if (hasLocked) {
-		TRACE_LOCK_ACQUIRE(fName);
-	}
-#endif
 	return hasLocked;
 }
 
@@ -1184,24 +1176,16 @@ RWLock::~RWLock()
 void RWLock::Lock(eLockMode mode) const
 {
 	LOCKRWLOCK(fLock, (mode == eReading));
-	TRACE_LOCK_ACQUIRE(fName);
 }
 
 void RWLock::Unlock(eLockMode mode) const
 {
 	UNLOCKRWLOCK(fLock, (mode == eReading));
-	TRACE_LOCK_RELEASE(fName);
 }
 
 bool RWLock::TryLock(eLockMode mode) const
 {
-	bool hasLocked = TRYRWLOCK(fLock, (mode == eReading));
-#ifdef TRACE_LOCKS
-	if (hasLocked) {
-		TRACE_LOCK_ACQUIRE(fName);
-	}
-#endif
-	return hasLocked;
+	return TRYRWLOCK(fLock, (mode == eReading));
 }
 
 SimpleCondition::SimpleCondition()

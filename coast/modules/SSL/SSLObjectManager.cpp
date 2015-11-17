@@ -7,11 +7,7 @@
  */
 
 #include "SSLObjectManager.h"
-
-//#define TRACE_LOCKS
-
 #include "Anything.h"
-#include "TraceLocks.h"
 #include "Threads.h"
 #include "SystemLog.h"
 #include "Tracer.h"
@@ -57,7 +53,6 @@ SSL_CTX *SSLObjectManager::GetCtx(const String &ip, const String &port, ROAnythi
 	StartTrace1(SSLObjectManager.GetCtx, "ip: " << ip << " port: " << port);
 	String storeId(Resolver::DNS2IPAddress(ip, ip).Append(storeIdDelim).Append(port));
 	Trace("storeId [" << storeId << "]");
-	TRACE_LOCK_START("GetCtx");
 	{
 		Anything anySess;
 		LockUnlockEntry me(fSSLCtxStoreMutex);
@@ -89,19 +84,16 @@ bool SSLObjectManager::RemoveCtx(const String &ip, const String &port)
 	StartTrace1(SSLObjectManager.RemoveCtx, "ip: " << ip << " port: " << port);
 	String storeId(Resolver::DNS2IPAddress(ip, ip).Append(storeIdDelim).Append(port));
 	Trace("storeId [" << storeId << "]");
-	TRACE_LOCK_START("GetCtx");
-	{
-		Anything anySess;
-		LockUnlockEntry me(fSSLCtxStoreMutex);
-		if ( fSSLCtxStore.LookupPath(anySess, storeId, storeIdDelim) && anySess.AsIFAObject(0) != 0 ) {
-			Trace("Found ssl context for id " << storeId);
-			SSL_CTX_free(reinterpret_cast<SSL_CTX*>(anySess.AsIFAObject(0)));
-			SlotCleaner::Operate(fSSLCtxStore, storeId, true, storeIdDelim);
-			TraceAny(fSSLCtxStore, "session store after removal");
-			return true;
-		}
-		TraceAny(fSSLCtxStore, "session store, no removal");
+	Anything anySess;
+	LockUnlockEntry me(fSSLCtxStoreMutex);
+	if ( fSSLCtxStore.LookupPath(anySess, storeId, storeIdDelim) && anySess.AsIFAObject(0) != 0 ) {
+		Trace("Found ssl context for id " << storeId);
+		SSL_CTX_free(reinterpret_cast<SSL_CTX*>(anySess.AsIFAObject(0)));
+		SlotCleaner::Operate(fSSLCtxStore, storeId, true, storeIdDelim);
+		TraceAny(fSSLCtxStore, "session store after removal");
+		return true;
 	}
+	TraceAny(fSSLCtxStore, "session store, no removal");
 	return false;
 }
 
@@ -113,7 +105,6 @@ SSL_SESSION *SSLObjectManager::GetSessionId(const String &ip, const String &port
 	String storeId(Resolver::DNS2IPAddress(ip, ip).Append(storeIdDelim).Append(port).Append(storeIdDelim).Append(thrId));
 	Trace("storeId [" << storeId << "]");
 	SSL_SESSION *sslsess(0);
-	TRACE_LOCK_START("GetSessionId");
 	{
 		Anything anySess;
 		LockUnlockEntry me(fSSLSessionIdStoreMutex);
@@ -135,7 +126,6 @@ void SSLObjectManager::SetSessionId(const String &ip, const String &port, SSL_SE
 	String storeId(Resolver::DNS2IPAddress(ip, ip).Append(storeIdDelim).Append(port).Append(storeIdDelim).Append(thrId));
 	Trace("storeId [" << storeId << "]");
 	SSL_SESSION *sslSessionStored(0);
-	TRACE_LOCK_START("SetSessionId");
 	{
 		LockUnlockEntry me(fSSLSessionIdStoreMutex);
 		TraceAny(ROAnything(fSSLSessionIdStore), "SSL session store before");

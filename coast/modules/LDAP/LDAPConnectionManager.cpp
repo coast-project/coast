@@ -8,7 +8,6 @@
 
 #include "LDAPConnectionManager.h"
 #include "PersistentLDAPConnection.h"
-#include "TraceLocks.h"
 #include "TimeStamp.h"
 #include "SystemLog.h"
 
@@ -222,7 +221,6 @@ long LDAPConnectionManager::GetAndLockSlot(long maxConnections, const String &po
 		{
 			mutex = (Mutex * ) fLdapConnectionStore[poolId]["Mutexes"][l].AsIFAObject(0);
 			if ( mutex != (Mutex * ) NULL ) {
-				TRACE_LOCK_START("GetAndLockSlot");
 				if ( mutex->TryLock() ) {
 					Trace("Found handle AND locking mutex  for: [" << poolId << "] at index: [" << l << "]");
 					return l;
@@ -234,7 +232,6 @@ long LDAPConnectionManager::GetAndLockSlot(long maxConnections, const String &po
 				mutex = new Mutex(name, coast::storage::Global());
 				if ( mutex != ( Mutex *) NULL ) {
 					fLdapConnectionStore[poolId]["Mutexes"][l] = (IFAObject *) mutex;
-					TRACE_LOCK_START("GetAndLockSlot");
 					Trace("Locking mutex for: " << poolId << " at index: " << l);
 					mutex->Lock();
 					return l;

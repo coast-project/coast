@@ -51,6 +51,8 @@ public:
 	void NoTagWithinJavascript();
 	//! test all possible kinds of configured transition tokens, e.g. slot in page and token in role-token-map
 	void BuildFormWithConfiguredTransitionTokens();
+	//! macro/script should be possible within string value of tag attribute
+	void NewStyleMacroPossibleWithinStringValueIssue205();
 };
 
 #endif

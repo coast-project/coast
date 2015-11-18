@@ -83,6 +83,22 @@ void TemplateParserTest::BuildSimpleRendererSpec() {
 	Renderer::RenderOnString(result, ctx, cache);
 	assertEqual("start Peter end", result);
 }
+
+void TemplateParserTest::NewStyleMacroPossibleWithinStringValueIssue205() {
+	StartTrace(TemplateParserTest.NewStyleMacroPossibleWithinStringValue);
+	TemplateParser p;
+	String templ(_QUOTE_(start <html><head><? { /Render MetaTags } ?><meta http-equiv="refresh" content="0; URL='<? { /Lookup RelocateURL } ?>'"></head></html> end));
+	IStringStream is(templ);
+	Anything cache;
+	cache = p.Parse(is);
+	t_assert(!cache.IsNull());
+	String result;
+	Context ctx;
+	ctx.GetTmpStore()["MetaTags"] = "SomeTagsHere";
+	ctx.GetTmpStore()["RelocateURL"] = "http://some.site/blub?here=there";
+	Renderer::RenderOnString(result, ctx, cache);
+	assertEqual("start <html><head>SomeTagsHere<meta http-equiv=\"refresh\" content=\"0; URL='http://some.site/blub?here=there'\"></head></html> end", result);
+}
 void TemplateParserTest::BuildNestedHTMLSpec() {
 	StartTrace(TemplateParserTest.BuildNestedHTMLSpec);
 	TemplateParser p;
@@ -314,6 +330,7 @@ Test * TemplateParserTest::suite() {
 	ADD_CASE(testSuite, TemplateParserTest, AnythingBracesWrong);
 	ADD_CASE(testSuite, TemplateParserTest, NoTagWithinJavascript);
 	ADD_CASE(testSuite, TemplateParserTest, BuildFormWithConfiguredTransitionTokens);
+	ADD_CASE(testSuite, TemplateParserTest, NewStyleMacroPossibleWithinStringValueIssue205);
 
 	return testSuite;
 }

@@ -51,6 +51,7 @@ protected:
 	Anything RenderTagAsLiteral(String &tagName, Anything &tagAttributes);
 	virtual bool IsSpecialTag(String &tagName, Anything &tagAttributes);
 	void ParseAnything(int endChar);
+	Anything ParseAnythingAndReturn(int endChar);
 	bool IsEmptyOrWd();
 	String ReadHTMLAsString(int &endChar);
 	String ParseAsStringUpToEndTag(String &tagName);

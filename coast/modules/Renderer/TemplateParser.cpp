@@ -558,6 +558,15 @@ Anything TemplateParser::ParseValue()
 				StoreInto(result, value);
 				Anything subvalue = Macro();
 				result.Append(subvalue);
+			} else if ('<' == c && ('?' == Peek() || '%' == Peek())) {
+				int cT = Get();
+				if (IsEmptyOrWd()) {
+					StoreInto(result, value);
+					Anything subvalue = ParseAnythingAndReturn(cT);
+					result.Append(subvalue);
+				} else { // else fall through, it was a unknown tag...
+					PutBack(cT);
+				}
 			} else {
 				value.Append((char)c);
 			}
@@ -758,9 +767,9 @@ bool TemplateParser::IsEmptyOrWd()
 	return true;
 }
 
-void TemplateParser::ParseAnything(int endChar)
+Anything TemplateParser::ParseAnythingAndReturn(int endChar)
 {
-	StartTrace(TemplateParser.ParseAnything);
+	StartTrace(TemplateParser.ParseAnythingAndReturn);
 	int c;
 	long bl = 0;
 	String collectany("{");
@@ -809,7 +818,13 @@ void TemplateParser::ParseAnything(int endChar)
 	IStringStream is(collectany);
 	Anything result;
 	result.Import(is);
-	Store(result);
+	return result;
+}
+
+void TemplateParser::ParseAnything(int endChar)
+{
+	StartTrace(TemplateParser.ParseAnything);
+	Store(ParseAnythingAndReturn(endChar));
 }
 
 String TemplateParser::ReadHTMLAsString(int &endChar)

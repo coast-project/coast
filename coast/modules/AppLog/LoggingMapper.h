@@ -11,14 +11,13 @@
 
 #include "Mapper.h"
 
-//---- LoggingMapper ----------------------------------------------------------
 //! Mapper which logs messages on a configurable channel and routes message again
 /*!
 \par Configuration
 \code
 {
 	/Channel		String		mandatory, channel name to log to
-	/Severity		long		optional, default AppLogModule::eINFO, Severity [CRITICAL=1, FATAL=2, ERROR=4, WARN=8, INFO=16, OK=32, MAINT=64, DEBUG=128], all levels lower_equal (<=) the specified value will get logged
+	/Severity		long		optional, default AppLogModule::eINFO, Severity [CRITICAL=1, FATAL=2, ERROR=4, WARN=8, INFO=16, OK=32, MAINT=64, DEBUG=128]
 	/Format {					optional, specify log format for mapped key, value will be temporarily available in context using <key> as base name for lookup
 		...			Rendererspec
 	}
@@ -27,7 +26,6 @@
  */
 class LoggingMapper: public ResultMapper {
 public:
-	//--- constructors
 	LoggingMapper(const char *name);
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;

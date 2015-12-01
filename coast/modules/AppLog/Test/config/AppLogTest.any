@@ -51,6 +51,7 @@
 		/EmptyHeaderLogFormat 	%EmptyHeaderLogFormat
 		/NoLogItemsWriteLogFormat		%NoLogItemsWriteLogFormat
 	}
+	/SeverityMatchTest %LogOkTest
 	/BufferItemsTest {
 		/Modules {
 #			TimeLoggingModule
@@ -406,6 +407,16 @@
 					/FileName	"Absolute.log"
 					/Format		"Nothing"
 					/Header		"# Absolute-File"
+				}
+				/CritErrInf_Not_FatWarn_Log	{
+					/FileName	"SeverityMatch.log"
+					/Format		{
+						{ /Lookup LogSeverityText }
+						"("	{ /Lookup LogSeverity } "): "
+						{ /Lookup TestMsg }
+					}
+					/Header		"SeverityText(Level): Message"
+					/Severity	21	# CRITICAL=1, !FATAL=2, ERROR=4, !WARN=8, INFO=16
 				}
 			}
 			/AnotherServerWithoutLogConfigButShouldUseChannelsOfTestServer {}

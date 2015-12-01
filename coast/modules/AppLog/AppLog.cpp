@@ -369,7 +369,7 @@ AppLogChannel::AppLogChannel(const char *name) :
 		RegisterableObject(name), fLogStream(NULL), fChannelInfo(coast::storage::Global()), fSuppressEmptyLines(false),
 		fRendering(true), fLogMsgSizeHint(128L), fDoNotRotate(false), fNoLogItemsWrite(false),
 		fFormat(coast::storage::Global()), fChannelMutex(name, coast::storage::Global()), fItemsToBuffer(1L),
-		fBuffer(coast::storage::Global()), fItemsInBuffer(0L), fSeverity(AppLogModule::eINFO) {
+		fBuffer(coast::storage::Global()), fItemsInBuffer(0L), fSeverity(AppLogModule::eALL) {
 	StartTrace(AppLogChannel.AppLogChannel);
 }
 
@@ -424,7 +424,8 @@ bool AppLogChannel::DoInitClone(const char *name, const Anything &channel) {
 	fNoLogItemsWrite = fChannelInfo["NoLogItemsWrite"].AsBool(false);
 	fFormat = fChannelInfo["Format"];
 	fItemsToBuffer = fChannelInfo["BufferItems"].AsLong(1L);
-	fSeverity = (AppLogModule::eLogLevel) fChannelInfo["Severity"].AsLong((long) AppLogModule::eALL);
+	fSeverity = static_cast<AppLogModule::eLogLevel>(fChannelInfo["Severity"].AsLong(
+	        static_cast<long>(AppLogModule::eALL)));
 	if (fItemsToBuffer <= 0L) {
 		// Avoid zero division in mod operation
 		fItemsToBuffer = 1L;
@@ -447,7 +448,7 @@ bool AppLogChannel::LogAll(Context &ctx, AppLogModule::eLogLevel iLevel, const R
 		if ((iLevel & fSeverity) > 0) {
 			SubTraceAny(TraceConfig, config, "config: ");
 			Anything anyLogSev;
-			anyLogSev["LogSeverity"] = (long) iLevel;
+			anyLogSev["LogSeverity"] = static_cast<long>(iLevel);
 			anyLogSev["LogSeverityText"] = AppLogModule::GetSeverityText(iLevel);
 			Context::PushPopEntry < Anything > aEntry(ctx, "LogSeverity", anyLogSev);
 			String logMsg(fLogMsgSizeHint);

@@ -87,6 +87,34 @@ void AppLogTest::LogOkTest() {
 	}
 }
 
+void AppLogTest::SeverityMatchTest() {
+	StartTrace(AppLogTest.SeverityMatchTest);
+	WDModule *pModule = WDModule::FindWDModule("AppLogModule");
+	if (t_assertm(pModule != NULL, "expected AppLogModule to be registered")) {
+		Server *server = NULL;
+		if (t_assert((server = Server::FindServer("TestServer")))) {
+			Context ctx;
+			ctx.SetServer(server);
+			ctx.GetTmpStore()["TestMsg"] = "MatchSeverity: Info";
+			t_assertm(AppLogModule::Log(ctx, "CritErrInf_Not_FatWarn_Log", AppLogModule::eINFO),
+			        "LogChannel not configured or level INFO not accepted");
+			ctx.GetTmpStore()["TestMsg"] = "MatchSeverity: Error";
+			t_assertm(AppLogModule::Log(ctx, "CritErrInf_Not_FatWarn_Log", AppLogModule::eERROR),
+			        "LogChannel not configured or level ERROR not accepted");
+			ctx.GetTmpStore()["TestMsg"] = "MatchSeverity: Critical";
+			t_assertm(AppLogModule::Log(ctx, "CritErrInf_Not_FatWarn_Log", AppLogModule::eCRITICAL),
+			        "LogChannel not configured or level CRITICAL not accepted");
+			ctx.GetTmpStore()["TestMsg"] = ">>Not Logged<<";
+			t_assertm(not AppLogModule::Log(ctx, "CritErrInf_Not_FatWarn_Log", AppLogModule::eWARNING),
+			        "Should not log WARNING");
+			t_assertm(not AppLogModule::Log(ctx, "CritErrInf_Not_FatWarn_Log", AppLogModule::eFATAL),
+			        "Should not log FATAL");
+			CheckFile(ctx, "CritErrInf_Not_FatWarn_Log",
+			        "SeverityText(Level): Message\nINFO(16): MatchSeverity: Info\nERROR(4): MatchSeverity: Error\nCRITICAL(1): MatchSeverity: Critical\n");
+		}
+	}
+}
+
 void AppLogTest::BufferItemsTest() {
 	StartTrace(AppLogTest.BufferItemsTest);
 
@@ -606,6 +634,7 @@ Test *AppLogTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, AppLogTest, ApplogModuleNotInitializedTest);
 	ADD_CASE(testSuite, AppLogTest, LogOkTest);
+	ADD_CASE(testSuite, AppLogTest, SeverityMatchTest);
 	ADD_CASE(testSuite, AppLogTest, BufferItemsTest);
 	ADD_CASE(testSuite, AppLogTest, LogOkToVirtualServerTest);
 	ADD_CASE(testSuite, AppLogTest, LogRotatorLocalTimeTest);

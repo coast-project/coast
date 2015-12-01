@@ -22,6 +22,8 @@ public:
 
 	//!log into two channels and checks the files afterwards
 	void LogOkTest();
+	//!log into severity log channel and test if only levels in bitset are logged
+	void SeverityMatchTest();
 	//!log into one channel and check the file after AppLog module is terminated
 	void BufferItemsTest();
 	//!log into channels of 'virtual' server without own config but using TestServer config

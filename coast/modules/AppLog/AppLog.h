@@ -17,9 +17,7 @@ class AppLogChannel;
 
 //! Provide an API for application logging
 /*!
-AppLog defines calling API (AppLogClient) for logging items directly
-and a subclass API (FDLogHandler) for logging important elements
-conveniently. The method of this class are called by Coast
+AppLog defines calling API for logging items.
 \par Configuration
 \code
 {
@@ -43,7 +41,8 @@ conveniently. The method of this class are called by Coast
 												the log message. eg. ctx.GetTmpStore()["ChannelName"] = "my log message". A "\n" will be added after each messge line.
 				/LogMsgSizeHint	long			optional, reserve LogMsgSizeHint bytes for the internal string holding the message to be logged.
 				/BufferItems	long			optional, default 0, (no buffering) buffer <n> items before writing them to the log stream
-				/Severity		long			optional, default AppLogModule::eALL, Severity [CRITICAL=1, FATAL=2, ERROR=4, WARN=8, INFO=16, OK=32, MAINT=64, DEBUG=128], all levels lower_equal (<=) the specified value will get logged
+				/Severity		long			optional, default AppLogModule::eALL, Severity [CRITICAL=1, FATAL=2, ERROR=4, WARN=8, INFO=16, OK=32, MAINT=64, DEBUG=128],
+												=> only bitwise masked levels will get logged, eg. to log INFO and all higher severities a value of 31 (AppLogModule::eInfoOrHigher) has to be set.
 			}
 			...
 		}
@@ -72,6 +71,12 @@ public:
 		eOK = 32,
 		eMAINT = 64,
 		eDEBUG = 128,
+		eFatalOrHigher = (eCRITICAL | eFATAL),
+		eErrorOrHigher = (eCRITICAL | eFATAL | eERROR),
+		eWarningOrHigher = (eCRITICAL | eFATAL | eERROR | eWARNING),
+		eInfoOrHigher = (eCRITICAL | eFATAL | eERROR | eWARNING | eINFO),
+		eOkOrHigher = (eCRITICAL | eFATAL | eERROR | eWARNING | eINFO | eOK),
+		eMaintOrHigher = (eCRITICAL | eFATAL | eERROR | eWARNING | eINFO | eOK | eMAINT),
 		eALL = (eCRITICAL | eFATAL | eERROR | eWARNING | eINFO | eOK | eMAINT | eDEBUG),
 		eLast
 	};
@@ -160,7 +165,8 @@ protected:
 										the log message. eg. ctx.GetTmpStore()["ChannelName"] = "my log message". A "\n" will be added after each messge line.
 		/LogMsgSizeHint	long			optional, reserve LogMsgSizeHint bytes for the internal string holding the message to be logged.
 		/BufferItems	long			optional, default 0, (no buffering) buffer <n> items before writing them to the log stream
-		/Severity		long			optional, default AppLogModule::eALL, Severity [CRITICAL=1, FATAL=2, ERROR=4, WARN=8, INFO=16, OK=32, MAINT=64, DEBUG=128], all levels lower_equal (<=) the specified value will get logged
+		/Severity		long			optional, default AppLogModule::eALL, Severity [CRITICAL=1, FATAL=2, ERROR=4, WARN=8, INFO=16, OK=32, MAINT=64, DEBUG=128],
+										=> only bitwise masked levels will get logged, eg. to log INFO and all higher severities a value of 31 (AppLogModule::eInfoOrHigher) has to be set.
 	}
 }
 \endcode

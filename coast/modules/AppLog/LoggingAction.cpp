@@ -21,10 +21,10 @@ bool LoggingAction::DoExecAction(String& transitionToken, Context& ctx, const RO
 		ROAnything roaFormat;
 		if (config.LookupPath(roaFormat, "Format")) {
 			bRet = AppLogModule::Log(ctx, channel, roaFormat,
-			        (AppLogModule::eLogLevel) config["Severity"].AsLong((long) AppLogModule::eINFO));
+			        (AppLogModule::eLogLevel) config["Severity"].AsLong(static_cast<long>(AppLogModule::eINFO)));
 		} else {
 			bRet = AppLogModule::Log(ctx, channel,
-			        (AppLogModule::eLogLevel) config["Severity"].AsLong((long) AppLogModule::eINFO));
+			        (AppLogModule::eLogLevel) config["Severity"].AsLong(static_cast<long>(AppLogModule::eINFO)));
 		}
 	}
 	return bRet;
@@ -43,7 +43,7 @@ bool TimeLoggingAction::DoExecAction(String& transitionToken, Context& ctx, cons
 			String strSection(config["TimeEntries"].AsString());
 			Trace("section [" << (strSection.Length() ? strSection : "*") << "]");
 			bRet = GenLogEntries(strSection, roaEntryBase, ctx, channel,
-			        (AppLogModule::eLogLevel) config["Severity"].AsLong((long) AppLogModule::eINFO));
+			        (AppLogModule::eLogLevel) config["Severity"].AsLong(static_cast<long>(AppLogModule::eINFO)));
 		}
 	}
 	return bRet;

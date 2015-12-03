@@ -29,7 +29,7 @@ void StrSpecialTest::umlauteTest() {
 	if (is) {
 		test.Import(*is);
 		String testString(test["fields"][0L].AsString());
-		assertEqual("Ausführen", testString.SubString(0, 9));
+		assertEqual("Ausf\xfchren", testString.SubString(0, 9));
 
 		delete is;
 	}

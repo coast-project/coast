@@ -17,9 +17,8 @@ Import('*')
 
 
 def setUp(target, source, env):
-    #    env['ENV']['COAST_LOGONCERR'] = '1'
-    #    env['ENV']['COAST_TRACE_STORAGE'] = '1'
-    pass
+    env['ENV']['COAST_TRACE_STORAGE'] = '1'
+    env['ENV']['COAST_LOGONCERR'] = '1'
 
 
 def tearDown(target, source, env):

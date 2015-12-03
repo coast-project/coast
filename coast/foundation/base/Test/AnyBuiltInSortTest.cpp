@@ -134,7 +134,7 @@ void AnyBuiltInSortTest::SortMany() {
 	// now sort b by using the legacy SlotNameSorter...several orders of magnitude slower.
 	dt.Reset();
 	SlotnameSorter::Sort(b);
-	std::cerr << "Slogname sorting of " << size << " took " << dt.Diff() << " ms.\n";
+	std::cerr << "Slotname sorting of " << size << " took " << dt.Diff() << " ms.\n";
 	assertAnyEqual(a, b);
 }
 

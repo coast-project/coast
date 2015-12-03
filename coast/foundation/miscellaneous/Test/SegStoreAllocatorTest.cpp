@@ -24,15 +24,14 @@ void SegStoreAllocatorTest::CreateSimpleAllocator() {
 void SegStoreAllocatorTest::RealAnythingTest() {
 	StartTrace(SegStoreAllocatorTest.RealAnythingTest);
 	SegStoreAllocator p(987654L);
-//	TestStorageHooks tsh(&p);
 	{
 		Anything test(&p);
 		Anything result(&p);
-		test.Append("a");
-		test.Append("b");
-		test["100"] = test;
-		test.Append("c");
-		t_assert(test.LookupPath(result, ":2:3"));
+		test[0].Append("a");
+		test[0].Append("b");
+		test["100"] = test[0];
+		test[0].Append("c");
+		t_assert(test.LookupPath(result, "100:2"));
 		assertAnyEqual(Anything("c"), result);
 	}
 }

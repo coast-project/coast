@@ -14,6 +14,11 @@
 		/MainSwitch						10
 		/EnableAll						20
 	}
+	/URLUtilsTest {
+		/MainSwitch						10
+		/EnableAll						20
+		/Dump							10
+	}
 	/URLFilter {
 		/MainSwitch						550
 		/EnableAll						0

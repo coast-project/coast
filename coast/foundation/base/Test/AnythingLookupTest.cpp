@@ -116,27 +116,27 @@ void AnythingLookupTest::LookupPathByIndex() {
 		t_assert(!roTest.LookupPath(roResult, "190:0"));
 		assertAnyEqual(Anything(), roResult);
 
-		test.Append("a");
-		test.Append("b");
+		test[0].Append("a");
+		test[0].Append("b");
 		roTest = test;
 
-		t_assert(test.LookupPath(result, ":0"));
+		t_assert(test.LookupPath(result, ":0:0"));
 		assertAnyEqual(Anything("a"), result);
-		t_assert(roTest.LookupPath(roResult, ":0"));
+		t_assert(roTest.LookupPath(roResult, ":0:0"));
 		assertAnyEqual(Anything("a"), roResult);
 
-		t_assert(test.LookupPath(result, ":1"));
+		t_assert(test.LookupPath(result, ":0:1"));
 		assertAnyEqual(Anything("b"), result);
-		t_assert(roTest.LookupPath(roResult, ":1"));
+		t_assert(roTest.LookupPath(roResult, ":0:1"));
 		assertAnyEqual(Anything("b"), roResult);
 
-		test["100"] = test;
+		test["100"] = test[0];
 		roTest = test;
 
 		// test index access of third named slot
-		t_assert(test.LookupPath(result, ":2:0"));
+		t_assert(test.LookupPath(result, ":1:0"));
 		assertAnyEqual(Anything("a"), result);
-		t_assert(roTest.LookupPath(roResult, ":2:0"));
+		t_assert(roTest.LookupPath(roResult, ":1:0"));
 		assertAnyEqual(Anything("a"), roResult);
 		t_assert(test.LookupPath(result, "100:0"));
 		assertAnyEqual(Anything("a"), result);
@@ -146,19 +146,6 @@ void AnythingLookupTest::LookupPathByIndex() {
 		t_assert(test.LookupPath(result, "100:1"));
 		assertAnyEqual(Anything("b"), result);
 		t_assert(roTest.LookupPath(roResult, "100:1"));
-		assertAnyEqual(Anything("b"), roResult);
-
-		test["100"] = test;
-		roTest = test;
-
-		t_assert(test.LookupPath(result, "100.100:0"));
-		assertAnyEqual(Anything("a"), result);
-		t_assert(roTest.LookupPath(roResult, "100.100:0"));
-		assertAnyEqual(Anything("a"), roResult);
-
-		t_assert(test.LookupPath(result, "100.100:1"));
-		assertAnyEqual(Anything("b"), result);
-		t_assert(roTest.LookupPath(roResult, "100.100:1"));
 		assertAnyEqual(Anything("b"), roResult);
 	}
 	{
@@ -189,7 +176,8 @@ void AnythingLookupTest::LookupPathByIndex() {
 		t_assert(roTest.LookupPath(roResult, ":1.b2"));
 		assertAnyEqual(Anything(4), roResult);
 
-		test["100"] = test;
+		test["100"][0] = test[0];
+		test["100"][1] = test[1];
 		roTest = test;
 
 		t_assert(test.LookupPath(result, "100:0.b1"));
@@ -201,20 +189,6 @@ void AnythingLookupTest::LookupPathByIndex() {
 		assertAnyEqual(Anything(3), result);
 		t_assert(roTest.LookupPath(roResult, "100:1.a2"));
 		assertAnyEqual(Anything(3), roResult);
-
-		test["100"] = test;
-		roTest = test;
-
-		t_assert(test.LookupPath(result, "100.100:0.a1"));
-		assertAnyEqual(Anything(1), result);
-		t_assert(roTest.LookupPath(roResult, "100.100:0.a1"));
-		assertAnyEqual(Anything(1), roResult);
-
-		t_assert(test.LookupPath(result, "100.100:1.b2"));
-		assertAnyEqual(Anything(4), result);
-		t_assert(roTest.LookupPath(roResult, "100.100:1.b2"));
-		assertAnyEqual(Anything(4), roResult);
-
 		{
 			// the following test must fail because "100:1:1" is already the slot b2 so ".b2" is not possible anymore
 			// use new anys because of required emptyness for comparison

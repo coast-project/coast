@@ -198,10 +198,7 @@ note: if start > fLength then the new buffer will contain undefined
 
 */
 {
-	//char *oldBuf=0;
 	StringImpl *oldImpl = 0;
-	// to store old buffer if new memory has to be allocated
-
 	// check for start integrity
 	if ( start < 0 ) {
 		start = 0;
@@ -252,7 +249,7 @@ note: if start > fLength then the new buffer will contain undefined
 	}
 
 	if (oldImpl) {	// don't forget to free old buffer if new memory was allocated
-		fAllocator->Free(static_cast<void*>(oldImpl));
+		fAllocator->Free(oldImpl);
 	}
 }
 
@@ -771,10 +768,10 @@ void String::ReplaceAt( long pos, const char *s, long len)
 	if (s && pos >= 0 && len > 0) { // parameter sanity check, prevent no-op
 		if (len > (Length() - pos)) { // new string will be longer
 			Set(pos, s, len);
-		} else { // replacement within the string buffer
-			// use memcpy in this case, since "Set" terminates
+		} else {// replacement within the string buffer
+			// use memmove in this case, since "Set" terminates
 			// the string right after the replaced buffer
-			memcpy(GetContent() + pos, s, len);
+			memmove(GetContent() + pos, s, len);
 		}
 	}
 }

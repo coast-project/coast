@@ -1395,23 +1395,19 @@ std::ostream &operator<<(std::ostream &os, const String &s)
 	size_t len = s.Length();
 	size_t width = os.width();
 	int left = ((os.flags() & std::ios::left) != 0);
-
 	if (left) {
-		os.write((const char *)s, len);    // AB: use cast to apply operator const char *
+		os.write((const char *)s, len);
 	}
-
 	if (width && width > len) {
 		size_t padlen = width - len;
-		char c = os.fill();
-
-		while ( --padlen >= 0 ) {//lint !e568//lint !e685
+		char const c = os.fill();
+		while ( padlen-- > 0 ) {
 			os.put(c);
 		}
-		os.width(0); // the iostream documentation states this behaviour
+		os.width(0); //!< the iostream documentation states this behaviour
 	}
 	if (!left) {
-		os.write((const char *)s, len);    // AB: use cast to apply operator const char *
+		os.write((const char *)s, len);
 	}
-
 	return os;
 }

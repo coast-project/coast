@@ -371,7 +371,7 @@ public:
 		static char const c0 = 0;
 		size_type n = std::max(static_cast<size_type> (x), 0L); //!< adjust index bounds
 		//!@note ugly with empty string (forced allocation of space for fStringImpl), but at least safe to return a reference
-		if (not Length()) {
+		if (not Capacity()) {
 			alloc(n);
 		} else if (n > Length()) {
 			Set(n, &c0, 1); //!< adjust string as needed

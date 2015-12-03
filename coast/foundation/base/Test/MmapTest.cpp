@@ -211,6 +211,7 @@ void MmapTest::OperatorShiftLeftWithReadBuf()
 			OStringStream buf;
 			buf << is2->rdbuf();
 			assertEqual(testContent, buf.str());
+			delete is2;
 		}
 	}
 }

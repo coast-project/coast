@@ -242,8 +242,6 @@ private:
 	String fKey;
 };//lint !e1510
 
-#define LOADFACTOR 0.75
-
 long IFANextPrime(long x) {
 	if (x <= 3) {
 		return 3;
@@ -753,7 +751,7 @@ void AnyArrayImpl::Remove(long slot) {
 		// delete the internal key assoc
 		// at slot index
 		long at = IntAt(slot);
-		fContents[IntAtBuf(at)][IntAtSlot(at)] = AnyKeyAssoc(MyAllocator());	// reset it to initial empty assoc
+		fContents[IntAtBuf(at)][IntAtSlot(at)] = AnyKeyAssoc(Anything(MyAllocator()));	// reset it to initial empty assoc
 
 		// remove the slot from the index array
 		fInd->Remove(slot);
@@ -823,31 +821,28 @@ void AnyArrayImpl::Expand(long newsize) {
 	// check for the range of the capacity
 	Assert((fCapacity % ARRAY_BUF_SIZE) == 0);
 
-	// calculate the number of buffe	long numOfExistingBufs = fNumOfBufs;
+	// calculate the number of buffers
 	long numOfExistingBufs = fNumOfBufs;
-	long numOfNewBufs = fCapacity / static_cast<long>(ARRAY_BUF_SIZE); //fCapacity / ARRAY_BUF_SIZE + 1;
+	long numOfNewBufs = fCapacity / static_cast<long>(ARRAY_BUF_SIZE);
 
 	Assert(numOfNewBufs *ARRAY_BUF_SIZE >= newsize);
 
 	// allocate new ptr buffer if necessary
 	if ( numOfNewBufs > fNumOfBufs ) {
-		// expand the number of needed ptr buffers
-		fNumOfBufs = numOfNewBufs;
-
-		// allocate the new size
 		AnyKeyAssoc **old = fContents;
-		fContents = reinterpret_cast<AnyKeyAssoc **>(MyAllocator()->Calloc(fNumOfBufs, sizeof(AnyKeyAssoc *)));
+		// expand the number of needed ptr buffers
+		fContents = reinterpret_cast<AnyKeyAssoc **>(MyAllocator()->Calloc(numOfNewBufs, sizeof(AnyKeyAssoc *)));
 		if (fContents == 0) {
 			static const char crashmsg[] = "FATAL: AnyArrayImpl::Expand calloc failed (increasing pointer buffer). I will crash :-(\n";
 			SystemLog::WriteToStderr(crashmsg, strlen(crashmsg));
-
 			fContents = old;
 			fCapacity = oldCap;
 			return;
 		}
-
+		fNumOfBufs = numOfNewBufs;
 		for (long bufs = 0; bufs < numOfExistingBufs; ++bufs) {
 			fContents[bufs] = old[bufs];
+			old[bufs]=0;
 		}
 		MyAllocator()->Free(old); // frees the old ptr buffer array not the contents buffer
 	}

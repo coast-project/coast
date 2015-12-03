@@ -63,7 +63,7 @@ void *ExcessTrackerElt::operator new(size_t size, Allocator *)
 void ExcessTrackerElt::operator delete(void *vp)
 {
 	if (vp) {
-		::operator delete(vp);
+		::free(vp);
 	}
 }
 

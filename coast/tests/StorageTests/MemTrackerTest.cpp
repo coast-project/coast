@@ -82,6 +82,8 @@ void MemTrackerTest::TrackAllocFreeTest() {
 	if (aTracker.fpUsedList) {
 		assertCompare(static_cast<size_t>(0), equal_to, aTracker.fpUsedList->size());
 	}
+	::free(vp32);
+	::free(vp48);
 }
 
 Test *MemTrackerTest::suite() {

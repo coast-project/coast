@@ -12,6 +12,8 @@
 #include "MemHeader.h"
 #include "InitFinisManager.h"
 #include <cstring>
+#include <sstream>
+#include <iomanip>
 
 MemChecker::MemChecker(const char *scope, Allocator *a) :
 		fAllocator(a),
@@ -98,23 +100,23 @@ void MemTracker::TrackFree(MemoryHeader *mh) {
 
 void MemTracker::DumpUsedBlocks() {
 	if (fpUsedList && fpUsedList->size()) {
-		SystemLog::Error(
-				String(coast::storage::Global()).Append("memory blocks still in use for ").Append(fpName).Append(':'));
-		UsedListType::const_iterator aUsedIterator;
 		const size_t alignedSize = coast::memory::AlignedSize<MemoryHeader>::value;
-		long lIdx = 0;
-		for (aUsedIterator = fpUsedList->begin(); aUsedIterator != fpUsedList->end(); ++lIdx, ++aUsedIterator) {
+		std::ostringstream ostream;
+		ostream << "memory blocks still in use for " << fpName << ":\n";
+		UsedListType::const_iterator aUsedIterator;
+		long lIdx=0;
+		for (aUsedIterator = fpUsedList->begin(); aUsedIterator != fpUsedList->end(); ++aUsedIterator, ++lIdx) {
 			MemoryHeader *pMH = *aUsedIterator;
-			// reserve memory for the following text plus four times the buffer size for dumping as text
-			String strOut((40L + ((pMH->fUsableSize + alignedSize) * 4L)), coast::storage::Global());
-			strOut.Append("Block ").Append(lIdx).Append('\n');
-			strOut.Append("MemoryHeader:\n").Append(
-					String((void *) pMH, alignedSize, coast::storage::Global()).DumpAsHex()).Append('\n');
-			strOut.Append("Content:\n").Append(
-					String((void *) ((char *) pMH + alignedSize), pMH->fUsableSize, coast::storage::Global()).DumpAsHex()).Append(
-					'\n');
-			SystemLog::WriteToStderr(strOut);
+			ostream << "@" << std::dec << lIdx << "\nAlignedSize(MemoryHeader): " << alignedSize;
+			ostream << "\nMemoryHeader: ";
+			pMH->DumpAsHex(ostream);
+			ostream << "\nContent(" << std::setw(0) << std::dec << pMH->fUsableSize << "): ";
+			for(size_t idx=alignedSize; idx < alignedSize+pMH->fUsableSize; ++idx) {
+				ostream << std::setw(2) << std::setfill('0') << std::hex << (unsigned)((unsigned char*)pMH)[idx] << ' ';
+			}
+			ostream << "\n\n";
 		}
+		SystemLog::WriteToStderr(ostream.str().c_str(), -1);
 	}
 }
 
@@ -360,6 +362,9 @@ GlobalAllocator::GlobalAllocator() :
 }
 
 GlobalAllocator::~GlobalAllocator() {
+	if (fTracker) {
+		fTracker->DumpUsedBlocks();
+	}
 }
 
 Allocator::MemTrackerPtr GlobalAllocator::ReplaceMemTracker(MemTrackerPtr t) {

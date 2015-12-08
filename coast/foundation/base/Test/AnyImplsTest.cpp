@@ -27,7 +27,11 @@ void AnyImplsTest::ThisToHexTest()
 {
 	StartTrace(AnyImplsTest.ThisToHexTest);
 	{
+#if __cplusplus >= 201103L
+		std::unique_ptr<AnyImpl> d = std::unique_ptr<AnyImpl>(new(coast::storage::Current())AnyLongImpl(123L, coast::storage::Current()));
+#else
 		std::auto_ptr<AnyImpl> d = std::auto_ptr<AnyImpl>(new(coast::storage::Current())AnyLongImpl(123L, coast::storage::Current()));
+#endif
 		String res = d->ThisToHex();
 		assertCompare(sizeof(void *)*2L,equal_to,static_cast<unsigned long>(res.Length()));
 		StringStream os;

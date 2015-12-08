@@ -135,9 +135,16 @@ class OracleConnection;
 class OracleEnvironment;
 
 //! type definition of auto cleanup'd OracleStatement
+#if __cplusplus >= 201103L
+typedef std::unique_ptr<OracleStatement> OracleStatementPtr;
+typedef std::unique_ptr<OracleResultset> OracleResultsetPtr;
+typedef std::unique_ptr<OracleConnection> OracleConnectionPtr;
+typedef std::unique_ptr<OracleEnvironment> OracleEnvironmentPtr;
+#else
 typedef std::auto_ptr<OracleStatement> OracleStatementPtr;
 typedef std::auto_ptr<OracleResultset> OracleResultsetPtr;
 typedef std::auto_ptr<OracleConnection> OracleConnectionPtr;
 typedef std::auto_ptr<OracleEnvironment> OracleEnvironmentPtr;
+#endif
 
 #endif /* OCIAUTOHANDLE_H_ */

@@ -101,7 +101,11 @@ This level of abstraction is needed to reduce the overhead of always instantiati
 It is also important to have because there is no flexible other way to have time logging enabled/disabled on demand without recompiling everytime.
 */
 class TimeLoggerEntry {
+#if __cplusplus >= 201103L
+	typedef std::unique_ptr<TimeLogger> TimeLoggerPtr;
+#else
 	typedef std::auto_ptr<TimeLogger> TimeLoggerPtr;
+#endif
 	TimeLoggerPtr fpLogger;
 public:
 	TimeLoggerEntry(const char *pSection, const char *pKey, String &msg, Context &ctx, TimeLogger::eResolution aResolution);

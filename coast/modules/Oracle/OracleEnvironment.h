@@ -15,7 +15,11 @@
 class OracleConnection;
 class String;
 
+#if __cplusplus >= 201103L
+typedef std::unique_ptr<Allocator> AllocatorPtr;
+#else
 typedef std::auto_ptr<Allocator> AllocatorPtr;
+#endif
 
 //! Abstraction for an Oracle environment
 /*!

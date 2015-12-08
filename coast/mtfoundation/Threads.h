@@ -359,7 +359,11 @@ class LockUnlockEntry
 		LockType::eLockMode fMode;
 	};
 
+#if __cplusplus >= 201103L
+	std::unique_ptr<WrapperBase> fWrapper;
+#else
 	std::auto_ptr<WrapperBase> fWrapper;
+#endif
 	LockUnlockEntry();
 	LockUnlockEntry(LockUnlockEntry &);
 	LockUnlockEntry &operator=(const LockUnlockEntry &);
@@ -416,7 +420,11 @@ class LockedValueIncrementDecrementEntry
 		long		&fValue;
 	};
 
+#if __cplusplus >= 201103L
+	std::unique_ptr<WrapperBase> fWrapper;
+#else
 	std::auto_ptr<WrapperBase> fWrapper;
+#endif
 	LockedValueIncrementDecrementEntry();
 	LockedValueIncrementDecrementEntry(LockedValueIncrementDecrementEntry &);
 	LockedValueIncrementDecrementEntry &operator=(const LockedValueIncrementDecrementEntry &);

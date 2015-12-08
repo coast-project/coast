@@ -49,8 +49,13 @@ public:
 	typedef ElementType &ElementTypeRef;
 	typedef ElementType const& ConstElementTypeRef;
 	typedef Queue<ElementType, ListStorageType> QueueType;
+#if __cplusplus >= 201103L
+	typedef std::unique_ptr<QueueType> QueueTypePtr;
+	typedef std::unique_ptr<Context> ContextPtr;
+#else
 	typedef std::auto_ptr<QueueType> QueueTypePtr;
 	typedef std::auto_ptr<Context> ContextPtr;
+#endif
 	typedef typename QueueType::StatusCode StatusCode;
 	typedef typename QueueType::BlockingSide BlockingSide;
 

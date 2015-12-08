@@ -233,18 +233,14 @@ bool doStartThread(void *obj, bool *b, pthread_t *thrId, void * (*wrapper)(void 
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 
-	if (b[0]);
-	//flags|= THR_BOUND;
+//	if (b[0]);	//!< THR_BOUND
 	if (b[1]) {
 		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 	}
-	//flags|= THR_DETACHED;
 	if (b[2]) {
 		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 	}
-	//flags|= THR_DAEMON;
-	if (b[3]);
-	//flags|= THR_SUSPENDED;
+//	if (b[3]);	//!< THR_SUSPENDED
 
 	int retVal;
 	if ( (retVal = pthread_create(thrId, &attr, wrapper, obj)) != 0 ) {

@@ -85,7 +85,6 @@ protected:
 private:
 	Anything fConfig;
 	Anything fFormat;
-	bool fResetFont;
 	String fFontOptions;
 	bool fInsertNewline;
 	bool fIsBold;

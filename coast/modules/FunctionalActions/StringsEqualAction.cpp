@@ -28,6 +28,6 @@ bool StringsEqualAction::DoExecAction(String &transitionToken, Context &ctx, con
 		Trace("Error in StringsEqualAction::DoExecAction, String2 not defined");
 		return false;
 	}
-	Trace("Returning " << string1.IsEqual(string2) ? "true" : "false");
+	Trace("Returning " << (string1.IsEqual(string2) ? "true" : "false"));
 	return string1.IsEqual(string2);
 }

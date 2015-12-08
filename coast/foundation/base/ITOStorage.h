@@ -32,11 +32,11 @@ namespace itostorage {
 	};
 }
 
-class MemoryHeader;
+struct MemoryHeader;
 //! Base class for memory allocation tracking
 /*! helper class for debugging memory management problems */
 class MemTracker {
-	friend class MemoryHeader;
+	friend struct MemoryHeader;
 	friend class MemTrackerTest;
 public:
 	typedef std::vector<MemoryHeader *> UsedListType;

@@ -91,7 +91,7 @@ bool TimeLoggingModule::ResetFinis(const ROAnything config)
 }
 
 TimeLoggerEntry::TimeLoggerEntry(const char *pSection, const char *pKey, String &msg, Context &ctx, TimeLogger::eResolution aResolution)
-	: fpLogger(0)
+	: fpLogger()
 {
 	if ( TimeLoggingModule::fgDoTiming ) {
 		fpLogger = TimeLoggerPtr(new (coast::storage::Current()) TimeLogger( pSection, pKey, msg, ctx, aResolution ));

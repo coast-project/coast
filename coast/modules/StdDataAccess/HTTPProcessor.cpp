@@ -250,6 +250,6 @@ bool HTTPProcessor::DoKeepConnectionAlive(Context &ctx)
 	ROAnything roaConnection = ctx.Lookup("header.CONNECTION");
 	TraceAny(roaConnection, "Protocol [" << protocol << "]");
 	bool keepAlive = protocol.IsEqual("HTTP/1.1") && containsLowercaseValue(roaConnection, "keep-alive");
-	Trace("Keep connection alive: " << keepAlive ? "Yes" : "No");
+	Trace("Keep connection alive: " << (keepAlive ? "Yes" : "No"));
 	return keepAlive;
 }

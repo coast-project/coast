@@ -192,7 +192,8 @@ static void thread_setup() {
 			name.Append(i);
 			fgCryptoMutexes[i] = new RWLock(name);
 			ok = ok && (fgCryptoMutexes[i] != 0);
-			Trace("allocated " << name << (fgCryptoMutexes[i] != 0) ? "ok" : "ERROR");Assert(fgCryptoMutexes[i]);
+			Trace("allocated " << name << ((fgCryptoMutexes[i] != 0) ? "ok" : "ERROR"));
+			Assert(fgCryptoMutexes[i]);
 		}
 		if (ok) {
 			CRYPTO_set_locking_callback(sslLockingCallback);

@@ -504,7 +504,7 @@ int WorkerPoolManager::InitPool(bool usePoolStorage, long poolStorageSize, int n
 	StartTrace(WorkerPoolManager.InitPool);
 	Trace("fPoolSize = " << GetPoolSize());
 	for (long i = 0; i < GetPoolSize(); ++i) {
-		Trace("initializing worker number " << i << usePoolStorage ? "with pool allocator" : "with global allocator");
+		Trace("initializing worker number " << i << (usePoolStorage ? "with pool allocator" : "with global allocator"));
 		WorkerThread *wt = DoGetWorker(i);
 		Trace("got worker at " << long(wt));
 		wt->Init(roaWorkerArgs);

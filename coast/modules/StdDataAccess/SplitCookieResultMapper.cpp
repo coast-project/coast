@@ -11,10 +11,9 @@
 
 namespace {
 	const char cookieValuesSeparator = ';';
-	const char lookupPathSep = ',';
 	const char keyValSeparator = '=';
-	const char *valueSlotName = "_value_";
-	const char *attrSlotName = "_attrs_";
+	const char * const valueSlotName = "_value_";
+	const char * const attrSlotName = "_attrs_";
 
 	String splitCookie(String const& strCookie, Anything &anyNamedCookie) {
 		StartTrace(SplitCookieResultMapper.splitCookie);

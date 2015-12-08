@@ -23,7 +23,7 @@ long EBCDICSocketStreamBuf::DoWrite(const char *buf, long len)
 	// do I have to copy here?
 
 	long bytesWritten = SocketStreamBuf::DoWrite(ebcdicBuf, len);
-	delete ebcdicBuf;
+	delete[] ebcdicBuf;
 
 	return bytesWritten;
 }

@@ -679,25 +679,19 @@ namespace coast {
 			// That´s what we do here
 			//--------------------------------------------------------------------------------------
 			if ( baseHREF.Length() > 0 ) {
-
 				// baseHREF w/o http:// at start is ignored...
 				if ( baseHREF.Contains("://") > 0 ) {
-
 					if ( uri.Contains("://") < 0 ) {
 						// does not contain "://, not a full URI, an absolute or relative URI
 						if ( uri.Contains("/") != 0  ) {
-							String newURI = "";
+							String newURI = baseHREF;
 							// added to last "/" in base URL
-
-							newURI << baseHREF;
 							long lastSlash = 0;
-
 							if ( ( lastSlash = newURI.StrRChr('/') ) > 0 ) {
 								newURI.Trim(lastSlash + 1);
 							}
 							newURI << uri;
-							uri = "";
-							uri = String( newURI);
+							uri = newURI;
 						}
 					}
 				}
@@ -707,23 +701,19 @@ namespace coast {
 				// does not contain "://, not a full URI, an absolute or relative URI
 				if ( uri.Contains("/") != 0  ) {
 					// relative string
-					String newPath;
-					newPath << query["Path"].AsString("");
-
+					String newPath = query["Path"].AsString();
 					long Pos = newPath.StrRChr('/');
 					if ( Pos > 0 ) {
 						newPath.Trim( Pos + 1 );
 					} else { // can this ever happen?
 						newPath = "/";
 					}
-
 					newPath << uri;
 					query["Path"] = newPath;
 				} else {
 					// absolute string
 					query["Path"] = uri;
 				}
-
 				TraceAny(query, "Query ");
 				return;
 			}
@@ -745,7 +735,7 @@ namespace coast {
 				int Pos2 = uri.StrChr( '/', Pos + 2 );
 				if (Pos2 >= 0 ) {
 					query["Path"] = uri.SubString(Pos2, uri.Length() - Pos2 );
-					Trace( "Path contents are" << query["Path"].AsString("") );
+					Trace( "Path contents are " << query["Path"].AsString("") );
 				} else {
 					query["Path"] = "/";
 				}
@@ -765,13 +755,13 @@ namespace coast {
 
 			if (Pos >= 0 ) {
 				myServerStr = domainAndPort.SubString(0, Pos);
-				Trace( "Server contents are" << myServerStr  );
+				Trace( "Server contents are " << myServerStr  );
 				query["Port"] = domainAndPort.SubString(Pos + 1, domainAndPort.Length() - Pos - 1 );
-				Trace( "Port contents are" << query["Port"].AsString("")  );
+				Trace( "Port contents are " << query["Port"].AsString("")  );
 			} else {
 				// No port in URL
 				myServerStr = domainAndPort;
-				Trace( "Port contents are" << myServerStr  );
+				Trace( "Port contents are " << myServerStr  );
 				if (myProtocol.IsEqual( "HTTP" ) ) {
 					// hard coded, ouch!
 					query["Port"] = 80;

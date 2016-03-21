@@ -12,6 +12,7 @@
 #include "SystemFile.h"
 #include "IFAObject.h"
 #include <iostream>
+#include <limits>
 
 using namespace coast;
 
@@ -199,13 +200,15 @@ void AnythingParserTest::parseSimpleTypeLong() {
 	IntParseSimpleTypeLong("0xcffe007f", static_cast<long>(3489529983UL));
 	IntParseSimpleTypeLong("031777400177", static_cast<long>(3489529983UL));
 
-	String input4 = "9999999999999";
+	String input4 = "1";
+	input4.Append(std::numeric_limits<long>::max());
 	IStringStream is4(input4);
 	anyTest.Import(is4);
 	assertEqual(AnyNullType, anyTest.GetType());
 	assertEqual(0, anyTest.GetSize());
 
-	String input5 = "-9999999999999";
+	String input5 = "-1";
+	input5.Append(std::numeric_limits<long>::max());
 	IStringStream is5(input5);
 	anyTest.Import(is5);
 	assertEqual(AnyNullType, anyTest.GetType());

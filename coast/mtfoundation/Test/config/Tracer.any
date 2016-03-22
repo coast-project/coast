@@ -29,6 +29,10 @@
 		/DoGetThread	53
 		/DoDeletePool	53
 	}
+	/AllocatorUnref {
+		/MainSwitch		51
+		/EnableAll		52
+	}
 	/Thread {
 		/MainSwitch		51
 		/EnableAll		52
@@ -119,7 +123,7 @@
 	}
 	/MT_Storage {
 		/MainSwitch		60
-		/EnableAll		0
+		/EnableAll		60
 		/RegisterThread	60
 		/UnregisterThread	60
 		/Finalize		60

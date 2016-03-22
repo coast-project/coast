@@ -223,7 +223,7 @@ namespace {
 				LockUnlockEntry me(*fAllocatorInit);
 				while (fPoolAllocatorList) {
 					AllocList *elmt = fPoolAllocatorList;
-					if ( elmt->wdallocator->GetId() != coast::storage::DoGlobal()->GetId() ) {
+					if ( elmt->wdallocator && elmt->wdallocator->GetId() != coast::storage::DoGlobal()->GetId() ) {
 						SYSERROR("unfreed allocator found id: " << elmt->wdallocator->GetId());
 						delete elmt->wdallocator;
 					}
@@ -238,6 +238,7 @@ namespace {
 					StatTrace(MT_Storage.Finalize, "setting MemTracker back from [" << ( tmpTracker ? tmpTracker->GetName() : "NULL" ) << "] to [" << fOldTracker->GetName() << "]", coast::storage::Global());
 					if ( tmpTracker && coast::storage::GetStatisticLevel() >= 1 ) {
 						tmpTracker->PrintStatistic(2);
+						tmpTracker->DumpUsedBlocks();
 					}
 					fOldTracker.reset();
 				}
@@ -268,20 +269,24 @@ namespace {
 			if ( wdallocator ) {
 				// in mt case we need to control ref counting with mutexes
 				LockUnlockEntry me(*fAllocatorInit);
-				AllocList *elmt = (AllocList *)::calloc(1, sizeof(AllocList));
-				// catch memory allocation problem
-				if (!elmt) {
-					static const char crashmsg[] = "FATAL: MT_Storage::RefAllocator calloc failed. I will crash :-(\n";
-					SystemLog::WriteToStderr(crashmsg, sizeof(crashmsg));
-					SystemLog::Error("allocation failed for RefAllocator");
-					return;
+				AllocList *elmt = fPoolAllocatorList;
+				while (elmt && (elmt->wdallocator != wdallocator)) {
+					elmt = elmt->next;
+				}
+				if ( not elmt ) {
+					AllocList *elmt = (AllocList *)::calloc(1, sizeof(AllocList));
+					if (!elmt) {
+						static const char crashmsg[] = "FATAL: MT_Storage::RefAllocator calloc failed. I will crash :-(\n";
+						SystemLog::WriteToStderr(crashmsg, sizeof(crashmsg));
+						SystemLog::Error("allocation failed for RefAllocator");
+						return;
+					}
+					elmt->wdallocator = wdallocator;
+					elmt->next = fPoolAllocatorList;
+					fPoolAllocatorList = elmt;
 				}
 				wdallocator->Ref();
-				Trace("refcount is now:" << wdallocator->RefCnt());
-				// update linked list
-				elmt->wdallocator = wdallocator;
-				elmt->next = fPoolAllocatorList;
-				fPoolAllocatorList = elmt;
+				Trace("wdallocator: " << (long)wdallocator << " refcount is now:" << wdallocator->RefCnt());
 			}
 		}
 		void UnrefAllocator(Allocator *wdallocator) {

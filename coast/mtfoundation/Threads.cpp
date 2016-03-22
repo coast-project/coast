@@ -12,11 +12,11 @@
 #include "DiffTimer.h"
 #include "StringStream.h"
 #include "MT_Storage.h"
-#include <cstring>
+#include "singleton.hpp"
 #if !defined(WIN32)
 #include <errno.h>
 #endif
-#include "singleton.hpp"
+#include <cstring>
 #include <boost/shared_ptr.hpp>
 
 //#define TRACE_LOCKS_IMPL 1
@@ -29,10 +29,13 @@ AllocatorUnref::AllocatorUnref(Thread *t)
 
 AllocatorUnref::~AllocatorUnref()
 {
+	StatTrace(AllocatorUnref.~AllocatorUnref, "ThreadId: " << (fThread?fThread->GetId():0) << " CallId: " << Thread::MyId(), coast::storage::Global());
 	if ( fThread ) {
 		Allocator *a = fThread->fAllocator;
+		StatTrace(AllocatorUnref.~AllocatorUnref, "Allocator: " << (long)a, coast::storage::Global());
 		if ( a ) {
 			if ( a != coast::storage::Global() && ( a->CurrentlyAllocated() > 0L ) ) {
+				StatTrace(AllocatorUnref.~AllocatorUnref, "currently allocated on " << (long)a << " " << (long)a->CurrentlyAllocated(), coast::storage::Global());
 				long lMaxCount = 3L;
 				while ( ( a->CurrentlyAllocated() > 0L ) && ( --lMaxCount >= 0L ) ) {
 					// give some 20ms slices to finish everything
@@ -42,7 +45,6 @@ AllocatorUnref::~AllocatorUnref()
 					Thread::Wait(0L, 20000000);
 				}
 			}
-			// now the allocator is no longer needed...
 			MT_Storage::UnrefAllocator(a);
 			fThread->fAllocator = 0;
 		}
@@ -50,8 +52,9 @@ AllocatorUnref::~AllocatorUnref()
 }
 
 namespace {
-	//:thread count variable
 	long fgNumOfThreads = 0;
+	long const deadSignature=0xaaddeeff;
+	long const aliveSignature=0x0f0055AA;
 }
 
 namespace {
@@ -121,7 +124,7 @@ static CleanupAllocator fgInitKey;
 
 Thread::Thread(const char *name, bool daemon, bool detached, bool suspended, bool bound, Allocator *a)
 	: NamedObject()
-	, tObservableBase(name, a)
+	, tObservableBase(name)
 	, fAllocator(a)
 	, fAllocCleaner(this)
 	, fThreadId(0)
@@ -130,12 +133,12 @@ Thread::Thread(const char *name, bool daemon, bool detached, bool suspended, boo
 	, fDetached(detached)
 	, fSuspended(suspended)
 	, fBound(bound)
-	, fStateMutex("ThreadStateMutex", (fAllocator) ? fAllocator : coast::storage::Global())
+	, fStateMutex("ThreadStateMutex", coast::storage::Global())
 	, fStateCond()
 	, fRunningState(eReady)
 	, fState(eCreated)
-	, fSignature(0xaaddeeff)
-	, fThreadName(name, strlen(name), (fAllocator) ? fAllocator : coast::storage::Global())
+	, fSignature(deadSignature)
+	, fThreadName(name, strlen(name), coast::storage::Global())
 	, fanyArgTmp( coast::storage::Global() )
 {
 
@@ -209,20 +212,19 @@ bool Thread::Start(Allocator *pAllocator, ROAnything args)
 		SYSERROR("ThreadId: " << GetId() << " is still alive, eg. did not detach from system thread yet, exiting!");
 	} else {
 		// reset alive signature to allow re-use of object
-		fSignature = 0x0f0055AA;
+		fSignature = aliveSignature;
 		if ( GetState() == eTerminated ) {
 			SetState(eCreated);
 		}
 		if ( GetState() < eStartRequested ) {
+			Trace("pAllocator: " << (long)pAllocator << " fAllocator: " << (long)fAllocator);
 			if (pAllocator || fAllocator) {
 				if (pAllocator && fAllocator != pAllocator) {
 					Allocator *oldAlloc = fAllocator;
 					fAllocator = pAllocator;
-
-					// CAUTION: Thread *MUST NOT* have any
-					// instance variables that still use
-					// the previous allocator!
-					MT_Storage::UnrefAllocator(oldAlloc);	// previously used allocator is replaced
+					// CAUTION: Thread *MUST NOT* have any instance variables
+					// that still use the previous allocator!
+					MT_Storage::UnrefAllocator(oldAlloc);
 					MT_Storage::RefAllocator(fAllocator);
 				}
 
@@ -245,7 +247,7 @@ bool Thread::Start(Allocator *pAllocator, ROAnything args)
 					} else {
 						SYSERROR("could not start and attach system thread");
 						fThreadId = 0;
-						fSignature = 0xaaddeeff;
+						fSignature = deadSignature;
 					}
 					delete [] b;
 					Trace("Start MyId(" << MyId() << ") started GetId( " << (long)fThreadId << ")" );
@@ -278,7 +280,7 @@ void Thread::Exit(int)
 	}
 	StatTrace(Thread.Exit, "destroying system thread object id: " << GetId(), coast::storage::Global());
 	// reset alive flag, must be set in Start() again!
-	fSignature = 0xaaddeeff;
+	fSignature = deadSignature;
 	fThreadId = 0;
 	SetState( Thread::eTerminated );
 }
@@ -552,6 +554,10 @@ void Thread::CallRunningStateHooks(ERunningState state, ROAnything args)
 void Thread::DoReadyHook(ROAnything) {};
 void Thread::DoWorkingHook(ROAnything) {};
 
+bool Thread::IsAlive() {
+	return (fSignature == aliveSignature);
+}
+
 bool Thread::IsReady( bool &bIsReady )
 {
 	bool bCouldLock( false );
@@ -643,7 +649,6 @@ void Thread::IntRun()
 	if ( !CheckState(eStarted) ) //XXX remove
 #endif
 	{
-		// needs syslog messages
 		if ( !SetState(eTerminatedRunMethod) ) {
 			StatTrace(Thread.IntRun, "SetState(eTerminatedRunMethod) failed MyId(" << MyId() << ") GetId( " << GetId() << ")", coast::storage::Global());
 		}
@@ -664,10 +669,9 @@ void Thread::IntRun()
 		if ( SetState(eRunning) ) {
 			ThreadInitializerSingleton::instance().incrementNumOfThreads();
 			{
-				String strWho(GetName());
+				String strWho(GetName(), coast::storage::Global());
 				strWho.Append("::Run [").Append(MyId()).Append(']');
 				MemChecker rekcehc(strWho, ( ( coast::storage::Current() != coast::storage::Global() ) ? coast::storage::Current() : (Allocator *)0 ) );
-				// do the real work
 				Run();
 			}
 			ThreadInitializerSingleton::instance().decrementNumOfThreads();

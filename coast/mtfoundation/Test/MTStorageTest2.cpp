@@ -10,6 +10,7 @@
 #include "TestSuite.h"
 #include "Threads.h"
 #include "MT_Storage.h"
+#include "SystemBase.h"
 #if defined(WIN32)
 #include <io.h>
 #endif
@@ -22,35 +23,56 @@ protected:
 };
 
 class DataProviderThread: public TestWorkerThread {
+	Allocator* fDataAllocator;
+	Anything fData;
 public:
-	DataProviderThread(Allocator *a);
+	DataProviderThread(Allocator* a, Allocator* d) :
+			TestWorkerThread(a), fDataAllocator(d), fData(d) {
+	}
 
 	Anything &GetData() {
 		return fData;
 	}
 
 protected:
-	virtual void Run();
-	Anything fData;
+	virtual void Run() {
+		long allocatedOnThreadAllocOnEnterRun = fAllocator->CurrentlyAllocated();
+		long allocatedOnDataAllocOnEnterRun = fDataAllocator->CurrentlyAllocated();
+		fData.Append("sfdsfdsfd");
+		fData.Append(1432);
+		fData.Append(2323.4343);
+		long allocatedOnThreadAllocAfterDataWrite = fAllocator->CurrentlyAllocated();
+		long allocatedOnDataAllocAfterDataWrite = fDataAllocator->CurrentlyAllocated();
+		long allocatedOnThreadAllocAfterLocalWrite = 0;
+		long allocatedOnDataAllocAfterLocalWrite = 0;
+		long allocatedOnThreadAllocAfterLocalToDataAssign = 0;
+		long allocatedOnDataAllocAfterLocalToDataAssign = 0;
+		{
+			Anything b;
+			b["1"] = 1;
+			b["2"] = "ok";
+			b["3"] = "hhgfjhgfjhgf";
+			b["4"] = 0.4334;
+			allocatedOnThreadAllocAfterLocalWrite = fAllocator->CurrentlyAllocated();
+			allocatedOnDataAllocAfterLocalWrite = fDataAllocator->CurrentlyAllocated();
+			fData["Sub"] = b;
+			allocatedOnThreadAllocAfterLocalToDataAssign = fAllocator->CurrentlyAllocated();
+			allocatedOnDataAllocAfterLocalToDataAssign = fDataAllocator->CurrentlyAllocated();
+		}
+		long allocatedOnThreadAllocAfterLocalDestroy = fAllocator->CurrentlyAllocated();
+		long allocatedOnDataAllocAfterLocalDestroy = fDataAllocator->CurrentlyAllocated();
+		fData["Memstats"]["allocatedOnThreadAllocOnEnterRun"] = allocatedOnThreadAllocOnEnterRun;
+		fData["Memstats"]["allocatedOnDataAllocOnEnterRun"] = allocatedOnDataAllocOnEnterRun;
+		fData["Memstats"]["allocatedOnThreadAllocAfterDataWrite"] = allocatedOnThreadAllocAfterDataWrite;
+		fData["Memstats"]["allocatedOnDataAllocAfterDataWrite"] = allocatedOnDataAllocAfterDataWrite;
+		fData["Memstats"]["allocatedOnThreadAllocAfterLocalWrite"] = allocatedOnThreadAllocAfterLocalWrite;
+		fData["Memstats"]["allocatedOnDataAllocAfterLocalWrite"] = allocatedOnDataAllocAfterLocalWrite;
+		fData["Memstats"]["allocatedOnThreadAllocAfterLocalToDataAssign"] = allocatedOnThreadAllocAfterLocalToDataAssign;
+		fData["Memstats"]["allocatedOnDataAllocAfterLocalToDataAssign"] = allocatedOnDataAllocAfterLocalToDataAssign;
+		fData["Memstats"]["allocatedOnThreadAllocAfterLocalDestroy"] = allocatedOnThreadAllocAfterLocalDestroy;
+		fData["Memstats"]["allocatedOnDataAllocAfterLocalDestroy"] = allocatedOnDataAllocAfterLocalDestroy;
+	}
 };
-
-DataProviderThread::DataProviderThread(Allocator *a) :
-	TestWorkerThread(a), fData(coast::storage::Global()) {
-}
-
-void DataProviderThread::Run() {
-	fData.Append("sfdsfdsfd");
-	fData.Append(1432);
-	fData.Append(2323.4343);
-
-	Anything b;
-	b["1"] = 1;
-	b["2"] = "ok";
-	b["3"] = "hhgfjhgfjhgf";
-	b["4"] = 0.4334;
-
-	fData["Sub"] = b;
-}
 
 MTStorageTest2::MTStorageTest2(TString tname) :
 	TestCaseType(tname), fGlobal(0), fPool(0) {
@@ -68,7 +90,7 @@ void MTStorageTest2::setUp() {
 		fGlobal = coast::storage::Global();
 	}
 	if (!fPool) {
-		fPool = MT_Storage::MakePoolAllocator(2000, 25);
+		fPool = MT_Storage::MakePoolAllocator(2000, 25, 4711);
 		MT_Storage::RefAllocator(fPool);
 	}
 }
@@ -86,26 +108,33 @@ void MTStorageTest2::trivialTest() {
 
 void MTStorageTest2::twoThreadTest() {
 	StartTrace1(MTStorageTest2.twoThreadTest, "ThrdId: " << Thread::MyId());
-	assertEqualm(0, fPool->CurrentlyAllocated(), "expected fPool to be empty");
-	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(fPool);
-	t1->Start(fPool);
-
-	// wait for other thread to finish
-	t1->CheckState(Thread::eTerminated);
-
-	// everything should have been allocated within pool!
-	// the current implementation allows size testing, eg. tracking of allocated and freed memory only in coast::storage::GetStatisticLevel() >= 1
 	if (coast::storage::GetStatisticLevel() >= 1) {
-		assertComparem(static_cast<ul_long>(0), greater, fPool->CurrentlyAllocated(), "everything should have been allocated within pool XXX: changes when semantic of Thread::eStarted changes!");
+		assertEqualm(0, fPool->CurrentlyAllocated(), "expected fPool to be empty");
 	}
+
+	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(0, coast::storage::Global());
+	t1->Start(fPool);
+	// wait for thread to finish
+	t1->CheckState(Thread::eTerminated);
+	// copy memory stats
+	Anything memstats = t1->GetData()["Memstats"];
 	delete t1;
-	assertComparem(static_cast<ul_long>(0), equal_to, fPool->CurrentlyAllocated(), "expected fPool to be empty");
+
+	if (coast::storage::GetStatisticLevel() >= 1) {
+		TraceAny(memstats, "memory usage");
+#if defined(POOL_STARTEDHOOK)
+		assertComparem(0L, equal_to, memstats["allocatedOnThreadAllocOnEnterRun"].AsLong(), "Pool Memory should have been left untouched so far");
+#else
+		assertComparem(0L, equal_to, memstats["allocatedOnThreadAllocOnEnterRun"].AsLong(), "everything should have been allocated within pool XXX: changes when semantic of Thread::eStarted changes!");
+#endif
+		assertComparem(static_cast<ul_long>(0), equal_to, fPool->CurrentlyAllocated(), "expected fPool to be empty");
+	}
 }
 
 void MTStorageTest2::twoThreadAssignmentTest() {
 	StartTrace1(MTStorageTest2.twoThreadAssignmentTest, "ThrdId: " << Thread::MyId());
 	ul_long l = fGlobal->CurrentlyAllocated();
-	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(fPool);
+	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(fPool, coast::storage::Global());
 	t1->Start(fPool);
 
 	// wait for other thread to finish
@@ -125,7 +154,7 @@ void MTStorageTest2::twoThreadAssignmentTest() {
 void MTStorageTest2::twoThreadCopyConstructorTest() {
 	StartTrace1(MTStorageTest2.twoThreadCopyConstructorTest, "ThrdId: " << Thread::MyId());
 	ul_long l = fGlobal->CurrentlyAllocated();
-	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(fPool);
+	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(fPool, coast::storage::Global());
 	t1->Start(fPool);
 
 	// wait for other thread to finish
@@ -144,10 +173,11 @@ void MTStorageTest2::twoThreadCopyConstructorTest() {
 
 void MTStorageTest2::twoThreadArrayAccessTest() {
 	StartTrace1(MTStorageTest2.twoThreadArrayAccessTest, "ThrdId: " << Thread::MyId());
-	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(fPool);
+	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(fPool, fPool);
 	ul_long l = fGlobal->CurrentlyAllocated();
 	{
 		t1->Start(fPool);
+		t1->CheckState(Thread::eRunning);
 		assertCompare( l, equal_to, fGlobal->CurrentlyAllocated());
 
 		// wait for other thread to finish
@@ -164,15 +194,10 @@ void MTStorageTest2::twoThreadArrayAccessTest() {
 		if (coast::storage::GetStatisticLevel() >= 1) {
 			assertCompare( fGlobal->CurrentlyAllocated(), greater, l);
 		}
-		// data should have been copied to global store now
 		delete t1;
 	}
 	// new we should be back where we started
 	assertComparem(static_cast<ul_long>(0), equal_to, fPool->CurrentlyAllocated(), "expected fPool to be empty");
-	// the current implementation allows size testing, eg. tracking of allocated and freed memory only in coast::storage::GetStatisticLevel() >= 1
-	if (coast::storage::GetStatisticLevel() >= 1) {
-		assertCompare( fGlobal->CurrentlyAllocated(), equal_to, l);
-	}
 }
 
 void MTStorageTest2::reusePoolTest() {
@@ -185,7 +210,7 @@ void MTStorageTest2::reusePoolTest() {
 	}
 	MT_Storage::RefAllocator(pa); // need to refcount poolstorage
 	assertEqualm(1L, pa->RefCnt(), "expected refcnt to be 1");
-	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(pa);
+	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(pa, coast::storage::Global());
 	assertEqualm(2L, pa->RefCnt(), "expected refcnt to be 2");
 
 	// do some work
@@ -198,7 +223,7 @@ void MTStorageTest2::reusePoolTest() {
 	assertEqualm(1L, pa->RefCnt(), "expected refcnt to be 1");
 
 	// do it again
-	t1 = new (coast::storage::Global()) DataProviderThread(pa);
+	t1 = new (coast::storage::Global()) DataProviderThread(pa, coast::storage::Global());
 	assertEqualm(2L, pa->RefCnt(), "expected refcnt to be 2");
 
 	// do some work

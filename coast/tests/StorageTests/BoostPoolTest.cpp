@@ -8,19 +8,17 @@
 
 #include "BoostPoolTest.h"
 #include "TestSuite.h"
-#include <boost/pool/pool_alloc.hpp>
-#include <boost/pool/object_pool.hpp>
 #include "SystemLog.h"
-#define COAST_DISABLE_TRACE
 #include "ThreadPools.h"
 #include "MT_Storage.h"
+#include <boost/pool/pool_alloc.hpp>
+#include <boost/pool/object_pool.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <deque>
 #include <vector>
 #include <set>
 
-//---- BoostPoolTest ----------------------------------------------------------------
 BoostPoolTest::BoostPoolTest(TString tstrName)
 	: TestCaseType(tstrName)
 {
@@ -43,63 +41,64 @@ BoostPoolTest::~BoostPoolTest()
 //	StartTrace(BoostPoolTest.tearDown);
 //}
 
+namespace {
 // Each "tester" object below checks into and out of the "cdtor_checker",
 //  which will report any problems related to the construction/destruction of
 //  "tester" objects.
-class cdtor_checker
-{
-private:
-	// Each constructed object registers its "this" pointer into "objs"
-	std::set<void *> objs;
+	class cdtor_checker {
+	private:
+		// Each constructed object registers its "this" pointer into "objs"
+		std::set<void *> objs;
 
-public:
-	~cdtor_checker() {
-		// At end of program, print out memory leaks
-		//  (assuming no static "tester"s)
-		for (std::set<void *>::const_iterator i = objs.begin(); i != objs.end(); ++i) {
-			SYSERROR("Memory leak: " << (long)*i);
+	public:
+		~cdtor_checker() {
+			// At end of program, print out memory leaks
+			//  (assuming no static "tester"s)
+			for (std::set<void *>::const_iterator i = objs.begin(); i != objs.end(); ++i) {
+				SYSERROR("Memory leak: " << (long)*i);
+			}
 		}
-	}
 
-	void check_in(void *const This) {
-		if (objs.find(This) != objs.end()) {
-			SYSERROR("Double-constructed memory: " << (long)This);
+		void check_in(void * const This) {
+			if (objs.find(This) != objs.end()) {
+				SYSERROR("Double-constructed memory: " << (long)This);
+			}
+			objs.insert(This);
 		}
-		objs.insert(This);
-	}
-	void check_out(void *const This) {
-		std::set<void *>::iterator i = objs.find(This);
-		if (i == objs.end()) {
-			SYSERROR("Destroyed non-constructed memory: " << (long)This);
+		void check_out(void * const This) {
+			std::set<void *>::iterator i = objs.find(This);
+			if (i == objs.end()) {
+				SYSERROR("Destroyed non-constructed memory: " << (long)This);
+			}
+			objs.erase(This);
 		}
-		objs.erase(This);
-	}
 
-	// true iff all objects that have checked in have checked out
-	bool ok() const {
-		return objs.empty();
-	}
-};
-static cdtor_checker mem;
-
-struct tester {
-	tester(int arg1, int arg2) {
-		StartTrace1(tester.tester, "arg1:" << arg1 << " arg2:" << arg2);
-		if (arg1 == 17 && arg2 == 17) {
-			Trace("tester not constructed");
-			throw std::logic_error("No construction allowed!");
+		// true iff all objects that have checked in have checked out
+		bool ok() const {
+			return objs.empty();
 		}
-		mem.check_in(this);
-	}
-	tester(const tester &) {
-		StartTrace1(tester.tester, "copy ctor");
-		mem.check_in(this);
-	}
-	~tester() {
-		StartTrace(tester.~tester);
-		mem.check_out(this);
-	}
-};
+	};
+	cdtor_checker mem;
+
+	struct tester {
+		tester(int arg1, int arg2) {
+			StartTrace1(tester.tester, "arg1:" << arg1 << " arg2:" << arg2);
+			if (arg1 == 17 && arg2 == 17) {
+				Trace("tester not constructed");
+				throw std::logic_error("No construction allowed!");
+			}
+			mem.check_in(this);
+		}
+		tester(const tester &) {
+			StartTrace1(tester.tester, "copy ctor");
+			mem.check_in(this);
+		}
+		~tester() {
+			StartTrace(tester.~tester);
+			mem.check_out(this);
+		}
+	};
+}
 
 void BoostPoolTest::BasicsTest()
 {
@@ -418,8 +417,6 @@ void BoostPoolTest::TestFuncCurrent()
 	assertComparem(0LL, greater_equal, aCChecker.CheckDelta(), TString("expected no unfreed memory ") << (coast::storage::Current() == coast::storage::Global() ? "G" : "C"));
 }
 
-// ----------------------------------------------------------------------------
-
 template<unsigned int N>
 class ThisIsASmallObject
 {
@@ -434,7 +431,6 @@ template<unsigned int N>
 struct Base<N, void> : public ThisIsASmallObject<N>
 	{};
 
-// ----------------------------------------------------------------------------
 template <
 typename Tag,
 		 unsigned int N,
@@ -501,8 +497,6 @@ void cleanupBoostPool()
 {
 	tPoolType::BoostPoolType::release_memory();
 }
-
-// ----------------------------------------------------------------------------
 
 typedef boost::function<void (void **, int)> theTestFunc;
 
@@ -646,7 +640,6 @@ public:
 	}
 };
 
-// builds up a suite of testcases, add a line for each testmethod
 Test *BoostPoolTest::suite ()
 {
 	StartTrace(BoostPoolTest.suite);

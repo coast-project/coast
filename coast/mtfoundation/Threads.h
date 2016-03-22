@@ -561,9 +561,7 @@ public:
 	EThreadState GetState(bool trylock = false, EThreadState dfltState = eRunning);
 
 	//!tests if the thread object is still valid
-	bool IsAlive() {
-		return (fSignature == 0x0f0055AA);
-	}
+	bool IsAlive();
 
 	/*! Test if in we are in state eReady
 		\param bIsReady will get the correct value only when the methods return code is true!
@@ -780,7 +778,7 @@ namespace coast {
 			ValueTypePtr fOldValue;
 		};
 	}
-};
+}
 
 #include "Threads.ipp"
 

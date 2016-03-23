@@ -274,7 +274,7 @@ namespace {
 					elmt = elmt->next;
 				}
 				if ( not elmt ) {
-					AllocList *elmt = (AllocList *)::calloc(1, sizeof(AllocList));
+					elmt = (AllocList *)::calloc(1, sizeof(AllocList));
 					if (!elmt) {
 						static const char crashmsg[] = "FATAL: MT_Storage::RefAllocator calloc failed. I will crash :-(\n";
 						SystemLog::WriteToStderr(crashmsg, sizeof(crashmsg));

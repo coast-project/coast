@@ -284,8 +284,12 @@ namespace coast {
 			return (reinterpret_cast<Allocator **>(ptr))[0L];
 		}
 
-		void *realPtrFor(void *ptr) throw () {
-			return reinterpret_cast<char *>(ptr) - AlignedSize<Allocator *>::value;
+		void* payloadPtrFor(void* ptr) throw () {
+			return reinterpret_cast<void*>(reinterpret_cast<char *>(ptr) + memory::AlignedSize<Allocator *>::value);
+		}
+
+		void* realPtrFor(void *ptr) throw () {
+			return reinterpret_cast<void*>(reinterpret_cast<char *>(ptr) - AlignedSize<Allocator *>::value);
 		}
 
 		void safeFree(Allocator *a, void *ptr) throw () {

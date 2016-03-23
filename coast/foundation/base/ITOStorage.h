@@ -304,6 +304,8 @@ namespace coast {
 
 		Allocator*& allocatorFor(void* ptr) throw ();
 
+		void* payloadPtrFor(void* ptr) throw ();
+
 		void *realPtrFor(void *ptr) throw ();
 
 		void safeFree(Allocator *a, void *ptr) throw ();

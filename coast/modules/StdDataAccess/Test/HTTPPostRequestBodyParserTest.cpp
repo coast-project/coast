@@ -311,7 +311,7 @@ void HTTPPostRequestBodyParserTest::ReadMultiPartPostBody() {
 	while (aEntryIterator.Next(cConfig)) {
 		TString cName;
 		aEntryIterator.SlotName(cName);
-		String result, strIn(Renderer::RenderToString(ctx, cConfig["Filename"]));
+		String strIn(Renderer::RenderToString(ctx, cConfig["Filename"]));
 		std::iostream *is = coast::system::OpenStream(strIn, 0);
 		t_assertm(is != 0, "expected 'MultiPartBody.txt' to be there");
 		if (is) {

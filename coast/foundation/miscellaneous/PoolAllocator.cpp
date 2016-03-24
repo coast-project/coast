@@ -96,7 +96,7 @@ ul_long ExcessTrackerElt::GetSizeToPowerOf2(size_t ulWishSize)
 	if ( lBitCnt == 1 ) {
 		--lMaxBit;
 	}
-	return (1 << lMaxBit);//lint !e647
+	return (1L << lMaxBit);//lint !e647
 }
 
 long ExcessTrackerElt::GetLargestExcessEltBitNum()

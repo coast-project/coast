@@ -428,16 +428,17 @@ public:
 };
 
 //!subclasses may be defined to perform cleanup in thread specific storage while thread is still alive. CleanupHandlers are supposed to be singletons..
-class CleanupHandler {
+class CleanupHandler : public IFAObject {
 public:
-	virtual ~CleanupHandler() {
-	}
 	bool Cleanup() {
 		return DoCleanup();
 	}
 protected:
 	//!subclasses implement cleanup of thread specific storage
 	virtual bool DoCleanup() = 0;
+	virtual IFAObject *Clone(Allocator *) const {
+		return 0;
+	}
 };
 
 //! utility class used for proper destruction of thread local storage

@@ -58,8 +58,6 @@ namespace coast
 		}
 
 		class ThreadSpecificConnectionCleaner : public CleanupHandler {
-		public:
-			static ThreadSpecificConnectionCleaner fgCleaner;
 		protected:
 			//:close and destruct OraclePooledConnection
 			virtual bool DoCleanup() {
@@ -78,7 +76,7 @@ namespace coast
 				return false;
 			}
 		};
-		ThreadSpecificConnectionCleaner ThreadSpecificConnectionCleaner::fgCleaner;
+		ThreadSpecificConnectionCleaner fgCleaner;
 
 		ConnectionPool::ConnectionPool( const char *name ) :
 			fStructureMutex( String( name ).Append( "StructureMutex" ), coast::storage::Global() ), fListOfConnections(
@@ -219,7 +217,7 @@ namespace coast
 					}
 				} else {
 					Trace("need to create new Connection")
-					Thread::RegisterCleaner(&ThreadSpecificConnectionCleaner::fgCleaner);
+					Thread::RegisterCleaner(&fgCleaner);
 					pConnection = new ( coast::storage::Global() ) OraclePooledConnection( Thread::MyId(), 2048L, 26L );
 					if ( pConnection != NULL ) {
 						bRet = SETTLSDATA(OracleTlsKeyInitializerSingleton::instance().getConnectionKey(), pConnection);

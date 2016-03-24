@@ -18,7 +18,7 @@ namespace {
 	static THREADKEY fgNestingLevelKey = 0;
 	static bool fgTLSUsable = false;
 	//!< perform close and destruction of thread specific storage
-	static class ThreadSpecificNestingLevelCleaner: public CleanupHandler {
+	class ThreadSpecificNestingLevelCleaner: public CleanupHandler {
 	protected:
 		virtual bool DoCleanup() {
 			StatTrace(ThreadSpecificNestingLevelCleaner.DoCleanup, "ThrdId: " << Thread::MyId(), coast::storage::Global());

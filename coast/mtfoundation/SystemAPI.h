@@ -319,7 +319,7 @@ extern "C" {
 #define THRKEYCREATE(key, destFct)			pthread_key_create(&key, destFct)
 #define THRKEYDELETE(key) 					pthread_key_delete(key)
 #define SETTLSDATA(key, data)				(pthread_setspecific(key, (const void*)data) == 0)
-#define GETTLSDATA(key, data, dataType)		(data = (dataType*)pthread_getspecific(key))
+#define GETTLSDATA(key, data, dataType)		(data = reinterpret_cast<dataType*>(pthread_getspecific(key)))
 
 #endif
 

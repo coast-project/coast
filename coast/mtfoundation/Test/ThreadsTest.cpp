@@ -421,7 +421,7 @@ void ThreadsTest::SimpleMutexTest() {
 }
 
 void ThreadsTest::TimedRunTest() {
-	StartTrace(ThreadsTest.SimpleMutexTest);
+	StartTrace(ThreadsTest.TimedRunTest);
 	long testTime;
 	// We do it 5 times
 	for (testTime = 1; testTime < 6; testTime++) {

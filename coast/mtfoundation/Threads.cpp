@@ -723,9 +723,7 @@ bool Thread::RegisterCleaner(CleanupHandler *handler) {
 			return false;	// giving up..
 		}
 	}
-	String adrKey;
-	adrKey << (long)handler;
-	(*handlerList)[adrKey] = Anything(reinterpret_cast<IFAObject *>(handler), coast::storage::Global());
+	(*handlerList).Append(Anything(handler, coast::storage::Global()));
 	return true;
 }
 
@@ -735,7 +733,7 @@ bool Thread::CleanupThreadStorage() {
 	Anything *handlerList = 0;
 	if (GETTLSDATA(ThreadInitializerSingleton::instance().getCleanerKey(), handlerList, Anything) && handlerList) {
 		for (long i = (handlerList->GetSize() - 1); i >= 0; --i) {
-			CleanupHandler *handler = reinterpret_cast<CleanupHandler *>((*handlerList)[i].AsIFAObject(0));
+			CleanupHandler *handler = dynamic_cast<CleanupHandler *>((*handlerList)[i].AsIFAObject(0));
 			if (handler) {
 				handler->Cleanup();
 			}
@@ -746,7 +744,6 @@ bool Thread::CleanupThreadStorage() {
 			bRet = false;
 		}
 	}
-
 	// unregister PoolAllocator of thread -> influences coast::storage::Current() retrieval
 	MT_Storage::UnregisterThread();
 	return bRet;
@@ -895,50 +892,44 @@ namespace {
     typedef coast::utility::singleton_default<MutexInitializer> MutexInitializerSingleton;
 }
 
-//:subclasses may be defined to perform cleanup in thread specific storage
-// while thread is still alive. CleanupHandlers are supposed to be singletons..
-class MutexCountTableCleaner: public CleanupHandler {
-public:
-	static MutexCountTableCleaner fgCleaner;
-
-protected:
-	//:method used to cleanup specific settings within
-	// thread specific storage
-	virtual bool DoCleanup();
-};
-
-MutexCountTableCleaner MutexCountTableCleaner::fgCleaner;
-
-bool MutexCountTableCleaner::DoCleanup()
-{
-	StatTrace(MutexCountTableCleaner.DoCleanup, "ThrdId: " << Thread::MyId(), coast::storage::Global());
-	Anything *countarray = 0;
-	if (GETTLSDATA(MutexInitializerSingleton::instance().getCountTableKey(), countarray, Anything)) {
-		// as the countarray behavior changed, mutex entries which were used by the thread
-		//  are still listed but should all have values of 0
-		long lSize((*countarray).GetSize());
-		bool bHadLockEntries = false;
-		while ( --lSize >= 0L ) {
-			if ( (*countarray)[lSize].AsLong(-1L) > 0L ) {
-				bHadLockEntries = true;
+namespace {
+	/*! subclasses may be defined to perform cleanup in thread specific storage
+	    while thread is still alive. CleanupHandlers are supposed to be singletons.. */
+	class MutexCountTableCleaner: public CleanupHandler {
+	protected:
+		//! method used to cleanup specific settings within thread specific storage
+		virtual bool DoCleanup() {
+			StatTrace(MutexCountTableCleaner.DoCleanup, "ThrdId: " << Thread::MyId(), coast::storage::Global());
+			Anything *countarray = 0;
+			if (GETTLSDATA(MutexInitializerSingleton::instance().getCountTableKey(), countarray, Anything)) {
+				// as the countarray behavior changed, mutex entries which were used by the thread
+				//  are still listed but should all have values of 0
+				long lSize((*countarray).GetSize());
+				bool bHadLockEntries = false;
+				while ( --lSize >= 0L ) {
+					if ( (*countarray)[lSize].AsLong(-1L) > 0L ) {
+						bHadLockEntries = true;
+					}
+				}
+				// trace errors only
+				if ( bHadLockEntries ) {
+					String strbuf(coast::storage::Global());
+					OStringStream stream(strbuf);
+					stream << "MutexCountTableCleaner::DoCleanup: ThrdId: " << Thread::MyId() << "\n  countarray still contained Mutex locking information!\n";
+					(*countarray).Export(stream, 2);
+					stream.flush();
+					SystemLog::WriteToStderr(strbuf);
+				}
+				delete countarray;
+				countarray = 0;
+				if (SETTLSDATA(MutexInitializerSingleton::instance().getCountTableKey(), countarray)) {
+					return true;
+				}
 			}
+			return false;
 		}
-		// trace errors only
-		if ( bHadLockEntries ) {
-			String strbuf(coast::storage::Global());
-			OStringStream stream(strbuf);
-			stream << "MutexCountTableCleaner::DoCleanup: ThrdId: " << Thread::MyId() << "\n  countarray still contained Mutex locking information!\n";
-			(*countarray).Export(stream, 2);
-			stream.flush();
-			SystemLog::WriteToStderr(strbuf);
-		}
-		delete countarray;
-		countarray = 0;
-		if (SETTLSDATA(MutexInitializerSingleton::instance().getCountTableKey(), countarray)) {
-			return true;
-		}
-	}
-	return false;
+	};
+	MutexCountTableCleaner fgCleaner;
 }
 
 Mutex::Mutex(const char *name, Allocator *a)
@@ -989,7 +980,7 @@ bool Mutex::SetCount(long newCount)
 
 	if (!countarray && newCount > 0) {
 		countarray = new Anything(Anything::ArrayMarker(),coast::storage::Global());
-		Thread::RegisterCleaner(&MutexCountTableCleaner::fgCleaner);
+		Thread::RegisterCleaner(&fgCleaner);
 		if (!SETTLSDATA(MutexInitializerSingleton::instance().getCountTableKey(), countarray)) {
 			SystemLog::Error("Mutex::SetCount: could not store recursive locking structure in TLS!");
 			return false;

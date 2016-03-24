@@ -34,7 +34,7 @@ namespace coast
 		/*! delegate operator used for new arrays
 		 * @param size size of memory block to allocate
 		 */
-		static void* operator new[](std::size_t size) throw();
+		static void* operator new[](std::size_t sz) throw();
 
 		/*! operator used when delete gets called
 		 * @param ptr memory block to delete

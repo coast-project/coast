@@ -11,8 +11,7 @@
 
 #include "ITOStorage.h"//lint !e537
 
-namespace coast
-{
+namespace coast {
 
 //! Segregated Storage Allocator for operator new/delete
 /*!
@@ -22,23 +21,28 @@ classes can lead to space leaks because of a possible size differences.
 	template<typename T>
 	class SegStorAllocatorNewDelete {
 	public:
-		static void *operator new( size_t, Allocator *a ) {
+		/*! operator used when placement new gets called
+		 * @param sz size of memory block to allocate
+		 * @param a Allocator used for allocating memory
+		 */
+		static void *operator new(std::size_t sz, Allocator *a) throw() {
+			assert(sz == sizeof(T));
 			return a->Malloc<sizeof(T)>();
 		}
 
-		static void *operator new( size_t t ) {
-			return operator new(t, storage::Global());
+		/*! operator used when placement new gets called without Allocator
+		 * We fallback to using coast::storage::Global() to still fulfill the request
+		 * @param sz size of memory block to allocate
+		 */
+		static void *operator new(std::size_t sz) throw() {
+			return operator new(sz, storage::Global());
 		}
 
-		static void operator delete( void *ptr, Allocator *a ) {
-			a->Free<sizeof(T)>(ptr);
-		}
-
-		static void operator delete( void *ptr ) {
-			operator delete(ptr, static_cast<T*>(ptr)->MyAllocator());
-		}
-
-		static void *operator new[]( size_t sz, Allocator *a ) {
+		/*! operator used when placement new gets called for arrays
+		 * @param sz size of memory block to allocate
+		 * @param a Allocator used for allocating memory
+		 */
+		static void *operator new[](std::size_t sz, Allocator *a) throw() {
 			if (a) {
 				void *ptr = a->Malloc(sz + memory::AlignedSize<Allocator *>::value);
 				memory::allocatorFor(ptr) = a; // remember address of responsible Allocator
@@ -47,7 +51,33 @@ classes can lead to space leaks because of a possible size differences.
 			return a;
 		}
 
-		static void operator delete[]( void *ptr ) {
+		/*! operator used when placement new gets called for arrays without Allocator
+		 * We fallback to using coast::storage::Global() to still fulfill the request
+		 * @param sz size of memory block to allocate
+		 */
+		static void *operator new[](std::size_t sz) throw() {
+			return operator new[](sz, storage::Global());
+		}
+
+		/*! operator used when delete gets called
+		 * @param ptr memory block to delete
+		 */
+		static void operator delete(void *ptr) throw() {
+			operator delete(ptr, static_cast<T*>(ptr)->MyAllocator());
+		}
+
+		/*! operator used when delete gets called within ctor of allocated class
+		 * @param ptr memory block to delete
+		 * @param a Allocator used for freeing memory
+		 */
+		static void operator delete(void *ptr, Allocator *a) throw() {
+			a->Free<sizeof(T)>(ptr);
+		}
+
+		/*! operator used when delete gets called for arrays
+		 * @param ptr memory block to delete
+		 */
+		static void operator delete[](void *ptr) throw() {
 			void *realPtr = memory::realPtrFor(ptr);
 			Allocator *a = memory::allocatorFor(realPtr);
 			if (a) {
@@ -56,6 +86,13 @@ classes can lead to space leaks because of a possible size differences.
 				free(realPtr);
 			}
 		}
+	private:
+		//! disallow unintended creation of non-Allocator instances
+		static void *operator new (std::size_t, const std::nothrow_t &) throw();
+		static void *operator new[] (std::size_t, const std::nothrow_t &) throw();
+		static void operator delete (void *, const std::nothrow_t &) throw();
+		static void operator delete[] (void *, const std::nothrow_t &) throw();
+		static void operator delete[] (void *, void *) throw();
 	};
 }
 #endif /* _SegStorAllocatorNewDelete_H */

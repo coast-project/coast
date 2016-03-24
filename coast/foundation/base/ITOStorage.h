@@ -296,17 +296,33 @@ class StorageHooks;
 
 namespace coast {
 	namespace memory {
-		template<typename T>
+		template<typename T, typename U=long double>
 		struct AlignedSize {
+			struct X {T a;U b;};
+			static size_t const alignment = (sizeof(T) < offsetof(X, b))?offsetof(X, b):sizeof(T);
 			static const size_t value = sizeof(T)
-					+ (sizeof(T) % sizeof(long double) ? (sizeof(long double) - sizeof(T) % sizeof(long double)) : 0);
+					+ (sizeof(T) % sizeof(U) ? (sizeof(U) - sizeof(T) % sizeof(U)) : 0);
 		};
 
-		Allocator*& allocatorFor(void* ptr) throw ();
+		template<typename T>
+		size_t calculateAllocationSize(size_t const sz) {
+			return AlignedSize<T>::alignment + sz;
+		}
 
-		void* payloadPtrFor(void* ptr) throw ();
+		template<typename T>
+		T& allocatorFor(void* ptr) throw () {
+			return *(reinterpret_cast<T*>(ptr));
+		}
 
-		void *realPtrFor(void *ptr) throw ();
+		template<typename T>
+		void* payloadPtrFor(void* ptr) throw () {
+			return reinterpret_cast<void*>(reinterpret_cast<char *>(ptr) + AlignedSize<T>::alignment);
+		}
+
+		template<typename T>
+		void* realPtrFor(void *ptr) throw () {
+			return reinterpret_cast<void*>(reinterpret_cast<char *>(ptr) - AlignedSize<T>::alignment);
+		}
 
 		void safeFree(Allocator *a, void *ptr) throw ();
 	} // namespace memory

@@ -44,9 +44,9 @@ classes can lead to space leaks because of a possible size differences.
 		 */
 		static void *operator new[](std::size_t sz, Allocator *a) throw() {
 			if (a) {
-				void *ptr = a->Malloc(sz + memory::AlignedSize<Allocator *>::value);
-				memory::allocatorFor(ptr) = a; // remember address of responsible Allocator
-				return reinterpret_cast<char *>(ptr) + memory::AlignedSize<Allocator *>::value; // needs cast because of pointer arithmetic
+				void *ptr = a->Malloc(memory::calculateAllocationSize<Allocator*>(sz));
+				memory::allocatorFor<Allocator*>(ptr) = a; // remember address of responsible Allocator
+				return memory::payloadPtrFor<Allocator*>(ptr);
 			}
 			return a;
 		}
@@ -78,8 +78,8 @@ classes can lead to space leaks because of a possible size differences.
 		 * @param ptr memory block to delete
 		 */
 		static void operator delete[](void *ptr) throw() {
-			void *realPtr = memory::realPtrFor(ptr);
-			Allocator *a = memory::allocatorFor(realPtr);
+			void *realPtr = memory::realPtrFor<Allocator *>(ptr);
+			Allocator *a = memory::allocatorFor<Allocator *>(realPtr);
 			if (a) {
 				memory::safeFree(a, realPtr);
 			} else {

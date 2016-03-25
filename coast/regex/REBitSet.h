@@ -10,6 +10,7 @@
 #define _REBitSet_H
 
 #include "StringStream.h"
+#include <stdint.h>
 
 //!implement bitsets suitable for 256 bits corresponding to a set of 8 bit unsigned chars
 class REBitSet
@@ -18,20 +19,20 @@ class REBitSet
 		//!internal constants to optionally adjust what is going on later....
 		//!however 16 bit characters will make the bitsets unnecessarily large
 		//!with the existing implementation style (=8kbytes per bitset)
-		fgcSubSetBits = (sizeof(unsigned long) * 8),
+		fgcSubSetBits = (sizeof(uint32_t) * 8),
 		fgcSubSetMask = fgcSubSetBits - 1,
 		fgcNofBits = 256,
 		fgcSize = fgcNofBits / fgcSubSetBits, //number of longs used here
 	};
 	//!map of powers of 2 to access the individual bits, fgcSingletons[i] == 2**i
-	static const unsigned long fgcSingletons[fgcSubSetBits];
+	static const uint32_t fgcSingletons[fgcSubSetBits];
 	//!here is the set
-	unsigned long fSet[fgcSize];
+	uint32_t fSet[fgcSize];
 	//!access the right element in fSet
-	unsigned long &Bucket(unsigned char index) {
+	uint32_t &Bucket(unsigned char index) {
 		return fSet[index/fgcSubSetBits];
 	}
-	const unsigned long &Bucket(unsigned char index)const {
+	const uint32_t &Bucket(unsigned char index)const {
 		return fSet[index/fgcSubSetBits];
 	}
 public:
@@ -45,7 +46,7 @@ public:
 	REBitSet(const REBitSet &b);
 	//!special ctor for statcally initialized bitsets, because
 	//!compiler didn't like REBitSet initialization with = { 1,2,3,4} syntax
-	REBitSet(const unsigned long s[fgcSize]);
+	REBitSet(const uint32_t s[fgcSize]);
 	//!typical set operators
 	bool IsEqual(const REBitSet &b)const;
 	bool IsSubSet(const REBitSet &b)const;
@@ -87,14 +88,14 @@ public:
 		Bucket(bit) ^= Slot(bit);
 		return *this;
 	}
-	//!auxiliaries for bitsets made from a simple unsigned long
-	static unsigned long Bit(unsigned char bit) {
+	//!auxiliaries for bitsets made from a simple uint32_t
+	static uint32_t Bit(unsigned char bit) {
 		return Slot(bit);
 	}
-	static bool IsMember(unsigned long bits, unsigned char bit) {
-		return ((bits & Slot(bit)) != 0UL);
+	static bool IsMember(uint32_t bits, unsigned char bit) {
+		return ((bits & Slot(bit)) != 0U);
 	}
-	static unsigned long Slot(unsigned char index) {
+	static uint32_t Slot(unsigned char index) {
 		return fgcSingletons[index&fgcSubSetMask];
 	}
 	//!auxiliary to generate ascii/hex representation useful for inclusion in programs

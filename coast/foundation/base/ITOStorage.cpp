@@ -154,13 +154,13 @@ NullMemTracker::~NullMemTracker() {
 
 #include "singleton.hpp"
 namespace {
+	long statisticLevel = 0;
 	class StorageInitializer {
 		/* define the logging level of memory statistics by defining COAST_TRACE_STORAGE appropriately
 		 0: No pool statistic tracing, even not for excess memory nor GlobalAllocator usage
 		 1: Trace overall statistics
 		 2: + trace detailed statistics
 		 3: + keep track of allocated blocks to trace them in case they were not freed */
-		long statisticLevel;
 	public:
 		StorageInitializer() {
 			const char *pEnvVar = getenv("COAST_TRACE_STORAGE");
@@ -173,6 +173,22 @@ namespace {
 		~StorageInitializer();
 		long GetStatisticLevel() {
 			return statisticLevel;
+		}
+		void registerHook(coast::storage::StorageHooksPtr h) {
+			if (!h) {
+				return;
+			}
+			h->SetOldHook(fgTopHook);
+			h->Initialize();
+			fgTopHook = h;
+		}
+		coast::storage::StorageHooksPtr unregisterHook() {
+			coast::storage::StorageHooksPtr pOldHook = fgTopHook;
+			if (pOldHook.get()) {
+				fgTopHook = pOldHook->GetOldHook();
+				pOldHook->Finalize();
+			}
+			return pOldHook;
 		}
 		//exchange this object when MT_Storage is used
 		coast::storage::StorageHooksPtr fgTopHook;
@@ -243,21 +259,11 @@ namespace coast {
 		}
 
 		void registerHook(StorageHooksPtr h) {
-			if (!h) {
-				return;
-			}
-			h->SetOldHook(StorageInitializerSingleton::instance().fgTopHook);
-			h->Initialize();
-			StorageInitializerSingleton::instance().fgTopHook = h;
+			StorageInitializerSingleton::instance().registerHook(h);
 		}
 
 		StorageHooksPtr unregisterHook() {
-			StorageHooksPtr pOldHook = StorageInitializerSingleton::instance().fgTopHook;
-			if (pOldHook.get()) {
-				StorageInitializerSingleton::instance().fgTopHook = pOldHook->GetOldHook();
-				pOldHook->Finalize();
-			}
-			return pOldHook;
+			return StorageInitializerSingleton::instance().unregisterHook();
 		}
 
 		ForceGlobalStorageEntry::ForceGlobalStorageEntry() {

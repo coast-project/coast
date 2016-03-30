@@ -162,14 +162,7 @@ namespace {
 		 2: + trace detailed statistics
 		 3: + keep track of allocated blocks to trace them in case they were not freed */
 	public:
-		StorageInitializer() {
-			const char *pEnvVar = getenv("COAST_TRACE_STORAGE");
-			long lLevel = 0;
-			if (pEnvVar != 0 && coast::system::StrToL(lLevel, pEnvVar)) {
-				statisticLevel = lLevel;
-			}
-			InitFinisManager::IFMTrace("Storage::Initialized\n");
-		}
+		StorageInitializer();
 		~StorageInitializer();
 		long GetStatisticLevel() {
 			return statisticLevel;
@@ -205,15 +198,8 @@ namespace coast {
 			Allocator *globalPool = 0;
 		}
 
-		void Initialize() {
-			if (StorageInitializerSingleton::instance().fgTopHook.get() && !forceGlobal) {
-				StorageInitializerSingleton::instance().fgTopHook->Initialize();
-			}
-		}
-
 		Allocator *DoGlobal() {
 			if (!globalPool) {
-				Initialize();
 				globalPool = new GlobalAllocator();
 			}
 			return globalPool;
@@ -244,12 +230,6 @@ namespace coast {
 			}
 		}
 
-		void Finalize() {
-			if (StorageInitializerSingleton::instance().fgTopHook.get() && !forceGlobal) {
-				StorageInitializerSingleton::instance().fgTopHook->Finalize();
-			}
-			DoFinalize();
-		}
 		long GetStatisticLevel() {
 			return StorageInitializerSingleton::instance().GetStatisticLevel();
 		}
@@ -295,8 +275,16 @@ namespace coast {
 } // namespace coast
 
 namespace {
+	StorageInitializer::StorageInitializer() {
+		const char *pEnvVar = getenv("COAST_TRACE_STORAGE");
+		long lLevel = 0;
+		if (pEnvVar != 0 && coast::system::StrToL(lLevel, pEnvVar)) {
+			statisticLevel = lLevel;
+		}
+		InitFinisManager::IFMTrace("Storage::Initialized\n");
+	}
 	StorageInitializer::~StorageInitializer() {
-		coast::storage::Finalize();
+		coast::storage::DoFinalize();
 		InitFinisManager::IFMTrace("Storage::Finalized\n");
 	}
 }

@@ -175,15 +175,12 @@ protected:
 	/*! allocate a memory tracker object
 	 \param name name of the tracker
 	 \param bThreadSafe specify if tracker must be thread safe or not - not used from within foundation
-	 \return poniter to a newly created MemTracker object */
-	virtual MemTracker *DoMakeMemTracker(const char *name, bool bThreadSafe) {
-		MemTracker *pTracker = NULL;
+	 \return pointer to a newly created MemTracker object */
+	virtual Allocator::MemTrackerPtr DoMakeMemTracker(const char *name, bool bThreadSafe) {
 		if (bThreadSafe) {
-			pTracker = new MT_MemTracker(name, 55667788);
-		} else {
-			pTracker = coast::storage::DoMakeMemTracker(name);
+			return Allocator::MemTrackerPtr(new MT_MemTracker(name, 55667788));
 		}
-		return pTracker;
+		return coast::storage::DoMakeMemTracker(name);
 	}
 };
 

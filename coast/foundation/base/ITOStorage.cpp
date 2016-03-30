@@ -168,7 +168,7 @@ namespace {
 			if (pEnvVar != 0 && coast::system::StrToL(lLevel, pEnvVar)) {
 				statisticLevel = lLevel;
 			}
-			InitFinisManager::IFMTrace("storage::Initialized\n");
+			InitFinisManager::IFMTrace("Storage::Initialized\n");
 		}
 		~StorageInitializer();
 		long GetStatisticLevel() {
@@ -267,12 +267,12 @@ namespace coast {
 			forceGlobal = false;
 		}
 
-		MemTracker *DoMakeMemTracker(const char *name) {
-			return new MemTracker(name);
+		Allocator::MemTrackerPtr DoMakeMemTracker(const char *name) {
+			return Allocator::MemTrackerPtr(new MemTracker(name));
 		}
 
-		MemTracker *MakeMemTracker(const char *name, bool bThreadSafe) {
-			if (StorageInitializerSingleton::instance().fgTopHook.get() && !forceGlobal) {
+		Allocator::MemTrackerPtr MakeMemTracker(const char *name, bool bThreadSafe) {
+			if (StorageInitializerSingleton::instance().fgTopHook.get()) {
 				return StorageInitializerSingleton::instance().fgTopHook->MakeMemTracker(name, bThreadSafe);
 			}
 			return DoMakeMemTracker(name);
@@ -291,7 +291,7 @@ namespace coast {
 namespace {
 	StorageInitializer::~StorageInitializer() {
 		coast::storage::Finalize();
-		InitFinisManager::IFMTrace("storage::Finalized\n");
+		InitFinisManager::IFMTrace("Storage::Finalized\n");
 	}
 }
 
@@ -303,7 +303,11 @@ Allocator::Allocator(long allocatorid) :
 
 Allocator::~Allocator() {
 	Assert(0 == fRefCnt);
-} //lint !e1540
+	if (fTracker) {
+		fTracker->PrintStatistic(coast::storage::GetStatisticLevel());
+		fTracker->DumpUsedBlocks();
+	}
+}
 
 void *Allocator::Calloc(int n, size_t size) {
 	void *ret = Alloc(AllocSize(n, size));
@@ -348,14 +352,8 @@ MemoryHeader *Allocator::RealMemStart(void *vp) {
 GlobalAllocator::GlobalAllocator() :
 		Allocator(11223344L) {
 	if (coast::storage::GetStatisticLevel() >= 1) {
-		fTracker = MemTrackerPtr(coast::storage::MakeMemTracker("GlobalAllocator", false));
+		fTracker = MemTrackerPtr(new MemTracker("GlobalAllocator"));
 		fTracker->SetId(fAllocatorId);
-	}
-}
-
-GlobalAllocator::~GlobalAllocator() {
-	if (fTracker) {
-		fTracker->DumpUsedBlocks();
 	}
 }
 
@@ -407,16 +405,6 @@ void GlobalAllocator::Free(void *vp) {
 		}
 		::free(vp);
 	}
-}
-
-FoundationStorageHooks::FoundationStorageHooks() :
-		fAllocator(new GlobalAllocator()) {
-}
-FoundationStorageHooks::~FoundationStorageHooks() {
-}
-void FoundationStorageHooks::DoInitialize() {
-}
-void FoundationStorageHooks::DoFinalize() {
 }
 
 char *itostorage::BoostPoolUserAllocatorGlobal::malloc(const size_type bytes) {

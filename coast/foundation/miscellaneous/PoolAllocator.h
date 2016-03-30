@@ -17,18 +17,18 @@ class ExcessTrackerElt
 {
 	friend class PoolAllocatorTest;
 
-	MemTracker *fpTracker;
+	Allocator::MemTrackerPtr fTracker;
 	ExcessTrackerElt *fpNext;
 	size_t fulPayloadSize;
 
 	ExcessTrackerElt &operator=(const ExcessTrackerElt &);
 
-	void SetValues(MemTracker *pTracker, ExcessTrackerElt *pNext, size_t ulPayloadSize);
+	void SetValues(Allocator::MemTrackerPtr pTracker, ExcessTrackerElt *pNext, size_t ulPayloadSize);
 
 public:
 	ExcessTrackerElt();
 
-	ExcessTrackerElt(MemTracker *pTracker, ExcessTrackerElt *pNext, size_t ulPayloadSize);
+	ExcessTrackerElt(Allocator::MemTrackerPtr pTracker, ExcessTrackerElt *pNext, size_t ulPayloadSize);
 
 	~ExcessTrackerElt();
 
@@ -38,13 +38,13 @@ public:
 
 	long GetLargestExcessEltBitNum();
 
-	MemTracker *FindTrackerForSize(size_t ulPayloadSize);
+	Allocator::MemTrackerPtr FindTrackerForSize(size_t ulPayloadSize);
 
-	ExcessTrackerElt *InsertTrackerForSize(MemTracker *pTracker, size_t ulPayloadSize);
+	ExcessTrackerElt *InsertTrackerForSize(Allocator::MemTrackerPtr pTracker, size_t ulPayloadSize);
 
 	void SetId(long lId);
 
-	MemTracker *operator[](size_t ulPayloadSize);
+	Allocator::MemTrackerPtr operator[](size_t ulPayloadSize);
 
 	ul_long CurrentlyAllocated();
 
@@ -109,10 +109,10 @@ protected:
 	PoolBucket *FindBucketBySize(size_t allocSize);
 	void Initialize();
 
-	void IntDumpStillAllocated(MemTracker *pTracker, size_t lSize, size_t lUsableSize);
+	void IntDumpStillAllocated(Allocator::MemTrackerPtr pTracker, size_t lSize, size_t lUsableSize);
 
 	// only used for debugging
-	MemTracker *fpPoolTotalExcessTracker;
+	Allocator::MemTrackerPtr fPoolTotalExcessTracker;
 	ExcessTrackerElt *fpExcessTrackerList;
 };
 

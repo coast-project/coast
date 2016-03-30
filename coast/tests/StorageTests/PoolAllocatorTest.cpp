@@ -39,21 +39,19 @@ void PoolAllocatorTest::ExcessTrackerEltCtorTest()
 {
 	StartTrace(PoolAllocatorTest.ExcessTrackerEltCtorTest);
 	ExcessTrackerElt aDfltCtor;
-	t_assertm(aDfltCtor.fpTracker == NULL, "expected pointer to tracker to be NULL");
+	t_assertm(not aDfltCtor.fTracker, "expected pointer to tracker to be NULL");
 	t_assertm(aDfltCtor.fpNext == NULL, "expected pointer to next element to be NULL");
 	assertEqualm(0, aDfltCtor.fulPayloadSize, "expected default bucket size to be 0");
-	ExcessTrackerElt aParamCtor((MemTracker *)0x12345, (ExcessTrackerElt *)0xabcde, 33);
-	t_assertm(aParamCtor.fpTracker == (MemTracker *)0x12345, "expected pointer to be equal");
+	Allocator::MemTrackerPtr aTracker;
+	ExcessTrackerElt aParamCtor(aTracker, (ExcessTrackerElt *)0xabcde, 33);
+	t_assertm(aParamCtor.fTracker == aTracker, "expected pointer to be equal");
 	t_assertm(aParamCtor.fpNext == (ExcessTrackerElt *)0xabcde, "expected pointer to next element to be equal");
 	assertEqualm(33, aParamCtor.fulPayloadSize, "expected default bucket size to be the same");
 	ExcessTrackerElt aCopyCtor(aParamCtor);
-	t_assertm(aCopyCtor.fpTracker == (MemTracker *)0x12345, "expected pointer to be equal");
+	t_assertm(aCopyCtor.fTracker == aTracker, "expected pointer to be equal");
 	t_assertm(aCopyCtor.fpNext == (ExcessTrackerElt *)0xabcde, "expected pointer to next element to be equal");
 	assertEqualm(33, aCopyCtor.fulPayloadSize, "expected default bucket size to be the same");
-	// need to reset tracker pointer and next pointer
-	aParamCtor.fpTracker = NULL;
 	aParamCtor.fpNext = NULL;
-	aCopyCtor.fpTracker = NULL;
 	aCopyCtor.fpNext = NULL;
 }
 
@@ -74,20 +72,18 @@ void PoolAllocatorTest::ExcessTrackerEltFindTrackerForSizeTest()
 {
 	StartTrace(PoolAllocatorTest.ExcessTrackerEltFindTrackerForSizeTest);
 	u_long ulMinPayloadSz = 16UL;
-	ExcessTrackerElt *pElt128 = new ExcessTrackerElt((MemTracker *)128, NULL, ulMinPayloadSz << 3);
-	ExcessTrackerElt *pElt64 = new ExcessTrackerElt((MemTracker *)64, pElt128, ulMinPayloadSz << 2);
-	ExcessTrackerElt *pElt32 = new ExcessTrackerElt((MemTracker *)32, pElt64, ulMinPayloadSz << 1);
+	Allocator::MemTrackerPtr ptr32(new MemTracker("32")),ptr64(new MemTracker("64")),ptr128(new MemTracker("128"));
+	ExcessTrackerElt *pElt128 = new ExcessTrackerElt(ptr128, NULL, ulMinPayloadSz << 3);
+	ExcessTrackerElt *pElt64 = new ExcessTrackerElt(ptr64, pElt128, ulMinPayloadSz << 2);
+	ExcessTrackerElt *pElt32 = new ExcessTrackerElt(ptr32, pElt64, ulMinPayloadSz << 1);
 	t_assertm(pElt128->fpNext == 0, "expected pointer to be equal");
-	assertEqualm(0, (long)pElt32->FindTrackerForSize(ulMinPayloadSz), "expected no tracker to be found because the smallest tracker[16] was not available");
-	assertEqualm(32, (long)pElt32->FindTrackerForSize(ulMinPayloadSz + 1), "expected correct tracker to be found");
-	assertEqualm(32, (long)pElt32->FindTrackerForSize(ulMinPayloadSz << 1), "expected correct tracker to be found");
-	assertEqualm(64, (long)pElt32->FindTrackerForSize((ulMinPayloadSz << 1) + 1), "expected correct tracker to be found");
-	assertEqualm(64, (long)pElt32->FindTrackerForSize(ulMinPayloadSz << 2), "expected correct tracker to be found");
-	assertEqualm(128, (long)pElt32->FindTrackerForSize(ulMinPayloadSz << 3), "expected correct tracker to be found");
-	assertEqualm(0, (long)pElt32->FindTrackerForSize((ulMinPayloadSz << 3) + 100), "expected correct tracker to be found");
-	pElt32->fpTracker = NULL;
-	pElt64->fpTracker = NULL;
-	pElt128->fpTracker = NULL;
+	t_assertm(not pElt32->FindTrackerForSize(ulMinPayloadSz), "expected no tracker to be found because the smallest tracker[16] was not available");
+	t_assertm(ptr32 == pElt32->FindTrackerForSize(ulMinPayloadSz + 1), "expected correct tracker to be found");
+	t_assertm(ptr32 == pElt32->FindTrackerForSize(ulMinPayloadSz << 1), "expected correct tracker to be found");
+	t_assertm(ptr64 == pElt32->FindTrackerForSize((ulMinPayloadSz << 1) + 1), "expected correct tracker to be found");
+	t_assertm(ptr64 == pElt32->FindTrackerForSize(ulMinPayloadSz << 2), "expected correct tracker to be found");
+	t_assertm(ptr128 == pElt32->FindTrackerForSize(ulMinPayloadSz << 3), "expected correct tracker to be found");
+	t_assertm(Allocator::MemTrackerPtr() == pElt32->FindTrackerForSize((ulMinPayloadSz << 3) + 100), "expected correct tracker to be found");
 	delete pElt32;
 }
 
@@ -96,73 +92,69 @@ void PoolAllocatorTest::ExcessTrackerEltInsertTrackerForSizeTest()
 	StartTrace(PoolAllocatorTest.ExcessTrackerEltInsertTrackerForSizeTest);
 
 	ExcessTrackerElt aRoot;
-	t_assert(&aRoot == aRoot.InsertTrackerForSize((MemTracker *)32, 32));
-	t_assertm(aRoot.fpTracker == (MemTracker *)32, "expected pointer to be equal");
+	Allocator::MemTrackerPtr ptr16,ptr32,ptr48,ptr64;
+	t_assert(&aRoot == aRoot.InsertTrackerForSize(ptr32, 32));
+	t_assertm(aRoot.fTracker == ptr32, "expected pointer to be equal");
 	t_assertm(aRoot.fpNext == NULL, "expected pointer to next element to be equal");
 	assertEqualm(32, aRoot.fulPayloadSize, "expected default bucket size to be the same");
 	ExcessTrackerElt *pElt32 = &aRoot, *pElt64 = NULL, *pElt48 = NULL, *pElt16 = NULL;
-	if ( t_assertm( ( pElt64 = aRoot.InsertTrackerForSize((MemTracker *)64, 64)) != NULL, "expected valid new element") ) {
+	if ( t_assertm( ( pElt64 = aRoot.InsertTrackerForSize(ptr64, 64)) != NULL, "expected valid new element") ) {
 		t_assertm( pElt64 != &aRoot, "expected new element not to be the root element");
-		t_assertm(pElt64->fpTracker == (MemTracker *)64, "expected pointer to be equal");
+		t_assertm(pElt64->fTracker == ptr64, "expected pointer to be equal");
 		t_assertm(pElt64->fpNext == NULL, "expected pointer to next element to be equal");
 		assertEqualm(64, pElt64->fulPayloadSize, "expected default bucket size to be the same");
-		t_assertm(aRoot.fpTracker == (MemTracker *)32, "expected pointer to be equal");
+		t_assertm(aRoot.fTracker == ptr32, "expected pointer to be equal");
 		t_assertm(aRoot.fpNext == pElt64, "expected pointer to next element to be equal");
 		assertEqualm(32, aRoot.fulPayloadSize, "expected default bucket size to be the same");
-		if ( t_assertm( ( pElt48 = aRoot.InsertTrackerForSize((MemTracker *)48, 48)) != NULL, "expected valid new element") ) {
+		if ( t_assertm( ( pElt48 = aRoot.InsertTrackerForSize(ptr48, 48)) != NULL, "expected valid new element") ) {
 			t_assertm( pElt48 != &aRoot, "expected new element not to be the root element");
 			t_assertm( pElt48 != pElt64, "expected new element not to be the root element");
-			t_assertm(pElt48->fpTracker == (MemTracker *)48, "expected pointer to be equal");
+			t_assertm(pElt48->fTracker == ptr48, "expected pointer to be equal");
 			t_assertm(pElt48->fpNext == pElt64, "expected pointer to next element to be valid");
 			assertEqualm(48, pElt48->fulPayloadSize, "expected default bucket size to be the same");
-			t_assertm(aRoot.fpTracker == (MemTracker *)32, "expected pointer to be equal");
+			t_assertm(aRoot.fTracker == ptr32, "expected pointer to be equal");
 			t_assertm(aRoot.fpNext == pElt48, "expected pointer to next element to be equal");
 			assertEqualm(32, aRoot.fulPayloadSize, "expected default bucket size to be the same");
-			if ( t_assertm( ( pElt16 = aRoot.InsertTrackerForSize((MemTracker *)16, 16)) != NULL, "expected valid new element") ) {
+			if ( t_assertm( ( pElt16 = aRoot.InsertTrackerForSize(ptr16, 16)) != NULL, "expected valid new element") ) {
 				t_assertm( pElt16 == &aRoot, "expected new element not to be the root element");
-				t_assertm(pElt16->fpTracker == (MemTracker *)16, "expected pointer to be equal");
+				t_assertm(pElt16->fTracker == ptr16, "expected pointer to be equal");
 				assertEqualm(16, pElt16->fulPayloadSize, "expected default bucket size to be the same");
-				t_assertm(aRoot.fpTracker == (MemTracker *)16, "expected pointer to be equal");
+				t_assertm(aRoot.fTracker == ptr16, "expected pointer to be equal");
 				assertEqualm(16, aRoot.fulPayloadSize, "expected default bucket size to be the same");
 				pElt32 = pElt16->fpNext;
-				t_assertm(pElt32->fpTracker == (MemTracker *)32, "expected pointer to be equal");
+				t_assertm(pElt32->fTracker == ptr32, "expected pointer to be equal");
 				assertEqualm(32, pElt32->fulPayloadSize, "expected default bucket size to be the same");
 				t_assertm(pElt32->fpNext == pElt48, "expected pointer to next element to be valid");
-				pElt16->fpTracker = NULL;
-				pElt32->fpTracker = NULL;
 			}
-			pElt48->fpTracker = NULL;
 		}
-		pElt64->fpTracker = NULL;
 	}
-	aRoot.fpTracker = NULL;
 }
 
 void PoolAllocatorTest::ExcessTrackerEltTest()
 {
 	StartTrace(PoolAllocatorTest.ExcessTrackerEltTest);
 	ExcessTrackerElt aRoot, *pElt64 = NULL, *pElt32 = NULL;
-	MemTracker *pTrack32 = aRoot[32];
+	Allocator::MemTrackerPtr pTrack32 = aRoot[32];
 	Trace("trackername32 [" << pTrack32->GetName() << "]");
-	t_assertm(aRoot.fpTracker == pTrack32, "expected pointer to be equal");
+	t_assertm(aRoot.fTracker == pTrack32, "expected pointer to be equal");
 	t_assertm(aRoot.fpNext == NULL, "expected pointer to next element to be equal");
 	assertEqualm(32, aRoot.fulPayloadSize, "expected default bucket size to be the same");
-	MemTracker *pTrack64 = aRoot[64];
+	Allocator::MemTrackerPtr pTrack64 = aRoot[64];
 	Trace("trackername64 [" << pTrack64->GetName() << "]");
-	t_assertm(aRoot.fpTracker == pTrack32, "expected pointer to be equal");
+	t_assertm(aRoot.fTracker == pTrack32, "expected pointer to be equal");
 	assertEqualm(32, aRoot.fulPayloadSize, "expected default bucket size to be the same");
 	pElt64 = aRoot.fpNext;
-	t_assertm(pElt64->fpTracker == pTrack64, "expected pointer to be equal");
+	t_assertm(pElt64->fTracker == pTrack64, "expected pointer to be equal");
 	assertEqualm(64, pElt64->fulPayloadSize, "expected default bucket size to be the same");
-	MemTracker *pTrack16 = aRoot[16];
+	Allocator::MemTrackerPtr pTrack16 = aRoot[16];
 	Trace("trackername16 [" << pTrack16->GetName() << "]");
-	t_assertm(aRoot.fpTracker == pTrack16, "expected pointer to be equal");
+	t_assertm(aRoot.fTracker == pTrack16, "expected pointer to be equal");
 	assertEqualm(16, aRoot.fulPayloadSize, "expected default bucket size to be the same");
 	pElt32 = aRoot.fpNext;
-	t_assertm(pElt32->fpTracker == pTrack32, "expected pointer to be equal");
+	t_assertm(pElt32->fTracker == pTrack32, "expected pointer to be equal");
 	assertEqualm(32, pElt32->fulPayloadSize, "expected default bucket size to be the same");
 	t_assertm(pElt32->fpNext == pElt64, "expected pointer to next element to be equal");
-	t_assertm(aRoot.fpTracker == pTrack16, "expected pointer to be equal");
+	t_assertm(aRoot.fTracker == pTrack16, "expected pointer to be equal");
 	t_assertm(aRoot.fpNext == pElt32, "expected pointer to next element to be equal");
 	assertEqualm(16, aRoot.fulPayloadSize, "expected default bucket size to be the same");
 }

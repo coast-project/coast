@@ -25,6 +25,7 @@ void SegStoreAllocatorTest::RealAnythingTest() {
 	StartTrace(SegStoreAllocatorTest.RealAnythingTest);
 	SegStoreAllocator p(987654L);
 	{
+		// Index at the end
 		Anything test(&p);
 		Anything result(&p);
 		test[0].Append("a");

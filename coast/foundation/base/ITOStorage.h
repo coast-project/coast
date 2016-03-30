@@ -222,7 +222,13 @@ public:
 
 	//!change of memtrackers to be e.g. MT-Safe
 	virtual MemTrackerPtr ReplaceMemTracker(MemTrackerPtr t) {
-		return MemTrackerPtr();
+		std::swap(fTracker, t);
+		return t;
+	}
+
+	//!Retrieve current memory tracker in charge
+	virtual MemTrackerPtr CurrentMemTracker() {
+		return fTracker;
 	}
 
 	//!Memory debugging and tracking support; implementer should report all statistic on cerr
@@ -264,7 +270,6 @@ class GlobalAllocator: public Allocator {
 	GlobalAllocator &operator=(const GlobalAllocator &);
 public:
 	GlobalAllocator();
-	~GlobalAllocator();
 
 	//!frees memory allocated by global allocator
 	virtual void Free(void *vp);	//lint !e1511
@@ -333,12 +338,6 @@ namespace coast {
 		//!prints memory management statistics
 		void PrintStatistic(long lLevel = -1);
 
-		/*! allocate a memory tracker object
-		 \param name name of the tracker
-		 \param bThreadSafe specify if tracker must be thread safe or not - not used from within foundation
-		 \return pointer to a newly created MemTracker object */
-		MemTracker *MakeMemTracker(const char *name, bool bThreadSafe);
-
 		//! get the global allocator
 		Allocator *Global();
 
@@ -364,8 +363,14 @@ namespace coast {
 		//!access the global allocator
 		Allocator *DoGlobal();
 
+		/*! allocate a memory tracker object
+			\param name name of the tracker
+			\param bThreadSafe specify if tracker must be thread safe or not - not used from within foundation
+			\return pointer to a newly created MemTracker object */
+		Allocator::MemTrackerPtr MakeMemTracker(const char *name, bool bThreadSafe);
+
 		//!factory method to allocate MemTracker
-		MemTracker *DoMakeMemTracker(const char *name);
+		Allocator::MemTrackerPtr DoMakeMemTracker(const char *name);
 	} // namespace storage
 } // namespace coast
 
@@ -403,7 +408,7 @@ public:
 	 \param name name of the tracker
 	 \param bThreadSafe specify if tracker must be thread safe or not - not used from within foundation
 	 \return pointer to a newly created MemTracker object */
-	MemTracker *MakeMemTracker(const char *name, bool bThreadSafe) {
+	Allocator::MemTrackerPtr MakeMemTracker(const char *name, bool bThreadSafe) {
 		return DoMakeMemTracker(name, bThreadSafe);
 	}
 
@@ -432,27 +437,7 @@ protected:
 	 \param name name of the tracker
 	 \param bThreadSafe specify if tracker must be thread safe or not - not used from within foundation
 	 \return pointer to a newly created MemTracker object */
-	virtual MemTracker *DoMakeMemTracker(const char *name, bool bThreadSafe) = 0;
-};
-
-class FoundationStorageHooks: public StorageHooks {
-	typedef boost::shared_ptr<Allocator> AllocatorTypePtr;
-	AllocatorTypePtr fAllocator;
-public:
-	FoundationStorageHooks();
-	~FoundationStorageHooks();
-protected:
-	virtual void DoInitialize();
-	virtual void DoFinalize();
-	virtual Allocator *DoGlobal() {
-		return fAllocator.get();
-	}
-	virtual Allocator *DoCurrent() {
-		return fAllocator.get();
-	}
-	virtual MemTracker *DoMakeMemTracker(const char *name, bool) {
-		return new MemTracker(name);
-	}
+	virtual Allocator::MemTrackerPtr DoMakeMemTracker(const char *name, bool bThreadSafe) = 0;
 };
 
 class TestStorageHooks {
@@ -479,8 +464,8 @@ class TestStorageHooks {
 			}
 			return coast::storage::DoGlobal();
 		}
-		virtual MemTracker *DoMakeMemTracker(const char *name, bool) {
-			return new MemTracker(name);
+		virtual Allocator::MemTrackerPtr DoMakeMemTracker(const char *name, bool) {
+			return Allocator::MemTrackerPtr(new MemTracker(name));
 		}
 	};
 	coast::storage::StorageHooksPtr theHooks;

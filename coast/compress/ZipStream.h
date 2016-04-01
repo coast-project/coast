@@ -12,6 +12,7 @@
 #include "StringStream.h"
 #include "TimeStamp.h"
 #include "zlib.h"
+#include <stdint.h>
 
 static const int gz_magic[2] = {0x1f, 0x8b}; /* gzip magic header */
 
@@ -128,7 +129,7 @@ protected:
 	bool isInitialized;
 	unsigned char fStreamMode;
 	Allocator *fAllocator;
-	unsigned long fCrcData;
+	uint32_t fCrcData;
 	z_stream fZip;
 	//! the storage of the holding area buffer
 	String fStore;
@@ -167,7 +168,7 @@ protected:
 
 	//! defines the holding area for the streambuf
 	void xinit();
-	void pinit(long);
+	void pinit(int32_t);
 	void zipinit();
 
 	void runInflate();
@@ -176,14 +177,14 @@ protected:
 	//! not much to do when synchronizing, just insert string termination character
 	virtual int sync();
 
-	//! get long from underlying stream
-	unsigned long getLong();
+	//! get int32_t from underlying stream
+	uint32_t getInt32();
 
 	std::istream &fZis;
 	std::istream *fIs;
 
 private:
-	long fZipErr;
+	int32_t fZipErr;
 };
 
 //---- ZipOStreamBuf ----------------------------------------------------------
@@ -220,7 +221,7 @@ protected:
 	void zipinit();
 	void flushCompressed();
 	void flushCompressedIfNecessary();
-	void putLong(unsigned long);
+	void putInt32(uint32_t);
 
 	std::ostream *fOs;
 	int fCompLevel, fCompStrategy;

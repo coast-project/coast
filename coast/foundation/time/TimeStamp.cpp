@@ -131,6 +131,12 @@ long TimeStamp::AsLong() const
 	return fTimeStruct.AsTimeT();
 }
 
+int32_t TimeStamp::AsInt32() const
+{
+	StartTrace(TimeStamp.AsInt32);
+	return (int32_t) fTimeStruct.AsTimeT();
+}
+
 bool TimeStamp::IsValid() const
 {
 	StartTrace(TimeStamp.IsValid);

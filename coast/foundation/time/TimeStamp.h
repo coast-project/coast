@@ -105,6 +105,7 @@ public:
 
 	bool	IsValid() const;
 	long	AsLong() const;
+	int32_t	AsInt32() const;
 	bool	IsBefore(const TimeStamp &) const;
 	bool	IsAfter(const TimeStamp &) const;
 	bool	IsEqual(const TimeStamp &) const;

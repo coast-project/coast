@@ -13,7 +13,7 @@
 REBitSet::REBitSet(bool setall)
 {
 	for (unsigned i = 0; i < fgcSize; ++i) {
-		fSet[i] = setall ? ~0L : 0L;
+		fSet[i] = setall ? ~0 : 0;
 	}
 }
 REBitSet::REBitSet(const REBitSet &b)
@@ -125,7 +125,7 @@ REBitSet &REBitSet::Set(Predicate p)
 std::ostream &operator<<(std::ostream &os, const REBitSet &s)
 {
 	for (uint32_t i = 0; i < REBitSet::fgcSize; ++i) {
-		os << std::hex << "0x" << s.fSet[i] << "UL ,";
+		os << std::hex << "0x" << s.fSet[i] << "U ,";
 	}
 	return os;
 }

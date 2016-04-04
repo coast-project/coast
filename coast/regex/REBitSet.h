@@ -67,7 +67,7 @@ public:
 	REBitSet &Complement();
 	//!test the bit
 	bool IsMember(unsigned char bit)const {
-		return ((Bucket(bit)&Slot(bit)) != 0UL);
+		return ((Bucket(bit)&Slot(bit)) != 0U);
 	}
 	//!raise the bit to true/1
 	REBitSet &Set(unsigned char bit) {

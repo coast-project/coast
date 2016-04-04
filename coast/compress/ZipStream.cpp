@@ -79,7 +79,7 @@ TimeStamp GzipHdr::GetModificationTime() const
 void GzipHdr::SetModificationTime(TimeStamp aStamp)
 {
 	StartTrace(GzipHdr.SetModificationTime);
-	int32_t lModTime = aStamp.AsInt32();
+	int32_t lModTime = (int32_t)aStamp.AsLong();
 	Trace("Modtime " << aStamp.AsString() << ", as int32_t:" << lModTime);
 	for (size_t lIdx = 0; lIdx < GzipHdr::eModificationTimeLen; ++lIdx) {
 		ModificationTime[lIdx] = ( lModTime & 0xff );

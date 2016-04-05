@@ -19,8 +19,8 @@ class AnyLookupInterfaceAdapter : public LookupInterface
 {
 public:
 	typedef typename boost_or_tr1::remove_reference< typename boost_or_tr1::remove_const<ContainerType>::type>::type PlainType;
-	typedef typename boost_or_tr1::add_reference<typename boost_or_tr1::add_const<PlainType>::type>::type _ParameterType;
-	typedef typename boost_or_tr1::mpl::if_<boost_or_tr1::is_same<PlainType, ROAnything>, ROAnything, _ParameterType>::type ParameterType;
+	typedef typename boost_or_tr1::add_lvalue_reference<typename boost_or_tr1::add_const<PlainType>::type>::type _ParameterType;
+	typedef typename boost_or_tr1::conditional<boost_or_tr1::is_same<PlainType, ROAnything>::value, ROAnything, _ParameterType>::type ParameterType;
 
 	/*! Constructor for LookupAdapter
 		\param container [RO]Anything to use as underlying data container

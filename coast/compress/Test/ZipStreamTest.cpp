@@ -56,7 +56,7 @@ void ZipStreamTest::GzipHdrWriteTest()
 	StartTrace(ZipStreamTest.GzipHdrWriteTest);
 	OStringStream os;
 	ZipOStream zos(os);
-	t_assert(os.flush() != NULL);
+	os.flush();
 	assertEqual(0L, os.str().Length());
 
 	zos << std::flush;

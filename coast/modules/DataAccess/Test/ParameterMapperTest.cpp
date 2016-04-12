@@ -219,7 +219,7 @@ void ParameterMapperTest::GetTest() {
 
 	// get stream
 	pm.Get("any", os, ctx);
-	assertEqual("{\n  /foo "_QUOTE_("bar")"\n  /hello "_QUOTE_("world")"\n}", os.str());
+	assertEqual("{\n  /foo " _QUOTE_("bar") "\n  /hello " _QUOTE_("world") "\n}", os.str());
 
 	// test with non-existing key (unknown in scripts)
 	pm.Get("nonexKey", empty, ctx);

@@ -32,7 +32,8 @@ DateTimeTest::~DateTimeTest()
 void DateTimeTest::GetTimeZoneTest()
 {
 	StartTrace(DateTimeTest.test);
-	t_assertm(timezone == DateTime::GetTimezone(), "expected timezone to be the same");
+	tzset();
+	assertEqualm(timezone, DateTime::GetTimezone(), "expected timezone to be the same");
 	Anything anyTimeUTC, anyTimeLocal;
 	DateTime::GetTimeOfDay(anyTimeUTC, false);
 	DateTime::GetTimeOfDay(anyTimeLocal, true);

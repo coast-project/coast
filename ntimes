@@ -28,7 +28,7 @@ shift
 i=0
 while [ $i -lt $NTIMES ]
 do
-	i=`echo "$i + 1" | bc`
+	i=`expr $i + 1`
 	echo "$0: Run #${i} of $NTIMES: $@"
 
 	"$@"

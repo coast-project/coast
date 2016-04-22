@@ -128,7 +128,8 @@ EOF
 cat $ALL_TESTS
 	cat $ALL_TESTS | while read TESTNAME
 	do
-		echo "# (WARMUP) Running test $TESTNAME ..." >&2
+		echo "#------------------------------------------------------------------------" >&2
+		echo "# (WARMUP) Running test $TESTNAME ... ###################################" >&2
 		( set -x; scons $SCONSFLAGS --run-force $TESTNAME)
 	done
 
@@ -145,6 +146,7 @@ cat $ALL_TESTS
 EOF
 	cat $ALL_TESTS | while read TESTNAME
 	do
+		echo "#------------------------------------------------------------------------" >&2
 		echo "# Running test $TESTNAME ... ########################" >&2
 		TIME_RESULT=$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.csv
 		mkdir -p `dirname $TIME_RESULT`
@@ -169,6 +171,7 @@ EOF
 EOF
 	cat $ALL_TESTS | while read TESTNAME
 	do
+		echo "#------------------------------------------------------------------------" >&2
 		echo "# Running test $TESTNAME ... ########################" >&2
 		VALGRIND_RESULT=$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.valgrind
 		mkdir -p `dirname $VALGRIND_RESULT`
@@ -186,6 +189,7 @@ EOF
 EOF
 	cat $ALL_TESTS | while read TESTNAME
 	do
+		echo "#------------------------------------------------------------------------" >&2
 		echo "# Running test $TESTNAME ... ########################" >&2
 		PERF_RESULT=$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.perf
 		mkdir -p `dirname $PERF_RESULT`

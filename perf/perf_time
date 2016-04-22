@@ -159,7 +159,7 @@ EOF
 		echo "# `date`" >> $TIME_RESULT
 		
 		# run test n times and log statistics
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '%U,%S,%e,%P,%M,%t,%D,%p,%W' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x 5 -- -all" $TESTNAME >$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1)
+		( set -x; scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '%U,%S,%e,%P,%M,%t,%D,%p,%W' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x 5 -- -all" $TESTNAME >$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
 	done
 
 	# VALGRIND-BASED
@@ -176,7 +176,7 @@ EOF
 		VALGRIND_RESULT=$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.valgrind
 		mkdir -p `dirname $VALGRIND_RESULT`
 		touch $VALGRIND_RESULT # needed
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x valgrind -x '--leak-check=full' -x '--log-file=$VALGRIND_RESULT' -x '--show-leak-kinds=all' -x -v -- -all" $TESTNAME >$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1)
+		( set -x; scons $SCONSFLAGS --run-force --runparams="-x valgrind -x '--leak-check=full' -x '--log-file=$VALGRIND_RESULT' -x '--show-leak-kinds=all' -x -v -- -all" $TESTNAME >$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
 	done
 
 
@@ -194,7 +194,7 @@ EOF
 		PERF_RESULT=$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.perf
 		mkdir -p `dirname $PERF_RESULT`
 		#touch $PERF_RESULT # needed
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x perf -x record -x '-o$PERF_RESULT' -- -all" $TESTNAME >$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1)
+		( set -x; scons $SCONSFLAGS --run-force --runparams="-x perf -x record -x '-o$PERF_RESULT' -- -all" $TESTNAME >$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
 	done
 done
 

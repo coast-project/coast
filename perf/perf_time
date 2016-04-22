@@ -94,6 +94,8 @@ echo "# Press return to confirm..." >&2
 read confirmation
 #set -x # print exact commands
 
+START_TIME=`date`
+
 for ARCHBITS in 64 32
 do
 	BUILDCFG="debug"
@@ -156,7 +158,7 @@ EOF
 		then
 			echo "user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps" > $TIME_RESULT
 		fi
-		echo "# `date`" >> $TIME_RESULT
+		echo "# $START_TIME" >> $TIME_RESULT
 		
 		# run test n times and log statistics
 		( set -x; scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '%U,%S,%e,%P,%M,%t,%D,%p,%W' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x 5 -- -all" $TESTNAME >$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }

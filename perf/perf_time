@@ -118,15 +118,12 @@ EOF
 	( set -x; scons $SCONSFLAGS `cat $ALL_TESTS`)
 
 	# WARMUP
-WARMUP_LOG_DIR="$PERF_DIR/02_warmup"
 	cat <<EOF >&2
 
 ##############################################################################
 # WARMUP ...
-# WARMUP_LOG_DIR=$WARMUP_LOG_DIR
 ##############################################################################
 EOF
-	mkdir -p $WARMUP_LOG_DIR
 cat $ALL_TESTS
 	cat $ALL_TESTS | while read TESTNAME
 	do

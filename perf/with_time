@@ -1,0 +1,58 @@
+#! /bin/sh
+. `dirname $0`/lib/common.sh
+([ "$1" = '--help' ] || [ "$1" = '-h' ]) && { show_common_usage; exit 0; }
+
+# DIFF COMMAND
+#git diff --no-index perf_results/time/CoastFoundationAnythingOptionalTest-32_debug.csv perf_results/time/CoastFoundationAnythingOptionalTest-64_debug.csv
+
+# FIXME: hardcoded subset of tests that used to fail on 64-bit
+cat <<EOF > $ALL_TESTS
+CoastStorageTest
+CoastEBCDICTest
+CoastFoundationAnythingOptionalTest
+CoastFoundationMiscellaneousTest
+CoastFoundationPerfTest
+EOF
+#CoastFoundationIOTest
+#CoastFoundationTest
+
+#CoastFoundationBaseTest
+#CoastFoundationTimeTest
+#CoastMTFoundationTest
+#CoastSystemFunctionsTest
+#CoastRegexTest
+#CoastFoundationPerfTest
+
+get_confirmation
+
+for ARCHBITS in 64 32
+do
+	BUILDCFG="optimized"
+	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force 
+	build `cat $ALL_TESTS`
+	warmup `cat $ALL_TESTS`
+
+	##
+	# MEASUREMENT
+	#
+	progress "TIME-BASED MEASUREMENT ..."
+	cat $ALL_TESTS | while read TESTNAME
+	do
+		echo "#------------------------------------------------------------------------" >&2
+		echo "# Running test $TESTNAME ... ########################" >&2
+		TIME_RESULT=$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.csv
+		mkdir -p `dirname $TIME_RESULT`
+
+		# write CSV header if file doesn't exist yet
+		if [ ! -e $TIME_RESULT ];
+		then
+			echo "user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps" > $TIME_RESULT
+		fi
+		echo "# $START_TIME" >> $TIME_RESULT
+
+		# run test n times and log statistics
+		( set -x; scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '%U,%S,%e,%P,%M,%t,%D,%p,%W' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x 10 -- -all" $TESTNAME >$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
+	done
+done
+
+echo "# Performance measurement done. ################################" >&2

@@ -1,10 +1,14 @@
 #! /bin/sh
 . `dirname $0`/lib/common.sh
-([ "$1" = '--help' ] || [ "$1" = '-h' ]) && { show_common_usage; exit 0; }
+BUILDCFG="debug"
 which perf >/dev/null || { echo "No perf found." >&2; exit 1; }
 
 # DIFF COMMAND
-# perf diff perf_results/perf/CoastFoundationPerfTest-{32,64}_debug.perf | c++filt | less
+if [ -n "$DIFF_TEST" ]
+then
+	echo "perf diff perf_results/perf/${DIFF_TEST}-32_${BUILDCFG}.perf perf_results/perf/${DIFF_TEST}-64_${BUILDCFG}.perf | c++filt | less"
+	exit 0
+fi
 
 # FIXME: hardcoded subset of tests that used to fail on 64-bit
 cat <<EOF > $ALL_TESTS
@@ -28,7 +32,6 @@ get_confirmation
 
 for ARCHBITS in 64 32
 do
-	BUILDCFG="debug"
 	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force 
 	build `cat $ALL_TESTS`
 	warmup `cat $ALL_TESTS`

@@ -10,11 +10,14 @@ is_usage_wanted() {
 
 show_common_usage() {
 	cat <<EOF
-Synopsis: $0 [<TESTNAME> ...]
+Synopsis: (1) $0
+          (2) $0 TEST...
+          (2) $0 --diff=TEST
 
 The purpose of this script is to build and run test suites and measure
-performance.  The results are saved into files to be able to compare the
-differences between 32-bit and 64-bit builds.
+performance.  The results are saved into files in the perf_results/ directory
+(in CWD) to be able to compare the differences between 32-bit and 64-bit
+builds.
 
 Depending on which tool you're running, the measurement method is:
 
@@ -22,24 +25,20 @@ Depending on which tool you're running, the measurement method is:
 	with_perf	=>	perf (linux-tools)
 	with_valgrind	=>	Valgrind
 
-Prerequisites for all:
+Prerequisites:
 
   * virtual ENV for COAST has to be activated already
 
+Options:
+	-h --help	show this help and exit
+	-d --diff=TEST	show command to get performance difference of TEST
+
 Usage:
 ------
-This will run all tests of COAST that are known to work:
-
-	$ $0
-
-This is how you can select a set of tests:
-
-	$0 CoastFoundationBaseTest CoastRegexTest
-
-It'll measure the performance of the test suite of both the 64-bit and
-the 32-bit build.
-
-The results go into files in the perf_results/ directory.
+(1) will run all tests known to work on 32-bit and 64-bit.
+(2) will run just the given tests.
+(3) will print a command which, when executed, will show you the performance
+    differences of 32/64-bit builds for the given test.
 EOF
 }
 
@@ -86,11 +85,31 @@ warmup() {
 	done
 }
 
+parse_opts() {
+	while [ -n "$1" ]
+	do
+		case "$1" in
+		-h|--help)
+			show_common_usage
+			exit 0;;
+		-d|--diff)
+			DIFF_TEST=$2
+			shift 2
+			;;
+		--)
+			return
+		esac
+	done
+}
+
 ##
 # INIT
 #
 
 set -e # abort on first error
+
+DIFF_TEST=
+parse_opts `getopt --unquoted -o hd: -l help,diff: -- "$@"`
 
 NTIMES="$(realpath -e `dirname $0`/lib/ntimes)" # absolute path to ntimes utility
 

@@ -1,9 +1,13 @@
 #! /bin/sh
 . `dirname $0`/lib/common.sh
-([ "$1" = '--help' ] || [ "$1" = '-h' ]) && { show_common_usage; exit 0; }
+BUILDCFG="optimized"
 
 # DIFF COMMAND
-#git diff --no-index perf_results/time/CoastFoundationAnythingOptionalTest-32_debug.csv perf_results/time/CoastFoundationAnythingOptionalTest-64_debug.csv
+if [ -n "$DIFF_TEST" ]
+then
+	echo "git diff --no-index perf_results/time/${DIFF_TEST}-32_${BUILDCFG}.csv perf_results/time/${DIFF_TEST}-64_${BUILDCFG}.csv"
+	exit 0
+fi
 
 # FIXME: hardcoded subset of tests that used to fail on 64-bit
 cat <<EOF > $ALL_TESTS
@@ -27,7 +31,6 @@ get_confirmation
 
 for ARCHBITS in 64 32
 do
-	BUILDCFG="optimized"
 	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force 
 	build `cat $ALL_TESTS`
 	warmup `cat $ALL_TESTS`

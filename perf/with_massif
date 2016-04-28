@@ -5,8 +5,7 @@ which valgrind >/dev/null || { echo "No valgrind found." >&2; exit 1; }
 
 if [ -n "$DIFF_TEST" ]
 then
-	echo "git diff --no-index perf_results/valgrind/${DIFF_TEST}-32_${BUILDCFG}.valgrind perf_results/valgrind/${DIFF_TEST}-64_${BUILDCFG}.valgrind"
-    echo "memory summary: find valgrind/ -print -iname '*.valgrind' -exec sed -n '/HEAP SUMMARY/,/Checked/p'  {} \;"
+	echo "git diff --no-index perf_results/massif/${DIFF_TEST}-32_${BUILDCFG}.massif perf_results/massif/${DIFF_TEST}-64_${BUILDCFG}.massif"
 	exit 0
 fi
 
@@ -22,15 +21,15 @@ do
 	##
 	# MEASUREMENT
 	#
-	progress "VALGRIND-BASED MEASUREMENT ..."
+	progress "VALGRIND-MASSIF-BASED MEASUREMENT ..."
 	cat $ALL_TESTS | while read TESTNAME
 	do
 		echo "#------------------------------------------------------------------------" >&2
 		echo "# Running test $TESTNAME ... ########################" >&2
-		RESULT=$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.valgrind
+		RESULT=$PERF_DIR/massif/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.massif
+        RUNPARAMS="-x valgrind -x '--tool=massif' -x '--time-unit=B' -x '--massif-out-file=$RESULT' -x '--stacks=yes'"
 		mkdir -p `dirname $RESULT`
-		touch $RESULT # needed
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x valgrind -x '--leak-check=full' -x '--log-file=$RESULT' -x '--show-leak-kinds=all' -x -v -- -all" $TESTNAME >$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
+		( set -x; scons $SCONSFLAGS --run-force --runparams="${RUNPARAMS} -- -all" $TESTNAME >$PERF_DIR/massif/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
 	done
 done
 

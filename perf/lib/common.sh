@@ -24,6 +24,7 @@ Depending on which tool you're running, the measurement method is:
 	whith_time	=>	time
 	with_perf	=>	perf (linux-tools)
 	with_valgrind	=>	Valgrind
+	with_massif	=>	Valgrind massif tool
 
 Prerequisites:
 
@@ -118,6 +119,21 @@ mkdir -p $PERF_DIR
 
 # list of tests to run
 ALL_TESTS=`mktemp`
+
+cat <<EOF > $ALL_TESTS
+CoastStorageTest
+CoastEBCDICTest
+CoastFoundationAnythingOptionalTest
+CoastFoundationMiscellaneousTest
+CoastFoundationIOTest
+CoastFoundationTest
+CoastFoundationBaseTest
+CoastFoundationTimeTest
+CoastMTFoundationTest
+CoastSystemFunctionsTest
+CoastRegexTest
+CoastFoundationPerfTest
+EOF
 
 cd `dirname $0`/.. # root directory of COAST
 

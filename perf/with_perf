@@ -10,24 +10,6 @@ then
 	exit 0
 fi
 
-# FIXME: hardcoded subset of tests that used to fail on 64-bit
-cat <<EOF > $ALL_TESTS
-CoastStorageTest
-CoastEBCDICTest
-CoastFoundationAnythingOptionalTest
-CoastFoundationMiscellaneousTest
-CoastFoundationPerfTest
-EOF
-#CoastFoundationIOTest
-#CoastFoundationTest
-
-#CoastFoundationBaseTest
-#CoastFoundationTimeTest
-#CoastMTFoundationTest
-#CoastSystemFunctionsTest
-#CoastRegexTest
-#CoastFoundationPerfTest
-
 get_confirmation
 
 for ARCHBITS in 64 32
@@ -47,7 +29,7 @@ do
 		RESULT=$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.perf
 		mkdir -p `dirname $RESULT`
 		#touch $RESULT # needed
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x perf -x record -x '-o$RESULT' -- -all" $TESTNAME >$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
+		( set -x; scons $SCONSFLAGS --run-force --runparams="-x perf -x record -x -g -x '-o$RESULT' -- -all" $TESTNAME >$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
 	done
 done
 

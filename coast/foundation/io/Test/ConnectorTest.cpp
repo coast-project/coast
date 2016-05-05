@@ -44,7 +44,7 @@ void ConnectorTest::simpleConstructorTest()
 	t_assertm( connector.GetStream() != NULL, msg );
 	delete socket;
 	socket = 0;
-}//lint !e438
+}
 
 void ConnectorTest::ConnectAndAssert(const char *host, long port, long timeout, bool threadLocal, bool shouldFail)
 {

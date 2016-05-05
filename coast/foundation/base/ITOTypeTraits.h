@@ -27,8 +27,9 @@ namespace coast {
 			typedef T OriginalType;
 		};
 
-		template<typename T>
-		class TypeTraits { //lint !e578
+		template <typename T>
+		class TypeTraits
+		{
 		private:
 			template<class U> struct PointerTraits {
 				enum {
@@ -145,7 +146,7 @@ namespace coast {
 			typedef typename ConstCorrectRef2PtrGetter< typename boost_or_std::remove_const<T>::type >::Result ConstCorrectRef2PtrType;
 		};
 	}
-} //lint !e19
+}
 
 #ifdef __GNUG__
 #include <cxxabi.h> // __cxa_demangle

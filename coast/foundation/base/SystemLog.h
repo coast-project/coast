@@ -9,7 +9,7 @@
 #ifndef _SystemLog_H
 #define _SystemLog_H
 
-#include "ITOString.h"//lint !e537
+#include "ITOString.h"
 
 namespace coast {
 	namespace system {

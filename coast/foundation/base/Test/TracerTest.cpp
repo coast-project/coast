@@ -310,7 +310,7 @@ void TracerTest::CheckMacrosCompile()
 	StatTrace("test", "a stat trace", coast::storage::Current());
 	StatTraceBuf("bli.bla", "0123456789012345", 10, coast::storage::Current());
 	StatTraceAny("test.x", a, "an any", coast::storage::Current());
-	TriggerEnabled(SectionNotDefined.SlotNotDefined);//lint !e522
+	TriggerEnabled(SectionNotDefined.SlotNotDefined);
 }
 
 Test *TracerTest::suite ()

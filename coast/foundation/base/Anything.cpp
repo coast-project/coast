@@ -73,7 +73,7 @@ public:
 	// input
 	void SkipToEOL();    // for reading comments by parser
 	bool Get(char &c)				{
-		return (fIs.get(c).good()) || (c = 0);//lint !e506
+		return (fIs.get(c).good()) || (c = 0);
 	}
 	// the last assignment is a trick for sunCC weakness of storing EOF(-1) in c
 	void Putback(char c)			{
@@ -84,10 +84,10 @@ public:
 	}
 
 	long &LineRef() {
-		return fLine;//lint !e1536
+		return fLine;
 	}
 	std::istream &StreamRef() {
-		return fIs;//lint !e1536
+		return fIs;
 	}
 	const String &FileName() {
 		return fFileName;
@@ -573,7 +573,7 @@ namespace {
 			String strTok = anyValue.AsString();
 			fStr.Append(std::for_each(strTok.cstr(), strTok.cstr()+strTok.Length(),escapeString()).result);
 		}
-	};//lint !e1509
+	};
 	struct resolveToAnyLevel : public std::unary_function<Anything const&,void> {
 		Anything result;
 		resolveToAnyLevel(Anything const& anySource) : result(anySource) {}
@@ -596,7 +596,7 @@ namespace {
 				anyTraceAny(result, "retrieved reference so far")
 			}
 		}
-	};//lint !e1509
+	};
 	Anything escapedQueryStringToAny(String const& query) {
 		anyStartTrace(AnythingParser.escapedQueryStringToAny);
 		char const *pStart = query.cstr(), *pEnd = pStart + query.Length(), *pPos = pStart;
@@ -665,7 +665,7 @@ public:
 		return std::for_each(fXrefs[ToId(id)].begin(), fXrefs[ToId(id)].end(), appendAnyLevelToString()).fStr;
 	}
 };
-//lint !e1509
+
 
 class ParserXrefHandler : public AnyXrefHandler
 {
@@ -723,7 +723,7 @@ public:
 			}
 		}
 	}
-};//lint !e1509
+};
 
 class AnythingParser {
 	// really implement the grammar of Anythings
@@ -1156,7 +1156,7 @@ Anything &Anything::operator= (const Anything &a)
 		}
 	}
 	return *this;
-}//lint !e1529
+}
 
 void Anything::SortByKey()
 {
@@ -1519,7 +1519,7 @@ AnyImpl *Anything::GetImpl() {
 void Anything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const
 {
 	if (GetImpl()) {
-		GetImpl()->Accept(v, lIdx, slotname);//lint !e613
+		GetImpl()->Accept(v, lIdx, slotname);
 	} else {
 		v.VisitNull(lIdx, slotname);
 	}
@@ -1642,7 +1642,7 @@ ROAnything::ROAnything(const Anything &a)
 }
 
 ROAnything::ROAnything(const ROAnything &a)
-	: fAnyImp(a.fAnyImp)//lint !e1554
+	: fAnyImp(a.fAnyImp)
 {
 	// no ref necessary
 	// ROAnything don't do any
@@ -1670,9 +1670,9 @@ long ROAnything::GetSize() const
 
 ROAnything &ROAnything::operator= (const ROAnything &a)
 {
-	fAnyImp = a.fAnyImp;//lint !e1555
+	fAnyImp = a.fAnyImp;
 	return *this;
-}//lint !e1529
+}
 
 ROAnything &ROAnything::operator= (const Anything &a)
 {
@@ -2143,7 +2143,7 @@ bool AnythingParser::MakeSimpleAny(AnythingToken &tok, Anything &any)
 				return false;
 			}
 			//fall through
-		case AnythingToken::eString: // string impl//lint !e616
+		case AnythingToken::eString: // string impl
 			any = tok.Text();
 			break;
 			// long impl.

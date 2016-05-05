@@ -9,7 +9,7 @@
 #ifndef _AnyVisitor_H
 #define _AnyVisitor_H
 
-#include "Anything.h"//lint !e537
+#include "Anything.h"
 
 //! apply Visitor pattern to Anything structures
 /*!

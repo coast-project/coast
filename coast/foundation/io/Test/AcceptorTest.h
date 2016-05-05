@@ -9,7 +9,7 @@
 #ifndef _AcceptorTest_H
 #define _AcceptorTest_H
 
-#include "FoundationTestTypes.h"//lint !e537
+#include "FoundationTestTypes.h"
 
 class Socket;
 

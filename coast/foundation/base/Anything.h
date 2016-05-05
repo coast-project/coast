@@ -9,8 +9,8 @@
 #ifndef _ANYTHING_H
 #define _ANYTHING_H
 
-#include "ITOString.h"//lint !e537
-#include "AnyImplTypes.h"//lint !e537
+#include "ITOString.h"
+#include "AnyImplTypes.h"
 #include "AnythingIterator.h" // new version of STL compliant iterators
 
 class AnyImpl;
@@ -752,7 +752,7 @@ public:
 		be careful if the memory of the tricky thing is short lived!!!
 		\param any the tricky Anything we use its allocator for reference semantics */
 	TrickyThing(TrickyThing &any) : Anything(any, any.GetAllocator()) {}
-};//lint !e1509
+};
 
 /*! ROAnything is an Anything which is immutable for MT-Safe reasons.
 	Every operation which would change the underlying data is therefore disabled

@@ -9,7 +9,7 @@
 #ifndef _AnyImplsTest_H
 #define _AnyImplsTest_H
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 
 //! <B>really brief class description</B>
 /*!

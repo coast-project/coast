@@ -17,7 +17,7 @@
 
 void SocketTest::simpleConstructorTest() {
 	Connector connector(GetConfig()["SocketConnectSuccessHost"]["ip"].AsString(), GetConfig()["SocketConnectSuccessHost"]["port"].AsLong());
-	Socket *socket = connector.MakeSocket(); //lint !e578
+	Socket *socket = connector.MakeSocket();
 
 	if (t_assertm( socket != NULL, (const char *)connector.GetAddress() )) {
 		long socketfd = socket->GetFd();
@@ -35,7 +35,7 @@ void SocketTest::allocatorConstructorTest() {
 
 	Connector connector(GetConfig()["SocketConnectSuccessHost"]["ip"].AsString(), GetConfig()["SocketConnectSuccessHost"]["port"].AsLong());
 	connector.SetThreadLocal();
-	Socket *socket = connector.MakeSocket(); //lint !e578
+	Socket *socket = connector.MakeSocket();
 
 	if (t_assertm( socket != NULL, (const char *)connector.GetAddress() )) {
 		long socketfd = socket->GetFd();
@@ -68,7 +68,7 @@ void SocketTest::faultyConstructorTest() {
 
 void SocketTest::httpClientTest() {
 	Connector connector(GetConfig()["HTTPReplyHost"]["ip"].AsString(), GetConfig()["HTTPReplyHost"]["port"].AsLong());
-	Socket *socket = connector.MakeSocket(); //lint !e578
+	Socket *socket = connector.MakeSocket();
 
 	assertEqual( GetConfig()["HTTPReplyHost"]["ip"].AsString(), connector.GetAddress());
 	assertEqual( GetConfig()["HTTPReplyHost"]["port"].AsLong(), connector.fPort);
@@ -105,12 +105,12 @@ void SocketTest::httpClientTest() {
 		assertEqual( -1L, ::closeSocket(socketfd));
 		// did we really close the socket??
 	}
-} //lint !e438
+}
 
 void SocketTest::faultyClientTest() {
 	Connector connector(GetConfig()["SocketNotAcceptingHost"]["ip"].AsString(), GetConfig()["SocketNotAcceptingHost"]["port"].AsLong(),
 			GetConfig()["SocketNotAcceptingHost"]["timeout"].AsLong(5000L));
-	Socket *socket = connector.MakeSocket(); //lint !e578
+	Socket *socket = connector.MakeSocket();
 
 	assertEqual( GetConfig()["SocketNotAcceptingHost"]["ip"].AsString(), connector.GetAddress());
 	assertEqual( GetConfig()["SocketNotAcceptingHost"]["port"].AsLong(), connector.fPort);

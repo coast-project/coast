@@ -157,8 +157,8 @@ void AnythingParserTest::scanAnything(Anything any0) {
 		break;
 
 		default: {
-			String str("???"); //lint !e585
-			slotNm.Append( "???" );//lint !e585
+			String str("???");
+			slotNm.Append( "???" );
 			slotNm.Append( "; Value: " );
 			AnythingParserTest::anyOutput[ (const char *)slotNm ] = str;
 		}
@@ -177,7 +177,7 @@ Anything AnythingParserTest::storeAndReload(Anything any) {
 	return (anyResult);
 }
 
-void AnythingParserTest::IntParseSimpleTypeLong(const String &inp, long exp) { //lint !e578
+void AnythingParserTest::IntParseSimpleTypeLong(const String &inp, long exp) {
 	Anything anyTest;
 	IStringStream is0(inp);
 	anyTest.Import(is0);
@@ -217,7 +217,7 @@ void AnythingParserTest::parseSimpleTypeLong() {
 	String inputx = "0xfffffffe";
 	IStringStream isx(inputx);
 	anyTest.Import(isx);
-	assertEqual(0xfffffffe, static_cast<unsigned long>(anyTest.AsLong(0)));	//lint !e569
+	assertEqual(0xfffffffe, static_cast<unsigned long>(anyTest.AsLong(0)));
 	assertEqual(AnyLongType, anyTest.GetType());
 	assertEqual(1, anyTest.GetSize());
 }
@@ -515,8 +515,8 @@ void AnythingParserTest::parseBinary() {
 	input[27] = "[3]";
 	input[28] = "[[3;123]";
 	input[29] = "[3;   ]";
-	input[30] = "[3;\0" "x10123]"; //lint !e840
-	input[31] = "[3;\0" "x13123]"; //lint !e840
+	input[30] = "[3;\0" "x10123]";
+	input[31] = "[3;\0" "x13123]";
 	input[32] = "[2364663;3]";
 	input[33] = "[3;]]";
 
@@ -1171,7 +1171,7 @@ void AnythingParserTest::testObjectParsing() {
 	myObject aObj;
 	{
 		String buf("{/myObjectImpl &");
-		buf.Append((long) &aObj); //lint !e603
+		buf.Append((long) &aObj);
 		buf.Append("}");
 		IStringStream is(buf);
 		Anything any;

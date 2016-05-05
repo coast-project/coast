@@ -61,14 +61,14 @@ void SocketStreamTest::simpleRead()
 
 void SocketStreamTest::simpleWrite()
 {
-	Socket *sock = fConnector->Use();//lint !e613 // fConnector is properly initialized in setUp()
+	Socket *sock = fConnector->Use();
 	if (t_assert(sock != NULL)) {
 		//!@FIXME is it really useful that Connector and Stream have the same timeout
 		assertEqual(1000L, sock->GetTimeout());
 		sock->SetTimeout(15L * 1000L); // increase timeout for reading and writing on the stream
-		std::iostream *Ios = fConnector->GetStream();//lint !e613
+		std::iostream *Ios = fConnector->GetStream();
 		if ( t_assert( Ios != NULL ) ) {
-			assertEqual(15 * 1000L, fConnector->Use()->GetTimeout());//lint !e613
+			assertEqual(15 * 1000L, fConnector->Use()->GetTimeout());
 			// make sure Ios is valid
 			if (t_assert(!!(*Ios))) {
 				(*Ios) << "GET / HTTP/1.0" << ENDL << ENDL << std::flush;

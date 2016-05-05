@@ -9,7 +9,7 @@
 #ifndef ALLOCATORNEWDELETE_H_
 #define ALLOCATORNEWDELETE_H_
 
-#include "ITOStorage.h"//lint !e537
+#include "ITOStorage.h"
 
 namespace coast
 {

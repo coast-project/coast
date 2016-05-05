@@ -213,7 +213,7 @@ public:
 		fKey.SetAllocator(a);
 	}
 	Anything &Value() {
-		return fValue;//lint !e1536
+		return fValue;
 	}
 	const Anything &Value() const {
 		return fValue;
@@ -233,14 +233,14 @@ public:
 			fKey = aka.Key();
 		}
 		return *this;
-	}//lint !e1529
+	}
 	Allocator *MyAllocator() {
 		return fValue.GetAllocator();
 	}
 private:
 	Anything fValue;
 	String fKey;
-};//lint !e1510
+};
 
 long IFANextPrime(long x) {
 	if (x <= 3) {
@@ -273,7 +273,7 @@ AnyKeyTable::~AnyKeyTable() {
 		fKeyTable = 0;
 		fHashTable = 0;
 	}
-}//lint !e1579
+}
 
 void AnyKeyTable::InitTable(long cap) {
 	if (cap < cInitCapacity) {
@@ -428,13 +428,13 @@ AnyIndTable::AnyIndTable(long initCapacity, Allocator *a) :
 
 AnyIndTable::~AnyIndTable() {
 	if (fIndexTable) {
-		Clear();//lint !e1551
-		fAllocator->Free(fIndexTable);//lint !e1551
-		fAllocator->Free(fEmptyTable);//lint !e1551
+		Clear();
+		fAllocator->Free(fIndexTable);
+		fAllocator->Free(fEmptyTable);
 
 		fIndexTable = 0;
 	}
-}//lint !e1579//lint !e1579
+}
 
 void AnyIndTable::InitTable(long cap) {
 	fCapacity = cap;
@@ -670,7 +670,7 @@ Anything &AnyArrayImpl::At(const char *key) {
 	if (slot < 0) {
 		// key doesn't exist so append this key in the key array
 		// with the according slot
-		slot = fKeys->Append(key, fSize);//lint !e613
+		slot = fKeys->Append(key, fSize);
 		slot = IntAt(slot);
 		// set the key in the any key assoc structure
 		fContents[IntAtBuf(slot)][IntAtSlot(slot)].SetKey(key);
@@ -900,7 +900,7 @@ void AnyArrayImpl::PrintKeys() const {
 			hash = 	fKeys->At(fContents[IntAtBuf(at)][IntAtSlot(at)].Key());
 		}
 		String m;
-		m << "[" << i << "]<" << NotNullStr(fContents[IntAtBuf(at)][IntAtSlot(at)].Key()) << ">(" << hash << ")" << "\n";//lint !e666
+		m << "[" << i << "]<" << NotNullStr(fContents[IntAtBuf(at)][IntAtSlot(at)].Key()) << ">(" << hash << ")" << "\n";
 		SystemLog::WriteToStderr(m);
 	}
 }

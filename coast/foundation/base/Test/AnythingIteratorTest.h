@@ -1,8 +1,8 @@
 #ifndef AnythingIteratorTest_H
 #define AnythingIteratorTest_H
 
-#include "TestCase.h"//lint !e537
-#include "Anything.h"//lint !e537
+#include "TestCase.h"
+#include "Anything.h"
 class AnythingIteratorTest: public testframework::TestCase {
 protected:
 	Anything fAny5; // anything with 5 elements set-up in setUp

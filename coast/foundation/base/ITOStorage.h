@@ -272,7 +272,7 @@ public:
 	GlobalAllocator();
 
 	//!frees memory allocated by global allocator
-	virtual void Free(void *vp);	//lint !e1511
+	virtual void Free(void *vp);
 
 	//!frees memory allocated by global allocator
 	virtual void Free(void *vp, size_t sz);

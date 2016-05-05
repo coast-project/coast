@@ -160,7 +160,7 @@ String::~String()
 		fAllocator->Free(static_cast<void*>(GetImpl()));
 		fStringImpl = 0;
 	}
-}//lint !e1579
+}
 
 // assignment operators are asymmetric !!!
 String &String::operator= (const char *s)
@@ -179,7 +179,7 @@ String &String::operator= (const String &s)
 	}
 	// if we are already empty do a nop
 	return *this;
-}//lint !e1529
+}
 
 void String::Set(long start, const char *s, long len)
 /* in: start: at this position we start to copy the contents of s
@@ -224,7 +224,7 @@ note: if start > fLength then the new buffer will contain undefined
 				long oldLength = oldImpl->fLength;
 				long tocopy = (start > oldLength) ? oldLength : start;
 				if (tocopy) {
-					memcpy(GetContent(), oldImpl->Content(), tocopy);  //lint !e671 //PS to be tested
+					memcpy(GetContent(), oldImpl->Content(), tocopy);
 				}
 			}
 		} else {
@@ -1348,7 +1348,7 @@ std::istream &operator>>(std::istream &is, String &s)
 	if (is.good() && s.GetImpl()) {
 		// sanity checks
 		is >> std::ws; // skips whitespace
-		while ((aChar = is.get()) != EOF) {//lint !e583
+		while ((aChar = is.get()) != EOF) {
 			if (isspace(aChar)) {
 				is.putback(aChar);
 				break;

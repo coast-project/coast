@@ -9,7 +9,7 @@
 #ifndef _StrSpecialTest_h_
 #define _StrSpecialTest_h_
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 class StrSpecialTest: public testframework::TestCase {
 public:
 	StrSpecialTest(TString tname) :

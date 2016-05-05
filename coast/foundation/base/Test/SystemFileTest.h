@@ -9,7 +9,7 @@
 #ifndef SYSTEMFILETEST_H_
 #define SYSTEMFILETEST_H_
 
-#include "FoundationTestTypes.h"//lint !e537
+#include "FoundationTestTypes.h"
 #include "boost/function.hpp"
 class SystemFileTest: public testframework::TestCaseWithConfig {
 	void testGetFilePath(boost::function<String()> func, const String& notFoundResult);

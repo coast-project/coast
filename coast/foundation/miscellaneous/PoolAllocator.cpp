@@ -70,9 +70,9 @@ void ExcessTrackerElt::operator delete(void *vp)
 ExcessTrackerElt::~ExcessTrackerElt()
 {
 	// recursively print statistics on excess trackers
-	PrintStatistic(2);//lint !e1551
+	PrintStatistic(2);
 	fTracker.reset();
-	delete fpNext;//lint !e1551
+	delete fpNext;
 	fpNext = 0;
 }
 
@@ -96,7 +96,7 @@ ul_long ExcessTrackerElt::GetSizeToPowerOf2(size_t ulWishSize)
 	if ( lBitCnt == 1 ) {
 		--lMaxBit;
 	}
-	return (1L << lMaxBit);//lint !e647
+	return (1L << lMaxBit);
 }
 
 long ExcessTrackerElt::GetLargestExcessEltBitNum()
@@ -221,7 +221,7 @@ void ExcessTrackerElt::Refresh()
 		if ( pTracker && ( pTracker->CurrentlyAllocated() > 0 ) ) {
 			const int bufSize = 256;
 			char buf[bufSize] = { 0 };
-			coast::system::SnPrintf(buf, bufSize, "ExcessAllocator was still in use! (id: %ld, name: %s) in Refresh()", pTracker->GetId(), NotNull(pTracker->GetName()));//lint !e666
+			coast::system::SnPrintf(buf, bufSize, "ExcessAllocator was still in use! (id: %ld, name: %s) in Refresh()", pTracker->GetId(), NotNull(pTracker->GetName()));
 			SystemLog::Error(buf);
 		}
 		pElt = pElt->fpNext;
@@ -332,7 +332,7 @@ PoolAllocator::~PoolAllocator()
 					if ( bFirst ) {
 						const int bufSize = 256;
 						char buf[bufSize] = { 0 };
-						coast::system::SnPrintf(buf, bufSize, "PoolAllocator was still in use! (id: %ld, name: %s) in PoolAllocator::~PoolAllocator()", pTracker->GetId(), NotNull(pTracker->GetName()));//lint !e666
+						coast::system::SnPrintf(buf, bufSize, "PoolAllocator was still in use! (id: %ld, name: %s) in PoolAllocator::~PoolAllocator()", pTracker->GetId(), NotNull(pTracker->GetName()));
 						SystemLog::Error(buf);
 						bFirst = false;
 					}
@@ -402,7 +402,7 @@ PoolAllocator::~PoolAllocator()
 	StatTrace(PoolAllocator.~PoolAllocator, "id:" << fAllocatorId << " deleting PoolBuckets and PoolMemory", coast::storage::Global());
 	::free(fPoolBuckets);
 	::free(fPoolMemory);
-}//lint !e1579
+}
 
 void PoolAllocator::DumpStillAllocated()
 {
@@ -426,7 +426,7 @@ void PoolAllocator::DumpStillAllocated()
 				if ( bFirst ) {
 					const int bufSize = 256;
 					char buf[bufSize] = { 0 };
-					coast::system::SnPrintf(buf, bufSize, "PoolAllocator was still in use! (id: %ld, name: %s) in PoolAllocator::DumpStillAllocated()", pTracker->GetId(), NotNull(pTracker->GetName()));//lint !e666
+					coast::system::SnPrintf(buf, bufSize, "PoolAllocator was still in use! (id: %ld, name: %s) in PoolAllocator::DumpStillAllocated()", pTracker->GetId(), NotNull(pTracker->GetName()));
 					SystemLog::Error(buf);
 					bFirst = false;
 				}
@@ -610,7 +610,7 @@ void *PoolAllocator::Alloc(size_t allocSize)
 				(*fpExcessTrackerList)[alignedSize]->TrackAlloc(mh);
 			}
 		}
-		return ExtMemStart(mh);//lint !e429
+		return ExtMemStart(mh);
 	}
 	const int bufSize = 256;
 	static char crashmsg[bufSize] = { 0 };
@@ -700,7 +700,7 @@ ul_long PoolAllocator::CurrentlyAllocated()
 
 void PoolAllocator::Refresh()
 {
-	if ( TriggerEnabled(PoolAllocator.Refresh) ) {//lint !e506//lint !e774
+	if ( TriggerEnabled(PoolAllocator.Refresh) ) {
 		PrintStatistic();
 	}
 	for (long i = 0; i < static_cast<long>(fNumOfPoolBucketSizes); ++i) {
@@ -708,7 +708,7 @@ void PoolAllocator::Refresh()
 		if ( pTracker && pTracker->CurrentlyAllocated() > 0 ) {
 			const int bufSize = 256;
 			char buf[bufSize] = { 0 };
-			coast::system::SnPrintf(buf, bufSize, "PoolAllocator was still in use! (id: %ld, name: %s) in PoolAllocator::Refresh()", pTracker->GetId(), NotNull(pTracker->GetName()));//lint !e666
+			coast::system::SnPrintf(buf, bufSize, "PoolAllocator was still in use! (id: %ld, name: %s) in PoolAllocator::Refresh()", pTracker->GetId(), NotNull(pTracker->GetName()));
 			SystemLog::Error(buf);
 		}
 	}

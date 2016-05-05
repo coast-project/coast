@@ -9,7 +9,7 @@
 #ifndef _PipeStreamTest_H
 #define _PipeStreamTest_H
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 class PipeStreamTest: public testframework::TestCase {
 public:
 	PipeStreamTest(TString tstrName) :

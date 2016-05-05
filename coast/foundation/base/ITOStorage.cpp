@@ -24,7 +24,7 @@ MemChecker::MemChecker(const char *scope, Allocator *a) :
 
 MemChecker::~MemChecker() {
 	TraceDelta("MemChecker.~MemChecker: ");
-} //lint !e1579
+}
 
 void MemChecker::TraceDelta(const char *message) {
 	l_long delta = CheckDelta();
@@ -62,7 +62,7 @@ MemTracker::MemTracker(const char *name) :
 
 MemTracker::~MemTracker() {
 	if (fpUsedList) {
-		delete fpUsedList;	//lint !e1551
+		delete fpUsedList;
 		fpUsedList = 0;
 	}
 	::free(fpName);
@@ -81,7 +81,7 @@ void MemTracker::TrackAlloc(MemoryHeader *mh) {
 	if (fpUsedList && !(mh->fState & MemoryHeader::eNotPooled)) {
 		fpUsedList->push_back(mh);
 	}
-}	//lint !e429
+}
 
 void MemTracker::TrackFree(MemoryHeader *mh) {
 	fAllocated -= mh->fUsableSize;
@@ -269,7 +269,7 @@ namespace coast {
 	namespace memory {
 		void safeFree(Allocator *a, void *ptr) throw () {
 			if (ptr) {
-				a->Free(ptr); //lint !e1550
+				a->Free(ptr);
 			}
 		}
 	} // namespace memory
@@ -327,7 +327,7 @@ size_t Allocator::AllocSize(size_t n, size_t size) {
 void *Allocator::ExtMemStart(void *vp) {
 	if (vp) {
 		Assert(((MemoryHeader *)vp)->fMagic == MemoryHeader::gcMagic);
-		void *s = (((char *) (vp)) + coast::memory::AlignedSize<MemoryHeader>::value); //fUsableSize does *not* include header //lint !e429
+		void *s = (((char *) (vp)) + coast::memory::AlignedSize<MemoryHeader>::value); //fUsableSize does *not* include header
 		// superfluous, Calloc takes care: memset(s, '\0', mh->fUsableSize);
 		return s;
 	}
@@ -372,7 +372,7 @@ void *GlobalAllocator::Alloc(size_t allocSize) {
 		MemoryHeader *mh = new (vp) MemoryHeader(allocSize - coast::memory::AlignedSize<MemoryHeader>::value,
 				MemoryHeader::eUsedNotPooled);
 		fTracker->TrackAlloc(mh);
-		return ExtMemStart(mh); //lint !e593//lint !e429
+		return ExtMemStart(mh);
 	} else {
 		const int bufSize = 256;
 		static char crashmsg[bufSize] = { 0 };

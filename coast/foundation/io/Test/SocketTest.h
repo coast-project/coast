@@ -9,7 +9,7 @@
 #ifndef _SocketTest_H
 #define _SocketTest_H
 
-#include "FoundationTestTypes.h"//lint !e537
+#include "FoundationTestTypes.h"
 class SocketTest: public testframework::TestCaseWithConfig {
 public:
 	SocketTest(TString tname) :

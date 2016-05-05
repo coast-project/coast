@@ -13,7 +13,7 @@
    Initial Autor: Peter
 */
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 
 class MmapTest : public testframework::TestCase
 {

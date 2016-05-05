@@ -1001,7 +1001,7 @@ void StringTokenizer2Test::constrMethodsAll ()
 void StringTokenizer2Test::getRemainder()
 {
 	StringTokenizer2 st0(".foo:bar.frm:", ".:");
-	String remainder, token;//lint !e578
+	String remainder, token;
 
 	// initial round, no parsing started yet
 	remainder = st0.GetRemainder();

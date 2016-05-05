@@ -38,7 +38,7 @@
 #include "StringReverseIteratorTest.h"
 #include "StringSTLTest.h"
 
-void setupRunner(TestRunner &runner) {//lint !e14
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, StringTokenizerTest);
 	ADD_SUITE(runner, StringTokenizer2Test);
 	ADD_SUITE(runner, StringTest);

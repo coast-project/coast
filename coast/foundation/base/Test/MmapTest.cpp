@@ -186,7 +186,7 @@ void MmapTest::SimpleRead()
 				}
 				char c1 = *pc++;
 				assertEqual(c1, c); // compare content
-			} while (true); //lint !e506
+			} while (true);
 			assertEqual(pc - fgcContent, strlen(fgcContent)); // have we reached the end?
 		}
 		t_assert(is.eof());
@@ -302,7 +302,7 @@ void MmapTest::SimpleReadOnly()
 				}
 				char c1 = *pc++;
 				assertEqual(c1, c);
-			} while (true); //lint !e506 // compare content
+			} while (true);
 			assertEqual(pc - fgcContent, strlen(fgcContent)); // have we reached the end?
 		}
 		t_assert(is.eof());

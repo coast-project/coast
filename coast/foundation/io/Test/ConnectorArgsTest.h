@@ -9,7 +9,7 @@
 #ifndef _ConnectorArgsTest_H
 #define _ConnectorArgsTest_H
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 
 //! <B>single line description of the class</B>
 /*!

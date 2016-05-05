@@ -9,8 +9,8 @@
 #ifndef _Pipe_H
 #define _Pipe_H
 
-#include "ITOString.h"//lint !e537
-#include "PipeStream.h"//lint !e537
+#include "ITOString.h"
+#include "PipeStream.h"
 
 /*! represents a read/write pipe end point that is connected
 It is a <B>communication end point</B> for read/write (anonymous) pipes.

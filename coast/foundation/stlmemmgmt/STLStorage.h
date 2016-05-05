@@ -19,7 +19,7 @@
 
 // The following code will be put into Boost.Config in a later revision
 #if defined(_RWSTD_VER) || defined(__SGI_STL_PORT) || \
-    BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582)) //lint !e514
+    BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
 #define BOOST_NO_PROPER_STL_DEALLOCATE
 #endif
 
@@ -72,7 +72,7 @@ namespace stlstorage
 		class fAllocatorNotInitialized : public std::exception
 		{
 		public:
-			virtual const char *what() const throw() { //lint !e1526
+			virtual const char *what() const throw() {
 				static const char pMsg[] = "FATAL: fAllocator passed is NULL!!";
 				SYSERROR(pMsg);
 				return pMsg;

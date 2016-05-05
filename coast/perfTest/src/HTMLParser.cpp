@@ -606,7 +606,7 @@ void HTMLParser::Error(const String &msg) {
 
 HTMLParser::TagType HTMLParser::LookupTag(const char *name) {
 	Meter(HTMLParser.LookupTag);
-	register int position;
+	int position;
 	int last = sizeof(TagTable) / sizeof(TagInfo) - 1, base = 0, result;
 	if (name) {
 		while (last >= base) {
@@ -638,7 +638,7 @@ void HTMLParser::VerifyTagTable() {
 
 Unicode HTMLParser::LookupSpecial(const char *name) {
 	Meter(HTMLParser.LookupSpecial);
-	register int position;
+	int position;
 	int last = sizeof(SpecialCharTable) / sizeof(SpecialCharInfo) - 1, base = 0, result;
 	if (name) {
 		while (last >= base) {

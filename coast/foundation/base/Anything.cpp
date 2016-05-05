@@ -42,10 +42,10 @@ namespace {
 long IFAHash(const char *key, long &len, char stop1, char stop2)
 //long DoIFAHash(const unsigned char *key, long &len, unsigned char stop1, unsigned char stop2)
 {
-	register long h = 0;
-	register u_long g;
+	long h = 0;
+	u_long g;
 	const unsigned char *const keyp = reinterpret_cast<const unsigned char *>(key);
-	register const unsigned char *p = keyp;
+	const unsigned char *p = keyp;
 	if (key) {
 		while (*p && *p != stop1 && *p != stop2) {
 			h = (h << 4) + *p++;
@@ -1427,13 +1427,13 @@ bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, ch
 	} else {
 		// calculate key values into anything; cache hash values and size information
 		// assume we have at least one delimSlot in path
-		register const char *tokPtr = path;
+		const char *tokPtr = path;
 		if (!tokPtr || *tokPtr == delimSlot) {
 			return false;
 		}
 		Anything c = *this;
 		do {
-			register long lIdx = -1;
+			long lIdx = -1;
 			if (*tokPtr == delimIdx) {
 				if (! *++tokPtr || *tokPtr == delimIdx || *tokPtr == delimSlot) {
 					return false;
@@ -1901,14 +1901,14 @@ bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot
 		// calculate key values into anything; cache hasvalues and size information
 		// assume we have at least one delimSlot in path
 		//String key(path); // do not need global allocator here!
-		register const char *tokPtr = path; //(const unsigned char *)(const char*)key;
+		const char *tokPtr = path; //(const unsigned char *)(const char*)key;
 		if (!tokPtr || *tokPtr == delimSlot) {
 			return false;
 		}
 
 		ROAnything c(*this); // pointers are faster! but ROAnythings are pointers...
 		do {
-			register long lIdx = -1;
+			long lIdx = -1;
 			if (*tokPtr == delimIdx) {
 				if (! *++tokPtr || *tokPtr == delimIdx || *tokPtr == delimSlot) {
 					return false;

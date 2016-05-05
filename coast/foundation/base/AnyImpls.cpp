@@ -393,11 +393,11 @@ void AnyKeyTable::Rehash(long newCap) {
 	// iterate over the old table and rehash
 	// values
 	for ( long i = 0; i < oldCapacity; ++i ) {
-		register long slot = ot[i];
+		long slot = ot[i];
 
 		if (slot > -1) {	// assumption: we found an index for a key
 			long at = fKeyTable->IntAt(slot);
-			register const char *key = fKeyTable->fContents[fKeyTable->IntAtBuf(at)][fKeyTable->IntAtSlot(at)].Key();
+			const char *key = fKeyTable->fContents[fKeyTable->IntAtBuf(at)][fKeyTable->IntAtSlot(at)].Key();
 			Assert(key);
 			long lIdx = DoHash(key);
 			Assert(lIdx > -1 && lIdx < fCapacity);

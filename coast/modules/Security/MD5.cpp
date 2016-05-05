@@ -211,7 +211,7 @@ void MD5Context::Final(unsigned char digest[16]) {
  * the data and converts bytes into longwords for this routine.
  */
 void MD5Context::Transform(uint32 buf[4], uint32 const in[16]) {
-	register uint32 a, b, c, d;
+	uint32 a, b, c, d;
 
 	a = buf[0];
 	b = buf[1];

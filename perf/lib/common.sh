@@ -120,6 +120,10 @@ mkdir -p $PERF_DIR
 # list of tests to run
 ALL_TESTS=`mktemp`
 
+# hardcoded subset of tests to fix as part of the mandatory goal
+#
+# NOTE: To dynamically get a list of all tests available, delete/uncomment this
+# section and enable the scons pipeline command below.
 cat <<EOF > $ALL_TESTS
 CoastStorageTest
 CoastEBCDICTest

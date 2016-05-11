@@ -38,7 +38,7 @@ private:
 	struct DeleteWrapper {
 		// tricky section to determine if given type is a pointer and deletable
 		enum DeleteFuncSelector { Reftype, Pointertype };
-		enum { delAlgo = (boost_or_tr1::is_pointer<Tp>::value) ? Pointertype : Reftype };
+		enum { delAlgo = (boost_or_std::is_pointer<Tp>::value) ? Pointertype : Reftype };
 
 		void DoDeleteObject(const ListTypeValueType &newObjPtr, coast::typetraits::Int2Type<Reftype> ) {};
 		void DoDeleteObject(const ListTypeValueType &newObjPtr, coast::typetraits::Int2Type<Pointertype> ) {

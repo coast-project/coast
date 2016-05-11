@@ -11,6 +11,7 @@
 #include "AnyImpls.h"
 #include "Tracer.h"
 #include "StringStream.h"
+#include "boost_or_std.h"
 #include <iomanip>
 
 AnyImplsTest::AnyImplsTest(TString tstrName) : TestCaseType(tstrName)
@@ -27,11 +28,7 @@ void AnyImplsTest::ThisToHexTest()
 {
 	StartTrace(AnyImplsTest.ThisToHexTest);
 	{
-#if __cplusplus >= 201103L
-		std::unique_ptr<AnyImpl> d = std::unique_ptr<AnyImpl>(new(coast::storage::Current())AnyLongImpl(123L, coast::storage::Current()));
-#else
-		std::auto_ptr<AnyImpl> d = std::auto_ptr<AnyImpl>(new(coast::storage::Current())AnyLongImpl(123L, coast::storage::Current()));
-#endif
+		boost_or_std::unique_ptr<AnyImpl> d = std::unique_ptr<AnyImpl>(new(coast::storage::Current())AnyLongImpl(123L, coast::storage::Current()));
 		String res = d->ThisToHex();
 		assertCompare(sizeof(void *)*2L,equal_to,static_cast<unsigned long>(res.Length()));
 		StringStream os;

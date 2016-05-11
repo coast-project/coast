@@ -11,15 +11,12 @@
 
 #include "AllocatorNewDelete.h"
 #include "OciAutoHandle.h"
+#include "boost_or_std.h"
 
 class OracleConnection;
 class String;
 
-#if __cplusplus >= 201103L
-typedef std::unique_ptr<Allocator> AllocatorPtr;
-#else
-typedef std::auto_ptr<Allocator> AllocatorPtr;
-#endif
+typedef boost_or_std::unique_ptr<Allocator> AllocatorPtr;
 
 //! Abstraction for an Oracle environment
 /*!

@@ -11,7 +11,7 @@
 
 #include "WDModule.h"
 #include "ConnectionPool.h"
-#include "boost_or_std.h"
+#include "boost_or_std/memory.h"
 
 //! Module to initialize Oracle Data Access
 /*!
@@ -32,7 +32,7 @@
  */
 class OracleModule: public WDModule
 {
-	typedef boost_or_std::unique_ptr<coast::oracle::ConnectionPool> ConnectionPoolPtr;
+	typedef boost_or_std::auto_ptr<coast::oracle::ConnectionPool> ConnectionPoolPtr;
 	ConnectionPoolPtr fpConnectionPool;
 public:
 	/*! Name using ctor to register OracleModule in the Registry using the correct name

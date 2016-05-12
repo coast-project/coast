@@ -9,7 +9,7 @@
 #ifndef _ITOTypeTraits_H
 #define _ITOTypeTraits_H
 
-#include "boost_or_std.h"
+#include "boost_or_std/type_traits.h"
 
 namespace coast {
 	namespace typetraits {

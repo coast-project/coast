@@ -13,7 +13,7 @@
 #include "SystemAPI.h"
 #include "Anything.h"
 #include "Tracer.h"
-#include "boost_or_std.h"
+#include "boost_or_std/memory.h"
 
 class Thread;
 
@@ -360,7 +360,7 @@ class LockUnlockEntry
 		LockType::eLockMode fMode;
 	};
 
-	boost_or_std::unique_ptr<WrapperBase> fWrapper;
+	boost_or_std::auto_ptr<WrapperBase> fWrapper;
 	LockUnlockEntry();
 	LockUnlockEntry(LockUnlockEntry &);
 	LockUnlockEntry &operator=(const LockUnlockEntry &);
@@ -417,7 +417,7 @@ class LockedValueIncrementDecrementEntry
 		long		&fValue;
 	};
 
-	boost_or_std::unique_ptr<WrapperBase> fWrapper;
+	boost_or_std::auto_ptr<WrapperBase> fWrapper;
 	LockedValueIncrementDecrementEntry();
 	LockedValueIncrementDecrementEntry(LockedValueIncrementDecrementEntry &);
 	LockedValueIncrementDecrementEntry &operator=(const LockedValueIncrementDecrementEntry &);

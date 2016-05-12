@@ -11,12 +11,12 @@
 
 #include "AllocatorNewDelete.h"
 #include "OciAutoHandle.h"
-#include "boost_or_std.h"
+#include "boost_or_std/memory.h"
 
 class OracleConnection;
 class String;
 
-typedef boost_or_std::unique_ptr<Allocator> AllocatorPtr;
+typedef boost_or_std::auto_ptr<Allocator> AllocatorPtr;
 
 //! Abstraction for an Oracle environment
 /*!

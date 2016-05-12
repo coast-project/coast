@@ -11,7 +11,7 @@
 
 #include "Threads.h"
 #include "StatUtils.h"
-#include "boost_or_std.h"
+#include "boost_or_std/memory.h"
 
 //! abstract class which handles initialization, starting and termination of threads in a pool
 /*!
@@ -157,7 +157,7 @@ private:
 	//! counts the terminated threads, this value gets reset when the pool is initialized again
 	long fTerminatedThreads;
 
-	typedef boost_or_std::unique_ptr<StatEvtHandler> StatEvtHandlerPtrType;
+	typedef boost_or_std::auto_ptr<StatEvtHandler> StatEvtHandlerPtrType;
 
 	//! statistic event handler
 	StatEvtHandlerPtrType fpStatEvtHandler;
@@ -428,7 +428,7 @@ private:
 	//!termination flag
 	bool fTerminated;
 
-	typedef boost_or_std::unique_ptr<StatEvtHandler> StatEvtHandlerPtrType;
+	typedef boost_or_std::auto_ptr<StatEvtHandler> StatEvtHandlerPtrType;
 
 	//! statistic event handler
 	StatEvtHandlerPtrType fpStatEvtHandler;

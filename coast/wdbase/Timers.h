@@ -13,7 +13,7 @@
 #include "DiffTimer.h"
 #include "Context.h"
 #include "Threads.h"
-#include "boost_or_std.h"
+#include "boost_or_std/memory.h"
 
 //! Module to enable/disable timing and logging of methods
 /*!
@@ -102,7 +102,7 @@ This level of abstraction is needed to reduce the overhead of always instantiati
 It is also important to have because there is no flexible other way to have time logging enabled/disabled on demand without recompiling everytime.
 */
 class TimeLoggerEntry {
-	typedef boost_or_std::unique_ptr<TimeLogger> TimeLoggerPtr;
+	typedef boost_or_std::auto_ptr<TimeLogger> TimeLoggerPtr;
 	TimeLoggerPtr fpLogger;
 public:
 	TimeLoggerEntry(const char *pSection, const char *pKey, String &msg, Context &ctx, TimeLogger::eResolution aResolution);

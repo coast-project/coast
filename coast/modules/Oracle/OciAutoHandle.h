@@ -11,7 +11,7 @@
 
 #include <memory>
 #include "oci.h"
-#include "boost_or_std.h"
+#include "boost_or_std/memory.h"
 
 //! Template wrapper around OCI handles
 /*!
@@ -136,9 +136,9 @@ class OracleConnection;
 class OracleEnvironment;
 
 //! type definition of auto cleanup'd OracleStatement
-typedef boost_or_std::unique_ptr<OracleStatement> OracleStatementPtr;
-typedef boost_or_std::unique_ptr<OracleResultset> OracleResultsetPtr;
-typedef boost_or_std::unique_ptr<OracleConnection> OracleConnectionPtr;
-typedef boost_or_std::unique_ptr<OracleEnvironment> OracleEnvironmentPtr;
+typedef boost_or_std::auto_ptr<OracleStatement> OracleStatementPtr;
+typedef boost_or_std::auto_ptr<OracleResultset> OracleResultsetPtr;
+typedef boost_or_std::auto_ptr<OracleConnection> OracleConnectionPtr;
+typedef boost_or_std::auto_ptr<OracleEnvironment> OracleEnvironmentPtr;
 
 #endif /* OCIAUTOHANDLE_H_ */

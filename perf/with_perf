@@ -1,6 +1,6 @@
 #! /bin/sh
 . `dirname $0`/lib/common.sh
-BUILDCFG="debug"
+BUILDCFG="optimized"
 which perf >/dev/null || { echo "No perf found." >&2; exit 1; }
 
 # DIFF COMMAND
@@ -29,7 +29,7 @@ do
 		RESULT=$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.perf
 		mkdir -p `dirname $RESULT`
 		#touch $RESULT # needed
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x perf -x record -x -g -x '-o$RESULT' -- -all" $TESTNAME >$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
+		( set -x; scons $SCONSFLAGS --run-force --runparams="-x perf -x record -x -F99 -x -g -x '-o$RESULT' -- -all" $TESTNAME >$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
 	done
 done
 

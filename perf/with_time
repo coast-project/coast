@@ -1,5 +1,5 @@
 #! /bin/sh
-. `dirname $0`/lib/test_utils.sh
+. `dirname $0`/lib/measure_utils.sh
 . perf/lib/time.sh
 BUILDCFG="optimized"
 

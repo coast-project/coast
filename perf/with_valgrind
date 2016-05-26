@@ -1,37 +1,20 @@
 #! /bin/sh
-. `dirname $0`/lib/common.sh
-([ "$1" = '--help' ] || [ "$1" = '-h' ]) && { show_common_usage; exit 0; }
+. `dirname $0`/lib/test_utils.sh
+. perf/lib/valgrind.sh
 which valgrind >/dev/null || { echo "No valgrind found." >&2; exit 1; }
 
 if [ -n "$DIFF_TEST" ]
 then
 	echo "git diff --no-index perf_results/valgrind/${DIFF_TEST}-32_${BUILDCFG}.valgrind perf_results/valgrind/${DIFF_TEST}-64_${BUILDCFG}.valgrind"
-    echo "memory summary: find valgrind/ -print -iname '*.valgrind' -exec sed -n '/HEAP SUMMARY/,/Checked/p'  {} \;"
+	echo "memory summary: find valgrind/ -print -iname '*.valgrind' -exec sed -n '/HEAP SUMMARY/,/Checked/p' {} \;"
 	exit 0
 fi
 
 get_confirmation
 
-for ARCHBITS in 64 32
+for ARCHBITS in $ALL_ARCHBITS
 do
-	BUILDCFG="debug"
-	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force
-	build `cat $ALL_TESTS`
-	warmup `cat $ALL_TESTS`
-
-	##
-	# MEASUREMENT
-	#
-	progress "VALGRIND-BASED MEASUREMENT ..."
-	cat $ALL_TESTS | while read TESTNAME
-	do
-		echo "#------------------------------------------------------------------------" >&2
-		echo "# Running test $TESTNAME ... ########################" >&2
-		RESULT=$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.valgrind
-		mkdir -p `dirname $RESULT`
-		touch $RESULT # needed
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x valgrind -x '--leak-check=full' -x '--log-file=$RESULT' -x '--show-leak-kinds=all' -x -v -- -all" $TESTNAME >$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
-	done
+	measure_with_valgrind
 done
 
 echo "# Performance measurement done. ################################" >&2

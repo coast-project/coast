@@ -1,7 +1,8 @@
 #! /bin/sh
-. `dirname $0`/lib/common.sh
-BUILDCFG="optimized"
+. `dirname $0`/lib/test_utils.sh
+. perf/lib/perf.sh
 which perf >/dev/null || { echo "No perf found." >&2; exit 1; }
+BUILDCFG="optimized"
 
 # DIFF COMMAND
 if [ -n "$DIFF_TEST" ]
@@ -12,25 +13,9 @@ fi
 
 get_confirmation
 
-for ARCHBITS in 64 32
+for ARCHBITS in $ALL_ARCHBITS
 do
-	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force 
-	build `cat $ALL_TESTS`
-	warmup `cat $ALL_TESTS`
-
-	##
-	# MEASUREMENT
-	#
-	progress "PERF-BASED MEASUREMENT ..."
-	cat $ALL_TESTS | while read TESTNAME
-	do
-		echo "#------------------------------------------------------------------------" >&2
-		echo "# Running test $TESTNAME ... ########################" >&2
-		RESULT=$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.perf
-		mkdir -p `dirname $RESULT`
-		#touch $RESULT # needed
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x perf -x record -x -F99 -x -g -x '-o$RESULT' -- -all" $TESTNAME >$PERF_DIR/perf/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
-	done
+	measure_with_perf
 done
 
 echo "# Performance measurement done. ################################" >&2

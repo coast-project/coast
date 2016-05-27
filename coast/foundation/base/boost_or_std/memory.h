@@ -14,8 +14,7 @@ namespace boost_or_std {
 	template <class T, class Deleter = std::default_delete<T> >
 	using auto_ptr = std::unique_ptr<T, Deleter>;
 
-	template <class T>
-	using shared_ptr = std::shared_ptr<T>;
+	using std::shared_ptr;
 }
 #else // USE_STD03
 #include <boost/shared_ptr.hpp>

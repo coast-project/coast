@@ -6,7 +6,7 @@
 
 # Shows the one-size-fits-all usage for performance measurement scripts.
 show_usage() {
-	cat <<EOF | less --quit-if-one-screen
+	cat <<EOF | ${PAGER:-less --quit-if-one-screen}
 SYNOPSIS
 --------
 	(1) $0
@@ -76,12 +76,15 @@ cleanup() {
 
 # Prints tests to be run and gets the confirmation from the user.
 get_confirmation() {
-	echo "# Tests to be run:  ######################################" >&2
-	sed -e 's/^/	/' $TEST_NAMES >&2
-	ntests=`wc -l < $TEST_NAMES`
-	echo "# ($ntests tests in total)  #############################" >&2
-	echo "# Press return to confirm or ^C to abort..." >&2
+	{
+		echo "# Tests to be run:  ######################################" >&2
+		sed -e 's/^/	/' $TEST_NAMES >&2
+		ntests=`wc -l < $TEST_NAMES`
+		echo "# ($ntests tests in total)  #############################" >&2
+	} | ${PAGER:-less --quit-if-one-screen}
+	echo "# Press Enter to confirm or ^C to abort..." >&2
 	read confirmation
+	[ -z "$confirmation" ] || exit 1
 }
 
 # Prints progress information and build-related variables being used on STDERR.
@@ -115,6 +118,20 @@ warmup() {
 	done
 }
 
+# Measures performance for selected archbits.
+#
+# Depends on:
+#   * $ALL_ARCHBITS
+#   * measure_performance (function)
+measure_performance_for_selected_archbits() {
+	for ARCHBITS in $ALL_ARCHBITS
+	do
+		measure_performance
+	done
+
+	echo "# Performance measurement done. ################################" >&2
+}
+
 
 ##
 # INIT
@@ -122,11 +139,11 @@ warmup() {
 
 set -e # abort on first error
 
-START_TIME=`date`             # date
-DIFF_TEST=                    # a test name
-EXPORT=false                  # whether to export existing results as CSV
-RUN_ALL_TESTS=false           # whether all tests available should be run
-TEST_NAMES="${TEST_NAMES:-}"  # path to file containing test names to be run
+START_TIME=`date +"%Y-%m-%d %H:%M:%S"` # date (suitable for CSV)
+DIFF_TEST=                             # a test name
+EXPORT=false                           # whether to export existing results as CSV
+RUN_ALL_TESTS=false                    # whether all tests available should be run
+TEST_NAMES="${TEST_NAMES:-}"           # path to file containing test names to be run
 ALL_ARCHBITS="${ALL_ARCHBITS:-64 32}"  # path to file containing test names to be run
 
 
@@ -194,7 +211,8 @@ PERF_DIR="${PERF_DIR:-"$PWD/perf_results"}"
 mkdir -p $PERF_DIR
 cd `dirname $0`/.. # root directory of COAST
 
-if [ -z "$TEST_NAMES" ] # if no test names have been passed
+# determine list of tests if none have been passed
+if [ -z "$TEST_NAMES" ]
 then
 	TEST_NAMES=`mktemp`
 

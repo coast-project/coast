@@ -1,19 +1,49 @@
 #! /bin/sh
 . `dirname $0`/lib/measure_utils.sh
-. perf/lib/massif.sh
 which valgrind >/dev/null || { echo "No valgrind found." >&2; exit 1; }
 
-if [ -n "$DIFF_TEST" ]
-then
+# DIFF COMMAND
+print_diff_cmd() {
 	echo "git diff --no-index perf_results/massif/${DIFF_TEST}-32_${BUILDCFG}.massif perf_results/massif/${DIFF_TEST}-64_${BUILDCFG}.massif"
 	exit 0
-fi
+}
 
+# Measures performance of $TEST_NAMES using `valgrind --tool=massif`.
+#
+# Depends on:
+#   * measure_utils.sh
+#   * `valgrind --tool=massif`
+#   * $TEST_NAMES
+#   * $PERF_DIR
+#   * $ARCHBITS
+#
+# Honors:
+#   * $START_TIME
+measure_performance() {
+	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force
+	build `cat $TEST_NAMES`
+
+	##
+	# MEASUREMENT
+	#
+	progress "VALGRIND-MASSIF-BASED MEASUREMENT ..."
+	for TESTNAME in `cat $TEST_NAMES`
+	do
+		echo "#------------------------------------------------------------------------" >&2
+		echo "# Running test $TESTNAME ... ########################" >&2
+		RESULT=$PERF_DIR/massif/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.massif
+        RUNPARAMS="-x valgrind -x '--tool=massif' -x '--time-unit=B' -x '--detailed-freq=1' -x '--massif-out-file=$RESULT'"
+		mkdir -p `dirname $RESULT`
+		( set -x; scons CXXFLAGS="-fPIC" $SCONSFLAGS --run-force --runparams="${RUNPARAMS} -- -all" $TESTNAME >$PERF_DIR/massif/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
+	done
+}
+
+##
+# MAIN
+#
+
+[ -n "$DIFF_TEST" ] && { print_diff_cmd; exit; }
+
+BUILDCFG="optimized"
 get_confirmation
-
-for ARCHBITS in $ALL_ARCHBITS
-do
-	measure_with_massif
-done
-
-echo "# Performance measurement done. ################################" >&2
+measure_performance_for_selected_archbits

@@ -1,20 +1,20 @@
 #! /bin/sh
 . `dirname $0`/lib/measure_utils.sh
-. perf/lib/valgrind.sh
 which valgrind >/dev/null || { echo "No valgrind found." >&2; exit 1; }
 
-if [ -n "$DIFF_TEST" ]
-then
+# DIFF COMMAND
+print_diff_cmd() {
 	echo "git diff --no-index perf_results/valgrind/${DIFF_TEST}-32_${BUILDCFG}.valgrind perf_results/valgrind/${DIFF_TEST}-64_${BUILDCFG}.valgrind"
 	echo "memory summary: find valgrind/ -print -iname '*.valgrind' -exec sed -n '/HEAP SUMMARY/,/Checked/p' {} \;"
-	exit 0
-fi
+}
 
 # EXPORT
-if $EXPORT
-then
+export_as_csv() {
 	# print CSV header
-	echo "datetime,testname,archbits,buildcfg,method,X,Y"
+	printf "start_time,testname,archbits,buildcfg,method," # test info
+	printf "definitely_lost[B],indirectly_lost[B],possibly_lost[B],still_reachable[B],suppressed[B]," # leak summary
+	printf "in_use_at_exit[B],allocs,frees,allocated[B]\n" # heap summary
+
 
 # Example:
 # $ cat perf_results/valgrind/CoastEBCDICTest-64_debug.valgrind
@@ -35,29 +35,118 @@ then
 #
 # [...]
 
-	for file in $PERF_DIR/valgrind/*-*_*.csv
+	for file in $PERF_DIR/valgrind/*-*_*.valgrind
 	do
-		# extract and set variables:
+		# summary variables about whole test
+		summary=`dirname $file`/`basename -s .valgrind $file`.summary
+
+		# extract variables from filename:
 		# 	* testname
 		#	* archbits
 		# 	* buildcfg
-		# 	* datetime
-		eval $(basename -s .csv $file |\
-		sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)/testname="\1" \
-			archbits="\2" buildcfg="\3"/')
-		datetime=`tail -2 $file | head -1 | cut -b3-`
+		basename $file | sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)\.\w\+/testname=\1\narchbits=\2\nbuildcfg=\3/' > $summary
 
-		# print CSV with additional values prepended
-		tail -1 $file | sed -e "s/^/$datetime,$testname,$archbits,$buildcfg,/"
+		##
+		# extract HEAP SUMMARY and LEAK SUMMARY values
+		#
+		sed -ne < $file '
+		/LEAK SUMMARY:$/,/^==[[:digit:]]\+==\s*$/ {
+		  /LEAK SUMMARY/n
+		  s/^==[[:digit:]]\+==\s*//
+		  / bytes /!d
+		  s/\([[:alpha:]]\) \([[:alpha:]]\)/\1_\2/
+		  s/ bytes.*//
+		  s/[, ]//g
+		  s/:/=/p
+		}
+
+		/HEAP SUMMARY:$/,/^==[[:digit:]]\+==\s*$/ {
+		  /HEAP SUMMARY/n
+		  s/^==[[:digit:]]\+==\s*//
+		  s/,//g
+		  s/in use at exit: \([[:digit:]]\+\) bytes.*/in_use_at_exit=\1/p
+		  s/total heap usage: \([[:digit:]]\+\) allocs \([[:digit:]]\+\) frees \([[:digit:]]\+\) bytes allocated.*/allocs=\1\nfrees=\2\nallocated=\3/p
+		}' |\
+
+		# sanitize: only allow variable declarations to integers, and
+		# only lower case variable names
+		grep '^[[:lower:]_]\+=[[:digit:]]\+$' >> $summary
+
+		# Example of resulting summary file:
+		#
+		#testname=CoastFoundationPerfTest
+		#archbits=64
+		#buildcfg=debug
+		#in_use_at_exit=72704
+		#allocs=1825093
+		#frees=1825092
+		#allocated=2925949417
+		#definitely_lost=0
+		#indirectly_lost=0
+		#possibly_lost=0
+		#still_reachable=72704
+		#suppressed=0
+
+		# set summary variables
+		eval `cat $summary` 
+
+		# get start time from file
+		start_time="$(cat `dirname $file`/${testname}.start_time)"
+
+		##
+		# print CSV data
+		#
+		printf "$start_time,$testname,$archbits,"
+		printf "$buildcfg,$definitely_lost,$indirectly_lost,$possibly_lost,$still_reachable,$suppressed,"
+		printf "$in_use_at_exit,$allocs,$frees,$allocated\n"
 	done
 	exit
-fi
+}
 
+
+# Measures performance of $TEST_NAMES using `valgrind`.
+#
+# Depends on:
+#   * measure_utils.sh
+#   * `valgrind`
+#   * $TEST_NAMES
+#   * $PERF_DIR
+#   * $BUILDCFG
+#   * $ARCHBITS
+#
+# Honors:
+#   * $START_TIME
+measure_performance() {
+	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force
+	build `cat $TEST_NAMES`
+	warmup `cat $TEST_NAMES`
+
+	##
+	# MEASUREMENT
+	#
+	progress "VALGRIND-BASED MEASUREMENT ..."
+	for TESTNAME in `cat $TEST_NAMES`
+	do
+		echo "#------------------------------------------------------------------------" >&2
+		echo "# Running test $TESTNAME ... ########################" >&2
+
+		# store start time which is the same for both 32/64 builds
+		echo "$START_TIME" > $PERF_DIR/valgrind/${TESTNAME}.start_time
+
+		RESULT=$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.valgrind
+		mkdir -p `dirname $RESULT`
+		touch $RESULT # needed
+		( set -x; scons $SCONSFLAGS --run-force --runparams="-x valgrind -x '--leak-check=full' -x '--log-file=$RESULT' -x '--show-leak-kinds=all' -x -v -- -all" $TESTNAME >$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
+	done
+}
+
+##
+# MAIN
+#
+
+[ -n "$DIFF_TEST" ] && { print_diff_cmd; exit; }
+$EXPORT && { export_as_csv; exit; }
+
+BUILDCFG="debug"
 get_confirmation
-
-for ARCHBITS in $ALL_ARCHBITS
-do
-	measure_with_valgrind
-done
-
-echo "# Performance measurement done. ################################" >&2
+measure_performance_for_selected_archbits

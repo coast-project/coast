@@ -1,19 +1,15 @@
 #! /bin/sh
 . `dirname $0`/lib/measure_utils.sh
-. perf/lib/time.sh
-BUILDCFG="optimized"
 
 # DIFF COMMAND
-if [ -n "$DIFF_TEST" ] then
+print_diff_cmd() {
 	echo "git diff --no-index perf_results/time/${DIFF_TEST}-32_${BUILDCFG}.csv perf_results/time/${DIFF_TEST}-64_${BUILDCFG}.csv"
-	exit
-fi
+}
 
 # EXPORT
-if $EXPORT
-then
+export_as_csv() {
 	# print CSV header
-	echo "datetime,testname,archbits,buildcfg,method,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps"
+	echo "start_time,testname,archbits,buildcfg,method,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps"
 
 # Example:
 #	$ tail -2 perf_results/time/CoastStorageTest-64_debug.csv
@@ -26,23 +22,68 @@ then
 		# 	* testname
 		#	* archbits
 		# 	* buildcfg
-		# 	* datetime
+		# 	* start_time
 		eval $(basename -s .csv $file |\
 		sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)/testname="\1" \
 			archbits="\2" buildcfg="\3"/')
-		datetime=`tail -2 $file | head -1 | cut -b3-`
+		start_time=`tail -2 $file | head -1 | sed -e 's/^# *//'`
 
 		# print CSV with additional values prepended
-		tail -1 $file | sed -e "s/^/$datetime,$testname,$archbits,$buildcfg,/"
+		tail -1 $file | sed -e "s/^/$start_time,$testname,$archbits,$buildcfg,/"
 	done
-	exit
-fi
+}
 
+# Measures performance of $TEST_NAMES using `time`.
+#
+# Depends on:
+#   * common.sh
+#   * `time`
+#   * $TEST_NAMES
+#   * $PERF_DIR
+#   * $BUILDCFG
+#   * $ARCHBITS
+#   * $NTIMES
+#
+# Honors:
+#   * $START_TIME
+#   * $TIMES
+measure_performance() {
+
+	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force 
+	TIMES=${TIMES:-20} # number of times to run each test
+
+	build `cat $TEST_NAMES`
+	warmup `cat $TEST_NAMES`
+
+	##
+	# MEASUREMENT
+	#
+	progress "TIME-BASED MEASUREMENT ..."
+	for TESTNAME in `cat $TEST_NAMES`
+	do
+		echo "#------------------------------------------------------------------------" >&2
+		echo "# Running test $TESTNAME ... ########################" >&2
+		TIME_RESULT=$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.csv
+		mkdir -p `dirname $TIME_RESULT`
+
+		# write CSV header if file doesn't exist yet
+		if [ ! -e $TIME_RESULT ];
+		then
+			echo "start_time,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps" > $TIME_RESULT
+		fi
+
+		# run test n times and log statistics
+		( set -x; scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '$START_TIME,%U,%S,%e,%P,%M,%t,%D,%p,%W' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x $TIMES -- -all" $TESTNAME >$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
+	done
+}
+
+##
+# MAIN
+#
+
+[ -n "$DIFF_TEST" ] && { print_diff_cmd; exit; }
+$EXPORT && { export_as_csv; exit; }
+
+BUILDCFG="optimized"
 get_confirmation
-
-for ARCHBITS in $ALL_ARCHBITS
-do
-	measure_with_time
-done
-
-echo "# Performance measurement done. ################################" >&2
+measure_performance_for_selected_archbits

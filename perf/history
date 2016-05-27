@@ -3,16 +3,50 @@
 ##
 # defaults
 #
-MAX_COUNT="${MAX_COUNT:-12}" # number of commits
-METHOD="${METHOD:-time}"     # measurement method
+MAX_COUNT=16             # number of commits
+METHOD=time              # measurement method
+COMMITS_FROM_STDIN=false # whether to get commits to be built from STDIN
 
+# Shows usage in a pager.
 show_usage() {
-	cat <<EOF | less --quit-if-one-screen
+	cat <<EOF | ${PAGER:-less --quit-if-one-screen}
 SYNOPSIS
-	$0 [--method=METHOD] [--max-count=N] commit-ish...
+	(1) $0 [--method=METHOD] [--max-count=N] <commit>...
+	(2) $0 [--method=METHOD] --stdin
 
 The purpose of this script is to generate a history of performance measurement
 results across a given commit range.
+
+
+BUILD TIME
+----------
+By default, this utility works in bisect fashion and limits the number of
+commits to be built to save build time.
+
+As an example, instead of building (*) all commits of a given range,
+
+      ************************************************************************
+
+some are skipped (.) as shown here:
+
+      *......*........*........*........*.........*........*.........*.......*
+
+The others are skipped with the idea that the results can be interpolated.
+
+
+USAGE
+-----
+(1) The <commit> argument as it is understood by git-rev-list.
+    Useful for commit ranges.
+
+(2) Useful when a specific list of commits (not a range) should be measured or
+    other functionality of git-rev-list is needed.
+    Example:
+
+      git-rev-list --reverse master...feature1 -- only/here/ | $0 --stdin
+
+    This would otherwise be impossible without emulating more of git-rev-list's
+    functionality.
 
 
 ALGORITHM
@@ -54,17 +88,22 @@ FILES AND DIRECTORIES
 
 OPTIONS
 -------
-	-h --help		show this help and exit
-	-m --method=METHOD	(default: $METHOD) time, perf, valgrind, or massif
-	-n --max-count=N	(default: $MAX_COUNT) maximum # of commits to measure
+	-h --help            show this help and exit
+	-m --method=METHOD   (default: $METHOD) time, perf, valgrind, or massif
+	-n --max-count=N     (default: $MAX_COUNT) max. # of commits to measure,
+			     or 0 to build all commits
+	   --stdin           take commit list from STDIN, disable max. # commits
 
+If --stdin is not given, it makes sense to pass roughly a power
+of two to --max-count if you want the number of skipped, consecutive commits
+not to differ too much.
 
 For details about the performance measurement ("method") scripts, read the
 usage of the lower-level script(s):
 
 	`dirname $0`/with_* --help
 
-About commit-ish: Consult the manpage if unsure how to specify commit ranges:
+About <commit>...: Consult the manpage if unsure how to specify commit ranges:
 
 	man gitrevisions
 
@@ -88,7 +127,7 @@ EOF
 }
 
 # check and reorder arguments (options first, then arguments)
-set -- $(getopt --unquoted -o hm:n: -l help,method:,max-count: -- "$@")
+set -- $(getopt --unquoted -o hm:n: -l help,method:,max-count:,stdin -- "$@")
 while [ -n "$1" ]
 do
 	case "$1" in
@@ -98,11 +137,21 @@ do
 		;;
 	-n|--max-count)
 		MAX_COUNT="$2"
+		[ "$MAX_COUNT" = "0" ] && MAX_COUNT= # skip no commits
 		shift 2
 		;;
 	-m|--method)
 		METHOD="$2"
 		shift 2
+		;;
+	--stdin)
+		# option for git rev-list to avoid walking the history when
+		# given a list of commits (instead of a commit range)
+		COMMITS_FROM_STDIN=true
+
+		# disable maximum number of commits
+		MAX_COUNT=
+		shift
 		;;
 	--)
 		shift
@@ -137,31 +186,48 @@ if [ -z "$ALL_ARCHBITS" ]
 then
 	if uname -m | grep -q "x86_64"
 	then
-		export ALL_ARCHBITS="64"
+		ALL_ARCHBITS="64"
 	else
-		export ALL_ARCHBITS="32"
+		ALL_ARCHBITS="32"
 	fi
 fi
+export ALL_ARCHBITS
 
 ##
-# get set of commits
+# GET SET OF COMMITS
 #
 HISTORY_DIR="$(mktemp -d "history-`date +%Y%m%d`-XXXXXX")"
 echo "New history directory: $HISTORY_DIR" >&2
 COMMITS="$HISTORY_DIR/commits.txt"
-git rev-list --bisect-all --max-count $MAX_COUNT \
-	--pretty=format:"%H %at (%ar) by %an: %s"  "$@" | \
 
-# remove unwanted lines (not part of the specified format. git bug?) \
-grep -v '^commit ' | \
+if $COMMITS_FROM_STDIN
+then
+	# take list of commits from STDIN, just decorate them with additional
+	# information
+	git rev-list --stdin --no-walk > $COMMITS \
+		--pretty=format:"%h %at (%ar) by %an: %s"
 
-# sort by timestamp
-sort -nk2 > $COMMITS
+else
+	# determine list of commits based on the given commit ranges,
+	# in bisect fashion with possible limit
+	git rev-list --bisect-all ${MAX_COUNT:+--max-count=$MAX_COUNT} "$@" \
+
+	# cut away distance property, e.g. "ab4fcea7 (dist=3)" => "ab4fcea7"
+	grep -o '^[[:xdigit:]]\+' | \
+
+	# sort by topology, print older ones first, and decorate
+	git rev-list --stdin --topo-order --no-walk --reverse \
+		--pretty=format:"%h %at (%ar) by %an: %s" | \
+
+	# remove unwanted lines (not part of the specified format. git bug?)
+	# and redirect to file
+	grep -v '^commit ' > $COMMITS
+fi
 
 
 # print summary and get confirmation to proceed
 {
-	echo "These are the commits that to be built and measured:" >&2
+	echo "These are the commits to be built and measured:" >&2
 	echo
 	cat $COMMITS
 	echo "(`wc -l < $COMMITS` commits in total)"
@@ -174,8 +240,8 @@ sort -nk2 > $COMMITS
 	else
 		echo "\t\$TEST_NAMES=\"$TEST_NAMES\""
 	fi
-} | less --quit-if-one-screen
-printf "Press Enter to proceed, or ^C to cancel ..." >&2
+} | ${PAGER:-less --quit-if-one-screen}
+printf "Press Enter to proceed, or ^C to abort ..." >&2
 read confirmation
 [ -z "$confirmation" ] || exit 1
 

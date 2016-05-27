@@ -10,6 +10,7 @@
 #include "SystemLog.h"
 #include "Socket.h"
 #include "Tracer.h"
+#include <stdint.h>
 #if !defined(WIN32)
 #include <arpa/inet.h>		// for inet_ntop gethostbyname etc.
 #include <netdb.h>			// for gethostbyname etc.
@@ -67,7 +68,7 @@ public:
 	ROAnything getAliases() const { return fAliases; }
 
 	bool DNS2IP(String &ipAddress, const String &dnsName);
-	bool IP2DNS(const String &ipAddress, unsigned long addr);
+	bool IP2DNS(const String &ipAddress, uint32_t addr);
 };
 
 String Resolver::DNS2IPAddress( const String &dnsName, const String &dflt )
@@ -228,7 +229,7 @@ bool LinuxResolver::DNS2IP(String &ipAddress, const String &dnsName)
 	return false;
 }
 
-bool LinuxResolver::IP2DNS(const String &ipAddress, unsigned long addr)
+bool LinuxResolver::IP2DNS(const String &ipAddress, uint32_t addr)
 {
 	StartTrace1(Resolver.IP2DNS, "<linux> ip [" << ipAddress << "]");
 	struct hostent he;

@@ -4,10 +4,38 @@
 BUILDCFG="optimized"
 
 # DIFF COMMAND
-if [ -n "$DIFF_TEST" ]
-then
+if [ -n "$DIFF_TEST" ] then
 	echo "git diff --no-index perf_results/time/${DIFF_TEST}-32_${BUILDCFG}.csv perf_results/time/${DIFF_TEST}-64_${BUILDCFG}.csv"
-	exit 0
+	exit
+fi
+
+# EXPORT
+if $EXPORT
+then
+	# print CSV header
+	echo "datetime,testname,archbits,buildcfg,method,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps"
+
+# Example:
+#	$ tail -2 perf_results/time/CoastStorageTest-64_debug.csv
+#	# Fri Apr 22 17:54:34 CEST 2016
+#	4.79,0.22,5.07,98%,73096,0,0,0,0
+
+	for file in $PERF_DIR/time/*-*_*.csv
+	do
+		# extract and set variables:
+		# 	* testname
+		#	* archbits
+		# 	* buildcfg
+		# 	* datetime
+		eval $(basename -s .csv $file |\
+		sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)/testname="\1" \
+			archbits="\2" buildcfg="\3"/')
+		datetime=`tail -2 $file | head -1 | cut -b3-`
+
+		# print CSV with additional values prepended
+		tail -1 $file | sed -e "s/^/$datetime,$testname,$archbits,$buildcfg,/"
+	done
+	exit
 fi
 
 get_confirmation

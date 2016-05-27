@@ -1,0 +1,213 @@
+#!/bin/sh
+
+##
+# defaults
+#
+MAX_COUNT="${MAX_COUNT:-12}" # number of commits
+METHOD="${METHOD:-time}"     # measurement method
+
+show_usage() {
+	cat <<EOF | less --quit-if-one-screen
+SYNOPSIS
+	$0 [--method=METHOD] [--max-count=N] commit-ish...
+
+The purpose of this script is to generate a history of performance measurement
+results across a given commit range.
+
+
+ALGORITHM
+---------
+1) Parse options and determine set of commits of interest.
+2) Print summary of what it's about to do.
+3) Get confirmation from the user.
+4) Create a new directory "./history-YYYYMMDD-XXXXXX"
+4) For each commit:
+	a) Create result directory ("./history-YYYYMMDD-XXXXXX/<commit>/")
+	b) Checkout commit
+	a) Run the selected METHOD tool
+	   This builds, runs, measures, and saves results.
+	b) Run it again with --export
+	   This extracts interesting values.
+5) Accumulate the result to a CSV file
+
+YYYYMMDD is the current date. The X's in "XXXXX" are randomly chosen once per
+run.
+
+
+FILES AND DIRECTORIES
+---------------------
+* history-YYYYMMDD-XXXXXX/commits.txt
+	a list of commits that were built and measured
+
+* history-YYYYMMDD-XXXXXX/<commit>/
+	a directory for each commit, containing the results of METHOD
+
+* history-YYYYMMDD-XXXXXX/<commit>/method.log
+	the output of the measurement script (for diagnostics)
+
+* history-YYYYMMDD-XXXXXX/<commit>/result.csv
+	the performance result of one commit
+
+* history-YYYYMMDD-XXXXXX/result.csv
+	the accumulated results of all commits as CSV
+
+
+OPTIONS
+-------
+	-h --help		show this help and exit
+	-m --method=METHOD	(default: $METHOD) time, perf, valgrind, or massif
+	-n --max-count=N	(default: $MAX_COUNT) maximum # of commits to measure
+
+
+For details about the performance measurement ("method") scripts, read the
+usage of the lower-level script(s):
+
+	`dirname $0`/with_* --help
+
+About commit-ish: Consult the manpage if unsure how to specify commit ranges:
+
+	man gitrevisions
+
+
+PREREQUISITES
+-------------
+	* virtual ENV for COAST has to be activated already
+
+
+ENVIRONMENT VARIABLES
+---------------------
+Honored env vars are:
+
+* ALL_ARCHBITS
+	Defaults to the platform's hardware (either "32" or "64").
+	But could be e.g. "64 32" to compare both 64-bit and 32-bit over time.
+* TEST_NAMES
+	File containing test names to build, run, and measure.
+	Defaults to a list of core tests.
+EOF
+}
+
+# check and reorder arguments (options first, then arguments)
+set -- $(getopt --unquoted -o hm:n: -l help,method:,max-count: -- "$@")
+while [ -n "$1" ]
+do
+	case "$1" in
+	-h|--help)
+		show_usage
+		exit 0
+		;;
+	-n|--max-count)
+		MAX_COUNT="$2"
+		shift 2
+		;;
+	-m|--method)
+		METHOD="$2"
+		shift 2
+		;;
+	--)
+		shift
+		# set shell's positional parameters to the remaining arguments
+		# (commit range)
+		set -- "$@"
+		break
+	esac
+done
+
+# check existence of performance measurement ("method") script
+METHOD_SCRIPT=`dirname $0`/with_${METHOD}
+if [ ! -e "$METHOD_SCRIPT" ]
+then
+	echo "Measurement script doesn't exist: $METHOD_SCRIPT" >&2
+	exit 1
+fi
+
+# working tree must not be dirty
+if ! git diff --quiet
+then
+	echo "Git working tree must not be dirty." >&2
+	exit 1
+fi
+
+# remember current branch for restore later
+BRANCH_WAS=`git symbolic-ref HEAD | sed -e 's!refs/heads/!!'`
+
+# determine current machine architecture and make it the default
+# (no need to compile for 32-bit AND 64-bit by default)
+if [ -z "$ALL_ARCHBITS" ]
+then
+	if uname -m | grep -q "x86_64"
+	then
+		export ALL_ARCHBITS="64"
+	else
+		export ALL_ARCHBITS="32"
+	fi
+fi
+
+##
+# get set of commits
+#
+HISTORY_DIR="$(mktemp -d "history-`date +%Y%m%d`-XXXXXX")"
+echo "New history directory: $HISTORY_DIR" >&2
+COMMITS="$HISTORY_DIR/commits.txt"
+git rev-list --bisect-all --max-count $MAX_COUNT \
+	--pretty=format:"%H %at (%ar) by %an: %s"  "$@" | \
+
+# remove unwanted lines (not part of the specified format. git bug?) \
+grep -v '^commit ' | \
+
+# sort by timestamp
+sort -nk2 > $COMMITS
+
+
+# print summary and get confirmation to proceed
+{
+	echo "These are the commits that to be built and measured:" >&2
+	echo
+	cat $COMMITS
+	echo "(`wc -l < $COMMITS` commits in total)"
+	echo
+	echo "The following influential env vars are set:"
+	echo "\t\$ALL_ARCHBITS=\"$ALL_ARCHBITS\""
+	if [ -z "$TEST_NAMES" ]
+	then
+		echo "\t\$TEST_NAMES=\"$TEST_NAMES\" (all predefined core tests)"
+	else
+		echo "\t\$TEST_NAMES=\"$TEST_NAMES\""
+	fi
+} | less --quit-if-one-screen
+printf "Press Enter to proceed, or ^C to cancel ..." >&2
+read confirmation
+[ -z "$confirmation" ] || exit 1
+
+##
+# CREATE PERFORMANCE HISTORY
+#
+ACC_RESULT="$HISTORY_DIR/result.csv" # accumulated result
+cat $COMMITS | while read commit _rest
+do
+	echo "Building and measuring commit $commit ..." >&2
+	export PERF_DIR="$HISTORY_DIR/$commit"
+	mkdir $PERF_DIR
+	git checkout $commit
+
+	# run selected measurement script (builds and runs test(s))
+	if ! $METHOD_SCRIPT > $PERF_DIR/method.log
+		echo "Performance measurement for commit $commit failed." >&2
+		echo "Check the log file: $PERF_DIR/method.log"
+		continue
+	fi
+
+	# export interesting values
+	$METHOD_SCRIPT --export > $PERF_DIR/result.csv
+
+	# create file with CSV header if it doesn't exist yet
+	[ -e "$ACC_RESULT" ] || head -1 $PERF_DIR/result.csv > $ACC_RESULT
+
+	# append commit performance result to accumulated result
+	tail -n +2 $PERF_DIR/result.csv >> $ACC_RESULT
+done
+
+# restore branch tip
+git checkout "$BRANCH_WAS"
+
+# vim: ft=sh

@@ -64,7 +64,7 @@ measure_performance() {
 		warmup $TESTNAME || continue
 
 		log="$PERF_DIR/perf_stat/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
-		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x perf -x stat -x -d -x '-o$RESULT' -x '-r 20' -- -all" $TESTNAME > $log2>&1
+		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x perf -x stat -x -d -x '-o$RESULT' -x '-r 20' -- -all" $TESTNAME > $log 2>&1
 		then
 			measurement_successful $TESTNAME
 		else

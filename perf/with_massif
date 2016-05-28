@@ -4,8 +4,7 @@ which valgrind >/dev/null || { echo "No valgrind found." >&2; exit 1; }
 
 # DIFF COMMAND
 print_diff_cmd() {
-	echo "git diff --no-index perf_results/massif/${DIFF_TEST}-32_${BUILDCFG}.massif perf_results/massif/${DIFF_TEST}-64_${BUILDCFG}.massif"
-	exit 0
+	echo "vim -d perf_results/massif/${DIFF_TEST}-32_${BUILDCFG}.massif perf_results/massif/${DIFF_TEST}-64_${BUILDCFG}.massif"
 }
 
 # EXPORT

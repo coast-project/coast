@@ -50,8 +50,8 @@ measure_performance() {
 # MAIN
 #
 
+BUILDCFG="optimized"
 [ -n "$DIFF_TEST" ] && { print_diff_cmd; exit; }
 $EXPORT && { export_as_csv; exit $?; }
 
-BUILDCFG="optimized"
 measure_performance_for_selected_archbits

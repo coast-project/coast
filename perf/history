@@ -1,4 +1,5 @@
 #!/bin/sh
+# vim: ft=sh
 
 ##
 # defaults
@@ -9,7 +10,7 @@ COMMITS_FROM_STDIN=false # whether to get commits to be built from STDIN
 
 # Shows usage in a pager.
 show_usage() {
-	cat <<EOF | ${PAGER:-less --quit-if-one-screen}
+	${PAGER:-less --quit-if-one-screen} <<EOF
 SYNOPSIS
 	(1) $0 [--method=METHOD] [--max-count=N] <commit>...
 	(2) $0 [--method=METHOD] --stdin
@@ -85,6 +86,9 @@ FILES AND DIRECTORIES
 * history-YYYYMMDD-XXXXXX/result.csv
 	the accumulated results of all commits as CSV
 
+* history-YYYYMMDD-XXXXXX/test_names.txt
+	list of tests to be built and measured for each commit
+
 
 OPTIONS
 -------
@@ -122,9 +126,39 @@ Honored env vars are:
 	But could be e.g. "64 32" to compare both 64-bit and 32-bit over time.
 * TEST_NAMES
 	File containing test names to build, run, and measure.
-	Defaults to a list of core tests.
+	Defaults to a list of predefined core tests.
 EOF
 }
+
+# Informs about the given commit being measured.
+start() {
+	echo "#------------------------------------------------------------------------" >&2
+	echo "Building and measuring commit $1 ..." >&2
+	echo "Commit description: $2" >&2
+}
+
+# Informs that the measurement of the given commit has been successful and counts
+# that.
+#
+# Depends on:
+#   * $SUCCESSFUL_MEASUREMENTS
+measurement_successful() {
+	echo "# Measured commit $1 successfully. ########################" >&2
+	SUCCESSFUL_MEASUREMENTS="`expr $SUCCESSFUL_MEASUREMENTS + 1`"
+}
+
+# Informs that the measurement of the given commit has failed and counts that.
+#
+# Depends on:
+#   * $1 = test name
+#   * $2 = log file for diagnostics
+#   * $FAILED_MEASUREMENTS
+measurement_failed() {
+	echo "#!!! Measurement of commit $1 failed." >&2
+	echo "#!!! For diagnostics, check the log: $2" >&2
+	FAILED_MEASUREMENTS="`expr $FAILED_MEASUREMENTS + 1`"
+}
+
 
 # check and reorder arguments (options first, then arguments)
 set -- $(getopt --unquoted -o hm:n: -l help,method:,max-count:,stdin -- "$@")
@@ -162,8 +196,15 @@ do
 	esac
 done
 
+# ensure commit ranges have been supplied
+if [ "$#" -eq 0 ]
+then
+	echo "No commit ranges specified. Use --help for help." >&2
+	exit 1
+fi
+
 # check existence of performance measurement ("method") script
-METHOD_SCRIPT=`dirname $0`/with_${METHOD}
+METHOD_SCRIPT="`dirname $0`/with_${METHOD}"
 if [ ! -e "$METHOD_SCRIPT" ]
 then
 	echo "Measurement script doesn't exist: $METHOD_SCRIPT" >&2
@@ -193,11 +234,11 @@ then
 fi
 export ALL_ARCHBITS
 
+
 ##
 # GET SET OF COMMITS
 #
-HISTORY_DIR="$(mktemp -d "history-`date +%Y%m%d`-XXXXXX")"
-echo "New history directory: $HISTORY_DIR" >&2
+HISTORY_DIR="$(realpath $(mktemp -d "history-`date +%Y%m%d`-XXXXXX"))"
 COMMITS="$HISTORY_DIR/commits.txt"
 
 if $COMMITS_FROM_STDIN
@@ -205,19 +246,19 @@ then
 	# take list of commits from STDIN, just decorate them with additional
 	# information
 	git rev-list --stdin --no-walk > $COMMITS \
-		--pretty=format:"%h %at (%ar) by %an: %s"
+		--pretty=format:"%h (%ar) by %an: %s"
 
 else
 	# determine list of commits based on the given commit ranges,
 	# in bisect fashion with possible limit
-	git rev-list --bisect-all ${MAX_COUNT:+--max-count=$MAX_COUNT} "$@" \
+	git rev-list --bisect-all ${MAX_COUNT:+--max-count=$MAX_COUNT} "$@" |\
 
 	# cut away distance property, e.g. "ab4fcea7 (dist=3)" => "ab4fcea7"
 	grep -o '^[[:xdigit:]]\+' | \
 
 	# sort by topology, print older ones first, and decorate
 	git rev-list --stdin --topo-order --no-walk --reverse \
-		--pretty=format:"%h %at (%ar) by %an: %s" | \
+		--pretty=format:"%h (%ar) by %an: %s" | \
 
 	# remove unwanted lines (not part of the specified format. git bug?)
 	# and redirect to file
@@ -225,57 +266,97 @@ else
 fi
 
 
+##
+# GET SET OF TEST NAMES
+#
+if [ -z "$TEST_NAMES" ]
+then
+	# copy list of predefined core tests
+	cp `dirname $0`/lib/core_tests.txt $HISTORY_DIR/test_names.txt
+else
+	# copy explicitly given file
+	cp "$TEST_NAMES" $HISTORY_DIR/test_names.txt
+fi
+TEST_NAMES=$HISTORY_DIR/test_names.txt
+
+
 # print summary and get confirmation to proceed
-{
-	echo "These are the commits to be built and measured:" >&2
+(
+	echo "New history directory:\n\t$HISTORY_DIR"
 	echo
-	cat $COMMITS
+	echo "Using the following measurement method:\n\t$METHOD_SCRIPT"
+	echo
+	echo "These are the commits to be built and measured:"
+	sed 's/^/\t/' < $COMMITS
 	echo "(`wc -l < $COMMITS` commits in total)"
 	echo
 	echo "The following influential env vars are set:"
 	echo "\t\$ALL_ARCHBITS=\"$ALL_ARCHBITS\""
-	if [ -z "$TEST_NAMES" ]
-	then
-		echo "\t\$TEST_NAMES=\"$TEST_NAMES\" (all predefined core tests)"
-	else
-		echo "\t\$TEST_NAMES=\"$TEST_NAMES\""
-	fi
+	echo "\t\$TEST_NAMES=\"$TEST_NAMES\""
+	echo "\tThe tests are:"
+	for t in `cat $TEST_NAMES`; do echo "\t\t$t"; done
 	echo
 	echo "(Please quit the pager if it's still running.)"
-} | ${PAGER:-less --quit-if-one-screen}
+) | ${PAGER:-less --quit-if-one-screen}
 printf "Press Enter to proceed, or ^C to abort..." >&2
 read confirmation
 [ -z "$confirmation" ] || exit 1
+
+
+##
+# FREEZE SCRIPTS
+#
+# This is needed because we're checking out older versions of COAST. We wanna
+# be using the newest revision of the scripts for every commit.
+#
+cp $METHOD_SCRIPT $HISTORY_DIR/
+METHOD_SCRIPT="$HISTORY_DIR/`basename $METHOD_SCRIPT`"
+cp -r `dirname $0`/lib $HISTORY_DIR/
 
 ##
 # CREATE PERFORMANCE HISTORY
 #
 ACC_RESULT="$HISTORY_DIR/result.csv" # accumulated result
-cat $COMMITS | while read commit _rest
+FAILED_MEASUREMENTS=0
+SUCCESSFUL_MEASUREMENTS=0
+
+set -e # abort on first untested error
+
+while read commit commit_description
 do
-	echo "Building and measuring commit $commit ..." >&2
+	start "$commit" "$commit_description"
+
 	export PERF_DIR="$HISTORY_DIR/$commit"
 	mkdir $PERF_DIR
-	git checkout $commit
+	git checkout --quiet $commit
 
 	# run selected measurement script (builds and runs test(s))
-	if ! $METHOD_SCRIPT > $PERF_DIR/method.log
-		echo "Performance measurement for commit $commit failed." >&2
-		echo "Check the log file: $PERF_DIR/method.log"
-		continue
-	fi
+	log="$PERF_DIR/method.log"
+	( $METHOD_SCRIPT > $log 2>&1 ) || { measurement_failed $commit $log; continue; }
 
 	# export interesting values
 	$METHOD_SCRIPT --export > $PERF_DIR/result.csv
 
 	# create file with CSV header if it doesn't exist yet
-	[ -e "$ACC_RESULT" ] || head -1 $PERF_DIR/result.csv > $ACC_RESULT
+	[ -e "$ACC_RESULT" ] || \
+		head -1 $PERF_DIR/result.csv | sed s/^/commit,/ > $ACC_RESULT
 
 	# append commit performance result to accumulated result
-	tail -n +2 $PERF_DIR/result.csv >> $ACC_RESULT
-done
+	tail -n +2 $PERF_DIR/result.csv | sed s/^/$commit,/ >> $ACC_RESULT
+
+	measurement_successful $commit
+done < $COMMITS
+
+##
+# FINISH
+#
+
+# print statistics
+echo "######  PERFORMANCE HISTORY MEASUREMENT STATISTICS #############" >&2
+echo "#" >&2
+echo "# $FAILED_MEASUREMENTS commits failed during measurement." >&2
+echo "# $SUCCESSFUL_MEASUREMENTS commits have been measured successfully." >&2
+echo "# Accumulated result: $ACC_RESULT" >&2
 
 # restore branch tip
-git checkout "$BRANCH_WAS"
-
-# vim: ft=sh
+git checkout --quiet "$BRANCH_WAS"

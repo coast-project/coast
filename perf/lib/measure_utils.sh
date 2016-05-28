@@ -6,7 +6,7 @@
 
 # Shows the one-size-fits-all usage for performance measurement scripts.
 show_usage() {
-	cat <<EOF | ${PAGER:-less --quit-if-one-screen}
+	${PAGER:-less --quit-if-one-screen} <<EOF
 SYNOPSIS
 --------
 	(1) $0
@@ -145,8 +145,9 @@ measure_performance_for_selected_archbits() {
 	echo "#" >&2
 	echo "# Performance measurement done. ################################" >&2
 
-	[ "$FAILED_MEASUREMENTS" -gt 0 -o "$FAILED_WARMUPS" -gt 0 ] && exit 1
-	exit
+	[ "$FAILED_MEASUREMENTS" -gt 0 ] && exit 1
+	[ "$FAILED_WARMUPS"      -gt 0 ] && exit 1
+	exit 0
 }
 
 # Informs about the given test being measured.
@@ -180,9 +181,7 @@ measurement_failed() {
 # Logs command (set -x style) and returns its exit code.
 log_cmd() (
 	set -x
-	"$@"; exit_code=$?
-	set +x
-	return $exit_code
+	"$@"
 )
 
 ##
@@ -261,7 +260,9 @@ NTIMES="$(realpath -e `dirname $0`/lib/ntimes)"
 
 PERF_DIR="${PERF_DIR:-"$PWD/perf_results"}"
 mkdir -p $PERF_DIR
-cd `dirname $0`/.. # root directory of COAST
+
+# go to root directory of COAST
+cd `dirname $0`; until [ -e SConstruct ]; do cd ..; done
 
 # determine list of tests if none have been passed
 if [ -z "$TEST_NAMES" ]

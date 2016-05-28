@@ -45,7 +45,6 @@ measure_performance() {
 		else
 			measurement_failed $TESTNAME $log
 		fi
-
 	done
 }
 

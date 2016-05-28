@@ -77,7 +77,7 @@ measure_performance() {
 
 		# run test n times and log statistics
 		log="$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
-		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '\"$START_TIME,$TIMES,%U,%S,%e,%P,%M,%t,%D,%p,%W\"' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x $TIMES -- -all" $TESTNAME > $log >&2
+		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '\"$START_TIME,$TIMES,%U,%S,%e,%P,%M,%t,%D,%p,%W\"' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x $TIMES -- -all" $TESTNAME > $log 2>&1
 		then
 			measurement_successful $TESTNAME
 		else

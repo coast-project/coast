@@ -137,6 +137,7 @@ measure_performance_for_selected_archbits() {
 		measure_performance
 	done
 
+	echo "############  MEASUREMENT STATISTICS ##########################" >&2
 	echo "#" >&2
 	echo "# $FAILED_WARMUPS tests failed during warmup." >&2
 	echo "# $FAILED_MEASUREMENTS tests failed during measurement." >&2

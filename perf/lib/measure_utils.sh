@@ -74,18 +74,13 @@ cleanup() {
 }
 
 
-# Prints tests to be run and gets the confirmation from the user.
-get_confirmation() {
-	{
-		echo "# Tests to be run:  ######################################" >&2
-		sed -e 's/^/	/' $TEST_NAMES >&2
-		ntests=`wc -l < $TEST_NAMES`
-		echo "# ($ntests tests in total)  #############################" >&2
-	} | ${PAGER:-less --quit-if-one-screen}
-	echo "# Press Enter to confirm or ^C to abort..." >&2
-	read confirmation
-	[ -z "$confirmation" ] || exit 1
-}
+# Prints tests to be built and measured.
+print_plan() (
+	echo "# Tests to be run:" >&2
+	sed -e 's/^/#	/' $TEST_NAMES >&2
+	ntests=`wc -l < $TEST_NAMES`
+	echo "# ($ntests tests in total)" >&2
+)
 
 # Prints progress information and build-related variables being used on STDERR.
 progress() {
@@ -104,34 +99,89 @@ EOF
 # Build the tests given as arguments.
 build() {
 	progress "BUILDING ..."
-	( set -x; scons $SCONSFLAGS "$@" )
+	log_cmd scons $SCONSFLAGS "$@"
 }
 
-# Run warmup round for the tests given as arguments.
+# Informas about warmup of test and runs it. Counts and informs about warmup
+# failures.
 warmup() {
-	progress "WARMING UP ..."
-	for TESTNAME in "$@"
-	do
-		echo "#------------------------------------------------------------------------" >&2
-		echo "# (WARMUP) Running test $TESTNAME ... ###################################" >&2
-		( set -x; scons $SCONSFLAGS --run-force $TESTNAME)
-	done
+	echo "#------------------------------------------------------------------------" >&2
+	echo "# (WARMUP) Running test $1 ... ###################################" >&2
+	scons $SCONSFLAGS --run-force $1
+	scons_exit_code=$?
+	echo "SCons exited with code: $scons_exit_code" >&2
+	if [ "$scons_exit_code" -ne "0" ] 
+	then
+		echo "#!!! WARMUP of test $1 failed." >&2
+		FAILED_WARMUPS=`expr $FAILED_WARMUPS + 1`
+		return 1
+	fi
+	:
 }
 
-# Measures performance for selected archbits.
+# Measures performance for selected archbits, then exits with appropriate error
+# code.
 #
 # Depends on:
 #   * $ALL_ARCHBITS
 #   * measure_performance (function)
+#   * $FAILED_WARMUPS
+#   * $FAILED_MEASUREMENTS
+#   * $SUCCESSFUL_MEASUREMENTS
 measure_performance_for_selected_archbits() {
+	print_plan
+
 	for ARCHBITS in $ALL_ARCHBITS
 	do
 		measure_performance
 	done
 
+	echo "#" >&2
+	echo "# $FAILED_WARMUPS tests failed during warmup." >&2
+	echo "# $FAILED_MEASUREMENTS tests failed during measurement." >&2
+	echo "# $SUCCESSFUL_MEASUREMENTS tests have been measured successfully." >&2
+	echo "#" >&2
 	echo "# Performance measurement done. ################################" >&2
+
+	[ "$FAILED_MEASUREMENTS" -gt 0 -o "$FAILED_WARMUPS" -gt 0 ] && exit 1
+	exit
 }
 
+# Informs about the given test being measured.
+start() {
+	echo "#------------------------------------------------------------------------" >&2
+	echo "# Measuring test $1 ... ########################" >&2
+}
+
+# Informs that the measurement of the given test has been successful and counts
+# that.
+#
+# Depends on:
+#   * $SUCCESSFUL_MEASUREMENTS
+measurement_successful() {
+	echo "# Measured test $1 successfully. ########################" >&2
+	SUCCESSFUL_MEASUREMENTS=`expr $SUCCESSFUL_MEASUREMENTS + 1`
+}
+
+# Informs about a test that has failed and counts that.
+#
+# Depends on:
+#   * $1 = test name
+#   * $2 = log file for diagnostics
+#   * $FAILED_MEASUREMENTS
+measurement_failed() {
+	echo "#!!! Measurement of test $1 failed." >&2
+	echo "#!!! For diagnostics, check the log: $2" >&2
+	FAILED_MEASUREMENTS=`expr $FAILED_MEASUREMENTS + 1`
+}
+
+# Logs command (set -x style) and returns its exit code.
+log_cmd() (
+	set -x
+	"$@"; exit_code=$?
+	set +x
+	return $exit_code
+)
 
 ##
 # INIT
@@ -227,3 +277,8 @@ then
 		cat perf/lib/core_tests.txt > $TEST_NAMES
 	fi
 fi
+
+# performance measurement statistics
+FAILED_WARMUPS=0
+FAILED_MEASUREMENTS=0
+SUCCESSFUL_MEASUREMENTS=0

@@ -119,7 +119,6 @@ export_as_csv() {
 measure_performance() {
 	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force
 	build `cat $TEST_NAMES`
-	warmup `cat $TEST_NAMES`
 
 	##
 	# MEASUREMENT
@@ -127,16 +126,20 @@ measure_performance() {
 	progress "VALGRIND-BASED MEASUREMENT ..."
 	for TESTNAME in `cat $TEST_NAMES`
 	do
-		echo "#------------------------------------------------------------------------" >&2
-		echo "# Running test $TESTNAME ... ########################" >&2
-
+		start $TESTNAME
 		# store start time which is the same for both 32/64 builds
 		echo "$START_TIME" > $PERF_DIR/valgrind/${TESTNAME}.start_time
 
 		RESULT=$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.valgrind
 		mkdir -p `dirname $RESULT`
 		touch $RESULT # needed
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x valgrind -x '--leak-check=full' -x '--log-file=$RESULT' -x '--show-leak-kinds=all' -x -v -- -all" $TESTNAME >$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
+		log="$PERF_DIR/valgrind/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
+		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x valgrind -x '--leak-check=full' -x '--log-file=$RESULT' -x '--show-leak-kinds=all' -x -v -- -all" $TESTNAME > $log 2>&1
+		then
+			measurement_successful $TESTNAME
+		else
+			measurement_failed $TESTNAME $log
+		fi
 	done
 }
 
@@ -148,5 +151,4 @@ measure_performance() {
 $EXPORT && { export_as_csv; exit; }
 
 BUILDCFG="debug"
-get_confirmation
 measure_performance_for_selected_archbits

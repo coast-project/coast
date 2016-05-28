@@ -1,5 +1,6 @@
 #! /bin/sh
 . `dirname $0`/lib/measure_utils.sh
+set -e
 
 # DIFF COMMAND
 print_diff_cmd() {
@@ -7,31 +8,33 @@ print_diff_cmd() {
 }
 
 # EXPORT
-export_as_csv() {
-	# print CSV header
-	echo "start_time,testname,archbits,buildcfg,method,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps"
-
-# Example:
-#	$ tail -2 perf_results/time/CoastStorageTest-64_debug.csv
-#	# Fri Apr 22 17:54:34 CEST 2016
-#	4.79,0.22,5.07,98%,73096,0,0,0,0
+export_as_csv() (
+	# print leading part of CSV header
+	header_printed=false
+	printf "testname,archbits,buildcfg,method,"
 
 	for file in $PERF_DIR/time/*-*_*.csv
 	do
+		# finish printing header using first file
+		if ! $header_printed
+		then
+			head -1 $file
+			header_printed=true
+		fi
+
 		# extract and set variables:
 		# 	* testname
 		#	* archbits
 		# 	* buildcfg
-		# 	* start_time
 		eval $(basename -s .csv $file |\
 		sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)/testname="\1" \
 			archbits="\2" buildcfg="\3"/')
-		start_time=`tail -2 $file | head -1 | sed -e 's/^# *//'`
 
-		# print CSV with additional values prepended
-		tail -1 $file | sed -e "s/^/$start_time,$testname,$archbits,$buildcfg,/"
+		# print last CSV record (but never the header) with additional
+		# values prepended
+		tail -n +2 $file | tail -1 | sed -e "s/^/$testname,$archbits,$buildcfg,/"
 	done
-}
+)
 
 # Measures performance of $TEST_NAMES using `time`.
 #
@@ -53,7 +56,6 @@ measure_performance() {
 	TIMES=${TIMES:-20} # number of times to run each test
 
 	build `cat $TEST_NAMES`
-	warmup `cat $TEST_NAMES`
 
 	##
 	# MEASUREMENT
@@ -61,19 +63,26 @@ measure_performance() {
 	progress "TIME-BASED MEASUREMENT ..."
 	for TESTNAME in `cat $TEST_NAMES`
 	do
-		echo "#------------------------------------------------------------------------" >&2
-		echo "# Running test $TESTNAME ... ########################" >&2
+		start $TESTNAME
 		TIME_RESULT=$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.csv
 		mkdir -p `dirname $TIME_RESULT`
 
 		# write CSV header if file doesn't exist yet
-		if [ ! -e $TIME_RESULT ];
+		if [ ! -e $TIME_RESULT ]
 		then
 			echo "start_time,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps" > $TIME_RESULT
 		fi
 
+		warmup $TESTNAME || continue
+
 		# run test n times and log statistics
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '$START_TIME,%U,%S,%e,%P,%M,%t,%D,%p,%W' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x $TIMES -- -all" $TESTNAME >$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
+		log="$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
+		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '\"$START_TIME,%U,%S,%e,%P,%M,%t,%D,%p,%W\"' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x $TIMES -- -all" $TESTNAME > $log >&2
+		then
+			measurement_successful $TESTNAME
+		else
+			measurement_failed $TESTNAME $log
+		fi
 	done
 }
 
@@ -85,5 +94,4 @@ measure_performance() {
 $EXPORT && { export_as_csv; exit; }
 
 BUILDCFG="optimized"
-get_confirmation
 measure_performance_for_selected_archbits

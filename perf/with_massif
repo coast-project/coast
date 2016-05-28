@@ -29,12 +29,18 @@ measure_performance() {
 	progress "VALGRIND-MASSIF-BASED MEASUREMENT ..."
 	for TESTNAME in `cat $TEST_NAMES`
 	do
-		echo "#------------------------------------------------------------------------" >&2
-		echo "# Running test $TESTNAME ... ########################" >&2
+		start $TESTNAME
 		RESULT=$PERF_DIR/massif/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.massif
-        RUNPARAMS="-x valgrind -x '--tool=massif' -x '--time-unit=B' -x '--detailed-freq=1' -x '--massif-out-file=$RESULT'"
+		RUNPARAMS="-x valgrind -x '--tool=massif' -x '--time-unit=B' -x '--detailed-freq=1' -x '--massif-out-file=$RESULT'"
 		mkdir -p `dirname $RESULT`
-		( set -x; scons CXXFLAGS="-fPIC" $SCONSFLAGS --run-force --runparams="${RUNPARAMS} -- -all" $TESTNAME >$PERF_DIR/massif/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
+		log="$PERF_DIR/massif/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
+		if log_cmd scons CXXFLAGS="-fPIC" $SCONSFLAGS --run-force --runparams="${RUNPARAMS} -- -all" $TESTNAME > $log 2>&1
+		then
+			measurement_successful $TESTNAME
+		else
+			measurement_failed $TESTNAME $log
+		fi
+
 	done
 }
 
@@ -45,5 +51,4 @@ measure_performance() {
 [ -n "$DIFF_TEST" ] && { print_diff_cmd; exit; }
 
 BUILDCFG="optimized"
-get_confirmation
 measure_performance_for_selected_archbits

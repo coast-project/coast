@@ -240,8 +240,10 @@ fi
 	else
 		echo "\t\$TEST_NAMES=\"$TEST_NAMES\""
 	fi
+	echo
+	echo "(Please quit the pager if it's still running.)"
 } | ${PAGER:-less --quit-if-one-screen}
-printf "Press Enter to proceed, or ^C to abort ..." >&2
+printf "Press Enter to proceed, or ^C to abort..." >&2
 read confirmation
 [ -z "$confirmation" ] || exit 1
 

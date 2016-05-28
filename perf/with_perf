@@ -2,6 +2,16 @@
 . `dirname $0`/lib/measure_utils.sh
 which perf >/dev/null || { echo "No perf found." >&2; exit 1; }
 
+# DIFF COMMAND
+print_diff_cmd() {
+	echo "perf diff perf_results/perf/${DIFF_TEST}-32_${BUILDCFG}.perf perf_results/perf/${DIFF_TEST}-64_${BUILDCFG}.perf | c++filt | less"
+}
+
+# EXPORT
+export_as_csv() (
+	echo "CSV export for perf doesn't make sense. Use with_perf_stat instead." >&2
+	return 1
+)
 
 # Measures performance of $ALL_TESTS using `perf`.
 #
@@ -36,13 +46,12 @@ measure_performance() {
 	done
 }
 
+##
+# MAIN
+#
+
+[ -n "$DIFF_TEST" ] && { print_diff_cmd; exit; }
+$EXPORT && { export_as_csv; exit $?; }
+
 BUILDCFG="optimized"
-
-# DIFF COMMAND
-if [ -n "$DIFF_TEST" ]
-then
-	echo "perf diff perf_results/perf/${DIFF_TEST}-32_${BUILDCFG}.perf perf_results/perf/${DIFF_TEST}-64_${BUILDCFG}.perf | c++filt | less"
-	exit 0
-fi
-
 measure_performance_for_selected_archbits

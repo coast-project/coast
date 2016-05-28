@@ -37,6 +37,7 @@ Depending on which tool you're running, the measurement method is:
 
 	with_time	=>	time
 	with_perf	=>	perf (linux-tools)
+	with_perf_stat	=>	perf stat (linux-tools)
 	with_valgrind	=>	Valgrind
 	with_massif	=>	Valgrind massif tool
 

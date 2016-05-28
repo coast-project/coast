@@ -1,37 +1,86 @@
 #! /bin/sh
 . `dirname $0`/lib/common.sh
-BUILDCFG="optimized"
 which perf >/dev/null || { echo "No perf found." >&2; exit 1; }
 
 # DIFF COMMAND
-if [ -n "$DIFF_TEST" ]
-then
-    # TODO
+print_diff_cmd() {
+	# TODO: ???
 	echo "perf diff perf_results/perf_stat/${DIFF_TEST}-32_${BUILDCFG}.perf perf_results/perf_stat/${DIFF_TEST}-64_${BUILDCFG}.perf | c++filt | less"
 	exit 0
-fi
+}
 
-get_confirmation
+# EXPORT
+export_as_csv() (
+	# print leading part of CSV header
+	header_printed=false
+	printf "testname,archbits,buildcfg,method,"
 
-for ARCHBITS in 64 32
-do
+	for file in $PERF_DIR/perf_stat/*-*_*.csv
+	do
+		# extract and set variables:
+		# 	* testname
+		#	* archbits
+		# 	* buildcfg
+		eval $(basename -s .csv $file |\
+		sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)/testname="\1" \
+			archbits="\2" buildcfg="\3"/')
+
+		# TODO: read data from perf stat file
+
+		# print CSV data
+		printf "$testname,$archbits,$buildcfg,perf_stat,"
+		# TODO: print perf stat data
+		printf "\n"
+	done
+)
+
+# Measures performance of $TEST_NAMES using `time`.
+#
+# Depends on:
+#   * measure_utils.sh
+#   * `perf stat`
+#   * $TEST_NAMES
+#   * $PERF_DIR
+#   * $BUILDCFG
+#   * $ARCHBITS
+#
+# Honors:
+#   * $START_TIME
+measure_performance() {
 	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force 
-	build `cat $ALL_TESTS`
-	warmup `cat $ALL_TESTS`
+	build `cat $TEST_NAMES`
 
 	##
 	# MEASUREMENT
 	#
 	progress "PERF-STAT MEASUREMENT ..."
-	cat $ALL_TESTS | while read TESTNAME
+	for TESTNAME in `cat $TEST_NAMES`
 	do
-		echo "#------------------------------------------------------------------------" >&2
-		echo "# Running test $TESTNAME ... ########################" >&2
+		start $TESTNAME
 		RESULT=$PERF_DIR/perf_stat/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.perf
 		mkdir -p `dirname $RESULT`
-		#touch $RESULT # needed
-		( set -x; scons $SCONSFLAGS --run-force --runparams="-x perf -x stat -x -d -x '-o$RESULT' -x '-r 20' -- -all" $TESTNAME >$PERF_DIR/perf_stat/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log 2>&1) || { echo "Test $TESTNAME with ARCHBITS=$ARCHBITS failed." >&2; exit 1; }
-	done
-done
 
-echo "# Performance measurement done. ################################" >&2
+		# store start time which is the same for both 32/64 builds
+		echo "$START_TIME" > $PERF_DIR/perf_stat/${TESTNAME}.start_time
+
+		warmup $TESTNAME || continue
+
+		log="$PERF_DIR/perf_stat/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
+		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x perf -x stat -x -d -x '-o$RESULT' -x '-r 20' -- -all" $TESTNAME > $log2>&1
+		then
+			measurement_successful $TESTNAME
+		else
+			measurement_failed $TESTNAME $log
+		fi
+	done
+}
+
+##
+# MAIN
+#
+
+[ -n "$DIFF_TEST" ] && { print_diff_cmd; exit; }
+$EXPORT && { export_as_csv; exit; }
+
+BUILDCFG="optimized"
+measure_performance_for_selected_archbits

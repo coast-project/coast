@@ -8,6 +8,12 @@ print_diff_cmd() {
 	exit 0
 }
 
+# EXPORT
+export_as_csv() (
+	echo "CSV export for Massif doesn't make sense." >&2
+	return 1
+)
+
 # Measures performance of $TEST_NAMES using `valgrind --tool=massif`.
 #
 # Depends on:
@@ -49,6 +55,7 @@ measure_performance() {
 #
 
 [ -n "$DIFF_TEST" ] && { print_diff_cmd; exit; }
+$EXPORT && { export_as_csv; exit $?; }
 
 BUILDCFG="optimized"
 measure_performance_for_selected_archbits

@@ -89,7 +89,7 @@ FILES AND DIRECTORIES
 OPTIONS
 -------
 	-h --help            show this help and exit
-	-m --method=METHOD   (default: $METHOD) time, perf, valgrind, or massif
+	-m --method=METHOD   (default: $METHOD) time, perf_stat, or valgrind
 	-n --max-count=N     (default: $MAX_COUNT) max. # of commits to measure,
 			     or 0 to build all commits
 	   --stdin           take commit list from STDIN, disable max. # commits

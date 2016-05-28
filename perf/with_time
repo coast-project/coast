@@ -32,14 +32,14 @@ export_as_csv() (
 
 		# print last CSV record (but never the header) with additional
 		# values prepended
-		tail -n +2 $file | tail -1 | sed -e "s/^/$testname,$archbits,$buildcfg,/"
+		tail -n +2 $file | tail -1 | sed -e "s/^/$testname,$archbits,$buildcfg,time,/"
 	done
 )
 
 # Measures performance of $TEST_NAMES using `time`.
 #
 # Depends on:
-#   * common.sh
+#   * measure_utils.sh
 #   * `time`
 #   * $TEST_NAMES
 #   * $PERF_DIR
@@ -70,14 +70,14 @@ measure_performance() {
 		# write CSV header if file doesn't exist yet
 		if [ ! -e $TIME_RESULT ]
 		then
-			echo "start_time,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps" > $TIME_RESULT
+			echo "start_time,times_run,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps" > $TIME_RESULT
 		fi
 
 		warmup $TESTNAME || continue
 
 		# run test n times and log statistics
 		log="$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
-		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '\"$START_TIME,%U,%S,%e,%P,%M,%t,%D,%p,%W\"' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x $TIMES -- -all" $TESTNAME > $log >&2
+		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '\"$START_TIME,$TIMES,%U,%S,%e,%P,%M,%t,%D,%p,%W\"' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x $TIMES -- -all" $TESTNAME > $log >&2
 		then
 			measurement_successful $TESTNAME
 		else

@@ -4,9 +4,7 @@ which perf >/dev/null || { echo "No perf found." >&2; exit 1; }
 
 # DIFF COMMAND
 print_diff_cmd() {
-	# TODO: ???
-	echo "perf diff perf_results/perf_stat/${DIFF_TEST}-32_${BUILDCFG}.perf perf_results/perf_stat/${DIFF_TEST}-64_${BUILDCFG}.perf | c++filt | less"
-	exit 0
+	echo "vim -d perf_results/perf_stat/${DIFF_TEST}-32_${BUILDCFG}.perf perf_results/perf_stat/${DIFF_TEST}-64_${BUILDCFG}.perf"
 }
 
 # EXPORT

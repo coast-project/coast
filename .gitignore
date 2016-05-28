@@ -15,5 +15,17 @@
 /node_modules/
 *~
 *.pyc
-/3rdparty/
 /dummy_for_tox.egg-info/
+
+# python bytecode
+/sconsider_extensions/*.pyc
+
+# CoastRecipes
+/recipes/
+
+# additional software
+/3rdparty/
+/wdscripts/
+
+# perf history
+/perf/history-????????-??????/

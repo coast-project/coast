@@ -1,5 +1,5 @@
 #! /bin/sh
-. `dirname $0`/lib/common.sh
+. `dirname $0`/lib/measure_utils.sh
 which perf >/dev/null || { echo "No perf found." >&2; exit 1; }
 
 # DIFF COMMAND

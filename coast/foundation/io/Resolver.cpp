@@ -96,7 +96,7 @@ String Resolver::DNS2IPAddress( const String &dnsName, const String &dflt )
 String Resolver::IPAddress2DNS( const String &ipAddress, const String &dflt )
 {
 	StartTrace1(Resolver.IPAddress2DNS, "ip [" << ipAddress << "]");
-	unsigned long addr = EndPoint::MakeInetAddr(ipAddress);
+	uint32_t addr = EndPoint::MakeInetAddr(ipAddress);
 
 	SystemSpecific(Resolver) sysResolver;
 
@@ -130,7 +130,7 @@ bool SunResolver::DNS2IP(String &ipAddress, const String &dnsName)
 	return false;
 }
 
-bool SunResolver::IP2DNS(const String &ipAddress, unsigned long addr)
+bool SunResolver::IP2DNS(const String &ipAddress, uint32_t addr)
 {
 	StartTrace1(Resolver.IP2DNS, "<sun> ip [" << ipAddress << "]");
 	struct hostent result = { 0 };
@@ -165,7 +165,7 @@ bool Win32Resolver::DNS2IP(String &ipAddress, const String &dnsName)
 	return false;
 }
 
-bool Win32Resolver::IP2DNS(const String &ipAddress, unsigned long addr)
+bool Win32Resolver::IP2DNS(const String &ipAddress, uint32_t addr)
 {
 	struct hostent *hePtr;
 	if (hePtr = gethostbyaddr((char *)&addr, sizeof(addr), AF_INET)) {
@@ -192,7 +192,7 @@ bool AppleResolver::DNS2IP(String &ipAddress, const String &dnsName)
 	return false;
 }
 
-bool AppleResolver::IP2DNS(const String &ipAddress, unsigned long addr)
+bool AppleResolver::IP2DNS(const String &ipAddress, uint32_t addr)
 {
 	struct hostent *ptrHe;
 	int error_num = 0;

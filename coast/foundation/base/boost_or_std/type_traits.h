@@ -12,7 +12,7 @@ defined(USE_STD17) || defined(USE_STD1y) || defined(USE_STD1z)
 namespace boost_or_std {
 	using namespace std;
 }
-#else // USE_STD03
+#else // USE_STD03 || USE_STD98
 #include <boost/type_traits.hpp>
 namespace boost_or_std {
 	using namespace boost;

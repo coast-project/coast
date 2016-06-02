@@ -16,7 +16,7 @@ namespace boost_or_std {
 
 	using std::shared_ptr;
 }
-#else // USE_STD03
+#else // USE_STD03 || USE_STD98
 #include <boost/shared_ptr.hpp>
 #include <memory>
 namespace boost_or_std {

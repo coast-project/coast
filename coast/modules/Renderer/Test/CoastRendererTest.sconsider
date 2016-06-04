@@ -20,6 +20,8 @@ Import('*')
 hostonly, domain, fqdn = SConsider.getfqdn()
 localhostname = 'localhost'
 localhostip = socket.gethostbyname(localhostname)
+# gethostbyaddr here is to resolve potentially different 'localhost' name
+localhostname = socket.gethostbyaddr(localhostip)[0]
 
 searchReplace = {
     'FQDN': fqdn,

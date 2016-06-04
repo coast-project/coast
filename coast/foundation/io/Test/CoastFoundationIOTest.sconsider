@@ -76,8 +76,10 @@ hostonly, domain, fqdn = SConsider.getfqdn()
 faultyfqdn = 'nonexisting.server.loc'
 localhostname = 'localhost'
 localhostip = socket.gethostbyname(localhostname)
+# gethostbyaddr here is to resolve potentially different 'localhost' name
+localhostname = socket.gethostbyaddr(localhostip)[0]
 
-hosttoresolvename = 'www.hsr.ch'
+hosttoresolvename = 'entry.from.etc.hosts'
 try:
     hosttoresolveip = socket.gethostbyname(hosttoresolvename)
     hosttoresolvename = socket.gethostbyaddr(hosttoresolveip)[0]

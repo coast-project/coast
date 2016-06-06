@@ -11,18 +11,20 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
+import SConsider
+import Anything
 import os
 import re
 import sys
 import shlex
-import SConsider
-import Anything
 from stat import *
 import SomeUtils
 
 Import('*')
 
 defaults = None
+
+_sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 
 
 def ModifyConfigFiles(env, searchReplace=[], files=[]):
@@ -102,8 +104,7 @@ def setUp(target, source, env):
 def tearDown(target, source, env):
     pass
 
-_sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
-if _sconsider_dist < pkg_resources.parse_version("0.5.dev"):
+if _sconsider_dist < pkg_resources.parse_version("0.5"):
     buildSettings = {
         packagename: {
             'targetType': 'ProgramTest',

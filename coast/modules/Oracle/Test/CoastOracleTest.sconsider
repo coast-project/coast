@@ -17,18 +17,33 @@ import sys
 import SConsider
 import Anything
 from stat import *
-import SomeUtils
+from SConsider.SomeUtils import runCommand, multiple_replace, getFlatENV
 
 Import('*')
 
 defaults = None
 
+_sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
+_helperscript_target = 'oracle.script_sqlplus'
+_helperscript_argument_separator = '--'
+if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
+    _helperscript_target = 'oracle.sqlplus'
+    _helperscript_argument_separator = ''
+
+    def getRealTarget(fulltargetname):
+        from SConsider import splitTargetname
+        packagename, targetname = splitTargetname(fulltargetname)
+        return registry.getPackageTarget(packagename, targetname)
+
+    if not hasattr(registry, 'getRealTarget'):
+        registry.getRealTarget = getRealTarget
+
 
 def setUp(target, source, env):
-    target = SConsider.packageRegistry.getPackageTarget('oracle', 'sqlplus')
+    target = registry.getRealTarget(_helperscript_target)
     if not target:
-        raise SConsider.SkipTest(
-            'required sqlplus executable not found, skipping test')
+        raise SConsider.SkipTest('required ' + _helperscript_target +
+                                 ' target/executable not found, skipping test')
 
     env['ENV']['NLS_LANG'] = '.WE8ISO8859P1'
     configDir = 'backendtests/config'
@@ -63,45 +78,36 @@ def setUp(target, source, env):
 
     connectstring = "{Username1!s}/{Password1!s}@{Server!s}:{Port!s}/{sid!s}".format(
         **defaults['Oracle'])
-    res = SomeUtils.runCommand(
+    res = runCommand(
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_dropschema.sql').abspath,
-        env=SomeUtils.getFlatENV(env)
-    )
+        env=getFlatENV(env))
     if res != 0:
-        raise SConsider.SkipTest(
-            'failed to drop test schema (rc=' +
-            str(res) +
-            '), check error log')
-    res = SomeUtils.runCommand(
-        [target.abspath, '--', '-S', connectstring],
-        logpath=logDir.abspath,
-        filename=path.File('oratest_schema.sql').abspath,
-        env=SomeUtils.getFlatENV(env)
-    )
-    res = SomeUtils.runCommand(
+        raise SConsider.SkipTest('failed to drop test schema (rc=' + str(res) +
+                                 '), check error log')
+    res = runCommand([target.abspath, '--', '-S', connectstring],
+                               logpath=logDir.abspath,
+                               filename=path.File('oratest_schema.sql').abspath,
+                               env=getFlatENV(env))
+    res = runCommand(
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_grant.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env)
-    )
+        filter=lambda string: multiple_replace(searchreplacespec, string),
+        env=getFlatENV(env))
     if res != 0:
-        raise SConsider.SkipTest(
-            'failed to grant permissions (rc=' +
-            str(res) +
-            '), check error log')
+        raise SConsider.SkipTest('failed to grant permissions (rc=' + str(res) +
+                                 '), check error log')
 
     connectstring = "{Username2!s}/{Password2!s}@{Server!s}:{Port!s}/{sid!s}".format(
         **defaults['Oracle'])
-    res = SomeUtils.runCommand(
+    res = runCommand(
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_synonym.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env)
-    )
+        filter=lambda string: multiple_replace(searchreplacespec, string),
+        env=getFlatENV(env))
     if res != 0:
         raise SConsider.SkipTest(
             'failed to create synonyms (rc=' +
@@ -113,7 +119,6 @@ def tearDown(target, source, env):
     pass
 
 
-_sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
     buildSettings = {
         packagename: {
@@ -141,7 +146,7 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
             'requires': [
                 'CoastAppLog',
                 'CoastRenderers',
-                'oracle.sqlplus',
+                _helperscript_target,
             ],
             'sourceFiles': SConsider.listFiles(['backendtests/*.cpp']),
             'copyFiles': [

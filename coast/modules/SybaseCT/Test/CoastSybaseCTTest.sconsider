@@ -18,13 +18,26 @@ import re
 import sys
 import shlex
 from stat import *
-import SomeUtils
+from SConsider.SomeUtils import runCommand, replaceRegexInFile, multiple_replace, getFlatENV
 
 Import('*')
 
 defaults = None
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
+_helperscript_target = 'sybase.script_isql'
+_helperscript_argument_separator = '--'
+if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
+    _helperscript_target = 'sybase.isql'
+    _helperscript_argument_separator = ''
+
+    def getRealTarget(fulltargetname):
+        from SConsider import splitTargetname
+        packagename, targetname = splitTargetname(fulltargetname)
+        return registry.getPackageTarget(packagename, targetname)
+
+    if not hasattr(registry, 'getRealTarget'):
+        registry.getRealTarget = getRealTarget
 
 
 def ModifyConfigFiles(env, searchReplace=[], files=[]):
@@ -35,15 +48,15 @@ def ModifyConfigFiles(env, searchReplace=[], files=[]):
             # set writable
             os.chmod(fname, oldmode | S_IWUSR)
             # replace tokens in file
-            SomeUtils.replaceRegexInFile(fname, searchReplace)
+            replaceRegexInFile(fname, searchReplace)
             os.chmod(fname, oldmode)
 
 
 def setUp(target, source, env):
-    target = SConsider.packageRegistry.getPackageTarget('sybase', 'isql')
+    target = registry.getRealTarget(_helperscript_target)
     if not target:
-        raise SConsider.SkipTest(
-            'required isql executable not found, skipping test')
+        raise SConsider.SkipTest('required ' + _helperscript_target +
+                                 ' target/executable not found, skipping test')
 
     relDir = env.getTargetBaseInstallDir()
     logDir = env.getLogInstallDir()
@@ -74,26 +87,26 @@ def setUp(target, source, env):
             matchfiles=['interfaces']))
 
     command = [target.abspath]
-    command.extend(shlex.split(
-        "-U {Username!s} -P {Password!s} -S {Server!s}".format(**defaults['Sybase'])))
+    command.extend(
+        shlex.split(_helperscript_argument_separator +
+                    " -U {Username!s} -P {Password!s} -S {Server!s}".format(
+                        **defaults['Sybase'])))
     command.extend(['-I', configdir.File('interfaces').abspath])
-    res = SomeUtils.runCommand(
-        command, logpath=logDir.abspath, filename=configdir.File(
-            'dropPub2.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(
-            searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env))
+    res = runCommand(
+        command,
+        logpath=logDir.abspath,
+        filename=configdir.File('dropPub2.sql').abspath,
+        filter=lambda string: multiple_replace(searchreplacespec, string),
+        env=getFlatENV(env))
     if res != 0:
-        raise SConsider.SkipTest(
-            'failed to drop test database (rc=' +
-            str(res) +
-            '), check error log')
-    res = SomeUtils.runCommand(
-        command, logpath=logDir.abspath, filename=configdir.File(
-            'createPub2.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(
-            searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env))
+        raise SConsider.SkipTest('failed to drop test database (rc=' + str(res)
+                                 + '), check error log')
+    res = runCommand(
+        command,
+        logpath=logDir.abspath,
+        filename=configdir.File('createPub2.sql').abspath,
+        filter=lambda string: multiple_replace(searchreplacespec, string),
+        env=getFlatENV(env))
     if res != 0:
         raise SConsider.SkipTest(
             'failed to create test database (rc=' +
@@ -114,7 +127,7 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
             ],
             'requires': [
                 'CoastActions',
-                SConsider.generateFulltargetname('sybase', 'isql'),
+                _helperscript_target,
             ],
             'sourceFiles': SConsider.listFiles(['*.cpp']),
             'copyFiles': [

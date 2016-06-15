@@ -20,11 +20,24 @@ import threading
 import shutil
 import ServerExtensions
 from OpenSSL import crypto, SSL
-import SomeUtils
+from SConsider.SomeUtils import runCommand, replaceRegexInFile
 
 Import('*')
 
 defaults = None
+
+_sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
+_helperscriptTarget = 'openssl.script_openssl'
+if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
+    _helperscriptTarget = 'openssl.openSSL'
+
+    def getRealTarget(fulltargetname):
+        from SConsider import splitTargetname
+        packagename, targetname = splitTargetname(fulltargetname)
+        return registry.getPackageTarget(packagename, targetname)
+
+    if not hasattr(registry, 'getRealTarget'):
+        registry.getRealTarget = getRealTarget
 
 hostonly, domain, fqdn = SConsider.getfqdn()
 
@@ -66,8 +79,9 @@ def ModifyConfigFiles(env, searchReplace=[], files=[]):
             # set writable
             os.chmod(fname, oldmode | S_IWUSR)
             # replace tokens in file
-            SomeUtils.replaceRegexInFile(fname, searchReplace)
+            replaceRegexInFile(fname, searchReplace)
             os.chmod(fname, oldmode)
+
 
 servers = []
 
@@ -81,7 +95,7 @@ def startServer(host, port, server_class, handler_class, **kw):
 def prepareMkCaParams(env, commandargs, tdirabs, certdir):
     mkcaScriptName = os.path.join(tdirabs, 'mkca-new.sh')
     # set writable cfgfilename
-    target = SConsider.packageRegistry.getPackageTarget('openssl', 'openSSL')
+    target = registry.getRealTarget(_helperscriptTarget)
     if not os.path.isfile(mkcaScriptName):
         return False
     commandargs.extend([mkcaScriptName])
@@ -116,19 +130,16 @@ def createCertificates(env):
     certOutDir = os.path.join(tdir.abspath, certdir)
     prepareMkCaParams(env, commandargs, tdir.abspath, certdir)
     logpath = env.getLogInstallDir()
-    retCode = SomeUtils.runCommand(
-        commandargs,
-        logpath=logpath.abspath,
-        stdincontent='\n'.join(stdincontent))
+    retCode = runCommand(commandargs,
+                         logpath=logpath.abspath,
+                         stdincontent='\n'.join(stdincontent))
     certFileNodesList = []
     certDict = {}
     if retCode == 0:
         # get list of copied certificates
         certFileNodesList = SConsider.findFiles([certOutDir], ['.pem', '.p12'])
         certDict = createCertDict(certFileNodesList)
-        target = SConsider.packageRegistry.getPackageTarget(
-            'openssl',
-            'openSSL')
+        target = registry.getRealTarget(_helperscriptTarget)
         sslbin = 'openssl'
         if target:
             sslbin = '' + target.abspath + ' -S --'
@@ -137,12 +148,11 @@ def createCertificates(env):
         # http://www.commandlinefu.com/commands/view/2532/c_rehash-replacement)
         command = 'for file in *crt*.pem; do theHash=`' + sslbin + \
             ' x509 -hash -noout -in $file 2>/dev/null` && test ! -f ${theHash}.0 && ln -s $file ${theHash}.0; done'
-        retCode = SomeUtils.runCommand(
-            command,
-            logpath=logpath.abspath,
-            stdincontent=None,
-            shell=True,
-            cwd=certOutDir)
+        retCode = runCommand(command,
+                             logpath=logpath.abspath,
+                             stdincontent=None,
+                             shell=True,
+                             cwd=certOutDir)
     return (certOutDir, certFileNodesList, certDict)
 
 
@@ -246,16 +256,15 @@ def tearDown(target, source, env):
 # SConsider.removeFiles(SConsider.findFiles([env.getTargetBaseInstallDir()],
 # extensions=['.res', '.tst', '.txt' ], matchfiles=['include.any']))
 
-_sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
     from stat import *
     buildSettings = {
         packagename: {
             'targetType': 'ProgramTest',
             'linkDependencies': [
-                'CoastSSL',
-                'testfwWDBase'],
-            'requires': ['openssl.openSSL'],
+                'CoastSSL', 'testfwWDBase'
+            ],
+            'requires': [_helperscriptTarget],
             'includeSubdir': '',
             'sourceFiles': SConsider.listFiles(
                 ['*.cpp']),

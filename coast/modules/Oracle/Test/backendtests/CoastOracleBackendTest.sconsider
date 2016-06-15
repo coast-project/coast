@@ -12,17 +12,17 @@
 import pkg_resources
 pkg_resources.require(["SConsider"])
 import SConsider
+import Anything
+from SConsider.SomeUtils import multiple_replace, runCommand, getFlatENV
+
 Import('*')
 
-import Anything
-from SomeUtils import multiple_replace, runCommand
-
 defaults = None
-helperscriptTarget = 'oracle.script_sqlplus'
+_helperscript_target = 'oracle.script_sqlplus'
 
 
 def setUp(target, source, env):
-    target = registry.getRealTarget(helperscriptTarget)
+    target = registry.getRealTarget(_helperscript_target)
     if not target:
         raise SConsider.SkipTest(
             'required sqlplus executable not found, skipping test')
@@ -64,7 +64,7 @@ def setUp(target, source, env):
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_dropschema.sql').abspath,
-        env=SConsider.getFlatENV(env)
+        env=getFlatENV(env)
     )
     if res != 0:
         raise SConsider.SkipTest(
@@ -73,14 +73,14 @@ def setUp(target, source, env):
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_schema.sql').abspath,
-        env=SConsider.getFlatENV(env)
+        env=getFlatENV(env)
     )
     res = runCommand(
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_grant.sql').abspath,
         filter=lambda string: multiple_replace(searchreplacespec, string),
-        env=SConsider.getFlatENV(env)
+        env=getFlatENV(env)
     )
     if res != 0:
         raise SConsider.SkipTest(
@@ -93,7 +93,7 @@ def setUp(target, source, env):
         logpath=logDir.abspath,
         filename=path.File('oratest_synonym.sql').abspath,
         filter=lambda string: multiple_replace(searchreplacespec, string),
-        env=SConsider.getFlatENV(env)
+        env=getFlatENV(env)
     )
     if res != 0:
         raise SConsider.SkipTest(
@@ -138,7 +138,7 @@ elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
     scriptRequireNodes = [
         'CoastAppLog.CoastAppLog',
         'CoastRenderers.CoastRenderers',
-        helperscriptTarget,
+        _helperscript_target,
         'oracle.lib_ociicus',
     ]
 

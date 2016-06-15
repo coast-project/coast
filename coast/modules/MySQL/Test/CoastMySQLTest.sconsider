@@ -18,19 +18,32 @@ import re
 import sys
 import shlex
 from stat import *
-import SomeUtils
+from SConsider.SomeUtils import runCommand, multiple_replace, getFlatENV
 
 Import('*')
 
 defaults = None
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
+_helperscript_target = 'mysql.script_mysql'
+_helperscript_argument_separator = '--'
+if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
+    _helperscript_target = 'mysql.mysqlbin'
+    _helperscript_argument_separator = ''
+
+    def getRealTarget(fulltargetname):
+        from SConsider import splitTargetname
+        packagename, targetname = splitTargetname(fulltargetname)
+        return registry.getPackageTarget(packagename, targetname)
+
+    if not hasattr(registry, 'getRealTarget'):
+        registry.getRealTarget = getRealTarget
 
 
 def setUp(target, source, env):
-    target = SConsider.packageRegistry.getPackageTarget('mysql', 'mysqlbin')
+    target = registry.getRealTarget(_helperscript_target)
     if not target:
-        raise SConsider.SkipTest(
-            'required mysqlbin executable not found, skipping test')
+        raise SConsider.SkipTest('required ' + _helperscript_target +
+                                 ' target/executable not found, skipping test')
 
     relDir = env.getTargetBaseInstallDir()
     Anything.setLocalEnv(env={}, COAST_ROOT=relDir.abspath)
@@ -55,25 +68,25 @@ def setUp(target, source, env):
 
     command = [target.abspath]
     command.extend(shlex.split(
-        "-h {Server!s} --port={Port!s} -u {Username!s} --password={Password!s} --connect_timeout={ConnectTimeout!s}".format(**defaults['MySQL'])))
-    res = SomeUtils.runCommand(
-        command, logpath=logDir.abspath, filename=path.File(
-            'dropTestDefinitions.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(
-            searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env))
+        _helperscript_argument_separator +
+        " -h {Server!s} --port={Port!s} -u {Username!s} --password={Password!s} --connect_timeout={ConnectTimeout!s}".format(
+            **defaults['MySQL'])))
+    res = runCommand(
+        command,
+        logpath=logDir.abspath,
+        filename=path.File('dropTestDefinitions.sql').abspath,
+        filter=lambda string: multiple_replace(searchreplacespec, string),
+        env=getFlatENV(env))
     if res != 0:
-        raise SConsider.SkipTest(
-            'failed to drop test database (rc=' +
-            str(res) +
-            '), check error log')
+        raise SConsider.SkipTest('failed to drop test database (rc=' + str(res)
+                                 + '), check error log')
 
-    res = SomeUtils.runCommand(
-        command, logpath=logDir.abspath, filename=path.File(
-            'TestDBDefinition.sql').abspath,
-        filter=lambda string: SomeUtils.multiple_replace(
-            searchreplacespec, string),
-        env=SomeUtils.getFlatENV(env))
+    res = runCommand(
+        command,
+        logpath=logDir.abspath,
+        filename=path.File('TestDBDefinition.sql').abspath,
+        filter=lambda string: multiple_replace(searchreplacespec, string),
+        env=getFlatENV(env))
     if res != 0:
         raise SConsider.SkipTest(
             'failed to load test database (rc=' +
@@ -95,7 +108,7 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
             'requires': [
                 'CoastAppLog',
                 'CoastRenderers',
-                'mysql.mysqlbin',
+                _helperscript_target,
             ],
             'sourceFiles': SConsider.listFiles(['*.cpp']),
             'copyFiles': [

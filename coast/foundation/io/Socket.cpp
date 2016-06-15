@@ -14,8 +14,6 @@
 #include "Tracer.h"
 #include "InitFinisManager.h"
 
-using namespace coast;
-
 #include <cstring>
 #if defined (WIN32)
 #include <windows.h>
@@ -167,7 +165,7 @@ bool Socket::IsReady(long fd, short event, long timeout, long &retCode)
 	fHadTimeout = false;
 	if ( fd >= 0 ) {
 		bool bRead = (event & POLLIN) > 0, bWrite = (event & POLLOUT) > 0;
-		retCode = system::DoSingleSelect(fd, timeout, bRead, bWrite);
+		retCode = coast::system::DoSingleSelect(fd, timeout, bRead, bWrite);
 		Trace("testing fd:" << fd << " for " << (bRead ? "reading" : "") << (bRead && bWrite ? "&" : "") << (bWrite ? "writing" : "") << " returned:" << retCode);
 		if (retCode > 0) {
 			return true;
@@ -206,7 +204,7 @@ bool Socket::IsReady(bool forreading)
 {
 	StartTrace1(Socket.IsReady, "fd:" << GetFd() << (forreading ? " for reading" : " for writing"));
 	bool bRet = false;
-	int res = system::DoSingleSelect(GetFd(), GetTimeout(), forreading, !forreading);
+	int res = coast::system::DoSingleSelect(GetFd(), GetTimeout(), forreading, !forreading);
 	fHadTimeout = (0 == res);
 	if (res < 0) {
 		LogError(GetFd(), "select() failed", res);
@@ -310,7 +308,7 @@ void Socket::LogError(int socketfd, const char *contextmessage, long lRetCode)
 	StartTrace1(Socket.LogError, "fd:" << socketfd);
 	String logMsg(contextmessage);
 	logMsg << " of socket fd=" << socketfd
-		   << " failed with function retCode:" << lRetCode << " (#" << (long)system::GetSystemError() << ") " << SystemLog::LastSysError();
+		   << " failed with function retCode:" << lRetCode << " (#" << (long)coast::system::GetSystemError() << ") " << SystemLog::LastSysError();
 	Trace(logMsg);
 	SystemLog::Error(logMsg);
 }
@@ -428,7 +426,7 @@ void EndPoint::LogError(const char *contextmessage, int sockerrno)
 	String logMsg(contextmessage);
 	logMsg << " of socket " << (long)GetFd()
 		   << " with address: " << fIPAddress << " port: " << fPort
-		   << " failed (#" << (long)system::GetSystemError() << ") " << SystemLog::LastSysError();
+		   << " failed (#" << (long)coast::system::GetSystemError() << ") " << SystemLog::LastSysError();
 	if (sockerrno!=0) {
 		logMsg << ", last error [" << SystemLog::SysErrorMsg(sockerrno) << "]";
 	}
@@ -494,7 +492,7 @@ bool EndPoint::BindToAddress(String &srcIpAdr, long srcPort)
 	return true;
 }
 
-unsigned long EndPoint::MakeInetAddr(String ipAddr, bool anyipaddr)
+uint32_t EndPoint::MakeInetAddr(String ipAddr, bool anyipaddr)
 {
 	if (ipAddr.Length() <= 0) {
 		if (anyipaddr) {
@@ -502,16 +500,16 @@ unsigned long EndPoint::MakeInetAddr(String ipAddr, bool anyipaddr)
 		}
 		ipAddr = GetLocalHost(); // for Servers ?
 	}
-	unsigned long addr = inet_addr((char *)(const char *)ipAddr); // strange cast for 370 compatibility
+	uint32_t addr = inet_addr((char *)(const char *)ipAddr);
 	// workaround to simulate valid ip address when 255.255.255.255 is given
 	// which corresponds to -1L (INADDR_NONE) return code
-	if ( ipAddr != "255.255.255.255" || addr != ((unsigned long) - 1L) ) {
+	if ( ipAddr != "255.255.255.255" || addr != INADDR_NONE ) {
 		Assert(addr != INADDR_NONE);
 	}
 	return addr;
 }
 
-bool EndPoint::PrepareSockAddrInet(struct sockaddr_in &socketaddr, unsigned long ipAddr, long port)
+bool EndPoint::PrepareSockAddrInet(struct sockaddr_in &socketaddr, uint32_t ipAddr, long port)
 {
 	StartTrace1(EndPoint.PrepareSockAddrInet, "ip:" << static_cast<long>(ipAddr) << " port:" << port);
 #if defined(WIN32)
@@ -658,7 +656,7 @@ Socket *Connector::MakeSocket(bool doClose)
 			Anything clientInfo;
 			clientInfo["REMOTE_ADDR"] = fIPAddress;
 			clientInfo["REMOTE_PORT"] = fPort;
-			system::SetCloseOnExec(GetFd());
+			coast::system::SetCloseOnExec(GetFd());
 			s = DoMakeSocket(GetFd(), clientInfo, doClose);
 		}
 		if (GetFd() >= 0 && ! s) {
@@ -735,7 +733,7 @@ bool Connector::DoConnect()
 		Trace("connecting to: " << fIPAddress << ":" << fPort );
 		if ( (connect(GetFd(), (struct sockaddr *) &serv_addr, sizeof(serv_addr)) >= 0)
 			 || ( ConnectWouldBlock() &&
-				  system::IsReadyForWriting(GetFd(), fConnectTimeout) &&
+				  coast::system::IsReadyForWriting(GetFd(), fConnectTimeout) &&
 				  !SockOptGetError() ) ) {
 			Trace("connect successfully done")
 			return true;

@@ -15,18 +15,18 @@
 
 #include "Anything.h"
 #include "AllocatorNewDelete.h"
+#include <stdint.h>
 
 class AcceptorCallBack;
 
-struct 	 sockaddr_in;
+struct sockaddr_in;
 int closeSocket(int sd);
 
 //!represents a read/write socket end point that is connected
 //! it is a <B>communication end point</B> for read/write sockets.
 //! it has an api that allows the manipulation of the socket and
 //! the generation of an iostream which is a SocketStream.
-class Socket : public coast::AllocatorNewDelete
-{
+class Socket: public coast::AllocatorNewDelete {
 public:
 	//! constructor sets the variables
 	//! \param socket the socket filedescriptor for the socket endpoint
@@ -36,7 +36,8 @@ public:
 	//! \param a Allocator to use for allocation
 	//! \pre  socket is a valid connected socket file descriptor
 	//! \post  a usable socket object which allocates the stream on demand
-	Socket(int socket, const Anything &clientInfo = Anything(), bool doClose = true, long timeout = 300L * 1000L /* 5 minutes */, Allocator *a = coast::storage::Global());
+	Socket(int socket, const Anything &clientInfo = Anything(), bool doClose = true,
+	        long timeout = 300L * 1000L /* 5 minutes */, Allocator *a = coast::storage::Global());
 
 	//! destructor
 	//! \pre  socket contains a valid connected socket file descriptor and potentially a stream object
@@ -100,79 +101,78 @@ public:
 	virtual void AppendToClientInfo(const char *slot, const ROAnything &);
 
 	//! sets the fDoClose flag
-	virtual void CloseOnDelete(bool doClose = true)	{
+	virtual void CloseOnDelete(bool doClose = true) {
 		fDoClose = doClose;
 	}
 
 	//! set the default timeout for socket communication in milliseconds
-	virtual void SetTimeout(long timeout) 	{
+	virtual void SetTimeout(long timeout) {
 		fTimeout = timeout;
 	}
 
 	//! get the default timeout for socket communication over streams
-	virtual long GetTimeout()				{
+	virtual long GetTimeout() {
 		return fTimeout;
 	}
 
 	//! access allocator
-	virtual Allocator *GetAllocator()		{
+	virtual Allocator *GetAllocator() {
 		return fAllocator;
 	}
 
-
 	/*! Wrapper function to read from a socket filedescriptor. Win32 handles socket filedescriptors different than normal file descriptors
-		\param fd socket filedescriptor to read from
-		\param buf character buffer which receives the bytes read
-		\param len length of the supplied character buffer buf
-		\param flags special flags for WIN32
-		\return number of bytes received, 0 if the connection has been gracefully closed and negative in case of an error */
+	 \param fd socket filedescriptor to read from
+	 \param buf character buffer which receives the bytes read
+	 \param len length of the supplied character buffer buf
+	 \param flags special flags for WIN32
+	 \return number of bytes received, 0 if the connection has been gracefully closed and negative in case of an error */
 	static int read(int fd, char *buf, int len, int flags = 0);
 
 	/*! Wrapper function to write to a socket filedescriptor. Win32 handles socket filedescriptors different than normal file descriptors
-		\param fd socket filedescriptor to write to
-		\param buf character buffer which contains the data to be sent
-		\param len number of characters to send from buf
-		\param flags special flags for WIN32
-		\return number of bytes sent (can be lower than the given amount if non-blocking), negative in case of an error */
+	 \param fd socket filedescriptor to write to
+	 \param buf character buffer which contains the data to be sent
+	 \param len number of characters to send from buf
+	 \param flags special flags for WIN32
+	 \return number of bytes sent (can be lower than the given amount if non-blocking), negative in case of an error */
 	static int write(int fd, const char *buf, int len, int flags = 0);
 
 	/*! get specified option for the given socket filedescriptor
-		\note only int-types supported by this function
-		\param socketFd file descriptor of socket
-		\param optionName name of option to query
-		\param lValue value of the specified option
-		\return true if no error occured */
+	 \note only int-types supported by this function
+	 \param socketFd file descriptor of socket
+	 \param optionName name of option to query
+	 \param lValue value of the specified option
+	 \return true if no error occured */
 	static bool GetSockOptInt(int socketFd, int optionName, int &lValue);
 
 	/*! set network buffering on socket level
-		\param socketfd Filedescriptor of the socket to modify
-		\param lBufSize buffer size to set, ace specifies 65535 as maximum
-		\param bWriteSide set to true if the write buffer should be modified, false for the read side
-		\return true if the modification was successful, check back with GetSockOptInt() to get the real buffer size */
+	 \param socketfd Filedescriptor of the socket to modify
+	 \param lBufSize buffer size to set, ace specifies 65535 as maximum
+	 \param bWriteSide set to true if the write buffer should be modified, false for the read side
+	 \return true if the modification was successful, check back with GetSockOptInt() to get the real buffer size */
 	static bool SetSockoptBufSize(int socketfd, long lBufSize, bool bWriteSide);
 
 	/*! set the socket option TCP_NODELAY that disables the Nagle algorithm
-		\param socketfd file descriptor of socket to modify
-		\param bNoDelay set to true if you want to disable the Nagle algorithm, false to enable it
-		\return true in case of success */
+	 \param socketfd file descriptor of socket to modify
+	 \param bNoDelay set to true if you want to disable the Nagle algorithm, false to enable it
+	 \return true in case of success */
 	static bool SetNoDelay(int socketfd, bool bNoDelay = true);
 
 	/*! member wrapper around static function
-		\return true in case of success */
+	 \return true in case of success */
 	bool SetNoDelay() {
 		return SetNoDelay(GetFd(), true);
 	}
 
 	/*! hook for setting file descriptors to non-blocking IO, used for sockets and pipes
-		\param fd the file descriptor to be set to non-blocking with fcntl
-		\param dontblock allow also for reset of non-blocking
-		\return true on success of operation */
+	 \param fd the file descriptor to be set to non-blocking with fcntl
+	 \param dontblock allow also for reset of non-blocking
+	 \return true on success of operation */
 	static bool SetToNonBlocking(int fd, bool dontblock = true);
 
 	/*! set SO_REUSEADDR socket option to disable 4 minutes wait
-		\param socketfd file descriptor of socket to modify
-		\param bReuse set to true if you want to reuse socket address, false otherwise
-		\return true in case of success */
+	 \param socketfd file descriptor of socket to modify
+	 \param bReuse set to true if you want to reuse socket address, false otherwise
+	 \return true in case of success */
 	static bool SetSockoptReuseAddr(int socketfd, bool bReuse = true);
 
 	//!Providing default implementation of this method to avoid runtime errors
@@ -200,9 +200,9 @@ protected:
 	virtual bool ShutDown(long fd, long which);
 
 	/*! print out the last error message caused by a socket error, it will get printed on SystemLog and Trace
-		\param socketfd filedescriptor of socket on which the error occured
-		\param contextmessage some text explaining why it was
-		\param lRetCode return code of the function which failed previously */
+	 \param socketfd filedescriptor of socket on which the error occured
+	 \param contextmessage some text explaining why it was
+	 \param lRetCode return code of the function which failed previously */
 	static void LogError(int socketfd, const char *contextmessage, long lRetCode);
 
 protected:
@@ -222,7 +222,7 @@ protected:
 	long fTimeout;
 
 	//!marker showing timeout case, if not ready this indicates no-error
-	bool	fHadTimeout;
+	bool fHadTimeout;
 	//!optimized allocation strategy
 	Allocator *fAllocator;
 
@@ -246,17 +246,18 @@ private:
 };
 
 //! common features of Connector and Acceptor
-class EndPoint
-{
+class EndPoint {
 public:
 	//!constructor with ip adress, port
 	//! \param ipAdr defines the ip adress of the other endpoint in dot notation like 127.0.0.1
 	//! \param port defines the port number of the connection: a 16-bit integer
-	EndPoint(const String &ipAdr, long port)
-		: fIPAddress(ipAdr, coast::storage::Global()), fPort(port), fSockFd(-1), fThreadLocal(false) {}
+	EndPoint(const String &ipAdr, long port) :
+			fIPAddress(ipAdr, coast::storage::Global()), fPort(port), fSockFd(-1), fThreadLocal(false) {
+	}
 
 	//! deletes the internal socket object if allocated
-	virtual ~EndPoint() {}
+	virtual ~EndPoint() {
+	}
 
 	//!return the port number of an EndPoint
 	//! useful when constructing with port 0 as the OS will assign an arbitrary portnumber
@@ -276,7 +277,7 @@ public:
 	//! \return true if socket succeeded, false if failure, store file descriptor in fSockFd
 	bool CreateSocket();
 	//!unify error logging
-	void LogError(const char *contextmessage, int sockerrno=0);
+	void LogError(const char *contextmessage, int sockerrno = 0);
 	//!obtain port bound to socket after connect or accept
 	long GetBoundPort();
 	//!bind endpoint to a ip address and or port
@@ -297,11 +298,11 @@ public:
 	//! \param ipAddr the ip address in dot notation, i.e. "127.0.0.1"
 	//! \param anyipaddr set to true for client source address in connectors
 	//! \return the numerical addr in network order, INADRR_NONE if an error occurs
-	static unsigned long MakeInetAddr(String ipAddr, bool anyipaddr = false);
+	static uint32_t MakeInetAddr(String ipAddr, bool anyipaddr = false);
 
 	//! prepare the C structs for inet addrs used in socket API
 	//! usually called with Socket::MakeInetAddr as second param
-	static bool PrepareSockAddrInet(struct sockaddr_in &sockaddr, unsigned long ipAddr, long port);
+	static bool PrepareSockAddrInet(struct sockaddr_in &sockaddr, uint32_t ipAddr, long port);
 
 	//! define localhost representation once
 	static const char *GetLocalHost() {
@@ -333,8 +334,7 @@ protected:
 //! This class  unlike ConnectorParameters does not "hold" or "take" a Context, which is crucial
 //! for independent project structures.
 //! This class supports assignment and copy construction.
-class ConnectorArgs
-{
+class ConnectorArgs {
 public:
 	ConnectorArgs(const String &ipAddr, long port, long connectTimeout = 0L);
 
@@ -359,21 +359,21 @@ private:
 //!defines the active side socket factory that establishes a socket connection
 //! It holds an active end point specification for a socket
 //! It connects to the server on the other side creating a socket connection that's read/writeable
-class Connector: public EndPoint
-{
+class Connector: public EndPoint {
 public:
 	//! Constructor with ip adress, port and socketoptions, holds specification to create socket object on demand
 	/*! \param ipAdr defines the ip adress of the other endpoint in dot notation like 127.0.0.1
-		\param port defines the port number of the connection: a 16-bit integer
-		\param connectTimeout the time we wait until we must have a connection or we abort the try ( in milliseconds)
-		\param srcIpAdr the ip adress we bind this end of the socket to
-		\param srcPort the port we bind this end of the socket to
-		\param threadLocal Allocate underlying Socket object in memory pool of calling Thread if set to true
-		\pre ipAdr is a valid, reachable server ip adress, port is a valid port number
-		\post Connector holds the socket specification, the socket is not yet connected */
-	Connector(String ipAdr, long port, long connectTimeout = 0, String srcIpAdr = "", long srcPort = 0, bool threadLocal = false);
+	 \param port defines the port number of the connection: a 16-bit integer
+	 \param connectTimeout the time we wait until we must have a connection or we abort the try ( in milliseconds)
+	 \param srcIpAdr the ip adress we bind this end of the socket to
+	 \param srcPort the port we bind this end of the socket to
+	 \param threadLocal Allocate underlying Socket object in memory pool of calling Thread if set to true
+	 \pre ipAdr is a valid, reachable server ip adress, port is a valid port number
+	 \post Connector holds the socket specification, the socket is not yet connected */
+	Connector(String ipAdr, long port, long connectTimeout = 0, String srcIpAdr = "", long srcPort = 0,
+	        bool threadLocal = false);
 	//!same as above, but take a ConnectorArgs object which wraps ipAdr, port, connectTimeout
-	Connector(ConnectorArgs &connectorArgs, String srcIpAdr = "", long srcPort = 0,  bool threadLocal = 0);
+	Connector(ConnectorArgs &connectorArgs, String srcIpAdr = "", long srcPort = 0, bool threadLocal = 0);
 
 	//!  Connector destructors deletes the internal socket object if allocated
 	virtual ~Connector();
@@ -404,7 +404,7 @@ protected:
 	//! establishes a connection to server on ip adress and port
 	//! \return  returns true if the connection could be established, might need to closeSocket(fSocketId) if false
 	//! \post  if ( retVal == true ) the socket is connected
-	virtual bool 	DoConnect();
+	virtual bool DoConnect();
 	//!checkk error status after connect() failed (errno or WSAGetLastError() resp.)
 	bool ConnectWouldBlock();
 
@@ -446,8 +446,7 @@ private:
 //!represents a listener socket end point that listens on a server port for incoming connections
 //! it implements the socket protocol for listener sockets and runs the accept loop
 //! it is usually started in its own thread
-class Acceptor : public EndPoint
-{
+class Acceptor: public EndPoint {
 public:
 	//!constructor with listener port, backlog and callback object
 	//! \param ipadress defines the logical address or ip-address of the connection
@@ -528,15 +527,16 @@ private:
 };
 
 //!factory object that creates AcceptorCallbacks on demand
-class CallBackFactory
-{
+class CallBackFactory {
 public:
 
 	//!default constructor is empty since class provides only protocol no implementation
-	CallBackFactory()	{ }
+	CallBackFactory() {
+	}
 
 	//!default destructor is empty since class provides only protocol no implementation
-	virtual ~CallBackFactory() { }
+	virtual ~CallBackFactory() {
+	}
 
 	//!call back functionality provides the socket object
 	virtual AcceptorCallBack *MakeCallBack() = 0;
@@ -557,31 +557,36 @@ private:
 //!this class is abstract and must be subclassed to provide request handling functionality
 //!CallBack provides the Socket object resulting from the accepted connection
 //!it has also a locking protocol for MT Safe usage
-class AcceptorCallBack
-{
+class AcceptorCallBack {
 public:
 
 	//!default constructor is empty since class provides only protocol no implementation
-	AcceptorCallBack()	{ }
+	AcceptorCallBack() {
+	}
 
 	//!default destructor is empty since class provides only protocol no implementation
-	virtual ~AcceptorCallBack() { }
+	virtual ~AcceptorCallBack() {
+	}
 
 	//!call back functionality provides the socket object
 	//! \param socket the Socket object resulting from the accepted connection
 	virtual void CallBack(Socket *socket) = 0;
 
 	//!locking callback objects may override this method to provide true locking
-	virtual void Lock() { }
+	virtual void Lock() {
+	}
 
 	//!locking callback objects may override this method to provide true unlocking
-	virtual void Unlock() { }
+	virtual void Unlock() {
+	}
 
 	//!condition var callback objects may override this method to provide true condition vars
-	virtual void Wait() { }
+	virtual void Wait() {
+	}
 
 	//!condition var callback objects may override this method to provide true signalling
-	virtual void Signal() { }
+	virtual void Signal() {
+	}
 
 private:
 	//! this standard operator is private to block its use

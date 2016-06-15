@@ -88,14 +88,13 @@ def setUp(target, source, env):
         filter=lambda string: multiple_replace(searchreplacespec, string),
         env=getFlatENV(env))
     if res != 0:
-        raise SConsider.SkipTest(
-            'failed to load test database (rc=' +
-            str(res) +
-            '), check error log')
+        raise SConsider.SkipTest('failed to load test database (rc=' + str(res)
+                                 + '), check error log')
 
 
 def tearDown(target, source, env):
     pass
+
 
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
     buildSettings = {
@@ -112,8 +111,8 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
             ],
             'sourceFiles': SConsider.listFiles(['*.cpp']),
             'copyFiles': [
-                (SConsider.findFiles(['.'], ['.any', '.sql']),
-                 S_IRUSR | S_IRGRP | S_IROTH),
+                (SConsider.findFiles(['.'], ['.any', '.sql']), S_IRUSR |
+                 S_IRGRP | S_IROTH),
             ],
             'runConfig': {
                 'setUp': setUp,

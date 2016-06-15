@@ -26,25 +26,24 @@ def setUp(target, source, env):
 def tearDown(target, source, env):
     pass
 
+
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
     from stat import *
     buildSettings = {
         packagename: {
             'linkDependencies': [
-                'CoastQueueing',
-                'testfwFoundation'],
+                'CoastQueueing', 'testfwFoundation'
+            ],
             'requires': [
-                'CoastRenderers',
-                'CoastAppLog'],
-            'sourceFiles': SConsider.listFiles(
-                ['*.cpp']),
+                'CoastRenderers', 'CoastAppLog'
+            ],
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'ProgramTest',
             'copyFiles': [
-                (SConsider.findFiles(
-                    ['config'],
-                    ['.any']),
-                 S_IRUSR | S_IRGRP | S_IROTH)],
+                (SConsider.findFiles(['config'], ['.any']), S_IRUSR | S_IRGRP |
+                 S_IROTH)
+            ],
             'runConfig': {
                 'setUp': setUp,
                 'tearDown': tearDown,

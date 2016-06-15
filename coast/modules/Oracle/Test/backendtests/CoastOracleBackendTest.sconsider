@@ -30,13 +30,12 @@ def setUp(target, source, env):
     env['ENV']['NLS_LANG'] = '.WE8ISO8859P1'
     configDir = 'config'
     env['ENV']['COAST_PATH'] = configDir
-#    env['ENV']['COAST_TRACE_INITFINIS'] = 1
-#    env['ENV']['COAST_LOGONCERR'] = 3
+    #    env['ENV']['COAST_TRACE_INITFINIS'] = 1
+    #    env['ENV']['COAST_LOGONCERR'] = 3
     relDir = env.getTargetBaseInstallDir()
-    Anything.setLocalEnv(
-        env={},
-        COAST_ROOT=relDir.abspath,
-        COAST_PATH=configDir)
+    Anything.setLocalEnv(env={},
+                         COAST_ROOT=relDir.abspath,
+                         COAST_PATH=configDir)
 
     global defaults
     try:
@@ -60,31 +59,26 @@ def setUp(target, source, env):
 
     connectstring = "{Username1!s}/{Password1!s}@{Server!s}:{Port!s}/{sid!s}".format(
         **defaults['Oracle'])
-    res = runCommand(
-        [target.abspath, '--', '-S', connectstring],
-        logpath=logDir.abspath,
-        filename=path.File('oratest_dropschema.sql').abspath,
-        env=getFlatENV(env)
-    )
+    res = runCommand([target.abspath, '--', '-S', connectstring],
+                     logpath=logDir.abspath,
+                     filename=path.File('oratest_dropschema.sql').abspath,
+                     env=getFlatENV(env))
     if res != 0:
-        raise SConsider.SkipTest(
-            'failed to drop test schema (rc=' + str(res) + '), check error log')
-    res = runCommand(
-        [target.abspath, '--', '-S', connectstring],
-        logpath=logDir.abspath,
-        filename=path.File('oratest_schema.sql').abspath,
-        env=getFlatENV(env)
-    )
+        raise SConsider.SkipTest('failed to drop test schema (rc=' + str(res) +
+                                 '), check error log')
+    res = runCommand([target.abspath, '--', '-S', connectstring],
+                     logpath=logDir.abspath,
+                     filename=path.File('oratest_schema.sql').abspath,
+                     env=getFlatENV(env))
     res = runCommand(
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
         filename=path.File('oratest_grant.sql').abspath,
         filter=lambda string: multiple_replace(searchreplacespec, string),
-        env=getFlatENV(env)
-    )
+        env=getFlatENV(env))
     if res != 0:
-        raise SConsider.SkipTest(
-            'failed to grant permissions (rc=' + str(res) + '), check error log')
+        raise SConsider.SkipTest('failed to grant permissions (rc=' + str(res) +
+                                 '), check error log')
 
     connectstring = "{Username2!s}/{Password2!s}@{Server!s}:{Port!s}/{sid!s}".format(
         **defaults['Oracle'])
@@ -93,11 +87,10 @@ def setUp(target, source, env):
         logpath=logDir.abspath,
         filename=path.File('oratest_synonym.sql').abspath,
         filter=lambda string: multiple_replace(searchreplacespec, string),
-        env=getFlatENV(env)
-    )
+        env=getFlatENV(env))
     if res != 0:
-        raise SConsider.SkipTest(
-            'failed to create synonyms (rc=' + str(res) + '), check error log')
+        raise SConsider.SkipTest('failed to create synonyms (rc=' + str(res) +
+                                 '), check error log')
 
 
 def tearDown(target, source, env):
@@ -120,20 +113,27 @@ elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
     ]
 
     bin_name = packagename
-    bin_target = SConsider.createPackageProgram(
-        packagename, bin_name, SConsider.listFiles(['*.cpp']),
-        depend=programDepends, pkg_local=[setRelTargetDir])
-    bins = SConsider.EnvBuilder().depend(bin_target).build().RegisterPackageTarget(
-        packagename=packagename, targetname='bins')
+    bin_target = SConsider.createPackageProgram(packagename,
+                                                bin_name,
+                                                SConsider.listFiles(['*.cpp']),
+                                                depend=programDepends,
+                                                pkg_local=[setRelTargetDir])
+    bins = SConsider.EnvBuilder().depend(bin_target).build(
+    ).RegisterPackageTarget(packagename=packagename,
+                            targetname='bins')
 
     from stat import *
     copyFiles = [
         (SConsider.listFiles(
             ['config/*.any', 'config/*.txt', 'config/*.tst', 'config/*.sql']),
-         S_IRUSR | S_IRGRP | S_IROTH), ]
+         S_IRUSR | S_IRGRP | S_IROTH),
+    ]
     copyTarget = SConsider.createCopyFilesTarget(
-        packagename, 'configfiles', lambda env: env.getTargetBaseInstallDir(),
-        copyFiles, pkg_local=[setRelTargetDir])
+        packagename,
+        'configfiles',
+        lambda env: env.getTargetBaseInstallDir(),
+        copyFiles,
+        pkg_local=[setRelTargetDir])
 
     scriptRequireNodes = [
         'CoastAppLog.CoastAppLog',
@@ -143,19 +143,27 @@ elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
     ]
 
     scriptTarget = SConsider.createPackageProgramScript(
-        packagename, bin_name, bin_target, depend=copyTarget,
-        require=scriptRequireNodes, pkg_local=[setRelTargetDir])
+        packagename,
+        bin_name,
+        bin_target,
+        depend=copyTarget,
+        require=scriptRequireNodes,
+        pkg_local=[setRelTargetDir])
     scripts = SConsider.EnvBuilder().depend(scriptTarget).build(
-    ).RegisterPackageTarget(packagename=packagename, targetname='scripts')
+    ).RegisterPackageTarget(packagename=packagename,
+                            targetname='scripts')
 
-    testTarget = SConsider.createPackageTestTarget(packagename, bin_name, scriptTarget, settings={
-        'setUp': setUp,
-        'tearDown': tearDown,
-        #              'runParams': '',
-    })
+    testTarget = SConsider.createPackageTestTarget(
+        packagename,
+        bin_name,
+        scriptTarget,
+        settings={
+            'setUp': setUp,
+            'tearDown': tearDown,
+            #              'runParams': '',
+        })
 
     SConsider.createAlias('backendtests', testTarget)
 
-    SConsider.EnvBuilder().depend(
-        bins, scripts).build().RegisterPackageTarget(
+    SConsider.EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(
         packagename=packagename, targetname=packagename)

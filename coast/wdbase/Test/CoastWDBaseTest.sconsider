@@ -26,17 +26,22 @@ def setUp(target, source, env):
 def tearDown(target, source, env):
     pass
 
+
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
     from stat import *
     buildSettings = {
         packagename: {
             'linkDependencies': ['CoastWDBase', 'testfwWDBase'],
-            'requires': [SConsider.generateFulltargetname(packagename, 'TestLib')],
+            'requires':
+            [SConsider.generateFulltargetname(packagename, 'TestLib')],
             'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'ProgramTest',
-            'copyFiles': [(SConsider.listFiles(['config/*.any', 'config/*.txt']), S_IRUSR | S_IRGRP | S_IROTH),
-                          (SConsider.listFiles(['TestDir1', 'TestDir2'], recursive=True), S_IRUSR | S_IRGRP | S_IROTH)],
+            'copyFiles':
+            [(SConsider.listFiles(['config/*.any', 'config/*.txt']), S_IRUSR |
+              S_IRGRP | S_IROTH), (SConsider.listFiles(['TestDir1', 'TestDir2'],
+                                                       recursive=True),
+                                   S_IRUSR | S_IRGRP | S_IROTH)],
             'runConfig': {
                 'setUp': setUp,
                 'tearDown': tearDown,

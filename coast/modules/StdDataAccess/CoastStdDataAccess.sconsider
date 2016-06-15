@@ -22,18 +22,13 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
         packagename: {
             'includeSubdir': '',
             'linkDependencies': [
-                'CoastAppLog',
-                'CoastSSL',
-                'CoastHTTP',
-                'CoastAccessControl',
-                'CoastRegex',
-                'utf8'],
-            'sourceFiles': SConsider.listFiles(
-                ['*.cpp']),
+                'CoastAppLog', 'CoastSSL', 'CoastHTTP', 'CoastAccessControl',
+                'CoastRegex', 'utf8'
+            ],
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'LibraryShared',
             'public': {
-                'includes': SConsider.listFiles(
-                    ['*.h']),
+                'includes': SConsider.listFiles(['*.h']),
             },
         },
     }

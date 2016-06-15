@@ -48,13 +48,12 @@ def setUp(target, source, env):
     env['ENV']['NLS_LANG'] = '.WE8ISO8859P1'
     configDir = 'backendtests/config'
     env['ENV']['COAST_PATH'] = configDir
-#    env['ENV']['COAST_TRACE_INITFINIS'] = 1
-#    env['ENV']['COAST_LOGONCERR'] = 3
+    #    env['ENV']['COAST_TRACE_INITFINIS'] = 1
+    #    env['ENV']['COAST_LOGONCERR'] = 3
     relDir = env.getTargetBaseInstallDir()
-    Anything.setLocalEnv(
-        env={},
-        COAST_ROOT=relDir.abspath,
-        COAST_PATH=configDir)
+    Anything.setLocalEnv(env={},
+                         COAST_ROOT=relDir.abspath,
+                         COAST_PATH=configDir)
 
     global defaults
     try:
@@ -78,18 +77,17 @@ def setUp(target, source, env):
 
     connectstring = "{Username1!s}/{Password1!s}@{Server!s}:{Port!s}/{sid!s}".format(
         **defaults['Oracle'])
-    res = runCommand(
-        [target.abspath, '--', '-S', connectstring],
-        logpath=logDir.abspath,
-        filename=path.File('oratest_dropschema.sql').abspath,
-        env=getFlatENV(env))
+    res = runCommand([target.abspath, '--', '-S', connectstring],
+                     logpath=logDir.abspath,
+                     filename=path.File('oratest_dropschema.sql').abspath,
+                     env=getFlatENV(env))
     if res != 0:
         raise SConsider.SkipTest('failed to drop test schema (rc=' + str(res) +
                                  '), check error log')
     res = runCommand([target.abspath, '--', '-S', connectstring],
-                               logpath=logDir.abspath,
-                               filename=path.File('oratest_schema.sql').abspath,
-                               env=getFlatENV(env))
+                     logpath=logDir.abspath,
+                     filename=path.File('oratest_schema.sql').abspath,
+                     env=getFlatENV(env))
     res = runCommand(
         [target.abspath, '--', '-S', connectstring],
         logpath=logDir.abspath,
@@ -109,10 +107,8 @@ def setUp(target, source, env):
         filter=lambda string: multiple_replace(searchreplacespec, string),
         env=getFlatENV(env))
     if res != 0:
-        raise SConsider.SkipTest(
-            'failed to create synonyms (rc=' +
-            str(res) +
-            '), check error log')
+        raise SConsider.SkipTest('failed to create synonyms (rc=' + str(res) +
+                                 '), check error log')
 
 
 def tearDown(target, source, env):
@@ -133,8 +129,9 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
             ],
             'sourceFiles': SConsider.listFiles(['*.cpp']),
             'copyFiles': [
-                (SConsider.findFiles(
-                    ['config'], ['.any', '.txt', '.tst', '.sql']), S_IRUSR | S_IRGRP | S_IROTH),
+                (SConsider.findFiles(['config'],
+                                     ['.any', '.txt', '.tst', '.sql']),
+                 S_IRUSR | S_IRGRP | S_IROTH),
             ],
         },
         'backendTests': {
@@ -150,8 +147,9 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
             ],
             'sourceFiles': SConsider.listFiles(['backendtests/*.cpp']),
             'copyFiles': [
-                (SConsider.findFiles(
-                    ['backendtests/config'], ['.any', '.txt', '.tst', '.sql']), S_IRUSR | S_IRGRP | S_IROTH),
+                (SConsider.findFiles(['backendtests/config'],
+                                     ['.any', '.txt', '.tst', '.sql']),
+                 S_IRUSR | S_IRGRP | S_IROTH),
             ],
             'runConfig': {
                 'setUp': setUp,

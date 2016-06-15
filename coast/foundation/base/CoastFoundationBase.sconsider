@@ -29,23 +29,22 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
 
     SConsider.createTargets(packagename, buildSettings)
 elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
-    includeTarget = SConsider.EnvBuilder(
-        export=[
-            SConsider.EnvBuilder().include(
-                Dir('.'))]).build().RegisterPackageTarget(
-        packagename=packagename,
-        targetname='include')
+    includeTarget = SConsider.EnvBuilder(export=[
+        SConsider.EnvBuilder().include(Dir('.'))
+    ]).build().RegisterPackageTarget(packagename=packagename,
+                                     targetname='include')
 
     libDepends = ['boost.include']
 
     lib = SConsider.createPackageSharedLibrary(
-        packagename, packagename, SConsider.listFiles(
-            ['*.cpp']), depend=[includeTarget] + libDepends)
+        packagename,
+        packagename,
+        SConsider.listFiles(['*.cpp']),
+        depend=[includeTarget] + libDepends)
     libs = SConsider.EnvBuilder().depend(lib).build().RegisterPackageTarget(
         packagename=packagename, targetname='libs')
 
-    SConsider.EnvBuilder().depend(
-        includeTarget,
-        libs).build().RegisterPackageTarget(
-        packagename=packagename,
-        targetname=packagename)
+    SConsider.EnvBuilder().depend(includeTarget,
+                                  libs).build().RegisterPackageTarget(
+                                      packagename=packagename,
+                                      targetname=packagename)

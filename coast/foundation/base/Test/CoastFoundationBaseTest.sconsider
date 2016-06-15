@@ -55,35 +55,28 @@ def setUp(target, source, env):
 
 def tearDown(target, source, env):
     # delete generated files
-    SConsider.removeFiles(
-        SConsider.findFiles(
-            [env.getTargetBaseInstallDir()],
-            extensions=['.res', '.tst'],
-            matchfiles=['include.any']))
+    SConsider.removeFiles(SConsider.findFiles([env.getTargetBaseInstallDir()],
+                                              extensions=['.res', '.tst'],
+                                              matchfiles=['include.any']))
     SystemTestMakeDirectoryExtendCleanup(env)
+
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
     buildSettings = {
         packagename: {
             'linkDependencies': [
-                'CoastFoundationTime',
-                'CoastFoundationMiscellaneous',
-                'testfwFoundation'],
-            'sourceFiles': SConsider.listFiles(
-                ['*.cpp']),
+                'CoastFoundationTime', 'CoastFoundationMiscellaneous',
+                'testfwFoundation'
+            ],
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'ProgramTest',
             'copyFiles': [
-                (SConsider.listFiles(
-                    ['config/*.any']),
-                 S_IRUSR | S_IRGRP | S_IROTH,
-                 searchReplace),
-                (SConsider.listFiles(
-                    [
-                        'config/*.tst',
-                        'config/*.txt',
-                        'tmp/*']),
-                 S_IRUSR | S_IRGRP | S_IROTH),
+                (SConsider.listFiles(['config/*.any']), S_IRUSR | S_IRGRP |
+                 S_IROTH, searchReplace),
+                (SConsider.listFiles([
+                    'config/*.tst', 'config/*.txt', 'tmp/*'
+                ]), S_IRUSR | S_IRGRP | S_IROTH),
             ],
             'runConfig': {
                 'setUp': setUp,

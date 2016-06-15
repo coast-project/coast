@@ -33,16 +33,14 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
     buildSettings = {
         packagename: {
             'linkDependencies': [
-                'CoastNTLMAuth',
-                'CoastRenderers',
-                'testfwWDBase'],
-            'sourceFiles': SConsider.listFiles(
-                ['*.cpp']),
+                'CoastNTLMAuth', 'CoastRenderers', 'testfwWDBase'
+            ],
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'ProgramTest',
             'copyFiles': [
-                (SConsider.listFiles(
-                    ['config/*.any']),
-                 S_IRUSR | S_IRGRP | S_IROTH)],
+                (SConsider.listFiles(['config/*.any']), S_IRUSR | S_IRGRP |
+                 S_IROTH)
+            ],
         },
     }
 

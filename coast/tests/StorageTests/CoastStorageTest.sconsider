@@ -28,22 +28,21 @@ def setUp(target, source, env):
 def tearDown(target, source, env):
     pass
 
+
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
     buildSettings = {
         packagename: {
             'includeSubdir': '',
             'linkDependencies': [
-                'CoastMTFoundation',
-                'testfwFoundation'],
-            'sourceFiles': SConsider.listFiles(
-                ['*.cpp']),
+                'CoastMTFoundation', 'testfwFoundation'
+            ],
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'ProgramTest',
             'copyFiles': [
-                (SConsider.findFiles(
-                    ['config'],
-                    ['.any']),
-                 S_IRUSR | S_IRGRP | S_IROTH)],
+                (SConsider.findFiles(['config'], ['.any']), S_IRUSR | S_IRGRP |
+                 S_IROTH)
+            ],
             'runConfig': {
                 'setUp': setUp,
                 'tearDown': tearDown,

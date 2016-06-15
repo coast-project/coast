@@ -21,14 +21,14 @@ import SCons
 import os
 
 # enable using our own tools from the following directory if it exists
-_project_tool_dir = os.path.join(os.getcwd(),'sconsider_extensions')
+_project_tool_dir = os.path.join(os.getcwd(), 'sconsider_extensions')
 if os.path.exists(_project_tool_dir):
     SCons.Tool.DefaultToolpath.append(_project_tool_dir)
 
 _project_tools = ["coast_options",
                   "ThirdParty",
                   "DoxygenBuilder",
-                  "Package",]
+                  "Package", ]
 
 _sconsider_dist = pkg_resources.get_distribution('SConsider').parsed_version
 if _sconsider_dist >= pkg_resources.parse_version("0.5.dev"):
@@ -42,4 +42,3 @@ DefaultEnvironment(_SCONSIDER_TOOLS_=_project_tools)
 
 # initialize the SConsider extension
 import SConsider
-

@@ -22,6 +22,7 @@ def setUp(target, source, env):
 def tearDown(target, source, env):
     pass
 
+
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
     pass
@@ -35,26 +36,34 @@ elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
     programDepends = ['testfw.testfw']
 
     bin_name = packagename
-    bin_target = SConsider.createPackageProgram(
-        packagename, bin_name, SConsider.listFiles(['*.cpp']),
-        depend=programDepends, pkg_local=[setRelTargetDir])
-    bins = SConsider.EnvBuilder().depend(bin_target).build().RegisterPackageTarget(
-        packagename=packagename, targetname='bins')
+    bin_target = SConsider.createPackageProgram(packagename,
+                                                bin_name,
+                                                SConsider.listFiles(['*.cpp']),
+                                                depend=programDepends,
+                                                pkg_local=[setRelTargetDir])
+    bins = SConsider.EnvBuilder().depend(bin_target).build(
+    ).RegisterPackageTarget(packagename=packagename,
+                            targetname='bins')
 
     scriptTarget = SConsider.createPackageProgramScript(
-        packagename, bin_name, bin_target, pkg_local=[setRelTargetDir])
+        packagename,
+        bin_name, bin_target,
+        pkg_local=[setRelTargetDir])
     scripts = SConsider.EnvBuilder().depend(scriptTarget).build(
-    ).RegisterPackageTarget(packagename=packagename, targetname='scripts')
+    ).RegisterPackageTarget(packagename=packagename,
+                            targetname='scripts')
 
-    testTarget = SConsider.createPackageTestTarget(packagename, bin_name, scriptTarget, settings={
-        'setUp': setUp,
-        'tearDown': tearDown,
-        #              'runParams': '',
-    })
+    testTarget = SConsider.createPackageTestTarget(packagename,
+                                                   bin_name,
+                                                   scriptTarget,
+                                                   settings={
+                                                       'setUp': setUp,
+                                                       'tearDown': tearDown,
+                                                       'runParams': '-- -list',
+                                                   })
 
     # do not add to tests alias as some tests intentionally fail!
     #SConsider.createAlias('tests', testTarget)
 
-    SConsider.EnvBuilder().depend(
-        bins, scripts).build().RegisterPackageTarget(
+    SConsider.EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(
         packagename=packagename, targetname=packagename)

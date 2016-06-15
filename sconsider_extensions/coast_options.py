@@ -60,28 +60,21 @@ def generate(env, **kw):
         env.AppendUnique(CPPDEFINES=['COAST_TRACE'])
         buildflags.append('TRACE')
 
-    env.AppendUnique(
-        CPPDEFINES=[
-            'COAST_BUILDFLAGS' +
-            '="\\"' +
-            '_'.join(buildflags) +
-            '\\""'])
+    env.AppendUnique(CPPDEFINES=[
+        'COAST_BUILDFLAGS' + '="\\"' + '_'.join(buildflags) + '\\""'
+    ])
     compilerstring = [env.get('CXX', 'unknown')]
     if env.get('CXXVERSION', ''):
         compilerstring.append(env.get('CXXVERSION', 'unknown'))
     if env.get('CXXFLAVOUR', ''):
         compilerstring.append(env.get('CXXFLAVOUR', 'unknown'))
-    env.AppendUnique(
-        CPPDEFINES=[
-            'COAST_COMPILER' +
-            '="\\"' +
-            '_'.join(compilerstring) +
-            '\\""'])
+    env.AppendUnique(CPPDEFINES=[
+        'COAST_COMPILER' + '="\\"' + '_'.join(compilerstring) + '\\""'
+    ])
 
     env['__envconfigdir__'] = Dir(GetOption('envconfigdir'))
-    logger.info(
-        "environment specific directory: %s",
-        env['__envconfigdir__'].get_abspath())
+    logger.info("environment specific directory: %s",
+                env['__envconfigdir__'].get_abspath())
 
 
 def exists(env):

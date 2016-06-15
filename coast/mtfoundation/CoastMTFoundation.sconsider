@@ -25,7 +25,8 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
             'targetType': 'LibraryShared',
             'public': {
                 'includes': SConsider.listFiles(['*.h', '*.ipp']),
-                'appendUnique': {'CPPDEFINES': ['_POSIX_THREADS'], 'LIBS': ['pthread']},
+                'appendUnique': {'CPPDEFINES': ['_POSIX_THREADS'],
+                                 'LIBS': ['pthread']},
             }
         }
     }

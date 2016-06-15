@@ -35,18 +35,15 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
         packagename: {
             'includeSubdir': '',
             'linkDependencies': [
-                'CoastRegex',
-                'testfwFoundation'],
-            'sourceFiles': SConsider.listFiles(
-                ['*.cpp']),
+                'CoastRegex', 'testfwFoundation'
+            ],
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'ProgramTest',
             'copyFiles': [
-                (SConsider.listFiles(
-                    [
-                        '*.sh',
-                        'config/*.any',
-                        'config/LargeLiteralData.h']),
-                 S_IRUSR | S_IRGRP | S_IROTH)],
+                (SConsider.listFiles([
+                    '*.sh', 'config/*.any', 'config/LargeLiteralData.h'
+                ]), S_IRUSR | S_IRGRP | S_IROTH)
+            ],
         },
     }
 

@@ -27,10 +27,10 @@ defaults = None
 
 
 class MyHTTPServer(HTTPServer):
-
     """This class wrapper is needed to set allow_reuse_address to True
     prior to initializing it"""
     allow_reuse_address = True
+
 
 servers = []
 
@@ -58,24 +58,21 @@ def setUp(target, source, env):
     tdirabs = tdir.abspath
     logpath = env.getLogInstallDir()
     configdir = tdir.Dir('config')
-    threading.Thread(
-        target=startServer,
-        args=[
-            defaults['HostName'],
-            defaults['HttpPort'],
-            MyHTTPServer,
-            SimpleHTTPRequestHandler]).start()
+    threading.Thread(target=startServer,
+                     args=[
+                         defaults['HostName'], defaults['HttpPort'],
+                         MyHTTPServer, SimpleHTTPRequestHandler
+                     ]).start()
 
 
 def tearDown(target, source, env):
     for server in servers:
         server.shutdown()
     # delete generated files
-    SConsider.removeFiles(
-        SConsider.findFiles(
-            [env.getTargetBaseInstallDir().Dir('config')],
-            extensions=[],
-            matchfiles=['time.txt']))
+    SConsider.removeFiles(SConsider.findFiles([env.getTargetBaseInstallDir(
+    ).Dir('config')],
+                                              extensions=[],
+                                              matchfiles=['time.txt']))
 
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
@@ -102,10 +99,10 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
             ],
             'usedTarget': 'coastd.coastd',
             'copyFiles': [
-                (SConsider.findFiles(['.'], ['.txt', '.html']),
-                 S_IRUSR | S_IRGRP | S_IROTH),
-                (SConsider.findFiles(['config'], ['.any']),
-                 S_IRUSR | S_IRGRP | S_IROTH),
+                (SConsider.findFiles(['.'], ['.txt', '.html']), S_IRUSR |
+                 S_IRGRP | S_IROTH),
+                (SConsider.findFiles(['config'], ['.any']), S_IRUSR | S_IRGRP |
+                 S_IROTH),
             ],
             'runConfig': {
                 'setUp': setUp,

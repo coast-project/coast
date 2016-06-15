@@ -21,15 +21,12 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
         packagename: {
             'includeSubdir': '',
             'linkDependencies': [
-                'iplanetLDAP',
-                'CoastDataAccess',
-                'CoastSecurity'],
-            'sourceFiles': SConsider.listFiles(
-                ['*.cpp']),
+                'iplanetLDAP', 'CoastDataAccess', 'CoastSecurity'
+            ],
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'LibraryShared',
             'public': {
-                'includes': SConsider.listFiles(
-                    ['*.h']),
+                'includes': SConsider.listFiles(['*.h']),
             },
         },
     }

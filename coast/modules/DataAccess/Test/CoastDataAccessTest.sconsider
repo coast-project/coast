@@ -36,8 +36,8 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
             'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'ProgramTest',
             'copyFiles': [
-                (SConsider.listFiles(
-                    ['config/*.any', 'config/*.xml']), S_IRUSR | S_IRGRP | S_IROTH)
+                (SConsider.listFiles(['config/*.any', 'config/*.xml']),
+                 S_IRUSR | S_IRGRP | S_IROTH)
             ],
             'runConfig': {
                 #            'setUp'        : setUp,

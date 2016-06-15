@@ -23,11 +23,11 @@ def setUp(target, source, env):
 
 def tearDown(target, source, env):
     # delete generated files
-    SConsider.removeFiles(
-        SConsider.findFiles(
-            [env.getTargetBaseInstallDir()],
-            matchfiles=['MultCprsTest.gz', 'big.gz', 'testzip.gz', 'tt.gz',
-                        'empty.gz', 'empty2.gz']))
+    SConsider.removeFiles(SConsider.findFiles(
+        [env.getTargetBaseInstallDir()],
+        matchfiles=['MultCprsTest.gz', 'big.gz', 'testzip.gz', 'tt.gz',
+                    'empty.gz', 'empty2.gz']))
+
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
@@ -37,7 +37,8 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
             'linkDependencies': ['CoastCompress', 'testfwFoundation'],
             'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'ProgramTest',
-            'copyFiles': [(SConsider.findFiles(['.'], ['.any', '.html', '.gz']), S_IRUSR | S_IRGRP | S_IROTH)],
+            'copyFiles': [(SConsider.findFiles(['.'], ['.any', '.html', '.gz']),
+                           S_IRUSR | S_IRGRP | S_IROTH)],
             'runConfig': {
                 'setUp': setUp,
                 'tearDown': tearDown,

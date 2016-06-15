@@ -34,18 +34,17 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
     buildSettings = {
         packagename: {
             'linkDependencies': [
-                'CoastActions',
-                'testfwWDBase'],
+                'CoastActions', 'testfwWDBase'
+            ],
             'requires': [
                 'CoastRenderers',
             ],
-            'sourceFiles': SConsider.listFiles(
-                ['*.cpp']),
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'ProgramTest',
             'copyFiles': [
-                (SConsider.listFiles(
-                    ['config/*.any']),
-                 S_IRUSR | S_IRGRP | S_IROTH)],
+                (SConsider.listFiles(['config/*.any']), S_IRUSR | S_IRGRP |
+                 S_IROTH)
+            ],
         },
     }
 

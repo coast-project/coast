@@ -27,37 +27,33 @@ Import('*')
 
 
 class MyTCPServer(TCPServer):
-
     """This class wrapper is needed to set allow_reuse_address to True
     prior to initializing it"""
     allow_reuse_address = True
 
 
 class MyHTTPServer(HTTPServer):
-
     """This class wrapper is needed to set allow_reuse_address to True
     prior to initializing it"""
     allow_reuse_address = True
 
 
 class AcceptorHandler(BaseRequestHandler):
-
     def handle(self):
         data = self.request.recv(1024)
         self.request.send('')
 
 
 class HTTPHandler(BaseHTTPRequestHandler):
-
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
 
 
 class NoSendRecvHandler(BaseRequestHandler):
-
     def handle(self):
         pass
+
 
 servers = []
 
@@ -66,6 +62,7 @@ def startServer(host, port, server_class, handler_class):
     server = server_class((host, port), handler_class)
     servers.append(server)
     server.serve_forever()
+
 
 tcpnosendrecvport = 43000
 tcpsendrecvport = 43001
@@ -107,52 +104,43 @@ def setUp(target, source, env):
     env['ENV']['COAST_TRACE_STORAGE'] = '1'
     env['ENV']['COAST_TRACE_INITFINIS'] = '1'
     # setup listener threads for socket tests
-    threading.Thread(
-        target=startServer,
-        args=[
-            localhostname,
-            tcpsendrecvport,
-            MyTCPServer,
-            AcceptorHandler]).start()
-    threading.Thread(
-        target=startServer,
-        args=[
-            localhostname,
-            httpsendrecvport,
-            MyHTTPServer,
-            HTTPHandler]).start()
-    threading.Thread(
-        target=startServer,
-        args=[
-            localhostname,
-            tcpnosendrecvport,
-            MyTCPServer,
-            NoSendRecvHandler]).start()
+    threading.Thread(target=startServer,
+                     args=[
+                         localhostname, tcpsendrecvport, MyTCPServer,
+                         AcceptorHandler
+                     ]).start()
+    threading.Thread(target=startServer,
+                     args=[
+                         localhostname, httpsendrecvport, MyHTTPServer,
+                         HTTPHandler
+                     ]).start()
+    threading.Thread(target=startServer,
+                     args=[
+                         localhostname, tcpnosendrecvport, MyTCPServer,
+                         NoSendRecvHandler
+                     ]).start()
 
 
 def tearDown(target, source, env):
     for server in servers:
         server.shutdown()
 
+
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
     buildSettings = {
         packagename: {
             'linkDependencies': [
-                'CoastFoundationIO',
-                'CoastFoundationMiscellaneous',
-                'testfwFoundation'],
-            'sourceFiles': SConsider.listFiles(
-                ['*.cpp']),
+                'CoastFoundationIO', 'CoastFoundationMiscellaneous',
+                'testfwFoundation'
+            ],
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
             'targetType': 'ProgramTest',
             'copyFiles': [
-                (SConsider.listFiles(
-                    ['config/*.any']),
-                 S_IRUSR | S_IRGRP | S_IROTH,
-                 searchReplace),
-                (SConsider.listFiles(
-                    ['config/*.sh']),
-                 S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR),
+                (SConsider.listFiles(['config/*.any']), S_IRUSR | S_IRGRP |
+                 S_IROTH, searchReplace),
+                (SConsider.listFiles(['config/*.sh']), S_IRUSR | S_IRGRP |
+                 S_IROTH | S_IXUSR),
             ],
             'runConfig': {
                 'setUp': setUp,

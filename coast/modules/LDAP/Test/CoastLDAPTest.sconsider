@@ -65,12 +65,12 @@ def replaceConfigParams(env, relDir, configdir):
         ('##BINDPW##', str(defaults['LDAP']['Password'])),
         ('##WRONGBINDPW##', str(defaults['LDAP']['FaultyPassword'])),
         ('##BINDFAILCODE##', str(defaults['LDAP']['BindFailureCode'])),
-        ('##BINDDC##', str(defaults['LDAP']['BindDc'])), ]
+        ('##BINDDC##', str(defaults['LDAP']['BindDc'])),
+    ]
 
-    modifyConfigFiles(
-        env, searchreplacespec, SConsider.findFiles(
-            [configdir], [
-                '.any', '.ldif']))
+    modifyConfigFiles(env, searchreplacespec, SConsider.findFiles([configdir], [
+        '.any', '.ldif'
+    ]))
 
 
 def modifyConfigFiles(env, searchReplace=[], files=[]):
@@ -86,12 +86,10 @@ def modifyConfigFiles(env, searchReplace=[], files=[]):
 
 def bulkLoadLdap(configdir):
     try:
-        l = ldap.initialize(
-            'ldap://' + defaults['LDAP']['Server'] + ':' +
-            str(defaults['LDAP']['Port']))
+        l = ldap.initialize('ldap://' + defaults['LDAP']['Server'] + ':' + str(
+            defaults['LDAP']['Port']))
         l.bind_s(
-            str(defaults['LDAP']['BindDn']),
-            str(defaults['LDAP']['Password']))
+            str(defaults['LDAP']['BindDn']), str(defaults['LDAP']['Password']))
 
         deleteLdapEntries(l)
         addLdapEntries(l, configdir)
@@ -117,9 +115,8 @@ def deleteLdapEntries(l):
     try:
         sys.stdout.write("ldap record deletion started.")
         sys.stdout.flush()
-        rawRes = l.search_s(
-            'dc=' + str(defaults['LDAP']['BindDc']),
-            ldap.SCOPE_SUBTREE, '(objectclass=*)')
+        rawRes = l.search_s('dc=' + str(defaults['LDAP']['BindDc']),
+                            ldap.SCOPE_SUBTREE, '(objectclass=*)')
         res = transformLdapSearchResults(rawRes)
         i = 0
 
@@ -136,7 +133,6 @@ def deleteLdapEntries(l):
 
 
 class LdifLoader(LDIFParser):
-
     def __init__(self, input, con):
         LDIFParser.__init__(self, input)
         self.con = con
@@ -186,7 +182,7 @@ def transformLdapSearchResults(results):
     return res
 
 
-class LDAPSearchResult:
+class LDAPSearchResult(object):
     dn = ''
 
     def __init__(self, entryTuple):
@@ -239,20 +235,17 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
         packagename: {
             'targetType': 'ProgramTest',
             'linkDependencies': [
-                'CoastLDAP',
-                'CoastActions',
-                'testfwWDBase'],
+                'CoastLDAP', 'CoastActions', 'testfwWDBase'
+            ],
             'requires': [],
-            'sourceFiles': SConsider.listFiles(
-                ['*.cpp']),
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
             'copyFiles': [
-                (SConsider.findFiles(
-                    ['config'],
-                    extensions=[
-                        '.any',
-                        '.ldif'],
-                    matchfiles=[]),
-                 S_IRUSR | S_IRGRP | S_IROTH),
+                (SConsider.findFiles(['config'],
+                                     extensions=[
+                                         '.any', '.ldif'
+                                     ],
+                                     matchfiles=[]), S_IRUSR | S_IRGRP |
+                 S_IROTH),
             ],
             'runConfig': {
                 'setUp': setUp,

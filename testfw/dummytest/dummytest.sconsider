@@ -25,6 +25,20 @@ def tearDown(target, source, env):
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
+    # some of the tests are intended to fail, so only list available tests
+    buildSettings = {
+        packagename: {
+            'includeSubdir': '',
+            'linkDependencies': ['testfw'],
+            'sourceFiles': SConsider.listFiles(['*.cpp']),
+            'targetType': 'ProgramTest',
+            'runConfig': {
+                'runParams': '-- -list',
+            }
+        }
+    }
+
+    SConsider.createTargets(packagename, buildSettings)
     pass
 elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
     import os

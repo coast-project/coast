@@ -14,6 +14,7 @@
 #include <cstring>
 #include <sstream>
 #include <iomanip>
+#include <cstdlib>
 
 MemChecker::MemChecker(const char *scope, Allocator *a) :
 		fAllocator(a),

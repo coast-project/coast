@@ -1,4 +1,4 @@
-"""SConstruct
+"""SConstruct.
 
 Main build driver for coast build. It specifies additional tools used to
 build the coast framework.

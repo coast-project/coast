@@ -10,6 +10,8 @@
 #define _StringStreamBuf_H
 
 #include <cstdio>
+#include <streambuf>
+
 //! StringStreamBuf adapts String objects to the iostream framework
 /*! the underlying string is used directly as the buffer to save copying overhead */
 namespace NSStringStream

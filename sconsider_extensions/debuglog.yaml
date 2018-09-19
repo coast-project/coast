@@ -76,13 +76,13 @@ loggers:
         propagate: no
 
     TargetMaker:
-        level: INFO
+        level: DEBUG
         handlers: [console]
         propagate: no
         filters: []
 
     SConsider.Callback:
-        level: WARNING
+        level: INFO
         handlers: [console]
         propagate: no
         filters: []

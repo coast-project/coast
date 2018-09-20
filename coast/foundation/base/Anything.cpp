@@ -927,18 +927,18 @@ String Anything::AsString(const char *dflt) const
 void Anything::Expand()
 {
 	if (GetType() != AnyArrayType) {
-		Allocator *al = this->GetAllocator();
+		Allocator *al = GetAllocator();
 		Assert(al != 0);
 		AnyArrayImpl *a = new ((al) ? al : coast::storage::Current()) AnyArrayImpl(al);
 		if ( a && GetType() != AnyNullType ) {
 			a->At(0L) = *this; // this semantic is different from the Java version
 		}
-		if (this->GetImpl()) {
-			this->GetImpl()->Unref();
+		if (GetImpl()) {
+			GetImpl()->Unref();
 		}
-		this->fAnyImp = a;
+		fAnyImp = a;
 		if (0 == a) {
-			this->SetAllocator(al); // remember allocator in case of insanity or no memory
+			SetAllocator(al); // remember allocator in case of insanity or no memory
 		}
 	}
 }
@@ -1010,20 +1010,20 @@ Anything &Anything::DoAt(const char *k)
 			Assert(AnyArrayType == GetImpl()->GetType());
 			return ArrayImpl(GetImpl())->At(k);
 		} else {
-			return this->DoAt(i);
+			return DoAt(i);
 		}
 	}
-	return this->DoAt(GetSize());
+	return DoAt(GetSize());
 }
 Anything const &Anything::DoAt(const char *k)const
 {
 	long i;
 	if (k && (*k != 0)) {
 		if ( (i = FindIndex(k)) != -1L) {
-			return this->DoAt(i);
+			return DoAt(i);
 		}
 	}
-	return this->DoAt(GetSize());
+	return DoAt(GetSize());
 }
 
 const char *Anything::SlotName(long slot) const
@@ -1358,10 +1358,10 @@ std::ostream &Anything::PrintOn(std::ostream &os, bool pretty) const
 {
 	if (pretty) {
 		PrettyAnyPrinter p(os);
-		this->Accept(p);
+		Accept(p);
 	} else {
 		SimpleAnyPrinter p(os);
-		this->Accept(p);
+		Accept(p);
 	}
 	return os;
 }
@@ -1370,7 +1370,7 @@ void Anything::Export(std::ostream &os, int level) const
 {
 	if (! ! os) {
 		XrefAnyPrinter pp(os, level);
-		this->Accept(pp);
+		Accept(pp);
 		os.flush(); // export should really flush it.
 	}
 }
@@ -1568,31 +1568,31 @@ void Anything::clear()
 Anything::iterator Anything::erase(Anything::iterator pos)
 {
 	if (&pos.a == this) {
-		if (pos.position >= 0 && pos.position < this->GetSize()) {
+		if (pos.position >= 0 && pos.position < GetSize()) {
 			Remove(pos.position);
 			return pos;
 		}
 	}
-	return this->end(); // should throw, but stay robust
+	return end(); // should throw, but stay robust
 }
 Anything::iterator Anything::erase(Anything::iterator from, Anything::iterator to)
 {
 	if (&from.a == this && &to.a == this) {
-		if (from.position >= 0 && from.position <= to.position && to.position <= this->GetSize()) {
+		if (from.position >= 0 && from.position <= to.position && to.position <= GetSize()) {
 			while (--to >= from) {
 				Remove(to.position);
 			}
 			return from;
 		}
 	}
-	return this->end(); // should throw, but stay robust
+	return end(); // should throw, but stay robust
 }
 void Anything::swap(Anything &that)
 {
 	// we use an anonymous union of pointers and bits. this could be dangerous....
 	Assert(sizeof(bits) == sizeof(fAnyImp));
 	Assert(sizeof(fAnyImp) == sizeof(fAlloc));
-	std::swap(this->fAnyImp,that.fAnyImp);
+	std::swap(fAnyImp,that.fAnyImp);
 }
 
 Anything::iterator Anything::do_insert(iterator pos, size_type n, const value_type &v)
@@ -1778,7 +1778,7 @@ const ROAnything ROAnything::At(const char *k) const
 {
 	long lIdx;
 	if ( (lIdx = AssertRange(k)) != -1 ) {
-		return this->At(lIdx);
+		return At(lIdx);
 	}
 	return ROAnything();
 }
@@ -1870,10 +1870,10 @@ std::ostream &ROAnything::PrintOn(std::ostream &os, bool pretty) const
 {
 	if (pretty) {
 		PrettyAnyPrinter p(os);
-		this->Accept(p);
+		Accept(p);
 	} else {
 		SimpleAnyPrinter p(os);
-		this->Accept(p);
+		Accept(p);
 	}
 	return os;
 }
@@ -1882,7 +1882,7 @@ void ROAnything::Export(std::ostream &os, int level) const
 {
 	if (! ! os) {
 		XrefAnyPrinter pp(os, level);
-		this->Accept(pp);
+		Accept(pp);
 		os.flush(); // export should really flush it.
 	}
 }

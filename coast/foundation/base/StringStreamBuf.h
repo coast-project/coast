@@ -70,7 +70,7 @@ public:
 
 	/*! dtor, deletes string object if it has been allocated by this */
 	virtual ~StringStreamBuf() {
-		this->sync();
+		sync();
 		if ( fDeleteStore ) {
 			delete fStore;
 			fStore = 0;
@@ -96,7 +96,7 @@ public:
 		\return underlying string buffer
 		\note do not change it when continuing using the stream */
 	BufferTypeRef str() {
-		this->sync();
+		sync();
 		Assert(fStore);
 		return *fStore;
 	}

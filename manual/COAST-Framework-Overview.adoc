@@ -123,6 +123,7 @@ Patterns:
 --
 endif::[]
 
+ifdef::slideoutput[<<<]
 === Basic Building Block
 
 ==== Storage
@@ -178,6 +179,7 @@ Patterns:
 --
 endif::[]
 
+ifdef::slideoutput[<<<]
 === Communication Block
 
 ==== Socket
@@ -204,6 +206,7 @@ Patterns:
 --
 endif::[]
 
+ifdef::slideoutput[<<<]
 === Multi-Threading Block
 
 ==== Thread
@@ -250,7 +253,7 @@ endif::[]
 ** get dispatched for small piece of work to be done
 ** get their workload on their own indefinitely
 
-
+ifdef::slideoutput[<<<]
 === Application Foundation Block
 
 ==== LookupInterface
@@ -301,21 +304,24 @@ Patterns:
 --
 endif::[]
 
+ifdef::slideoutput[<<<]
 === Web-/Application Block
 
 ==== Request processing overview
 
 image:RequestHandling.svg[]
 
+ifdef::slideoutput[<<<]
 ==== Service handling overview
 
 image:ServiceHandling.svg[]
 
+ifdef::slideoutput[<<<]
 ==== Context
 
 * Motivation
 ** mediator to objects used in a request
-***
+
 * Stores
 ** Access to session store
 *** Reference to Sessions RoleStore
@@ -433,14 +439,17 @@ image:PageTransition.svg[]
 *** Page objects "inherit" configuration from "super" pages
 *** Page configurations typically contain Action and Renderer specifications
 
+ifdef::slideoutput[<<<]
 ==== Page transition: Postprocessing
 
 plantuml::PagePostprocessing.plantuml[format=svg, title="Page postprocessing"]
 
+ifdef::slideoutput[<<<]
 ==== Page transition: Preprocess / Render
 
 plantuml::PagePreprocessing.plantuml[format=svg, title="Page preprocessing"]
 
+ifdef::slideoutput[<<<]
 ==== Role
 
 * Hierarchically configured object

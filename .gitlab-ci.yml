@@ -327,6 +327,7 @@ Build Documentation:
     --attribute doctype=book
     --attribute pdf-page-size="6in x 10.66in"
     --attribute pdf-page-layout=landscape
+    --attribute slideoutput
     --backend pdf
     --out-file manual/COAST-Framework-Overview_Slides.pdf
     manual/COAST-Framework-Overview.adoc

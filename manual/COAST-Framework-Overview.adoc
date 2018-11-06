@@ -439,14 +439,10 @@ ifdef::slideoutput[<<<]
 ** Page configurations typically contain Action and Renderer specifications
 
 ifdef::slideoutput[<<<]
-==== Page transition: Postprocessing
-
-plantuml::PagePostprocessing.plantuml[format=svg, title="Page postprocessing", width="90%",pdfwidth="80%",align=center]
+plantuml::PagePostprocessing.plantuml[format=svg, title="Page transition: Postprocessing", width="90%",pdfwidth="90%",align=center]
 
 ifdef::slideoutput[<<<]
-==== Page transition: Preprocess / Render
-
-plantuml::PagePreprocessing.plantuml[format=svg, title="Page preprocessing", width="90%",pdfwidth="75%",align=center]
+plantuml::PagePreprocessing.plantuml[format=svg, title="Page transition: Preprocess / Render", width="90%",pdfwidth="90%",align=center]
 
 ifdef::slideoutput[<<<]
 ==== Role

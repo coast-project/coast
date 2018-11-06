@@ -307,7 +307,7 @@ endif::[]
 ifdef::slideoutput[<<<]
 === Web-/Application Block
 
-image::RequestHandling.svg[title="Request processing overview", alt="Request processing overview",id=requestprocessing,width="90%",pdfwidth="90%",align=center]
+image::RequestHandling.svg[title="Request processing overview", alt="Request processing overview",id=requestprocessing,width="90%",pdfwidth="80%",align=center]
 
 ifdef::slideoutput[<<<]
 
@@ -376,8 +376,6 @@ ifdef::speakernotes[]
 --
 endif::[]
 
-==== Session
-
 * Verifies request
 ** Is session expired
 ** Match Request information against Session information
@@ -415,8 +413,6 @@ endif::[]
 |image:PageTransition.svg[title="Page transition", alt="Page transition",id=pagetransition,width="90%",pdfwidth="90%",align=center]
 |====
 
-==== Page
-
 * Hierarchy of page configurations defined in /Pages-slot of Config.any
 +
 [source,bash]
@@ -440,7 +436,7 @@ endif::[]
 ifdef::slideoutput[<<<]
 ==== Page transition: Postprocessing
 
-plantuml::PagePostprocessing.plantuml[format=svg, title="Page postprocessing"]
+plantuml::PagePostprocessing.plantuml[format=svg, title="Page postprocessing", width="90%",pdfwidth="80%",align=center]
 
 ifdef::slideoutput[<<<]
 ==== Page transition: Preprocess / Render
@@ -466,8 +462,6 @@ ifdef::speakernotes[]
 * Role Based Access Control; SecurityPatterns (p247)
 --
 endif::[]
-
-==== Role
 
 * Implements mapping from transition to page
 ** GetNewPageName
@@ -496,8 +490,6 @@ ifdef::speakernotes[]
 -> Programm und Daten gemischt
 --
 endif::[]
-
-==== Renderer
 
 * Every Anything can be a Renderer specification
 ** Simple types are rendered literally

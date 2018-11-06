@@ -307,14 +307,11 @@ endif::[]
 ifdef::slideoutput[<<<]
 === Web-/Application Block
 
-==== Request processing overview
-
-image:RequestHandling.svg[]
+image::RequestHandling.svg[title="Request processing overview", alt="Request processing overview",id=requestprocessing,width="90%",pdfwidth="90%",align=center]
 
 ifdef::slideoutput[<<<]
-==== Service handling overview
 
-image:ServiceHandling.svg[]
+image::ServiceHandling.svg[title="Service handling overview", alt="Service handling overview",id=servicehandling,width="90%",pdfwidth="90%",align=center]
 
 ifdef::slideoutput[<<<]
 ==== Context
@@ -345,7 +342,6 @@ endif::[]
 ** ListenerPool
 *** passive socket end point management
 *** Request handling/processing
-
 
 * Configuration anchor
 ** implements LookupInterface
@@ -380,7 +376,7 @@ ifdef::speakernotes[]
 --
 endif::[]
 
-==== Session ff.
+==== Session
 
 * Verifies request
 ** Is session expired
@@ -402,7 +398,9 @@ endif::[]
 
 ==== Page
 
-* Request happens between Pages
+[cols=".^2a,.^1a",frame=none,grid=none]
+|====
+|* Request happens between Pages
 ** Postprocess current Page
 *** results in a transition token
 *** selects (new) role (optional)
@@ -414,10 +412,10 @@ endif::[]
 **** transition to page mapping occurs again
 ** Render Page
 *** generates (html-)output
+|image:PageTransition.svg[title="Page transition", alt="Page transition",id=pagetransition,width="90%",pdfwidth="90%",align=center]
+|====
 
-image:PageTransition.svg[]
-
-==== Page ff.
+==== Page
 
 * Hierarchy of page configurations defined in /Pages-slot of Config.any
 +
@@ -434,10 +432,10 @@ image:PageTransition.svg[]
 }
 ----
 
-** Pages have a corresponding configuration file
-*** A single C++ class can be used to instantiate different pages with different configuration files
-*** Page objects "inherit" configuration from "super" pages
-*** Page configurations typically contain Action and Renderer specifications
+* Pages have a corresponding configuration file
+** A single C++ class can be used to instantiate different pages with different configuration files
+** Page objects "inherit" configuration from "super" pages
+** Page configurations typically contain Action and Renderer specifications
 
 ifdef::slideoutput[<<<]
 ==== Page transition: Postprocessing
@@ -469,7 +467,7 @@ ifdef::speakernotes[]
 --
 endif::[]
 
-==== Role ff.
+==== Role
 
 * Implements mapping from transition to page
 ** GetNewPageName
@@ -499,7 +497,7 @@ ifdef::speakernotes[]
 --
 endif::[]
 
-==== Renderer ff.
+==== Renderer
 
 * Every Anything can be a Renderer specification
 ** Simple types are rendered literally

@@ -355,6 +355,7 @@ ifdef::speakernotes[]
 --
 endif::[]
 
+ifdef::slideoutput[<<<]
 ==== Session
 
 * Implements page transition algorithm
@@ -394,6 +395,7 @@ ifdef::speakernotes[]
 --
 endif::[]
 
+ifdef::slideoutput[<<<]
 ==== Page
 
 [cols=".^2a,.^1a",frame=none,grid=none]
@@ -441,7 +443,7 @@ plantuml::PagePostprocessing.plantuml[format=svg, title="Page postprocessing", w
 ifdef::slideoutput[<<<]
 ==== Page transition: Preprocess / Render
 
-plantuml::PagePreprocessing.plantuml[format=svg, title="Page preprocessing"]
+plantuml::PagePreprocessing.plantuml[format=svg, title="Page preprocessing", width="90%",pdfwidth="80%",align=center]
 
 ifdef::slideoutput[<<<]
 ==== Role
@@ -471,6 +473,7 @@ endif::[]
 ** Copies role specific data into URL
 *** StateFull list
 
+ifdef::slideoutput[<<<]
 ==== Renderer
 
 * Interprets its configuration
@@ -521,6 +524,7 @@ endif::[]
 }
 ----
 
+ifdef::slideoutput[<<<]
 ==== Action
 
 * Infrastructure executed from within Pages

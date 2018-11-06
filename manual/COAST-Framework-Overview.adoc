@@ -11,8 +11,7 @@
 :experimental:
 ifndef::imagesdir[:imagesdir: ./images/]
 ifndef::sourcedir[:sourcedir: ../coast]
-ifndef::docsdir[:docsdir: .]
-:title-page-background-image: image:coast.png[]
+:title-logo-image: image:coast.png[]
 //:toc: macro
 //:doctype: book
 //:media: screen

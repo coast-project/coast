@@ -105,13 +105,13 @@ endif::[]
 
 == Building blocks
 
-[cols="1a,1a",frame=none,grid=none]
+[cols=".^1a,1a",frame=none,grid=none]
 |====
 |* Layered Architecture
 ** Reduces overhead for simple apps
 ** Flexible and easy to extend
 * Prototypes for extensions introduced in wdbase
-|image::COAST-Layering.svg[title="Framework layering", alt="Framework layering",id=frameworklayers,align=center]
+|image:COAST-Layering.svg[title="Framework layering", alt="Framework layering",id=frameworklayers,width="90%",pdfwidth="80%",align=center]
 |====
 
 ifdef::speakernotes[]

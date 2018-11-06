@@ -9,7 +9,7 @@
 :icons: font
 :lang: en
 :experimental:
-ifndef::imagesdir[:imagesdir: ./images/]
+ifndef::imagesdir[:imagesdir: images/]
 ifndef::sourcedir[:sourcedir: ../coast]
 :title-logo-image: image:coast.png[]
 //:toc: macro
@@ -65,7 +65,7 @@ Several web-/applications were created since.
 * Base for framework mechanisms
 * Minimal external dependencies
 
-image:CoastOverview-final.png[]
+image::CoastOverview-final.png[title="Client/Server overview", alt="Client and Server using the internet",id=clientserver,width="60%",pdfwidth="60%",align=center]
 
 ifdef::speakernotes[]
 [NOTE.speaker]
@@ -105,12 +105,14 @@ endif::[]
 
 == Building blocks
 
-* Layered Architecture
+[cols="1a,1a",frame=none,grid=none]
+|====
+|* Layered Architecture
 ** Reduces overhead for simple apps
 ** Flexible and easy to extend
 * Prototypes for extensions introduced in wdbase
-
-image:COAST-Layering.svg[]
+|image::COAST-Layering.svg[title="Framework layering", alt="Framework layering",id=frameworklayers,align=center]
+|====
 
 ifdef::speakernotes[]
 [NOTE.speaker]

@@ -9,6 +9,7 @@ stages:
 - prepare
 - build
 - test
+- docs
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/reference/pip_install/#caching
@@ -307,3 +308,57 @@ test:64:dbg:trc:
     - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
     reports:
       junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+
+Build Documentation:
+  image: marcelhuberfoo/asciidoctor:v19.02.4
+  stage: docs
+  variables:
+    LANG: en_US.utf8
+  tags:
+  - docker
+  script:
+  - asciidoctor
+    --require asciidoctor-pdf
+    --require asciidoctor-diagram
+    --require asciidoctor-mathematical
+    --attribute revnumber="$(git describe --abbrev  --tags --always --dirty='-*')"
+    --attribute revremark="$(git log -1 --pretty=format:%s)"
+    --attribute revdate="$(git log -1 --date=short-local --pretty=format:%cd)"
+    --attribute doctype=book
+    --attribute pdf-page-size="6in x 10.66in"
+    --attribute pdf-page-layout=landscape
+    --backend pdf
+    --out-file manual/COAST-Framework-Overview_Slides.pdf
+    manual/COAST-Framework-Overview.adoc
+  - asciidoctor
+    --require asciidoctor-pdf
+    --require asciidoctor-diagram
+    --require asciidoctor-mathematical
+    --attribute revnumber="$(git describe --abbrev  --tags --always --dirty='-*')"
+    --attribute revremark="$(git log -1 --pretty=format:%s)"
+    --attribute revdate="$(git log -1 --date=short-local --pretty=format:%cd)"
+    --attribute doctype=article
+    --attribute pdf-page-size="A4"
+    --attribute pdf-page-layout=portrait
+    --attribute toc=auto
+    --attribute toclevels=3
+    --backend pdf
+    --out-file manual/COAST-Framework-Overview_Compact.pdf
+    manual/COAST-Framework-Overview.adoc
+  - asciidoctor
+    --require asciidoctor-pdf
+    --require asciidoctor-diagram
+    --require asciidoctor-mathematical
+    --attribute revnumber="$(git describe --abbrev  --tags --always --dirty='-*')"
+    --attribute revremark="$(git log -1 --pretty=format:%s)"
+    --attribute revdate="$(git log -1 --date=short-local --pretty=format:%cd)"
+    --attribute doctype=book
+    --attribute pdf-page-size="A4"
+    --attribute pdf-page-layout=portrait
+    --backend pdf
+    --out-file manual/COAST-Framework-Overview_ForNotes.pdf
+    manual/COAST-Framework-Overview.adoc
+  artifacts:
+    expire_in: 1 week
+    paths:
+    - 'manual/*.pdf'

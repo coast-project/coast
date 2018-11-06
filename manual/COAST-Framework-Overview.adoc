@@ -11,7 +11,7 @@
 :experimental:
 ifndef::imagesdir[:imagesdir: images/]
 ifndef::sourcedir[:sourcedir: ../coast]
-:title-logo-image: image:coast.png[]
+:title-logo-image: image:coast.png[pdfwidth="40%"]
 //:toc: macro
 //:doctype: book
 //:media: screen

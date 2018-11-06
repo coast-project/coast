@@ -340,8 +340,9 @@ Build Documentation:
     --attribute doctype=article
     --attribute pdf-page-size="A4"
     --attribute pdf-page-layout=portrait
+    --attribute speakernotes
     --attribute toc=auto
-    --attribute toclevels=3
+    --attribute toclevels=2
     --backend pdf
     --out-file manual/COAST-Framework-Overview_Compact.pdf
     manual/COAST-Framework-Overview.adoc
@@ -355,6 +356,7 @@ Build Documentation:
     --attribute doctype=book
     --attribute pdf-page-size="A4"
     --attribute pdf-page-layout=portrait
+    --attribute speakernotes
     --backend pdf
     --out-file manual/COAST-Framework-Overview_ForNotes.pdf
     manual/COAST-Framework-Overview.adoc

@@ -47,37 +47,40 @@ ifndef::sourcedir[:sourcedir: ../coast]
 
 == History
 
-* Somewhen back in the last century
-** Need for a web application framework
-*** apache: poor API, poor performance
-*** java: not yet established for web-services, poor performance
-** Idea to create own web-/application framework
-*** Based on work done at Ubilab
-**** André Weinand, Erich Gamma
-** Several web-/applications were created since
+Somewhen back in the last century, there was ...
 
+* the need for a web application framework
+** but apache had a poor API and poor performance
+** but java was not yet established for web-services and had poor performance
+* the idea to create an own web-/application framework
+** based on work done at Ubilab
+*** by André Weinand and Erich Gamma
 
-== Overview
+Several web-/applications were created since.
 
-* Goals
-** Have some general purpose application infrastructure
-** Simple introspection
-** Base for framework mechanisms
-** Minimal external dependencies
+== Goals
+
+* Have some general purpose application infrastructure
+* Simple introspection
+* Base for framework mechanisms
+* Minimal external dependencies
 
 image:CoastOverview-final.png[]
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 * FrameworkersDilemma
 * LeveragingApplicationFrameworks
-** extensible: quick and easy adaption to new situations
-** flexible: support different kinds of features 'out-of-the-box'
-** portable: across different platforms and compilers
-** reliable: robust and fault tolerant
-** scalable: should be easy to adapt in case of increased load
-** affordable: ownership/maintenance costs should stay low
++
+extensible:: quick and easy adaption to new situations
+flexible:: support different kinds of features 'out-of-the-box'
+portable:: across different platforms and compilers
+reliable:: robust and fault tolerant
+scalable:: should be easy to adapt in case of increased load
+affordable:: ownership/maintenance costs should stay low
 --
+endif::[]
 
 == Strengths
 
@@ -85,19 +88,20 @@ image:CoastOverview-final.png[]
 ** simple design, no code and interface bloat
 ** small server footprint
 * Configurability
-** dynamic re-configurability without stopping the server, even DLL
-module loading
+** dynamic re-configurability without stopping the server, even DLL module loading
 * Multi-Threading for high-efficiency
-** Thread specific memory pools allow for dynamic memory (no OS-level
-synchronization required)
+** Thread specific memory pools allow for dynamic memory (no OS-level synchronization required)
 ** Low latency
 * Unit Tests
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 Patterns:
+
 * Component Configurator; POSA2 (p75)
 --
+endif::[]
 
 == Building blocks
 
@@ -108,12 +112,14 @@ Patterns:
 
 image:COAST-Layering.svg[]
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 Patterns:
 
 * Layers Pattern; POSA1 (p31)
 --
+endif::[]
 
 === Basic Building Block
 
@@ -132,6 +138,7 @@ Patterns:
 * PoolAllocator implements allocator for pre- allocated memory
 ** uses thread local store to support efficient memory management
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 Patterns:
@@ -140,6 +147,7 @@ Patterns:
 ** Sidestep system calls
 ** Thread-local Memory Pool
 --
+endif::[]
 
 ==== String
 
@@ -159,11 +167,14 @@ Patterns:
 * read/write from/into files
 * PImpls for concrete types
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 Patterns:
+
 * Anything/PropertyList
 --
+endif::[]
 
 === Communication Block
 
@@ -182,12 +193,14 @@ Patterns:
 * listens on connection requests
 * uses callback object to act on incoming request
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 Patterns:
 
 * Acceptor & Connector; POSA2 (p285)
 --
+endif::[]
 
 === Multi-Threading Block
 
@@ -205,6 +218,7 @@ Patterns:
 * recursive locking possible
 ** small bookkeeping overhead
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 Patterns:
@@ -215,6 +229,7 @@ Patterns:
 * Double Checked Locking; POSA2 (p353)
 * Hooks/Template Method
 --
+endif::[]
 
 ==== Condition
 
@@ -250,6 +265,7 @@ Patterns:
 *** Syntactic sugar returning simple types for convenience
 * Used to look up configuration information
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 Patterns:
@@ -257,12 +273,13 @@ Patterns:
 * DIY Reflection
 * Template Method
 --
+endif::[]
 
 ==== RegisterableObjects
 
 * Prototypes are installed by static installers
 ** During startup before main
-***
+
 * Configurable Objects
 ** Extend Registry using textual configuration
 ** Depends on objects name
@@ -271,6 +288,7 @@ Patterns:
 *** Checks for value in own configuration
 ** Supports "inheritance" of configuration
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 Patterns:
@@ -279,6 +297,7 @@ Patterns:
 * Factory / Prototype
 * Component Configuration
 --
+endif::[]
 
 === Web-/Application Block
 
@@ -305,10 +324,12 @@ image:ServiceHandling.svg[]
 *** Request information
 **** Query
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 * Encapsulated Context
 --
+endif::[]
 
 ==== Server
 
@@ -322,11 +343,13 @@ image:ServiceHandling.svg[]
 ** implements LookupInterface
 ** configuration can be inherited
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 * Leader/Follower -> massive Performancesteigerung gegenüber half sync/half async
 * Reactor
 --
+endif::[]
 
 ==== Session
 
@@ -342,10 +365,12 @@ image:ServiceHandling.svg[]
 are inserted
 *** actual query is stored away (delayed) until role level is matched
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 * Security Session; SecurityPatterns (p297)
 --
+endif::[]
 
 ==== Session ff.
 
@@ -360,10 +385,12 @@ are inserted
 *** Transition tokens can trigger role changes
 *** Page transition to new page is done with new role
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 * Role Based Access Control; SecurityPatterns (p247)
 --
+endif::[]
 
 ==== Page
 
@@ -424,10 +451,12 @@ plantuml::PagePreprocessing.plantuml[format=svg, title="Page preprocessing"]
 **** levels check with regard to configuration inheritance
 *** Causes delayed query handling to be executed if verification fails
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 * Role Based Access Control; SecurityPatterns (p247)
 --
+endif::[]
 
 ==== Role ff.
 
@@ -450,12 +479,14 @@ plantuml::PagePreprocessing.plantuml[format=svg, title="Page preprocessing"]
 * A lot of specific renderers available, subclassing rarely needed
 ** URL, Forms, Form-elements, HTML templates, etc.
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 * Interpreter (Lisp für output Generierung)
 
 -> Programm und Daten gemischt
 --
+endif::[]
 
 ==== Renderer ff.
 
@@ -502,10 +533,12 @@ ROAnything &config);
 *** no grammar yet available, only samples
 *** similar to renderer
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 * DataAccess: Command Pattern; POSA1 (p277)
 --
+endif::[]
 
 [source,bash]
 .Action Example
@@ -524,7 +557,6 @@ ROAnything &config);
 } # end of TheAction
 ----
 
-
 == Summary
 
 * General purpose application framework
@@ -539,6 +571,7 @@ ROAnything &config);
 * developed and maintained @ ifs
 ** https://coast-project.org/
 
+ifdef::speakernotes[]
 [NOTE.speaker]
 --
 Patterns zu known uses:
@@ -546,3 +579,4 @@ Patterns zu known uses:
 * Single Access Point; Security Patterns (p.279)
 * Check Point; Security Patterns (p.287)
 --
+endif::[]

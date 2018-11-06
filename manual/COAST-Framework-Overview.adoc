@@ -11,7 +11,9 @@
 :experimental:
 ifndef::imagesdir[:imagesdir: images/]
 ifndef::sourcedir[:sourcedir: ../coast]
-:title-logo-image: image:coast.png[pdfwidth="40%"]
+ifdef::slideoutput[:logowidth: pdfwidth="45%"]
+ifndef::logowidth[:logowidth: ]
+:title-logo-image: image:coast.png[{logowidth}]
 //:toc: macro
 //:doctype: book
 //:media: screen
@@ -336,6 +338,7 @@ ifdef::speakernotes[]
 --
 endif::[]
 
+ifdef::slideoutput[<<<]
 ==== Server
 
 * Manages the processing components
@@ -443,7 +446,7 @@ plantuml::PagePostprocessing.plantuml[format=svg, title="Page postprocessing", w
 ifdef::slideoutput[<<<]
 ==== Page transition: Preprocess / Render
 
-plantuml::PagePreprocessing.plantuml[format=svg, title="Page preprocessing", width="90%",pdfwidth="80%",align=center]
+plantuml::PagePreprocessing.plantuml[format=svg, title="Page preprocessing", width="90%",pdfwidth="75%",align=center]
 
 ifdef::slideoutput[<<<]
 ==== Role

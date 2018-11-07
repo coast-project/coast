@@ -101,7 +101,7 @@ ifdef::speakernotes[]
 --
 Patterns:
 
-* Component Configurator; POSA2 (p75)
+* Component Configuratorfootnoteref:[Component Configurator, POSA2 (p75), http://software-pattern.org/Component-Configurator]
 --
 endif::[]
 
@@ -121,7 +121,7 @@ ifdef::speakernotes[]
 --
 Patterns:
 
-* Layers Pattern; POSA1 (p31)
+* Layers Patternfootnoteref:[Layers Pattern, POSA1 (p31), http://software-pattern.org/Layers]
 --
 endif::[]
 
@@ -148,9 +148,10 @@ ifdef::speakernotes[]
 --
 Patterns:
 
-* PerformancePatterns.pdf (wiki)
+* PerformancePatternsfootnoteref:[PerformancePatterns, https://wiki.ifs.hsr.ch/APF/files/PerformancePatterns.pdf]
 ** Sidestep system calls
-** Thread-local Memory Pool
+** Thread-local Memory Poolfootnoteref:[Thread-Specific-Storage, POSA2, http://software-pattern.org/Thread-Specific-Storage]
+* Flyweightfootnoteref:[Flyweight, GOF, http://software-pattern.org/Flyweight]
 --
 endif::[]
 
@@ -177,7 +178,7 @@ ifdef::speakernotes[]
 --
 Patterns:
 
-* Anything/PropertyList
+* Anything/PropertyListfootnoteref:[PropertyListAnythingRegistry, https://hillside.net/europe/EuroPatterns/files/DIY_Reflection.pdf]
 --
 endif::[]
 
@@ -204,7 +205,7 @@ ifdef::speakernotes[]
 --
 Patterns:
 
-* Acceptor & Connector; POSA2 (p285)
+* Acceptor-Connectorfootnoteref:[Acceptor-Connector, POSA2 (p285), http://software-pattern.org/Acceptor-Connector]
 --
 endif::[]
 
@@ -230,11 +231,11 @@ ifdef::speakernotes[]
 --
 Patterns:
 
-* WrapperFacade; POSA2 (p47)
-* Thread Specific Storage; POSA2 (p475)
-* Scoped Locking; POSA2 (p325)
-* Double Checked Locking; POSA2 (p353)
-* Hooks/Template Method
+* Wrapper-Facadefootnoteref:[Wrapper-Facade, POSA2 (p47), http://software-pattern.org/Wrapper-Facade]
+* Thread-Specific Storagefootnoteref:[Thread-Specific Storage, POSA2 (p475), http://software-pattern.org/Thread-Specific-Storage]
+* Scoped Lockingfootnoteref:[Scoped Locking, POSA2 (p325), http://software-pattern.org/Scoped-Locking]
+* Double-Checked Lockingfootnoteref:[Double-Checked Locking, POSA2 (p353), http://software-pattern.org/Double-Checked-Locking]
+* Template Method(Hooks)footnoteref:[Template Method, GOF, http://software-pattern.org/Template-Method]
 --
 endif::[]
 
@@ -277,8 +278,8 @@ ifdef::speakernotes[]
 --
 Patterns:
 
-* DIY Reflection
-* Template Method
+* DIY Reflectionfootnoteref:[PropertyListAnythingRegistry]
+* Template Methodfootnoteref:[Template Method]
 --
 endif::[]
 
@@ -300,9 +301,10 @@ ifdef::speakernotes[]
 --
 Patterns:
 
-* DIY Reflection
-* Factory / Prototype
-* Component Configuration
+* DIY Reflectionfootnoteref:[PropertyListAnythingRegistry]
+* Factory Methodfootnoteref:[Factory Method, GOF, http://software-pattern.org/Factory-Method]
+* Prototypefootnoteref:[Prototype, GOF, http://software-pattern.org/Prototype]
+* Component Configuratorfootnoteref:[Component Configurator]
 --
 endif::[]
 
@@ -310,6 +312,15 @@ ifdef::slideoutput[<<<]
 === Web-/Application Block
 
 image::RequestHandling.svg[title="Request processing overview", alt="Request processing overview",id=requestprocessing,width="90%",pdfwidth="80%",align=center]
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns:
+
+* Client Dispatcherfootnoteref:[Client Dispatcher, POSA1 (p323), http://software-pattern.org/Client-Dispatcher-Server]
+--
+endif::[]
 
 ifdef::slideoutput[<<<]
 
@@ -334,7 +345,7 @@ ifdef::slideoutput[<<<]
 ifdef::speakernotes[]
 [NOTE.speaker]
 --
-* Encapsulated Context
+* Encapsulated Context/Context Objectfootnoteref:[http://www.dre.vanderbilt.edu/~schmidt/PDF/Context-Object-Pattern.pdf]
 --
 endif::[]
 
@@ -353,8 +364,9 @@ ifdef::slideoutput[<<<]
 ifdef::speakernotes[]
 [NOTE.speaker]
 --
-* Leader/Follower -> massive Performancesteigerung gegenüber half sync/half async
-* Reactor
+* Leader-Followersfootnoteref:[Leader-Followers, POSA2, http://software-pattern.org/Leader-Followers]
+** -> massive Performancesteigerung gegenüber half sync/half async
+* Reactorfootnoteref:[Reactor, POSA2, http://software-pattern.org/Reactor]
 --
 endif::[]
 
@@ -487,7 +499,8 @@ ifdef::slideoutput[<<<]
 ifdef::speakernotes[]
 [NOTE.speaker]
 --
-* Interpreter (Lisp für output Generierung)
+* Interpreterfootnoteref:[Interpreter, GOF, http://software-pattern.org/Interpreter]
+** (Lisp für output Generierung)
 
 -> Programm und Daten gemischt
 --
@@ -540,7 +553,7 @@ ROAnything &config);
 ifdef::speakernotes[]
 [NOTE.speaker]
 --
-* DataAccess: Command Pattern; POSA1 (p277)
+* Command Processorfootnoteref:[Command Processor, POSA1 (p277), http://software-pattern.org/Command-Processor]
 --
 endif::[]
 

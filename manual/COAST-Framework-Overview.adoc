@@ -113,7 +113,7 @@ endif::[]
 ** Reduces overhead for simple apps
 ** Flexible and easy to extend
 * Prototypes for extensions introduced in wdbase
-|image:COAST-Layering.svg[title="Framework layering", alt="Framework layering",id=frameworklayers,width="90%",pdfwidth="80%",align=center]
+|image:COAST-Layering.svg[title="Framework layering", alt="Framework layering",id=frameworklayers,align=center]
 |====
 
 ifdef::speakernotes[]
@@ -415,7 +415,7 @@ ifdef::slideoutput[<<<]
 **** transition to page mapping occurs again
 ** Render Page
 *** generates (html-)output
-|image:PageTransition.svg[title="Page transition", alt="Page transition",id=pagetransition,width="90%",pdfwidth="90%",align=center]
+|image:PageTransition.svg[title="Page transition", alt="Page transition",id=pagetransition,align=center]
 |====
 
 * Hierarchy of page configurations defined in /Pages-slot of Config.any

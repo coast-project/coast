@@ -309,13 +309,20 @@ test:64:dbg:trc:
     reports:
       junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
 
-Build Documentation:
+.AsciiDocCommon:
   image: marcelhuberfoo/asciidoctor:v19.02.4
   stage: docs
   variables:
     LANG: en_US.utf8
   tags:
   - docker
+  artifacts:
+    expire_in: 1 week
+    paths:
+    - 'manual/*.pdf'
+
+Build Slides:
+  extends: .AsciiDocCommon
   script:
   - asciidoctor
     --require asciidoctor-pdf
@@ -331,6 +338,10 @@ Build Documentation:
     --backend pdf
     --out-file manual/COAST-Framework-Overview_Slides.pdf
     manual/COAST-Framework-Overview.adoc
+
+Build Compact Handout:
+  extends: .AsciiDocCommon
+  script:
   - asciidoctor
     --require asciidoctor-pdf
     --require asciidoctor-diagram
@@ -347,6 +358,10 @@ Build Documentation:
     --backend pdf
     --out-file manual/COAST-Framework-Overview_Compact.pdf
     manual/COAST-Framework-Overview.adoc
+
+Build Spacey Handout:
+  extends: .AsciiDocCommon
+  script:
   - asciidoctor
     --require asciidoctor-pdf
     --require asciidoctor-diagram
@@ -361,7 +376,3 @@ Build Documentation:
     --backend pdf
     --out-file manual/COAST-Framework-Overview_ForNotes.pdf
     manual/COAST-Framework-Overview.adoc
-  artifacts:
-    expire_in: 1 week
-    paths:
-    - 'manual/*.pdf'

@@ -345,7 +345,7 @@ ifdef::slideoutput[<<<]
 ifdef::speakernotes[]
 [NOTE.speaker]
 --
-* Encapsulated Context/Context Objectfootnoteref:[http://www.dre.vanderbilt.edu/~schmidt/PDF/Context-Object-Pattern.pdf]
+* Encapsulated Context/Context Objectfootnoteref:[Context Object, http://www.dre.vanderbilt.edu/~schmidt/PDF/Context-Object-Pattern.pdf]
 --
 endif::[]
 
@@ -544,8 +544,7 @@ ifdef::slideoutput[<<<]
 ** execute DataAccess
 ** execute Page transitions
 * Interprets configuration
-** bool ExecAction(String &transitionToken, Context &c, const
-ROAnything &config);
+** bool ExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
 *** config is interpreted as action script
 *** no grammar yet available, only samples
 *** similar to renderer

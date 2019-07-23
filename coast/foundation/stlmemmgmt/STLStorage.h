@@ -199,7 +199,7 @@ namespace stlstorage
 	inline void intrusive_ptr_release(stlstorage::pool_refcounted<T>* p)
 	{
 		if (p->Release()) {
-			p->template pool_refcounted<T>::~pool_refcounted();
+			p->~pool_refcounted();
 			T::free( reinterpret_cast<char *>(p) );
 		}
 	}

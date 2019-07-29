@@ -63,6 +63,12 @@ loggers:
         propagate: no
         filters: [filterLookup, filterExecuting]
 
+    SConsider.Callback:
+        level: WARNING
+        handlers: [console]
+        propagate: no
+        filters: []
+
     setupBuildTools:
         level: INFO
         handlers: [console]
@@ -81,4 +87,5 @@ loggers:
 root:
     level: INFO
     handlers: [console, info_file_handler, error_file_handler]
+    filters: []
 ...

@@ -51,11 +51,23 @@ loggers:
         propagate: no
         filters: []
 
+    TargetMaker:
+        level: WARNING
+        handlers: [console]
+        propagate: no
+        filters: []
+
     SConsider.PackageRegistry:
         level: DEBUG
         handlers: [console]
         propagate: no
         filters: [filterLookup]
+
+    SConsider.Callback:
+        level: WARNING
+        handlers: [console]
+        propagate: no
+        filters: []
 
     setupBuildTools:
         level: DEBUG

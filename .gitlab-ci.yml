@@ -14,6 +14,7 @@ Compile:
     SCONSFLAGS: "--enable-Trace --with-src-boost=3rdparty/boost --with-bin-openssl=3rdparty/openssl"
   script:
   - pwd; ls -la; env; pip list
+  - . $VENVDIR/bin/activate
   - git clone --branch master https://gerrit.coast-project.org/p/boost.git 3rdparty/boost
   - git clone --branch master https://gerrit.coast-project.org/p/openssl.git 3rdparty/openssl
   - pip install --upgrade -r requires.txt

@@ -1,0 +1,24 @@
+image: instituteforsoftware/coast-build:latest
+
+stages:
+- build
+- test
+
+Compile:
+#  extends: .AsciiDocCommon
+  stage: build
+  tags:
+  - docker
+  variables:
+  #--baseoutdir=$BUILDOUTPUTDIR/coast-build/ 
+    SCONSFLAGS: "--enable-Trace --with-src-boost=3rdparty/boost --with-bin-openssl=3rdparty/openssl"
+  script:
+  - ls -la
+  - git clone --branch master https://gerrit.coast-project.org/p/boost.git 3rdparty/boost
+  - git clone --branch master https://gerrit.coast-project.org/p/openssl.git 3rdparty/openssl
+  - pip install --upgrade -r requires.txt
+  - scons -u --jobs=$(nproc) --ignore-missing tests
+  artifacts:
+    expire_in: 1 day
+    paths:
+    - 'tests/*'

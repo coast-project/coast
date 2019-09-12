@@ -1,24 +1,41 @@
-image: instituteforsoftware/coast-build:latest
+variables:
+#--baseoutdir=$BUILDOUTPUTDIR/coast-build/ 
+ SCONSFLAGS: "--with-src-boost=3rdparty/boost --with-bin-openssl=3rdparty/openssl"
 
 stages:
 - build
 - test
 
+default:
+  image: instituteforsoftware/coast-build:latest
+  before_script:
+  - pip --disable-pip-version-check list
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/boost.git 3rdparty/boost
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/openssl.git 3rdparty/openssl
+  - pip install --upgrade -r requires.txt
+  - ls -lA
+
 Compile:
-#  extends: .AsciiDocCommon
   stage: build
   tags:
   - docker
-  variables:
-  #--baseoutdir=$BUILDOUTPUTDIR/coast-build/ 
-    SCONSFLAGS: "--enable-Trace --with-src-boost=3rdparty/boost --with-bin-openssl=3rdparty/openssl"
   script:
-  - pwd; ls -la; env; pip list
-  - . $VENVDIR/bin/activate
-  - git clone --branch master https://gerrit.coast-project.org/p/boost.git 3rdparty/boost
-  - git clone --branch master https://gerrit.coast-project.org/p/openssl.git 3rdparty/openssl
-  - pip install --upgrade -r requires.txt
-  - scons -u --jobs=$(nproc) --ignore-missing tests
+  - pip --disable-pip-version-check list
+  - scons -u $BUILDOPTIONS --jobs=$(nproc) --ignore-missing tests
+  - ls -lA
+  artifacts:
+    expire_in: 1 day
+    paths:
+    - 'tests/*'
+
+Test:
+  stage: test
+  tags:
+  - docker
+  script:
+  - pip --disable-pip-version-check list
+  - scons -u $BUILDOPTIONS --jobs=1 --ignore-missing CoastFoundationBaseTest --run
+  - ls -lA
   artifacts:
     expire_in: 1 day
     paths:

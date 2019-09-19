@@ -12,8 +12,8 @@
 import pkg_resources
 pkg_resources.require(["SConsider"])
 import os
-import SConsider
-
+from stat import *
+from SomeUtils import listFiles, findFiles, removeFiles
 Import('*')
 
 
@@ -23,27 +23,72 @@ def setUp(target, source, env):
 
 def tearDown(target, source, env):
     # delete generated files
-    SConsider.removeFiles(SConsider.findFiles(
-        [env.getTargetBaseInstallDir()],
-        matchfiles=['MultCprsTest.gz', 'big.gz', 'testzip.gz', 'tt.gz',
-                    'empty.gz', 'empty2.gz']))
+    removeFiles(
+        findFiles([env.getTargetBaseInstallDir()],
+                  matchfiles=['MultCprsTest.gz', 'big.gz', 'testzip.gz', 'tt.gz', 'empty.gz', 'empty2.gz']))
 
+
+sourceFiles = listFiles(['*.cpp'])
+programDepends = [
+    'testfwFoundation.testfwFoundation',
+    'CoastCompress.CoastCompress',
+]
+copyFiles = [
+    (listFiles(['*.any', '*.html', '*.gz']), S_IRUSR | S_IRGRP | S_IROTH),
+]
+runConfig = {
+    'setUp': setUp,
+    'tearDown': tearDown,
+}
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
-    from stat import *
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
-            'linkDependencies': ['CoastCompress', 'testfwFoundation'],
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
+            'linkDependencies': programDepends,
+            'sourceFiles': sourceFiles,
             'targetType': 'ProgramTest',
-            'copyFiles': [(SConsider.findFiles(['.'], ['.any', '.html', '.gz']),
-                           S_IRUSR | S_IRGRP | S_IROTH)],
-            'runConfig': {
-                'setUp': setUp,
-                'tearDown': tearDown,
-            },
+            'copyFiles': copyFiles,
+            'runConfig': runConfig,
         },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
+elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createCopyFilesTarget, createPackageProgram, createPackageTestTarget, createPackageProgramScript, createEclipseDebugLaunchConfig, createAlias
+    reltargetdir = os.path.join('tests', packagename)
+
+    def setRelTargetDir(env):
+        env.setRelativeTargetDirectory(reltargetdir)
+
+    bin_name = packagename
+    bin_target = createPackageProgram(packagename,
+                                      bin_name,
+                                      sourceFiles,
+                                      depend=programDepends,
+                                      pkg_local=[setRelTargetDir])
+    bins = EnvBuilder().depend(bin_target).build().RegisterPackageTarget(packagename=packagename,
+                                                                         targetname='bins')
+
+    copyTarget = createCopyFilesTarget(packagename,
+                                       'configfiles',
+                                       lambda env: env.getTargetBaseInstallDir(),
+                                       copyFiles,
+                                       pkg_local=[setRelTargetDir])
+
+    scriptTarget = createPackageProgramScript(packagename,
+                                              bin_name,
+                                              bin_target,
+                                              depend=copyTarget,
+                                              pkg_local=[setRelTargetDir])
+    scripts = EnvBuilder().depend(scriptTarget).build().RegisterPackageTarget(packagename=packagename,
+                                                                              targetname='scripts')
+
+    testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfig)
+
+    createAlias('tests', testTarget)
+
+    EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(packagename=packagename,
+                                                                     targetname=packagename)

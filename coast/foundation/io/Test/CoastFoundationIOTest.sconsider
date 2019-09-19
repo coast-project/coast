@@ -15,26 +15,24 @@ import os
 import socket
 import shutil
 import threading
-import SCons
-import SConsider
-import Anything
 from stat import *
-from SocketServer import BaseServer, TCPServer, BaseRequestHandler
+from SocketServer import TCPServer, BaseRequestHandler
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-from SimpleHTTPServer import SimpleHTTPRequestHandler
+import Anything
+from SomeUtils import listFiles, getfqdn
 
 Import('*')
 
 
 class MyTCPServer(TCPServer):
-    """This class wrapper is needed to set allow_reuse_address to True
-    prior to initializing it"""
+    """This class wrapper is needed to set allow_reuse_address to True prior to
+    initializing it."""
     allow_reuse_address = True
 
 
 class MyHTTPServer(HTTPServer):
-    """This class wrapper is needed to set allow_reuse_address to True
-    prior to initializing it"""
+    """This class wrapper is needed to set allow_reuse_address to True prior to
+    initializing it."""
     allow_reuse_address = True
 
 
@@ -68,7 +66,7 @@ tcpnosendrecvport = 43000
 tcpsendrecvport = 43001
 httpsendrecvport = 43002
 
-hostonly, domain, fqdn = SConsider.getfqdn()
+hostonly, domain, fqdn = getfqdn()
 
 faultyfqdn = 'nonexisting.server.loc'
 localhostname = 'localhost'
@@ -104,21 +102,12 @@ def setUp(target, source, env):
     env['ENV']['COAST_TRACE_STORAGE'] = '1'
     env['ENV']['COAST_TRACE_INITFINIS'] = '1'
     # setup listener threads for socket tests
+    threading.Thread(target=startServer, args=[localhostname, tcpsendrecvport, MyTCPServer,
+                                               AcceptorHandler]).start()
+    threading.Thread(target=startServer, args=[localhostname, httpsendrecvport, MyHTTPServer,
+                                               HTTPHandler]).start()
     threading.Thread(target=startServer,
-                     args=[
-                         localhostname, tcpsendrecvport, MyTCPServer,
-                         AcceptorHandler
-                     ]).start()
-    threading.Thread(target=startServer,
-                     args=[
-                         localhostname, httpsendrecvport, MyHTTPServer,
-                         HTTPHandler
-                     ]).start()
-    threading.Thread(target=startServer,
-                     args=[
-                         localhostname, tcpnosendrecvport, MyTCPServer,
-                         NoSendRecvHandler
-                     ]).start()
+                     args=[localhostname, tcpnosendrecvport, MyTCPServer, NoSendRecvHandler]).start()
 
 
 def tearDown(target, source, env):
@@ -126,27 +115,70 @@ def tearDown(target, source, env):
         server.shutdown()
 
 
+programDepends = [
+    'testfwFoundation.testfwFoundation',
+    'CoastFoundationIO.CoastFoundationIO',
+    'CoastFoundationMiscellaneous.CoastFoundationMiscellaneous',
+]
+sourceFiles = listFiles(['*.cpp'])
+copyFiles = [
+    (listFiles(['config/*.any']), S_IRUSR | S_IRGRP | S_IROTH, searchReplace),
+    (listFiles(['config/*.sh']), S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR),
+]
+runConfig = {
+    'setUp': setUp,
+    'tearDown': tearDown,
+}
+
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
-            'linkDependencies': [
-                'CoastFoundationIO', 'CoastFoundationMiscellaneous',
-                'testfwFoundation'
-            ],
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
+            'linkDependencies': programDepends,
+            'sourceFiles': sourceFiles,
             'targetType': 'ProgramTest',
-            'copyFiles': [
-                (SConsider.listFiles(['config/*.any']), S_IRUSR | S_IRGRP |
-                 S_IROTH, searchReplace),
-                (SConsider.listFiles(['config/*.sh']), S_IRUSR | S_IRGRP |
-                 S_IROTH | S_IXUSR),
-            ],
-            'runConfig': {
-                'setUp': setUp,
-                'tearDown': tearDown,
-            },
+            'copyFiles': copyFiles,
+            'runConfig': runConfig,
         },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
+elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createCopyFilesTarget, createPackageTestTarget, createPackageProgram, createPackageProgramScript, createAlias
+    reltargetdir = os.path.join('tests', packagename)
+
+    def setRelTargetDir(env):
+        env.setRelativeTargetDirectory(reltargetdir)
+
+    bin_name = packagename
+    bin_target = createPackageProgram(packagename,
+                                      bin_name,
+                                      sourceFiles,
+                                      depend=programDepends,
+                                      pkg_local=[setRelTargetDir])
+    bins = EnvBuilder().depend(bin_target).build().RegisterPackageTarget(packagename=packagename,
+                                                                         targetname='bins')
+
+    copyTarget = createCopyFilesTarget(packagename,
+                                       'configfiles',
+                                       lambda env: env.getTargetBaseInstallDir(),
+                                       copyFiles,
+                                       pkg_local=[setRelTargetDir])
+
+    scriptTarget = createPackageProgramScript(packagename,
+                                              bin_name,
+                                              bin_target,
+                                              depend=copyTarget,
+                                              pkg_local=[setRelTargetDir])
+    scripts = EnvBuilder().depend(scriptTarget).build().RegisterPackageTarget(packagename=packagename,
+                                                                              targetname='scripts')
+
+    testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfig)
+
+    createAlias('CoastFoundationTests', testTarget)
+    createAlias('tests', testTarget)
+
+    EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(packagename=packagename,
+                                                                     targetname=packagename)

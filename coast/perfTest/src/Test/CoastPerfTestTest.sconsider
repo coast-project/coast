@@ -11,24 +11,25 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
-import SConsider
-import Anything
 import os
 import socket
 import re
 import shutil
 import threading
+from stat import *
 from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
-
+import Anything
+from SomeUtils import listFiles, findFiles, removeFiles
+from RunBuilder import SkipTest
 Import('*')
 
 defaults = None
 
 
 class MyHTTPServer(HTTPServer):
-    """This class wrapper is needed to set allow_reuse_address to True
-    prior to initializing it"""
+    """This class wrapper is needed to set allow_reuse_address to True prior to
+    initializing it."""
     allow_reuse_address = True
 
 
@@ -52,63 +53,122 @@ def setUp(target, source, env):
     try:
         defaults = Anything.loadFromFile('Defaults.any')
     except IOError:
-        raise SCons.Errors.UserError(
-            "Could not load 'Defaults.any' which is required to setup tests,\n check COAST_ROOT/COAST_PATH setting of Anything!")
+        pass
+    if not defaults or not defaults.has_key('HostName'):
+        raise SkipTest('Could not load \'Defaults.any\' which is required to ' \
+                       'setup tests,\ncheck COAST_ROOT/COAST_PATH setting of ' \
+                       'Anything!')
 
     tdirabs = tdir.abspath
     logpath = env.getLogInstallDir()
     configdir = tdir.Dir('config')
-    threading.Thread(target=startServer,
-                     args=[
-                         defaults['HostName'], defaults['HttpPort'],
-                         MyHTTPServer, SimpleHTTPRequestHandler
-                     ]).start()
+    threading.Thread(
+        target=startServer,
+        args=[defaults['HostName'], defaults['HttpPort'], MyHTTPServer, SimpleHTTPRequestHandler]).start()
 
 
 def tearDown(target, source, env):
     for server in servers:
         server.shutdown()
     # delete generated files
-    SConsider.removeFiles(SConsider.findFiles([env.getTargetBaseInstallDir(
-    ).Dir('config')],
-                                              extensions=[],
-                                              matchfiles=['time.txt']))
+    removeFiles(
+        findFiles([env.getTargetBaseInstallDir().Dir('config')], extensions=[], matchfiles=['time.txt']))
 
+
+libDepends = [
+    'testfwWDBase.testfwWDBase',
+    'CoastPerfTest.CoastPerfTest',
+]
+sourceFiles = listFiles(['*.cpp'])
+scriptRequireNodes = [
+    packagename + '.' + packagename,
+    'CoastStdDataAccess.CoastStdDataAccess',
+    'CoastActions.CoastActions',
+    'CoastRenderers.CoastRenderers',
+]
+copyFiles = [
+    (findFiles(['.'], ['.txt', '.html']), S_IRUSR | S_IRGRP | S_IROTH),
+    (findFiles(['config'], ['.any']), S_IRUSR | S_IRGRP | S_IROTH),
+]
+runConfig = {
+    'setUp': setUp,
+    'tearDown': tearDown,
+}
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
-    from stat import *
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
             'targetType': 'LibraryShared',
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
+            'sourceFiles': sourceFiles,
             'includeSubdir': '',
             'targetName': packagename + 'Lib',
-            'linkDependencies': [
-                'testfwWDBase',
-                'CoastPerfTest',
-            ],
+            'linkDependencies': libDepends,
         },
         'Runner': {
             'targetType': 'ProgramTest',
-            'requires': [
-                packagename + '.' + packagename,
-                'CoastStdDataAccess',
-                'CoastActions',
-                'CoastRenderers',
-            ],
+            'requires': scriptRequireNodes,
             'usedTarget': 'coastd.coastd',
-            'copyFiles': [
-                (SConsider.findFiles(['.'], ['.txt', '.html']), S_IRUSR |
-                 S_IRGRP | S_IROTH),
-                (SConsider.findFiles(['config'], ['.any']), S_IRUSR | S_IRGRP |
-                 S_IROTH),
-            ],
-            'runConfig': {
-                'setUp': setUp,
-                'tearDown': tearDown,
-            },
+            'copyFiles': copyFiles,
+            'runConfig': runConfig,
         },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
+elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createPackageSharedLibrary, createCopyFilesTarget, createPackageTestTarget, createPackageProgramScript, createAlias, createEclipseDebugLaunchConfig
+    reltargetdir = os.path.join('tests', packagename)
+
+    def setRelTargetDir(env):
+        env.setRelativeTargetDirectory(reltargetdir)
+
+    # create own library
+    includeTarget = EnvBuilder(export=[EnvBuilder().include(Dir('.'))]).build().RegisterPackageTarget(
+        packagename=packagename, targetname='include')
+
+    lib = createPackageSharedLibrary(packagename,
+                                     packagename + 'Lib',
+                                     sourceFiles,
+                                     depend=[includeTarget] + libDepends)
+    libs = EnvBuilder().depend(lib).build().RegisterPackageTarget(packagename=packagename, targetname='libs')
+
+    copyTarget = createCopyFilesTarget(packagename,
+                                       'configfiles',
+                                       lambda env: env.getTargetBaseInstallDir(),
+                                       copyFiles,
+                                       pkg_local=[setRelTargetDir])
+
+    programEnv = EnvBuilder(pkg_local=[setRelTargetDir]).build()
+    bin_name = 'coastd'
+    program = programEnv.LoadNode(registry.createFulltargetname(bin_name, 'bin_' + bin_name))
+    programEnv.setRelativeTargetDirectory(reltargetdir)
+    bin_target = programEnv.Install(programEnv.getBinaryInstallDir(), program)
+    programEnv.RegisterPackageTarget(packagename=packagename, targetname='bin_' + bin_name, target=bin_target)
+    debugLaunchConfig = createEclipseDebugLaunchConfig(programEnv, program)
+    bins = EnvBuilder().depend(bin_target).build().RegisterPackageTarget(packagename=packagename,
+                                                                         targetname='bins')
+
+    scriptRequireNodes = [
+        'CoastStdDataAccess.CoastStdDataAccess',
+        'CoastActions.CoastActions',
+        'CoastRenderers.CoastRenderers',
+        lib,
+    ]
+
+    scriptTarget = createPackageProgramScript(packagename,
+                                              bin_name,
+                                              bin_target,
+                                              depend=[libs, copyTarget],
+                                              require=scriptRequireNodes,
+                                              pkg_local=[setRelTargetDir])
+    scripts = EnvBuilder().depend(scriptTarget).build().RegisterPackageTarget(packagename=packagename,
+                                                                              targetname='scripts')
+
+    testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfig)
+
+    createAlias('tests', testTarget)
+
+    EnvBuilder().depend(bins, libs, scripts).build().RegisterPackageTarget(packagename=packagename,
+                                                                           targetname=packagename)

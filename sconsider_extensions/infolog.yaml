@@ -54,6 +54,11 @@ loggers:
         propagate: no
         filters: []
 
+    py.warnings:
+        level: WARNING
+        handlers: [console]
+        propagate: no
+
     TargetMaker:
         level: WARNING
         handlers: [console]
@@ -70,7 +75,7 @@ loggers:
         level: INFO
         handlers: [console]
         propagate: no
-        filters: [filterLookup]
+        filters: [filterLookup, filterExecuting]
 
     setupBuildTools:
         level: INFO

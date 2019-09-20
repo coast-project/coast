@@ -77,7 +77,7 @@ compile failure test:
     BUILD_TARGETS: "dummytest"
   allow_failure: true
   script:
-  - printf "void failfunc() { IwillFailToCompile }\n" > testfw/dummytest/ForcedCompileFailure.cpp
+  - printf "void failfunc() { IwillFailToCompile }\n" > testfw/dummytest/ForcedCompileFailureTest.cpp
   - eval $(eval echo $BUILD_COMMANDLINE)
  
 compile all test targets:

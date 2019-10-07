@@ -87,14 +87,16 @@ def setUp(target, source, env):
                      logpath=logDir.abspath,
                      filename=configdir.File('dropPub2.sql').abspath,
                      filter=lambda string: multiple_replace(searchreplacespec, string),
-                     env=getFlatENV(env))
+                     env=getFlatENV(env),
+                     timeout=10.0)
     if res != 0:
         raise SkipTest('failed to drop test database (rc=' + str(res) + '), check error log')
     res = runCommand(command,
                      logpath=logDir.abspath,
                      filename=configdir.File('createPub2.sql').abspath,
                      filter=lambda string: multiple_replace(searchreplacespec, string),
-                     env=getFlatENV(env))
+                     env=getFlatENV(env),
+                     timeout=30.0)
     if res != 0:
         raise SkipTest('failed to create test database (rc=' + str(res) + '), check error log')
 

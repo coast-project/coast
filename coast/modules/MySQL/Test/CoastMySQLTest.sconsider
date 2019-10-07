@@ -75,7 +75,8 @@ def setUp(target, source, env):
                      logpath=logDir.abspath,
                      filename=path.File('dropTestDefinitions.sql').abspath,
                      filter=lambda string: multiple_replace(searchreplacespec, string),
-                     env=getFlatENV(env))
+                     env=getFlatENV(env),
+                     timeout=10.0)
     if res != 0:
         raise SkipTest('failed to drop test database (rc=' + str(res) + '), check error log')
 
@@ -83,7 +84,8 @@ def setUp(target, source, env):
                      logpath=logDir.abspath,
                      filename=path.File('TestDBDefinition.sql').abspath,
                      filter=lambda string: multiple_replace(searchreplacespec, string),
-                     env=getFlatENV(env))
+                     env=getFlatENV(env),
+                     timeout=30.0)
     if res != 0:
         raise SkipTest('failed to load test database (rc=' + str(res) + '), check error log')
 

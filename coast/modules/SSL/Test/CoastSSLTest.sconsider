@@ -17,9 +17,9 @@ import re
 import threading
 import shutil
 from stat import *
+from OpenSSL import SSL, crypto
 import Anything
 import ServerExtensions
-from OpenSSL import crypto, SSL
 from SomeUtils import runCommand, replaceRegexInFile, listFiles, findFiles, removeFiles, getfqdn
 
 Import('*')
@@ -126,8 +126,12 @@ def createCertificates(env):
     certdir = 'cert_files'
     certOutDir = os.path.join(tdir.abspath, certdir)
     prepareMkCaParams(env, commandargs, tdir.abspath, certdir)
+    cnfFilename = os.path.join(tdir.abspath, 'openssl.cnf')
     logpath = env.getLogInstallDir()
-    retCode = runCommand(commandargs, logpath=logpath.abspath, stdincontent='\n'.join(stdincontent))
+    retCode = runCommand(commandargs,
+                         logpath=logpath.abspath,
+                         stdincontent='\n'.join(stdincontent),
+                         timeout=20.0)
     certFileNodesList = []
     certDict = {}
     if retCode == 0:
@@ -146,7 +150,12 @@ for file in *crt*.pem; do
     theHash=`""" + sslbin + r""" x509 -hash -noout -in $file 2>/dev/null` && \
       test ! -f ${theHash}.0 && ln -s $file ${theHash}.0;
 done"""
-        retCode = runCommand(command, logpath=logpath.abspath, stdincontent=None, shell=True, cwd=certOutDir)
+        retCode = runCommand(command,
+                             logpath=logpath.abspath,
+                             stdincontent=None,
+                             shell=True,
+                             cwd=certOutDir,
+                             timeout=20.0)
     return (certOutDir, certFileNodesList, certDict)
 
 
@@ -263,7 +272,6 @@ if _sconsider_dist < pkg_resources.parse_version("0.5"):
 
     createTargets(packagename, buildSettings)
 elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
-    import os
     from TargetMaker import EnvBuilder
     from TargetHelpers import createCopyFilesTarget, createPackageTestTarget, createPackageProgram, createPackageProgramScript, createAlias
     reltargetdir = os.path.join('tests', packagename)

@@ -63,18 +63,21 @@ def setUp(target, source, env):
     res = runCommand(command1,
                      logpath=logDir.abspath,
                      filename=path.File('oratest_dropschema.sql').abspath,
-                     env=getFlatENV(env))
+                     env=getFlatENV(env),
+                     timeout=10.0)
     if res != 0:
         raise SkipTest('failed to drop test schema (rc=' + str(res) + '), check error log')
     res = runCommand(command1,
                      logpath=logDir.abspath,
                      filename=path.File('oratest_schema.sql').abspath,
-                     env=getFlatENV(env))
+                     env=getFlatENV(env),
+                     timeout=30.0)
     res = runCommand(command1,
                      logpath=logDir.abspath,
                      filename=path.File('oratest_grant.sql').abspath,
                      filter=lambda string: multiple_replace(searchreplacespec, string),
-                     env=getFlatENV(env))
+                     env=getFlatENV(env),
+                     timeout=20.0)
     if res != 0:
         raise SkipTest('failed to grant permissions (rc=' + str(res) + '), check error log')
 
@@ -85,7 +88,8 @@ def setUp(target, source, env):
                      logpath=logDir.abspath,
                      filename=path.File('oratest_synonym.sql').abspath,
                      filter=lambda string: multiple_replace(searchreplacespec, string),
-                     env=getFlatENV(env))
+                     env=getFlatENV(env),
+                     timeout=20.0)
     if res != 0:
         raise SkipTest('failed to create synonyms (rc=' + str(res) + '), check error log')
 

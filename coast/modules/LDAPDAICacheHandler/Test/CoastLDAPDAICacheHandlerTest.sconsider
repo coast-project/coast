@@ -34,6 +34,7 @@ defaults = None
 
 
 def setUp(target, source, env):
+    env['ENV']['COAST_LOGONCERR'] = 3
     relDir = env.getTargetBaseInstallDir()
     configdir = relDir.Dir('config')
     replaceConfigParams(env, relDir, configdir)
@@ -83,7 +84,11 @@ def modifyConfigFiles(env, searchReplace=[], files=[]):
 
 def bulkLoadLdap(configdir):
     try:
+        timeout = defaults['LDAP'].get('Timeout', 10.0)
         l = ldap.initialize('ldap://' + defaults['LDAP']['Server'] + ':' + str(defaults['LDAP']['Port']))
+        l.protocol_version = 3  # used LDAP version
+        l.set_option(ldap.OPT_TIMEOUT, int(timeout))  # setting LDAP connection timeout
+        l.set_option(ldap.OPT_NETWORK_TIMEOUT, int(timeout))  # setting LDAP connection timeout second option
         l.bind_s(str(defaults['LDAP']['BindDn']), str(defaults['LDAP']['Password']))
 
         deleteLdapEntries(l)
@@ -176,7 +181,7 @@ def transformLdapSearchResults(results):
     return res
 
 
-class LDAPSearchResult:
+class LDAPSearchResult(object):
     dn = ''
 
     def __init__(self, entryTuple):

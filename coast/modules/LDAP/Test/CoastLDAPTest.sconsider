@@ -84,7 +84,11 @@ def modifyConfigFiles(env, searchReplace=[], files=[]):
 
 def bulkLoadLdap(configdir):
     try:
+        timeout = defaults['LDAP'].get('Timeout', 10.0)
         l = ldap.initialize('ldap://' + defaults['LDAP']['Server'] + ':' + str(defaults['LDAP']['Port']))
+        l.protocol_version = 3  # used LDAP version
+        l.set_option(ldap.OPT_TIMEOUT, int(timeout))  # setting LDAP connection timeout
+        l.set_option(ldap.OPT_NETWORK_TIMEOUT, int(timeout))  # setting LDAP connection timeout second option
         l.bind_s(str(defaults['LDAP']['BindDn']), str(defaults['LDAP']['Password']))
 
         deleteLdapEntries(l)
@@ -290,5 +294,6 @@ elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
     testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfig)
 
     createAlias('backendtests', testTarget)
+
     EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(packagename=packagename,
                                                                      targetname=packagename)

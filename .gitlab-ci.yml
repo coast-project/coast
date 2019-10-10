@@ -68,8 +68,8 @@ prepare environment:
   - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/boost.git ${THIRDPARTY_DIR}/boost
   - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/openssl.git ${THIRDPARTY_DIR}/openssl
   - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/zlib.git ${THIRDPARTY_DIR}/zlib
-  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/iplanet_ldap.git ${THIRDPARTY_DIR}/iplanet_ldap
-  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/oracle.git ${THIRDPARTY_DIR}/oracle
+  - git clone --branch master https://${CLONE_USER_IPLANET}:${CLONE_TOKEN_IPLANET}@gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/iplanet_ldap.git ${THIRDPARTY_DIR}/iplanet_ldap
+  - git clone --branch master https://${CLONE_USER_ORACLE}:${CLONE_TOKEN_ORACLE}@gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/oracle.git ${THIRDPARTY_DIR}/oracle
 
 compile failure test:
   extends: .build_template

@@ -11,23 +11,44 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
-import os
-import SConsider
-
+from SomeUtils import listFiles
 Import('*')
+
+libDepends = [
+    'CoastSecurity.CoastSecurity',
+    'CoastWDBase.CoastWDBase',
+    'openssl.openssl',
+    # 'openssl.include', 'openssl.libs'
+]
+sourceFiles = listFiles(['*.cpp'])
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
-            'linkDependencies': ['CoastSecurity', 'CoastWDBase', 'openssl'],
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
+            'linkDependencies': libDepends,
+            'sourceFiles': sourceFiles,
             'targetType': 'LibraryShared',
             'public': {
-                'includes': SConsider.listFiles(['*.h']),
+                'includes': listFiles(['*.h']),
                 'includeSubdir': '',
             }
         }
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
+elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createPackageSharedLibrary
+    includeTarget = EnvBuilder(export=[EnvBuilder().include(Dir('.'))]).build().RegisterPackageTarget(
+        packagename=packagename, targetname='include')
+
+    lib = createPackageSharedLibrary(packagename,
+                                     packagename,
+                                     sourceFiles,
+                                     depend=[includeTarget] + libDepends)
+    libs = EnvBuilder().depend(lib).build().RegisterPackageTarget(packagename=packagename, targetname='libs')
+
+    EnvBuilder().depend(includeTarget, libs).build().RegisterPackageTarget(packagename=packagename,
+                                                                           targetname=packagename)

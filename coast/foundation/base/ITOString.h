@@ -404,7 +404,7 @@ public:
 	}
 	String& assign(String const &str, size_type pos, size_type n) {
 		clear();
-		return this->operator =(str.SubString(pos, n));
+		return operator =(str.SubString(pos, n));
 	}
 	template <typename InputIterator>
 	void assign(InputIterator first, InputIterator last) {
@@ -641,12 +641,12 @@ inline char const * String::cstr() const {
 
 inline bool String::IsEqual(const char *other) const
 {
-	return ! this->Compare(other);
+	return ! Compare(other);
 }
 
 inline bool String::IsEqual(const String &other) const
 {
-	return ((Length() == other.Length()) && ! this->Compare(other));
+	return ((Length() == other.Length()) && ! Compare(other));
 }
 // this is just a performance shortcut
 

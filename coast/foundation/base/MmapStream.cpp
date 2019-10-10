@@ -72,7 +72,7 @@ MmapStreamBuf::MmapStreamBuf(int syncflag)
 
 MmapStreamBuf::~MmapStreamBuf()
 {
-	this->close();
+	close();
 }//lint !e1579
 
 inline void MmapStreamBuf::AdjustFileLength()
@@ -415,13 +415,13 @@ MmapStreamBuf::pos_type MmapStreamBuf::seekoff(MmapStreamBuf::off_type of, MmapS
 MmapStreambase::MmapStreambase(const char *name, int omode, int prot, int syncflag)
 	: fMmapBuf(syncflag)
 {
-	this->open(name, omode, prot);
+	open(name, omode, prot);
 }
 
 void MmapStreambase::open(const char *name, int omode, int prot)
 {
-	if (this->is_open()) {
-		this->close();
+	if (is_open()) {
+		close();
 	}
 	std::ios::init(&fMmapBuf);
 	std::ios::clear(); // clear all flags, for std::iostream must be done after init!

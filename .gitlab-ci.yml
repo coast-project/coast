@@ -1,0 +1,118 @@
+variables:
+  SCONSFLAGS: "--with-src-boost=${THIRDPARTY_DIR}/boost --with-bin-openssl=${THIRDPARTY_DIR}/openssl --with-src-zlib=${THIRDPARTY_DIR}/zlib --with-bin-iplanetLDAP=${THIRDPARTY_DIR}/iplanet_ldap --with-bin-oracle=${THIRDPARTY_DIR}/oracle"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  JOB_CACHE_DIR: build_cache
+  THIRDPARTY_DIR: 3rdparty
+
+stages:
+- prepare
+- build
+- test
+
+# Pip's cache doesn't store the python packages
+# https://pip.pypa.io/en/stable/reference/pip_install/#caching
+#
+# If you want to also cache the installed packages, you have to install
+# them in a virtualenv and cache it as well.
+default:
+  image:
+    name: instituteforsoftware/coast-build:latest
+    entrypoint: ["/entrypoint.sh", "gosu", "docky"]
+  before_script:
+  - echo "Running as user [$(id -u)] on hostname [$(hostname)]"
+  - mkdir -p $JOB_CACHE_DIR $PIP_CACHE_DIR ${THIRDPARTY_DIR}
+  - python -V               # Print out python version for debugging
+  - pip install --upgrade -r requires.txt
+
+.buildcache: &buildcache
+  # use per branch caching using key
+  key: "$CI_COMMIT_REF_SLUG"
+  policy: pull-push
+  paths:
+  - $JOB_CACHE_DIR
+  - $PIP_CACHE_DIR
+  - $THIRDPARTY_DIR
+#  untracked: true
+
+.build_template:
+  tags:
+  - docker
+  cache:
+    <<: *buildcache
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${JOB_CACHE_DIR}"
+    BUILD_ARCHBITS: "--archbits=32"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--enable-Trace"
+    BUILD_TESTOPT: "--usetool=TestfwTransformer"
+    BUILD_EXCLUDE_CACHEDIR: "--exclude=$JOB_CACHE_DIR"
+#    BUILD_COMPILERS: "--with-cc= --with-cxx="
+    BUILD_COMPILER_WARN: "--warnlevel=medium"
+    BUILD_TARGETS: "--exclude=testfw/dummytest tests"
+    BUILD_JOBS: "--jobs=$$(nproc)"
+    BUILD_SCONS_CONFIG: "--config=force"
+    BUILD_IGNORE_MISSING: "--ignore-missing"
+    BUILD_RUNOPT: ""
+    BUILD_RUNOPTARGS: ""
+    BUILD_COMMANDLINE: "scons -u $$BUILD_OUTPUT_OPT $$BUILD_EXCLUDE_CACHEDIR $$BUILD_ARCHBITS $$BUILD_CFG $$BUILD_WITH_TRACE $$BUILD_COMPILERS $$BUILD_TESTOPT $$BUILD_JOBS $$BUILD_SCONS_CONFIG $$BUILD_IGNORE_MISSING $$BUILD_RUNOPT $$BUILD_RUNOPTARGS $$BUILD_TARGETS"
+    
+prepare environment:
+  stage: prepare
+  tags:
+  - docker
+  cache:
+    <<: *buildcache
+    policy: push
+#  before_script: []
+  script:
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/boost.git ${THIRDPARTY_DIR}/boost
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/openssl.git ${THIRDPARTY_DIR}/openssl
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/zlib.git ${THIRDPARTY_DIR}/zlib
+  - git clone --branch master https://${CLONE_USER_IPLANET}:${CLONE_TOKEN_IPLANET}@gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/iplanet_ldap.git ${THIRDPARTY_DIR}/iplanet_ldap
+  - git clone --branch master https://${CLONE_USER_ORACLE}:${CLONE_TOKEN_ORACLE}@gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/oracle.git ${THIRDPARTY_DIR}/oracle
+
+compile failure test:
+  extends: .build_template
+  stage: build
+  cache:
+    <<: *buildcache
+  variables:
+    BUILD_TARGETS: "dummytest"
+  allow_failure: true
+  script:
+  - printf "void failfunc() { IwillFailToCompile }\n" > testfw/dummytest/ForcedCompileFailureTest.cpp
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+ 
+compile all test targets:
+  extends: .build_template
+  stage: build
+  cache:
+    <<: *buildcache
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+
+Test:
+  extends: .build_template
+  stage: test
+  cache:
+    <<: *buildcache
+    policy: pull
+  variables:
+    BUILD_JOBS: "--jobs=1"
+    BUILD_TARGETS: "--exclude=testfw/dummytest tests"
+    BUILD_RUNOPT: "--run-force"
+    BUILD_RUNOPTARGS: "--runparams=\"-- -all\""
+  script:
+  - echo "cleaning ${JOB_CACHE_DIR}/tests/ prior to run..." && rm -rf ${JOB_CACHE_DIR}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 1 day
+    when: always
+    paths:
+    - '${JOB_CACHE_DIR}/tests/*/log/*/*.test.log'
+    - '${JOB_CACHE_DIR}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${JOB_CACHE_DIR}/tests/*/log/*/*.test.xml'

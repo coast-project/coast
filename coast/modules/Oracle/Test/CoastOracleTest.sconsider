@@ -11,13 +11,11 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
-import os
-import re
-import sys
-import SConsider
-import Anything
+import shlex
 from stat import *
-from SConsider.SomeUtils import runCommand, multiple_replace, getFlatENV
+import Anything
+from SomeUtils import runCommand, multiple_replace, getFlatENV, listFiles, findFiles
+from RunBuilder import SkipTest
 
 Import('*')
 
@@ -31,8 +29,8 @@ if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
     _helperscript_argument_separator = ''
 
     def getRealTarget(fulltargetname):
-        from SConsider import splitTargetname
-        packagename, targetname = splitTargetname(fulltargetname)
+        from SConsider.PackageRegistry import splitFulltargetname
+        packagename, targetname = splitFulltargetname(fulltargetname)
         return registry.getPackageTarget(packagename, targetname)
 
     if not hasattr(registry, 'getRealTarget'):
@@ -42,18 +40,15 @@ if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
 def setUp(target, source, env):
     target = registry.getRealTarget(_helperscript_target)
     if not target:
-        raise SConsider.SkipTest('required ' + _helperscript_target +
-                                 ' target/executable not found, skipping test')
+        raise SkipTest('required ' + _helperscript_target + ' target/executable not found, skipping test')
 
     env['ENV']['NLS_LANG'] = '.WE8ISO8859P1'
     configDir = 'backendtests/config'
     env['ENV']['COAST_PATH'] = configDir
-    #    env['ENV']['COAST_TRACE_INITFINIS'] = 1
-    #    env['ENV']['COAST_LOGONCERR'] = 3
+    # env['ENV']['COAST_TRACE_INITFINIS'] = 1
+    # env['ENV']['COAST_LOGONCERR'] = 3
     relDir = env.getTargetBaseInstallDir()
-    Anything.setLocalEnv(env={},
-                         COAST_ROOT=relDir.abspath,
-                         COAST_PATH=configDir)
+    Anything.setLocalEnv(env={}, COAST_ROOT=relDir.abspath, COAST_PATH=configDir)
 
     global defaults
     try:
@@ -61,7 +56,7 @@ def setUp(target, source, env):
     except IOError:
         pass
     if not defaults or not defaults.has_key('Oracle'):
-        raise SConsider.SkipTest('oracle backend not configured or disabled')
+        raise SkipTest('oracle backend not configured or disabled')
 
     searchreplacespec = [
         ('##server##', str(defaults['Oracle']['Server'])),
@@ -75,87 +70,134 @@ def setUp(target, source, env):
     logDir = env.getLogInstallDir()
     path = relDir.Dir(configDir)
 
-    connectstring = "{Username1!s}/{Password1!s}@{Server!s}:{Port!s}/{sid!s}".format(
-        **defaults['Oracle'])
-    res = runCommand([target.abspath, '--', '-S', connectstring],
+    connectstring = "{Username1!s}/{Password1!s}@{Server!s}:{Port!s}/{sid!s}".format(**defaults['Oracle'])
+    command1 = [target.abspath]
+    command1.extend(shlex.split(_helperscript_argument_separator + ' -S ' + connectstring))
+    res = runCommand(command1,
                      logpath=logDir.abspath,
                      filename=path.File('oratest_dropschema.sql').abspath,
-                     env=getFlatENV(env))
+                     env=getFlatENV(env),
+                     timeout=20.0)
     if res != 0:
-        raise SConsider.SkipTest('failed to drop test schema (rc=' + str(res) +
-                                 '), check error log')
-    res = runCommand([target.abspath, '--', '-S', connectstring],
+        raise SkipTest('failed to drop test schema (rc=' + str(res) + '), check error log')
+    res = runCommand(command1,
                      logpath=logDir.abspath,
                      filename=path.File('oratest_schema.sql').abspath,
-                     env=getFlatENV(env))
-    res = runCommand(
-        [target.abspath, '--', '-S', connectstring],
-        logpath=logDir.abspath,
-        filename=path.File('oratest_grant.sql').abspath,
-        filter=lambda string: multiple_replace(searchreplacespec, string),
-        env=getFlatENV(env))
+                     env=getFlatENV(env),
+                     timeout=30.0)
+    res = runCommand(command1,
+                     logpath=logDir.abspath,
+                     filename=path.File('oratest_grant.sql').abspath,
+                     filter=lambda string: multiple_replace(searchreplacespec, string),
+                     env=getFlatENV(env),
+                     timeout=20.0)
     if res != 0:
-        raise SConsider.SkipTest('failed to grant permissions (rc=' + str(res) +
-                                 '), check error log')
+        raise SkipTest('failed to grant permissions (rc=' + str(res) + '), check error log')
 
-    connectstring = "{Username2!s}/{Password2!s}@{Server!s}:{Port!s}/{sid!s}".format(
-        **defaults['Oracle'])
-    res = runCommand(
-        [target.abspath, '--', '-S', connectstring],
-        logpath=logDir.abspath,
-        filename=path.File('oratest_synonym.sql').abspath,
-        filter=lambda string: multiple_replace(searchreplacespec, string),
-        env=getFlatENV(env))
+    connectstring = "{Username2!s}/{Password2!s}@{Server!s}:{Port!s}/{sid!s}".format(**defaults['Oracle'])
+    command2 = [target.abspath]
+    command2.extend(shlex.split(_helperscript_argument_separator + ' -S ' + connectstring))
+    res = runCommand(command2,
+                     logpath=logDir.abspath,
+                     filename=path.File('oratest_synonym.sql').abspath,
+                     filter=lambda string: multiple_replace(searchreplacespec, string),
+                     env=getFlatENV(env),
+                     timeout=20.0)
     if res != 0:
-        raise SConsider.SkipTest('failed to create synonyms (rc=' + str(res) +
-                                 '), check error log')
+        raise SkipTest('failed to create synonyms (rc=' + str(res) + '), check error log')
 
 
 def tearDown(target, source, env):
     pass
 
 
+programDepends = [
+    'testfwWDBase.testfwWDBase',
+    'CoastOracle.CoastOracle',
+]
+scriptRequireNodes = [
+    'CoastAppLog.CoastAppLog',
+    'CoastRenderers.CoastRenderers',
+]
+sourceFiles = listFiles(['*.cpp'])
+copyFiles = [
+    (findFiles(['config'], ['.any', '.txt', '.tst', '.sql']), S_IRUSR | S_IRGRP | S_IROTH),
+]
+runConfig = {
+    'setUp': None,
+    'tearDown': None,
+}
+sourceFilesBackend = listFiles(['backendtests/*.cpp'])
+scriptRequireNodesBackend = [
+    'CoastAppLog.CoastAppLog',
+    'CoastRenderers.CoastRenderers',
+    _helperscript_target,
+]
+copyFilesBackend = [
+    (findFiles(['backendtests/config'], ['.any', '.txt', '.tst', '.sql']), S_IRUSR | S_IRGRP | S_IROTH),
+]
+runConfigBackend = {
+    'setUp': setUp,
+    'tearDown': tearDown,
+}
+
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
             'targetType': 'ProgramTest',
-            'linkDependencies': [
-                'CoastOracle',
-                'testfwWDBase',
-            ],
-            'requires': [
-                'CoastAppLog',
-                'CoastRenderers',
-            ],
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
-            'copyFiles': [
-                (SConsider.findFiles(['config'],
-                                     ['.any', '.txt', '.tst', '.sql']),
-                 S_IRUSR | S_IRGRP | S_IROTH),
-            ],
+            'linkDependencies': programDepends,
+            'requires': scriptRequireNodes,
+            'sourceFiles': sourceFiles,
+            'copyFiles': copyFiles,
+            'runConfig': runConfig,
         },
         'backendTests': {
             'targetType': 'ProgramTest',
-            'linkDependencies': [
-                'CoastOracle',
-                'testfwWDBase',
-            ],
-            'requires': [
-                'CoastAppLog',
-                'CoastRenderers',
-                _helperscript_target,
-            ],
-            'sourceFiles': SConsider.listFiles(['backendtests/*.cpp']),
-            'copyFiles': [
-                (SConsider.findFiles(['backendtests/config'],
-                                     ['.any', '.txt', '.tst', '.sql']),
-                 S_IRUSR | S_IRGRP | S_IROTH),
-            ],
-            'runConfig': {
-                'setUp': setUp,
-                'tearDown': tearDown,
-            },
+            'linkDependencies': programDepends,
+            'requires': scriptRequireNodesBackend,
+            'sourceFiles': sourceFilesBackend,
+            'copyFiles': copyFilesBackend,
+            'runConfig': runConfigBackend,
         },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
+elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
+    import os
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createCopyFilesTarget, createPackageTestTarget, createPackageProgram, createPackageProgramScript, createAlias
+    reltargetdir = os.path.join('tests', packagename)
+
+    def setRelTargetDir(env):
+        env.setRelativeTargetDirectory(reltargetdir)
+
+    bin_name = packagename
+    bin_target = createPackageProgram(packagename,
+                                      bin_name,
+                                      sourceFiles,
+                                      depend=programDepends,
+                                      pkg_local=[setRelTargetDir])
+    bins = EnvBuilder().depend(bin_target).build().RegisterPackageTarget(packagename=packagename,
+                                                                         targetname='bins')
+
+    copyTarget = createCopyFilesTarget(packagename,
+                                       'configfiles',
+                                       lambda env: env.getTargetBaseInstallDir(),
+                                       copyFiles,
+                                       pkg_local=[setRelTargetDir])
+
+    scriptTarget = createPackageProgramScript(packagename,
+                                              bin_name,
+                                              bin_target,
+                                              depend=copyTarget,
+                                              require=scriptRequireNodes,
+                                              pkg_local=[setRelTargetDir])
+    scripts = EnvBuilder().depend(scriptTarget).build().RegisterPackageTarget(packagename=packagename,
+                                                                              targetname='scripts')
+
+    testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfig)
+    createAlias('tests', testTarget)
+
+    EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(packagename=packagename,
+                                                                     targetname=packagename)

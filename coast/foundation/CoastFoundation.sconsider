@@ -11,20 +11,33 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
-import SConsider
-
 Import('*')
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
             'linkDependencies': [
                 packagename + 'Base', packagename + 'IO', packagename + 'Time',
-                packagename + 'AnythingOptional', packagename + 'STLMemMgmt',
-                packagename + 'Miscellaneous'
+                packagename + 'AnythingOptional', packagename + 'STLMemMgmt', packagename + 'Miscellaneous'
             ]
         },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
+elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
+    from TargetMaker import EnvBuilder
+    packageIncludes = []
+    packageLibs = []
+    for libname in ['Base', 'AnythingOptional', 'Time', 'IO', 'STLMemMgmt', 'Miscellaneous']:
+        packageIncludes.append(registry.createFulltargetname('CoastFoundation' + libname, 'include'))
+        packageLibs.append(registry.createFulltargetname('CoastFoundation' + libname, 'libs'))
+
+    includeTarget = EnvBuilder().depend(packageIncludes).build().RegisterPackageTarget(
+        packagename=packagename, targetname='include')
+
+    libs = EnvBuilder().depend(packageLibs).build().RegisterPackageTarget(packagename=packagename,
+                                                                          targetname='libs')
+    EnvBuilder().depend(includeTarget, libs).build().RegisterPackageTarget(packagename=packagename,
+                                                                           targetname=packagename)

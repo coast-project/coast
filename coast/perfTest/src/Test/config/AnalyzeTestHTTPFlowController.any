@@ -12,7 +12,7 @@
 	/Run {
 		{
 			/CurrentServer {
-				/ServerName "Server"
+				/ServerName "n0tex1st1ng"
 				/Path "/Path/xy"
 			}
 			/Token {
@@ -48,7 +48,7 @@
 		}
 		{
 			/CurrentServer {
-				/ServerName "Server"
+				/ServerName "n0tex1st1ng"
 				/Path "/Path/xy"
 				/MsgBody "Test"
 			}

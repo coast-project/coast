@@ -11,14 +11,14 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
-import SConsider
-import Anything
 import os
 import re
 import sys
 import shlex
 from stat import *
-from SConsider.SomeUtils import runCommand, multiple_replace, getFlatENV
+import Anything
+from SomeUtils import runCommand, multiple_replace, getFlatENV, listFiles, findFiles
+from RunBuilder import SkipTest
 
 Import('*')
 
@@ -31,8 +31,8 @@ if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
     _helperscript_argument_separator = ''
 
     def getRealTarget(fulltargetname):
-        from SConsider import splitTargetname
-        packagename, targetname = splitTargetname(fulltargetname)
+        from SConsider.PackageRegistry import splitFulltargetname
+        packagename, targetname = splitFulltargetname(fulltargetname)
         return registry.getPackageTarget(packagename, targetname)
 
     if not hasattr(registry, 'getRealTarget'):
@@ -42,8 +42,7 @@ if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
 def setUp(target, source, env):
     target = registry.getRealTarget(_helperscript_target)
     if not target:
-        raise SConsider.SkipTest('required ' + _helperscript_target +
-                                 ' target/executable not found, skipping test')
+        raise SkipTest('required ' + _helperscript_target + ' target/executable not found, skipping test')
 
     relDir = env.getTargetBaseInstallDir()
     Anything.setLocalEnv(env={}, COAST_ROOT=relDir.abspath)
@@ -54,7 +53,7 @@ def setUp(target, source, env):
     except IOError:
         pass
     if not defaults or not defaults.has_key('MySQL'):
-        raise SConsider.SkipTest('mysql backend not configured or disabled')
+        raise SkipTest('mysql backend not configured or disabled')
 
     searchreplacespec = [
         ('##database##', str(defaults['MySQL']['Database'])),
@@ -67,58 +66,101 @@ def setUp(target, source, env):
     path = relDir.Dir('config')
 
     command = [target.abspath]
-    command.extend(shlex.split(
-        _helperscript_argument_separator +
-        " -h {Server!s} --port={Port!s} -u {Username!s} --password={Password!s} --connect_timeout={ConnectTimeout!s}".format(
-            **defaults['MySQL'])))
-    res = runCommand(
-        command,
-        logpath=logDir.abspath,
-        filename=path.File('dropTestDefinitions.sql').abspath,
-        filter=lambda string: multiple_replace(searchreplacespec, string),
-        env=getFlatENV(env))
+    command.extend(
+        shlex.split(
+            _helperscript_argument_separator +
+            " -h {Server!s} --port={Port!s} -u {Username!s} --password={Password!s} --connect_timeout={ConnectTimeout!s}"
+            .format(**defaults['MySQL'])))
+    res = runCommand(command,
+                     logpath=logDir.abspath,
+                     filename=path.File('dropTestDefinitions.sql').abspath,
+                     filter=lambda string: multiple_replace(searchreplacespec, string),
+                     env=getFlatENV(env),
+                     timeout=10.0)
     if res != 0:
-        raise SConsider.SkipTest('failed to drop test database (rc=' + str(res)
-                                 + '), check error log')
+        raise SkipTest('failed to drop test database (rc=' + str(res) + '), check error log')
 
-    res = runCommand(
-        command,
-        logpath=logDir.abspath,
-        filename=path.File('TestDBDefinition.sql').abspath,
-        filter=lambda string: multiple_replace(searchreplacespec, string),
-        env=getFlatENV(env))
+    res = runCommand(command,
+                     logpath=logDir.abspath,
+                     filename=path.File('TestDBDefinition.sql').abspath,
+                     filter=lambda string: multiple_replace(searchreplacespec, string),
+                     env=getFlatENV(env),
+                     timeout=30.0)
     if res != 0:
-        raise SConsider.SkipTest('failed to load test database (rc=' + str(res)
-                                 + '), check error log')
+        raise SkipTest('failed to load test database (rc=' + str(res) + '), check error log')
 
 
 def tearDown(target, source, env):
     pass
 
 
+programDepends = [
+    'testfwWDBase.testfwWDBase',
+    'CoastMySQL.CoastMySQL',
+]
+sourceFiles = listFiles(['*.cpp'])
+copyFiles = [
+    (findFiles(['.'], ['.any', '.sql']), S_IRUSR | S_IRGRP | S_IROTH),
+]
+runConfig = {
+    'setUp': setUp,
+    'tearDown': tearDown,
+}
+scriptRequireNodes = [
+    'CoastAppLog.CoastAppLog',
+    'CoastRenderers.CoastRenderers',
+    _helperscript_target,
+]
+
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
             'targetType': 'ProgramTest',
-            'linkDependencies': [
-                'CoastMySQL',
-                'testfwWDBase',
-            ],
-            'requires': [
-                'CoastAppLog',
-                'CoastRenderers',
-                _helperscript_target,
-            ],
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
-            'copyFiles': [
-                (SConsider.findFiles(['.'], ['.any', '.sql']), S_IRUSR |
-                 S_IRGRP | S_IROTH),
-            ],
-            'runConfig': {
-                'setUp': setUp,
-                'tearDown': tearDown,
-            },
+            'linkDependencies': programDepends,
+            'requires': scriptRequireNodes,
+            'sourceFiles': sourceFiles,
+            'copyFiles': copyFiles,
+            'runConfig': runConfig,
         },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
+elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createCopyFilesTarget, createPackageTestTarget, createPackageProgram, createPackageProgramScript, createAlias
+    reltargetdir = os.path.join('backendtests', packagename)
+
+    def setRelTargetDir(env):
+        env.setRelativeTargetDirectory(reltargetdir)
+
+    bin_name = packagename
+    bin_target = createPackageProgram(packagename,
+                                      bin_name,
+                                      sourceFiles,
+                                      depend=programDepends,
+                                      pkg_local=[setRelTargetDir])
+    bins = EnvBuilder().depend(bin_target).build().RegisterPackageTarget(packagename=packagename,
+                                                                         targetname='bins')
+
+    copyTarget = createCopyFilesTarget(packagename,
+                                       'configfiles',
+                                       lambda env: env.getTargetBaseInstallDir(),
+                                       copyFiles,
+                                       pkg_local=[setRelTargetDir])
+
+    scriptTarget = createPackageProgramScript(packagename,
+                                              bin_name,
+                                              bin_target,
+                                              depend=copyTarget,
+                                              require=scriptRequireNodes,
+                                              pkg_local=[setRelTargetDir])
+    scripts = EnvBuilder().depend(scriptTarget).build().RegisterPackageTarget(packagename=packagename,
+                                                                              targetname='scripts')
+
+    testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfig)
+
+    createAlias('backendtests', testTarget)
+
+    EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(packagename=packagename,
+                                                                     targetname=packagename)

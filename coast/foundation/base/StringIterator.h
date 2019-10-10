@@ -25,11 +25,11 @@ protected:
 public:
 	bool operator==(const String_iterator &r) const;
 	bool operator!=(const String_iterator &r) const {
-		return !(this->operator==(r));
+		return !(operator==(r));
 	}
 	bool operator<(const String_iterator &r) const;
 	bool operator>=(const String_iterator &r) const {
-		return !(this->operator<(r));
+		return !(operator<(r));
 	}
 	bool operator>(const String_iterator &r) const {
 		return r.operator<(*this);
@@ -94,12 +94,12 @@ public:
 
 	bool operator==(const String_const_iterator & r) const;
 	bool operator!=(const String_const_iterator & r) const {
-		return !(this->operator==(r));
+		return !(operator==(r));
 	}
 
 	bool operator<(const String_const_iterator & r) const;
 	bool operator>=(const String_const_iterator & r) const {
-		return !(this->operator<(r));
+		return !(operator<(r));
 	}
 
 	bool operator>(const String_const_iterator & r) const {

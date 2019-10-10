@@ -7,3 +7,13 @@
 /globals/
 /tests/
 /lib/
+/.tox/
+/.v27sc*/
+/.venv*/
+/.vscode/
+/sconsolidator/
+/node_modules/
+*~
+*.pyc
+/3rdparty/
+/dummy_for_tox.egg-info/

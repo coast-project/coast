@@ -12,13 +12,10 @@
 import pkg_resources
 pkg_resources.require(['python-ldap>=2.3', "SConsider"])
 
-import SomeUtils
 from StringIO import StringIO
 from ldap.cidict import cidict
 from ldif import LDIFParser, LDIFWriter
 from stat import *
-import SConsider
-import Anything
 import ldap
 import ldap.modlist as modlist
 import ldif
@@ -27,6 +24,9 @@ import socket
 import subprocess
 import re
 import sys
+import Anything
+from SomeUtils import replaceRegexInFile, listFiles, findFiles
+from RunBuilder import SkipTest
 
 Import('*')
 
@@ -34,6 +34,7 @@ defaults = None
 
 
 def setUp(target, source, env):
+    env['ENV']['COAST_LOGONCERR'] = 3
     relDir = env.getTargetBaseInstallDir()
     configdir = relDir.Dir('config')
     replaceConfigParams(env, relDir, configdir)
@@ -52,7 +53,7 @@ def replaceConfigParams(env, relDir, configdir):
     except IOError:
         pass
     if not defaults or not defaults.has_key('LDAP'):
-        raise SConsider.SkipTest('ldap backend not configured or disabled')
+        raise SkipTest('ldap backend not configured or disabled')
 
     searchreplacespec = [
         ('##LDAPHOST##', str(defaults['LDAP']['Server'])),
@@ -67,9 +68,7 @@ def replaceConfigParams(env, relDir, configdir):
         ('##BINDDC##', str(defaults['LDAP']['BindDc'])),
     ]
 
-    modifyConfigFiles(env, searchreplacespec, SConsider.findFiles([configdir], [
-        '.any', '.ldif'
-    ]))
+    modifyConfigFiles(env, searchreplacespec, findFiles([configdir], ['.any', '.ldif']))
 
 
 def modifyConfigFiles(env, searchReplace=[], files=[]):
@@ -79,21 +78,23 @@ def modifyConfigFiles(env, searchReplace=[], files=[]):
         if os.path.isfile(fname):
             oldmode = os.stat(fname).st_mode
             os.chmod(fname, oldmode | S_IWUSR)
-            SomeUtils.replaceRegexInFile(fname, searchReplace)
+            replaceRegexInFile(fname, searchReplace)
             os.chmod(fname, oldmode)
 
 
 def bulkLoadLdap(configdir):
     try:
-        l = ldap.initialize('ldap://' + defaults['LDAP']['Server'] + ':' + str(
-            defaults['LDAP']['Port']))
-        l.bind_s(
-            str(defaults['LDAP']['BindDn']), str(defaults['LDAP']['Password']))
+        timeout = defaults['LDAP'].get('Timeout', 10.0)
+        l = ldap.initialize('ldap://' + defaults['LDAP']['Server'] + ':' + str(defaults['LDAP']['Port']))
+        l.protocol_version = 3  # used LDAP version
+        l.set_option(ldap.OPT_TIMEOUT, int(timeout))  # setting LDAP connection timeout
+        l.set_option(ldap.OPT_NETWORK_TIMEOUT, int(timeout))  # setting LDAP connection timeout second option
+        l.bind_s(str(defaults['LDAP']['BindDn']), str(defaults['LDAP']['Password']))
 
         deleteLdapEntries(l)
         addLdapEntries(l, configdir)
     except ldap.INVALID_CREDENTIALS:
-        raise SConsider.SkipTest('username or password is incorrect.')
+        raise SkipTest('username or password is incorrect.')
     except ldap.LDAPError as e:
         strList = []
 
@@ -102,7 +103,7 @@ def bulkLoadLdap(configdir):
                 strList.append("%s: %s\n" % (k, v))
         else:
             strList.append(e)
-        raise SConsider.SkipTest(''.join(strList))
+        raise SkipTest(''.join(strList))
     finally:
         try:
             l.unbind()
@@ -114,8 +115,7 @@ def deleteLdapEntries(l):
     try:
         sys.stdout.write("ldap record deletion started.")
         sys.stdout.flush()
-        rawRes = l.search_s('dc=' + str(defaults['LDAP']['BindDc']),
-                            ldap.SCOPE_SUBTREE, '(objectclass=*)')
+        rawRes = l.search_s('dc=' + str(defaults['LDAP']['BindDc']), ldap.SCOPE_SUBTREE, '(objectclass=*)')
         res = transformLdapSearchResults(rawRes)
         i = 0
 
@@ -151,7 +151,7 @@ def addLdapEntries(l, configdir):
     filePath = configdir.File(str(defaults['LDAP']['LdifFileName'])).abspath
 
     if not os.path.isfile(filePath):
-        raise SConsider.SkipTest('ldif file not available.')
+        raise SkipTest('ldif file not available.')
 
     sys.stdout.write("ldap record load started.")
     sys.stdout.flush()
@@ -181,7 +181,7 @@ def transformLdapSearchResults(results):
     return res
 
 
-class LDAPSearchResult:
+class LDAPSearchResult(object):
     dn = ''
 
     def __init__(self, entryTuple):
@@ -228,31 +228,68 @@ class LDAPSearchResult:
         return out.getvalue()
 
 
+programDepends = [
+    'testfwWDBase.testfwWDBase',
+    'CoastLDAPDAICacheHandler.CoastLDAPDAICacheHandler',
+    'CoastLDAP.CoastLDAP',
+]
+sourceFiles = listFiles(['*.cpp'])
+copyFiles = [
+    (findFiles(['config'], extensions=['.any', '.ldif'], matchfiles=[]), S_IRUSR | S_IRGRP | S_IROTH),
+]
+runConfig = {
+    'setUp': setUp,
+    'tearDown': tearDown,
+}
+
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
             'targetType': 'ProgramTest',
-            'linkDependencies': [
-                'CoastLDAPDAICacheHandler',
-                'CoastLDAP',
-                'testfwWDBase',
-            ],
-            'requires': [],
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
-            'copyFiles': [
-                (SConsider.findFiles(['config'],
-                                     extensions=[
-                                         '.any', '.ldif'
-                                     ],
-                                     matchfiles=[]), S_IRUSR | S_IRGRP |
-                 S_IROTH),
-            ],
-            'runConfig': {
-                'setUp': setUp,
-                'tearDown': tearDown,
-            },
+            'linkDependencies': programDepends,
+            'sourceFiles': sourceFiles,
+            'copyFiles': copyFiles,
+            'runConfig': runConfig,
         },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
+elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createCopyFilesTarget, createPackageTestTarget, createPackageProgram, createPackageProgramScript, createAlias
+    reltargetdir = os.path.join('backendtests', packagename)
+
+    def setRelTargetDir(env):
+        env.setRelativeTargetDirectory(reltargetdir)
+
+    bin_name = packagename
+    bin_target = createPackageProgram(packagename,
+                                      bin_name,
+                                      sourceFiles,
+                                      depend=programDepends,
+                                      pkg_local=[setRelTargetDir])
+    bins = EnvBuilder().depend(bin_target).build().RegisterPackageTarget(packagename=packagename,
+                                                                         targetname='bins')
+
+    copyTarget = createCopyFilesTarget(packagename,
+                                       'configfiles',
+                                       lambda env: env.getTargetBaseInstallDir(),
+                                       copyFiles,
+                                       pkg_local=[setRelTargetDir])
+
+    scriptTarget = createPackageProgramScript(packagename,
+                                              bin_name,
+                                              bin_target,
+                                              depend=copyTarget,
+                                              pkg_local=[setRelTargetDir])
+    scripts = EnvBuilder().depend(scriptTarget).build().RegisterPackageTarget(packagename=packagename,
+                                                                              targetname='scripts')
+
+    testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfig)
+
+    createAlias('backendtests', testTarget)
+
+    EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(packagename=packagename,
+                                                                     targetname=packagename)

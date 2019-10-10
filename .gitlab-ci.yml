@@ -48,7 +48,7 @@ default:
     BUILD_EXCLUDE_CACHEDIR: "--exclude=$JOB_CACHE_DIR"
 #    BUILD_COMPILERS: "--with-cc= --with-cxx="
     BUILD_COMPILER_WARN: "--warnlevel=medium"
-    BUILD_TARGETS: "tests"
+    BUILD_TARGETS: "--exclude=testfw/dummytest tests"
     BUILD_JOBS: "--jobs=$$(nproc)"
     BUILD_SCONS_CONFIG: "--config=force"
     BUILD_IGNORE_MISSING: "--ignore-missing"
@@ -78,6 +78,7 @@ compile failure test:
   allow_failure: true
   script:
   - printf "void failfunc() { IwillFailToCompile }\n" > testfw/dummytest/ForcedCompileFailureTest.cpp
+  - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
  
 compile all test targets:
@@ -86,6 +87,7 @@ compile all test targets:
   cache:
     <<: *buildcache
   script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
 
 Test:
@@ -100,6 +102,8 @@ Test:
     BUILD_RUNOPT: "--run-force"
     BUILD_RUNOPTARGS: "--runparams=\"-- -all\""
   script:
+  - echo "cleaning ${JOB_CACHE_DIR}/tests/ prior to run..." && rm -rf ${JOB_CACHE_DIR}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
   artifacts:
     expire_in: 1 day

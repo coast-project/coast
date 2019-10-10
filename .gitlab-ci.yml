@@ -1,5 +1,5 @@
 variables:
-  SCONSFLAGS: "--with-src-boost=${THIRDPARTY_DIR}/boost --with-bin-openssl=${THIRDPARTY_DIR}/openssl"
+  SCONSFLAGS: "--with-src-boost=${THIRDPARTY_DIR}/boost --with-bin-openssl=${THIRDPARTY_DIR}/openssl --with-src-zlib=${THIRDPARTY_DIR}/zlib --with-bin-iplanetLDAP=${THIRDPARTY_DIR}/iplanet_ldap --with-bin-oracle=${THIRDPARTY_DIR}/oracle"
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   JOB_CACHE_DIR: build_cache
   THIRDPARTY_DIR: 3rdparty
@@ -67,6 +67,9 @@ prepare environment:
   script:
   - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/boost.git ${THIRDPARTY_DIR}/boost
   - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/openssl.git ${THIRDPARTY_DIR}/openssl
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/zlib.git ${THIRDPARTY_DIR}/zlib
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/iplanet_ldap.git ${THIRDPARTY_DIR}/iplanet_ldap
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/oracle.git ${THIRDPARTY_DIR}/oracle
 
 compile failure test:
   extends: .build_template

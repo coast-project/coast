@@ -84,11 +84,22 @@ compile failure test:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
  
-compile all test targets:
+compile test targets 32:
   extends: .build_template
   stage: build
   cache:
     <<: *buildcache
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+
+compile test targets 64:
+  extends: .build_template
+  stage: build
+  cache:
+    <<: *buildcache
+  variables:
+    BUILD_ARCHBITS: "--archbits=64"
   script:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)

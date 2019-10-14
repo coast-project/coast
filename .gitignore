@@ -14,11 +14,9 @@
 /sconsolidator/
 /node_modules/
 *~
+# python bytecode
 *.pyc
 /dummy_for_tox.egg-info/
-
-# python bytecode
-/sconsider_extensions/*.pyc
 
 # CoastRecipes
 /recipes/

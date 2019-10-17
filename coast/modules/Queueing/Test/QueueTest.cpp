@@ -325,7 +325,7 @@ void QueueTest::SimplePutGetTest() {
 	TraceAny(anyOut, "statistics");
 }
 
-void QueueTest::DoMultiProducerSingleConsumerTest(long lQueueSize) {
+void QueueTest::DoMultiProducerSingleConsumerTest(int lQueueSize) {
 	StartTrace1(QueueTest.DoMultiProducerSingleConsumerTest, "QueueSize:" << lQueueSize);
 	{
 		typedef AnyQueueType QueueType;
@@ -377,12 +377,12 @@ void QueueTest::DoMultiProducerSingleConsumerTest(long lQueueSize) {
 
 void QueueTest::MultiProducerSingleConsumerTest() {
 	StartTrace(QueueTest.MultiProducerSingleConsumerTest);
-	DoMultiProducerSingleConsumerTest(1L);
-	DoMultiProducerSingleConsumerTest(25L);
-	DoMultiProducerSingleConsumerTest(5L);
+	DoMultiProducerSingleConsumerTest(1);
+	DoMultiProducerSingleConsumerTest(25);
+	DoMultiProducerSingleConsumerTest(5);
 }
 
-void QueueTest::DoSingleProducerMultiConsumerTest(long lQueueSize) {
+void QueueTest::DoSingleProducerMultiConsumerTest(int lQueueSize) {
 	StartTrace(QueueTest.DoSingleProducerMultiConsumerTest);
 	{
 		typedef AnyQueueType QueueType;
@@ -442,9 +442,9 @@ void QueueTest::DoSingleProducerMultiConsumerTest(long lQueueSize) {
 
 void QueueTest::SingleProducerMultiConsumerTest() {
 	StartTrace(QueueTest.SingleProducerMultiConsumerTest);
-	DoSingleProducerMultiConsumerTest(1L);
-	DoSingleProducerMultiConsumerTest(5L);
-	DoSingleProducerMultiConsumerTest(25L);
+	DoSingleProducerMultiConsumerTest(1);
+	DoSingleProducerMultiConsumerTest(5);
+	DoSingleProducerMultiConsumerTest(25);
 }
 
 void QueueTest::ConsumerTerminationTest() {
@@ -809,7 +809,7 @@ void ExecuteSingleProducerMultiConsumerQTypeTest() {
 
 	typedef PoolConsumer<QueueType> PoolConsumerThread;
 
-	long const lQueueSize = 3000000L;
+	int const lQueueSize = 3000000;
 	Allocator *poolAlloc = MT_Storage::MakePoolAllocator(LoopCount, 26);
 	MT_Storage::RefAllocator(poolAlloc);
 	{

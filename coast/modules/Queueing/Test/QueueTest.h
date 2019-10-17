@@ -47,8 +47,8 @@ public:
 	void SingleProducerMultiConsumerQTypeTest();
 
 private:
-	void DoMultiProducerSingleConsumerTest(long lQueueSize);
-	void DoSingleProducerMultiConsumerTest(long lQueueSize);
+	void DoMultiProducerSingleConsumerTest(int lQueueSize);
+	void DoSingleProducerMultiConsumerTest(int lQueueSize);
 };
 
 #endif

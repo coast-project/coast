@@ -1,7 +1,8 @@
 variables:
   SCONSFLAGS: "--with-src-boost=${THIRDPARTY_DIR}/boost --with-bin-openssl=${THIRDPARTY_DIR}/openssl --with-src-zlib=${THIRDPARTY_DIR}/zlib --with-bin-iplanetLDAP=${THIRDPARTY_DIR}/iplanet_ldap --with-bin-oracle=${THIRDPARTY_DIR}/oracle"
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  JOB_CACHE_DIR: build_cache
+  BUILD_OUTPUT_32: build_32
+  BUILD_OUTPUT_64: build_64
   THIRDPARTY_DIR: 3rdparty
 
 stages:
@@ -20,7 +21,7 @@ default:
     entrypoint: ["/entrypoint.sh", "gosu", "docky"]
   before_script:
   - echo "Running as user [$(id -u)] on hostname [$(hostname)]"
-  - mkdir -p $JOB_CACHE_DIR $PIP_CACHE_DIR ${THIRDPARTY_DIR}
+  - mkdir -p $BUILD_OUTPUT_32 $BUILD_OUTPUT_64 $PIP_CACHE_DIR ${THIRDPARTY_DIR}
   - python -V               # Print out python version for debugging
   - pip install --upgrade -r requires.txt
 
@@ -29,33 +30,10 @@ default:
   key: "$CI_COMMIT_REF_SLUG"
   policy: pull-push
   paths:
-  - $JOB_CACHE_DIR
   - $PIP_CACHE_DIR
   - $THIRDPARTY_DIR
 #  untracked: true
 
-.build_template:
-  tags:
-  - docker
-  cache:
-    <<: *buildcache
-  variables:
-    BUILD_OUTPUT_OPT: "--baseoutdir=${JOB_CACHE_DIR}"
-    BUILD_ARCHBITS: "--archbits=32"
-    BUILD_CFG: "--build-cfg=optimized"
-    BUILD_WITH_TRACE: "--enable-Trace"
-    BUILD_TESTOPT: "--usetool=TestfwTransformer"
-    BUILD_EXCLUDE_CACHEDIR: "--exclude=$JOB_CACHE_DIR"
-#    BUILD_COMPILERS: "--with-cc= --with-cxx="
-    BUILD_COMPILER_WARN: "--warnlevel=medium"
-    BUILD_TARGETS: "--exclude=testfw/dummytest tests"
-    BUILD_JOBS: "--jobs=$$(nproc)"
-    BUILD_SCONS_CONFIG: "--config=force"
-    BUILD_IGNORE_MISSING: "--ignore-missing"
-    BUILD_RUNOPT: ""
-    BUILD_RUNOPTARGS: ""
-    BUILD_COMMANDLINE: "scons -u $$BUILD_OUTPUT_OPT $$BUILD_EXCLUDE_CACHEDIR $$BUILD_ARCHBITS $$BUILD_CFG $$BUILD_WITH_TRACE $$BUILD_COMPILERS $$BUILD_TESTOPT $$BUILD_JOBS $$BUILD_SCONS_CONFIG $$BUILD_IGNORE_MISSING $$BUILD_RUNOPT $$BUILD_RUNOPTARGS $$BUILD_TARGETS"
-    
 prepare environment:
   stage: prepare
   tags:
@@ -71,11 +49,32 @@ prepare environment:
   - git clone --branch master https://${CLONE_USER_IPLANET}:${CLONE_TOKEN_IPLANET}@gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/iplanet_ldap.git ${THIRDPARTY_DIR}/iplanet_ldap
   - git clone --branch master https://${CLONE_USER_ORACLE}:${CLONE_TOKEN_ORACLE}@gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/oracle.git ${THIRDPARTY_DIR}/oracle
 
-compile failure test:
-  extends: .build_template
+.build_template:
+  tags:
+  - docker
   stage: build
   cache:
     <<: *buildcache
+    policy: pull
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_32}"
+    BUILD_ARCHBITS: "--archbits=32"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--enable-Trace"
+    BUILD_TESTOPT: "--usetool=TestfwTransformer"
+    BUILD_EXCLUDE_CACHEDIR: "--exclude=$BUILD_OUTPUT_32 --exclude=$BUILD_OUTPUT_64"
+#    BUILD_COMPILERS: "--with-cc= --with-cxx="
+    BUILD_COMPILER_WARN: "--warnlevel=medium"
+    BUILD_TARGETS: "--exclude=testfw/dummytest tests"
+    BUILD_JOBS: "--jobs=$$(nproc)"
+    BUILD_SCONS_CONFIG: "--config=force"
+    BUILD_IGNORE_MISSING: "--ignore-missing"
+    BUILD_RUNOPT: ""
+    BUILD_RUNOPTARGS: ""
+    BUILD_COMMANDLINE: "scons -u $$BUILD_OUTPUT_OPT $$BUILD_EXCLUDE_CACHEDIR $$BUILD_ARCHBITS $$BUILD_CFG $$BUILD_WITH_TRACE $$BUILD_COMPILERS $$BUILD_TESTOPT $$BUILD_JOBS $$BUILD_SCONS_CONFIG $$BUILD_IGNORE_MISSING $$BUILD_RUNOPT $$BUILD_RUNOPTARGS $$BUILD_TARGETS"
+    
+compile failure test:
+  extends: .build_template
   variables:
     BUILD_TARGETS: "dummytest"
   allow_failure: true
@@ -84,46 +83,73 @@ compile failure test:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
  
-compile test targets 32:
+compile:32:
   extends: .build_template
-  stage: build
-  cache:
-    <<: *buildcache
   script:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_32}'
 
-compile test targets 64:
+compile:64:
   extends: .build_template
-  stage: build
-  cache:
-    <<: *buildcache
   variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
     BUILD_ARCHBITS: "--archbits=64"
   script:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_64}'
 
-Test:
+.test_template:
   extends: .build_template
   stage: test
-  cache:
-    <<: *buildcache
-    policy: pull
   variables:
     BUILD_JOBS: "--jobs=1"
     BUILD_TARGETS: "--exclude=testfw/dummytest tests"
     BUILD_RUNOPT: "--run-force"
     BUILD_RUNOPTARGS: "--runparams=\"-- -all\""
+
+test:32:
+  extends: .test_template
   script:
-  - echo "cleaning ${JOB_CACHE_DIR}/tests/ prior to run..." && rm -rf ${JOB_CACHE_DIR}/tests/
+  - echo "cleaning ${BUILD_OUTPUT_32}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_32}/tests/
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies: 
+  - compile:32
+  needs: ["compile:32"]
   artifacts:
-    expire_in: 1 day
+    expire_in: 1 week
     when: always
     paths:
-    - '${JOB_CACHE_DIR}/tests/*/log/*/*.test.log'
-    - '${JOB_CACHE_DIR}/tests/*/log/*/*.test.xml'
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
     reports:
-      junit: '${JOB_CACHE_DIR}/tests/*/log/*/*.test.xml'
+      junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+
+test:64:
+  extends: .test_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_64}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_64}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies: 
+  - compile:64
+  needs: ["compile:64"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'

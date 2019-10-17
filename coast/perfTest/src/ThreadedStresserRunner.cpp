@@ -172,9 +172,13 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 			totSteps += roaResult["Steps"].AsLong(0);
 			totSum += roaResult["Sum"].AsLong(0);
 			long itopia_max = roaResult["Max"].AsLong(0);
-			totMax < itopia_max ? totMax = itopia_max : totMax = totMax;
+			if (totMax < itopia_max) {
+				totMax = itopia_max;
+			}
 			long itopia_min = roaResult["Min"].AsLong(0);
-			totMin > itopia_min ? totMin = itopia_min : totMin = totMin;
+			if (totMin > itopia_min) {
+				totMin = itopia_min;
+			}
 			totErr += roaResult["Error"].AsLong(0);
 			results["Results"].Append(result);
 			result = Anything();

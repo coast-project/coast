@@ -218,7 +218,6 @@ void Base64Test::EncodeDecodeTest()
 	OriginalString = Empty;
 	OriginalString.Append( (char)5 );
 
-	OriginalString = OriginalString;
 	EncodedString = Empty;
 	DecodedString = Empty;
 	base64.DoEncode( EncodedString, OriginalString);
@@ -276,7 +275,6 @@ void Base64Test::EncodeDecodeTest()
 
 	// One Printable Char, scrambled
 	OriginalString = "M";
-	OriginalString = OriginalString;
 	EncodedString = Empty;
 	DecodedString = Empty;
 	base64.DoEncode( EncodedString, OriginalString);
@@ -294,7 +292,6 @@ void Base64Test::EncodeDecodeTest()
 	OriginalString = Empty;
 	OriginalString.Append( (char)5 );
 
-	OriginalString = OriginalString;
 	EncodedString = Empty;
 	DecodedString = Empty;
 	base64.DoEncode( EncodedString, OriginalString);

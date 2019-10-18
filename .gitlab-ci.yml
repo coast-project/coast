@@ -174,7 +174,7 @@ compile:64:dbg:trc:
     BUILD_JOBS: "--jobs=1"
     BUILD_TARGETS: "--exclude=testfw/dummytest tests"
     BUILD_RUNOPT: "--run-force"
-    BUILD_RUNOPTARGS: "--runparams=\"-- -all\""
+    BUILD_RUNOPTARGS: "--runparams=\"-d -d -- -all\""
 
 test:32:opt:
   extends: .test_template

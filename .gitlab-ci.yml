@@ -60,7 +60,7 @@ prepare environment:
     BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_32}"
     BUILD_ARCHBITS: "--archbits=32"
     BUILD_CFG: "--build-cfg=optimized"
-    BUILD_WITH_TRACE: "--enable-Trace"
+    BUILD_WITH_TRACE: "--tracemode=1"
     BUILD_TESTOPT: "--usetool=TestfwTransformer"
     BUILD_EXCLUDE_CACHEDIR: "--exclude=$BUILD_OUTPUT_32 --exclude=$BUILD_OUTPUT_64"
 #    BUILD_COMPILERS: "--with-cc= --with-cxx="
@@ -72,7 +72,7 @@ prepare environment:
     BUILD_RUNOPT: ""
     BUILD_RUNOPTARGS: ""
     BUILD_COMMANDLINE: "scons -u $$BUILD_OUTPUT_OPT $$BUILD_EXCLUDE_CACHEDIR $$BUILD_ARCHBITS $$BUILD_CFG $$BUILD_WITH_TRACE $$BUILD_COMPILERS $$BUILD_TESTOPT $$BUILD_JOBS $$BUILD_SCONS_CONFIG $$BUILD_IGNORE_MISSING $$BUILD_RUNOPT $$BUILD_RUNOPTARGS $$BUILD_TARGETS"
-    
+
 compile failure test:
   extends: .build_template
   variables:
@@ -82,9 +82,12 @@ compile failure test:
   - printf "void failfunc() { IwillFailToCompile }\n" > testfw/dummytest/ForcedCompileFailureTest.cpp
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
- 
-compile:32:
+
+compile:32:opt:
   extends: .build_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
   script:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
@@ -93,11 +96,69 @@ compile:32:
     paths:
     - '${BUILD_OUTPUT_32}'
 
-compile:64:
+compile:32:opt:trc:
+  extends: .build_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_32}'
+
+compile:32:dbg:trc:
+  extends: .build_template
+  variables:
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_32}'
+
+compile:64:opt:
   extends: .build_template
   variables:
     BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
     BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_64}'
+
+compile:64:opt:trc:
+  extends: .build_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_64}'
+
+compile:64:dbg:trc:
+  extends: .build_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
   script:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
@@ -115,15 +176,18 @@ compile:64:
     BUILD_RUNOPT: "--run-force"
     BUILD_RUNOPTARGS: "--runparams=\"-- -all\""
 
-test:32:
+test:32:opt:
   extends: .test_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
   script:
   - echo "cleaning ${BUILD_OUTPUT_32}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_32}/tests/
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
-  dependencies: 
-  - compile:32
-  needs: ["compile:32"]
+  dependencies:
+  - compile:32:opt
+  needs: ["compile:32:opt"]
   artifacts:
     expire_in: 1 week
     when: always
@@ -133,18 +197,108 @@ test:32:
     reports:
       junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
 
-test:64:
+test:32:opt:trc:
+  extends: .test_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_32}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_32}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:32:opt:trc
+  needs: ["compile:32:opt:trc"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+
+test:32:dbg:trc:
+  extends: .test_template
+  variables:
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_32}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_32}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:32:dbg:trc
+  needs: ["compile:32:dbg:trc"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+
+test:64:opt:
   extends: .test_template
   variables:
     BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
     BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
   script:
   - echo "cleaning ${BUILD_OUTPUT_64}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_64}/tests/
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
-  dependencies: 
-  - compile:64
-  needs: ["compile:64"]
+  dependencies:
+  - compile:64:opt
+  needs: ["compile:64:opt"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+
+test:64:opt:trc:
+  extends: .test_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_64}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_64}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:64:opt:trc
+  needs: ["compile:64:opt:trc"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+
+test:64:dbg:trc:
+  extends: .test_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_64}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_64}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:64:dbg:trc
+  needs: ["compile:64:dbg:trc"]
   artifacts:
     expire_in: 1 week
     when: always

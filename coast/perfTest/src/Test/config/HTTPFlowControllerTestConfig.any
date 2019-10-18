@@ -128,7 +128,7 @@
 						/ResponseCode 200
 					}
 					/Output {
-						/Tokens "Hallo Goödbye"
+						/Tokens "Hallo Gudbye"
 					}
 				}
 			}
@@ -181,14 +181,14 @@
 				/TmpStore.Mapper.Output.Links.0 Test
 				/TmpStore.Mapper.Output.LinksNameMap.Test 0
 				/Result.TmpStore.result.ErrorMessage:5
-					"In step:7<no label found>SlotName PreviousPage.LinksNameMap.T\xF6st not present in incoming forms/links/frames"
+					"In step:7<no label found>SlotName PreviousPage.LinksNameMap.Tost not present in incoming forms/links/frames"
 			}
 		}
 		/"Link Test" {
 			/UseConfig "HttpFlowControllerAnalyzeOkTest"
 			/Replace {
 				/TmpStore.Mapper.Output.Links.0.href "Test"
-				/TmpStore.Mapper.Output.LinksNameMap.Töst 0
+				/TmpStore.Mapper.Output.LinksNameMap.Tost 0
 				/Result.TmpStore:0 "/Path/Test"
 			}
 		}

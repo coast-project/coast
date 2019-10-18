@@ -21,17 +21,17 @@
 			/Version 1111
 		}
 		{
-			/Address "gugus"
+			/Address "1gugus"
 			/Port	 "443"
 			/Version 2222
 		}
 		{
-			/Address "dada"
+			/Address "2dada"
 			/Port	 "443"
 			/Version 3333
 		}
 		{
-			/Address "gugus"
+			/Address "3gugus"
 			/Port	 "9999"
 			/Version 4444
 		}

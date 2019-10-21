@@ -13,8 +13,8 @@
 #include "Threads.h"
 #include "DiffTimer.h"
 #include "MT_Storage.h"
-#include <limits>
 #include "ITOTypeTraits.h"	// for demangle
+#include <limits>
 
 //---- Queue ----------------------------------------------------------
 //! Base class for simple, thread-safe, container based queue
@@ -59,7 +59,8 @@ public:
 	typedef QueueBase<ElementType, ListStorageType> ThisType;
 	typedef int size_type;
 
-	QueueBase(const char *name, size_type lQueueSize = std::numeric_limits<size_type>::max(), Allocator *pAlloc = coast::storage::Global())
+	template <typename T>
+	QueueBase(const char *name, coast::typetraits::Type2Type<T>, size_type lQueueSize = std::numeric_limits<size_type>::max(), Allocator *pAlloc = coast::storage::Global())
 		: fName(name, -1, coast::storage::Global())
 		, fAllocator(pAlloc)
 		, fQueueSize(lQueueSize)
@@ -78,7 +79,30 @@ public:
 		, fBlockingGetLock("BlockingGetLock", coast::storage::Global())
 		, fContainer()
 		, fQueueStartTime(DiffTimer::eMicroseconds) {
-		StartTrace1(Queue.Queue, "queue size:" << lQueueSize);
+		StartTrace1(Queue.Queue, "Generic queue, size:" << lQueueSize);
+		UnBlock();
+	}
+
+	QueueBase(const char *name, coast::typetraits::Type2Type<Anything>, size_type lQueueSize = std::numeric_limits<size_type>::max(), Allocator *pAlloc = coast::storage::Global())
+		: fName(name, -1, coast::storage::Global())
+		, fAllocator(pAlloc)
+		, fQueueSize(lQueueSize)
+		, fSemaFullSlots(0)
+		, fSemaEmptySlots(fQueueSize)
+		, fPutCount(0L)
+		, fGetCount(0L)
+		, fMaxLoad(0)
+		, fBlockingPutCount(0L)
+		, fBlockingGetCount(0L)
+		, fAlive(0xf007f007)
+		, feBlocked(eBothSides)
+		, fQueueLock("QueueMutex", coast::storage::Global())
+		, fBlockedLock("BlockedLock", coast::storage::Global())
+		, fBlockingPutLock("BlockingPutLock", coast::storage::Global())
+		, fBlockingGetLock("BlockingGetLock", coast::storage::Global())
+		, fContainer(TrickyThing(fAllocator))
+		, fQueueStartTime(DiffTimer::eMicroseconds) {
+		StartTrace1(Queue.Queue, "Anything queue, size:" << lQueueSize);
 		UnBlock();
 	}
 
@@ -124,7 +148,7 @@ public:
 			if ( bTryLock ) {
 				eRet = /* eTryAcquireFailed |*/ eFull;
 				if ( fSemaEmptySlots.TryAcquire() ) {
-					eRet = DoPut(anyElement);
+					eRet = DoPut(anyElement, coast::typetraits::Type2Type<ElementType>());
 				}
 			} else {
 				LockedValueIncrementDecrementEntry ce(fBlockingPutLock, fBlockingPutCond, fBlockingPutCount);
@@ -132,7 +156,7 @@ public:
 				if ( IsAlive() && fSemaEmptySlots.Acquire() ) {
 					eRet = eDead;
 					if ( IsAlive() ) {
-						eRet = DoPut(anyElement);
+						eRet = DoPut(anyElement, coast::typetraits::Type2Type<ElementType>());
 					} else {
 						// must release semaphore again because we did not put an element
 						fSemaEmptySlots.Release();
@@ -156,7 +180,7 @@ public:
 			if ( bTryLock ) {
 				eRet = /*eTryAcquireFailed |*/ eEmpty;
 				if ( fSemaFullSlots.TryAcquire() ) {
-					eRet = DoGet(anyElement);
+					eRet = DoGet(anyElement, coast::typetraits::Type2Type<ElementType>());
 				}
 			} else {
 				LockedValueIncrementDecrementEntry ce(fBlockingGetLock, fBlockingGetCond, fBlockingGetCount);
@@ -165,7 +189,7 @@ public:
 				if ( IsAlive() && fSemaFullSlots.Acquire() ) {
 					eRet = eDead;
 					if ( IsAlive() ) {
-						eRet = DoGet(anyElement);
+						eRet = DoGet(anyElement, coast::typetraits::Type2Type<ElementType>());
 					} else {
 						// must release semaphore again because we did not get an element
 						fSemaFullSlots.Release();
@@ -304,15 +328,31 @@ protected:
 		The element will get pushed into the underlying container.
 		\param anyElement element to put into queue
 		\return depending on internal state, a corresponding code will be returned */
-	StatusCode DoPut(ConstElementTypeRef anyElement) {
+	template <typename T>
+	StatusCode DoPut(ConstElementTypeRef anyElement, coast::typetraits::Type2Type<T>) {
 		StartTrace(Queue.DoPut);
 		StatusCode eRet(eBlocked);
 		if ( !IsBlocked(ePutSide) ) {
 			LockUnlockEntry me(fQueueLock);
-			coast::threading::TLSEntry<Allocator> forceGlobalStorage(MT_Storage::getAllocatorKey(), fAllocator);
+			coast::threading::TLSEntry<Allocator> forceContainerStorage(MT_Storage::getAllocatorKey(), fAllocator);
 			fContainer.push_back(anyElement);
 			++fPutCount;
-			fMaxLoad = std::max( fMaxLoad, (int)fContainer.size() );
+			fMaxLoad = std::max( fMaxLoad, (size_type)fContainer.size() );
+			fSemaFullSlots.Release();
+			eRet = eSuccess;
+		}
+		return eRet;
+	}
+
+	StatusCode DoPut(ConstElementTypeRef anyElement, coast::typetraits::Type2Type<Anything>) {
+		StartTrace1(Queue.DoPut, "Anything");
+		StatusCode eRet(eBlocked);
+		if ( !IsBlocked(ePutSide) ) {
+			LockUnlockEntry me(fQueueLock);
+			coast::threading::TLSEntry<Allocator> forceContainerStorage(MT_Storage::getAllocatorKey(), fAllocator);
+			fContainer.push_back(anyElement.DeepClone(fAllocator));
+			++fPutCount;
+			fMaxLoad = std::max( fMaxLoad, (size_type)fContainer.size() );
 			fSemaFullSlots.Release();
 			eRet = eSuccess;
 		}
@@ -324,14 +364,38 @@ protected:
 		The element will get popped from the underlying container.
 		\param anyElement element to get from queue
 		\return depending on internal state, a corresponding code will be returned */
-	StatusCode DoGet(ElementTypeRef anyElement) {
+	template <typename T>
+	StatusCode DoGet(ElementTypeRef anyElement, coast::typetraits::Type2Type<T>) {
 		StartTrace(Queue.DoGet);
 		StatusCode eRet(eBlocked);
 		if ( !IsBlocked(eGetSide) ) {
 			LockUnlockEntry me(fQueueLock);
-			coast::threading::TLSEntry<Allocator> forceGlobalStorage(MT_Storage::getAllocatorKey(), fAllocator);
+			coast::threading::TLSEntry<Allocator> forceContainerStorage(MT_Storage::getAllocatorKey(), fAllocator);
 			if ( fContainer.size() ) {
 				anyElement = fContainer.front();	//! \todo change here so that it's not restricted only for Anything's - use any_cast
+				fContainer.pop_front();
+				++fGetCount;
+				fSemaEmptySlots.Release();
+				eRet = eSuccess;
+			} else {
+				// we can only get here if something curious happens with semaphore handling
+				// because we were able to acquire a full-slot just before, something must have happened at this point
+				// which should not be possible by its design
+				// -> someone is destructing the queue without blocking first?
+				SYSERROR("accessed empty Queue!?");
+				eRet = ( StatusCode )( eEmpty | eError );
+			}
+		}
+		return eRet;
+	}
+	StatusCode DoGet(ElementTypeRef anyElement, coast::typetraits::Type2Type<Anything>) {
+		StartTrace1(Queue.DoGet, "Anything");
+		StatusCode eRet(eBlocked);
+		if ( !IsBlocked(eGetSide) ) {
+			LockUnlockEntry me(fQueueLock);
+			coast::threading::TLSEntry<Allocator> forceContainerStorage(MT_Storage::getAllocatorKey(), fAllocator);
+			if ( fContainer.size() ) {
+				anyElement = fContainer.front().DeepClone(anyElement.GetAllocator());
 				fContainer.pop_front();
 				++fGetCount;
 				fSemaEmptySlots.Release();
@@ -456,12 +520,12 @@ public:
 	typedef typename BaseType::size_type size_type;
 
 	Queue(const char *name, size_type lQueueSize = std::numeric_limits<size_type>::max(), Allocator *pAlloc = coast::storage::Global())
-		: BaseType(name, lQueueSize, pAlloc) {
+		: BaseType(name, coast::typetraits::Type2Type<ListStorageType>(), lQueueSize, pAlloc) {
 		StatTrace(Queue.Queue, "generic", coast::storage::Current());
 	}
 };
 
-//! Anything based queue, internal storage type still to be specified
+//! Anything based queue, element type still to be specified
 template <
 class TElementType
 >
@@ -478,9 +542,8 @@ public:
 	typedef typename BaseType::size_type size_type;
 
 	Queue(const char *name, size_type lQueueSize = std::numeric_limits<size_type>::max(), Allocator *pAlloc = coast::storage::Global())
-		: BaseType(name, lQueueSize, pAlloc) {
+		: BaseType(name, coast::typetraits::Type2Type<Anything>(), lQueueSize, pAlloc) {
 		StatTrace(Queue.Queue, "Anything", coast::storage::Current());
-		this->fContainer.SetAllocator(pAlloc);
 	}
 };
 
@@ -488,3 +551,4 @@ public:
 typedef Queue<Anything, Anything> AnyQueueType;
 
 #endif
+

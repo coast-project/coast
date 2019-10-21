@@ -289,14 +289,14 @@ void QueueTest::PutGetStatusTest() {
 	t_assert(Q1.GetSize() == 0L);
 	Anything anyTest1, anyTest2;
 	anyTest1["Guguseli"] = 1;
-	assertEqualm(QueueType::eSuccess, Q1.DoPut(anyTest1), "first put should succeed");
+	assertEqualm(QueueType::eSuccess, Q1.DoPut(anyTest1, coast::typetraits::Type2Type<Anything>()), "first put should succeed");
 	t_assert(Q1.GetSize() == 1L);
 	Anything anyOut;
-	assertEqualm(QueueType::eSuccess, Q1.DoGet(anyOut), "first get should succeed");
+	assertEqualm(QueueType::eSuccess, Q1.DoGet(anyOut, coast::typetraits::Type2Type<Anything>()), "first get should succeed");
 	assertAnyEqual(anyTest1, anyOut);
 	t_assert(Q1.GetSize() == 0L);
 	anyOut = Anything();
-	assertEqualm((QueueType::eEmpty|QueueType::eError), Q1.DoGet(anyOut), "second get should fail because of empty queue");
+	assertEqualm((QueueType::eEmpty|QueueType::eError), Q1.DoGet(anyOut, coast::typetraits::Type2Type<Anything>()), "second get should fail because of empty queue");
 }
 
 void QueueTest::SimplePutGetTest() {

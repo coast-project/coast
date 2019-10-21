@@ -12,11 +12,12 @@
 #include "Queue.h"
 #include "PoolAllocator.h"
 #include "SystemBase.h"
-#include <typeinfo>
 #include "DiffTimer.h"
 #include "ThreadPools.h"
 #include "StringStream.h"
 #include "MT_Storage.h"
+#include "ITOTypeTraits.h"
+#include <typeinfo>
 
 using namespace coast;
 
@@ -137,7 +138,7 @@ public:
 	typedef typename QueueType::ElementType QElement;
 
 	TestConsumer(QueueTypeRef aQueue, long lHowManyConsumes, long lWaitTimeMicroSec = 0L)
-	: Thread("TestConsumer"), fQueue(aQueue), fWaitTimeMicroSec(lWaitTimeMicroSec), fToConsume(lHowManyConsumes), fConsumed(0L)
+	: Thread("TestConsumer"), fQueue(aQueue), fWaitTimeMicroSec(lWaitTimeMicroSec), fToConsume(lHowManyConsumes), fConsumed(0L), fWork(), fProducts(Anything::ArrayMarker(), coast::storage::Global())
 	{}
 	bool DoStartRequestedHook(ROAnything roaWork)
 	{
@@ -176,7 +177,7 @@ public:
 	typedef typename QueueType::ElementType QElement;
 
 	TestProducer(QueueTypeRef aQueue, long lHowManyProduces, long lWaitTimeMicroSec = 0L)
-	: Thread("TestProducer"), fQueue(aQueue), fWaitTimeMicroSec(lWaitTimeMicroSec), fToProduce(lHowManyProduces), fProduced(0L)
+	: Thread("TestProducer"), fQueue(aQueue), fWaitTimeMicroSec(lWaitTimeMicroSec), fToProduce(lHowManyProduces), fProduced(0L), fWork()
 	{}
 	bool DoStartRequestedHook(ROAnything roaWork)
 	{
@@ -188,7 +189,7 @@ public:
 		long lProductCount = 0L;
 		bool bTryLock = fWork["TryLock"].AsBool(false);
 		while ( lProductCount < fToProduce ) {
-			QElement aProduct = fWork["Product"].DeepClone();
+			QElement aProduct(fWork["Product"].DeepClone());
 			aProduct["ThreadId"] = GetId();
 			aProduct["ProductNumber"] = lProductCount;
 			if ( fQueue.Put(aProduct, bTryLock) == QueueType::eSuccess )
@@ -344,7 +345,7 @@ void QueueTest::DoMultiProducerSingleConsumerTest(int lQueueSize) {
 		aProd5.Start(coast::storage::Global(), anyProd);
 		// wait for 10s on consumer to terminate
 		t_assert(aConsumer.CheckState(Thread::eTerminated, 10));
-		TraceAny(aConsumer.fProducts, "produced items");
+		TraceAny(aConsumer.fProducts, "consumed items");
 		assertEqual(19L, aConsumer.fProducts.GetSize());
 		Anything anyStat;
 		aProductQueue.GetStatistics(anyStat);
@@ -367,7 +368,7 @@ void QueueTest::DoMultiProducerSingleConsumerTest(int lQueueSize) {
 		aProd5.Start(coast::storage::Global(), anyProd);
 		// wait for 10s on consumer to terminate
 		t_assert(aConsumer.CheckState(Thread::eTerminated, 10));
-		TraceAny(aConsumer.fProducts, "produced items");
+		TraceAny(aConsumer.fProducts, "consumed items");
 		assertEqual(19L, aConsumer.fProducts.GetSize());
 		Anything anyStat;
 		aProductQueue.GetStatistics(anyStat);

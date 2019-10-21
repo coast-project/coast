@@ -22,6 +22,10 @@ namespace coast {
 				value = v
 			};
 		};
+		template <typename T>
+		struct Type2Type {
+			typedef T OriginalType;
+		};
 
 		template<typename T>
 		class TypeTraits { //lint !e578

@@ -1653,8 +1653,8 @@ Anything ROAnything::DeepClone(Allocator *a) const
 {
 	anyStartTrace(ROAnything.DeepClone);
 	Anything xref(a);
-	if (fAnyImp) {
-		return fAnyImp->DeepClone(a, xref);
+	if (GetImpl()) {
+		return GetImpl()->DeepClone(a, xref);
 	} else {
 		return Anything(a);
 	}
@@ -1662,8 +1662,8 @@ Anything ROAnything::DeepClone(Allocator *a) const
 
 long ROAnything::GetSize() const
 {
-	if (fAnyImp) {
-		return fAnyImp->GetSize();
+	if (GetImpl()) {
+		return GetImpl()->GetSize();
 	}
 	return 0L;
 }
@@ -1682,8 +1682,8 @@ ROAnything &ROAnything::operator= (const Anything &a)
 
 AnyImplType ROAnything::GetType() const
 {
-	if (fAnyImp) {
-		return fAnyImp->GetType();
+	if (GetImpl()) {
+		return GetImpl()->GetType();
 	} else {
 		return AnyNullType;
 	}
@@ -1691,48 +1691,48 @@ AnyImplType ROAnything::GetType() const
 
 long ROAnything::AsLong(long dflt) const
 {
-	if (fAnyImp) {
-		return fAnyImp->AsLong(dflt);
+	if (GetImpl()) {
+		return GetImpl()->AsLong(dflt);
 	}
 	return dflt;
 }
 
 bool ROAnything::AsBool(bool dflt) const
 {
-	if (IsLongImpl(fAnyImp)) {
-		return (LongImpl(fAnyImp)->AsLong(static_cast<long>(dflt)) != 0);
+	if (IsLongImpl(GetImpl())) {
+		return (LongImpl(GetImpl())->AsLong(static_cast<long>(dflt)) != 0);
 	}
 	return dflt;
 }
 
 double ROAnything::AsDouble(double dflt) const
 {
-	if (fAnyImp) {
-		return fAnyImp->AsDouble(dflt);
+	if (GetImpl()) {
+		return GetImpl()->AsDouble(dflt);
 	}
 	return dflt;
 }
 
 IFAObject *ROAnything::AsIFAObject(IFAObject *dflt) const
 {
-	if (IsObjectImpl(fAnyImp)) {
-		return ObjectImpl(fAnyImp)->AsIFAObject(dflt);
+	if (IsObjectImpl(GetImpl())) {
+		return ObjectImpl(GetImpl())->AsIFAObject(dflt);
 	}
 	return dflt;
 }
 
 const char *ROAnything::AsCharPtr(const char *dflt) const
 {
-	if (fAnyImp) {
-		return fAnyImp->AsCharPtr(dflt);
+	if (GetImpl()) {
+		return GetImpl()->AsCharPtr(dflt);
 	}
 	return dflt;
 }
 
 const char *ROAnything::AsCharPtr(const char *dflt, long &buflen) const
 {
-	if (fAnyImp) {
-		return fAnyImp->AsCharPtr(dflt, buflen);
+	if (GetImpl()) {
+		return GetImpl()->AsCharPtr(dflt, buflen);
 	}
 	if (dflt) {
 		buflen = strlen(dflt);
@@ -1742,8 +1742,8 @@ const char *ROAnything::AsCharPtr(const char *dflt, long &buflen) const
 
 String ROAnything::AsString(const char *dflt) const
 {
-	if (fAnyImp) {
-		return fAnyImp->AsString(dflt);
+	if (GetImpl()) {
+		return GetImpl()->AsString(dflt);
 	}
 	return dflt;
 }
@@ -1763,13 +1763,13 @@ long ROAnything::AssertRange(const char *k) const
 
 const ROAnything ROAnything::At(long i) const
 {
-	if ( AssertRange(i) != -1 ) {
+	if ( AssertRange(i) != -1 && GetImpl()) {
 		if ( GetType() != AnyArrayType ) {
 			// if the type is not an AnyArrayType
 			// just return this
 			return *this;
 		}
-		return ROAnything(ArrayImpl(fAnyImp)->At(i));
+		return ROAnything(ArrayImpl(GetImpl())->At(i));
 	}
 	return ROAnything();
 }
@@ -1785,15 +1785,15 @@ const ROAnything ROAnything::At(const char *k) const
 
 const char *ROAnything::SlotName(long slot) const
 {
-	if (IsArrayImpl(fAnyImp)) {
-		return ArrayImpl(fAnyImp)->SlotName(slot);
+	if (GetImpl() && IsArrayImpl(GetImpl())) {
+		return ArrayImpl(GetImpl())->SlotName(slot);
 	}
 	return 0;
 }
 const String &ROAnything::VisitSlotName(long slot) const
 {
-	if (IsArrayImpl(fAnyImp)) {
-		return ArrayImpl(fAnyImp)->VisitSlotName(slot);
+	if (GetImpl() && IsArrayImpl(GetImpl())) {
+		return ArrayImpl(GetImpl())->VisitSlotName(slot);
 	}
 	return fgStrEmpty;
 }
@@ -1803,26 +1803,26 @@ bool ROAnything::IsEqual(const ROAnything &other) const
 	if (fAnyImp == other.fAnyImp) {
 		return true;
 	}
-	if (fAnyImp && other.fAnyImp) {
-		return fAnyImp->IsEqual(other.fAnyImp);
+	if (GetImpl() && other.GetImpl()) {
+		return GetImpl()->IsEqual(other.GetImpl());
 	}
 	return false;
 }
 
 bool ROAnything::IsEqual(const Anything &other) const
 {
-	if (fAnyImp == other.GetImpl()) {
+	if (GetImpl() == other.GetImpl()) {
 		return true;
 	}
-	if (fAnyImp && other.GetImpl()) {
-		return fAnyImp->IsEqual(other.GetImpl());
+	if (GetImpl() && other.GetImpl()) {
+		return GetImpl()->IsEqual(other.GetImpl());
 	}
 	return false;
 }
 
 bool ROAnything::IsEqual(const char *other) const
 {
-	if (fAnyImp) {
+	if (GetImpl()) {
 		if (other) {
 			return (strcmp(AsCharPtr(""), other) == 0);
 		}
@@ -1835,8 +1835,8 @@ bool ROAnything::IsEqual(const char *other) const
 long ROAnything::FindIndex(const char *k, long sizehint, u_long hashhint) const
 {
 	Assert(k);
-	if (IsArrayImpl(fAnyImp)) {
-		return ArrayImpl(fAnyImp)->FindIndex(k, sizehint, hashhint);
+	if (GetImpl() && IsArrayImpl(GetImpl())) {
+		return ArrayImpl(GetImpl())->FindIndex(k, sizehint, hashhint);
 	}
 	return -1L;
 }
@@ -1844,24 +1844,24 @@ long ROAnything::FindIndex(const char *k, long sizehint, u_long hashhint) const
 long ROAnything::FindIndex(const long lIdx) const
 {
 	Assert(lIdx >= 0);
-	if (IsArrayImpl(fAnyImp)) {
-		return ArrayImpl(fAnyImp)->FindIndex(lIdx);
+	if (GetImpl() && IsArrayImpl(GetImpl())) {
+		return ArrayImpl(GetImpl())->FindIndex(lIdx);
 	}
 	return -1L;
 }
 
 long ROAnything::FindValue(const char *k) const
 {
-	if (fAnyImp) {
-		return fAnyImp->Contains(k);
+	if (GetImpl()) {
+		return GetImpl()->Contains(k);
 	}
 	return -1L;
 }
 
 bool ROAnything::Contains(const char *k) const
 {
-	if (fAnyImp) {
-		return (fAnyImp->Contains(k) >= 0);
+	if (GetImpl()) {
+		return (GetImpl()->Contains(k) >= 0);
 	}
 	return false;
 }
@@ -1954,8 +1954,8 @@ bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot
 
 void ROAnything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const
 {
-	if (fAnyImp) {
-		fAnyImp->Accept(v, lIdx, slotname);
+	if (GetImpl()) {
+		GetImpl()->Accept(v, lIdx, slotname);
 	} else {
 		v.VisitNull(lIdx, slotname);
 	}

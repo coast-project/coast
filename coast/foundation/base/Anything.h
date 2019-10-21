@@ -856,12 +856,24 @@ protected:
 	long AssertRange(long) const;
 	long AssertRange(const char *) const;
 
-	AnyImpl const *fAnyImp;
 	//hack for visitor...
 	friend class AnyArrayImpl;
 	ROAnything(AnyImpl const *imp)
 		: fAnyImp( imp )
 	{}
+
+	AnyImpl const *GetImpl() const {
+		if ((bits & 0x01) || !bits) {
+			return 0;
+		} else {
+			return fAnyImp;
+		}
+	}
+	union {
+		AnyImpl const *fAnyImp;
+		Allocator const *fAlloc;
+		std::ptrdiff_t bits;
+	};
 };
 
 inline const Anything &Anything::operator[](long slot) const

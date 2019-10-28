@@ -7,6 +7,7 @@
  */
 #include "MimeHeaderResultMapper.h"
 #include "MIMEHeader.h"
+#include "HTTPProcessor.h"
 #include "Tracer.h"
 
 RegisterResultMapper(MimeHeaderResultMapper);
@@ -26,7 +27,8 @@ bool MimeHeaderResultMapper::DoPutStream(const char *key, std::istream &is, Cont
 			return DoPutAny(key, header, ctx, script);
 		}
 	} catch (MIMEHeader::StreamNotGoodException &e) {
-		;
+	} catch (MIMEHeader::LineSizeExceededException &e) {
+		coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [LineSizeLimit]"), e.fLine, "MimeHeaderResultMapper::DoPutStream");
 	}
 	return false;
 }

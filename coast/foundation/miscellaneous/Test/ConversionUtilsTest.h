@@ -9,7 +9,7 @@
 #ifndef _ConversionUtilsTest_H
 #define _ConversionUtilsTest_H
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 class ConversionUtilsTest: public testframework::TestCase {
 public:
 	ConversionUtilsTest(TString tstrName) :

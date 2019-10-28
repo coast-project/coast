@@ -18,7 +18,7 @@
 #include "ConnectorArgsTest.h"
 #include "AcceptorTest.h"
 
-void setupRunner(TestRunner &runner) {//lint !e14
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, PipeTest);
 	ADD_SUITE(runner, PipeStreamTest);
 	ADD_SUITE(runner, PipeExecutorTest);

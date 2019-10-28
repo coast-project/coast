@@ -9,8 +9,8 @@
 #ifndef _AnythingKeyIndexTest_H
 #define _AnythingKeyIndexTest_H
 
-#include "TestCase.h"//lint !e537
-#include "Anything.h"//lint !e537
+#include "TestCase.h"
+#include "Anything.h"
 class AnythingKeyIndexTest: public testframework::TestCase {
 	Anything fArray;
 	Anything fSequence;

@@ -42,10 +42,10 @@ namespace {
 long IFAHash(const char *key, long &len, char stop1, char stop2)
 //long DoIFAHash(const unsigned char *key, long &len, unsigned char stop1, unsigned char stop2)
 {
-	register long h = 0;
-	register u_long g;
+	long h = 0;
+	u_long g;
 	const unsigned char *const keyp = reinterpret_cast<const unsigned char *>(key);
-	register const unsigned char *p = keyp;
+	const unsigned char *p = keyp;
 	if (key) {
 		while (*p && *p != stop1 && *p != stop2) {
 			h = (h << 4) + *p++;
@@ -73,7 +73,7 @@ public:
 	// input
 	void SkipToEOL();    // for reading comments by parser
 	bool Get(char &c)				{
-		return (fIs.get(c).good()) || (c = 0);//lint !e506
+		return (fIs.get(c).good()) || (c = 0);
 	}
 	// the last assignment is a trick for sunCC weakness of storing EOF(-1) in c
 	void Putback(char c)			{
@@ -84,10 +84,10 @@ public:
 	}
 
 	long &LineRef() {
-		return fLine;//lint !e1536
+		return fLine;
 	}
 	std::istream &StreamRef() {
-		return fIs;//lint !e1536
+		return fIs;
 	}
 	const String &FileName() {
 		return fFileName;
@@ -573,7 +573,7 @@ namespace {
 			String strTok = anyValue.AsString();
 			fStr.Append(std::for_each(strTok.cstr(), strTok.cstr()+strTok.Length(),escapeString()).result);
 		}
-	};//lint !e1509
+	};
 	struct resolveToAnyLevel : public std::unary_function<Anything const&,void> {
 		Anything result;
 		resolveToAnyLevel(Anything const& anySource) : result(anySource) {}
@@ -596,7 +596,7 @@ namespace {
 				anyTraceAny(result, "retrieved reference so far")
 			}
 		}
-	};//lint !e1509
+	};
 	Anything escapedQueryStringToAny(String const& query) {
 		anyStartTrace(AnythingParser.escapedQueryStringToAny);
 		char const *pStart = query.cstr(), *pEnd = pStart + query.Length(), *pPos = pStart;
@@ -665,7 +665,7 @@ public:
 		return std::for_each(fXrefs[ToId(id)].begin(), fXrefs[ToId(id)].end(), appendAnyLevelToString()).fStr;
 	}
 };
-//lint !e1509
+
 
 class ParserXrefHandler : public AnyXrefHandler
 {
@@ -723,7 +723,7 @@ public:
 			}
 		}
 	}
-};//lint !e1509
+};
 
 class AnythingParser {
 	// really implement the grammar of Anythings
@@ -1156,7 +1156,7 @@ Anything &Anything::operator= (const Anything &a)
 		}
 	}
 	return *this;
-}//lint !e1529
+}
 
 void Anything::SortByKey()
 {
@@ -1427,13 +1427,13 @@ bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, ch
 	} else {
 		// calculate key values into anything; cache hash values and size information
 		// assume we have at least one delimSlot in path
-		register const char *tokPtr = path;
+		const char *tokPtr = path;
 		if (!tokPtr || *tokPtr == delimSlot) {
 			return false;
 		}
 		Anything c = *this;
 		do {
-			register long lIdx = -1;
+			long lIdx = -1;
 			if (*tokPtr == delimIdx) {
 				if (! *++tokPtr || *tokPtr == delimIdx || *tokPtr == delimSlot) {
 					return false;
@@ -1519,7 +1519,7 @@ AnyImpl *Anything::GetImpl() {
 void Anything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const
 {
 	if (GetImpl()) {
-		GetImpl()->Accept(v, lIdx, slotname);//lint !e613
+		GetImpl()->Accept(v, lIdx, slotname);
 	} else {
 		v.VisitNull(lIdx, slotname);
 	}
@@ -1642,7 +1642,7 @@ ROAnything::ROAnything(const Anything &a)
 }
 
 ROAnything::ROAnything(const ROAnything &a)
-	: fAnyImp(a.fAnyImp)//lint !e1554
+	: fAnyImp(a.fAnyImp)
 {
 	// no ref necessary
 	// ROAnything don't do any
@@ -1653,8 +1653,8 @@ Anything ROAnything::DeepClone(Allocator *a) const
 {
 	anyStartTrace(ROAnything.DeepClone);
 	Anything xref(a);
-	if (fAnyImp) {
-		return fAnyImp->DeepClone(a, xref);
+	if (GetImpl()) {
+		return GetImpl()->DeepClone(a, xref);
 	} else {
 		return Anything(a);
 	}
@@ -1662,17 +1662,17 @@ Anything ROAnything::DeepClone(Allocator *a) const
 
 long ROAnything::GetSize() const
 {
-	if (fAnyImp) {
-		return fAnyImp->GetSize();
+	if (GetImpl()) {
+		return GetImpl()->GetSize();
 	}
 	return 0L;
 }
 
 ROAnything &ROAnything::operator= (const ROAnything &a)
 {
-	fAnyImp = a.fAnyImp;//lint !e1555
+	fAnyImp = a.fAnyImp;
 	return *this;
-}//lint !e1529
+}
 
 ROAnything &ROAnything::operator= (const Anything &a)
 {
@@ -1682,8 +1682,8 @@ ROAnything &ROAnything::operator= (const Anything &a)
 
 AnyImplType ROAnything::GetType() const
 {
-	if (fAnyImp) {
-		return fAnyImp->GetType();
+	if (GetImpl()) {
+		return GetImpl()->GetType();
 	} else {
 		return AnyNullType;
 	}
@@ -1691,48 +1691,48 @@ AnyImplType ROAnything::GetType() const
 
 long ROAnything::AsLong(long dflt) const
 {
-	if (fAnyImp) {
-		return fAnyImp->AsLong(dflt);
+	if (GetImpl()) {
+		return GetImpl()->AsLong(dflt);
 	}
 	return dflt;
 }
 
 bool ROAnything::AsBool(bool dflt) const
 {
-	if (IsLongImpl(fAnyImp)) {
-		return (LongImpl(fAnyImp)->AsLong(static_cast<long>(dflt)) != 0);
+	if (IsLongImpl(GetImpl())) {
+		return (LongImpl(GetImpl())->AsLong(static_cast<long>(dflt)) != 0);
 	}
 	return dflt;
 }
 
 double ROAnything::AsDouble(double dflt) const
 {
-	if (fAnyImp) {
-		return fAnyImp->AsDouble(dflt);
+	if (GetImpl()) {
+		return GetImpl()->AsDouble(dflt);
 	}
 	return dflt;
 }
 
 IFAObject *ROAnything::AsIFAObject(IFAObject *dflt) const
 {
-	if (IsObjectImpl(fAnyImp)) {
-		return ObjectImpl(fAnyImp)->AsIFAObject(dflt);
+	if (IsObjectImpl(GetImpl())) {
+		return ObjectImpl(GetImpl())->AsIFAObject(dflt);
 	}
 	return dflt;
 }
 
 const char *ROAnything::AsCharPtr(const char *dflt) const
 {
-	if (fAnyImp) {
-		return fAnyImp->AsCharPtr(dflt);
+	if (GetImpl()) {
+		return GetImpl()->AsCharPtr(dflt);
 	}
 	return dflt;
 }
 
 const char *ROAnything::AsCharPtr(const char *dflt, long &buflen) const
 {
-	if (fAnyImp) {
-		return fAnyImp->AsCharPtr(dflt, buflen);
+	if (GetImpl()) {
+		return GetImpl()->AsCharPtr(dflt, buflen);
 	}
 	if (dflt) {
 		buflen = strlen(dflt);
@@ -1742,8 +1742,8 @@ const char *ROAnything::AsCharPtr(const char *dflt, long &buflen) const
 
 String ROAnything::AsString(const char *dflt) const
 {
-	if (fAnyImp) {
-		return fAnyImp->AsString(dflt);
+	if (GetImpl()) {
+		return GetImpl()->AsString(dflt);
 	}
 	return dflt;
 }
@@ -1763,13 +1763,13 @@ long ROAnything::AssertRange(const char *k) const
 
 const ROAnything ROAnything::At(long i) const
 {
-	if ( AssertRange(i) != -1 ) {
+	if ( AssertRange(i) != -1 && GetImpl()) {
 		if ( GetType() != AnyArrayType ) {
 			// if the type is not an AnyArrayType
 			// just return this
 			return *this;
 		}
-		return ROAnything(ArrayImpl(fAnyImp)->At(i));
+		return ROAnything(ArrayImpl(GetImpl())->At(i));
 	}
 	return ROAnything();
 }
@@ -1785,15 +1785,15 @@ const ROAnything ROAnything::At(const char *k) const
 
 const char *ROAnything::SlotName(long slot) const
 {
-	if (IsArrayImpl(fAnyImp)) {
-		return ArrayImpl(fAnyImp)->SlotName(slot);
+	if (GetImpl() && IsArrayImpl(GetImpl())) {
+		return ArrayImpl(GetImpl())->SlotName(slot);
 	}
 	return 0;
 }
 const String &ROAnything::VisitSlotName(long slot) const
 {
-	if (IsArrayImpl(fAnyImp)) {
-		return ArrayImpl(fAnyImp)->VisitSlotName(slot);
+	if (GetImpl() && IsArrayImpl(GetImpl())) {
+		return ArrayImpl(GetImpl())->VisitSlotName(slot);
 	}
 	return fgStrEmpty;
 }
@@ -1803,26 +1803,26 @@ bool ROAnything::IsEqual(const ROAnything &other) const
 	if (fAnyImp == other.fAnyImp) {
 		return true;
 	}
-	if (fAnyImp && other.fAnyImp) {
-		return fAnyImp->IsEqual(other.fAnyImp);
+	if (GetImpl() && other.GetImpl()) {
+		return GetImpl()->IsEqual(other.GetImpl());
 	}
 	return false;
 }
 
 bool ROAnything::IsEqual(const Anything &other) const
 {
-	if (fAnyImp == other.GetImpl()) {
+	if (GetImpl() == other.GetImpl()) {
 		return true;
 	}
-	if (fAnyImp && other.GetImpl()) {
-		return fAnyImp->IsEqual(other.GetImpl());
+	if (GetImpl() && other.GetImpl()) {
+		return GetImpl()->IsEqual(other.GetImpl());
 	}
 	return false;
 }
 
 bool ROAnything::IsEqual(const char *other) const
 {
-	if (fAnyImp) {
+	if (GetImpl()) {
 		if (other) {
 			return (strcmp(AsCharPtr(""), other) == 0);
 		}
@@ -1835,8 +1835,8 @@ bool ROAnything::IsEqual(const char *other) const
 long ROAnything::FindIndex(const char *k, long sizehint, u_long hashhint) const
 {
 	Assert(k);
-	if (IsArrayImpl(fAnyImp)) {
-		return ArrayImpl(fAnyImp)->FindIndex(k, sizehint, hashhint);
+	if (GetImpl() && IsArrayImpl(GetImpl())) {
+		return ArrayImpl(GetImpl())->FindIndex(k, sizehint, hashhint);
 	}
 	return -1L;
 }
@@ -1844,24 +1844,24 @@ long ROAnything::FindIndex(const char *k, long sizehint, u_long hashhint) const
 long ROAnything::FindIndex(const long lIdx) const
 {
 	Assert(lIdx >= 0);
-	if (IsArrayImpl(fAnyImp)) {
-		return ArrayImpl(fAnyImp)->FindIndex(lIdx);
+	if (GetImpl() && IsArrayImpl(GetImpl())) {
+		return ArrayImpl(GetImpl())->FindIndex(lIdx);
 	}
 	return -1L;
 }
 
 long ROAnything::FindValue(const char *k) const
 {
-	if (fAnyImp) {
-		return fAnyImp->Contains(k);
+	if (GetImpl()) {
+		return GetImpl()->Contains(k);
 	}
 	return -1L;
 }
 
 bool ROAnything::Contains(const char *k) const
 {
-	if (fAnyImp) {
-		return (fAnyImp->Contains(k) >= 0);
+	if (GetImpl()) {
+		return (GetImpl()->Contains(k) >= 0);
 	}
 	return false;
 }
@@ -1901,14 +1901,14 @@ bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot
 		// calculate key values into anything; cache hasvalues and size information
 		// assume we have at least one delimSlot in path
 		//String key(path); // do not need global allocator here!
-		register const char *tokPtr = path; //(const unsigned char *)(const char*)key;
+		const char *tokPtr = path; //(const unsigned char *)(const char*)key;
 		if (!tokPtr || *tokPtr == delimSlot) {
 			return false;
 		}
 
 		ROAnything c(*this); // pointers are faster! but ROAnythings are pointers...
 		do {
-			register long lIdx = -1;
+			long lIdx = -1;
 			if (*tokPtr == delimIdx) {
 				if (! *++tokPtr || *tokPtr == delimIdx || *tokPtr == delimSlot) {
 					return false;
@@ -1954,8 +1954,8 @@ bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot
 
 void ROAnything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const
 {
-	if (fAnyImp) {
-		fAnyImp->Accept(v, lIdx, slotname);
+	if (GetImpl()) {
+		GetImpl()->Accept(v, lIdx, slotname);
 	} else {
 		v.VisitNull(lIdx, slotname);
 	}
@@ -2143,7 +2143,7 @@ bool AnythingParser::MakeSimpleAny(AnythingToken &tok, Anything &any)
 				return false;
 			}
 			//fall through
-		case AnythingToken::eString: // string impl//lint !e616
+		case AnythingToken::eString: // string impl
 			any = tok.Text();
 			break;
 			// long impl.

@@ -9,16 +9,7 @@
 #ifndef _ITOTypeTraits_H
 #define _ITOTypeTraits_H
 
-#if defined(USE_TR1)
-#include <tr1/type_traits>
-namespace boost_or_tr1 = std::tr1;
-#elif defined(USE_STD0X) || defined(USE_STD11) || defined(USE_STD14) || defined(USE_STD17) || defined(USE_STD1y) || defined(USE_STD1z)
-#include <type_traits>
-namespace boost_or_tr1 = std;
-#else // USE_STD03 || USE_STD98
-#include <boost/type_traits.hpp>
-namespace boost_or_tr1 = boost;
-#endif
+#include "boost_or_std/type_traits.h"
 
 namespace coast {
 	namespace typetraits {
@@ -31,9 +22,14 @@ namespace coast {
 				value = v
 			};
 		};
+		template <typename T>
+		struct Type2Type {
+			typedef T OriginalType;
+		};
 
-		template<typename T>
-		class TypeTraits { //lint !e578
+		template <typename T>
+		class TypeTraits
+		{
 		private:
 			template<class U> struct PointerTraits {
 				enum {
@@ -140,17 +136,17 @@ namespace coast {
 			};
 
 		public:
-			typedef typename PlainTypeGetter<typename boost_or_tr1::remove_const<T>::type>::Result PlainType;
-			typedef const typename PlainTypeGetter<typename boost_or_tr1::remove_const<T>::type>::Result ConstPlainType;
-			typedef typename PlainTypeGetter<typename boost_or_tr1::remove_const<T>::type>::Result &PlainTypeRef;
-			typedef const typename PlainTypeGetter<typename boost_or_tr1::remove_const<T>::type>::Result &ConstPlainTypeRef;
-			typedef typename PlainTypeGetter<typename boost_or_tr1::remove_const<T>::type>::Result *PlainTypePtr;
-			typedef const typename PlainTypeGetter<typename boost_or_tr1::remove_const<T>::type>::Result *ConstPlainTypePtr;
-			typedef typename ConstCorrectPtr2RefGetter<typename boost_or_tr1::remove_const<T>::type>::Result ConstCorrectPtr2RefType;
-			typedef typename ConstCorrectRef2PtrGetter<typename boost_or_tr1::remove_const<T>::type>::Result ConstCorrectRef2PtrType;
+			typedef typename PlainTypeGetter< typename boost_or_std::remove_const<T>::type>::Result PlainType;
+			typedef const typename PlainTypeGetter< typename boost_or_std::remove_const<T>::type>::Result ConstPlainType;
+			typedef typename PlainTypeGetter< typename boost_or_std::remove_const<T>::type>::Result &PlainTypeRef;
+			typedef const typename PlainTypeGetter< typename boost_or_std::remove_const<T>::type>::Result &ConstPlainTypeRef;
+			typedef typename PlainTypeGetter< typename boost_or_std::remove_const<T>::type>::Result *PlainTypePtr;
+			typedef const typename PlainTypeGetter< typename boost_or_std::remove_const<T>::type>::Result *ConstPlainTypePtr;
+			typedef typename ConstCorrectPtr2RefGetter< typename boost_or_std::remove_const<T>::type >::Result ConstCorrectPtr2RefType;
+			typedef typename ConstCorrectRef2PtrGetter< typename boost_or_std::remove_const<T>::type >::Result ConstCorrectRef2PtrType;
 		};
 	}
-} //lint !e19
+}
 
 #ifdef __GNUG__
 #include <cxxabi.h> // __cxa_demangle

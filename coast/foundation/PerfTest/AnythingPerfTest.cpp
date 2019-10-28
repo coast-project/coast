@@ -71,7 +71,7 @@ void AnythingPerfTest::RunROLookupPathLoop(const char *key, const ROAnything &a,
 		out = result.AsCharPtr("lookup hallo");
 	}
 	(void) out;
-}//lint !e438
+}
 
 void AnythingPerfTest::LookupTest()
 {

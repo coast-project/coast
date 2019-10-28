@@ -9,7 +9,7 @@
 #ifndef _ConnectorTest_H
 #define _ConnectorTest_H
 
-#include "FoundationTestTypes.h"//lint !e537
+#include "FoundationTestTypes.h"
 
 class ConnectorTest : public testframework::TestCaseWithConfig
 {

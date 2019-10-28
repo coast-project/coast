@@ -12,7 +12,7 @@
 	/Run {
 		{
 			/CurrentServer {
-				/ServerName "n0tex1st1ng"
+				/ServerName "1doNotResolve"
 				/Path "/Path/xy"
 			}
 			/Token {
@@ -26,7 +26,7 @@
 			/Token {
 				{ /must Hallo }
 				{ /mustnot Tschuess }
-				{ /must Goödbye }
+				{ /must Gudbye }
 				{ /mustnot Ciao }
 			}
 		}
@@ -48,7 +48,7 @@
 		}
 		{
 			/CurrentServer {
-				/ServerName "n0tex1st1ng"
+				/ServerName "1doNotResolve"
 				/Path "/Path/xy"
 				/MsgBody "Test"
 			}
@@ -69,7 +69,7 @@
 		}
 		{
 			/Link {
-				/slotName "Töst"
+				/slotName "Tost"
 			}
 			/Token {
 				{ /must Hallo }
@@ -80,34 +80,34 @@
 		}
 		{
 			/Link {
-				/slotName "Töst"
+				/slotName "Tost"
 			}
 			/Token {
 				{ /must Hallo }
 				{ /mustnot Tschuess }
-				{ /must Goödbye }
+				{ /must Gudbye }
 				{ /mustnot Ciao }
 			}
 		}
 		{
 			/Link {
-				/slotName "Töst"
+				/slotName "Tost"
 			}
 			/Token {
 				{ /must Hallo }
 				{ /mustnot Tschuess }
-				{ /must Goödbye }
+				{ /must Gudbye }
 				{ /mustnot Ciao }
 			}
 		}
 		{
 			/Link {
-				/slotName "Töst"
+				/slotName "Tost"
 			}
 			/Token {
 				{ /must Hallo }
 				{ /mustnot Tschuess }
-				{ /must Goödbye }
+				{ /must Gudbye }
 				{ /mustnot Ciao }
 			}
 		}

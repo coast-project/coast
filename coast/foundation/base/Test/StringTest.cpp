@@ -805,7 +805,7 @@ void StringTest::appendsAsHex()
 			str0.Append(' ');
 		}
 
-		const char exp[] = "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 "//lint !e578
+		const char exp[] = "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 "
 				"1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 "
 				"38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 "
 				"56 57 58 59 5A 5B 5C 5D 5E 5F 60 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F 70 71 72 73 "
@@ -927,7 +927,7 @@ void StringTest::appendsTwoHexAsChar()
 					a[1] = (char)j + '0';
 				}
 
-				str0.AppendTwoHexAsChar(a);//lint !e645
+				str0.AppendTwoHexAsChar(a);
 				str0.Append(' ');
 			}
 		}
@@ -1061,7 +1061,7 @@ void StringTest::appendsTwoHexAsChar()
 			t_assert ( memcmp(exp1, (const char *)str1, 1) == 0 );
 			assertCompare(str1.Length(), equal_to, 1L);
 
-			const unsigned char exp2[3] = { 0x00, 0x5A, 0xff};//lint !e578
+			const unsigned char exp2[3] = { 0x00, 0x5A, 0xff};
 			str2.AppendTwoHexAsChar(buf, 3);
 			t_assert ( memcmp(exp2, (const char *)str2, 3) == 0 );
 			assertCompare(str2.Length(), equal_to, 3L);
@@ -1084,7 +1084,7 @@ void StringTest::appendsTwoHexAsChar()
 			t_assert ( memcmp(exp1, (const char *)str1, 1) == 0 );
 			assertCompare(str1.Length(), equal_to, 1L);
 
-			const unsigned char exp2[3] = { 0x00, 0x5A, 0xff};//lint !e578
+			const unsigned char exp2[3] = { 0x00, 0x5A, 0xff};
 			str2.AppendTwoHexAsChar(buf, 3, true);
 			t_assert ( memcmp(exp2, (const char *)str2, 3) == 0 );
 			assertCompare(str2.Length(), equal_to, 3L);
@@ -1723,7 +1723,7 @@ void StringTest::dumps()
 }
 
 void StringTest::IntReplaceTest(String orig, const String &pattern, const String &nStr, bool exp, const String expStr)
-{//lint !e578
+{
 	StartTrace(StringTest.IntReplaceTest);
 	t_assert(exp == orig.Replace(pattern, nStr));
 	assertEqual(expStr, orig);

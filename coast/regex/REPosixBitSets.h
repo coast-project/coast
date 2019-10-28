@@ -1,82 +1,84 @@
 //(c) copyright ifs 2005, all rights reserved
 //automatically generatest by REBitSetTest::GeneratePosixSets
 
-const unsigned long _dummy_gcSetIsAlnum [] = {
-	0x0UL , 0x3ff0000UL , 0x7fffffeUL , 0x7fffffeUL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+#include <stdint.h>
+
+const uint32_t _dummy_gcSetIsAlnum [] = {
+	0x0U , 0x3ff0000U , 0x7fffffeU , 0x7fffffeU , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsAlnum(_dummy_gcSetIsAlnum);
 
-const unsigned long _dummy_gcSetIsAlpha [] = {
-	0x0UL , 0x0UL , 0x7fffffeUL , 0x7fffffeUL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsAlpha [] = {
+	0x0U , 0x0U , 0x7fffffeU , 0x7fffffeU , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsAlpha(_dummy_gcSetIsAlpha);
 
-const unsigned long _dummy_gcSetIsAscii [] = {
-	0xffffffffUL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsAscii [] = {
+	0xffffffffU , 0xffffffffU , 0xffffffffU , 0xffffffffU , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsAscii(_dummy_gcSetIsAscii);
 
-const unsigned long _dummy_gcSetIsBlank [] = {
-	0x200UL , 0x1UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsBlank [] = {
+	0x200U , 0x1U , 0x0U , 0x0U , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsBlank(_dummy_gcSetIsBlank);
 
-const unsigned long _dummy_gcSetIsCntrl [] = {
-	0xffffffffUL , 0x0UL , 0x0UL , 0x80000000UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsCntrl [] = {
+	0xffffffffU , 0x0U , 0x0U , 0x80000000U , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsCntrl(_dummy_gcSetIsCntrl);
 
-const unsigned long _dummy_gcSetIsDigit [] = {
-	0x0UL , 0x3ff0000UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsDigit [] = {
+	0x0U , 0x3ff0000U , 0x0U , 0x0U , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsDigit(_dummy_gcSetIsDigit);
 
-const unsigned long _dummy_gcSetIsGraph [] = {
-	0x0UL , 0xfffffffeUL , 0xffffffffUL , 0x7fffffffUL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsGraph [] = {
+	0x0U , 0xfffffffeU , 0xffffffffU , 0x7fffffffU , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsGraph(_dummy_gcSetIsGraph);
 
-const unsigned long _dummy_gcSetIsLower [] = {
-	0x0UL , 0x0UL , 0x0UL , 0x7fffffeUL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsLower [] = {
+	0x0U , 0x0U , 0x0U , 0x7fffffeU , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsLower(_dummy_gcSetIsLower);
 
-const unsigned long _dummy_gcSetIsPrint [] = {
-	0x0UL , 0xffffffffUL , 0xffffffffUL , 0x7fffffffUL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsPrint [] = {
+	0x0U , 0xffffffffU , 0xffffffffU , 0x7fffffffU , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsPrint(_dummy_gcSetIsPrint);
 
-const unsigned long _dummy_gcSetIsPunct [] = {
-	0x0UL , 0xfc00fffeUL , 0xf8000001UL , 0x78000001UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsPunct [] = {
+	0x0U , 0xfc00fffeU , 0xf8000001U , 0x78000001U , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsPunct(_dummy_gcSetIsPunct);
 
-const unsigned long _dummy_gcSetIsSpace [] = {
-	0x3e00UL , 0x1UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsSpace [] = {
+	0x3e00U , 0x1U , 0x0U , 0x0U , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsSpace(_dummy_gcSetIsSpace);
 
-const unsigned long _dummy_gcSetIsUpper [] = {
-	0x0UL , 0x0UL , 0x7fffffeUL , 0x0UL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsUpper [] = {
+	0x0U , 0x0U , 0x7fffffeU , 0x0U , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsUpper(_dummy_gcSetIsUpper);
 
-const unsigned long _dummy_gcSetIsXDigit [] = {
-	0x0UL , 0x3ff0000UL , 0x7eUL , 0x7eUL , 0x0UL , 0x0UL , 0x0UL , 0x0UL ,
+const uint32_t _dummy_gcSetIsXDigit [] = {
+	0x0U , 0x3ff0000U , 0x7eU , 0x7eU , 0x0U , 0x0U , 0x0U , 0x0U ,
 };
 const REBitSet gcSetIsXDigit(_dummy_gcSetIsXDigit);
 
-const unsigned long _dummy_gcSetIsNoDigit [] = {
-	0xffffffffUL , 0xfc00ffffUL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL ,
+const uint32_t _dummy_gcSetIsNoDigit [] = {
+	0xffffffffU , 0xfc00ffffU , 0xffffffffU , 0xffffffffU , 0xffffffffU , 0xffffffffU , 0xffffffffU , 0xffffffffU ,
 };
 const REBitSet gcSetIsNoDigit(_dummy_gcSetIsNoDigit);
 
-const unsigned long _dummy_gcSetIsNoAlnum [] = {
-	0xffffffffUL , 0xfc00ffffUL , 0xf8000001UL , 0xf8000001UL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL ,
+const uint32_t _dummy_gcSetIsNoAlnum [] = {
+	0xffffffffU , 0xfc00ffffU , 0xf8000001U , 0xf8000001U , 0xffffffffU , 0xffffffffU , 0xffffffffU , 0xffffffffU ,
 };
 const REBitSet gcSetIsNoAlnum(_dummy_gcSetIsNoAlnum);
 
-const unsigned long _dummy_gcSetIsNoSpace [] = {
-	0xffffc1ffUL , 0xfffffffeUL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL , 0xffffffffUL ,
+const uint32_t _dummy_gcSetIsNoSpace [] = {
+	0xffffc1ffU , 0xfffffffeU , 0xffffffffU , 0xffffffffU , 0xffffffffU , 0xffffffffU , 0xffffffffU , 0xffffffffU ,
 };
 const REBitSet gcSetIsNoSpace(_dummy_gcSetIsNoSpace);

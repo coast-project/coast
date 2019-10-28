@@ -160,7 +160,7 @@ Anything GenericXMLParser::ParseCommentCdataOrDtd(bool withindtd)
 				key.Append(ParseName());
 				break;
 			}
-		default://lint !e616
+		default:
 		error: {
 				String msg("unexpected character in <! element: ");
 				msg.Append(char(c));
@@ -511,16 +511,16 @@ bool GenericXMLParser::ParseTag(String &tag, Anything &tagAttributes)
 		switch (c) {
 			case '>': // done with tag
 				c = Get();
-				return true;//lint !e438
+				return true;
 			case '/': // an empty tag? i.e. <br />
 				c = Get();
 				if ('>' == Peek()) {
 					c = Get();
-					return false;//lint !e438
+					return false;
 				}
 				// an error occured, ignore '/' silently
 				PutBack(c);
-			default: {//lint !e616
+			default: {
 				String name;
 				String value;
 				if (ParseAttribute(name, value)) {

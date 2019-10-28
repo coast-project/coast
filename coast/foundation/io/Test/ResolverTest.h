@@ -9,7 +9,7 @@
 #ifndef _ResolverTest_H
 #define _ResolverTest_H
 
-#include "FoundationTestTypes.h"//lint !e537
+#include "FoundationTestTypes.h"
 
 class ResolverTest: public testframework::TestCaseWithConfig
 {

@@ -583,7 +583,7 @@ void StringTokenizerTest::getRemainder()
 {
 	StringTokenizer st0("foo:bar:", ':');
 
-	String remainder, token;//lint !e578
+	String remainder, token;
 
 	// first round
 	remainder = st0.GetRemainder();

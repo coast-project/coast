@@ -12,11 +12,12 @@
 #include "Queue.h"
 #include "PoolAllocator.h"
 #include "SystemBase.h"
-#include <typeinfo>
 #include "DiffTimer.h"
 #include "ThreadPools.h"
 #include "StringStream.h"
 #include "MT_Storage.h"
+#include "ITOTypeTraits.h"
+#include <typeinfo>
 
 using namespace coast;
 
@@ -137,7 +138,7 @@ public:
 	typedef typename QueueType::ElementType QElement;
 
 	TestConsumer(QueueTypeRef aQueue, long lHowManyConsumes, long lWaitTimeMicroSec = 0L)
-	: Thread("TestConsumer"), fQueue(aQueue), fWaitTimeMicroSec(lWaitTimeMicroSec), fToConsume(lHowManyConsumes), fConsumed(0L)
+	: Thread("TestConsumer"), fQueue(aQueue), fWaitTimeMicroSec(lWaitTimeMicroSec), fToConsume(lHowManyConsumes), fConsumed(0L), fWork(), fProducts(Anything::ArrayMarker(), coast::storage::Global())
 	{}
 	bool DoStartRequestedHook(ROAnything roaWork)
 	{
@@ -176,7 +177,7 @@ public:
 	typedef typename QueueType::ElementType QElement;
 
 	TestProducer(QueueTypeRef aQueue, long lHowManyProduces, long lWaitTimeMicroSec = 0L)
-	: Thread("TestProducer"), fQueue(aQueue), fWaitTimeMicroSec(lWaitTimeMicroSec), fToProduce(lHowManyProduces), fProduced(0L)
+	: Thread("TestProducer"), fQueue(aQueue), fWaitTimeMicroSec(lWaitTimeMicroSec), fToProduce(lHowManyProduces), fProduced(0L), fWork()
 	{}
 	bool DoStartRequestedHook(ROAnything roaWork)
 	{
@@ -188,7 +189,7 @@ public:
 		long lProductCount = 0L;
 		bool bTryLock = fWork["TryLock"].AsBool(false);
 		while ( lProductCount < fToProduce ) {
-			QElement aProduct = fWork["Product"].DeepClone();
+			QElement aProduct(fWork["Product"].DeepClone());
 			aProduct["ThreadId"] = GetId();
 			aProduct["ProductNumber"] = lProductCount;
 			if ( fQueue.Put(aProduct, bTryLock) == QueueType::eSuccess )
@@ -288,14 +289,14 @@ void QueueTest::PutGetStatusTest() {
 	t_assert(Q1.GetSize() == 0L);
 	Anything anyTest1, anyTest2;
 	anyTest1["Guguseli"] = 1;
-	assertEqualm(QueueType::eSuccess, Q1.DoPut(anyTest1), "first put should succeed");
+	assertEqualm(QueueType::eSuccess, Q1.DoPut(anyTest1, coast::typetraits::Type2Type<Anything>()), "first put should succeed");
 	t_assert(Q1.GetSize() == 1L);
 	Anything anyOut;
-	assertEqualm(QueueType::eSuccess, Q1.DoGet(anyOut), "first get should succeed");
+	assertEqualm(QueueType::eSuccess, Q1.DoGet(anyOut, coast::typetraits::Type2Type<Anything>()), "first get should succeed");
 	assertAnyEqual(anyTest1, anyOut);
 	t_assert(Q1.GetSize() == 0L);
 	anyOut = Anything();
-	assertEqualm((QueueType::eEmpty|QueueType::eError), Q1.DoGet(anyOut), "second get should fail because of empty queue");
+	assertEqualm((QueueType::eEmpty|QueueType::eError), Q1.DoGet(anyOut, coast::typetraits::Type2Type<Anything>()), "second get should fail because of empty queue");
 }
 
 void QueueTest::SimplePutGetTest() {
@@ -325,7 +326,7 @@ void QueueTest::SimplePutGetTest() {
 	TraceAny(anyOut, "statistics");
 }
 
-void QueueTest::DoMultiProducerSingleConsumerTest(long lQueueSize) {
+void QueueTest::DoMultiProducerSingleConsumerTest(int lQueueSize) {
 	StartTrace1(QueueTest.DoMultiProducerSingleConsumerTest, "QueueSize:" << lQueueSize);
 	{
 		typedef AnyQueueType QueueType;
@@ -344,7 +345,7 @@ void QueueTest::DoMultiProducerSingleConsumerTest(long lQueueSize) {
 		aProd5.Start(coast::storage::Global(), anyProd);
 		// wait for 10s on consumer to terminate
 		t_assert(aConsumer.CheckState(Thread::eTerminated, 10));
-		TraceAny(aConsumer.fProducts, "produced items");
+		TraceAny(aConsumer.fProducts, "consumed items");
 		assertEqual(19L, aConsumer.fProducts.GetSize());
 		Anything anyStat;
 		aProductQueue.GetStatistics(anyStat);
@@ -367,7 +368,7 @@ void QueueTest::DoMultiProducerSingleConsumerTest(long lQueueSize) {
 		aProd5.Start(coast::storage::Global(), anyProd);
 		// wait for 10s on consumer to terminate
 		t_assert(aConsumer.CheckState(Thread::eTerminated, 10));
-		TraceAny(aConsumer.fProducts, "produced items");
+		TraceAny(aConsumer.fProducts, "consumed items");
 		assertEqual(19L, aConsumer.fProducts.GetSize());
 		Anything anyStat;
 		aProductQueue.GetStatistics(anyStat);
@@ -377,12 +378,12 @@ void QueueTest::DoMultiProducerSingleConsumerTest(long lQueueSize) {
 
 void QueueTest::MultiProducerSingleConsumerTest() {
 	StartTrace(QueueTest.MultiProducerSingleConsumerTest);
-	DoMultiProducerSingleConsumerTest(1L);
-	DoMultiProducerSingleConsumerTest(25L);
-	DoMultiProducerSingleConsumerTest(5L);
+	DoMultiProducerSingleConsumerTest(1);
+	DoMultiProducerSingleConsumerTest(25);
+	DoMultiProducerSingleConsumerTest(5);
 }
 
-void QueueTest::DoSingleProducerMultiConsumerTest(long lQueueSize) {
+void QueueTest::DoSingleProducerMultiConsumerTest(int lQueueSize) {
 	StartTrace(QueueTest.DoSingleProducerMultiConsumerTest);
 	{
 		typedef AnyQueueType QueueType;
@@ -442,9 +443,9 @@ void QueueTest::DoSingleProducerMultiConsumerTest(long lQueueSize) {
 
 void QueueTest::SingleProducerMultiConsumerTest() {
 	StartTrace(QueueTest.SingleProducerMultiConsumerTest);
-	DoSingleProducerMultiConsumerTest(1L);
-	DoSingleProducerMultiConsumerTest(5L);
-	DoSingleProducerMultiConsumerTest(25L);
+	DoSingleProducerMultiConsumerTest(1);
+	DoSingleProducerMultiConsumerTest(5);
+	DoSingleProducerMultiConsumerTest(25);
 }
 
 void QueueTest::ConsumerTerminationTest() {
@@ -809,7 +810,7 @@ void ExecuteSingleProducerMultiConsumerQTypeTest() {
 
 	typedef PoolConsumer<QueueType> PoolConsumerThread;
 
-	long const lQueueSize = 3000000L;
+	int const lQueueSize = 3000000;
 	Allocator *poolAlloc = MT_Storage::MakePoolAllocator(LoopCount, 26);
 	MT_Storage::RefAllocator(poolAlloc);
 	{

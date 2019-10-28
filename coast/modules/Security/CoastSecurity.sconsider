@@ -14,7 +14,7 @@ pkg_resources.require(["SConsider"])
 from SomeUtils import listFiles
 Import('*')
 
-libDepends = ['CoastWDBase.CoastWDBase']
+libDepends = ['CoastWDBase.CoastWDBase', 'openssl.openssl']
 sourceFiles = listFiles(['*.cpp'])
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version

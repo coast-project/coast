@@ -9,8 +9,8 @@
 #ifndef _AnythingTest_H
 #define _AnythingTest_H
 
-#include "TestCase.h"//lint !e537
-#include "Anything.h"//lint !e537
+#include "TestCase.h"
+#include "Anything.h"
 class AnythingTest: public testframework::TestCase {
 protected:
 	Anything fQuery;

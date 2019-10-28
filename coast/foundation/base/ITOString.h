@@ -9,7 +9,7 @@
 #ifndef _ITOString_H
 #define _ITOString_H
 
-#include "ITOStorage.h"//lint !e537
+#include "ITOStorage.h"
 #include "StringIterator.h"
 #include <stdexcept>
 

@@ -9,7 +9,7 @@
 #ifndef _STL_fast_pool_allocator_H
 #define _STL_fast_pool_allocator_H
 
-#include "STLStorage.h"//lint !e537
+#include "STLStorage.h"
 
 namespace stlstorage
 {

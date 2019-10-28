@@ -9,8 +9,8 @@
 #ifndef _AnythingParserSemanticTest_h_
 #define _AnythingParserSemanticTest_h_
 
-#include "TestCase.h"//lint !e537
-#include "Anything.h"//lint !e537
+#include "TestCase.h"
+#include "Anything.h"
 class AnythingParserSemanticTest: public testframework::TestCase {
 protected:
 	Anything emptyAny, anyTemp0, anyTemp1, anyTemp2, anyTemp3, anyTemp4;

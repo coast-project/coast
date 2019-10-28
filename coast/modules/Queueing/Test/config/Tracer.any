@@ -22,20 +22,26 @@
 	}
 	/Queue {
 		/MainSwitch			10
-		/EnableAll			10
+		/EnableAll			0
+		/DoGet				0
+		/Queue				0
 	}
 	/QueueTest {
 		/MainSwitch			10
-		/EnableAll			10
+		/EnableAll			0
+		/DoMultiProducerSingleConsumerTest 11
+		/DoSingleProducerMultiConsumerTest 11
 	}
 	/Thread {
-		/MainSwitch			0
+		/MainSwitch			10
 		/EnableAll			0
 		/IntRun				10
 		/SetWorking			10
 		/IsRunning			10
 		/CheckRunningState	10
 		/Terminate			10
+		/IntCheckState		10
+		/CallStateHooks		10
 		/GetState			0
 		/SetState			0
 		/IntSetState		0

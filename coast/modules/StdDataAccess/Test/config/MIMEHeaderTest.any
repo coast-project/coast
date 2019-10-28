@@ -16,6 +16,17 @@ Accept-Language: de-CH,en\r\n\
 Accept-Charset: iso-8859-1,*,utf-8\r\n\
 \r\n"
 
+	/CommonInputFaultyHeaderLine
+"Connection: Keep-Alive\r\n\
+User-Agent: Mozilla/4.7 [en] (WinNT; U)\r\n\
+Host: sentosa.hsr.loc:2929\r\n\
+Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, image/png, */*\r\n\
+Accept-Encoding: gzip\r\n\
+Accept-Language: de-CH,en\r\n\
+Accept-Charset: iso-8859-1,*,utf-8\r\n\
+<!-- errorfile 403 /tmp/403-template -->\r\n\
+\r\n"
+
 	/CommonInputExtended
 "Connection: Keep-Alive\r\n\
 User-Agent: Mozilla/4.7 [en] (WinNT; U)\r\n\
@@ -82,6 +93,41 @@ Content-Length: 542\r\n\
 			/Input %CommonInput
 			/NormalizeTag 0
 			/HeaderLength 258
+			/IsMultiPart	0
+			/BoundaryLength 0
+			/ContentLength	-1
+			/Expected {
+				/CONNECTION	{
+					"Keep-Alive"
+				}
+				/USER-AGENT "Mozilla/4.7 [en] (WinNT; U)"
+				/HOST "sentosa.hsr.loc:2929"
+				/ACCEPT {
+					"image/gif"
+					"image/x-xbitmap"
+					"image/jpeg"
+					"image/pjpeg"
+					"image/png"
+					"*/*"
+				}
+				/ACCEPT-ENCODING {
+					"gzip"
+				}
+				/ACCEPT-LANGUAGE {
+					"de-CH"
+					"en"
+				}
+				/ACCEPT-CHARSET {
+					"iso-8859-1"
+					"*"
+					"utf-8"
+				}
+			}
+		}
+		/SplitHeadersAndFieldsFaultyHeaderTest {
+			/Input %CommonInputFaultyHeaderLine
+			/NormalizeTag 0
+			/HeaderLength 300
 			/IsMultiPart	0
 			/BoundaryLength 0
 			/ContentLength	-1

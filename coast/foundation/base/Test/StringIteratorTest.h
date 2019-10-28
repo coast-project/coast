@@ -1,8 +1,8 @@
 #ifndef StringIteratorTest_H
 #define StringIteratorTest_H
 
-#include "TestCase.h"//lint !e537
-#include "ITOString.h"//lint !e537
+#include "TestCase.h"
+#include "ITOString.h"
 
 class StringIteratorTest: public testframework::TestCase {
 protected:

@@ -500,7 +500,7 @@ uint32_t EndPoint::MakeInetAddr(String ipAddr, bool anyipaddr)
 		}
 		ipAddr = GetLocalHost(); // for Servers ?
 	}
-	uint32_t addr = inet_addr((char *)(const char *)ipAddr);
+	uint32_t addr = inet_addr((char *)(const char *)ipAddr); // strange cast for 370 compatibility
 	// workaround to simulate valid ip address when 255.255.255.255 is given
 	// which corresponds to -1L (INADDR_NONE) return code
 	if ( ipAddr != "255.255.255.255" || addr != INADDR_NONE ) {

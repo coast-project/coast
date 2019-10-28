@@ -8,7 +8,7 @@
 #ifndef _SegStoreAllocatorTest_H
 #define _SegStoreAllocatorTest_H
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 class SegStoreAllocatorTest: public testframework::TestCase {
 public:
 	SegStoreAllocatorTest(TString tname) :

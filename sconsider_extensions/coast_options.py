@@ -26,7 +26,18 @@ def generate(env, **kw):
         added = 1
         AddOption('--enable-Trace',
                   dest='Trace',
-                  action='store_true',
+                  action='store_const',
+                  const=1,
+                  help='Enable trace support by defining COAST_TRACE, (StartTrace,\
+ Trace,...), see Tracer.h for details. => *deprecated*, use tracemode instead')
+        AddOption('--tracemode',
+                  dest='Trace',
+                  action='store',
+                  type='int',
+                  nargs=1,
+                  const=1,
+                  default=0,
+                  metavar='[*0*|1]',
                   help='Enable trace support by defining COAST_TRACE, (StartTrace,\
  Trace,...), see Tracer.h for details')
         import socket
@@ -52,7 +63,8 @@ def generate(env, **kw):
     else:
         buildflags.append('PROFILE')
 
-    if GetOption('Trace'):
+    enable_trace = bool(int(GetOption('Trace')))
+    if enable_trace:
         env.AppendUnique(VARIANT_SUFFIX=['_trace'])
         env.AppendUnique(CPPDEFINES=['COAST_TRACE'])
         buildflags.append('TRACE')

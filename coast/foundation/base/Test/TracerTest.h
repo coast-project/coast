@@ -9,7 +9,7 @@
 #ifndef _TracerTest_H
 #define _TracerTest_H
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 
 class TracerTest : public testframework::TestCase
 {

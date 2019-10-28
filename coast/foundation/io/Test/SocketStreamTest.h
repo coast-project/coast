@@ -9,7 +9,7 @@
 #ifndef _SocketStreamTest_H
 #define _SocketStreamTest_H
 
-#include "FoundationTestTypes.h"//lint !e537
+#include "FoundationTestTypes.h"
 
 class Connector;
 

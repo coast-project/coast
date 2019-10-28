@@ -9,7 +9,7 @@
 #ifndef _GenericXMLParserTest_H
 #define _GenericXMLParserTest_H
 
-#include "FoundationTestTypes.h"//lint !e537
+#include "FoundationTestTypes.h"
 
 //! <B>really brief class description</B>
 /*!

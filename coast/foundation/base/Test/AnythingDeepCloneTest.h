@@ -9,8 +9,8 @@
 #ifndef _AnythingDeepCloneTest_H
 #define _AnythingDeepCloneTest_H
 
-#include "TestCase.h"//lint !e537
-#include "Anything.h"//lint !e537
+#include "TestCase.h"
+#include "Anything.h"
 class AnythingDeepCloneTest: public testframework::TestCase {
 public:
 	AnythingDeepCloneTest(TString tname) :

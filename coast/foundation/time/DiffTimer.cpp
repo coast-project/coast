@@ -62,7 +62,7 @@ DiffTimer &DiffTimer::operator=(const DiffTimer &dt)
 	fStart = dt.fStart;
 	fResolution = dt.fResolution;
 	return *this;
-}//lint !e1529
+}
 
 DiffTimer::tTimeType DiffTimer::Scale(tTimeType rawDiff, DiffTimer::eResolution resolution)
 {

@@ -11,6 +11,8 @@
 
 #include "SecurityModule.h"
 
+#include <stdint.h>
+
 //---- BlowfishScrambler -----------------------------------------------------------
 class BlowfishScrambler :  public Scrambler
 {
@@ -28,7 +30,7 @@ public:
 #define BF_ROUNDS       16
 #define BF_BLOCK        8
 #if !defined(BF_LONG)
-#define BF_LONG unsigned long
+#define BF_LONG uint32_t
 #endif
 	struct BlowfishKey {
 		BF_LONG P[BF_ROUNDS+2];

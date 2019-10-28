@@ -9,7 +9,7 @@
 #ifndef _PipeStream_H
 #define _PipeStream_H
 
-#include "ITOString.h"//lint !e537
+#include "ITOString.h"
 #include <cstdio>
 #include <iostream>
 #include <iomanip>
@@ -135,7 +135,7 @@ public:
 
 	virtual ~iosCoastPipe() { }
 
-	PipeStreamBuf *rdbuf()  {//lint !e1511
+	PipeStreamBuf *rdbuf()  {
 		return &fPipeBuf;
 	}
 

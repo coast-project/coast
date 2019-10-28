@@ -13,7 +13,7 @@
 REBitSet::REBitSet(bool setall)
 {
 	for (unsigned i = 0; i < fgcSize; ++i) {
-		fSet[i] = setall ? ~0L : 0L;
+		fSet[i] = setall ? ~0 : 0;
 	}
 }
 REBitSet::REBitSet(const REBitSet &b)
@@ -22,7 +22,7 @@ REBitSet::REBitSet(const REBitSet &b)
 		fSet[i] = b.fSet[i];
 	}
 }
-REBitSet::REBitSet(const unsigned long s[fgcSize])
+REBitSet::REBitSet(const uint32_t s[fgcSize])
 {
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		fSet[i] = s[i];
@@ -124,13 +124,13 @@ REBitSet &REBitSet::Set(Predicate p)
 
 std::ostream &operator<<(std::ostream &os, const REBitSet &s)
 {
-	for (unsigned long i = 0; i < REBitSet::fgcSize; ++i) {
-		os << std::hex << "0x" << s.fSet[i] << "UL ,";
+	for (uint32_t i = 0; i < REBitSet::fgcSize; ++i) {
+		os << std::hex << "0x" << s.fSet[i] << "U ,";
 	}
 	return os;
 }
 
-const unsigned long REBitSet::fgcSingletons[fgcSubSetBits] = {
+const uint32_t REBitSet::fgcSingletons[fgcSubSetBits] = {
 	0x1,
 	0x2,
 	0x4,

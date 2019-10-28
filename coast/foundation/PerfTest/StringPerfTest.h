@@ -9,7 +9,7 @@
 #ifndef _StringPerfTest_H
 #define _StringPerfTest_H
 
-#include "FoundationTestTypes.h"//lint !e537
+#include "FoundationTestTypes.h"
 class StringPerfTest: public testframework::TestCaseWithStatistics {
 public:
 	StringPerfTest(TString tstrName) :

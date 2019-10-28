@@ -70,18 +70,18 @@ bool GzipHdr::IsValid()
 TimeStamp GzipHdr::GetModificationTime() const
 {
 	StartTrace(GzipHdr.GetModificationTime);
-	long lModTime = 0L;
+	int32_t lModTime = 0;
 	ConversionUtils::GetValueFromBuffer(ModificationTime, lModTime);
-	Trace("Modtime as long:" << lModTime);
+	Trace("Modtime as int32_t:" << lModTime);
 	return TimeStamp(lModTime);
 }
 
 void GzipHdr::SetModificationTime(TimeStamp aStamp)
 {
 	StartTrace(GzipHdr.SetModificationTime);
-	long lModTime = aStamp.AsLong();
-	Trace("Modtime " << aStamp.AsString() << ", as long:" << lModTime);
-	for (long lIdx = 0; lIdx < GzipHdr::eModificationTimeLen; ++lIdx) {
+	int32_t lModTime = (int32_t)aStamp.AsLong();
+	Trace("Modtime " << aStamp.AsString() << ", as int32_t:" << lModTime);
+	for (size_t lIdx = 0; lIdx < GzipHdr::eModificationTimeLen; ++lIdx) {
 		ModificationTime[lIdx] = ( lModTime & 0xff );
 		lModTime >>= 8;
 	}
@@ -167,7 +167,7 @@ std::istream &operator>>(std::istream &is, GzipHdr &header)
 		}
 		if ( bCont && header.Flags & GzipHdr::eFHCRC ) {
 			if ( !ConversionUtils::GetValueFromStream(is, header.CRC16).eof() ) {
-				long locCRC16 = 0L;
+				int32_t locCRC16 = 0;
 				locCRC16 = crc32(locCRC16, (const Bytef *)(const char *)strHeader, strHeader.Length());
 				locCRC16 = (locCRC16 & 0xffff);
 				Trace("header CRC16: " << locCRC16);
@@ -225,7 +225,7 @@ void ZipOStreamBuf::close()
 	flushCompressedIfNecessary();
 
 	fZip.avail_in = 0;
-	long err = Z_OK;
+	int32_t err = Z_OK;
 	do {
 		err = deflate(&fZip, Z_FINISH);
 		Trace("deflate finish err=" << err);
@@ -240,8 +240,8 @@ void ZipOStreamBuf::close()
 	if ( HasTrailer() ) {
 		Trace("crc is:" << (long)fCrcData);
 		// now write crc and length
-		putLong(fCrcData);
-		putLong(fZip.total_in);
+		putInt32(fCrcData);
+		putInt32(fZip.total_in);
 	}
 	err = deflateEnd(&fZip);
 	if (err != Z_OK) {
@@ -251,7 +251,7 @@ void ZipOStreamBuf::close()
 	fOs = 0;
 }
 
-void ZipOStreamBuf::putLong(unsigned long value)
+void ZipOStreamBuf::putInt32(uint32_t value)
 {
 	for (size_t n = 0; n < sizeof(value); ++n) {
 		fOs->put(char((value & 0xff)));
@@ -275,7 +275,7 @@ void ZipOStreamBuf::flushCompressed()
 	Trace("buffer capacity: " << fCompressed.Capacity());
 	Trace("available:       " << (long)fZip.avail_out);
 
-	long len = fCompressed.Capacity() - fZip.avail_out;
+	int32_t len = fCompressed.Capacity() - fZip.avail_out;
 
 	if (len > 0) {
 		fZip.next_out = (unsigned char *)(const char *)fCompressed;
@@ -297,7 +297,7 @@ int ZipOStreamBuf::sync()
 	fZip.avail_in = pptr() - pbase();
 	Trace("sync avail_in=" << (long)fZip.avail_in);
 	Trace("sync avail_out=" << (long)fZip.avail_out);
-	long err = Z_OK;
+	int32_t err = Z_OK;
 	if ( HasTrailer() ) {
 		fCrcData = crc32(fCrcData, (const Bytef *)pbase(), pptr() - pbase());
 	}
@@ -462,7 +462,7 @@ void ZipOStreamBuf::zipinit()
 			// use default z-compression header
 			wbits = MAX_WBITS;
 		}
-		long err = deflateInit2(&fZip, fCompLevel, Z_DEFLATED, wbits, DEF_MEM_LEVEL, fCompStrategy);
+		int32_t err = deflateInit2(&fZip, fCompLevel, Z_DEFLATED, wbits, DEF_MEM_LEVEL, fCompStrategy);
 		fZip.next_in = (unsigned char *)(const char *)fStore;
 		fZip.next_out = (unsigned char *)(const char *)fCompressed;
 		fZip.avail_out = fCompressed.Capacity();
@@ -530,9 +530,9 @@ TimeStamp ZipIStreamBuf::getModificationTime()
 	return Header().GetModificationTime();
 }
 
-unsigned long ZipIStreamBuf::getLong()
+uint32_t ZipIStreamBuf::getInt32()
 {
-	unsigned long value = 0;
+	uint32_t value = 0;
 	for (size_t n = 0; n < sizeof(value); ++n) {
 		if (fZip.avail_in < 1) {
 			fillCompressed();
@@ -584,8 +584,8 @@ void ZipIStreamBuf::close()
 	}
 
 	if ( HasTrailer() ) {
-		unsigned long crc = getLong();
-		unsigned long len = getLong();
+		uint32_t crc = getInt32();
+		uint32_t len = getInt32();
 
 		Trace("CRC check " << (long) crc << " vs. " << (long) fCrcData);
 		Trace("Length check: " << (long) len << " vs. " << (long) fZip.total_out);
@@ -608,7 +608,7 @@ void ZipIStreamBuf::xinit()
 	pinit(0);
 }
 
-void ZipIStreamBuf::pinit(long size)
+void ZipIStreamBuf::pinit(int32_t size)
 {
 	StartTrace(ZipIStreamBuf.pinit);
 
@@ -676,9 +676,9 @@ void ZipIStreamBuf::fillCompressed()
 
 		if (fIs->good()) {
 			char *startRead = (char *)(const char *)fCompressed;
-			long maxRead = fCompressed.Capacity();
+			int32_t maxRead = fCompressed.Capacity();
 
-			long nread = fIs->read(startRead, maxRead).gcount();
+			int32_t nread = fIs->read(startRead, maxRead).gcount();
 
 			fZip.avail_in += nread;
 			Trace("Read: " << nread << " fCompressed: " << (long)fZip.avail_in);
@@ -697,7 +697,7 @@ void ZipIStreamBuf::runInflate()
 	fZip.next_out = (unsigned char *)(const char *)fStore;
 	fZip.avail_out = fStore.Capacity();
 
-	unsigned long preStoreLen = fZip.avail_out;
+	uint32_t preStoreLen = fZip.avail_out;
 
 	while (fZipErr == Z_OK && fZip.avail_in > 0 && fZip.avail_out > 0) {
 		fZipErr = inflate(&fZip, Z_NO_FLUSH);
@@ -711,7 +711,7 @@ void ZipIStreamBuf::runInflate()
 #endif
 	}
 
-	unsigned long postStoreLen = preStoreLen - fZip.avail_out;
+	uint32_t postStoreLen = preStoreLen - fZip.avail_out;
 	pinit(postStoreLen);
 	if ( HasTrailer() ) {
 		fCrcData = crc32(fCrcData, (unsigned char *) gptr(), postStoreLen );

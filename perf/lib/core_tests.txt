@@ -1,0 +1,12 @@
+CoastStorageTest
+CoastEBCDICTest
+CoastFoundationAnythingOptionalTest
+CoastFoundationMiscellaneousTest
+CoastFoundationIOTest
+CoastFoundationTest
+CoastFoundationBaseTest
+CoastFoundationTimeTest
+CoastMTFoundationTest
+CoastSystemFunctionsTest
+CoastRegexTest
+CoastFoundationPerfTest

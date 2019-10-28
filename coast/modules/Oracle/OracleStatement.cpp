@@ -515,6 +515,10 @@ void OracleStatement::fillRowColValue( OracleStatement::Description::Element &aD
 		execStatus = OCIHandleAlloc( getConnection()->getEnvironment().EnvHandle(), (void **) &phCursor,
 									 OCI_HTYPE_STMT, 0, // extra memory to allocate
 									 NULL ); // pointer to user-memory
+		Trace("execution status:" << (long)execStatus);
+		if ( execStatus != OCI_SUCCESS ) {
+			throw OracleException( *getConnection(), execStatus );
+		}
 		buf = Anything( (void *) &phCursor, len );
 		fillCBuffer(aDescEl, "RawBuf", len, lRowIndex, buf);
 	} else {

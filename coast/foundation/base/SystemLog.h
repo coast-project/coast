@@ -9,7 +9,7 @@
 #ifndef _SystemLog_H
 #define _SystemLog_H
 
-#include "ITOString.h"//lint !e537
+#include "ITOString.h"
 
 namespace coast {
 	namespace system {
@@ -47,7 +47,7 @@ class SystemLog {
 	friend class SysLogTest;
 public:
 	typedef String (*messageFormatterFunctionType)(const char *, const char *);
-	typedef boost::shared_ptr<SystemLog> SystemLogPtr;
+	typedef boost_or_std::shared_ptr<SystemLog> SystemLogPtr;
 
 	//! module initialization
 	static void Init(const char *appId);

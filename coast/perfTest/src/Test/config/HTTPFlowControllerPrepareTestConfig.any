@@ -123,7 +123,7 @@
 			/Result {
 				/TmpStore {
 					/CurrentServer {
-						/ServerName "n0tex1st1ng"
+						/ServerName "1doNotResolve"
 						/Path "/Path/doSomething"
 						/Server		ignore
 						/formContents "fld_Name=Hans Muster&fld_Number=123&fld_Checkbox=on&b_Ok=Go"
@@ -142,7 +142,7 @@
 					/fld_Checkbox *   # Checkbox is not changed by FlowController config
 				}
 				/Result.TmpStore.CurrentServer {
-					/ServerName "n0tex1st1ng"
+					/ServerName "1doNotResolve"
 					/Path "/Path/doSomething"
 					/Server		ignore
 					/Method "post"
@@ -172,7 +172,7 @@
 			/Result {
 				/TmpStore {
 					/CurrentServer {
-						/ServerName "n0tex1st1ng"
+						/ServerName "1doNotResolve"
 						/Path "/Path/xy"
 						/Method "POST"
 						/MsgBody "Test"
@@ -240,7 +240,7 @@
 			/Result {
 				/TmpStore {
 					/CurrentServer {
-						/ServerName "n0tex1st1ng"
+						/ServerName "1doNotResolve"
 						/Path "/Path/xy"
 						/Method "post"
 						/Server		ignore
@@ -281,7 +281,7 @@
 			/Result {
 				/TmpStore {
 					/CurrentServer {
-						/ServerName "n0tex1st1ng"
+						/ServerName "1doNotResolve"
 						/Path "/Path/xy"
 						/Method "post"
 						/Enctype "multipart/form-data; boundary=xxx"
@@ -323,7 +323,7 @@
 			/Result {
 				/TmpStore {
 					/CurrentServer {
-						/ServerName "n0tex1st1ng"
+						/ServerName "1doNotResolve"
 						/Path "/Path/xy"
 						/Method "post"
 						/Enctype "multipart/form-data; boundary=xxx"
@@ -365,7 +365,7 @@
 			/Result {
 				/TmpStore {
 					/CurrentServer {
-						/ServerName "n0tex1st1ng"
+						/ServerName "1doNotResolve"
 						/Path "/Path/xy"
 						/Method "post"
 						/Enctype "multipart/form-data; boundary=xxx"

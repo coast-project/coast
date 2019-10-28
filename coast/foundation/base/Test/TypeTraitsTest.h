@@ -9,7 +9,7 @@
 #ifndef _TypeTraitsTest_H
 #define _TypeTraitsTest_H
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 class TypeTraitsTest: public testframework::TestCase {
 public:
 	TypeTraitsTest(TString tstrName) :

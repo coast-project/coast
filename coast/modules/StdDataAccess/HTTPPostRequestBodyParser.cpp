@@ -126,7 +126,8 @@ bool HTTPPostRequestBodyParser::DoReadToBoundary(std::istream &input, const Stri
 		}
 		newLineFoundLastLine = newLineFoundThisLine;
 	}
-	Trace("Body in Multipart: <" << body << ">");Assert(!input.good());
+	Trace("Body in Multipart: <" << body << ">");
+	Assert(!input.good());
 	return false;
 }
 

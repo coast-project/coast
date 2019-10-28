@@ -96,8 +96,8 @@ void REBitSetTest::GeneratePosixSet(std::ostream &cppfile, const char *pcName, R
 	s.Set(predicate);
 
 	cppfile << std::endl;
-	cppfile << "const unsigned long _dummy_" << pcName << " [] = {" << std::endl;
-	cppfile << s << "};" << std::endl;
+	cppfile << "const uint32_t _dummy_" << pcName << " [] = {" << std::endl;
+	cppfile << "\t" << s << "\n};" << std::endl;
 	cppfile << "const REBitSet " << pcName << "(_dummy_" << pcName << ");" << std::endl;
 }
 
@@ -134,6 +134,7 @@ void REBitSetTest::GeneratePosixSets()
 	if (t_assertm(os != NULL, "cannot write File REPosixBitSets.h")) {
 		*os << "//(c) copyright ifs 2005, all rights reserved" << std::endl;
 		*os << "//automatically generatest by REBitSetTest::GeneratePosixSets" << std::endl;
+		*os << "\n#include <stdint.h>" << std::endl;
 
 		GeneratePosixSet(*os, "gcSetIsAlnum", isalnum);
 		GeneratePosixSet(*os, "gcSetIsAlpha", isalpha);

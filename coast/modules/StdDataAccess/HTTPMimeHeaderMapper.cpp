@@ -7,10 +7,11 @@
  */
 #include "HTTPMimeHeaderMapper.h"
 #include "MIMEHeader.h"
+#include "HTTPProcessor.h"
 #include "RE.h"
 #include "AnyIterators.h"
 #include "AnythingUtils.h"
-//---- HTTPMimeHeaderMapper ------------------------------------------------------------------
+
 RegisterResultMapper(HTTPMimeHeaderMapper);
 
 bool HTTPMimeHeaderMapper::DoPutStream(const char *, std::istream &is, Context &ctx, ROAnything config) {
@@ -22,7 +23,8 @@ bool HTTPMimeHeaderMapper::DoPutStream(const char *, std::istream &is, Context &
 	try {
 		result = mh.ParseHeaders(is);
 	} catch (MIMEHeader::StreamNotGoodException &e) {
-		;
+	} catch (MIMEHeader::LineSizeExceededException &e) {
+		coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [LineSizeLimit]"), e.fLine, "HTTPMimeHeaderMapper::DoPutStream");
 	}
 
 	if (result && is.good()) {

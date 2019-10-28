@@ -9,7 +9,7 @@
 #ifndef _SysLogTest_H
 #define _SysLogTest_H
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 
 class SysLogTest: public testframework::TestCase {
 protected:

@@ -9,8 +9,8 @@
 #ifndef _StringTestExtreme_h_
 #define _StringTestExtreme_h_
 
-#include "TestCase.h"//lint !e537
-#include "ITOString.h"//lint !e537
+#include "TestCase.h"
+#include "ITOString.h"
 class StringTestExtreme: public testframework::TestCase {
 protected:
 	String extremelyLongString;

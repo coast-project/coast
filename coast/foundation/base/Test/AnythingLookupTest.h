@@ -9,8 +9,8 @@
 #ifndef _AnythingLookupTest_H
 #define _AnythingLookupTest_H
 
-#include "TestCase.h"//lint !e537
-#include "Anything.h"//lint !e537
+#include "TestCase.h"
+#include "Anything.h"
 class AnythingLookupTest: public testframework::TestCase {
 public:
 	AnythingLookupTest(TString tname) :

@@ -1,0 +1,35 @@
+#!/bin/sh
+set -x
+set -e
+
+# The purpose of this script is to simply take a number and a command. It'll
+# then run the command passed that number of times. This is useful to measure
+# the timing statistics of the test suite, where one can only prepend commands
+# (and arguments) to the final test command, where enclosing the command (e.g.
+# for i in `seq 10`; do test_command; done) won't work and creating a pipeline
+# (e.g. seq 10 | xargs -n1 -I{} test_command) also won't work.
+
+if [ $# -lt 2 ]
+then
+	echo "Please provide number of times and command to execute." >&2
+	echo "Example: $0 10 xtool" >&2
+	exit 1
+fi
+NTIMES=$1
+shift
+
+
+# The following block is basically
+#
+# 	seq $NTIMES | xargs -n1 -I{} "$@"
+#
+# with some progress information added.
+
+i=0
+while [ $i -lt $NTIMES ]
+do
+	i=`expr $i + 1`
+	echo "$0: Run #${i} of $NTIMES: $@"
+
+	"$@"
+done

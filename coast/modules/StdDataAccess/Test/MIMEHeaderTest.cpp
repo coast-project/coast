@@ -25,8 +25,8 @@ void MIMEHeaderTest::SimpleHeaderTest() {
 		// basic checks of success
 		try {
 			t_assertm(!mh.ParseHeaders(is), "expected header parsing to fail");
-		} catch (MIMEHeader::InvalidLineException &e) {
-			t_assertm(true, "expected invalid line exception to happen");
+		} catch (MIMEHeader::StreamNotGoodException &e) {
+			t_assertm(true, "expected stream not good exception to happen");
 		} catch (...) {
 			t_assertm(false,"did not expect other exceptions to be thrown");
 		}

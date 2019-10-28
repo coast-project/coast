@@ -9,8 +9,8 @@
 #ifndef _ANYTHING_H
 #define _ANYTHING_H
 
-#include "ITOString.h"//lint !e537
-#include "AnyImplTypes.h"//lint !e537
+#include "ITOString.h"
+#include "AnyImplTypes.h"
 #include "AnythingIterator.h" // new version of STL compliant iterators
 
 class AnyImpl;
@@ -752,7 +752,7 @@ public:
 		be careful if the memory of the tricky thing is short lived!!!
 		\param any the tricky Anything we use its allocator for reference semantics */
 	TrickyThing(TrickyThing &any) : Anything(any, any.GetAllocator()) {}
-};//lint !e1509
+};
 
 /*! ROAnything is an Anything which is immutable for MT-Safe reasons.
 	Every operation which would change the underlying data is therefore disabled
@@ -856,12 +856,24 @@ protected:
 	long AssertRange(long) const;
 	long AssertRange(const char *) const;
 
-	AnyImpl const *fAnyImp;
 	//hack for visitor...
 	friend class AnyArrayImpl;
 	ROAnything(AnyImpl const *imp)
 		: fAnyImp( imp )
 	{}
+
+	AnyImpl const *GetImpl() const {
+		if ((bits & 0x01) || !bits) {
+			return 0;
+		} else {
+			return fAnyImp;
+		}
+	}
+	union {
+		AnyImpl const *fAnyImp;
+		Allocator const *fAlloc;
+		std::ptrdiff_t bits;
+	};
 };
 
 inline const Anything &Anything::operator[](long slot) const

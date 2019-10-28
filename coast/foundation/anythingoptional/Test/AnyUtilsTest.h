@@ -9,8 +9,8 @@
 #ifndef _AnyUtilsTest_h_
 #define _AnyUtilsTest_h_
 
-#include "TestCase.h"//lint !e537
-#include "Anything.h"//lint !e537
+#include "TestCase.h"
+#include "Anything.h"
 class AnyUtilsTest: public testframework::TestCase {
 public:
 	AnyUtilsTest(TString tstrName) :

@@ -131,7 +131,7 @@ public:
 	iosITOSocket(Socket *s, long timeout = 300 * 1000, long sockbufsz = cSocketStreamBufferSize, int mode = std::ios::in | std::ios::out );
 	// s is the source resp. the sink;
 
-	SocketStreamBuf *rdbuf()  {//lint !e1511
+	SocketStreamBuf *rdbuf()  {
 		return &fSocketBuf;
 	}
 

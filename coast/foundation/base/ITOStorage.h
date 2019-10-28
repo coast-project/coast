@@ -9,7 +9,8 @@
 #ifndef _ITOStorage_H
 #define _ITOStorage_H
 
-#include "foundation.h"			//!< for definition of own types
+#include "foundation.h"				//!< for definition of own types
+#include "boost_or_std/memory.h"
 #include <cstdlib>
 #include <vector>
 
@@ -153,12 +154,10 @@ protected:
 
 #define PoolTrackStatTriggered(trigger, pAlloc, level) if ( TriggerEnabled(trigger) ) { pAlloc->PrintStatistic(level); }
 
-#include <boost/shared_ptr.hpp>
-
 //! Base class for memory allocation policies
 class Allocator {
 public:
-	typedef boost::shared_ptr<MemTracker> MemTrackerPtr;
+	typedef boost_or_std::shared_ptr<MemTracker> MemTrackerPtr;
 	Allocator(long allocatorid);
 	virtual ~Allocator();
 
@@ -333,7 +332,7 @@ namespace coast {
 	} // namespace memory
 
 	namespace storage {
-		typedef boost::shared_ptr<StorageHooks> StorageHooksPtr;
+		typedef boost_or_std::shared_ptr<StorageHooks> StorageHooksPtr;
 
 		//!prints memory management statistics
 		void PrintStatistic(long lLevel = -1);

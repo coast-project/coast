@@ -185,7 +185,6 @@ protected:
 };
 
 #include "singleton.hpp"
-#include <boost/shared_ptr.hpp>
 
 namespace {
 	struct AllocList {
@@ -193,7 +192,7 @@ namespace {
 		AllocList *next;
 	};
 	class MTStorageInitializer {
-		typedef boost::shared_ptr<SimpleMutex> SimpleMutexPtr;
+		typedef boost_or_std::shared_ptr<SimpleMutex> SimpleMutexPtr;
 		typedef coast::storage::StorageHooksPtr StorageHooksPtr;
 		SimpleMutexPtr fAllocatorInit;
 		THREADKEY fAllocatorKey;

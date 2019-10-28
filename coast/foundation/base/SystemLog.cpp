@@ -19,7 +19,6 @@
 #include <syslog.h>
 #endif
 #include "singleton.hpp"
-#include <boost/shared_ptr.hpp>
 #include "InitFinisManager.h"
 
 #if defined(WIN32)

@@ -93,4 +93,20 @@
 	}
 	/TestedMapper {
 	}
+
+	/SendEmailPost {
+		/Output {
+			/SendEmailPostResponse *
+			/HTTPHeader {
+				/SendEmailPostResponseHeaders *
+			}
+			/RootMapper {
+				/Output	SendEmailPostReply
+			}
+		}
+	}
+	/SendEmailPostResponseHeaders {
+		/DestinationSlot	SendEmailPostHeaders
+		/HTTPHeader	*
+	}
 }

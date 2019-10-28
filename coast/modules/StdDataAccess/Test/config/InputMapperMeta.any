@@ -244,4 +244,33 @@
 		/CheckReadyTimeout		5
 		/CloseSocket			0
 	}
+
+	/SendForgotPasswordEmailBody {
+		"{"
+		" \"userId\": \"" { /Lookup UserId } "\","
+		" \"templateId\":\"External Password Reset Mail\","
+		" \"sourceSystem\":\"frontdoor\""
+		"}"
+	}
+	/SendEmailPost {
+		/Name pythonserver
+        /Server             !Defaults.any?HostName
+        /Port               !Defaults.any?HttpPort
+		/UseSSL 0
+		/Timeout 60
+		/Input {
+			"POST"
+			" "
+			"/fip/rest/api/v1/mail/message"
+			" "
+			/SERVER_PROTOCOL		"HTTP/1.0"
+			"\r\n"	# end request
+			"HOST: " { /RendererMapper { /Lookup Backend.Server } } "\r\n"
+			"CONTENT-TYPE: application/json\r\n"
+			"CONTENT-LENGTH: " { /RendererMapper { /StringLengthRenderer { /UTF8Renderer { %SendForgotPasswordEmailBody } } } } "\r\n"
+			"\r\n"	# end headers
+			{ /RendererMapper { /UTF8Renderer { %SendForgotPasswordEmailBody } } }
+			# end body ohne CR-LF weil wir Content-Length setzen
+		}
+	}
 }

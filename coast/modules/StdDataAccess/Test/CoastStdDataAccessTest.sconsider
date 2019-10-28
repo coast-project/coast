@@ -59,6 +59,21 @@ class MyHTTPServer(HTTPServer):
     allow_reuse_address = True
 
 
+class HTTPEchoReplier(SimpleHTTPRequestHandler):
+    def _set_headers(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+
+    def do_POST(self):
+        # Doesn't do anything with posted data
+        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
+        post_data = self.rfile.read(content_length) # <--- Gets the data itself
+        self._set_headers()
+        self.wfile.write(post_data)
+        print self.headers
+
+
 def appendReplaceCommandForCert(key, filename, searchReplace):
     try:
         data = open(filename)
@@ -233,7 +248,7 @@ def setUp(target, source, env):
         threading.Thread(
             target=startServer,
             args=[defaults['HostName'], defaults['HttpPort'], MyHTTPServer,
-                  SimpleHTTPRequestHandler]).start()
+                  HTTPEchoReplier]).start()
         SMTPThread(defaults['HostName'], defaults['SMTPMailhostPort'],
                    env.getLogInstallDir().abspath, 'smtp.log').start()
 

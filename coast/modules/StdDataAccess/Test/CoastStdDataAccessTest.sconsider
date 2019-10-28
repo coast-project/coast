@@ -67,8 +67,8 @@ class HTTPEchoReplier(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         # Doesn't do anything with posted data
-        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
-        post_data = self.rfile.read(content_length) # <--- Gets the data itself
+        content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
+        post_data = self.rfile.read(content_length)  # <--- Gets the data itself
         self._set_headers()
         self.wfile.write(post_data)
         print self.headers
@@ -245,10 +245,9 @@ def setUp(target, source, env):
                              'keyFile': certDict.get('serverkey'),
                              'caChainFile': certDict.get('chainwoservercrt')
                          }).start()
-        threading.Thread(
-            target=startServer,
-            args=[defaults['HostName'], defaults['HttpPort'], MyHTTPServer,
-                  HTTPEchoReplier]).start()
+        threading.Thread(target=startServer,
+                         args=[defaults['HostName'], defaults['HttpPort'], MyHTTPServer,
+                               HTTPEchoReplier]).start()
         SMTPThread(defaults['HostName'], defaults['SMTPMailhostPort'],
                    env.getLogInstallDir().abspath, 'smtp.log').start()
 

@@ -8,7 +8,6 @@ variables:
 stages:
 - prepare
 - build
-- docs
 - test
 
 # Pip's cache doesn't store the python packages
@@ -311,7 +310,7 @@ test:64:dbg:trc:
 
 .AsciiDocCommon:
   image: marcelhuberfoo/asciidoctor:v19.02.4
-  stage: docs
+  stage: build
   variables:
     LANG: en_US.utf8
   tags:

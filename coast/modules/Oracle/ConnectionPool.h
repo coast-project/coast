@@ -10,6 +10,7 @@
 #define CONNECTIONPOOL_H_
 
 #include "WPMStatHandler.h"
+#include "boost_or_std/memory.h"
 
 class OraclePooledConnection;
 class PeriodicAction;
@@ -18,11 +19,7 @@ namespace coast
 {
 	namespace oracle
 	{
-#if __cplusplus >= 201103L
-		typedef std::unique_ptr<WPMStatHandler> StatEvtHandlerPtrType;
-#else
-		typedef std::auto_ptr<WPMStatHandler> StatEvtHandlerPtrType;
-#endif
+		typedef boost_or_std::auto_ptr<WPMStatHandler> StatEvtHandlerPtrType;
 
 //! Oracle specific class to handle backend connection pooling
 		/*!

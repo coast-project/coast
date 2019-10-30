@@ -12,7 +12,7 @@
 class String;
 class Anything;
 
-#include <time.h> //lint !e451//lint !e537// for LocalTime parameters struct tm
+#include <time.h>
 #include <sys/types.h>
 #if defined(WIN32)
 	typedef long uid_t;

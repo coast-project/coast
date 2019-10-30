@@ -11,7 +11,7 @@
 #include "StringPerfTest.h"
 
 void setupRunner(TestRunner &runner)
-{//lint !e14
+{
 	ADD_SUITE(runner, StringPerfTest);
 	ADD_SUITE(runner, AnythingPerfTest);
 }

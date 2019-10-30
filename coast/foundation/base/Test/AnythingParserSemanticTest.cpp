@@ -192,8 +192,8 @@ void AnythingParserSemanticTest::scanAnything(Anything any0) {
 				break;
 
 			default: {
-				String str("???");//lint !e585
-				slotNm.Append("???");//lint !e585
+				String str("???");
+				slotNm.Append("???");
 				slotNm.Append("; Value: ");
 				AnythingParserSemanticTest::anyOutput[(const char *) slotNm] = str;//"???";//String("???");
 			}

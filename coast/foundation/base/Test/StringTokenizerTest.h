@@ -12,8 +12,8 @@
 #ifndef _StringTokenizer_h_
 #define _StringTokenizer_h_
 
-#include "TestCase.h"//lint !e537
-#include "ITOString.h"//lint !e537
+#include "TestCase.h"
+#include "ITOString.h"
 
 class StringTokenizerTest : public testframework::TestCase
 {

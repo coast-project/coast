@@ -526,7 +526,7 @@ public:
 			ac(theComparer) {
 		}
 		virtual int Compare(AnyArrayImpl &that, long leftInt, long rightInt) const;
-	};//lint !e1510
+	};
 
 private:
 	AnyImpl *DoDeepClone(AnyImpl *res, Allocator *a, Anything &xreftable) const;

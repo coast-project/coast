@@ -11,32 +11,32 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
-import SConsider
-import Anything
 import os
 import socket
 import re
 import threading
 import shutil
 import asyncore
-import ServerExtensions
+from stat import *
 from OpenSSL import SSL, crypto
 from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
-from SConsider.SomeUtils import runCommand, replaceRegexInFile
+import Anything
+import ServerExtensions
+from SomeUtils import runCommand, replaceRegexInFile, listFiles, findFiles, removeFiles
 
 Import('*')
 
 defaults = None
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
-_helperscriptTarget = 'openssl.script_openssl'
+_helperscript_target = 'openssl.script_openssl'
 if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
-    _helperscriptTarget = 'openssl.openSSL'
+    _helperscript_target = 'openssl.openSSL'
 
     def getRealTarget(fulltargetname):
-        from SConsider import splitTargetname
-        packagename, targetname = splitTargetname(fulltargetname)
+        from SConsider.PackageRegistry import splitFulltargetname
+        packagename, targetname = splitFulltargetname(fulltargetname)
         return registry.getPackageTarget(packagename, targetname)
 
     if not hasattr(registry, 'getRealTarget'):
@@ -46,8 +46,7 @@ if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
 class SMTPThread(threading.Thread):
     def __init__(self, host, port, path, logfile):
         super(SMTPThread, self).__init__()
-        self.smtpd = ServerExtensions.SMTPFileSinkServer((host, port), None,
-                                                         path, logfile)
+        self.smtpd = ServerExtensions.SMTPFileSinkServer((host, port), None, path, logfile)
         self.daemon = True
 
     def run(self):
@@ -55,9 +54,24 @@ class SMTPThread(threading.Thread):
 
 
 class MyHTTPServer(HTTPServer):
-    """This class wrapper is needed to set allow_reuse_address to True
-    prior to initializing it"""
+    """This class wrapper is needed to set allow_reuse_address to True prior to
+    initializing it."""
     allow_reuse_address = True
+
+
+class HTTPEchoReplier(SimpleHTTPRequestHandler):
+    def _set_headers(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+
+    def do_POST(self):
+        # Doesn't do anything with posted data
+        content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
+        post_data = self.rfile.read(content_length)  # <--- Gets the data itself
+        self._set_headers()
+        self.wfile.write(post_data)
+        print self.headers
 
 
 def appendReplaceCommandForCert(key, filename, searchReplace):
@@ -68,16 +82,13 @@ def appendReplaceCommandForCert(key, filename, searchReplace):
         complist = x509.get_subject().get_components()
         complist.reverse()
         outname = key + '_subject'
-        searchReplace.append((r"##" + outname + "##",
-                              ','.join([k + '=' + v for k, v in complist])))
+        searchReplace.append((r"##" + outname + "##", ','.join([k + '=' + v for k, v in complist])))
         searchReplace.append(
-            (r"##" + outname + "_parts##",
-             ' '.join(['"' + k + '=' + v + '"' for k, v in complist])))
+            (r"##" + outname + "_parts##", ' '.join(['"' + k + '=' + v + '"' for k, v in complist])))
         complist = x509.get_issuer().get_components()
         complist.reverse()
         outname = key + '_issuer'
-        searchReplace.append((r"##" + outname + "##",
-                              ','.join([k + '=' + v for k, v in complist])))
+        searchReplace.append((r"##" + outname + "##", ','.join([k + '=' + v for k, v in complist])))
     except:
         pass
 
@@ -106,7 +117,7 @@ def startServer(host, port, server_class, handler_class, **kw):
 def prepareMkCaParams(env, commandargs, tdirabs, certdir):
     mkcaScriptName = os.path.join(tdirabs, 'mkca-new.sh')
     # set writable cfgfilename
-    target = registry.getRealTarget(_helperscriptTarget)
+    target = registry.getRealTarget(_helperscript_target)
     if not os.path.isfile(mkcaScriptName):
         return False
     commandargs.extend([mkcaScriptName])
@@ -140,45 +151,50 @@ def createCertificates(env):
     certdir = 'cert_files'
     certOutDir = os.path.join(tdir.abspath, certdir)
     prepareMkCaParams(env, commandargs, tdir.abspath, certdir)
+    cnfFilename = os.path.join(tdir.abspath, 'openssl.cnf')
     logpath = env.getLogInstallDir()
     retCode = runCommand(commandargs,
                          logpath=logpath.abspath,
-                         stdincontent='\n'.join(stdincontent))
+                         stdincontent='\n'.join(stdincontent),
+                         timeout=20.0)
     certFileNodesList = []
     certDict = {}
     if retCode == 0:
         # get list of copied certificates
-        certFileNodesList = SConsider.findFiles([certOutDir], ['.pem', '.p12'])
+        certFileNodesList = findFiles([certOutDir], ['.pem', '.p12'])
         certDict = createCertDict(certFileNodesList)
-        target = registry.getRealTarget(_helperscriptTarget)
+        target = registry.getRealTarget(_helperscript_target)
         sslbin = 'openssl'
         if target:
             sslbin = '' + target.abspath + ' -S --'
         # if there is now c_rehash available, use the following improved
         # script, (base from from
         # http://www.commandlinefu.com/commands/view/2532/c_rehash-replacement)
-        command = 'for file in *crt*.pem; do theHash=`' + sslbin + \
-            ' x509 -hash -noout -in $file 2>/dev/null` && test ! -f ${theHash}.0 && ln -s $file ${theHash}.0; done'
+        command = r"""
+for file in *crt*.pem; do
+    theHash=$(OPENSSL_CONF=""" + cnfFilename + ' ' + sslbin + r""" x509 -hash -noout -in $(pwd)/$file);
+    test -f ${theHash}.0 && true || ln -s $file ${theHash}.0;
+done"""
         retCode = runCommand(command,
                              logpath=logpath.abspath,
                              stdincontent=None,
                              shell=True,
-                             cwd=certOutDir)
+                             cwd=certOutDir,
+                             timeout=20.0)
     return (certOutDir, certFileNodesList, certDict)
 
 
 def createCertDict(certFileNodesList):
     certDict = {}
     for cname in [
-            'servercrt', 'serverkey', 'clientcrt', 'clientkey', 'fullchain',
-            'serverchain', 'chainwoservercrt', 'subCA1crt', 'subCA1key',
-            'rootCA1crt', 'rootCA1key'
+            'servercrt', 'serverkey', 'clientcrt', 'clientkey', 'fullchain', 'serverchain',
+            'chainwoservercrt', 'subCA1crt', 'subCA1key', 'rootCA1crt', 'rootCA1key'
     ]:
         try:
             filename = [
                 c.abspath for c in certFileNodesList
-                if re.match(r'' + cname + '(_' + defaults['HostName'] +
-                            ')?\.pem', os.path.split(c.abspath)[1])
+                if re.match(r'' + cname + '(_' + defaults['HostName'] + ')?\.pem',
+                            os.path.split(c.abspath)[1])
             ][0]
             certDict[cname] = filename
         except:
@@ -194,8 +210,11 @@ def setUp(target, source, env):
     try:
         defaults = Anything.loadFromFile('Defaults.any')
     except IOError:
-        raise SCons.Errors.UserError(
-            "Could not load 'Defaults.any' which is required to setup tests,\n check COAST_ROOT/COAST_PATH setting of Anything!")
+        pass
+    if not defaults or not defaults.has_key('HostName'):
+        raise SkipTest('Could not load \'Defaults.any\' which is required to ' \
+                       'setup tests,\ncheck COAST_ROOT/COAST_PATH setting of ' \
+                       'Anything!')
 
     tdirabs = tdir.abspath
     logpath = env.getLogInstallDir()
@@ -210,19 +229,15 @@ def setUp(target, source, env):
     if certDict:
         for key, value in certDict.items():
             searchReplace.append((r"##" + key + "_abs##", value))
-            searchReplace.append((r"##" + key + "_rel##",
-                                  os.path.relpath(value, tdirabs)))
+            searchReplace.append((r"##" + key + "_rel##", os.path.relpath(value, tdirabs)))
             if key.endswith('crt'):
                 appendReplaceCommandForCert(key, value, searchReplace)
         searchReplace.append((r"##certdir_abs##", certOutDir))
-        searchReplace.append((r"##certdir_rel##", os.path.relpath(certOutDir,
-                                                                  tdirabs)))
-        ModifyConfigFiles(env, searchReplace, SConsider.findFiles([configdir],
-                                                                  ['.any']))
+        searchReplace.append((r"##certdir_rel##", os.path.relpath(certOutDir, tdirabs)))
+        ModifyConfigFiles(env, searchReplace, findFiles([configdir], ['.any']))
         threading.Thread(target=startServer,
                          args=[
-                             defaults['HostName'], defaults['SSLPort'],
-                             ServerExtensions.SecureHTTPServer,
+                             defaults['HostName'], defaults['SSLPort'], ServerExtensions.SecureHTTPServer,
                              ServerExtensions.SecureHTTPRequestHandler
                          ],
                          kwargs={
@@ -231,10 +246,8 @@ def setUp(target, source, env):
                              'caChainFile': certDict.get('chainwoservercrt')
                          }).start()
         threading.Thread(target=startServer,
-                         args=[
-                             defaults['HostName'], defaults['HttpPort'],
-                             MyHTTPServer, SimpleHTTPRequestHandler
-                         ]).start()
+                         args=[defaults['HostName'], defaults['HttpPort'], MyHTTPServer,
+                               HTTPEchoReplier]).start()
         SMTPThread(defaults['HostName'], defaults['SMTPMailhostPort'],
                    env.getLogInstallDir().abspath, 'smtp.log').start()
 
@@ -243,42 +256,80 @@ def tearDown(target, source, env):
     for server in servers:
         server.shutdown()
     # delete generated files
-    # SConsider.removeFiles(SConsider.findFiles([env.getTargetBaseInstallDir()],
+    # removeFiles(findFiles([env.getTargetBaseInstallDir()],
     # extensions=['.res', '.tst', '.txt' ], matchfiles=['include.any']))
 
 
+programDepends = [
+    'testfwWDBase.testfwWDBase',
+    'CoastStdDataAccess.CoastStdDataAccess',
+]
+scriptRequireNodes = [
+    'CoastRenderers.CoastRenderers', 'CoastStringRenderers.CoastStringRenderers', _helperscript_target
+]
+sourceFiles = listFiles(['*.cpp'])
+copyFiles = [
+    (findFiles(['.'], extensions=['.sh']), S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR),
+    (findFiles(['.'], extensions=['.any', '.html', '.gif', '.txt']), S_IRUSR | S_IRGRP | S_IROTH),
+    (findFiles(['config'], matchfiles=['NotReadable']), S_IXUSR),
+    (findFiles(['.'], matchfiles=['openssl.cnf']), S_IRUSR | S_IRGRP | S_IROTH),
+    (findFiles(['.'], matchfiles=['mkca-new.sh']), S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR),
+]
+runConfig = {
+    'setUp': setUp,
+    'tearDown': tearDown,
+}
+
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
-    from stat import *
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
             'targetType': 'ProgramTest',
-            'linkDependencies': [
-                'CoastStdDataAccess', 'testfwWDBase'
-            ],
-            'requires': [
-                _helperscriptTarget, 'CoastRenderers'
-            ],
+            'linkDependencies': programDepends,
+            'requires': scriptRequireNodes,
             'includeSubdir': '',
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
-            'copyFiles': [
-                (SConsider.findFiles(['.'], extensions=['.sh']), S_IRUSR |
-                 S_IRGRP | S_IROTH | S_IXUSR),
-                (SConsider.findFiles(['.'],
-                                     extensions=[
-                                         '.any', '.html', '.gif', '.txt'
-                                     ]), S_IRUSR | S_IRGRP | S_IROTH),
-                (SConsider.findFiles(['config'],
-                                     matchfiles=['NotReadable']), S_IXUSR),
-                (SConsider.findFiles(['.'], matchfiles=['openssl.cnf']),
-                 S_IRUSR | S_IRGRP | S_IROTH),
-                (SConsider.findFiles(['.'], matchfiles=['mkca-new.sh']),
-                 S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR),
-            ],
-            'runConfig': {
-                'setUp': setUp,
-                'tearDown': tearDown,
-            },
+            'sourceFiles': sourceFiles,
+            'copyFiles': copyFiles,
+            'runConfig': runConfig,
         },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
+elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createCopyFilesTarget, createPackageTestTarget, createPackageProgram, createPackageProgramScript, createAlias
+    reltargetdir = os.path.join('tests', packagename)
+
+    def setRelTargetDir(env):
+        env.setRelativeTargetDirectory(reltargetdir)
+
+    bin_name = packagename
+    bin_target = createPackageProgram(packagename,
+                                      bin_name,
+                                      sourceFiles,
+                                      depend=programDepends,
+                                      pkg_local=[setRelTargetDir])
+    bins = EnvBuilder().depend(bin_target).build().RegisterPackageTarget(packagename=packagename,
+                                                                         targetname='bins')
+
+    copyTarget = createCopyFilesTarget(packagename,
+                                       'configfiles',
+                                       lambda env: env.getTargetBaseInstallDir(),
+                                       copyFiles,
+                                       pkg_local=[setRelTargetDir])
+
+    scriptTarget = createPackageProgramScript(packagename,
+                                              bin_name,
+                                              bin_target,
+                                              depend=copyTarget,
+                                              require=scriptRequireNodes,
+                                              pkg_local=[setRelTargetDir])
+    scripts = EnvBuilder().depend(scriptTarget).build().RegisterPackageTarget(packagename=packagename,
+                                                                              targetname='scripts')
+
+    testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfig)
+
+    createAlias('tests', testTarget)
+
+    EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(packagename=packagename,
+                                                                     targetname=packagename)

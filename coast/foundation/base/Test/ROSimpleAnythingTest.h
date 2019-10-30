@@ -9,7 +9,7 @@
 #ifndef _ROSimpleAnythingTest_H
 #define _ROSimpleAnythingTest_H
 
-#include "TestCase.h"//lint !e537
+#include "TestCase.h"
 
 class ROSimpleAnythingTest : public testframework::TestCase
 {

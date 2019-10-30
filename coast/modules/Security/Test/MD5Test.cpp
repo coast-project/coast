@@ -58,6 +58,7 @@ void MD5Test::hashCheck()
 	assertEqual("e807f1fcf82d132f9bb018ca6738a19f", hexhash(md5, "1234567890"));
 	assertEqual("5c2b6f5cd9864fba02f6c0581c31404a", hexhash(md5, "-,.*="));
 	assertEqual("ff848a8525e4859a924b7108811052bf", hexhash(md5, "CH10601-tktestx1,172.016.003.077,20000126141759,systempw"));
+	assertEqual("54bd42047db4235e0d65a7d3f12d6e82", hexhash(md5, "CH10601-test+CH10601-testappinst+20060626091500+foobar"));
 
 // official MD5 testcases
 //MD5 ("") = d41d8cd98f00b204e9800998ecf8427e

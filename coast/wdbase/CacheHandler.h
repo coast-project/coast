@@ -68,7 +68,6 @@ private:
 };
 
 #include "singleton.hpp"
-#include <boost/shared_ptr.hpp>
 
 //! CacheHandlerImpl manages a cache for configuration information
 /*!

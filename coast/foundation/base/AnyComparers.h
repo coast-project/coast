@@ -9,7 +9,7 @@
 #ifndef _AnyComparers_H
 #define _AnyComparers_H
 
-#include "Anything.h"//lint !e537
+#include "Anything.h"
 
 //! convenience classes implementing the AnyCompare interface
 //class AnyComparer {

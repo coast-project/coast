@@ -14,6 +14,7 @@
 #include "Queue.h"
 #include "AppLog.h"
 #include "StringStream.h"
+#include "boost_or_std/memory.h"
 #include <memory>	// for auto_ptr
 
 //---- QueueWorkingModule ----------------------------------------------------------
@@ -49,13 +50,8 @@ public:
 	typedef ElementType &ElementTypeRef;
 	typedef ElementType const& ConstElementTypeRef;
 	typedef Queue<ElementType, ListStorageType> QueueType;
-#if __cplusplus >= 201103L
-	typedef std::unique_ptr<QueueType> QueueTypePtr;
-	typedef std::unique_ptr<Context> ContextPtr;
-#else
-	typedef std::auto_ptr<QueueType> QueueTypePtr;
-	typedef std::auto_ptr<Context> ContextPtr;
-#endif
+	typedef boost_or_std::auto_ptr<QueueType> QueueTypePtr;
+	typedef boost_or_std::auto_ptr<Context> ContextPtr;
 	typedef typename QueueType::StatusCode StatusCode;
 	typedef typename QueueType::BlockingSide BlockingSide;
 

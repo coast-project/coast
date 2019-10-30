@@ -213,7 +213,7 @@ TimeStamp &TimeStamp::operator=(const TimeStamp &aStamp)
 	StartTrace1(TimeStamp.operator = , "TimeStamp");
 	fTimeStruct = aStamp.fTimeStruct;
 	return *this;
-}//lint !e1529
+}
 
 TimeStamp &TimeStamp::operator=(TSIntNumberType lTimeUtc)
 {

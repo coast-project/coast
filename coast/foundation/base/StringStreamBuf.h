@@ -70,7 +70,7 @@ public:
 
 	/*! dtor, deletes string object if it has been allocated by this */
 	virtual ~StringStreamBuf() {
-		this->sync();
+		sync();
 		if ( fDeleteStore ) {
 			delete fStore;
 			fStore = 0;
@@ -96,7 +96,7 @@ public:
 		\return underlying string buffer
 		\note do not change it when continuing using the stream */
 	BufferTypeRef str() {
-		this->sync();
+		sync();
 		Assert(fStore);
 		return *fStore;
 	}
@@ -172,7 +172,7 @@ protected:
 		\return EOF if no more characters for input available = EOF reached */
 	virtual int underflow() {
 		if (gptr() < egptr()) {
-			return ZAPEOF(*gptr());    //lint !e666// we still got something, false alarm
+			return ZAPEOF(*gptr());
 		}
 		return EOF; // we never handle underflow, because our buffer is the String content
 	}
@@ -416,7 +416,7 @@ public:
 
 	/*! reveal underlying streambuf implementation
 		\return underlying streambuf */
-	StreamBufTypePtr rdbuf()  {//lint !e1511
+	StreamBufTypePtr rdbuf()  {
 		return &fSSBuf;
 	}
 

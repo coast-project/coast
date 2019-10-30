@@ -11,7 +11,7 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
-import SConsider
+from SConsider.SomeUtils import listFiles
 Import('*')
 
 
@@ -23,61 +23,87 @@ def tearDown(target, source, env):
     pass
 
 
+sourceFilesTest = listFiles(['*Test.cpp', 'SetupRunner.cpp'])
+programDepends = ['testfw.testfw']
+runConfigTest = {
+    'setUp': setUp,
+    'tearDown': tearDown,
+    'runParams': '-- -list',
+}
+sourceFilesAlloc = ['myalloc.cpp']
+runConfigRunner = {
+    'runParams': '',
+}
+
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
+    from SConsider import createTargets
     # some of the tests are intended to fail, so only list available tests
     buildSettings = {
         packagename: {
             'includeSubdir': '',
-            'linkDependencies': ['testfw'],
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
+            'linkDependencies': programDepends,
+            'sourceFiles': sourceFilesTest,
             'targetType': 'ProgramTest',
-            'runConfig': {
-                'runParams': '-- -list',
-            }
-        }
+            'runConfig': runConfigTest,
+        },
+        'alloc': {
+            'includeSubdir': '',
+            'sourceFiles': sourceFilesAlloc,
+            'targetType': 'Program',
+            'targetName': 'alloc',
+        },
+        'runner': {
+            'targetType': 'ProgramApp',
+            'targetName': 'allocrunner',
+            'usedTarget': packagename + '.' + 'alloc',
+            'runConfig': runConfigRunner,
+        },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
     pass
 elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
     import os
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createPackageTestTarget, createPackageRunTarget, createPackageProgramScript, createPackageProgram, createAlias
     reltargetdir = os.path.join('tests', packagename)
 
     def setRelTargetDir(env):
         env.setRelativeTargetDirectory(reltargetdir)
 
-    programDepends = ['testfw.testfw']
-
     bin_name = packagename
-    bin_target = SConsider.createPackageProgram(packagename,
-                                                bin_name,
-                                                SConsider.listFiles(['*.cpp']),
-                                                depend=programDepends,
-                                                pkg_local=[setRelTargetDir])
-    bins = SConsider.EnvBuilder().depend(bin_target).build(
-    ).RegisterPackageTarget(packagename=packagename,
-                            targetname='bins')
+    alloc_name = 'alloc'
+    bin_target = createPackageProgram(packagename,
+                                      bin_name,
+                                      sourceFilesTest,
+                                      depend=programDepends,
+                                      pkg_local=[setRelTargetDir])
+    alloc_target = createPackageProgram(packagename,
+                                        alloc_name,
+                                        sourceFilesAlloc,
+                                        pkg_local=[setRelTargetDir])
+    bins = EnvBuilder().depend(bin_target,
+                               alloc_target).build().RegisterPackageTarget(packagename=packagename,
+                                                                           targetname='bins')
 
-    scriptTarget = SConsider.createPackageProgramScript(
-        packagename,
-        bin_name, bin_target,
-        pkg_local=[setRelTargetDir])
-    scripts = SConsider.EnvBuilder().depend(scriptTarget).build(
-    ).RegisterPackageTarget(packagename=packagename,
-                            targetname='scripts')
+    scriptTarget = createPackageProgramScript(packagename, bin_name, bin_target, pkg_local=[setRelTargetDir])
+    alloc_script = createPackageProgramScript(packagename,
+                                              alloc_name,
+                                              alloc_target,
+                                              pkg_local=[setRelTargetDir])
+    scripts = EnvBuilder().depend(scriptTarget,
+                                  alloc_script).build().RegisterPackageTarget(packagename=packagename,
+                                                                              targetname='scripts')
 
-    testTarget = SConsider.createPackageTestTarget(packagename,
-                                                   bin_name,
-                                                   scriptTarget,
-                                                   settings={
-                                                       'setUp': setUp,
-                                                       'tearDown': tearDown,
-                                                       'runParams': '-- -list',
-                                                   })
+    testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfigTest)
+    alloc_runner = createPackageRunTarget(packagename, 'runner', alloc_script, settings=runConfigRunner)
+    EnvBuilder().depend().build().RegisterPackageTarget(packagename=packagename,
+                                                        targetname='runner',
+                                                        target=alloc_runner)
 
     # do not add to tests alias as some tests intentionally fail!
-    #SConsider.createAlias('tests', testTarget)
+    # createAlias('tests', testTarget)
 
-    SConsider.EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(
-        packagename=packagename, targetname=packagename)
+    EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(packagename=packagename,
+                                                                     targetname=packagename)

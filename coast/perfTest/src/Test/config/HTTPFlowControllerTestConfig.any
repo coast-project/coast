@@ -114,9 +114,9 @@
 						}
 					}
 					/CurrentServer {
-						/ServerName "Server"
+						/ServerName "1doNotResolve"
 						/Path "/Path/xy"
-						/Server		127.0.0.1
+						/Server		"1doNotResolve"
 					}
 				}
 			}
@@ -128,7 +128,7 @@
 						/ResponseCode 200
 					}
 					/Output {
-						/Tokens "Hallo Goödbye"
+						/Tokens "Hallo Gudbye"
 					}
 				}
 			}
@@ -147,7 +147,7 @@
 				/TmpStore.StoredMapper.HTTPResponse.ResponseCode "200"
 				/TmpStore.StoredMapper.Output.Tokens "Hallo Gxxdbye"
 				/Result.TmpStore.result.ErrorMessage:1
-					"In step:3<no label found>Unwanted Token <hallo> DID occur in page:Server/Path/xy\r\r\nPage contained:hallo gxxdbye"
+					"In step:3<no label found>Unwanted Token <hallo> DID occur in page:1doNotResolve/Path/xy\r\r\nPage contained:hallo gxxdbye"
 			}
 		}
 		/"Must Token Goodbye Missing" {
@@ -156,7 +156,7 @@
 				/TmpStore.StoredMapper.HTTPResponse.ResponseCode "200"
 				/TmpStore.StoredMapper.Output.Tokens "Hallo Gxxdbye"
 				/Result.TmpStore.result.ErrorMessage:2
-					"In step:4<no label found>Wanted Token <goodbye> not found in page:Server/Path/xy\r\r\nPage contained:hallo gxxdbye"
+					"In step:4<no label found>Wanted Token <goodbye> not found in page:1doNotResolve/Path/xy\r\r\nPage contained:hallo gxxdbye"
 			}
 		}
 		/"Must Token Hallo Missing" {
@@ -164,7 +164,7 @@
 			/Replace {
 				/TmpStore.StoredMapper.Output.Tokens "Hello Goodbye"
 				/Result.TmpStore.result.ErrorMessage:3
-					"In step:5<no label found>Wanted Token <hallo> not found in page:Server/Path/xy\r\r\nPage contained:hello goodbye"
+					"In step:5<no label found>Wanted Token <hallo> not found in page:1doNotResolve/Path/xy\r\r\nPage contained:hello goodbye"
 			}
 		}
 		/"Mustnot token Ciao present" {
@@ -172,7 +172,7 @@
 			/Replace {
 				/TmpStore.StoredMapper.Output.Tokens "Hallo Goodbye Ciao"
 				/Result.TmpStore.result.ErrorMessage:4
-					"In step:6<no label found>Unwanted Token <ciao> DID occur in page:Server/Path/xy\r\r\nPage contained:hallo goodbye ciao"
+					"In step:6<no label found>Unwanted Token <ciao> DID occur in page:1doNotResolve/Path/xy\r\r\nPage contained:hallo goodbye ciao"
 			}
 		}
 		/"Link not found Test" {
@@ -181,14 +181,14 @@
 				/TmpStore.Mapper.Output.Links.0 Test
 				/TmpStore.Mapper.Output.LinksNameMap.Test 0
 				/Result.TmpStore.result.ErrorMessage:5
-					"In step:7<no label found>SlotName PreviousPage.LinksNameMap.T\xF6st not present in incoming forms/links/frames"
+					"In step:7<no label found>SlotName PreviousPage.LinksNameMap.Tost not present in incoming forms/links/frames"
 			}
 		}
 		/"Link Test" {
 			/UseConfig "HttpFlowControllerAnalyzeOkTest"
 			/Replace {
 				/TmpStore.Mapper.Output.Links.0.href "Test"
-				/TmpStore.Mapper.Output.LinksNameMap.Töst 0
+				/TmpStore.Mapper.Output.LinksNameMap.Tost 0
 				/Result.TmpStore:0 "/Path/Test"
 			}
 		}

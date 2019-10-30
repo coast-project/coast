@@ -1,8 +1,8 @@
 #ifndef StringReverseIteratorTest_H
 #define StringReverseIteratorTest_H
 
-#include "TestCase.h"//lint !e537
-#include "ITOString.h"//lint !e537
+#include "TestCase.h"
+#include "ITOString.h"
 
 class StringReverseIteratorTest: public testframework::TestCase {
 protected:

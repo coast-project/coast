@@ -21,8 +21,8 @@ namespace {
 		   2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 6
 		  };
 
-		register unsigned long c;
-		register const unsigned char *s = (const unsigned char *) * src;
+		unsigned long c;
+		const unsigned char *s = (const unsigned char *) * src;
 		switch (UTF8len [(*s >> 2) & 0x3F]) {
 			case 0: /* erroneous: s points to the middle of a character. */
 				c = (*s++) & 0x3F;

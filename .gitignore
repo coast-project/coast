@@ -7,3 +7,26 @@
 /globals/
 /tests/
 /lib/
+/.tox/
+/.v27sc*/
+/.venv*/
+/.vscode/
+/sconsolidator/
+/node_modules/
+*~
+# python bytecode
+*.pyc
+/dummy_for_tox.egg-info/
+
+# CoastRecipes
+/recipes/
+
+# additional software
+/3rdparty/
+/wdscripts/
+
+# perf history
+/perf/history-????????-??????/
+
+# log files in root directory
+/*.log

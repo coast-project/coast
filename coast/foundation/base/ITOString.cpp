@@ -160,7 +160,7 @@ String::~String()
 		fAllocator->Free(static_cast<void*>(GetImpl()));
 		fStringImpl = 0;
 	}
-}//lint !e1579
+}
 
 // assignment operators are asymmetric !!!
 String &String::operator= (const char *s)
@@ -179,7 +179,7 @@ String &String::operator= (const String &s)
 	}
 	// if we are already empty do a nop
 	return *this;
-}//lint !e1529
+}
 
 void String::Set(long start, const char *s, long len)
 /* in: start: at this position we start to copy the contents of s
@@ -224,7 +224,7 @@ note: if start > fLength then the new buffer will contain undefined
 				long oldLength = oldImpl->fLength;
 				long tocopy = (start > oldLength) ? oldLength : start;
 				if (tocopy) {
-					memcpy(GetContent(), oldImpl->Content(), tocopy);  //lint !e671 //PS to be tested
+					memcpy(GetContent(), oldImpl->Content(), tocopy);
 				}
 			}
 		} else {
@@ -962,7 +962,7 @@ long String::IntReadFrom(std::istream &is, const char quote)
 				is.get(c);
 				if (c == '\\' || c == quote) {
 					// '\\' or '\"'
-					this->Append(c);
+					Append(c);
 				} else if (c == 'x') {
 					// hex char e.g. '\xAB?
 					char h[2];
@@ -975,10 +975,10 @@ long String::IntReadFrom(std::istream &is, const char quote)
 							h[1] = h[0];
 							h[0] = '0';
 						}
-						this->AppendTwoHexAsChar(h);
+						AppendTwoHexAsChar(h);
 					} else {
 						// no hex char follows \x assume its a literal
-						this->Append("\\x");
+						Append("\\x");
 						is.putback(h[0]); // PS: we forgot the putback
 					}
 				} else if (c >= '0' && c <= '7') {
@@ -997,13 +997,13 @@ long String::IntReadFrom(std::istream &is, const char quote)
 						// premature end of ocal code
 						is.putback(c);
 					}
-					this->Append(val);
+					Append(val);
 				} else if (c == 'n') {
 					// translate \n coding
-					this->Append('\n');
+					Append('\n');
 				} else if (c == 'r') {
 					// translate \r coding
-					this->Append('\r');
+					Append('\r');
 				}
 				// PS: post CR for safe \r\n handling in strings
 				else if ('\r' == c) {
@@ -1018,8 +1018,8 @@ long String::IntReadFrom(std::istream &is, const char quote)
 					++newlinecounter;
 				} else {
 					// unknown stuff take it literally
-					this->Append('\\');
-					this->Append(c);
+					Append('\\');
+					Append(c);
 				}
 			} else {
 				// we shouldn't accept unmasked newline characters
@@ -1047,7 +1047,7 @@ long String::IntReadFrom(std::istream &is, const char quote)
 					++newlinecounter;
 					return 0 - newlinecounter;
 				}
-				this->Append(c);
+				Append(c);
 			}
 		} // while
 	} else {
@@ -1121,7 +1121,7 @@ String &String::AppendTwoHexAsChar(const char *cc, long len, bool delimiter)
 
 long String::AsLong(long dflt) const
 {
-	if (this->Length()) {
+	if (Length()) {
 		char *firstErrPos = (char *)GetContent();
 		long l = strtol(firstErrPos, &firstErrPos, 10);
 		if ( firstErrPos != GetContent() ) {
@@ -1133,7 +1133,7 @@ long String::AsLong(long dflt) const
 
 l_long String::AsLongLong(l_long dflt) const
 {
-	if (this->Length()) {
+	if (Length()) {
 		char *firstErrPos = (char *)GetContent();
 		l_long ll = strtoll(GetContent(), &firstErrPos, 10);
 		if ( firstErrPos != GetContent() ) {
@@ -1145,7 +1145,7 @@ l_long String::AsLongLong(l_long dflt) const
 
 double String::AsDouble(double dflt) const
 {
-	if (this->Length()) {
+	if (Length()) {
 		char *firstErrPos = (char *)GetContent();
 		double d = strtod(GetContent(), &firstErrPos);
 		if ( firstErrPos != GetContent() ) {
@@ -1223,7 +1223,7 @@ String::iterator String::erase(String::iterator pos) {
 		erase(pos.position, 1);
 		return pos;
 	}
-	return this->end(); // should throw, but stay robust
+	return end(); // should throw, but stay robust
 }
 String::iterator String::erase(String::iterator from, String::iterator to) {
 	if (from.a == this && to.a == this) {
@@ -1232,7 +1232,7 @@ String::iterator String::erase(String::iterator from, String::iterator to) {
 			return from;
 		}
 	}
-	return this->end(); // should throw, but stay robust
+	return end(); // should throw, but stay robust
 }
 
 StringTokenizer::StringTokenizer(const char *s, char delimiter)
@@ -1348,7 +1348,7 @@ std::istream &operator>>(std::istream &is, String &s)
 	if (is.good() && s.GetImpl()) {
 		// sanity checks
 		is >> std::ws; // skips whitespace
-		while ((aChar = is.get()) != EOF) {//lint !e583
+		while ((aChar = is.get()) != EOF) {
 			if (isspace(aChar)) {
 				is.putback(aChar);
 				break;

@@ -72,8 +72,8 @@ MmapStreamBuf::MmapStreamBuf(int syncflag)
 
 MmapStreamBuf::~MmapStreamBuf()
 {
-	this->close();
-}//lint !e1579
+	close();
+}
 
 inline void MmapStreamBuf::AdjustFileLength()
 {
@@ -232,11 +232,11 @@ bool MmapStreamBuf::xinit(int fd)
 		fFl.IosClearAtEnd(); // do it only once
 	}
 	//setb((char*)fAddr,(char*)fAddr+fLength-fMapOffset,0);
-	setg((fFl.IsReadable()) ? (char *)fAddr : (char *)fAddr + fFileLength - fMapOffset,//lint !e613
-		 (char *)fAddr + getoffset ,//lint !e613
-		 (char *)fAddr + fFileLength - fMapOffset);//lint !e613
+	setg((fFl.IsReadable()) ? (char *)fAddr : (char *)fAddr + fFileLength - fMapOffset,
+		 (char *)fAddr + getoffset ,
+		 (char *)fAddr + fFileLength - fMapOffset);
 	// now init get an put area
-	setp((char *)fAddr, (char *)fAddr + fLength - fMapOffset);//lint !e613//lint !e613
+	setp((char *)fAddr, (char *)fAddr + fLength - fMapOffset);
 	pbump(putoffset - fMapOffset); // to allow for backing up, because setb is no longer supported
 	// calculate error: true means OK = either the file was non empty or we write
 	// reserve() will take care of allocating the space for us when writing
@@ -257,7 +257,7 @@ int MmapStreamBuf::overflow( int c )
 		}
 		// we failed somehow. return EOF below
 	}
-	setp((char *)fAddr, (char *)fAddr + fLength - fMapOffset);   //lint !e613// reset put area
+	setp((char *)fAddr, (char *)fAddr + fLength - fMapOffset);
 	return EOF;
 } // overflow
 
@@ -269,7 +269,7 @@ int MmapStreamBuf::underflow()
 		setg(eback(), gptr(), (char *)fAddr + fFileLength - fMapOffset);
 	}
 	if (gptr() < egptr()) {
-		return ZAPEOF(*gptr());   //lint !e666 // we still got something
+		return ZAPEOF(*gptr());
 	}
 	return EOF; // we never handle underflow, because our buffer is the file content
 } // underflow
@@ -400,7 +400,7 @@ MmapStreamBuf::pos_type MmapStreamBuf::seekoff(MmapStreamBuf::off_type of, MmapS
 	//sync(); // will adjust fFileLength if needed
 	long pos = long(of);
 	if (dir == std::ios::cur) {
-		pos += long((mode & std::ios::in ? gptr() : pptr()) - (char *)fAddr + fMapOffset);//lint !e613
+		pos += long((mode & std::ios::in ? gptr() : pptr()) - (char *)fAddr + fMapOffset);
 	} else if (dir == std::ios::end && fFileLength > 0) {
 		pos += long(fFileLength);
 	}
@@ -415,13 +415,13 @@ MmapStreamBuf::pos_type MmapStreamBuf::seekoff(MmapStreamBuf::off_type of, MmapS
 MmapStreambase::MmapStreambase(const char *name, int omode, int prot, int syncflag)
 	: fMmapBuf(syncflag)
 {
-	this->open(name, omode, prot);
+	open(name, omode, prot);
 }
 
 void MmapStreambase::open(const char *name, int omode, int prot)
 {
-	if (this->is_open()) {
-		this->close();
+	if (is_open()) {
+		close();
 	}
 	std::ios::init(&fMmapBuf);
 	std::ios::clear(); // clear all flags, for std::iostream must be done after init!

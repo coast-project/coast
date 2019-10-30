@@ -58,14 +58,14 @@ AnyImpl *AnyImpl::DeepClone(Allocator *a, Anything &xreftable) const {
 			pObj->Ref(); // do not forget to count
 			return pObj;
 		}
-		pObj = this->Clone(a);
+		pObj = Clone(a);
 		pRefEntry = reinterpret_cast<IFAObject*>(pObj);
 		aimplTrace("stored xref entry for adr: " << adr << " is " << pObj->ThisToHex());
 	} else {
-		pObj = this->Clone(a);
+		pObj = Clone(a);
 	}
 	// let the specific impl modify the cloned entry if it needs to (like in AnyArrayImpl)
-	return this->DoDeepClone(pObj, a, xreftable);
+	return DoDeepClone(pObj, a, xreftable);
 }
 
 AnyLongImpl::AnyLongImpl(long l, Allocator *a) :
@@ -91,7 +91,7 @@ void AnyLongImpl::Accept(AnyVisitor &v, long lIdx, const char *slotname) const {
 }
 
 AnyImpl *AnyLongImpl::Clone(Allocator *a) const {
-	return new ((a) ? a : coast::storage::Current()) AnyLongImpl(this->fLong, this->fBuf, a);
+	return new ((a) ? a : coast::storage::Current()) AnyLongImpl(fLong, fBuf, a);
 }
 
 static const char *gcObjectText = "IFAObject";
@@ -110,7 +110,7 @@ String AnyObjectImpl::AsString(const char *) const {
 }
 
 AnyImpl *AnyObjectImpl::Clone(Allocator *a) const {
-	return new ((a) ? a : coast::storage::Current()) AnyObjectImpl(this->fObject, a);
+	return new ((a) ? a : coast::storage::Current()) AnyObjectImpl(fObject, a);
 }
 
 void AnyObjectImpl::Accept(AnyVisitor &v, long lIdx, const char *slotname) const {
@@ -136,7 +136,7 @@ const char *AnyDoubleImpl::AsCharPtr(const char *dflt, long &buflen) const {
 }
 
 AnyImpl *AnyDoubleImpl::Clone(Allocator *a) const {
-	return new ((a) ? a : coast::storage::Current()) AnyDoubleImpl(this->fDouble, this->fBuf, a);
+	return new ((a) ? a : coast::storage::Current()) AnyDoubleImpl(fDouble, fBuf, a);
 }
 
 void AnyDoubleImpl::Accept(AnyVisitor &v, long lIdx, const char *slotname) const {
@@ -158,7 +158,7 @@ void AnyBinaryBufImpl::Accept(AnyVisitor &v, long lIdx, const char *slotname) co
 }
 
 AnyImpl *AnyBinaryBufImpl::Clone(Allocator *a) const {
-	return new ((a) ? a : coast::storage::Current()) AnyBinaryBufImpl((this->fBuf.cstr()), this->fBuf.Length(), a);
+	return new ((a) ? a : coast::storage::Current()) AnyBinaryBufImpl((fBuf.cstr()), fBuf.Length(), a);
 }
 
 long AnyStringImpl::Compare(const char *other) const {
@@ -194,7 +194,7 @@ void AnyStringImpl::Accept(AnyVisitor &v, long lIdx, const char *slotname) const
 }
 
 AnyImpl *AnyStringImpl::Clone(Allocator *a) const {
-	return new ((a) ? a : coast::storage::Current()) AnyStringImpl(this->fString, a);
+	return new ((a) ? a : coast::storage::Current()) AnyStringImpl(fString, a);
 }
 
 class AnyKeyAssoc : public coast::SegStorAllocatorNewDelete<AnyKeyAssoc> {
@@ -213,7 +213,7 @@ public:
 		fKey.SetAllocator(a);
 	}
 	Anything &Value() {
-		return fValue;//lint !e1536
+		return fValue;
 	}
 	const Anything &Value() const {
 		return fValue;
@@ -233,14 +233,14 @@ public:
 			fKey = aka.Key();
 		}
 		return *this;
-	}//lint !e1529
+	}
 	Allocator *MyAllocator() {
 		return fValue.GetAllocator();
 	}
 private:
 	Anything fValue;
 	String fKey;
-};//lint !e1510
+};
 
 long IFANextPrime(long x) {
 	if (x <= 3) {
@@ -273,7 +273,7 @@ AnyKeyTable::~AnyKeyTable() {
 		fKeyTable = 0;
 		fHashTable = 0;
 	}
-}//lint !e1579
+}
 
 void AnyKeyTable::InitTable(long cap) {
 	if (cap < cInitCapacity) {
@@ -393,11 +393,11 @@ void AnyKeyTable::Rehash(long newCap) {
 	// iterate over the old table and rehash
 	// values
 	for ( long i = 0; i < oldCapacity; ++i ) {
-		register long slot = ot[i];
+		long slot = ot[i];
 
 		if (slot > -1) {	// assumption: we found an index for a key
 			long at = fKeyTable->IntAt(slot);
-			register const char *key = fKeyTable->fContents[fKeyTable->IntAtBuf(at)][fKeyTable->IntAtSlot(at)].Key();
+			const char *key = fKeyTable->fContents[fKeyTable->IntAtBuf(at)][fKeyTable->IntAtSlot(at)].Key();
 			Assert(key);
 			long lIdx = DoHash(key);
 			Assert(lIdx > -1 && lIdx < fCapacity);
@@ -428,13 +428,13 @@ AnyIndTable::AnyIndTable(long initCapacity, Allocator *a) :
 
 AnyIndTable::~AnyIndTable() {
 	if (fIndexTable) {
-		Clear();//lint !e1551
-		fAllocator->Free(fIndexTable);//lint !e1551
-		fAllocator->Free(fEmptyTable);//lint !e1551
+		Clear();
+		fAllocator->Free(fIndexTable);
+		fAllocator->Free(fEmptyTable);
 
 		fIndexTable = 0;
 	}
-}//lint !e1579//lint !e1579
+}
 
 void AnyIndTable::InitTable(long cap) {
 	fCapacity = cap;
@@ -670,7 +670,7 @@ Anything &AnyArrayImpl::At(const char *key) {
 	if (slot < 0) {
 		// key doesn't exist so append this key in the key array
 		// with the according slot
-		slot = fKeys->Append(key, fSize);//lint !e613
+		slot = fKeys->Append(key, fSize);
 		slot = IntAt(slot);
 		// set the key in the any key assoc structure
 		fContents[IntAtBuf(slot)][IntAtSlot(slot)].SetKey(key);
@@ -900,7 +900,7 @@ void AnyArrayImpl::PrintKeys() const {
 			hash = 	fKeys->At(fContents[IntAtBuf(at)][IntAtSlot(at)].Key());
 		}
 		String m;
-		m << "[" << i << "]<" << NotNullStr(fContents[IntAtBuf(at)][IntAtSlot(at)].Key()) << ">(" << hash << ")" << "\n";//lint !e666
+		m << "[" << i << "]<" << NotNullStr(fContents[IntAtBuf(at)][IntAtSlot(at)].Key()) << ">(" << hash << ")" << "\n";
 		SystemLog::WriteToStderr(m);
 	}
 }
@@ -919,10 +919,10 @@ AnyImpl *AnyArrayImpl::Clone(Allocator *a) const {
 
 AnyImpl *AnyArrayImpl::DoDeepClone(AnyImpl *pObj, Allocator *a, Anything &xreftable) const {
 	aimplStartTrace(AnyArrayImpl.DoDeepClone);
-	long count = this->GetSize();
+	long count = GetSize();
 	AnyArrayImpl *pImpl = dynamic_cast<AnyArrayImpl*> (pObj);
 	for (long i = 0; pImpl && i < count; ++i) {
-		pImpl->At(this->SlotName(i)) = this->At(i).DeepClone(a, xreftable);
+		pImpl->At(SlotName(i)) = At(i).DeepClone(a, xreftable);
 	}
 	return pImpl;
 }

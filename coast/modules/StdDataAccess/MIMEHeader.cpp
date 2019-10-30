@@ -10,6 +10,7 @@
 #include "Tracer.h"
 #include "RE.h"
 #include "HTTPConstants.h"
+#include "SystemLog.h"
 //#include "RECompiler.h"
 #include <cstdio>	// for EOF
 #include <cstring>  // for strlen
@@ -115,7 +116,11 @@ bool MIMEHeader::ParseHeaders(std::istream &in, long const maxlinelen, long cons
 			return true;	//!< successful header termination with empty line
 		}
 		if (fParsedHeaderLength > maxheaderlen) throw MIMEHeader::RequestSizeExceededException("Header size exceeded", line, maxheaderlen, fParsedHeaderLength);
-		SplitAndAddHeaderLine(fHeader, line, fNormalizeKey);
+		try {
+			SplitAndAddHeaderLine(fHeader, line, fNormalizeKey);
+		} catch (MIMEHeader::InvalidLineException &e) {
+			SystemLog::Warning(String("ignoring invalid header line [").Append(line).Append("]"));
+		}
 	}
 	return false;
 }

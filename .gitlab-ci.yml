@@ -1,0 +1,378 @@
+variables:
+  SCONSFLAGS: "--with-src-boost=${THIRDPARTY_DIR}/boost --with-bin-openssl=${THIRDPARTY_DIR}/openssl --with-src-zlib=${THIRDPARTY_DIR}/zlib --with-bin-iplanetLDAP=${THIRDPARTY_DIR}/iplanet_ldap --with-bin-oracle=${THIRDPARTY_DIR}/oracle"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  BUILD_OUTPUT_32: build_32
+  BUILD_OUTPUT_64: build_64
+  THIRDPARTY_DIR: 3rdparty
+
+stages:
+- prepare
+- build
+- test
+
+# Pip's cache doesn't store the python packages
+# https://pip.pypa.io/en/stable/reference/pip_install/#caching
+#
+# If you want to also cache the installed packages, you have to install
+# them in a virtualenv and cache it as well.
+default:
+  image:
+    name: instituteforsoftware/coast-build:latest
+    entrypoint: ["/entrypoint.sh", "gosu", "docky"]
+  before_script:
+  - echo "Running as user [$(id -u)] on hostname [$(hostname)]"
+  - mkdir -p $BUILD_OUTPUT_32 $BUILD_OUTPUT_64 $PIP_CACHE_DIR ${THIRDPARTY_DIR}
+  - python -V               # Print out python version for debugging
+  - pip install --upgrade -r requires.txt
+
+.buildcache: &buildcache
+  # use per branch caching using key
+  key: "$CI_COMMIT_REF_SLUG"
+  policy: pull-push
+  paths:
+  - $PIP_CACHE_DIR
+  - $THIRDPARTY_DIR
+#  untracked: true
+
+prepare environment:
+  stage: prepare
+  tags:
+  - docker
+  cache:
+    <<: *buildcache
+    policy: push
+#  before_script: []
+  script:
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/boost.git ${THIRDPARTY_DIR}/boost
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/openssl.git ${THIRDPARTY_DIR}/openssl
+  - git clone --branch master https://gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/zlib.git ${THIRDPARTY_DIR}/zlib
+  - git clone --branch master https://${CLONE_USER_IPLANET}:${CLONE_TOKEN_IPLANET}@gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/iplanet_ldap.git ${THIRDPARTY_DIR}/iplanet_ldap
+  - git clone --branch master https://${CLONE_USER_ORACLE}:${CLONE_TOKEN_ORACLE}@gitlab.dev.ifs.hsr.ch/ifs/coast/3rdparty/oracle.git ${THIRDPARTY_DIR}/oracle
+
+.build_template:
+  tags:
+  - docker
+  stage: build
+  cache:
+    <<: *buildcache
+    policy: pull
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_32}"
+    BUILD_ARCHBITS: "--archbits=32"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+    BUILD_TESTOPT: "--usetool=TestfwTransformer"
+    BUILD_EXCLUDE_CACHEDIR: "--exclude=$BUILD_OUTPUT_32 --exclude=$BUILD_OUTPUT_64"
+#    BUILD_COMPILERS: "--with-cc= --with-cxx="
+    BUILD_COMPILER_WARN: "--warnlevel=medium"
+    BUILD_TARGETS: "--exclude=testfw/dummytest tests"
+    BUILD_JOBS: "--jobs=$$(nproc)"
+    BUILD_SCONS_CONFIG: "--config=force"
+    BUILD_IGNORE_MISSING: "--ignore-missing"
+    BUILD_RUNOPT: ""
+    BUILD_RUNOPTARGS: ""
+    BUILD_COMMANDLINE: "scons -u $$BUILD_OUTPUT_OPT $$BUILD_EXCLUDE_CACHEDIR $$BUILD_ARCHBITS $$BUILD_CFG $$BUILD_WITH_TRACE $$BUILD_COMPILERS $$BUILD_TESTOPT $$BUILD_JOBS $$BUILD_SCONS_CONFIG $$BUILD_IGNORE_MISSING $$BUILD_RUNOPT $$BUILD_RUNOPTARGS $$BUILD_TARGETS"
+
+compile failure test:
+  extends: .build_template
+  variables:
+    BUILD_TARGETS: "dummytest"
+  allow_failure: true
+  script:
+  - printf "void failfunc() { IwillFailToCompile }\n" > testfw/dummytest/ForcedCompileFailureTest.cpp
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+
+compile:32:opt:
+  extends: .build_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_32}'
+
+compile:32:opt:trc:
+  extends: .build_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_32}'
+
+compile:32:dbg:trc:
+  extends: .build_template
+  variables:
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_32}'
+
+compile:64:opt:
+  extends: .build_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_64}'
+
+compile:64:opt:trc:
+  extends: .build_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_64}'
+
+compile:64:dbg:trc:
+  extends: .build_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_64}'
+
+.test_template:
+  extends: .build_template
+  stage: test
+  variables:
+    BUILD_JOBS: "--jobs=1"
+    BUILD_TARGETS: "--exclude=testfw/dummytest tests"
+    BUILD_RUNOPT: "--run-force"
+    BUILD_RUNOPTARGS: "--runparams=\"-d -d -- -all\""
+
+test:32:opt:
+  extends: .test_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_32}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_32}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:32:opt
+  needs: ["compile:32:opt"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+
+test:32:opt:trc:
+  extends: .test_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_32}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_32}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:32:opt:trc
+  needs: ["compile:32:opt:trc"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+
+test:32:dbg:trc:
+  extends: .test_template
+  variables:
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_32}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_32}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:32:dbg:trc
+  needs: ["compile:32:dbg:trc"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+
+test:64:opt:
+  extends: .test_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_64}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_64}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:64:opt
+  needs: ["compile:64:opt"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+
+test:64:opt:trc:
+  extends: .test_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_64}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_64}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:64:opt:trc
+  needs: ["compile:64:opt:trc"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+
+test:64:dbg:trc:
+  extends: .test_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_64}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_64}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:64:dbg:trc
+  needs: ["compile:64:dbg:trc"]
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+
+.AsciiDocCommon:
+  image: marcelhuberfoo/asciidoctor:v19.02.4
+  stage: build
+  variables:
+    LANG: en_US.utf8
+  tags:
+  - docker
+  before_script: []
+  artifacts:
+    expire_in: 1 week
+    paths:
+    - 'manual/*.pdf'
+
+Build Slides:
+  extends: .AsciiDocCommon
+  script:
+  - asciidoctor
+    --require asciidoctor-pdf
+    --require asciidoctor-diagram
+    --require asciidoctor-mathematical
+    --attribute revnumber="$(git describe --abbrev  --tags --always --dirty='-*')"
+    --attribute revremark="$(git log -1 --pretty=format:%s)"
+    --attribute revdate="$(git log -1 --date=short-local --pretty=format:%cd)"
+    --attribute doctype=book
+    --attribute pdf-page-size="6in x 10.66in"
+    --attribute pdf-page-layout=landscape
+    --attribute slideoutput
+    --backend pdf
+    --out-file manual/COAST-Framework-Overview_Slides.pdf
+    manual/COAST-Framework-Overview.adoc
+
+Build Compact Handout:
+  extends: .AsciiDocCommon
+  script:
+  - asciidoctor
+    --require asciidoctor-pdf
+    --require asciidoctor-diagram
+    --require asciidoctor-mathematical
+    --attribute revnumber="$(git describe --abbrev  --tags --always --dirty='-*')"
+    --attribute revremark="$(git log -1 --pretty=format:%s)"
+    --attribute revdate="$(git log -1 --date=short-local --pretty=format:%cd)"
+    --attribute doctype=article
+    --attribute pdf-page-size="A4"
+    --attribute pdf-page-layout=portrait
+    --attribute speakernotes
+    --attribute toc=auto
+    --attribute toclevels=2
+    --backend pdf
+    --out-file manual/COAST-Framework-Overview_Compact.pdf
+    manual/COAST-Framework-Overview.adoc
+
+Build Spacy Handout:
+  extends: .AsciiDocCommon
+  script:
+  - asciidoctor
+    --require asciidoctor-pdf
+    --require asciidoctor-diagram
+    --require asciidoctor-mathematical
+    --attribute revnumber="$(git describe --abbrev  --tags --always --dirty='-*')"
+    --attribute revremark="$(git log -1 --pretty=format:%s)"
+    --attribute revdate="$(git log -1 --date=short-local --pretty=format:%cd)"
+    --attribute doctype=book
+    --attribute pdf-page-size="A4"
+    --attribute pdf-page-layout=portrait
+    --attribute speakernotes
+    --backend pdf
+    --out-file manual/COAST-Framework-Overview_ForNotes.pdf
+    manual/COAST-Framework-Overview.adoc

@@ -962,7 +962,7 @@ long RECompiler::expr(bool &isnullable)
 	}
 
 	// Create a branch node
-	int branch = Branch(branchnullable);
+	long branch = Branch(branchnullable);
 	if (branch < 0) {
 		return branch;
 	}
@@ -991,7 +991,7 @@ long RECompiler::expr(bool &isnullable)
 			syntaxError("Missing close paren");
 			return -1;
 		}
-		fMaskOfClosedParentheses |= (1 << closeParens);
+		fMaskOfClosedParentheses |= (1L << closeParens);
 		end = AppendNode(RE::OP_CLOSE, closeParens);
 	} else {
 		end = AppendNode(RE::OP_END, 0);
@@ -1035,7 +1035,7 @@ Anything RECompiler::compile(const String &pat)
 				if (fInstruction[0L][RE::offsetOpcode].AsLong(0) == RE::OP_BRANCH) {
 					// to the end node
 					// and the branch starts with an atom
-					int next = fInstruction[0L][RE::offsetNext].AsLong(0);
+					long next = fInstruction[0L][RE::offsetNext].AsLong(0);
 					if (fInstruction[next][RE::offsetOpcode].AsLong(0) == RE::OP_END
 						&& fInstruction[1L][RE::offsetOpcode].AsLong(0) == RE::OP_ATOM) {
 						// then get that atom as an prefix because there's no other choice

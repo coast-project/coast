@@ -69,7 +69,7 @@ void ObjectListTest::DtorTest() {
 			aStringList.SignalShutdown(true);
 		}
 		TraceMemDelta("after destruction of list");
-	}//lint !e429 // destructive shutdown should take care of deleting pointers
+	}
 	{
 		TraceMemDelta("before allocation");
 		const long lCount = 10;

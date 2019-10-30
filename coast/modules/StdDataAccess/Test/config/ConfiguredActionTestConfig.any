@@ -8,6 +8,7 @@
 {
 	/DLL {
 		CoastRenderers
+		CoastStringRenderers
 	}
 	/Modules {
 		DataAccessImplsModule
@@ -35,14 +36,17 @@
 				HeaderSuppressMapperHierarch
 			}
 		}
+		/HTTPDAImpl {
+			SendEmailPost
+		}
 	}
-
 	/Mappers {
 		/Input {
 			/ParameterMapper {
 				TestMail
 				HeaderSuppressMapper
 				HeaderSuppressMapperHierarch
+				SendEmailPost
 			}
 			/HTTPHeaderParameterMapper {
 				/MyHeaderSuppressMapper {
@@ -58,6 +62,13 @@
 				CgiExecTest
 				HeaderSuppressMapper
 				HeaderSuppressMapperHierarch
+				SendEmailPost
+			}
+			/HTTPResponseMapper {
+				SendEmailPostResponse
+			}
+			/MimeHeaderResultMapper {
+				SendEmailPostResponseHeaders
 			}
 		}
 	}
@@ -246,5 +257,27 @@
 				}
 			}
 		}
+
+		/SendEmailPostTest {
+			/TmpStore {
+				/UserId	"CH10601-tkhre"
+			}
+			/TheAction {
+				/CallDA {
+					/DataAccess	SendEmailPost
+				}
+			}
+			/Result {
+				/TmpStore {
+					/SendEmailPostReply "{ \"userId\": \"CH10601-tkhre\", \"templateId\":\"External Password Reset Mail\", \"sourceSystem\":\"frontdoor\"}"
+				}
+				/Mapper {
+                    /HTTPResponse {
+                        /ResponseCode 200
+                    }
+                }
+			}
+		}
+
 	}
 }

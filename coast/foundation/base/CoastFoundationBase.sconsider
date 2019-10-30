@@ -11,40 +11,38 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
-import SConsider
+from SomeUtils import listFiles
 Import('*')
+
+libDepends = ['boost.include']
+sourceFiles = listFiles(['*.cpp'])
 
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
-            'linkDependencies': ['boost.include'],
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
+            'linkDependencies': libDepends,
+            'sourceFiles': sourceFiles,
             'targetType': 'LibraryShared',
             'public': {
-                'includes': SConsider.listFiles(['*.h', '*.hpp']),
+                'includes': listFiles(['*.h', '*.hpp']),
             }
         },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
 elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
-    includeTarget = SConsider.EnvBuilder(export=[
-        SConsider.EnvBuilder().include(Dir('.'))
-    ]).build().RegisterPackageTarget(packagename=packagename,
-                                     targetname='include')
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createPackageSharedLibrary
+    includeTarget = EnvBuilder(export=[EnvBuilder().include(Dir('.'))]).build().RegisterPackageTarget(
+        packagename=packagename, targetname='include')
 
-    libDepends = ['boost.include']
+    lib = createPackageSharedLibrary(packagename,
+                                     packagename,
+                                     sourceFiles,
+                                     depend=[includeTarget] + libDepends)
+    libs = EnvBuilder().depend(lib).build().RegisterPackageTarget(packagename=packagename, targetname='libs')
 
-    lib = SConsider.createPackageSharedLibrary(
-        packagename,
-        packagename,
-        SConsider.listFiles(['*.cpp']),
-        depend=[includeTarget] + libDepends)
-    libs = SConsider.EnvBuilder().depend(lib).build().RegisterPackageTarget(
-        packagename=packagename, targetname='libs')
-
-    SConsider.EnvBuilder().depend(includeTarget,
-                                  libs).build().RegisterPackageTarget(
-                                      packagename=packagename,
-                                      targetname=packagename)
+    EnvBuilder().depend(includeTarget, libs).build().RegisterPackageTarget(packagename=packagename,
+                                                                           targetname=packagename)

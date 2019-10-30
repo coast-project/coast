@@ -11,7 +11,7 @@
 #include "AnyUtilsTest.h"
 #include "GenericXMLParserTest.h"
 
-void setupRunner(TestRunner &runner) {//lint !e14
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, AnySorterTest);
 	ADD_SUITE(runner, AnyUtilsTest);
 	ADD_SUITE(runner, GenericXMLParserTest);

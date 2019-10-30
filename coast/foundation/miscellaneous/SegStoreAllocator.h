@@ -10,13 +10,12 @@
 #define _SegStorAllocator_H
 
 #include "ITOStorage.h"
-#include <boost/shared_ptr.hpp>
 #include <boost/pool/pool.hpp>
 #include <map>
 
 class SegStoreAllocator : public Allocator {
 	typedef boost::pool<itostorage::BoostPoolUserAllocatorGlobal> CurrentPoolType;
-	typedef boost::shared_ptr<CurrentPoolType> CurrentPoolTypePtr;
+	typedef boost_or_std::shared_ptr<CurrentPoolType> CurrentPoolTypePtr;
 	typedef std::map<size_t, CurrentPoolTypePtr> AllocPoolMapping;
 
 	AllocPoolMapping allocPoolMap;

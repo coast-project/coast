@@ -61,7 +61,7 @@ void PipeTest::simpleBlockingTest() {
 		t_assert(pipi.IsReadyForWriting(0)); // now we should be able to write again
 		// write something
 		assertEqual(5L, (long)Socket::write(pipi.GetWriteFd(), "hallo", 5));
-	} else {//lint !e550
+	} else {
 		t_assertm(false, "couldn't create anonymous pipe");
 	}
 }

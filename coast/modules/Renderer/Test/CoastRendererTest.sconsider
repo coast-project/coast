@@ -11,13 +11,13 @@
 
 import pkg_resources
 pkg_resources.require(["SConsider"])
-import SConsider
 import socket
 from stat import *
+from SomeUtils import listFiles, findFiles, getfqdn
 
 Import('*')
 
-hostonly, domain, fqdn = SConsider.getfqdn()
+hostonly, domain, fqdn = getfqdn()
 localhostname = 'localhost'
 localhostip = socket.gethostbyname(localhostname)
 # gethostbyaddr here is to resolve potentially different 'localhost' name
@@ -41,27 +41,70 @@ def tearDown(target, source, env):
     pass
 
 
+programDepends = [
+    'testfwWDBase.testfwWDBase',
+    'CoastRenderers.CoastRenderers',
+]
+sourceFiles = listFiles(['*.cpp'])
+copyFiles = [
+    (findFiles(['.'], ['.any', '.txt', '.tst', '.html']), S_IRUSR | S_IRGRP | S_IROTH, searchReplace),
+    (findFiles(['config'], ['.sh']), S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR),
+]
+runConfig = {
+    'setUp': setUp,
+    'tearDown': tearDown,
+}
+
 _sconsider_dist = pkg_resources.get_distribution("SConsider").parsed_version
 if _sconsider_dist < pkg_resources.parse_version("0.5"):
+    from SConsider import createTargets
     buildSettings = {
         packagename: {
             'targetType': 'ProgramTest',
-            'linkDependencies': ['CoastRenderers', 'testfwWDBase'],
-            'requires': [],
+            'linkDependencies': programDepends,
             'includeSubdir': '',
-            'sourceFiles': SConsider.listFiles(['*.cpp']),
-            'copyFiles': [
-                (SConsider.findFiles(['.'], [
-                    '.any', '.txt', '.tst', '.html'
-                ]), S_IRUSR | S_IRGRP | S_IROTH, searchReplace),
-                (SConsider.findFiles(['config'], ['.sh']), S_IRUSR | S_IRGRP |
-                 S_IROTH | S_IXUSR),
-            ],
-            'runConfig': {
-                'setUp': setUp,
-                'tearDown': tearDown,
-            },
+            'sourceFiles': sourceFiles,
+            'copyFiles': copyFiles,
+            'runConfig': runConfig,
         },
     }
 
-    SConsider.createTargets(packagename, buildSettings)
+    createTargets(packagename, buildSettings)
+elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
+    import os
+    from TargetMaker import EnvBuilder
+    from TargetHelpers import createCopyFilesTarget, createPackageTestTarget, createPackageProgram, createPackageProgramScript, createAlias
+    reltargetdir = os.path.join('tests', packagename)
+
+    def setRelTargetDir(env):
+        env.setRelativeTargetDirectory(reltargetdir)
+
+    bin_name = packagename
+    bin_target = createPackageProgram(packagename,
+                                      bin_name,
+                                      sourceFiles,
+                                      depend=programDepends,
+                                      pkg_local=[setRelTargetDir])
+    bins = EnvBuilder().depend(bin_target).build().RegisterPackageTarget(packagename=packagename,
+                                                                         targetname='bins')
+
+    copyTarget = createCopyFilesTarget(packagename,
+                                       'configfiles',
+                                       lambda env: env.getTargetBaseInstallDir(),
+                                       copyFiles,
+                                       pkg_local=[setRelTargetDir])
+
+    scriptTarget = createPackageProgramScript(packagename,
+                                              bin_name,
+                                              bin_target,
+                                              depend=copyTarget,
+                                              pkg_local=[setRelTargetDir])
+    scripts = EnvBuilder().depend(scriptTarget).build().RegisterPackageTarget(packagename=packagename,
+                                                                              targetname='scripts')
+
+    testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfig)
+
+    createAlias('tests', testTarget)
+
+    EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(packagename=packagename,
+                                                                     targetname=packagename)

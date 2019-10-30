@@ -18,5 +18,6 @@
         /BindFailureCode    91
         /BindDc             "tkfcd.hsr.ch"
         /LdifFileName       "testdbdataSunOne.ldif"
+        /Timeout            10.0
     }
 }

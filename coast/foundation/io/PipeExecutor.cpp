@@ -298,7 +298,7 @@ bool PipeExecutor::ForkAndRun(Anything parm, Anything env)
 					char **p = cgiParams.GetParams();
 					char **e = cgiEnv.GetEnv();
 					// execve will not return on success, it will return -1 in case of a failure
-					execve(p[0], p, e);//lint !e613
+					execve(p[0], p, e);
 				}
 				// oops we failed. terminate the process
 				// don't use strings - allocators not fork-safe

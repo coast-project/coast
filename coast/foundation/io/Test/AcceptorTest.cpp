@@ -63,7 +63,6 @@ void AcceptorTest::acceptOnceTest()
 {
 	// do not change the sequence of statements
 	// the program cannot run otherwise
-#ifdef __sun
 	TestCallBack *cb = new TestCallBack(this);
 	Acceptor acceptor(GetConfig()["acceptOnceTest"]["ip"].AsString(), 0, 1, cb);
 
@@ -74,8 +73,7 @@ void AcceptorTest::acceptOnceTest()
 	if (t_assert(connector.Use() != NULL)) { // should try a connect to acceptor; not yet accepting
 		acceptor.RunAcceptLoop(true);
 	}
-#endif
-	// if we get here we were succesful
+	// if we get here we were successful
 }
 
 Test *AcceptorTest::suite ()

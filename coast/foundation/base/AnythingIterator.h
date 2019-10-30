@@ -9,7 +9,7 @@
 #ifndef AnythingIterator_H
 #define AnythingIterator_H
 
-#include <iterator>//lint !e537
+#include <iterator>
 
 typedef std::iterator<std::random_access_iterator_tag, class Anything> IteratorBase;
 

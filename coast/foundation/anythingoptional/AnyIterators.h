@@ -30,7 +30,7 @@ namespace AnyExtensions
 		typedef XThing PlainType;
 		typedef XThing &PlainTypeRef;
 		typedef XRetThing &PlainRetTypeRef;
-		typedef typename boost_or_tr1::conditional< boost_or_tr1::is_same<PlainType, ROAnything>::value ,
+		typedef typename boost_or_std::conditional< boost_or_std::is_same<PlainType, ROAnything>::value ,
 				ROAnything,
 				PlainTypeRef>::type StoredType;
 

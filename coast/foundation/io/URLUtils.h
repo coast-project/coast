@@ -9,7 +9,7 @@
 #ifndef _URLUTILS_H
 #define _URLUTILS_H
 
-#include "Anything.h"//lint !e537
+#include "Anything.h"
 
 namespace coast {
 	namespace urlutils {

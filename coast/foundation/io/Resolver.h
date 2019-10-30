@@ -9,7 +9,7 @@
 #ifndef _Resolver_H
 #define _Resolver_H
 
-#include "ITOString.h"//lint !e537
+#include "ITOString.h"
 
 namespace {
 	static const String defaultIP("127.0.0.1");

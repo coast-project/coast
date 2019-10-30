@@ -11,7 +11,7 @@
 #include "ConversionUtilsTest.h"
 #include "SegStoreAllocatorTest.h"
 
-void setupRunner(TestRunner &runner) {//lint !e14
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, ObjectListTest);
 	ADD_SUITE(runner, ConversionUtilsTest);
 	ADD_SUITE(runner, SegStoreAllocatorTest);

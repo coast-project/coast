@@ -3,11 +3,14 @@ version: 1
 
 disable_existing_loggers: False
 
+# https://docs.python.org/2/library/logging.config.html#module-logging.config
 formatters:
     simple:
-        format: "%(asctime)s %(levelname)s %(name)s: %(message)s"
+        format: "%(asctime)s,%(msecs)03d [%(levelname)-8s] [%(name)-32s]: %(message)s (%(filename)s:%(lineno)s)"
+        datefmt: '%Y-%m-%d %H:%M:%S'
     detailed:
-        format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format: "%(asctime)s,%(msecs)03d - %(name)s - %(levelname)s - %(message)s"
+        datefmt: '%Y-%m-%d %H:%M:%S'
 
 filters:
     filterLookup:
@@ -17,6 +20,10 @@ filters:
     filterExecuting:
         '()': SConsider.Logging.RegexFilter
         pattern: "^executing \\["
+        flags: 0
+    filterProcessHelperWaitOnStream:
+        '()': SConsider.Logging.RegexFilter
+        pattern: ".*has nothing to read from, sleeping for.*"
         flags: 0
 
 handlers:
@@ -51,7 +58,30 @@ loggers:
         propagate: no
         filters: []
 
+    g++:
+        level: INFO
+        handlers: [console]
+        propagate: no
+        filters: []
+
+    gcc:
+        level: INFO
+        handlers: [console]
+        propagate: no
+        filters: []
+
+    py.warnings:
+        level: WARNING
+        handlers: [console]
+        propagate: no
+
     TargetMaker:
+        level: WARNING
+        handlers: [console]
+        propagate: no
+        filters: []
+
+    SConsider.Callback:
         level: WARNING
         handlers: [console]
         propagate: no
@@ -62,6 +92,12 @@ loggers:
         handlers: [console]
         propagate: no
         filters: [filterLookup, filterExecuting]
+
+    SConsider.PopenHelper:
+        level: INFO
+        handlers: [console]
+        propagate: no
+        filters: []
 
     setupBuildTools:
         level: INFO
@@ -81,4 +117,5 @@ loggers:
 root:
     level: INFO
     handlers: [console, info_file_handler, error_file_handler]
+    filters: []
 ...

@@ -23,7 +23,7 @@ construct an anything representation of DOM parsing the XML
 class GenericXMLParser
 {
 public:
-	virtual ~GenericXMLParser() {}//lint !e1401//lint !e1401
+	virtual ~GenericXMLParser() {}
 	//! do the parsing,
 	//! \return the constructed Anything using the given Allocator
 	//! \param reader the input source

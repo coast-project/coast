@@ -9,7 +9,7 @@
 #ifndef _URLUtilsTest_h_
 #define _URLUtilsTest_h_
 
-#include "FoundationTestTypes.h"//lint !e537
+#include "FoundationTestTypes.h"
 
 class URLUtilsTest: public testframework::TestCaseWithConfig {
 public:

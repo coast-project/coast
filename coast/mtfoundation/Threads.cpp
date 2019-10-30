@@ -17,7 +17,6 @@
 #include <errno.h>
 #endif
 #include <cstring>
-#include <boost/shared_ptr.hpp>
 
 //#define TRACE_LOCKS_IMPL 1
 //#define POOL_STARTEDHOOK 1
@@ -59,7 +58,7 @@ namespace {
 
 namespace {
 	class ThreadInitializer {
-		typedef boost::shared_ptr<SimpleMutex> SimpleMutexPtr;
+		typedef boost_or_std::shared_ptr<SimpleMutex> SimpleMutexPtr;
 		THREADKEY fCleanerKey;
 		SimpleMutexPtr fNumOfThreadsMutex;
 	public:
@@ -861,7 +860,7 @@ namespace {
 
 namespace {
 	class MutexInitializer {
-		typedef boost::shared_ptr<SimpleMutex> SimpleMutexPtr;
+		typedef boost_or_std::shared_ptr<SimpleMutex> SimpleMutexPtr;
 		SimpleMutexPtr fMutexIdMutex;
 		THREADKEY fCountTableKey;
 	public:

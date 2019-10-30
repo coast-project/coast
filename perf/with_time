@@ -1,0 +1,97 @@
+#! /bin/sh
+. `dirname $0`/lib/measure_utils.sh
+set -e
+
+# DIFF COMMAND
+print_diff_cmd() {
+	echo "git diff --no-index perf_results/time/${DIFF_TEST}-32_${BUILDCFG}.csv perf_results/time/${DIFF_TEST}-64_${BUILDCFG}.csv"
+}
+
+# EXPORT
+export_as_csv() (
+	# print leading part of CSV header
+	header_printed=false
+	printf "testname,archbits,buildcfg,method,"
+
+	for file in $PERF_DIR/time/*-*_*.csv
+	do
+		# finish printing header using first file
+		if ! $header_printed
+		then
+			head -1 $file
+			header_printed=true
+		fi
+
+		# extract and set variables:
+		# 	* testname
+		#	* archbits
+		# 	* buildcfg
+		eval $(basename -s .csv $file |\
+		sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)/testname="\1" \
+			archbits="\2" buildcfg="\3"/')
+
+		# print last CSV record (but never the header) with additional
+		# values prepended
+		tail -n +2 $file | tail -1 | sed -e "s/^/$testname,$archbits,$buildcfg,time,/"
+	done
+)
+
+# Measures performance of $TEST_NAMES using `time`.
+#
+# Depends on:
+#   * measure_utils.sh
+#   * `time`
+#   * $TEST_NAMES
+#   * $PERF_DIR
+#   * $BUILDCFG
+#   * $ARCHBITS
+#   * $NTIMES
+#
+# Honors:
+#   * $START_TIME
+#   * $TIMES
+measure_performance() {
+
+	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force 
+	TIMES=${TIMES:-20} # number of times to run each test
+
+	build `cat $TEST_NAMES`
+
+	##
+	# MEASUREMENT
+	#
+	progress "TIME-BASED MEASUREMENT ..."
+	for TESTNAME in `cat $TEST_NAMES`
+	do
+		start $TESTNAME
+		TIME_RESULT=$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.csv
+		mkdir -p `dirname $TIME_RESULT`
+
+		# write CSV header if file doesn't exist yet
+		if [ ! -e $TIME_RESULT ]
+		then
+			echo "start_time,times_run,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps" > $TIME_RESULT
+		fi
+
+		warmup $TESTNAME || continue
+
+		# run test n times and log statistics
+		log="$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
+		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '\"$START_TIME,$TIMES,%U,%S,%e,%P,%M,%t,%D,%p,%W\"' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x $TIMES -- -all" $TESTNAME > $log 2>&1
+		then
+			measurement_successful $TESTNAME
+		else
+			measurement_failed $TESTNAME $log
+		fi
+	done
+}
+
+##
+# MAIN
+#
+
+BUILDCFG="optimized"
+[ -n "$DIFF_TEST" ] && { print_diff_cmd; exit; }
+$EXPORT && { export_as_csv; exit; }
+
+measure_performance_for_selected_archbits

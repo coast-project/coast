@@ -1,8 +1,8 @@
 #ifndef AnythingSTLTest_H
 #define AnythingSTLTest_H
 
-#include "TestCase.h"//lint !e537
-#include "Anything.h"//lint !e537
+#include "TestCase.h"
+#include "Anything.h"
 class AnythingSTLTest: public testframework::TestCase {
 	void checkRange(const Anything &, long n, long length);
 	void checkFill(const Anything &);

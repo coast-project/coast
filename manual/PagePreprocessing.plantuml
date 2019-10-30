@@ -1,0 +1,32 @@
+@startuml
+hide footbox
+participant "aSession :\nSession" as S
+participant "newPage :\nPage" as P1
+participant "interpreter :\nAction" as A
+
+ activate S
+ == Preprocess Page ==
+ S->P1: Prepare(transition, context)
+ activate P1
+  P1->A: ExecAction(transition, context, config)
+  activate A
+  P1<--A
+  deactivate A
+ S<--P1
+ deactivate P1
+
+ == Render Page ==
+ S->P1: Start(reply, context)
+ activate P1
+  P1->P1: Render(reply,context)
+ == PostRender ==
+  P1->A: ExecAction("PostRender", context)
+  activate A
+  P1<--A
+  deactivate A
+ S<--P1
+ deactivate P1
+
+[<--S: DoRenderNextPage(reply,context)
+deactivate S
+@enduml

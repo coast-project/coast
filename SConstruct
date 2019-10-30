@@ -2,7 +2,6 @@
 
 Main build driver for coast build. It specifies additional tools used to
 build the coast framework.
-
 """
 # vim: set et ai ts=4 sw=4:
 # -------------------------------------------------------------------------
@@ -25,13 +24,15 @@ _project_tool_dir = os.path.join(os.getcwd(), 'sconsider_extensions')
 if os.path.exists(_project_tool_dir):
     SCons.Tool.DefaultToolpath.append(_project_tool_dir)
 
-_project_tools = ["coast_options",
-                  "ThirdParty",
-                  "DoxygenBuilder",
-                  "Package", ]
+_project_tools = [
+    "coast_options",
+    "ThirdParty",
+    "DoxygenBuilder",
+    "Package",
+]
 
 _sconsider_dist = pkg_resources.get_distribution('SConsider').parsed_version
-if _sconsider_dist >= pkg_resources.parse_version("0.5.dev"):
+if _sconsider_dist >= pkg_resources.parse_version("0.5"):
     # FIXME: CertificateBuilders tool should potentially be added where we
     #        really need it (SSL, StdDataAccess)
     _project_tools.extend(["CertificateBuilders"])

@@ -21,10 +21,10 @@ static const long cDefaultMaxLineSz = 1024;
 
 //! Parse and store a MIME header as given from an HTTP request
 /*! special treatment of multipart MIME used for form data and
-	file upload by a POST request.
-	Usually all header fields should be treated case-insensitive.
-	Because our infrastructure (Anything) is case sensitive
-	we normalize all strings used as header-field indexes to uppercase. */
+ file upload by a POST request.
+ Usually all header fields should be treated case-insensitive.
+ Because our infrastructure (Anything) is case sensitive
+ we normalize all strings used as header-field indexes to uppercase. */
 class MIMEHeader: public LookupInterface {
 	//!contains the request/reply header
 	Anything fHeader;
@@ -60,9 +60,10 @@ public:
 	struct InvalidLineException {
 		String fMessage, fLine;
 		InvalidLineException(const String & msg, const String & line) throw () :
-			fMessage(msg), fLine(line) {
+				fMessage(msg), fLine(line) {
 		}
-
+		virtual ~InvalidLineException() {
+		}
 		const virtual char *what() const throw () {
 			return fMessage;
 		}

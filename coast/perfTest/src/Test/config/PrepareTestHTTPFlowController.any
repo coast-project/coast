@@ -12,7 +12,7 @@
 	/Run {
 		{
 			/CurrentServer {
-				/ServerName "Server"
+				/ServerName "1doNotResolve"
 				/Path "/Path/xy"
 			}
 			/Form {
@@ -58,7 +58,7 @@
 		}
 		{
 			/CurrentServer {
-				/ServerName "Server"
+				/ServerName "1doNotResolve"
 				/Path "/Path/xy"
 				/Method "POST"
 				/MsgBody	"Test"
@@ -71,7 +71,7 @@
 		}
 		{ # FormWithFileName
 			/CurrentServer {
-				/ServerName "Server"
+				/ServerName "1doNotResolve"
 				/Path "/Path/xy"
 				/Method "POST"
 			}
@@ -87,7 +87,7 @@
 		}
 		{ # BoundarySeparatedMultipartForm
 			/CurrentServer {
-				/ServerName "Server"
+				/ServerName "1doNotResolve"
 				/Path "/Path/xy"
 				/Method "POST"
 				/Enctype "multipart/form-data"
@@ -104,7 +104,7 @@
 		}
 		{ # BoundarySeparatedMultipartFormWithFile
 			/CurrentServer {
-				/ServerName "Server"
+				/ServerName "1doNotResolve"
 				/Path "/Path/xy"
 				/Method "POST"
 				/Enctype "multipart/form-data"
@@ -123,7 +123,7 @@
 		}
 		{ # BoundarySeparatedMultipartFormWithFiles
 			/CurrentServer {
-				/ServerName "Server"
+				/ServerName "1doNotResolve"
 				/Path "/Path/xy"
 				/Method "POST"
 				/Enctype "multipart/form-data"

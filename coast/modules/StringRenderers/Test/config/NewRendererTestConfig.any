@@ -7,6 +7,7 @@
 #-----------------------------------------------------------------------------------------------------
 {
 	/DLL {
+		CoastRenderers
 		CoastStringRenderers
 	}
 	/Modules {
@@ -1233,5 +1234,80 @@
 			}
 			/Expected	"Try to match whatever within this string"
 		}
+		/StringLengthRendererSimpleValueTest {
+			/Env {
+			}
+			/Renderer {
+				{ /StringLengthRenderer {
+					/Value	"-28"
+				} }
+			}
+			/Expected	"3"
+		}
+		/StringLengthRendererSimpleNoValueSlotTest {
+			/Env {
+			}
+			/Renderer {
+				{ /StringLengthRenderer {
+					"-28"
+				} }
+			}
+			/Expected	"3"
+		}
+		/StringLengthRendererLookupValueTest {
+			/Env {
+				/Spec		"-28"
+			}
+			/Renderer {
+				{ /StringLengthRenderer {
+					/Value	{ /Lookup Spec }
+				} }
+			}
+			/Expected	"3"
+		}
+		/StringLengthRendererRendererSpecTest {
+			/Env {
+				/TheValue	"-28"
+				/Spec {
+					/Lookup  TheValue
+				}
+			}
+			/Renderer {
+				{ /StringLengthRenderer {
+					/Value	{ /Lookup Spec }
+				} }
+			}
+			/Expected	"3"
+		}
+		/StringLengthRendererRendererSpecNoValueSlotTest {
+			/Env {
+				/TheValue	"-28"
+				/Spec {
+					/Lookup  TheValue
+				}
+			}
+			/Renderer {
+				{ /StringLengthRenderer {
+					/Lookup Spec
+				} }
+			}
+			/Expected	"3"
+		}
+		/StringLengthRendererRealTest {
+			/Env {
+				/UserId	"CH10601-txabc"
+			}
+			/Renderer {
+				{ /StringLengthRenderer { /UTF8Renderer { %SendForgotPasswordEmailBody } } }
+			}
+			/Expected	"101"
+		}
+	}
+	/SendForgotPasswordEmailBody {
+	    "{"
+	      " \"userId\": \"" { /Lookup UserId } "\","
+	      " \"templateId\":\"External Password Reset Mail\","
+	      " \"sourceSystem\":\"frontdoor\""
+	    "}"
 	}
 }

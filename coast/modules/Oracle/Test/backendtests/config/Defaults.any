@@ -7,10 +7,10 @@
 #-----------------------------------------------------------------------------------------------------
 {
 	/Oracle {
-		/ConnectString	"//sifs-coast1.hsr.ch:1521/orcl"
-		/Server			"sifs-coast1.hsr.ch"
+		/ConnectString	"//localhost:1521/pdb1.localdomain"
+		/Server			"localhost"
 		/Port			1521
-		/sid			"orcl"
+		/sid			"pdb1.localdomain"
 		/Username1		"oratest"
 		/Password1		"oratest"
 		/Username2		"oratest2"

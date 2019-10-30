@@ -1,0 +1,362 @@
+#!/bin/sh
+# vim: ft=sh
+
+##
+# defaults
+#
+MAX_COUNT=16             # number of commits
+METHOD=time              # measurement method
+COMMITS_FROM_STDIN=false # whether to get commits to be built from STDIN
+
+# Shows usage in a pager.
+show_usage() {
+	${PAGER:-less --quit-if-one-screen} <<EOF
+SYNOPSIS
+	(1) $0 [--method=METHOD] [--max-count=N] <commit>...
+	(2) $0 [--method=METHOD] --stdin
+
+The purpose of this script is to generate a history of performance measurement
+results across a given commit range.
+
+
+BUILD TIME
+----------
+By default, this utility works in bisect fashion and limits the number of
+commits to be built to save build time.
+
+As an example, instead of building (*) all commits of a given range,
+
+      ************************************************************************
+
+some are skipped (.) as shown here:
+
+      *......*........*........*........*.........*........*.........*.......*
+
+The others are skipped with the idea that the results can be interpolated.
+
+
+USAGE
+-----
+(1) The <commit> argument as it is understood by git-rev-list.
+    Useful for commit ranges.
+
+(2) Useful when a specific list of commits (not a range) should be measured or
+    other functionality of git-rev-list is needed.
+    Example:
+
+      git-rev-list --reverse master...feature1 -- only/here/ | $0 --stdin
+
+    This would otherwise be impossible without emulating more of git-rev-list's
+    functionality.
+
+
+ALGORITHM
+---------
+1) Parse options and determine set of commits of interest.
+2) Print summary of what it's about to do.
+3) Get confirmation from the user.
+4) Create a new directory "./history-YYYYMMDD-XXXXXX"
+4) For each commit:
+	a) Create result directory ("./history-YYYYMMDD-XXXXXX/<commit>/")
+	b) Checkout commit
+	a) Run the selected METHOD tool
+	   This builds, runs, measures, and saves results.
+	b) Run it again with --export
+	   This extracts interesting values.
+5) Accumulate the result to a CSV file
+
+YYYYMMDD is the current date. The X's in "XXXXX" are randomly chosen once per
+run.
+
+
+FILES AND DIRECTORIES
+---------------------
+* history-YYYYMMDD-XXXXXX/commits.txt
+	a list of commits that were built and measured
+
+* history-YYYYMMDD-XXXXXX/<commit>/
+	a directory for each commit, containing the results of METHOD
+
+* history-YYYYMMDD-XXXXXX/<commit>/method.log
+	the output of the measurement script (for diagnostics)
+
+* history-YYYYMMDD-XXXXXX/<commit>/result.csv
+	the performance result of one commit
+
+* history-YYYYMMDD-XXXXXX/result.csv
+	the accumulated results of all commits as CSV
+
+* history-YYYYMMDD-XXXXXX/test_names.txt
+	list of tests to be built and measured for each commit
+
+
+OPTIONS
+-------
+	-h --help            show this help and exit
+	-m --method=METHOD   (default: $METHOD) time, perf_stat, or valgrind
+	-n --max-count=N     (default: $MAX_COUNT) max. # of commits to measure,
+			     or 0 to build all commits
+	   --stdin           take commit list from STDIN, disable max. # commits
+
+If --stdin is not given, it makes sense to pass roughly a power
+of two to --max-count if you want the number of skipped, consecutive commits
+not to differ too much.
+
+For details about the performance measurement ("method") scripts, read the
+usage of the lower-level script(s):
+
+	`dirname $0`/with_* --help
+
+About <commit>...: Consult the manpage if unsure how to specify commit ranges:
+
+	man gitrevisions
+
+
+PREREQUISITES
+-------------
+	* virtual ENV for COAST has to be activated already
+
+
+ENVIRONMENT VARIABLES
+---------------------
+Honored env vars are:
+
+* ALL_ARCHBITS
+	Defaults to the platform's hardware (either "32" or "64").
+	But could be e.g. "64 32" to compare both 64-bit and 32-bit over time.
+* TEST_NAMES
+	File containing test names to build, run, and measure.
+	Defaults to a list of predefined core tests.
+EOF
+}
+
+# Informs about the given commit being measured.
+start() {
+	echo "#------------------------------------------------------------------------" >&2
+	echo "Building and measuring commit $1 ..." >&2
+	echo "Commit description: $2" >&2
+}
+
+# Informs that the measurement of the given commit has been successful and counts
+# that.
+#
+# Depends on:
+#   * $SUCCESSFUL_MEASUREMENTS
+measurement_successful() {
+	echo "# Measured commit $1 successfully. ########################" >&2
+	SUCCESSFUL_MEASUREMENTS="`expr $SUCCESSFUL_MEASUREMENTS + 1`"
+}
+
+# Informs that the measurement of the given commit has failed and counts that.
+#
+# Depends on:
+#   * $1 = test name
+#   * $2 = log file for diagnostics
+#   * $FAILED_MEASUREMENTS
+measurement_failed() {
+	echo "#!!! Measurement of commit $1 failed." >&2
+	echo "#!!! For diagnostics, check the log: $2" >&2
+	FAILED_MEASUREMENTS="`expr $FAILED_MEASUREMENTS + 1`"
+}
+
+
+# check and reorder arguments (options first, then arguments)
+set -- $(getopt --unquoted -o hm:n: -l help,method:,max-count:,stdin -- "$@")
+while [ -n "$1" ]
+do
+	case "$1" in
+	-h|--help)
+		show_usage
+		exit 0
+		;;
+	-n|--max-count)
+		MAX_COUNT="$2"
+		[ "$MAX_COUNT" = "0" ] && MAX_COUNT= # skip no commits
+		shift 2
+		;;
+	-m|--method)
+		METHOD="$2"
+		shift 2
+		;;
+	--stdin)
+		# option for git rev-list to avoid walking the history when
+		# given a list of commits (instead of a commit range)
+		COMMITS_FROM_STDIN=true
+
+		# disable maximum number of commits
+		MAX_COUNT=
+		shift
+		;;
+	--)
+		shift
+		# set shell's positional parameters to the remaining arguments
+		# (commit range)
+		set -- "$@"
+		break
+	esac
+done
+
+# ensure commit ranges have been supplied
+if [ "$#" -eq 0 ]
+then
+	echo "No commit ranges specified. Use --help for help." >&2
+	exit 1
+fi
+
+# check existence of performance measurement ("method") script
+METHOD_SCRIPT="`dirname $0`/with_${METHOD}"
+if [ ! -e "$METHOD_SCRIPT" ]
+then
+	echo "Measurement script doesn't exist: $METHOD_SCRIPT" >&2
+	exit 1
+fi
+
+# working tree must not be dirty
+if ! git diff --quiet
+then
+	echo "Git working tree must not be dirty." >&2
+	exit 1
+fi
+
+# remember current branch for restore later
+BRANCH_WAS=`git symbolic-ref HEAD | sed -e 's!refs/heads/!!'`
+
+# determine current machine architecture and make it the default
+# (no need to compile for 32-bit AND 64-bit by default)
+if [ -z "$ALL_ARCHBITS" ]
+then
+	if uname -m | grep -q "x86_64"
+	then
+		ALL_ARCHBITS="64"
+	else
+		ALL_ARCHBITS="32"
+	fi
+fi
+export ALL_ARCHBITS
+
+
+##
+# GET SET OF COMMITS
+#
+HISTORY_DIR="$(realpath $(mktemp -d "history-`date +%Y%m%d`-XXXXXX"))"
+COMMITS="$HISTORY_DIR/commits.txt"
+
+if $COMMITS_FROM_STDIN
+then
+	# take list of commits from STDIN, just decorate them with additional
+	# information
+	git rev-list --stdin --no-walk > $COMMITS \
+		--pretty=format:"%h (%ar) by %an: %s"
+
+else
+	# determine list of commits based on the given commit ranges,
+	# in bisect fashion with possible limit
+	git rev-list --bisect-all ${MAX_COUNT:+--max-count=$MAX_COUNT} "$@" |\
+
+	# cut away distance property, e.g. "ab4fcea7 (dist=3)" => "ab4fcea7"
+	grep -o '^[[:xdigit:]]\+' | \
+
+	# sort by topology, print older ones first, and decorate
+	git rev-list --stdin --topo-order --no-walk --reverse \
+		--pretty=format:"%h (%ar) by %an: %s" | \
+
+	# remove unwanted lines (not part of the specified format. git bug?)
+	# and redirect to file
+	grep -v '^commit ' > $COMMITS
+fi
+
+
+##
+# GET SET OF TEST NAMES
+#
+if [ -z "$TEST_NAMES" ]
+then
+	# copy list of predefined core tests
+	cp `dirname $0`/lib/core_tests.txt $HISTORY_DIR/test_names.txt
+else
+	# copy explicitly given file
+	cp "$TEST_NAMES" $HISTORY_DIR/test_names.txt
+fi
+TEST_NAMES=$HISTORY_DIR/test_names.txt
+
+
+# print summary and get confirmation to proceed
+(
+	echo "New history directory:\n\t$HISTORY_DIR"
+	echo
+	echo "Using the following measurement method:\n\t$METHOD_SCRIPT"
+	echo
+	echo "These are the commits to be built and measured:"
+	sed 's/^/\t/' < $COMMITS
+	echo "(`wc -l < $COMMITS` commits in total)"
+	echo
+	echo "The following influential env vars are set:"
+	echo "\t\$ALL_ARCHBITS=\"$ALL_ARCHBITS\""
+	echo "\t\$TEST_NAMES=\"$TEST_NAMES\""
+	echo "\tThe tests are:"
+	for t in `cat $TEST_NAMES`; do echo "\t\t$t"; done
+	echo
+	echo "(Please quit the pager if it's still running.)"
+) | ${PAGER:-less --quit-if-one-screen}
+printf "Press Enter to proceed, or ^C to abort..." >&2
+read confirmation
+[ -z "$confirmation" ] || exit 1
+
+
+##
+# FREEZE SCRIPTS
+#
+# This is needed because we're checking out older versions of COAST. We wanna
+# be using the newest revision of the scripts for every commit.
+#
+cp $METHOD_SCRIPT $HISTORY_DIR/
+METHOD_SCRIPT="$HISTORY_DIR/`basename $METHOD_SCRIPT`"
+cp -r `dirname $0`/lib $HISTORY_DIR/
+
+##
+# CREATE PERFORMANCE HISTORY
+#
+ACC_RESULT="$HISTORY_DIR/result.csv" # accumulated result
+FAILED_MEASUREMENTS=0
+SUCCESSFUL_MEASUREMENTS=0
+
+set -e # abort on first untested error
+
+while read commit commit_description
+do
+	start "$commit" "$commit_description"
+
+	export PERF_DIR="$HISTORY_DIR/$commit"
+	mkdir $PERF_DIR
+	git checkout --quiet $commit
+
+	# run selected measurement script (builds and runs test(s))
+	log="$PERF_DIR/method.log"
+	( $METHOD_SCRIPT > $log 2>&1 ) || { measurement_failed $commit $log; continue; }
+
+	# export interesting values
+	$METHOD_SCRIPT --export > $PERF_DIR/result.csv
+
+	# create file with CSV header if it doesn't exist yet
+	[ -e "$ACC_RESULT" ] || \
+		head -1 $PERF_DIR/result.csv | sed s/^/commit,/ > $ACC_RESULT
+
+	# append commit performance result to accumulated result
+	tail -n +2 $PERF_DIR/result.csv | sed s/^/$commit,/ >> $ACC_RESULT
+
+	measurement_successful $commit
+done < $COMMITS
+
+##
+# FINISH
+#
+
+# print statistics
+echo "######  PERFORMANCE HISTORY MEASUREMENT STATISTICS #############" >&2
+echo "#" >&2
+echo "# $FAILED_MEASUREMENTS commits failed during measurement." >&2
+echo "# $SUCCESSFUL_MEASUREMENTS commits have been measured successfully." >&2
+echo "# Accumulated result: $ACC_RESULT" >&2
+
+# restore branch tip
+git checkout --quiet "$BRANCH_WAS"

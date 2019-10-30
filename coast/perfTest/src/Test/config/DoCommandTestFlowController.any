@@ -12,7 +12,7 @@
 	/Run {
 		{
 			/CurrentServer {
-				/ServerName "Server"
+				/ServerName "1doNotResolve"
 				/Path "/Path/xy"
 			}
 			/DoCommand "echo Hallo > DoCommandTest.txt"

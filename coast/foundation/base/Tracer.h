@@ -9,7 +9,7 @@
 #ifndef _Tracer_H
 #define _Tracer_H
 
-#include "ITOString.h"//lint !e537
+#include "ITOString.h"
 
 #ifdef COAST_TRACE
 

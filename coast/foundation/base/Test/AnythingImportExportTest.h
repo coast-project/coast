@@ -9,8 +9,8 @@
 #ifndef _AnythingImportExportTest_H
 #define _AnythingImportExportTest_H
 
-#include "TestCase.h"//lint !e537
-#include "Anything.h"//lint !e537
+#include "TestCase.h"
+#include "Anything.h"
 class AnythingImportExportTest: public testframework::TestCase {
 public:
 	AnythingImportExportTest(TString tname) :

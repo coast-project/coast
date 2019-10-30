@@ -1,0 +1,34 @@
+@startuml
+hide footbox
+participant "aSession :\nSession" as S
+participant "currentPage :\nPage" as P0
+participant "role :\nRole" as R
+participant "interpreter :\nAction" as A
+
+== Postprocess Page ==
+
+[->S: DoRenderNextPage(reply,context)
+activate S
+
+ S->P0: Finish(transition, context)
+ activate P0
+  P0->A: ExecAction(transition, context, config)
+  activate A
+  P0<--A
+  deactivate A
+ S<--P0
+ deactivate P0
+
+ == Select Role ==
+
+ S->S: role = CheckRoleExchange(transition, context)
+
+ == Select Page ==
+
+ S->R: newpage, newtransition = GetNewPageAndTransition(context)
+ activate R
+ S<--R
+ deactivate R
+
+deactivate S
+@enduml

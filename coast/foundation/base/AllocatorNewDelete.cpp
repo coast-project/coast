@@ -50,7 +50,7 @@ namespace coast {
 
 	void AllocatorNewDelete::operator delete[](void *ptr) throw()
 	{
-		operator delete(ptr);//lint !e1023
+		operator delete(ptr);
 	}
 
 	AllocatorNewDelete::~AllocatorNewDelete() {}

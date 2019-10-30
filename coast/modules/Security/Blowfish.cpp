@@ -377,7 +377,7 @@ void BlowfishScrambler::BF_encrypt(BF_LONG *data) const
 	to modify the code.
 #endif
 
-	register BF_LONG l, r;
+	BF_LONG l, r;
 	const BF_LONG *p = fKey.P;
 	const BF_LONG *s = fKey.S;
 	l = data[0];
@@ -415,7 +415,7 @@ void BlowfishScrambler::BF_encrypt(BF_LONG *data) const
 inline
 void BlowfishScrambler::BF_decrypt(BF_LONG *data) const
 {
-	register BF_LONG l, r;
+	BF_LONG l, r;
 	const BF_LONG *p = fKey.P;
 	const BF_LONG *s = fKey.S;
 
@@ -709,9 +709,9 @@ void BlowfishCBCScrambler::DoBlowfishEncrypt(String &padded) const
 	unsigned char *out = (unsigned char *) (const  char *) padded;
 	const unsigned char *in = out;
 
-	register BF_LONG tin0, tin1;
-	register BF_LONG tout0 = fIvec0, tout1 = fIvec1; // initialization vector always 0
-	register long l = padded.Length();
+	BF_LONG tin0, tin1;
+	BF_LONG tout0 = fIvec0, tout1 = fIvec1; // initialization vector always 0
+	long l = padded.Length();
 	BF_LONG tin[2];
 	Assert(!(l % BF_BLOCK));
 
@@ -739,10 +739,10 @@ bool BlowfishCBCScrambler::DoBlowfishDecrypt(String &padded) const
 
 	unsigned char *out = (unsigned char *) (const  char *) padded;
 	const unsigned char *in = out;
-	register BF_LONG tin0, tin1;
-	register BF_LONG tout0 = 0, tout1 = 0;
-	register BF_LONG xor0 = fIvec0, xor1 = fIvec1; // we use initialization vector of zero
-	register long l = padded.Length();
+	BF_LONG tin0, tin1;
+	BF_LONG tout0 = 0, tout1 = 0;
+	BF_LONG xor0 = fIvec0, xor1 = fIvec1; // we use initialization vector of zero
+	long l = padded.Length();
 	BF_LONG tin[2];
 
 	for (l -= 8; l >= 0; l -= 8) {
@@ -766,9 +766,9 @@ bool BlowfishCBCScrambler::DoBlowfishDecrypt(String &padded) const
 void BF_cbc_encrypt(const unsigned char *in, unsigned char *out, long length,
 					const BF_KEY *schedule, unsigned char *ivec, int encrypt)
 {
-	register BF_LONG tin0, tin1;
-	register BF_LONG tout0, tout1, xor0, xor1;
-	register long l = length;
+	BF_LONG tin0, tin1;
+	BF_LONG tout0, tout1, xor0, xor1;
+	long l = length;
 	BF_LONG tin[2];
 
 	if (encrypt) {

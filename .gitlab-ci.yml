@@ -316,6 +316,7 @@ test:64:dbg:trc:
     LANG: en_US.utf8
   tags:
   - docker
+  before_script: []
   artifacts:
     expire_in: 1 week
     paths:

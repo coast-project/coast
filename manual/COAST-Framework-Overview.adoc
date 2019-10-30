@@ -1,11 +1,11 @@
-= C++ Open Application Server Toolkit: Advanced Patterns and Frameworks HS2018
+= {cpp} Open Application Server Toolkit: Advanced Patterns and Frameworks HS2019
 :author: Marcel Huber
 :email: marcel.huber@hsr.ch
-:revnumber: 0.1
-:revdate: November 7, 2018
-:revremark: Initial structure
+:revnumber: 0.2
+:revdate: October 30, 2019
+:revremark: minor content updates
 :description: Framework Overview
-:keywords: COAST c++ scons
+:keywords: COAST c++ scons framework
 :icons: font
 :lang: en
 :experimental:
@@ -446,8 +446,8 @@ ifdef::slideoutput[<<<]
 ----
 
 * Pages have a corresponding configuration file
-** A single C++ class can be used to instantiate different pages with different configuration files
-** Page objects "inherit" configuration from "super" pages
+** A single {cpp} class can be used to instantiate different pages with different configuration files
+** Page objects _inherit_ configuration from _super_ pages
 ** Page configurations typically contain Action and Renderer specifications
 
 ifdef::slideoutput[<<<]
@@ -488,9 +488,8 @@ ifdef::slideoutput[<<<]
 ==== Renderer
 
 * Interprets its configuration
-** RenderAll(ostream &reply, Context &ctx, const ROAnything &config)
-*** config is interpreted as a renderer script
-*** script defined by
+** `RenderAll(ostream &reply, Context &ctx, const ROAnything &config)`
+*** config is interpreted as a renderer script which is defined by
 **** renderer grammar
 **** specific extensions of the renderer
 * A lot of specific renderers available, subclassing rarely needed
@@ -510,7 +509,7 @@ endif::[]
 ** Simple types are rendered literally
 ** Elements of array Anythings are processed in order
 ** If the Slotname corresponds to a known Renderer (alias or directly)
-*** RenderAll is called with data as configuration
+*** `RenderAll(...)` is called with data as configuration
 ** If the Slotname is unknown (or not present) the data is rendered/printed recursively
 
 [source,bash]
@@ -544,7 +543,7 @@ ifdef::slideoutput[<<<]
 ** execute DataAccess
 ** execute Page transitions
 * Interprets configuration
-** bool ExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
+** `bool ExecAction(String &transitionToken, Context &ctx, const ROAnything &config)`
 *** config is interpreted as action script
 *** no grammar yet available, only samples
 *** similar to renderer
@@ -585,7 +584,7 @@ endif::[]
 ** six-group frontdoor (reverse proxy, single access point)
 ** six-group high performance processing applications
 * developed and maintained @ ifs
-** https://coast-project.org/
+** https://gitlab.dev.ifs.hsr.ch/ifs/coast/coast
 
 ifdef::speakernotes[]
 [NOTE.speaker]

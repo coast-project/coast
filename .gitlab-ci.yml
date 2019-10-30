@@ -307,3 +307,72 @@ test:64:dbg:trc:
     - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
     reports:
       junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+
+.AsciiDocCommon:
+  image: marcelhuberfoo/asciidoctor:v19.02.4
+  stage: build
+  variables:
+    LANG: en_US.utf8
+  tags:
+  - docker
+  before_script: []
+  artifacts:
+    expire_in: 1 week
+    paths:
+    - 'manual/*.pdf'
+
+Build Slides:
+  extends: .AsciiDocCommon
+  script:
+  - asciidoctor
+    --require asciidoctor-pdf
+    --require asciidoctor-diagram
+    --require asciidoctor-mathematical
+    --attribute revnumber="$(git describe --abbrev  --tags --always --dirty='-*')"
+    --attribute revremark="$(git log -1 --pretty=format:%s)"
+    --attribute revdate="$(git log -1 --date=short-local --pretty=format:%cd)"
+    --attribute doctype=book
+    --attribute pdf-page-size="6in x 10.66in"
+    --attribute pdf-page-layout=landscape
+    --attribute slideoutput
+    --backend pdf
+    --out-file manual/COAST-Framework-Overview_Slides.pdf
+    manual/COAST-Framework-Overview.adoc
+
+Build Compact Handout:
+  extends: .AsciiDocCommon
+  script:
+  - asciidoctor
+    --require asciidoctor-pdf
+    --require asciidoctor-diagram
+    --require asciidoctor-mathematical
+    --attribute revnumber="$(git describe --abbrev  --tags --always --dirty='-*')"
+    --attribute revremark="$(git log -1 --pretty=format:%s)"
+    --attribute revdate="$(git log -1 --date=short-local --pretty=format:%cd)"
+    --attribute doctype=article
+    --attribute pdf-page-size="A4"
+    --attribute pdf-page-layout=portrait
+    --attribute speakernotes
+    --attribute toc=auto
+    --attribute toclevels=2
+    --backend pdf
+    --out-file manual/COAST-Framework-Overview_Compact.pdf
+    manual/COAST-Framework-Overview.adoc
+
+Build Spacy Handout:
+  extends: .AsciiDocCommon
+  script:
+  - asciidoctor
+    --require asciidoctor-pdf
+    --require asciidoctor-diagram
+    --require asciidoctor-mathematical
+    --attribute revnumber="$(git describe --abbrev  --tags --always --dirty='-*')"
+    --attribute revremark="$(git log -1 --pretty=format:%s)"
+    --attribute revdate="$(git log -1 --date=short-local --pretty=format:%cd)"
+    --attribute doctype=book
+    --attribute pdf-page-size="A4"
+    --attribute pdf-page-layout=portrait
+    --attribute speakernotes
+    --backend pdf
+    --out-file manual/COAST-Framework-Overview_ForNotes.pdf
+    manual/COAST-Framework-Overview.adoc

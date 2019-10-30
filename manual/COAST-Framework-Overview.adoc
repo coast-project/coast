@@ -1,0 +1,597 @@
+= {cpp} Open Application Server Toolkit: Advanced Patterns and Frameworks HS2019
+:author: Marcel Huber
+:email: marcel.huber@hsr.ch
+:revnumber: 0.2
+:revdate: October 30, 2019
+:revremark: minor content updates
+:description: Framework Overview
+:keywords: COAST c++ scons framework
+:icons: font
+:lang: en
+:experimental:
+ifndef::imagesdir[:imagesdir: images/]
+ifndef::sourcedir[:sourcedir: ../coast]
+ifdef::slideoutput[:logowidth: pdfwidth="45%"]
+ifndef::logowidth[:logowidth: ]
+:title-logo-image: image:coast.png[{logowidth}]
+//:toc: macro
+//:doctype: book
+//:media: screen
+//:pdf-page-size: 6in x 10.66in
+//:pdf-page-layout: landscape
+//:show-link-uri:
+//:hide-uri-scheme:
+//:media: prepress
+//:source-highlighter: highlightjs|rouge|coderay|pygments
+//:linkcss:
+
+////
+// attributes specific to pdf backend
+// see https://github.com/asciidoctor/asciidoctor-pdf/blob/master/lib/asciidoctor-pdf/converter.rb
+:pdf-page-size: letter  # 6in x 10.66in (16:9-like)
+:pdf-page-layout: landscape
+:media: prepress | screen | print
+:title-logo-image: image:Brainspace_Logo.png[]
+:title-page-background-image: image:Brainspace_Logo.png[]
+////
+
+////
+// attributes specific to revealjs backend
+:backend: revealjs
+:title-slide-background-image: 70s.jpg
+:title-slide-transition: zoom
+:title-slide-transition-speed: fast
+// annotations to control slide content/layout
+[%notitle]
+[%conceal]
+[background-color="yellow"]
+////
+
+== History
+
+Somewhen back in the last century, there was ...
+
+* the need for a web application framework
+** but apache had a poor API and poor performance
+** but java was not yet established for web-services and had poor performance
+* the idea to create an own web-/application framework
+** based on work done at Ubilab
+*** by André Weinand and Erich Gamma
+
+Several web-/applications were created since.
+
+== Goals
+
+* Have some general purpose application infrastructure
+* Simple introspection
+* Base for framework mechanisms
+* Minimal external dependencies
+
+image::CoastOverview-final.png[title="Client/Server overview", alt="Client and Server using the internet",id=clientserver,width="60%",pdfwidth="60%",align=center]
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+* FrameworkersDilemma
+* LeveragingApplicationFrameworks
++
+extensible:: quick and easy adaption to new situations
+flexible:: support different kinds of features 'out-of-the-box'
+portable:: across different platforms and compilers
+reliable:: robust and fault tolerant
+scalable:: should be easy to adapt in case of increased load
+affordable:: ownership/maintenance costs should stay low
+--
+endif::[]
+
+== Strengths
+
+* Reduced to the Max
+** simple design, no code and interface bloat
+** small server footprint
+* Configurability
+** dynamic re-configurability without stopping the server, even DLL module loading
+* Multi-Threading for high-efficiency
+** Thread specific memory pools allow for dynamic memory (no OS-level synchronization required)
+** Low latency
+* Unit Tests
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns:
+
+* Component Configuratorfootnoteref:[Component Configurator, POSA2 (p75), http://software-pattern.org/Component-Configurator]
+--
+endif::[]
+
+== Building blocks
+
+[cols=".^1a,1a",frame=none,grid=none]
+|====
+|* Layered Architecture
+** Reduces overhead for simple apps
+** Flexible and easy to extend
+* Prototypes for extensions introduced in wdbase
+|image:COAST-Layering.svg[title="Framework layering", alt="Framework layering",id=frameworklayers,align=center]
+|====
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns:
+
+* Layers Patternfootnoteref:[Layers Pattern, POSA1 (p31), http://software-pattern.org/Layers]
+--
+endif::[]
+
+ifdef::slideoutput[<<<]
+=== Basic Building Block
+
+==== Storage
+
+* static api for storage management
+* provides api similar to stdc-library (malloc, free)
+* uses allocator for implementation
+** Storage::Current, active allocator in caller context
+** Storage::Global, always global allocator
+* provide Hooks for customization
+
+==== Allocator
+
+* Storage::Global implements wrapper for c-api
+* PoolAllocator implements allocator for pre- allocated memory
+** uses thread local store to support efficient memory management
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns:
+
+* PerformancePatternsfootnoteref:[PerformancePatterns, https://wiki.ifs.hsr.ch/APF/files/PerformancePatterns.pdf]
+** Sidestep system calls
+** Thread-local Memory Poolfootnoteref:[Thread-Specific-Storage, POSA2, http://software-pattern.org/Thread-Specific-Storage]
+* Flyweightfootnoteref:[Flyweight, GOF, http://software-pattern.org/Flyweight]
+--
+endif::[]
+
+==== String
+
+* Generic and safe character container
+* Memory safe for text and binary data
+
+==== Stream
+
+* Basic i/o mechanism throughout COAST
+* StringStream with String as buffer
+* SocketStream for network communication
+
+==== Anything
+
+* Universal, self describing data container
+* No worries about memory management
+* read/write from/into files
+* PImpls for concrete types
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns:
+
+* Anything/PropertyListfootnoteref:[PropertyListAnythingRegistry, https://hillside.net/europe/EuroPatterns/files/DIY_Reflection.pdf]
+--
+endif::[]
+
+ifdef::slideoutput[<<<]
+=== Communication Block
+
+==== Socket
+
+* access to socket level APIs like polling
+* provides iostream operations using socket connection
+
+==== Connector / active side
+
+* establishes connection to endpoint
+* provides socket stream to read/write from
+
+==== Acceptor / passive side
+
+* listens on connection requests
+* uses callback object to act on incoming request
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns:
+
+* Acceptor-Connectorfootnoteref:[Acceptor-Connector, POSA2 (p285), http://software-pattern.org/Acceptor-Connector]
+--
+endif::[]
+
+ifdef::slideoutput[<<<]
+=== Multi-Threading Block
+
+==== Thread
+
+* OS decoupled abstraction for starting, running and stopping threads
+* state semantics to reliably synchronize with itself and its clients
+* supports TLS and use of pooled memory
+* hook methods for state transition handling
+
+==== Mutex
+
+* lock and unlock
+* extension for scoped guard
+* recursive locking possible
+** small bookkeeping overhead
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns:
+
+* Wrapper-Facadefootnoteref:[Wrapper-Facade, POSA2 (p47), http://software-pattern.org/Wrapper-Facade]
+* Thread-Specific Storagefootnoteref:[Thread-Specific Storage, POSA2 (p475), http://software-pattern.org/Thread-Specific-Storage]
+* Scoped Lockingfootnoteref:[Scoped Locking, POSA2 (p325), http://software-pattern.org/Scoped-Locking]
+* Double-Checked Lockingfootnoteref:[Double-Checked Locking, POSA2 (p353), http://software-pattern.org/Double-Checked-Locking]
+* Template Method(Hooks)footnoteref:[Template Method, GOF, http://software-pattern.org/Template-Method]
+--
+endif::[]
+
+==== Condition
+
+* wait for an event to happen
+** unlock associated mutex during wait
+** lock associated mutex when signalled
+** timed wait possible
+* announce an event
+** signal (single) or broadcast (many) waiter(s)
+
+==== ThreadPools
+
+* manage a pool of same Thread objects
+** create, initialize, run, join, terminate, delete
+* Threads might
+** get dispatched for small piece of work to be done
+** get their workload on their own indefinitely
+
+ifdef::slideoutput[<<<]
+=== Application Foundation Block
+
+==== LookupInterface
+
+* Abstract class defining API
+** Search object data with a key
+** Lookup(key, ROAnything &result, ...)
+** Key can be structured
+*** Path expression into anythings
+*** e.g. search.this.information:1
+** Returns result as ROAnything (if any)
+** Indicates by return value if key was found or not
+** Overloaded Lookup methods
+*** Syntactic sugar returning simple types for convenience
+* Used to look up configuration information
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns:
+
+* DIY Reflectionfootnoteref:[PropertyListAnythingRegistry]
+* Template Methodfootnoteref:[Template Method]
+--
+endif::[]
+
+==== RegisterableObjects
+
+* Prototypes are installed by static installers
+** During startup before main
+
+* Configurable Objects
+** Extend Registry using textual configuration
+** Depends on objects name
+*** Component Configuration using Anything file
+** Implements LookupInterface
+*** Checks for value in own configuration
+** Supports "inheritance" of configuration
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns:
+
+* DIY Reflectionfootnoteref:[PropertyListAnythingRegistry]
+* Factory Methodfootnoteref:[Factory Method, GOF, http://software-pattern.org/Factory-Method]
+* Prototypefootnoteref:[Prototype, GOF, http://software-pattern.org/Prototype]
+* Component Configuratorfootnoteref:[Component Configurator]
+--
+endif::[]
+
+ifdef::slideoutput[<<<]
+=== Web-/Application Block
+
+image::RequestHandling.svg[title="Request processing overview", alt="Request processing overview",id=requestprocessing,width="90%",pdfwidth="80%",align=center]
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns:
+
+* Client Dispatcherfootnoteref:[Client Dispatcher, POSA1 (p323), http://software-pattern.org/Client-Dispatcher-Server]
+--
+endif::[]
+
+ifdef::slideoutput[<<<]
+
+image::ServiceHandling.svg[title="Service handling overview", alt="Service handling overview",id=servicehandling,width="90%",pdfwidth="90%",align=center]
+
+ifdef::slideoutput[<<<]
+==== Context
+
+* Motivation
+** mediator to objects used in a request
+
+* Stores
+** Access to session store
+*** Reference to Sessions RoleStore
+*** or copy of RoleStore
+** Access to request store
+*** Pushed stores
+**** TmpStore
+*** Request information
+**** Query
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+* Encapsulated Context/Context Objectfootnoteref:[Context Object, http://www.dre.vanderbilt.edu/~schmidt/PDF/Context-Object-Pattern.pdf]
+--
+endif::[]
+
+ifdef::slideoutput[<<<]
+==== Server
+
+* Manages the processing components
+** ListenerPool
+*** passive socket end point management
+*** Request handling/processing
+
+* Configuration anchor
+** implements LookupInterface
+** configuration can be inherited
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+* Leader-Followersfootnoteref:[Leader-Followers, POSA2, http://software-pattern.org/Leader-Followers]
+** -> massive Performancesteigerung gegenüber half sync/half async
+* Reactorfootnoteref:[Reactor, POSA2, http://software-pattern.org/Reactor]
+--
+endif::[]
+
+ifdef::slideoutput[<<<]
+==== Session
+
+* Implements page transition algorithm
+** Core WebApplication algorithm
+*** oldPage->Finish
+*** role->FindNextPage
+*** newPage->Start
+** Role changes
+*** CheckRoleExchange
+** Delayed query handling
+*** if Role level does not match required role, authentication pages
+are inserted
+*** actual query is stored away (delayed) until role level is matched
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+* Security Session; SecurityPatterns (p297)
+--
+endif::[]
+
+* Verifies request
+** Is session expired
+** Match Request information against Session information
+*** Remote address and User-Agent
+* Holds Role information and role specific store
+** Provides access to role information
+*** Manages role store as sub store of session store
+** Executes role changes on transition events
+*** Transition tokens can trigger role changes
+*** Page transition to new page is done with new role
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+* Role Based Access Control; SecurityPatterns (p247)
+--
+endif::[]
+
+ifdef::slideoutput[<<<]
+==== Page
+
+[cols=".^2a,.^1a",frame=none,grid=none]
+|====
+|* Request happens between Pages
+** Postprocess current Page
+*** results in a transition token
+*** selects (new) role (optional)
+**** defines the next page (depending on transition token)
+** Preprocess on (new) Page
+*** prepares data needed for rendering
+*** if preprocessing fails
+**** no rendering is done
+**** transition to page mapping occurs again
+** Render Page
+*** generates (html-)output
+|image:PageTransition.svg[title="Page transition", alt="Page transition",id=pagetransition,align=center]
+|====
+
+* Hierarchy of page configurations defined in /Pages-slot of Config.any
++
+[source,bash]
+----
+/Pages {
+ /Page {            # Base class
+  /NewPage {        # Page may have separate class
+   /SubNewPage {}   # subpage of NewPage
+   "SecondSubPage"  # equivalent syntax for alias pages
+  }
+  /SomePage {}
+ }
+}
+----
+
+* Pages have a corresponding configuration file
+** A single {cpp} class can be used to instantiate different pages with different configuration files
+** Page objects _inherit_ configuration from _super_ pages
+** Page configurations typically contain Action and Renderer specifications
+
+ifdef::slideoutput[<<<]
+plantuml::PagePostprocessing.plantuml[format=svg, title="Page transition: Postprocessing", width="90%",pdfwidth="90%",align=center]
+
+ifdef::slideoutput[<<<]
+plantuml::PagePreprocessing.plantuml[format=svg, title="Page transition: Preprocess / Render", width="90%",pdfwidth="90%",align=center]
+
+ifdef::slideoutput[<<<]
+==== Role
+
+* Hierarchically configured object
+** Configuration data might contain
+*** Transition to page map
+*** Session timeout for this role level
+* Represents authorization level
+** Role Based Access Control
+*** Verifies requests authorization level
+**** levels check with regard to configuration inheritance
+*** Causes delayed query handling to be executed if verification fails
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+* Role Based Access Control; SecurityPatterns (p247)
+--
+endif::[]
+
+* Implements mapping from transition to page
+** GetNewPageName
+*** Returns new page name for the transition token supplied
+*** Default implementation uses data driven mapping
+* Collects role specific link state
+** Copies role specific data into URL
+*** StateFull list
+
+ifdef::slideoutput[<<<]
+==== Renderer
+
+* Interprets its configuration
+** `RenderAll(ostream &reply, Context &ctx, const ROAnything &config)`
+*** config is interpreted as a renderer script which is defined by
+**** renderer grammar
+**** specific extensions of the renderer
+* A lot of specific renderers available, subclassing rarely needed
+** URL, Forms, Form-elements, HTML templates, etc.
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+* Interpreterfootnoteref:[Interpreter, GOF, http://software-pattern.org/Interpreter]
+** (Lisp für output Generierung)
+
+-> Programm und Daten gemischt
+--
+endif::[]
+
+* Every Anything can be a Renderer specification
+** Simple types are rendered literally
+** Elements of array Anythings are processed in order
+** If the Slotname corresponds to a known Renderer (alias or directly)
+*** `RenderAll(...)` is called with data as configuration
+** If the Slotname is unknown (or not present) the data is rendered/printed recursively
+
+[source,bash]
+.Renderer Example
+----
+/HostName    { /Lookup header.HOST }
+/BaseAddress {
+  /Lookup BaseWithoutSlash
+  "/"
+}
+/BaseWithoutSlash {
+  /Condition {
+    /ContextCondition { header.HTTPS }
+    /True     {
+      "https://" {/Lookup HostName}
+      ":" {/Lookup HTTPS.Port}
+    }
+    /False {
+      "http://" {/Lookup HostName}
+      ":" {/Lookup HTTP.Port}
+    }
+  }
+}
+----
+
+ifdef::slideoutput[<<<]
+==== Action
+
+* Infrastructure executed from within Pages
+** store request information
+** execute DataAccess
+** execute Page transitions
+* Interprets configuration
+** `bool ExecAction(String &transitionToken, Context &ctx, const ROAnything &config)`
+*** config is interpreted as action script
+*** no grammar yet available, only samples
+*** similar to renderer
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+* Command Processorfootnoteref:[Command Processor, POSA1 (p277), http://software-pattern.org/Command-Processor]
+--
+endif::[]
+
+[source,bash]
+.Action Example
+----
+/TheAction {
+  { /ConditionalAction {
+    /Call    {
+      /ConfiguredTestAction {
+        /ActionToken  "Hello"
+        /RetValue     1
+      }
+    } # end of call
+    /True  { ActionOk }
+    /False { ActionNotOk }
+  } }
+} # end of TheAction
+----
+
+== Summary
+
+* General purpose application framework
+** small space/memory footprint
+** high performance, low latency
+** highly configurable
+* Multi platform support
+** Posix compliant systems (linux, solaris, apple)
+* Known uses
+** six-group frontdoor (reverse proxy, single access point)
+** six-group high performance processing applications
+* developed and maintained @ ifs
+** https://gitlab.dev.ifs.hsr.ch/ifs/coast/coast
+
+ifdef::speakernotes[]
+[NOTE.speaker]
+--
+Patterns zu known uses:
+
+* Single Access Point; Security Patterns (p.279)
+* Check Point; Security Patterns (p.287)
+--
+endif::[]

@@ -105,7 +105,7 @@ not to differ too much.
 For details about the performance measurement ("method") scripts, read the
 usage of the lower-level script(s):
 
-	`dirname $0`/with_* --help
+	"$(dirname "$0")"/with_* --help
 
 About <commit>...: Consult the manpage if unsure how to specify commit ranges:
 
@@ -144,7 +144,7 @@ start() {
 #   * $SUCCESSFUL_MEASUREMENTS
 measurement_successful() {
 	echo "# Measured commit $1 successfully. ########################" >&2
-	SUCCESSFUL_MEASUREMENTS="`expr $SUCCESSFUL_MEASUREMENTS + 1`"
+	SUCCESSFUL_MEASUREMENTS="$((SUCCESSFUL_MEASUREMENTS + 1))"
 }
 
 # Informs that the measurement of the given commit has failed and counts that.
@@ -156,7 +156,7 @@ measurement_successful() {
 measurement_failed() {
 	echo "#!!! Measurement of commit $1 failed." >&2
 	echo "#!!! For diagnostics, check the log: $2" >&2
-	FAILED_MEASUREMENTS="`expr $FAILED_MEASUREMENTS + 1`"
+	FAILED_MEASUREMENTS="$((FAILED_MEASUREMENTS + 1))"
 }
 
 
@@ -204,7 +204,7 @@ then
 fi
 
 # check existence of performance measurement ("method") script
-METHOD_SCRIPT="`dirname $0`/with_${METHOD}"
+METHOD_SCRIPT="$(dirname "$0")/with_${METHOD}"
 if [ ! -e "$METHOD_SCRIPT" ]
 then
 	echo "Measurement script doesn't exist: $METHOD_SCRIPT" >&2
@@ -219,7 +219,7 @@ then
 fi
 
 # remember current branch for restore later
-BRANCH_WAS=`git symbolic-ref HEAD | sed -e 's!refs/heads/!!'`
+BRANCH_WAS=$(git symbolic-ref HEAD | sed -e 's!refs/heads/!!')
 
 # determine current machine architecture and make it the default
 # (no need to compile for 32-bit AND 64-bit by default)
@@ -238,14 +238,14 @@ export ALL_ARCHBITS
 ##
 # GET SET OF COMMITS
 #
-HISTORY_DIR="$(realpath $(mktemp -d "history-`date +%Y%m%d`-XXXXXX"))"
+HISTORY_DIR="$(realpath "$(mktemp -d "history-$(date +%Y%m%d)-XXXXXX")")"
 COMMITS="$HISTORY_DIR/commits.txt"
 
 if $COMMITS_FROM_STDIN
 then
 	# take list of commits from STDIN, just decorate them with additional
 	# information
-	git rev-list --stdin --no-walk > $COMMITS \
+	git rev-list --stdin --no-walk > "$COMMITS" \
 		--pretty=format:"%h (%ar) by %an: %s"
 
 else
@@ -262,7 +262,7 @@ else
 
 	# remove unwanted lines (not part of the specified format. git bug?)
 	# and redirect to file
-	grep -v '^commit ' > $COMMITS
+	grep -v '^commit ' > "$COMMITS"
 fi
 
 
@@ -272,34 +272,34 @@ fi
 if [ -z "$TEST_NAMES" ]
 then
 	# copy list of predefined core tests
-	cp `dirname $0`/lib/core_tests.txt $HISTORY_DIR/test_names.txt
+	cp "$(dirname "$0")"/lib/core_tests.txt "$HISTORY_DIR"/test_names.txt
 else
 	# copy explicitly given file
-	cp "$TEST_NAMES" $HISTORY_DIR/test_names.txt
+	cp "$TEST_NAMES" "$HISTORY_DIR"/test_names.txt
 fi
-TEST_NAMES=$HISTORY_DIR/test_names.txt
+TEST_NAMES="$HISTORY_DIR"/test_names.txt
 
 
 # print summary and get confirmation to proceed
 (
-	echo "New history directory:\n\t$HISTORY_DIR"
+	printf "New history directory:\n\t%s\n" "$HISTORY_DIR"
 	echo
-	echo "Using the following measurement method:\n\t$METHOD_SCRIPT"
+	printf "Using the following measurement method:\n\t%s\n" "$METHOD_SCRIPT"
 	echo
 	echo "These are the commits to be built and measured:"
-	sed 's/^/\t/' < $COMMITS
-	echo "(`wc -l < $COMMITS` commits in total)"
+	sed 's/^/\t/' < "$COMMITS"
+	echo "($(wc -l < "$COMMITS") commits in total)"
 	echo
 	echo "The following influential env vars are set:"
-	echo "\t\$ALL_ARCHBITS=\"$ALL_ARCHBITS\""
-	echo "\t\$TEST_NAMES=\"$TEST_NAMES\""
-	echo "\tThe tests are:"
-	for t in `cat $TEST_NAMES`; do echo "\t\t$t"; done
+	printf "\t\%s=\"%s\"\n" "$ALL_ARCHBITS" "$ALL_ARCHBITS"
+	printf "\t\%s=\"%s\"" "$TEST_NAMES" "$TEST_NAMES"
+	printf "\tThe tests are:\n"
+	for t in $(cat "$TEST_NAMES"); do printf "\t\t%s\n" "$t"; done
 	echo
 	echo "(Please quit the pager if it's still running.)"
 ) | ${PAGER:-less --quit-if-one-screen}
 printf "Press Enter to proceed, or ^C to abort..." >&2
-read confirmation
+read -r confirmation
 [ -z "$confirmation" ] || exit 1
 
 
@@ -309,9 +309,9 @@ read confirmation
 # This is needed because we're checking out older versions of COAST. We wanna
 # be using the newest revision of the scripts for every commit.
 #
-cp $METHOD_SCRIPT $HISTORY_DIR/
-METHOD_SCRIPT="$HISTORY_DIR/`basename $METHOD_SCRIPT`"
-cp -r `dirname $0`/lib $HISTORY_DIR/
+cp "$METHOD_SCRIPT" "$HISTORY_DIR"/
+METHOD_SCRIPT="$HISTORY_DIR/$(basename "$METHOD_SCRIPT")"
+cp -r "$(dirname "$0")"/lib "$HISTORY_DIR"/
 
 ##
 # CREATE PERFORMANCE HISTORY
@@ -322,30 +322,30 @@ SUCCESSFUL_MEASUREMENTS=0
 
 set -e # abort on first untested error
 
-while read commit commit_description
+while read -r commit commit_description
 do
 	start "$commit" "$commit_description"
 
 	export PERF_DIR="$HISTORY_DIR/$commit"
-	mkdir $PERF_DIR
-	git checkout --quiet $commit
+	mkdir "$PERF_DIR"
+	git checkout --quiet "$commit"
 
 	# run selected measurement script (builds and runs test(s))
 	log="$PERF_DIR/method.log"
-	( $METHOD_SCRIPT > $log 2>&1 ) || { measurement_failed $commit $log; continue; }
+	( $METHOD_SCRIPT > "$log" 2>&1 ) || { measurement_failed "$commit" "$log"; continue; }
 
 	# export interesting values
-	$METHOD_SCRIPT --export > $PERF_DIR/result.csv
+	$METHOD_SCRIPT --export > "$PERF_DIR"/result.csv
 
 	# create file with CSV header if it doesn't exist yet
 	[ -e "$ACC_RESULT" ] || \
-		head -1 $PERF_DIR/result.csv | sed s/^/commit,/ > $ACC_RESULT
+		head -1 "$PERF_DIR"/result.csv | sed s/^/commit,/ > "$ACC_RESULT"
 
 	# append commit performance result to accumulated result
-	tail -n +2 $PERF_DIR/result.csv | sed s/^/$commit,/ >> $ACC_RESULT
+	tail -n +2 "$PERF_DIR"/result.csv | sed s/^/$commit,/ >> "$ACC_RESULT"
 
-	measurement_successful $commit
-done < $COMMITS
+	measurement_successful "$commit"
+done < "$COMMITS"
 
 ##
 # FINISH

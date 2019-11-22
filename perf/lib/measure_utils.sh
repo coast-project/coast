@@ -71,15 +71,15 @@ EOF
 
 # Removes the temporary file containing the test names.
 cleanup() {
-	rm -f $TEST_NAMES
+	rm -f "$TEST_NAMES"
 }
 
 
 # Prints tests to be built and measured.
 print_plan() (
 	echo "# Tests to be run:" >&2
-	sed -e 's/^/#	/' $TEST_NAMES >&2
-	ntests=`wc -l < $TEST_NAMES`
+	sed -e 's/^/#	/' "$TEST_NAMES" >&2
+	ntests=$(wc -l < "$TEST_NAMES")
 	echo "# ($ntests tests in total)" >&2
 )
 
@@ -108,13 +108,14 @@ build() {
 warmup() {
 	echo "#------------------------------------------------------------------------" >&2
 	echo "# (WARMUP) Running test $1 ... ###################################" >&2
+	# shellcheck disable=SC2086
 	scons $SCONSFLAGS --run-force $1
 	scons_exit_code=$?
 	echo "SCons exited with code: $scons_exit_code" >&2
-	if [ "$scons_exit_code" -ne "0" ] 
+	if [ "$scons_exit_code" -ne "0" ]
 	then
 		echo "#!!! WARMUP of test $1 failed." >&2
-		FAILED_WARMUPS=`expr $FAILED_WARMUPS + 1`
+		FAILED_WARMUPS=$((FAILED_WARMUPS + 1))
 		return 1
 	fi
 	:
@@ -163,7 +164,7 @@ start() {
 #   * $SUCCESSFUL_MEASUREMENTS
 measurement_successful() {
 	echo "# Measured test $1 successfully. ########################" >&2
-	SUCCESSFUL_MEASUREMENTS=`expr $SUCCESSFUL_MEASUREMENTS + 1`
+	SUCCESSFUL_MEASUREMENTS=$((SUCCESSFUL_MEASUREMENTS + 1))
 }
 
 # Informs about a test that has failed and counts that.
@@ -175,7 +176,7 @@ measurement_successful() {
 measurement_failed() {
 	echo "#!!! Measurement of test $1 failed." >&2
 	echo "#!!! For diagnostics, check the log: $2" >&2
-	FAILED_MEASUREMENTS=`expr $FAILED_MEASUREMENTS + 1`
+	FAILED_MEASUREMENTS=$((FAILED_MEASUREMENTS + 1))
 }
 
 # Logs command (set -x style) and returns its exit code.
@@ -190,7 +191,7 @@ log_cmd() (
 
 set -e # abort on first error
 
-START_TIME=`date +"%Y-%m-%d %H:%M:%S"` # date (suitable for CSV)
+START_TIME=$(date +"%Y-%m-%d %H:%M:%S") # date (suitable for CSV)
 DIFF_TEST=                             # a test name
 EXPORT=false                           # whether to export existing results as CSV
 RUN_ALL_TESTS=false                    # whether all tests available should be run
@@ -248,36 +249,36 @@ then
 
 
 	# fill given test names into file
-	TEST_NAMES=`mktemp`
+	TEST_NAMES=$(mktemp)
 	for test_name in "$@"
 	do
-		echo $test_name >> $TEST_NAMES
+		echo "$test_name" >> "$TEST_NAMES"
 	done
 fi
 
 # absolute path to ntimes utility
-NTIMES="$(realpath -e `dirname $0`/lib/ntimes)"
+NTIMES="$(realpath -e "$(dirname "$0")"/lib/ntimes)"
 
 PERF_DIR="${PERF_DIR:-"$PWD/perf_results"}"
-mkdir -p $PERF_DIR
+mkdir -p "$PERF_DIR"
 
 # go to root directory of COAST
-cd `dirname $0`; until [ -e SConstruct ]; do cd ..; done
+cd "$(dirname "$0")"; until [ -e SConstruct ]; do cd ..; done
 
 # determine list of tests if none have been passed
 if [ -z "$TEST_NAMES" ]
 then
-	TEST_NAMES=`mktemp`
+	TEST_NAMES=$(mktemp)
 
 	if $RUN_ALL_TESTS
 	then
 		# get list of ALL tests available
 		echo "Getting list of all available tests ..." >&2
-		scons -u --showtargets | grep '^ - .*Test$'| cut -d' ' -f3 > $TEST_NAMES
+		scons -u --showtargets | grep '^ - .*Test$'| cut -d' ' -f3 > "$TEST_NAMES"
 	else
 		# use set of core tests
 		echo "Using pre-defined set of core tests ..." >&2
-		cat perf/lib/core_tests.txt > $TEST_NAMES
+		cat perf/lib/core_tests.txt > "$TEST_NAMES"
 	fi
 fi
 

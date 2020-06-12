@@ -113,7 +113,7 @@ namespace ZipStream
 //! Does not do anything in particular except hold a few static constants.
 //! Once could merge ZipOStreamBuf and ZipIStreamBuf into this class, but
 //! this would result in a very complex class.
-class ZipStreamBuf : public streambuf
+class ZipStreamBuf : public std::streambuf
 {
 public:
 	ZipStreamBuf(ZipStream::eStreamMode aMode, Allocator *alloc);

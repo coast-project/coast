@@ -9,6 +9,7 @@
 #include "StringTestExtreme.h"
 #include "TestSuite.h"
 #include "SystemFile.h"
+#include <iostream>
 
 using namespace coast;
 

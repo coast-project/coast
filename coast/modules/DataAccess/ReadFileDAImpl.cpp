@@ -8,6 +8,7 @@
 
 #include "ReadFileDAImpl.h"
 #include "Tracer.h"
+#include <istream>
 
 //--- ReadFileDAImpl -----------------------------------------------------
 RegisterDataAccessImpl(ReadFileDAImpl);

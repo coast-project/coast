@@ -11,6 +11,8 @@
 #include "Registry.h"
 #include "SecurityModule.h"
 #include "Context.h"
+#include <ostream>
+#include <istream>
 
 class SMTPState: public NotCloned {
 	// abstract base class for communication states

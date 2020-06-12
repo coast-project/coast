@@ -12,6 +12,8 @@
 #include "Socket.h"
 #include "WPMStatHandler.h"
 #include "RequestProcessor.h"
+#include <istream>
+#include <ostream>
 
 class TestProcessor: public RequestProcessor
 {

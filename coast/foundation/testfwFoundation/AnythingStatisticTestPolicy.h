@@ -13,45 +13,37 @@
 #include "StringStream.h"
 #include "SystemBase.h"
 #include "SystemFile.h"
+#include "TestTimer.h"
 
 //! <B>really brief class description</B>
 /*!
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-namespace testframework
-{
+namespace testframework {
 
-	template
-	<
-	class dummy
-	>
-	class AnythingStatisticTestPolicy
-	{
+	template <class dummy>
+	class AnythingStatisticTestPolicy {
 		Anything fStatistics;
 		String fStatClassName, fTestName, fFilename, fDatetime, fHostName;
 
 	public:
 		typedef AnythingStatisticTestPolicy<dummy> StatisticPolicyType;
 
-		AnythingStatisticTestPolicy() {};
-		virtual ~AnythingStatisticTestPolicy() {};
+		AnythingStatisticTestPolicy(){};
+		virtual ~AnythingStatisticTestPolicy(){};
 
 		friend class CatchTime;
-		class CatchTime
-		{
+		class CatchTime {
 		public:
 			CatchTime(TString strTestName, StatisticPolicyType *theTest, char delim = '/', char indexdelim = ':')
-				: fTestName(strTestName)
-				, fTest(theTest)
-				, fDdelim(delim)
-				, fIndexdelim(indexdelim) {
-			}
+				: fTestName(strTestName), fTest(theTest), fDdelim(delim), fIndexdelim(indexdelim) {}
 			~CatchTime() {
-				if ( fTest ) {
+				if (fTest) {
 					fTest->AddStatisticOutput(fTestName, fTimer.Diff(), fDdelim, fIndexdelim);
 				}
 			}
+
 		private:
 			TString fTestName;
 			StatisticPolicyType *fTest;
@@ -66,7 +58,7 @@ namespace testframework
 			StartTrace(AnythingStatisticTestPolicy.LoadData);
 			fTestName = strTestName;
 			coast::system::LoadConfigFile(fStatistics, strClassName, "stat.any", fFilename);
-			if ( !fFilename.Length() ) {
+			if (!fFilename.Length()) {
 				fFilename = strClassName;
 				fFilename << ".stat.any";
 			}
@@ -74,7 +66,7 @@ namespace testframework
 			coast::system::HostName(fHostName);
 			// use path to anything as input for statistics output
 			long lLastIdx = fFilename.StrRChr(coast::system::Sep());
-			if ( lLastIdx >= 0 ) {
+			if (lLastIdx >= 0) {
 				fStatClassName = fFilename.SubString(0, lLastIdx);
 				fStatClassName.Append(coast::system::Sep());
 				Trace("path to csv file [" << fStatClassName << "]");
@@ -87,10 +79,10 @@ namespace testframework
 		void StoreData() {
 			StartTrace(AnythingStatisticTestPolicy.StoreData);
 			std::iostream *pStream = coast::system::OpenOStream(fFilename, "");
-			if ( pStream != NULL ) {
+			if (pStream != NULL) {
 				long lLevel(0L);
 				RecurseSort(fStatistics, lLevel);
-//			fStatistics.SortByKey();
+				//			fStatistics.SortByKey();
 				fStatistics.PrintOn(*pStream, true);
 			}
 			delete pStream;
@@ -105,13 +97,16 @@ namespace testframework
 
 			TraceAny(anyCsv, "collected");
 			std::iostream *pStream = coast::system::OpenOStream(fStatClassName, "csv");
-			if ( pStream != NULL ) {
+			if (pStream != NULL) {
 				long lRowIdx = anyCsv.GetSize();
-				if ( lRowIdx > 0 ) {
+				if (lRowIdx > 0) {
 					// add entry header
-					(*pStream) << "measurement description,name of host tests were run on,compilation flags,compiler version,timestamp of testrun,duration/average in ms" << "\r\n";
+					(*pStream) << "measurement description,name of host tests were run on,compilation flags,compiler "
+								  "version,timestamp "
+								  "of testrun,duration/average in ms"
+							   << "\r\n";
 				}
-				for ( ; --lRowIdx >= 0; ) {
+				for (; --lRowIdx >= 0;) {
 					Trace("printing line [" << anyCsv[lRowIdx].AsCharPtr() << "]");
 					(*pStream) << anyCsv[lRowIdx].AsCharPtr() << "\r\n";
 				}
@@ -121,26 +116,31 @@ namespace testframework
 
 		// this level is dependant on the number of subinformation as collected below
 		// -> we assume here that strSummaryName is only one levelled
-		enum eSortLevel {
-			eMaxSortLevel = 5
-		};
+		enum eSortLevel { eMaxSortLevel = 5 };
 
 		void AddStatisticOutput(TString strSummaryName, long lMilliTime, char delim = '/', char indexdelim = ':') {
 			StartTrace(AnythingStatisticTestPolicy.AddStatisticOutput);
 			Anything anyToStore(lMilliTime, fStatistics.GetAllocator());
 			String strSlot(strSummaryName);
-			strSlot.Append(delim).Append(fHostName).Append(delim).Append(COAST_BUILDFLAGS).Append(delim).Append(COAST_COMPILER).Append(delim).Append(fDatetime);
+			strSlot.Append(delim)
+				.Append(fHostName)
+				.Append(delim)
+				.Append(COAST_BUILDFLAGS)
+				.Append(delim)
+				.Append(COAST_COMPILER)
+				.Append(delim)
+				.Append(fDatetime);
 			SlotPutter::Operate(anyToStore, fStatistics, strSlot, false, delim, indexdelim);
 		}
 
 	private:
 		void RecurseSort(Anything &anyToSort, long lLevel) {
 			StartTrace1(AnythingStatisticTestPolicy.RecurseSort, "entry level:" << lLevel);
-			if ( ++lLevel < eMaxSortLevel ) {
+			if (++lLevel < eMaxSortLevel) {
 				AnyExtensions::Iterator<Anything, Anything, String> aEntryIterator(anyToSort);
 				Anything anyEntry;
 				String strSlotName;
-				while ( aEntryIterator.Next(anyEntry) ) {
+				while (aEntryIterator.Next(anyEntry)) {
 					aEntryIterator.SlotName(strSlotName);
 					Trace("recursing for slot [" << strSlotName << "]");
 					RecurseSort(anyEntry, lLevel);
@@ -157,11 +157,11 @@ namespace testframework
 			AnyExtensions::Iterator<ROAnything, ROAnything, String> aEntryIterator(roaLoopOn);
 			ROAnything roaEntry;
 			long lThisLevelEntries = 0L;
-			while ( aEntryIterator.Next(roaEntry) ) {
+			while (aEntryIterator.Next(roaEntry)) {
 				String strEntryName;
 				aEntryIterator.SlotName(strEntryName);
 				double dValue = 0.0;
-				if ( roaEntry.GetType() == AnyArrayType ) {
+				if (roaEntry.GetType() == AnyArrayType) {
 					lEntryLevel = lLevel;
 					dValue = RecurseExportCsvStatistics(anyCsv, roaEntry, ++lEntryLevel);
 					Trace("recursion level:" << lEntryLevel);
@@ -170,14 +170,14 @@ namespace testframework
 				}
 				long lIdx = 0;
 				String strOut;
-				for ( lIdx = 0; lIdx < lLevel; ++lIdx) {
+				for (lIdx = 0; lIdx < lLevel; ++lIdx) {
 					strOut << ',';
 				}
 				strOut << strEntryName;
-				for ( lIdx = lLevel; lIdx <= lEntryLevel; ++lIdx) {
+				for (lIdx = lLevel; lIdx <= lEntryLevel; ++lIdx) {
 					strOut << ',';
 				}
-				if ( lLevel > 0 ) {
+				if (lLevel > 0) {
 					strOut << dValue;
 				}
 				Trace("appending [" << strOut << "]");
@@ -186,7 +186,7 @@ namespace testframework
 				dAverage += dValue;
 				++lThisLevelEntries;
 			}
-			if ( lThisLevelEntries > 1L ) {
+			if (lThisLevelEntries > 1L) {
 				dAverage /= (double)lThisLevelEntries;
 			}
 			lLevel = lEntryLevel;
@@ -199,6 +199,6 @@ namespace testframework
 		}
 	};
 
-}	// end namespace testframework
+}  // end namespace testframework
 
 #endif

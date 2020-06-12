@@ -12,6 +12,7 @@
 #include "AnyIterators.h"
 #include "Renderer.h"
 #include "RE.h"
+#include <ostream>
 
 namespace coast {
 	namespace http {

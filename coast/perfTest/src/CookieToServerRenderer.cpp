@@ -7,6 +7,8 @@
  */
 #include "CookieToServerRenderer.h"
 #include "AnyIterators.h"
+#include <ostream>
+
 RegisterRenderer(CookieToServerRenderer);
 
 void CookieToServerRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {

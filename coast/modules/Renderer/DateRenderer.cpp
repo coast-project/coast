@@ -9,11 +9,11 @@
 #include "DateRenderer.h"
 #include "SystemBase.h"
 #include "Tracer.h"
+#include <ostream>
+#include <istream>
+#include <ctime>
 
 using namespace coast;
-
-#include <cstdlib>
-#include <time.h>
 
 //---- DateRenderer ----------------------------------------------------------------
 RegisterRenderer(DateRenderer);

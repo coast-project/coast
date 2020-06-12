@@ -12,6 +12,7 @@
 #include "HTTPProtocolReplyRenderer.h"
 #include "HTTPConstants.h"
 #include "HTTPProcessor.h"
+#include <istream>
 
 namespace {
 	struct URISizeExceededException : MIMEHeader::SizeExceededException {

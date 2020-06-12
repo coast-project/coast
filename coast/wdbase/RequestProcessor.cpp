@@ -12,6 +12,8 @@
 #include "Server.h"
 #include "ServerUtils.h"
 #include "AnythingUtils.h"
+#include <iostream>
+#include <ostream>
 
 RegCacheImpl(RequestProcessor)
 ; // FindRequestProcessor()

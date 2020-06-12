@@ -15,10 +15,11 @@
 #include "SystemFile.h"
 #include "StringStream.h"
 
-using namespace coast;
-
 #include <fcntl.h>
 #include <fstream>
+#include <unistd.h>
+
+using namespace coast;
 
 // for additional functionality / syscalls
 

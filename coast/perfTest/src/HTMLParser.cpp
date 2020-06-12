@@ -16,6 +16,7 @@
 #include "DiffTimer.h"
 #include "Tracer.h"
 #include <cstring>
+#include <ostream>
 
 class MethodInfoCollector {
 public:
@@ -1122,5 +1123,9 @@ MethodInfoCollector::~MethodInfoCollector() {
 
 int AAT_HTMLReader::Get() {
 	return fFile ? fFile->get() : EOF;
+}
+
+void AAT_HTMLReader::PutBack(char c) {
+	fFile ? fFile->putback(c) : (*fFile);
 }
 

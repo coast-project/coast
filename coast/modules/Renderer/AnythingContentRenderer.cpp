@@ -8,6 +8,7 @@
 
 #include "AnythingContentRenderer.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- AnythingContentRenderer ---------------------------------------------------------
 RegisterRenderer(AnythingContentRenderer);

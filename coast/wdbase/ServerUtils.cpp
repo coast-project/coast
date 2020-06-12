@@ -14,6 +14,7 @@
 #include "SystemBase.h"
 #include <errno.h>
 #include <signal.h>
+#include <istream>
 
 #if defined(WIN32)
 

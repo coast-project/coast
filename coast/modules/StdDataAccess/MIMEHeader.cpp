@@ -11,9 +11,9 @@
 #include "RE.h"
 #include "HTTPConstants.h"
 #include "SystemLog.h"
-//#include "RECompiler.h"
 #include <cstdio>	// for EOF
 #include <cstring>  // for strlen
+#include <istream>
 
 namespace coast {
 	namespace streamutils {

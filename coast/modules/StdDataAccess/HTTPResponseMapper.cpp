@@ -8,6 +8,7 @@
 #include "HTTPResponseMapper.h"
 #include "Tracer.h"
 #include "HTTPConstants.h"
+#include <istream>
 
 RegisterResultMapper(HTTPResponseMapper);
 

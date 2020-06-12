@@ -10,6 +10,7 @@
 #include "SystemBase.h"
 #include "Tracer.h"
 #include "SystemLog.h"
+#include <unistd.h>
 
 #if !defined(WIN32)
 #include <sys/times.h>

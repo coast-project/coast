@@ -9,6 +9,7 @@
 #include "LocalizedRenderers.h"
 #include "LocalizationUtils.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- StringRenderer ----------------------------------------------------------------
 RegisterRenderer(StringRenderer);

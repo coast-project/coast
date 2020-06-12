@@ -25,8 +25,10 @@
 #if defined(sun) || defined(__APPLE__)
 #include <signal.h>	/* for kill() */
 #endif
+#include <unistd.h>
 
 using namespace coast;
+
 PipeExecutor::PipeExecutor(const String &cmd, Anything env, const char *wd, long lExecTimeout, bool bOpenStreamForStderr)
 	: fPipe(0)
 	, fChildPid(0)

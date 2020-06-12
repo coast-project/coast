@@ -10,6 +10,7 @@
 #include "Session.h"
 #include "TemplateParser.h"
 #include "StringStream.h"
+#include <ostream>
 
 //---- FormRenderer -------------------------------------------------------------------
 RegisterRenderer(FormRenderer);
@@ -97,6 +98,9 @@ void PulldownMenuRenderer::RenderOptions(std::ostream &reply, Context &context, 
 RegisterRenderer(HiddenFieldRenderer);
 
 HiddenFieldRenderer::HiddenFieldRenderer(const char *name) : FieldRenderer(name) {}
+void HiddenFieldRenderer::RenderType(std::ostream &reply, Context &, const ROAnything &) {
+	reply << "HIDDEN";
+}
 void HiddenFieldRenderer::RenderOptions(std::ostream &reply, Context &context, const ROAnything &config)
 {
 	ROAnything value = config["Value"];
@@ -112,6 +116,9 @@ void HiddenFieldRenderer::RenderOptions(std::ostream &reply, Context &context, c
 RegisterRenderer(ButtonRenderer);
 
 ButtonRenderer::ButtonRenderer(const char *name) : FieldRenderer(name) {}
+void ButtonRenderer::RenderType(std::ostream &reply, Context &, const ROAnything &) {
+	reply << "SUBMIT";
+}
 void ButtonRenderer::RenderOptions(std::ostream &reply, Context &context, const ROAnything &config)
 {
 	ROAnything label = config["Label"];
@@ -137,6 +144,9 @@ RegisterRenderer(ImageButtonRenderer);
 
 ImageButtonRenderer::ImageButtonRenderer(const char *name) : FieldRenderer(name) {}
 
+void ImageButtonRenderer::RenderType(std::ostream &reply, Context &, const ROAnything &) {
+	reply << "IMAGE";
+}
 void ImageButtonRenderer::RenderOptions(std::ostream &reply, Context &context, const ROAnything &config)
 {
 	ROAnything src = config["Src"];
@@ -160,6 +170,9 @@ void ImageButtonRenderer::RenderName(std::ostream &reply, Context &context, cons
 RegisterRenderer(ResetButtonRenderer);
 
 ResetButtonRenderer::ResetButtonRenderer(const char *name) : ButtonRenderer(name) {}
+void ResetButtonRenderer::RenderType(std::ostream &reply, Context &, const ROAnything &) {
+	reply << "RESET";
+}
 
 //---- SelectBoxRenderer --------------------------------------------------------------
 RegisterRenderer(SelectBoxRenderer);
@@ -442,6 +455,10 @@ RegisterRenderer(CheckBoxRenderer);
 
 CheckBoxRenderer::CheckBoxRenderer(const char *name) : FieldRenderer(name) {}
 
+void CheckBoxRenderer::RenderType(std::ostream &reply, Context &, const ROAnything &) {
+	reply << "CHECKBOX";
+}
+
 void CheckBoxRenderer::RenderOptions(std::ostream &reply, Context &context, const ROAnything &config)
 {
 	// CAUTION: semantics changed as compared to the FieldRenderer version:
@@ -464,6 +481,9 @@ void CheckBoxRenderer::RenderOptions(std::ostream &reply, Context &context, cons
 RegisterRenderer(RadioButtonRenderer);
 
 RadioButtonRenderer::RadioButtonRenderer(const char *name) : FieldRenderer(name) {}
+void RadioButtonRenderer::RenderType(std::ostream &reply, Context &, const ROAnything &) {
+	reply << "RADIO";
+}
 void RadioButtonRenderer::RenderOptions(std::ostream &reply, Context &context, const ROAnything &config)
 {
 	// CAUTION: semantics changed as compared to the FieldRenderer version:
@@ -639,4 +659,7 @@ RegisterRenderer(FileBrowseRenderer);
 
 FileBrowseRenderer::FileBrowseRenderer(const char *name) : TextFieldRenderer(name)
 {
+}
+void FileBrowseRenderer::RenderType(std::ostream &reply, Context &, const ROAnything &) {
+	reply << "FILE";
 }

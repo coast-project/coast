@@ -9,6 +9,8 @@
 #include "StreamTransferMapper.h"
 #include "Renderer.h"
 #include "RequestProcessor.h"
+#include <ostream>
+#include <istream>
 
 RegisterResultMapper(StreamTransferMapper);
 

@@ -9,6 +9,7 @@
 #include "LocalizedStrings.h"
 #include "SystemLog.h"
 #include "SystemFile.h"
+#include <istream>
 
 LocalizedStrings *LocalizedStrings::fgLocStrings = 0;
 Mutex LocalizedStrings::fgLocMutex("LocalizedStrings");

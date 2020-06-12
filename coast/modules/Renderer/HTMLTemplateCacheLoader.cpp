@@ -10,6 +10,8 @@
 #include "SystemFile.h"
 #include "TemplateParser.h"
 #include "HTMLTemplateRenderer.h"
+#include <ostream>
+#include <istream>
 
 using namespace coast;
 RegisterModule(TemplatesCacheModule );

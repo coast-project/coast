@@ -10,6 +10,7 @@
 #include "LocalizationUtils.h"
 #include "LocalizationUtilsTest.h"
 #include "SystemFile.h"
+#include <istream>
 
 using namespace coast;
 

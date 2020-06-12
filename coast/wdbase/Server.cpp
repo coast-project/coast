@@ -18,14 +18,17 @@
 #include "AnyIterators.h"
 #include "Policy.h"
 #include "MT_Storage.h"
-
-using namespace coast;
+#include <ostream>
+#include <istream>
 
 #if !defined(WIN32)
 #include <pwd.h>
+#include <unistd.h>
 #else
 #include <io.h>
 #endif
+
+using namespace coast;
 
 /*! alias installer installs the same object with different names in the registry */
 class ServerReInitInstaller : public InstallerPolicy

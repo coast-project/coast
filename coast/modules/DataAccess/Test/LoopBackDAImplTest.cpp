@@ -11,6 +11,7 @@
 #include "TestSuite.h"
 #include "SystemFile.h"
 #include "Context.h"
+#include <istream>
 
 //---- LoopBackDAImplTest ----------------------------------------------------------------
 Test *LoopBackDAImplTest::suite ()

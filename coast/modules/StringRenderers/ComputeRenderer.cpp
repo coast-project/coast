@@ -9,6 +9,7 @@
 #include "ComputeRenderer.h"
 #include "Tracer.h"
 #include <stdlib.h>
+#include <ostream>
 
 //---- ComputeRenderer ----------------------------------------------------------------
 RegisterRenderer(ComputeRenderer);

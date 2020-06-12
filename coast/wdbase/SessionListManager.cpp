@@ -17,6 +17,7 @@
 #include "AnyIterators.h"
 #include "Policy.h"
 #include <iomanip>
+#include <unistd.h>
 
 //: triggers cleanup of sessions
 class CleanSessions: public Action {

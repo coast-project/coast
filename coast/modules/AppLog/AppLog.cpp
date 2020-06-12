@@ -14,6 +14,9 @@
 #include "SystemFile.h"
 #include <errno.h>
 #include <cstdio>
+#include <istream>
+#include <ostream>
+
 using namespace coast;
 
 RegisterModule (AppLogModule);

@@ -10,7 +10,8 @@
 #define _StringStreamBuf_H
 
 #include <cstdio>
-#include <iostream>
+#include <ostream>
+#include <istream>
 
 //! StringStreamBuf adapts String objects to the iostream framework
 /*! the underlying string is used directly as the buffer to save copying overhead */
@@ -36,7 +37,7 @@ public:
 
 	/*! default ctor, allocates new internal String object for output
 		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreamBuf(int mode = std::ios::out)
+	explicit StringStreamBuf(int mode = std::ios::out)
 		: fStore(0)
 		, fDeleteStore(false)
 		, fOpenMode(mode) {
@@ -47,7 +48,7 @@ public:
 	/*! ctor usually used for input
 		\param s contains characters to be read
 		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreamBuf(ConstPlainTypeRef s, int mode = std::ios::in)
+	explicit StringStreamBuf(ConstPlainTypeRef s, int mode = std::ios::in)
 		: fStore(0)
 		, fDeleteStore(false)
 		, fOpenMode(mode) {
@@ -58,7 +59,7 @@ public:
 	/*! ctor usually used for output
 		\param s target string to be filled,
 		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreamBuf(PlainTypePtr s, int mode = std::ios::out)
+	explicit StringStreamBuf(PlainTypePtr s, int mode = std::ios::out)
 		: fStore(0)
 		, fDeleteStore(false)
 		, fOpenMode(mode) {
@@ -251,6 +252,15 @@ private:
 	void AdjustStringLength(coast::typetraits::Int2Type<NSStringStream::eIn>) {
 	}
 
+	/*! auxiliary operation to set iostream get buffer pointers according to parameters */
+	void setgetpointer(long getoffset) {
+		char *eg = 0;
+		if (fStore && fStore->GetImpl()) {
+			eg = const_cast<char *>(fStore->GetContent()) + fStore->Length();    // points after get area
+		}
+		setg((fOpenMode & std::ios::in) ? start() : eg, start() + getoffset , eg);
+	}
+
 	void AdjustStringLength(coast::typetraits::Int2Type<NSStringStream::eOut>) {
 		if (pbase() && (fOpenMode & std::ios::out)) {
 			Assert(pptr() && pptr() >= start());
@@ -262,15 +272,6 @@ private:
 				setgetpointer(gptr() - eback()); // might be able to read more
 			}
 		}
-	}
-
-	/*! auxiliary operation to set iostream get buffer pointers according to parameters */
-	void setgetpointer(long getoffset) {
-		char *eg = 0;
-		if (fStore && fStore->GetImpl()) {
-			eg = const_cast<char *>(fStore->GetContent()) + fStore->Length();    // points after get area
-		}
-		setg((fOpenMode & std::ios::in) ? start() : eg, start() + getoffset , eg);
 	}
 
 	/*! auxiliary operation to set iostream buffer pointers according to parameters */
@@ -387,7 +388,7 @@ public:
 public:
 	/*! default ctor, allocates new internal String object for output
 		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreambase(int mode = std::ios::out)
+	explicit StringStreambase(int mode = std::ios::out)
 		: fSSBuf(mode) {
 		// init from ios is needed, because ios() won't do the job; (see comment in iostream.h)
 		init(&fSSBuf);
@@ -396,7 +397,7 @@ public:
 	/*! ctor usually used for input
 		\param s contains characters to be read
 		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreambase(ConstPlainTypeRef s, int mode = std::ios::in)
+	explicit StringStreambase(ConstPlainTypeRef s, int mode = std::ios::in)
 		: fSSBuf(s, mode) {
 		init(&fSSBuf);
 	}
@@ -404,7 +405,7 @@ public:
 	/*! ctor usually used for output
 		\param s target string to be filled,
 		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreambase(PlainTypePtr s, int mode = std::ios::out)
+	explicit StringStreambase(PlainTypePtr s, int mode = std::ios::out)
 		: fSSBuf(s, mode) {
 		init(&fSSBuf);
 	}

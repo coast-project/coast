@@ -9,6 +9,8 @@
 #include "FileLoadRenderer.h"
 #include "SystemFile.h"
 #include "Tracer.h"
+#include <ostream>
+#include <istream>
 
 //---- FileLoadRenderer ---------------------------------------------------------------
 RegisterRenderer(FileLoadRenderer);

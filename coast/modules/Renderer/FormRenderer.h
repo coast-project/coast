@@ -324,9 +324,7 @@ class CheckBoxRenderer : public FieldRenderer
 public:
 	CheckBoxRenderer(const char *name);
 protected:
-	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &) {
-		reply << "CHECKBOX";
-	}
+	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &);
 	virtual void RenderOptions(std::ostream &reply, Context &context, const ROAnything &config);
 };
 
@@ -394,9 +392,7 @@ class RadioButtonRenderer : public FieldRenderer
 public:
 	RadioButtonRenderer(const char *name);
 protected:
-	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &) {
-		reply << "RADIO";
-	}
+	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &);
 	virtual void RenderOptions(std::ostream &reply, Context &context, const ROAnything &config);
 };
 
@@ -426,9 +422,7 @@ class HiddenFieldRenderer : public FieldRenderer
 public:
 	HiddenFieldRenderer(const char *name);
 protected:
-	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &) {
-		reply << "HIDDEN";
-	}
+	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &);
 	virtual void RenderOptions(std::ostream &reply, Context &context, const ROAnything &config);
 };
 
@@ -467,9 +461,7 @@ public:
 	ButtonRenderer(const char *name);
 protected:
 	virtual void RenderName(std::ostream &reply, Context &context, const ROAnything &config);
-	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &) {
-		reply << "SUBMIT";
-	}
+	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &);
 	virtual void RenderOptions(std::ostream &reply, Context &context, const ROAnything &config);
 };
 
@@ -524,9 +516,7 @@ public:
 	ImageButtonRenderer(const char *name);
 protected:
 	virtual void RenderName(std::ostream &reply, Context &context, const ROAnything &config);
-	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &) {
-		reply << "IMAGE";
-	}
+	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &);
 	virtual void RenderOptions(std::ostream &reply, Context &context, const ROAnything &config);
 };
 
@@ -555,9 +545,7 @@ public:
 	ResetButtonRenderer(const char *name);
 
 protected:
-	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &) {
-		reply << "RESET";
-	}
+	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &);
 };
 
 //---- TextFieldRenderer ---------------------------------------------------------------
@@ -667,8 +655,6 @@ public:
 	FileBrowseRenderer(const char *name);
 
 protected:
-	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &) {
-		reply << "FILE";
-	}
+	virtual void RenderType(std::ostream &reply, Context &, const ROAnything &);
 };
 #endif

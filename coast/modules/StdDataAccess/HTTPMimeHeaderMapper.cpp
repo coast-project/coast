@@ -11,6 +11,7 @@
 #include "RE.h"
 #include "AnyIterators.h"
 #include "AnythingUtils.h"
+#include <istream>
 
 RegisterResultMapper(HTTPMimeHeaderMapper);
 

@@ -9,6 +9,8 @@
 #include "WriteFileDAImpl.h"
 #include "SystemLog.h"
 #include "Tracer.h"
+#include <istream>
+#include <ostream>
 
 using namespace coast;
 

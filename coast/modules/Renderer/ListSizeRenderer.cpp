@@ -8,6 +8,7 @@
 
 #include "ListSizeRenderer.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- ListSizeRenderer ---------------------------------------------------------------
 RegisterRenderer(ListSizeRenderer);

@@ -8,6 +8,7 @@
 
 #include "FormattedDateRenderer.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- FormattedDateRenderer ---------------------------------------------------------------
 RegisterRenderer(FormattedDateRenderer);

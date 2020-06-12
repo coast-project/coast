@@ -9,6 +9,7 @@
 #include "XMLEscapeRenderer.h"
 #include "Tracer.h"
 #include <cstring>
+#include <ostream>
 
 static const char *entitity_map[] = {
 	"<",	"&lt;",

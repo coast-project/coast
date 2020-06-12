@@ -11,6 +11,7 @@
 #include "SystemLog.h"
 #include "AnyUtils.h"
 #include "InitFinisManager.h"
+#include <istream>
 
 Anything SimpleAnyLoader::Load(const char *key) {
 	StartTrace1(SimpleAnyLoader.Load, "trying to load <" << NotNull(key) << ">");

@@ -9,6 +9,7 @@
 #include "MIMEHeader.h"
 #include "HTTPProcessor.h"
 #include "Tracer.h"
+#include <istream>
 
 RegisterResultMapper(MimeHeaderResultMapper);
 

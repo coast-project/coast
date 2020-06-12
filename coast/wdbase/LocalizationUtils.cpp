@@ -9,6 +9,7 @@
 #include "LocalizationUtils.h"
 #include "SystemFile.h"
 #include "Context.h"
+#include <istream>
 
 using namespace coast;
 

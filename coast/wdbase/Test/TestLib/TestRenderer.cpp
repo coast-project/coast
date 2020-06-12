@@ -7,6 +7,7 @@
  */
 
 #include "TestRenderer.h"
+#include <ostream>
 
 RegisterRenderer(TestRenderer);
 

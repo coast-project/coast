@@ -10,6 +10,7 @@
 #include "MD5.h"
 #include "SystemBase.h"
 #include "DiffTimer.h"
+#include <unistd.h>
 
 namespace {
 	long const uniqueIdHashLength=32L;

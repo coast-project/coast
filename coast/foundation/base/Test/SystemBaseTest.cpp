@@ -7,12 +7,12 @@
  */
 
 #include "SystemBaseTest.h"
-
-using namespace coast;
-
 #include "TestSuite.h"
 #include "DiffTimer.h"
 #include "SystemLog.h"
+#include <unistd.h>
+
+using namespace coast;
 
 void SystemBaseTest::DoSingleSelectTest() {
 	StartTrace(SystemBaseTest.DoSingleSelectTest);

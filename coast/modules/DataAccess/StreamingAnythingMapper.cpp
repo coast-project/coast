@@ -8,6 +8,7 @@
 
 #include "StreamingAnythingMapper.h"
 #include "Timers.h"
+#include <ostream>
 
 //---- AnythingToStreamMapper ----------------------------------------------------------------
 RegisterParameterMapper(AnythingToStreamMapper);

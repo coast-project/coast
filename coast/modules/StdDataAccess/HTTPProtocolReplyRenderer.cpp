@@ -11,6 +11,7 @@
 #include "Server.h"
 #include "AnythingUtils.h"
 #include "HTTPConstants.h"
+#include <ostream>
 
 RegisterRenderer(HTTPProtocolReplyRenderer);
 

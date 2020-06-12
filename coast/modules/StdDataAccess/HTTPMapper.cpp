@@ -10,6 +10,8 @@
 #include "CacheHandler.h"
 #include "AnyIterators.h"
 #include "HTTPConstants.h"
+#include <ostream>
+#include <istream>
 
 RegisterParameterMapper(HTTPHeaderParameterMapper);
 

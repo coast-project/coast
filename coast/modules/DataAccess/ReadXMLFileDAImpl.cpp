@@ -9,6 +9,7 @@
 #include "ReadXMLFileDAImpl.h"
 #include "GenericXMLParser.h"
 #include "Tracer.h"
+#include <istream>
 
 //--- ReadXMLFileDAImpl -----------------------------------------------------
 RegisterDataAccessImpl(ReadXMLFileDAImpl);

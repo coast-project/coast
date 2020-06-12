@@ -11,70 +11,71 @@
 
 #include "TestCase.h"
 
+class Anything;
 //---- RegexTest ----------------------------------------------------------
-//!TestCases description
-class RegexTest: public testframework::TestCase {
+//! TestCases description
+class RegexTest : public testframework::TestCase {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	RegexTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~RegexTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!match literal
+	//! match literal
 	void MatchLiteral();
-	//!match '.'
+	//! match '.'
 	void MatchDot();
-	//!match '...'
+	//! match '...'
 	void MatchDotDotDot();
-	//!match '.*'
+	//! match '.*'
 	void MatchDotStar();
-	//!match 'a*'
+	//! match 'a*'
 	void MatchAStar();
-	//!match 'a*'
+	//! match 'a*'
 	void MatchCharTest();
-	//!match '(abc|abcd)(d|)' with "abcd"
+	//! match '(abc|abcd)(d|)' with "abcd"
 	void LeftMostLongestTest();
 	//! test the use of backward references, i.e. \1 \2
 	void BackRefTest();
-	//!test a literal against a long string
+	//! test a literal against a long string
 	//! data and test stolen from rx package
 	void LargeLiteralTest();
-	//!test a literal against a long list of strings
+	//! test a literal against a long list of strings
 	//! data and test stolen from rx package
 	void ShortLiteralTest();
-	//!test a literal .* combined expr against a long string
+	//! test a literal .* combined expr against a long string
 	//! data and test stolen from rx package
 	void LargeDotStarTest();
-	//!test a single configured test
-	//!uses up to 5 slots in the anything:
+	//! test a single configured test
+	//! uses up to 5 slots in the anything:
 	//! [0L] --> 0,1,2 meaning match, compile but don't match, fail to compile
 	//! [1L] --> the RE, remember Anything reader will need double backslashes
 	//! [2L] --> text to match against
 	//! [3L] --> optional, expected start of match
 	//! [4L] --> expected length of match
 	void MatchAnything(long identifier, Anything aCase);
-	//!read config file and do all the tests
+	//! read config file and do all the tests
 	void MatchConfig();
-	//!test the flags
+	//! test the flags
 	void MatchFlagsTest();
-	//!test splitting of a string
+	//! test splitting of a string
 	void SplitTest();
-	//!test substitution of RE with a String
+	//! test substitution of RE with a String
 	void SubstTest();
-	//!test "grepping" for Anything slot values
+	//! test "grepping" for Anything slot values
 	void GrepTest();
-	//!test "grepping" for Anything slot names
+	//! test "grepping" for Anything slot names
 	void GrepSlotNamesTest();
-	//!test getting match groups using GetMatch()
+	//! test getting match groups using GetMatch()
 	void GetMatchTest();
 };
 

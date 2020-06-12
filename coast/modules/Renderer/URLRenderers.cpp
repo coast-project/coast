@@ -10,6 +10,7 @@
 #include "SecurityModule.h"
 #include "URLUtils.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- LinkRenderer ----------------------------------------------------------------
 

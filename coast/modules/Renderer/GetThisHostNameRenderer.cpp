@@ -9,6 +9,7 @@
 #include "GetThisHostNameRenderer.h"
 #include "SystemBase.h"
 #include "Resolver.h"
+#include <ostream>
 
 RegisterRenderer(GetThisHostNameRenderer);
 

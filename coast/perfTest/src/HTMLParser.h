@@ -13,6 +13,7 @@
 #define HTMLParser_First
 
 #include "Anything.h"
+#include <iosfwd>
 
 typedef int Unicode;
 
@@ -220,9 +221,7 @@ public:
 		fFile(fp) {
 	}
 	int Get();
-	void PutBack(char c) {
-		fFile ? fFile->putback(c) : (*fFile);
-	}
+	void PutBack(char c);
 protected:
 	std::istream *fFile;
 };

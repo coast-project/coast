@@ -8,6 +8,7 @@
 
 #include "AppletRenderer.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- AppletRenderer --------------------------------------------------------------
 RegisterRenderer(AppletRenderer);

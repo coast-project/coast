@@ -9,6 +9,7 @@
 #include "ComputeDateRenderer.h"
 #include "TimeStamp.h"
 #include "Tracer.h"
+#include <ostream>
 
 static const char *pcMonthes[] = { "---", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 

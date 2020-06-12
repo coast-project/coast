@@ -8,6 +8,7 @@
 
 #include "ImageRenderers.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- ImageLocationRenderer ----------------------------------------------------------------
 RegisterRenderer(ImageLocationRenderer);

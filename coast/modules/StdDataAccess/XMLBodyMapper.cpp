@@ -8,6 +8,7 @@
 
 #include "XMLBodyMapper.h"
 #include "Tracer.h"
+#include <istream>
 
 class TagToken {
 	String fTag;

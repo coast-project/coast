@@ -8,6 +8,7 @@
 
 #include "CharReplaceRenderer.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- CharReplaceRenderer ---------------------------------------------------------------
 RegisterRenderer(CharReplaceRenderer);

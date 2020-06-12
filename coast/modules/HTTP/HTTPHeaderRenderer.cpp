@@ -9,6 +9,7 @@
 #include "AnyIterators.h"
 #include "RE.h"
 #include "HTTPConstants.h"
+#include <ostream>
 
 RegisterRenderer(HTTPHeaderRenderer);
 

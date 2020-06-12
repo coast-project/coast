@@ -11,6 +11,7 @@
 #include "AccessManager.h"
 #include "BasicAuthenticationData.h"
 #include "HTTPConstants.h"
+#include <ostream>
 
 RegisterServiceHandler(AuthenticationService);
 

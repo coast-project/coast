@@ -8,6 +8,7 @@
 
 #include "SlotNameRenderer.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- SlotNameRenderer ---------------------------------------------------------------
 RegisterRenderer(SlotNameRenderer);

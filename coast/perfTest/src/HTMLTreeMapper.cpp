@@ -9,6 +9,8 @@
 #include "MultiWriterParser.h"
 #include "HTMLTreeWriter.h"
 #include "Tracer.h"
+#include <ostream>
+
 RegisterResultMapper(HTMLTreeMapper);
 
 bool HTMLTreeMapper::DoPutStream(const char *, std::istream &is, Context &ctx, ROAnything) {

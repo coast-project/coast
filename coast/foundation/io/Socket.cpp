@@ -26,6 +26,7 @@
 #include <netinet/tcp.h>		/* TCP_NODELAY */
 #include <sys/poll.h>
 #include <fcntl.h>
+#include <unistd.h>
 #endif
 
 #define socklen_type socklen_t

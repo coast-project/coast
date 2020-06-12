@@ -11,6 +11,7 @@
 #include "Timers.h"
 #include "Tracer.h"
 #include "AllocatorNewDelete.h"
+#include <ostream>
 
 //---- RowAccessor -------------------------------------------------------------------
 // utility class used by BasicTableRenderer to cache the renderers/configuration data

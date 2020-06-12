@@ -8,6 +8,7 @@
 
 #include "MultiDimNavigationRenderer.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- MultiDimNavigationRenderer ---------------------------------------------------------------
 RegisterRenderer(MultiDimNavigationRenderer);

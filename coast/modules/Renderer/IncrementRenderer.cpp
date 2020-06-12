@@ -8,6 +8,7 @@
 
 #include "IncrementRenderer.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- IncrementRenderer --------------------------------------------------------------
 RegisterRenderer(IncrementRenderer);

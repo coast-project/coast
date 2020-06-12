@@ -12,7 +12,7 @@
 #include "StringStream.h"
 
 //! Streambuffer for HTTPChunkedOStream.
-class HTTPChunkedStreamBuf : public streambuf
+class HTTPChunkedStreamBuf : public std::streambuf
 {
 public:
 	//! \param os wrapped output stream

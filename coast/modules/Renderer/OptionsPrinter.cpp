@@ -8,6 +8,7 @@
 
 #include "OptionsPrinter.h"
 #include "Tracer.h"
+#include <ostream>
 
 RegisterRenderer(OptionsPrinter);
 //---- OptionsPrinter ---------------------------------------------------------

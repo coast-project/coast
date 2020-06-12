@@ -9,6 +9,7 @@
 #include "ListenerPoolTest.h"
 #include "RequestListener.h"
 #include "TestSuite.h"
+#include <istream>
 
 class TestCallBack : public AcceptorCallBack
 {

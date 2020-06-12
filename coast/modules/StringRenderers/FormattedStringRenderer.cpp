@@ -12,6 +12,7 @@
 #include "utf8.h"
 #include <iterator>
 #include <algorithm>
+#include <ostream>
 
 namespace {
 	long getStringLength(String const &str) {

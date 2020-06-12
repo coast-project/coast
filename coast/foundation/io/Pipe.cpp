@@ -12,11 +12,12 @@
 #include "Tracer.h"
 #include "Socket.h"
 
-using namespace coast;
-
 #if !defined (WIN32)
 #include <errno.h> /* PS wg. SUNCC5 */
+#include <unistd.h>
 #endif
+
+using namespace coast;
 
 Pipe::Pipe(int readfd, int writefd, bool doClose, long timeout)
 	: fReadFd(readfd)

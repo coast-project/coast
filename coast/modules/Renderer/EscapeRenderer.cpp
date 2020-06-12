@@ -8,6 +8,7 @@
 
 #include "EscapeRenderer.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- EscapeRenderer ---------------------------------------------------------------
 RegisterRenderer(EscapeRenderer);

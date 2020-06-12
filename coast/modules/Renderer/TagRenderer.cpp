@@ -9,6 +9,7 @@
 #include "TagRenderer.h"
 #include "OptionsPrinter.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- TagRenderer ---------------------------------------------------------
 RegisterRenderer(TagRenderer);

@@ -16,6 +16,7 @@
 #include "Socket.h"
 #include <typeinfo>
 #include <cstring>
+#include <ostream>
 
 const String Context::DebugStoreSeparator("<!-- separator 54353021345321784456 -->");
 

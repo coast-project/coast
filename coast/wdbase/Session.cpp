@@ -12,6 +12,7 @@
 #include "Renderer.h"
 #include "LocalizationUtils.h"
 #include "AnythingUtils.h"
+#include <ostream>
 
 class AccessTimer {
 	Session *fSession;

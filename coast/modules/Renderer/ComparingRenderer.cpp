@@ -8,6 +8,7 @@
 
 #include "ComparingRenderer.h"
 #include "Tracer.h"
+#include <ostream>
 
 //---- ComparingRenderer ---------------------------------------------------------------
 ComparingRenderer::ComparingRenderer(const char *name)

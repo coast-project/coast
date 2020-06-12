@@ -11,6 +11,8 @@
 #include "MmapStream.h"
 #include "SystemLog.h"
 #include "Tracer.h"
+#include "InitFinisManager.h"
+#include "singleton.hpp"
 #include <errno.h>
 #include <cstring>
 #include <climits>
@@ -22,9 +24,8 @@
 #else
 #include <dirent.h>  // directory access
 #include <sys/statvfs.h>
+#include <unistd.h>
 #endif
-#include "InitFinisManager.h"
-#include "singleton.hpp"
 
 namespace {
 	//!contains the systems path separator

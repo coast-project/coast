@@ -10,7 +10,7 @@
 #define _StringStreamBuf_H
 
 #include <cstdio>
-#include <streambuf>
+#include <iostream>
 
 //! StringStreamBuf adapts String objects to the iostream framework
 /*! the underlying string is used directly as the buffer to save copying overhead */
@@ -19,14 +19,12 @@ namespace NSStringStream
 	enum IoDirectionValues { eIn, eOut };
 }
 
-using std::streambuf;
-
 template
 <
 typename BufferType,
 		 typename IoDirType
 		 >
-class StringStreamBuf : public streambuf
+class StringStreamBuf : public std::streambuf
 {
 	StringStreamBuf(const StringStreamBuf &);
 	StringStreamBuf &operator=(const StringStreamBuf &);

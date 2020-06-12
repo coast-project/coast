@@ -7,6 +7,8 @@
  */
 
 #include "AllocatorNewDelete.h"
+#include <cstdlib>
+#include <cstddef>
 
 namespace coast {
 	void *AllocatorNewDelete::operator new(std::size_t sz, Allocator *a) throw () {

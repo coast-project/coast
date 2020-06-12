@@ -8,6 +8,8 @@
 
 #include "SystemLog.h"
 #include "SystemBase.h"
+#include "singleton.hpp"
+#include "InitFinisManager.h"
 #include <errno.h>
 #include <cstdio>
 #include <cstring>
@@ -17,9 +19,8 @@
 #include <iostream>
 #else
 #include <syslog.h>
+#include <unistd.h>
 #endif
-#include "singleton.hpp"
-#include "InitFinisManager.h"
 
 #if defined(WIN32)
 //! implementation of SystemLog api for WIN32

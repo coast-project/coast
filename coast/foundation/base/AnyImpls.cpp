@@ -12,6 +12,7 @@
 #include "Tracer.h"
 #include "SystemBase.h"
 #include <iostream>
+#include <algorithm>
 #include <cstring>
 
 #if defined(COAST_TRACE)

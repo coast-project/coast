@@ -10,6 +10,9 @@
 #define _SegStorAllocatorNewDelete_H
 
 #include "ITOStorage.h"
+#include <cassert>
+#include <cstddef>
+#include <new>
 
 namespace coast {
 

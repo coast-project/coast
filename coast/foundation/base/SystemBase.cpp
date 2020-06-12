@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <fcntl.h>
 #include <poll.h>
+#include <unistd.h>
 #if defined(__APPLE__)
 #include <crt_externs.h>
 #endif

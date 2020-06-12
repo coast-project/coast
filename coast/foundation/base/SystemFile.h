@@ -10,6 +10,7 @@
 #define _SYSTEMFILE_H_
 
 #include "Anything.h"
+#include <ios>
 
 //  definitions for io namespace
 #if !defined (R_OK)

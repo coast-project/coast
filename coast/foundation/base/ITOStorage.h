@@ -11,7 +11,7 @@
 
 #include "foundation.h"				//!< for definition of own types
 #include "boost_or_std/memory.h"
-#include <cstdlib>
+#include <cstddef>
 #include <vector>
 
 namespace itostorage {

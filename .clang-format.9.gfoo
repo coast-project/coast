@@ -1,7 +1,7 @@
 ---
 Language:        Cpp
 # BasedOnStyle:  Google
-AccessModifierOffset: -2
+AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
 AlignConsecutiveMacros: false
 AlignConsecutiveAssignments: false
@@ -51,7 +51,7 @@ BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
 ColumnLimit:     128
-CommentPragmas:  '^( IWYU pragma:|\\.+|/.+)'
+CommentPragmas:  '^( IWYU pragma:|\\.+|/[^/].+)'
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
@@ -82,10 +82,10 @@ IncludeCategories:
 #    SortPriority:    0
 IncludeIsMainRegex: '([-_](test|unittest)i|Test)?$'
 #IncludeIsMainSourceRegex: ''
-IndentCaseLabels: false
+IndentCaseLabels: true
 #IndentGotoLabels: true
 IndentPPDirectives: None
-IndentWidth:     2
+IndentWidth:     4
 IndentWrappedFunctionNames: false
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
@@ -157,12 +157,12 @@ SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 #SpaceBeforeSquareBrackets: false
-Standard:        Cpp11
+Standard:        Cpp03
 StatementMacros:
   - Q_UNUSED
   - QT_REQUIRE_VERSION
-TabWidth:        2
+TabWidth:        4
 #UseCRLF:         false
-UseTab:          Never
+UseTab:          Always
 ...
 

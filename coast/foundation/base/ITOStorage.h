@@ -43,7 +43,7 @@ public:
 	typedef std::vector<MemoryHeader *> UsedListType;
 	typedef UsedListType *UsedListTypePtr;
 
-	MemTracker(const char *name);
+	explicit MemTracker(const char *name);
 	virtual ~MemTracker();
 
 	//!tracks allocation; chunk allocated has allocSz
@@ -104,7 +104,7 @@ private:
 
 class NullMemTracker: public MemTracker {
 public:
-	NullMemTracker(const char *);
+	explicit NullMemTracker(const char *);
 	~NullMemTracker();
 	//!tracks allocation; chunk allocated has allocSz
 	virtual void TrackAlloc(MemoryHeader *) {
@@ -158,7 +158,7 @@ protected:
 class Allocator {
 public:
 	typedef boost_or_std::shared_ptr<MemTracker> MemTrackerPtr;
-	Allocator(long allocatorid);
+	explicit Allocator(long allocatorid);
 	virtual ~Allocator();
 
 	//!analogous api to built in c function calloc
@@ -204,8 +204,8 @@ public:
 	/*! set an identification for this pool
 	 \param lId identification for pool
 	 \return old identifier */
-	virtual long SetId(long lId) {
-		long lOldId = fAllocatorId;
+	virtual long SetId(long const lId) {
+		long const lOldId = fAllocatorId;
 		fAllocatorId = lId;
 		return lOldId;
 	}
@@ -444,7 +444,7 @@ class TestStorageHooks {
 	TestStorageHooks &operator=(const TestStorageHooks &);
 	struct _Hooks: public StorageHooks {
 		Allocator *fAllocator;
-		_Hooks(Allocator *wdallocator) :
+		explicit _Hooks(Allocator *wdallocator) :
 				fAllocator(wdallocator) {
 		}
 		~_Hooks() {
@@ -469,7 +469,7 @@ class TestStorageHooks {
 	};
 	coast::storage::StorageHooksPtr theHooks;
 public:
-	TestStorageHooks(Allocator *wdallocator) :
+	explicit TestStorageHooks(Allocator *wdallocator) :
 			theHooks(new _Hooks(wdallocator)) {
 		coast::storage::registerHook(theHooks);
 	}

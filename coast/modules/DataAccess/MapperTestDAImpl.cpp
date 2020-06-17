@@ -7,31 +7,31 @@
  */
 
 #include "MapperTestDAImpl.h"
+
 #include "StringStream.h"
 #include "Tracer.h"
 
 RegisterDataAccessImpl(MapperTestDAImpl);
 
-bool MapperTestDAImpl::Exec( Context &context, ParameterMapper *input, ResultMapper *output)
-{
+bool MapperTestDAImpl::Exec(Context &context, ParameterMapper *input, ResultMapper *output) {
 	StartTrace1(MapperTestDAImpl.Exec, fName);
 	Anything config, anyDataType;
 	TraceAny(fConfig, "fConfig: ");
 	String strMode;
-	if ( input->Get("DataType", anyDataType, context) ) {
+	if (input->Get("DataType", anyDataType, context)) {
 		strMode = anyDataType.AsString();
 	} else {
 		strMode = "String";
 	}
 	Trace("DataType is [" << strMode << "]");
 
-	if ( input->Get("transfer", config, context) ) {
+	if (input->Get("transfer", config, context)) {
 		TraceAny(config, "Config: ");
-		for (long i = 0, sz=config.GetSize(); i < sz; i++) {
+		for (long i = 0, sz = config.GetSize(); i < sz; i++) {
 			String strGetKey, strPutKey;
 			Anything anyEntry = config[i];
 			strGetKey = config.SlotName(i);
-			if ( anyEntry.GetType() == AnyArrayType ) { //<! assume unnamed configuration entries { /getKey putKey }
+			if (anyEntry.GetType() == AnyArrayType) {  //<! assume unnamed configuration entries { /getKey putKey }
 				strGetKey = anyEntry.SlotName(0L);
 				anyEntry = anyEntry[0L];
 			}

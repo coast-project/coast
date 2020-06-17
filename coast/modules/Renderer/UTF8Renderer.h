@@ -23,12 +23,11 @@
  }
  </PRE>
  */
-class UTF8Renderer: public Renderer {
+class UTF8Renderer : public Renderer {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	UTF8Renderer(const char *name) :
-		Renderer(name) {
-	}
+	UTF8Renderer(const char *name) : Renderer(name) {}
+
 protected:
 	//! Converts String into UTF8 character stream
 	/*! @copydoc Renderer::RenderAll(std::ostream &, Context &, const ROAnything &) */

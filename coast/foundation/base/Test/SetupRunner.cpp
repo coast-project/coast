@@ -6,37 +6,37 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
+#include "AnyBuiltInSortTest.h"
+#include "AnyImplsTest.h"
 #include "AnythingConstructorsTest.h"
 #include "AnythingDeepCloneTest.h"
 #include "AnythingImportExportTest.h"
-#include "AnythingLookupTest.h"
+#include "AnythingIteratorTest.h"
 #include "AnythingKeyIndexTest.h"
-#include "AnythingTest.h"
-#include "StringTest.h"
-#include "StringTestExtreme.h"
-#include "StringTokenizerTest.h"
-#include "StringTokenizer2Test.h"
+#include "AnythingLookupTest.h"
 #include "AnythingParserSemanticTest.h"
 #include "AnythingParserTest.h"
+#include "AnythingSTLTest.h"
+#include "AnythingTest.h"
+#include "ROSimpleAnythingTest.h"
 #include "StrSpecialTest.h"
+#include "StringTest.h"
+#include "StringTestExtreme.h"
+#include "StringTokenizer2Test.h"
+#include "StringTokenizerTest.h"
 #include "SysLogTest.h"
-#include "TracerTest.h"
 #include "SystemBaseTest.h"
 #include "SystemFileTest.h"
-#include "ROSimpleAnythingTest.h"
-#include "AnyBuiltInSortTest.h"
-#include "AnyImplsTest.h"
+#include "TestRunner.h"
+#include "TracerTest.h"
 #include "TypeTraitsTest.h"
-#include "AnythingIteratorTest.h"
-#include "AnythingSTLTest.h"
 #if !defined(WIN32)
 #include "MmapTest.h"
 #endif
-#include "StringStreamTest.h"
 #include "StringIteratorTest.h"
 #include "StringReverseIteratorTest.h"
 #include "StringSTLTest.h"
+#include "StringStreamTest.h"
 
 void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, StringTokenizerTest);
@@ -72,4 +72,4 @@ void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, StringIteratorTest);
 	ADD_SUITE(runner, StringReverseIteratorTest);
 	ADD_SUITE(runner, StringSTLTest);
-} // setupRunner
+}  // setupRunner

@@ -7,6 +7,7 @@
  */
 
 #include "LookupInterface.h"
+
 #include "Anything.h"
 #include "Tracer.h"
 
@@ -23,7 +24,9 @@ bool LookupInterface::Lookup(const char *key, ROAnything &result, char delim, ch
 }
 
 const char *LookupInterface::Lookup(const char *key, const char *dflt, char delim, char indexdelim) const {
-	StartTrace1(LookupInterface.LookupChar, "key: <" << NotNull(key) << ">" << " default: " << dflt << " delim: " << delim << " indexdelim: " << indexdelim);
+	StartTrace1(LookupInterface.LookupChar, "key: <" << NotNull(key) << ">"
+													 << " default: " << dflt << " delim: " << delim
+													 << " indexdelim: " << indexdelim);
 	ROAnything a;
 	if (DoLookup(key, a, delim, indexdelim)) {
 		return a.AsCharPtr(dflt);
@@ -32,7 +35,9 @@ const char *LookupInterface::Lookup(const char *key, const char *dflt, char deli
 }
 
 long LookupInterface::Lookup(const char *key, long dflt, char delim, char indexdelim) const {
-	StartTrace1(LookupInterface.LookupLong, "key: <" << NotNull(key) << ">" << " default: " << dflt << " delim: " << delim << " indexdelim: " << indexdelim);
+	StartTrace1(LookupInterface.LookupLong, "key: <" << NotNull(key) << ">"
+													 << " default: " << dflt << " delim: " << delim
+													 << " indexdelim: " << indexdelim);
 	ROAnything a;
 	if (DoLookup(key, a, delim, indexdelim)) {
 		return a.AsLong(dflt);
@@ -41,7 +46,9 @@ long LookupInterface::Lookup(const char *key, long dflt, char delim, char indexd
 }
 
 double LookupInterface::Lookup(const char *key, double dflt, char delim, char indexdelim) const {
-	StartTrace1(LookupInterface.LookupDouble, "key: <" << NotNull(key) << ">" << " default: " << dflt << " delim: " << delim << " indexdelim: " << indexdelim);
+	StartTrace1(LookupInterface.LookupDouble, "key: <" << NotNull(key) << ">"
+													   << " default: " << dflt << " delim: " << delim
+													   << " indexdelim: " << indexdelim);
 	ROAnything a;
 	if (DoLookup(key, a, delim, indexdelim)) {
 		return a.AsDouble(dflt);

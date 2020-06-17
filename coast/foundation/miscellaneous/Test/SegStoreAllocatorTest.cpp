@@ -7,11 +7,12 @@
  */
 
 #include "SegStoreAllocatorTest.h"
+
+#include "Anything.h"
+#include "FoundationTestTypes.h"
+#include "SegStoreAllocator.h"
 #include "TestSuite.h"
 #include "Tracer.h"
-#include "Anything.h"
-#include "SegStoreAllocator.h"
-#include "FoundationTestTypes.h"
 
 void SegStoreAllocatorTest::CreateSimpleAllocator() {
 	StartTrace(SegStoreAllocatorTest.CreateSimpleAllocator);

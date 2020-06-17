@@ -24,12 +24,10 @@
 //! or maybe one might prefer the short cut form that consists only in the
 //! NameOfTheDataAccessToPerform
 //! e.g. { /CallDA NameOfTheDataAccessToPerform }
-class LdapDataAccessTestAction: public CallDataAccessAction {
+class LdapDataAccessTestAction : public CallDataAccessAction {
 public:
-	LdapDataAccessTestAction(const char *name) :
-		CallDataAccessAction(name) {
-	}
-	//!Calls the DataAccess
+	LdapDataAccessTestAction(const char *name) : CallDataAccessAction(name) {}
+	//! Calls the DataAccess
 	//! \param transitionToken (in/out) the event passed by the caller, can be modified.
 	//! \param c the context the action runs within.
 	//! \param config the configuration of the action.

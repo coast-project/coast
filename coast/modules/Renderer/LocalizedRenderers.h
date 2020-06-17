@@ -17,11 +17,11 @@
 \par Configuration
 \code
 {
-	/D			Rendererspec	optional, specification used for german output
-	/F			Rendererspec	optional, specification used for french output
-	/I			Rendererspec	optional, specification used for italian output
-	/E			Rendererspec	optional, specification used for english output
-	/Default 	Rendererspec	optional, used if no regular match is found
+  /D			Rendererspec	optional, specification used for german output
+  /F			Rendererspec	optional, specification used for french output
+  /I			Rendererspec	optional, specification used for italian output
+  /E			Rendererspec	optional, specification used for english output
+  /Default 	Rendererspec	optional, used if no regular match is found
 }
 \endcode
 
@@ -32,8 +32,7 @@ to render.
 Therefore the tags in the config data passed to StringRenderer are arbitrary,
 depending on the choosen representation of the languages.
 */
-class LanguageSwitchRenderer : public Renderer
-{
+class LanguageSwitchRenderer : public Renderer {
 public:
 	LanguageSwitchRenderer(const char *name);
 
@@ -46,11 +45,11 @@ public:
 \par Configuration
 \code
 {
-	/D			String	optional, string used for german output
-	/F			String	optional, string used for french output
-	/I			String	optional, string used for italian output
-	/E			String	optional, string used for english output
-	/Default 	String	optional, used if no regular match is found
+  /D			String	optional, string used for german output
+  /F			String	optional, string used for french output
+  /I			String	optional, string used for italian output
+  /E			String	optional, string used for english output
+  /Default 	String	optional, used if no regular match is found
 }
 \endcode
 
@@ -60,8 +59,7 @@ specifications. There may be a performance advantage by using a StringRenderer
 instead of the more general LanguageSwitchRenderer, however a
 LanguageSwitchRenderer could always be used instead of a StringRenderer:
 */
-class StringRenderer : public Renderer
-{
+class StringRenderer : public Renderer {
 public:
 	StringRenderer(const char *name);
 

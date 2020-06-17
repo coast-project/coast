@@ -14,15 +14,13 @@
 class RequestThreadsManager;
 class ListenerPool;
 
-class ServerThreadPoolsManager: public ServerPoolsManagerInterface {
+class ServerThreadPoolsManager : public ServerPoolsManagerInterface {
 public:
 	ServerThreadPoolsManager(const char *ServerThreadPoolsManagerName);
 	virtual ~ServerThreadPoolsManager();
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) ServerThreadPoolsManager(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) ServerThreadPoolsManager(fName); }
 
 	//! initialize the managed thread pools
 	virtual int Init(Server *server);
@@ -33,19 +31,19 @@ public:
 	//! run the the thread pools
 	virtual int Run(Server *server);
 
-	//!block the request handling in the managed pools
+	//! block the request handling in the managed pools
 	virtual bool BlockRequests(Server *server);
 
-	//!unblock the request handling in the managed pools
+	//! unblock the request handling in the managed pools
 	virtual void UnblockRequests();
 
-	//!terminate thread pool operation
+	//! terminate thread pool operation
 	virtual int RequestTermination();
 
-	//!terminate thread pool operation
+	//! terminate thread pool operation
 	virtual void Terminate();
 
-	//!access to configuration data
+	//! access to configuration data
 	virtual long GetThreadPoolSize();
 
 protected:
@@ -55,14 +53,14 @@ protected:
 	bool SetupSocket(Server *server);
 	int SetupThreadPool(bool reinit, Server *server);
 
-	//!pool of threads that handle incoming requests
+	//! pool of threads that handle incoming requests
 	RequestThreadsManager *fActiveRequests;
 
-	//!acceptor objects running the accept loops and calling back the RequestManager via callback object
+	//! acceptor objects running the accept loops and calling back the RequestManager via callback object
 	ListenerPool *fAcceptors;
 
 private:
-	virtual RequestProcessor* DoGetRequestProcessor();
+	virtual RequestProcessor *DoGetRequestProcessor();
 
 	// block the following default elements of this class
 	// because they're not allowed to be used

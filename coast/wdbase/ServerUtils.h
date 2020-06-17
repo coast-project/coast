@@ -22,16 +22,17 @@ class ROAnything;
 // implementation for the WIN32 interrupthandler
 // which is quite different from the solaris one
 
-class WIN32InterruptHandler
-{
+class WIN32InterruptHandler {
 public:
 	WIN32InterruptHandler(Server *server);
-	virtual ~WIN32InterruptHandler() { }
+	virtual ~WIN32InterruptHandler() {}
+
 private:
 	WIN32InterruptHandler();
 	WIN32InterruptHandler &operator=(const WIN32InterruptHandler &);
 
 	Server *fServer;
+
 public:
 	static void ShutDown();
 	static Server *fgServer;
@@ -42,13 +43,13 @@ public:
 // is based on the signal handling API's of the
 // solaris thread library
 
-class InterruptHandler: public Thread
-{
+class InterruptHandler : public Thread {
 public:
 	InterruptHandler(Server *server);
 	~InterruptHandler();
 
 	void Run();
+
 private:
 	Server *fServer;
 };
@@ -57,20 +58,19 @@ private:
 /*!handles request execution in its own thread; it handles at most one request at a time
 wraps RequestProcessor with a thread of control; it implements the worker metapher
 with the setup; work and ready cycle */
-class HandleRequest : public WorkerThread
-{
+class HandleRequest : public WorkerThread {
 public:
 	//! default constructor used for array allocation
 	HandleRequest(const char *name = "HandleRequest");
 
 protected:
-	//!setup request processor as callback object
+	//! setup request processor as callback object
 	virtual void DoInit(ROAnything workerInit);
-	//!prepare for next working run; sets up socket
+	//! prepare for next working run; sets up socket
 	virtual void DoWorkingHook(ROAnything workloadArgs);
-	//!calls request processor to handle the request
+	//! calls request processor to handle the request
 	virtual void DoProcessWorkload();
-	//!close the socket stream if any is activ
+	//! close the socket stream if any is activ
 	virtual void DoTerminationRequestHook(ROAnything args);
 
 private:
@@ -80,31 +80,30 @@ private:
 	HandleRequest &operator=(const HandleRequest &);
 
 protected:
-	Socket *fClientSocket;	// the socket file descriptor for this request
-	RequestProcessor *fProcessor;		// the processor i'm working with
-	long fRequestNumber;	// the sequence number of this request
+	Socket *fClientSocket;		   // the socket file descriptor for this request
+	RequestProcessor *fProcessor;  // the processor i'm working with
+	long fRequestNumber;		   // the sequence number of this request
 };
 
-class RequestThreadsManager : public WorkerPoolManager
-{
+class RequestThreadsManager : public WorkerPoolManager {
 public:
 	RequestThreadsManager(String name);
 	~RequestThreadsManager();
 
-	RequestProcessor* GetRequestProcessor() {
-		return fProcessor;
-	}
+	RequestProcessor *GetRequestProcessor() { return fProcessor; }
+
 protected:
-	//!check if the presently pool may be re-initalized
+	//! check if the presently pool may be re-initalized
 	virtual bool CanReInitPool();
 
-	//!allocate the handle request thread pool
+	//! allocate the handle request thread pool
 	virtual void DoAllocPool(ROAnything args);
 
-	//!cleanup hook for re-initialization of pool
+	//! cleanup hook for re-initialization of pool
 	virtual void DoDeletePool(ROAnything args);
 
 	virtual WorkerThread *DoGetWorker(long i);
+
 private:
 	// block the following default elements of this class
 	// because they're not allowed to be used
@@ -112,8 +111,8 @@ private:
 	RequestThreadsManager &operator=(const RequestThreadsManager &);
 
 protected:
-	HandleRequest *fRequests;				// vector storing all request thread objects
-	RequestProcessor *fProcessor;			// shared processor for this pool (I am the owner)
+	HandleRequest *fRequests;	   // vector storing all request thread objects
+	RequestProcessor *fProcessor;  // shared processor for this pool (I am the owner)
 };
 
-#endif		//ifndef _SERVERUTILS_H
+#endif	// ifndef _SERVERUTILS_H

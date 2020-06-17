@@ -11,11 +11,9 @@
 
 #include "TestCase.h"
 
-class PipeTest: public testframework::TestCase {
+class PipeTest : public testframework::TestCase {
 public:
-	PipeTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	PipeTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void simpleConstructorTest();
 	void defaultConstructorTest();

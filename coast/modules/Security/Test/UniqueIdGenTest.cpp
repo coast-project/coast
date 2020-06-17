@@ -6,14 +6,14 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestSuite.h"
 #include "UniqueIdGenTest.h"
-#include "UniqueIdGen.h"
-#include "Tracer.h"
-#include "Anything.h"
 
-void UniqueIdGenTest::GetUniqueIdTest()
-{
+#include "Anything.h"
+#include "TestSuite.h"
+#include "Tracer.h"
+#include "UniqueIdGen.h"
+
+void UniqueIdGenTest::GetUniqueIdTest() {
 	StartTrace(UniqueIdGenTest.GetUniqueIdTest);
 	long iterations = 20000L;
 
@@ -21,30 +21,28 @@ void UniqueIdGenTest::GetUniqueIdTest()
 	DoGetUniqueIdTest(iterations, "xxx");
 }
 
-void UniqueIdGenTest::DoGetUniqueIdTest(long iterations, const String &additionalToken)
-{
+void UniqueIdGenTest::DoGetUniqueIdTest(long iterations, const String &additionalToken) {
 	StartTrace(UniqueIdGenTest.DoGetUniqueIdTest);
 	Anything uniqueId, check;
 
-	for ( long l = 0; l < iterations; l++ ) {
+	for (long l = 0; l < iterations; l++) {
 		uniqueId[l] = coast::security::generateUniqueId(additionalToken);
 		Trace("uniqueId :[" << uniqueId[l].AsString() << "]");
 	}
-	for ( long l = 0; l < iterations; l++ ) {
+	for (long l = 0; l < iterations; l++) {
 		Trace(uniqueId[l].AsString());
-		check[uniqueId[l].AsString()]  = check[uniqueId[l].AsString()].AsLong(0) + 1L;
+		check[uniqueId[l].AsString()] = check[uniqueId[l].AsString()].AsLong(0) + 1L;
 	}
 	// We should get 10000 unique ID's
 	assertEqual(iterations, check.GetSize());
-	for ( long l = 0; l < iterations; l++ ) {
+	for (long l = 0; l < iterations; l++) {
 		assertEqual(1L, check[l].AsLong(0L));
 	}
 	TraceAny(uniqueId, "uniqueId");
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *UniqueIdGenTest::suite ()
-{
+Test *UniqueIdGenTest::suite() {
 	StartTrace(UniqueIdGenTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, UniqueIdGenTest, GetUniqueIdTest);

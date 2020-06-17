@@ -11,13 +11,11 @@
 
 #include "FoundationTestTypes.h"
 
-class RegExpFilterFieldsParameterMapperTest: public testframework::TestCaseWithConfig {
+class RegExpFilterFieldsParameterMapperTest : public testframework::TestCaseWithConfig {
 public:
 	//! ConfiguredTestCase constructor
 	//! \param name name of the test
-	RegExpFilterFieldsParameterMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	RegExpFilterFieldsParameterMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//! builds up a suite of tests
 	static Test *suite();

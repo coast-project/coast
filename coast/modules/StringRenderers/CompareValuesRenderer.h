@@ -23,19 +23,17 @@
 //		/Error		{ RendererSpec for TestCondition == Error }
 //      ...
 //	}</PRE>
-class CompareValuesRenderer : public Renderer
-{
+class CompareValuesRenderer : public Renderer {
 public:
 	//--- constructors
 	CompareValuesRenderer(const char *name);
 	~CompareValuesRenderer();
 
 	//:Renders ?? on <I>reply </I>
-	//!param: reply - out - the stream where the rendered output is written on.
-	//!param: c - the context the renderer runs within.
-	//!param: config - the configuration of the renderer.
+	//! param: reply - out - the stream where the rendered output is written on.
+	//! param: c - the context the renderer runs within.
+	//! param: config - the configuration of the renderer.
 	virtual void RenderAll(std::ostream &reply, Context &c, const ROAnything &config);
-
 };
 
 #endif

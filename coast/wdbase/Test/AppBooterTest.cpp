@@ -7,13 +7,14 @@
  */
 
 #include "AppBooterTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
+
 #include "AppBooter.h"
+#include "Context.h"
+#include "FoundationTestTypes.h"
+#include "SimpleTestApp.h"
 #include "SystemBase.h"
 #include "SystemFile.h"
-#include "SimpleTestApp.h"
-#include "Context.h"
+#include "TestSuite.h"
 #include "Tracer.h"
 
 using namespace coast;
@@ -38,7 +39,7 @@ void AppBooterTest::HandleUnstructuredArgsTest() {
 		// unstructured argument
 		Anything result;
 		Anything expected;
-		const char *argv[] = { "foo", "bah" };
+		const char *argv[] = {"foo", "bah"};
 		const int argc = 2;
 		expected.Append("foo");
 		expected.Append("bah");
@@ -56,7 +57,7 @@ void AppBooterTest::HandleStructuredArgsTest() {
 		// structured argument
 		Anything result;
 		Anything expected;
-		const char *argv[] = { "test1=foo", "test2=bah" };
+		const char *argv[] = {"test1=foo", "test2=bah"};
 		const int argc = 2;
 		expected["test1"] = "foo";
 		expected["test2"] = "bah";
@@ -70,7 +71,7 @@ void AppBooterTest::HandleStructuredArgsTest() {
 		// structured argument
 		Anything result;
 		Anything expected;
-		const char *argv[] = { "test1=foo", "test2=bah", "test1=yum", "test2=grmbl" };
+		const char *argv[] = {"test1=foo", "test2=bah", "test1=yum", "test2=grmbl"};
 		const int argc = 4;
 		expected["test1"] = "foo";
 		expected["test2"] = "bah";
@@ -86,7 +87,7 @@ void AppBooterTest::HandleStructuredArgsTest() {
 		// structured argument
 		Anything result;
 		Anything expected;
-		const char *argv[] = { "test1={ /foo bah /yum grmbl }", "test2=bah" };
+		const char *argv[] = {"test1={ /foo bah /yum grmbl }", "test2=bah"};
 		const int argc = 2;
 		expected["test1"] = "{ /foo bah /yum grmbl }";
 		expected["test2"] = "bah";
@@ -117,7 +118,7 @@ void AppBooterTest::PrepareBootFileLoadingTest() {
 	{
 		// config set test
 		Anything config;
-		//store away actual settins
+		// store away actual settins
 		String actualRoot = system::GetRootDir();
 		String actualPath = system::GetPathList();
 
@@ -131,7 +132,7 @@ void AppBooterTest::PrepareBootFileLoadingTest() {
 		// this tests succeeds only if COAST_PATH and COAST_ROOT are not set in the environment
 		assertEqualm("/foo/bah/end", system::GetRootDir(), "expected local directory");
 		assertEqualm("app:app_src:app_log", system::GetPathList(), "expected default path list");
-		//restore actual settings
+		// restore actual settings
 		system::SetRootDir(actualRoot);
 		system::SetPathList(actualPath);
 	}
@@ -167,7 +168,7 @@ void AppBooterTest::MergeConfigWithArgsTest() {
 		expected["config1"] = "value1";
 		expected["Arguments"]["args0"] = "argsValue0";
 		expected["Arguments"]["args1"] = "argsValue1";
-		//skip arg[0] at top level; it usually is the programname
+		// skip arg[0] at top level; it usually is the programname
 		//		expected["args0"]= expected["Arguments"]["args0"];
 		expected["args1"] = expected["Arguments"]["args1"];
 
@@ -195,7 +196,7 @@ void AppBooterTest::MergeConfigWithArgsTest() {
 		expected["Arguments"]["args0"] = "argsValue0";
 		expected["Arguments"]["Application"] = "argsValue1";
 		expected["Arguments"].Append("argsValue2");
-		//skip arg[0] at top level; it usually is the programname
+		// skip arg[0] at top level; it usually is the programname
 		//		expected["args0"]= expected["Arguments"]["args0"];
 		expected["Application"] = expected["Arguments"]["Application"];
 		expected.Append(expected["Arguments"][2]);
@@ -210,7 +211,7 @@ void AppBooterTest::MergeConfigWithArgsTest() {
 void AppBooterTest::OpenLibsTest() {
 	StartTrace(AppBooterTest.OpenLibsTest);
 
-	//write pid to file to make it usable by scripts
+	// write pid to file to make it usable by scripts
 	std::ostream *os = system::OpenOStream("config/wdbasetest", "pid");
 
 	if (os) {
@@ -243,7 +244,8 @@ void AppBooterTest::OpenLibsTest() {
 		config["DLL"].Append("libCoastFoundationBase");
 
 		t_assertm(appBooter.OpenLibs(config), "expected to quietly ignore already loaded library");
-		assertEqualm("libCoastFoundationBase", appBooter.fLibArray.SlotName(0L), "expected loaded library to be stored in libArray");
+		assertEqualm("libCoastFoundationBase", appBooter.fLibArray.SlotName(0L),
+					 "expected loaded library to be stored in libArray");
 		t_assertm(0 != appBooter.fLibArray["libCoastFoundationBase"].AsLong(0), "expected to store handle in libArray");
 	}
 	{
@@ -253,7 +255,8 @@ void AppBooterTest::OpenLibsTest() {
 		config["DLL"].Append("CoastWDBaseTestTestLib");
 
 		t_assertm(appBooter.OpenLibs(config), "expected to load existing library");
-		assertEqualm("CoastWDBaseTestTestLib", appBooter.fLibArray.SlotName(0L), "expected loaded library to be stored in libArray");
+		assertEqualm("CoastWDBaseTestTestLib", appBooter.fLibArray.SlotName(0L),
+					 "expected loaded library to be stored in libArray");
 		t_assertm(0 != appBooter.fLibArray["CoastWDBaseTestTestLib"].AsLong(0), "expected to store handle in libArray");
 	}
 }
@@ -262,7 +265,7 @@ void AppBooterTest::RunTest() {
 	StartTrace(AppBooterTest.RunTest);
 	{
 		AppBooter booter;
-		SimpleTestApp *sta = (SimpleTestApp *) Application::FindApplication("SimpleTestApp");
+		SimpleTestApp *sta = (SimpleTestApp *)Application::FindApplication("SimpleTestApp");
 		if (t_assert(sta != NULL)) {
 			sta->SetTest(this);
 		}
@@ -300,7 +303,7 @@ void AppBooterTest::RunTest() {
 		fSequence[10L] = "DoTerminate left";
 		fSequence[11L] = "DoGlobalTerminate left";
 		fStep = 0;
-		const char *argv[] = { "RunTest", "Application=SimpleTestServer" };
+		const char *argv[] = {"RunTest", "Application=SimpleTestServer"};
 		assertEqual(0L, booter.Run(2, argv, false));
 	}
 }

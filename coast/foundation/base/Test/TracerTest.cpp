@@ -7,9 +7,10 @@
  */
 
 #include "TracerTest.h"
-#include "Tracer.h"
-#include "TestSuite.h"
+
 #include "Anything.h"
+#include "TestSuite.h"
+#include "Tracer.h"
 
 void TracerTest::setUp() {
 #ifdef COAST_TRACE
@@ -24,8 +25,7 @@ void TracerTest::tearDown() {
 #endif
 }
 
-void TracerTest::TracerTestExplicitlyEnabled()
-{
+void TracerTest::TracerTestExplicitlyEnabled() {
 #ifdef COAST_TRACE
 	// test explicitly enabled switches between lower and upper bound
 	assertEqual(true, TriggerEnabled(TracerTest.FirstLevelEnabled));
@@ -55,8 +55,7 @@ void TracerTest::TracerTestExplicitlyEnabled()
 #endif
 }
 
-void TracerTest::TracerTestLowerBoundZero()
-{
+void TracerTest::TracerTestLowerBoundZero() {
 #ifdef COAST_TRACE
 	// test lower bound set to 0
 	assertEqual(false, TriggerEnabled(TracerTest.FirstLevelEnabled));
@@ -86,8 +85,7 @@ void TracerTest::TracerTestLowerBoundZero()
 #endif
 }
 
-void TracerTest::TracerTestEnableAllFirstLevel()
-{
+void TracerTest::TracerTestEnableAllFirstLevel() {
 #ifdef COAST_TRACE
 	// enable all on the first level
 	assertEqual(true, TriggerEnabled(TracerTest.FirstLevelEnabled));
@@ -117,8 +115,7 @@ void TracerTest::TracerTestEnableAllFirstLevel()
 #endif
 }
 
-void TracerTest::TracerTestEnableAllSecondLevel()
-{
+void TracerTest::TracerTestEnableAllSecondLevel() {
 #ifdef COAST_TRACE
 	// enable all on the second level
 	assertEqual(true, TriggerEnabled(TracerTest.FirstLevelEnabled));
@@ -148,8 +145,7 @@ void TracerTest::TracerTestEnableAllSecondLevel()
 #endif
 }
 
-void TracerTest::TracerTestEnableAllThirdLevel()
-{
+void TracerTest::TracerTestEnableAllThirdLevel() {
 #ifdef COAST_TRACE
 	// enable all on the third level
 	assertEqual(true, TriggerEnabled(TracerTest.FirstLevelEnabled));
@@ -179,8 +175,7 @@ void TracerTest::TracerTestEnableAllThirdLevel()
 #endif
 }
 
-void TracerTest::TracerTestEnableAllAboveUpperBound()
-{
+void TracerTest::TracerTestEnableAllAboveUpperBound() {
 #ifdef COAST_TRACE
 	// enable all above upper bound switch
 	assertEqual(true, TriggerEnabled(TracerTest.FirstLevelEnabled));
@@ -206,8 +201,7 @@ void TracerTest::TracerTestEnableAllAboveUpperBound()
 #endif
 }
 
-void TracerTest::TracerTestEnableAllBelowLowerBound()
-{
+void TracerTest::TracerTestEnableAllBelowLowerBound() {
 #ifdef COAST_TRACE
 	// enable all below lower bound switch
 	assertEqual(true, TriggerEnabled(TracerTest.FirstLevelEnabled));
@@ -237,8 +231,7 @@ void TracerTest::TracerTestEnableAllBelowLowerBound()
 #endif
 }
 
-void TracerTest::TracerTestEnableAllSecondAndBelowDisabled()
-{
+void TracerTest::TracerTestEnableAllSecondAndBelowDisabled() {
 #ifdef COAST_TRACE
 	// check EnableAll with exclusion and disable all below second level
 	assertEqual(true, TriggerEnabled(TracerTest.FirstLevelEnabled));
@@ -268,8 +261,7 @@ void TracerTest::TracerTestEnableAllSecondAndBelowDisabled()
 #endif
 }
 
-void TracerTest::TracerTestNotAllAboveLowerBound()
-{
+void TracerTest::TracerTestNotAllAboveLowerBound() {
 #ifdef COAST_TRACE
 	// check EnableAll with exclusion and disable all below second level
 	assertEqual(false, TriggerEnabled(BelowLowerBound.SlotNotDefined));
@@ -285,8 +277,7 @@ void TracerTest::TracerTestNotAllAboveLowerBound()
 #endif
 }
 
-void TracerTest::TracerTestBug248()
-{
+void TracerTest::TracerTestBug248() {
 #ifdef COAST_TRACE
 	// check EnableAll with exclusion and disable all below second level
 	assertEqual(false, TriggerEnabled(MyHTMLWriter.SlotNotDefined));
@@ -297,8 +288,7 @@ void TracerTest::TracerTestBug248()
 #endif
 }
 
-void TracerTest::CheckMacrosCompile()
-{
+void TracerTest::CheckMacrosCompile() {
 	StartTrace(TracerTest.CheckMacrosCompile);
 	Anything a;
 	Trace("i was here");
@@ -313,8 +303,7 @@ void TracerTest::CheckMacrosCompile()
 	TriggerEnabled(SectionNotDefined.SlotNotDefined);
 }
 
-Test *TracerTest::suite ()
-{
+Test *TracerTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, TracerTest, CheckMacrosCompile);
 	ADD_CASE(testSuite, TracerTest, TracerTestExplicitlyEnabled);

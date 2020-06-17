@@ -13,16 +13,14 @@
 
 //! comment action
 //!	Structure of config:
-//!<PRE>	{
+//!< PRE>	{
 //!		/Slot1	....
 //!      ...
 //!	}</PRE>
-class FlowControllerPerformAnalyzeAction: public Action {
+class FlowControllerPerformAnalyzeAction : public Action {
 public:
-	FlowControllerPerformAnalyzeAction(const char *name) :
-		Action(name) {
-	}
-	//!DoSomething method for configured Actions
+	FlowControllerPerformAnalyzeAction(const char *name) : Action(name) {}
+	//! DoSomething method for configured Actions
 	//! \param transitionToken (in/out) the event passed by the caller, can be modified.
 	//! \param ctx the context the action runs within.
 	//! \param config the configuration of the action.

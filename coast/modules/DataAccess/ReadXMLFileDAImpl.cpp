@@ -7,29 +7,24 @@
  */
 
 #include "ReadXMLFileDAImpl.h"
+
 #include "GenericXMLParser.h"
 #include "Tracer.h"
+
 #include <istream>
 
 //--- ReadXMLFileDAImpl -----------------------------------------------------
 RegisterDataAccessImpl(ReadXMLFileDAImpl);
 
-ReadXMLFileDAImpl::ReadXMLFileDAImpl(const char *name)
-	: ReadFileDAImpl(name)
-{
-}
+ReadXMLFileDAImpl::ReadXMLFileDAImpl(const char *name) : ReadFileDAImpl(name) {}
 
-ReadXMLFileDAImpl::~ReadXMLFileDAImpl()
-{
-}
+ReadXMLFileDAImpl::~ReadXMLFileDAImpl() {}
 
-IFAObject *ReadXMLFileDAImpl::Clone(Allocator *a) const
-{
+IFAObject *ReadXMLFileDAImpl::Clone(Allocator *a) const {
 	return new (a) ReadXMLFileDAImpl(fName);
 }
 
-bool ReadXMLFileDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out)
-{
+bool ReadXMLFileDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out) {
 	StartTrace(ReadXMLFileDAImpl.Exec);
 	bool retVal = false;
 	std::istream *Ios = GetFileStream(context, in);

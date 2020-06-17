@@ -16,17 +16,16 @@
  \par Configuration
  \code
 {
-	/HeaderSlot		Rendererspec	[optional], or use first value
-	...
+  /HeaderSlot		Rendererspec	[optional], or use first value
+  ...
 }
 \endcode
 */
-class HTTPHeaderRenderer: public Renderer {
+class HTTPHeaderRenderer : public Renderer {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	HTTPHeaderRenderer(const char *name) :
-		Renderer(name) {
-	}
+	HTTPHeaderRenderer(const char *name) : Renderer(name) {}
+
 protected:
 	/*! @copydoc Renderer::RenderAll(std::ostream &, Context &, const ROAnything &) */
 	virtual void RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config);

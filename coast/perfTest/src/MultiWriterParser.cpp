@@ -8,9 +8,8 @@
 
 #include "MultiWriterParser.h"
 
-MultiWriterParser::MultiWriterParser(AAT_HTMLReader &reader, AAT_HTMLWriter &writer1, AAT_HTMLWriter &writer2) :
-	AAT_StdHTMLParser(reader, writer1), fSecondWriter(writer2) {
-}
+MultiWriterParser::MultiWriterParser(AAT_HTMLReader &reader, AAT_HTMLWriter &writer1, AAT_HTMLWriter &writer2)
+	: AAT_StdHTMLParser(reader, writer1), fSecondWriter(writer2) {}
 
 void MultiWriterParser::IntFlush() {
 	fSecondWriter.Flush();

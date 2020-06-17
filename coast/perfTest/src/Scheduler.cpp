@@ -3,16 +3,15 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Scheduler.h"
-#include "SystemBase.h"
+
 #include "ITOString.h"
+#include "SystemBase.h"
 
 using namespace coast;
 
-Scheduler::Scheduler() {
-}
+Scheduler::Scheduler() {}
 
-Scheduler::~Scheduler() {
-}
+Scheduler::~Scheduler() {}
 
 String Scheduler::currTimeInDayHourMin() {
 	// convert the timeDate from C-Format into DayHourMin
@@ -27,11 +26,11 @@ String Scheduler::currTimeInDayHourMin() {
 	system::LocalTime(&now, &time);
 	system::AscTime(&time, timeDate);
 
-	String result = timeDate.SubString(0, 3); // Day of week
+	String result = timeDate.SubString(0, 3);  // Day of week
 	result.Append(" ");
-	result.Append(timeDate.SubString(11, 2)); // Hour
+	result.Append(timeDate.SubString(11, 2));  // Hour
 	result.Append(":");
-	result.Append(timeDate.SubString(14, 2)); // Min
+	result.Append(timeDate.SubString(14, 2));  // Min
 	result.ToUpper();
 	return (result);
 }
@@ -212,11 +211,11 @@ String Scheduler::CurrTimeDateInDecimal() {
 String Scheduler::ConvertFromSingleTimeInDecimal(String singleTime) {
 	// SingleTime = "1999-04-08 14:30"
 	// decimal	  = 199904081439
-	String result = singleTime.SubString(0, 4); // Year
-	result.Append(singleTime.SubString(5, 2)); // Month
-	result.Append(singleTime.SubString(8, 2)); // Day
-	result.Append(singleTime.SubString(11, 2)); // Hour
-	result.Append(singleTime.SubString(14, 2)); // Min
+	String result = singleTime.SubString(0, 4);	 // Year
+	result.Append(singleTime.SubString(5, 2));	 // Month
+	result.Append(singleTime.SubString(8, 2));	 // Day
+	result.Append(singleTime.SubString(11, 2));	 // Hour
+	result.Append(singleTime.SubString(14, 2));	 // Min
 
 	// Check if the result contains only digits
 	long len = result.Length();

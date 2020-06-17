@@ -7,44 +7,43 @@
  */
 
 #include "BoostPoolTest.h"
-#include "TestSuite.h"
-#include "SystemLog.h"
-#include "ThreadPools.h"
+
 #include "MT_Storage.h"
-#include <boost/pool/pool_alloc.hpp>
-#include <boost/pool/object_pool.hpp>
+#include "SystemLog.h"
+#include "TestSuite.h"
+#include "ThreadPools.h"
+
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/pool/object_pool.hpp>
+#include <boost/pool/pool_alloc.hpp>
 #include <deque>
-#include <vector>
 #include <set>
+#include <vector>
 
-BoostPoolTest::BoostPoolTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+BoostPoolTest::BoostPoolTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(BoostPoolTest.Ctor);
 }
 
-BoostPoolTest::~BoostPoolTest()
-{
+BoostPoolTest::~BoostPoolTest() {
 	StartTrace(BoostPoolTest.Dtor);
 }
 
 // uncomment if something special needs to be done which isnt already done in base class
-//void BoostPoolTest::setUp ()
+// void BoostPoolTest::setUp ()
 //{
 //	StartTrace(BoostPoolTest.setUp);
 //}
 //
-//void BoostPoolTest::tearDown ()
+// void BoostPoolTest::tearDown ()
 //{
 //	StartTrace(BoostPoolTest.tearDown);
 //}
 
 namespace {
-// Each "tester" object below checks into and out of the "cdtor_checker",
-//  which will report any problems related to the construction/destruction of
-//  "tester" objects.
+	// Each "tester" object below checks into and out of the "cdtor_checker",
+	//  which will report any problems related to the construction/destruction of
+	//  "tester" objects.
 	class cdtor_checker {
 	private:
 		// Each constructed object registers its "this" pointer into "objs"
@@ -59,13 +58,13 @@ namespace {
 			}
 		}
 
-		void check_in(void * const This) {
+		void check_in(void *const This) {
 			if (objs.find(This) != objs.end()) {
 				SYSERROR("Double-constructed memory: " << (long)This);
 			}
 			objs.insert(This);
 		}
-		void check_out(void * const This) {
+		void check_out(void *const This) {
 			std::set<void *>::iterator i = objs.find(This);
 			if (i == objs.end()) {
 				SYSERROR("Destroyed non-constructed memory: " << (long)This);
@@ -74,9 +73,7 @@ namespace {
 		}
 
 		// true iff all objects that have checked in have checked out
-		bool ok() const {
-			return objs.empty();
-		}
+		bool ok() const { return objs.empty(); }
 	};
 	cdtor_checker mem;
 
@@ -98,10 +95,9 @@ namespace {
 			mem.check_out(this);
 		}
 	};
-}
+}  // namespace
 
-void BoostPoolTest::BasicsTest()
-{
+void BoostPoolTest::BasicsTest() {
 	StartTrace(BoostPoolTest.BasicsTest);
 	MemChecker aChecker("BoostPoolTest.BasicsTest", coast::storage::Global());
 	{
@@ -158,8 +154,7 @@ void BoostPoolTest::BasicsTest()
 	}
 }
 
-void BoostPoolTest::AllocationTest()
-{
+void BoostPoolTest::AllocationTest() {
 	StartTrace(BoostPoolTest.AllocationTest);
 	{
 		// Allocate several tester objects.  Delete one.
@@ -204,7 +199,7 @@ void BoostPoolTest::AllocationTest()
 		tmp = a.allocate(1, 0);
 		new (tmp) tester(13, 13);
 	}
-	if ( !t_assertm( !mem.ok(), "memory count should be different because of memory leak" ) ) {
+	if (!t_assertm(!mem.ok(), "memory count should be different because of memory leak")) {
 		SYSERROR("Pool allocator cleaned up, but it shouldnt!");
 	}
 	// Remove memory checker entry (to avoid error later) and
@@ -226,30 +221,32 @@ struct TrackAlloc {
 
 	static char *malloc(const size_type bytes) {
 		char *const ret = UserAllocator::malloc(bytes);
-		StatTrace(TrackAlloc.malloc, "size:" << (long)bytes << " @" << (long)ret << " blocks@" << (long)&allocated_blocks << " size:" << (long)allocated_blocks.size(), coast::storage::Global());
+		StatTrace(TrackAlloc.malloc,
+				  "size:" << (long)bytes << " @" << (long)ret << " blocks@" << (long)&allocated_blocks
+						  << " size:" << (long)allocated_blocks.size(),
+				  coast::storage::Global());
 		allocated_blocks.insert(ret);
 		return ret;
 	}
 	static void free(char *const block) {
-		StatTrace(TrackAlloc.free, "@" << (long)block << " blocks@" << (long)&allocated_blocks << " size:" << (long)allocated_blocks.size(), coast::storage::Global());
+		StatTrace(TrackAlloc.free,
+				  "@" << (long)block << " blocks@" << (long)&allocated_blocks << " size:" << (long)allocated_blocks.size(),
+				  coast::storage::Global());
 		if (allocated_blocks.find(block) == allocated_blocks.end()) {
-			SYSERROR("Free'd non-malloc'ed block: " << (long)(void *) block);
+			SYSERROR("Free'd non-malloc'ed block: " << (long)(void *)block);
 		}
 		allocated_blocks.erase(block);
 		UserAllocator::free(block);
 	}
 
-	static bool ok() {
-		return allocated_blocks.empty();
-	}
+	static bool ok() { return allocated_blocks.empty(); }
 };
 template <typename UserAllocator>
 std::set<char *> TrackAlloc<UserAllocator>::allocated_blocks;
 
 typedef TrackAlloc<boost::default_user_allocator_new_delete> track_alloc;
 
-void BoostPoolTest::MemUsageTest()
-{
+void BoostPoolTest::MemUsageTest() {
 	StartTrace(BoostPoolTest.MemUsageTest);
 
 	typedef boost::pool<track_alloc> pool_type;
@@ -270,7 +267,7 @@ void BoostPoolTest::MemUsageTest()
 		t_assertm(track_alloc::ok(), "Memory error");
 
 		// Should allocate from system again
-		pool.malloc(); // loses the pointer to the returned chunk (*A*)
+		pool.malloc();	// loses the pointer to the returned chunk (*A*)
 
 		// Ask pool to give up memory it's not using; this should fail
 		t_assertm(!pool.release_memory(), "Pool released memory");
@@ -281,7 +278,7 @@ void BoostPoolTest::MemUsageTest()
 		t_assertm(track_alloc::ok(), "Memory error");
 
 		// Should allocate from system again
-		pool.malloc(); // loses the pointer to the returned chunk (*B*)
+		pool.malloc();	// loses the pointer to the returned chunk (*B*)
 
 		// pool's destructor should purge the memory
 		//  This will clean up the memory leak from (*B*)
@@ -292,8 +289,7 @@ void BoostPoolTest::MemUsageTest()
 
 typedef TrackAlloc<itostorage::BoostPoolUserAllocatorGlobal> track_allocWD;
 
-void BoostPoolTest::GlobalStorageMemUsageTest()
-{
+void BoostPoolTest::GlobalStorageMemUsageTest() {
 	StartTrace(BoostPoolTest.GlobalStorageMemUsageTest);
 
 	typedef boost::pool<track_allocWD> pool_typeWD;
@@ -307,7 +303,8 @@ void BoostPoolTest::GlobalStorageMemUsageTest()
 
 		// Should allocate from system
 		pool.free(pool.malloc());
-		assertComparem(static_cast<l_long>(pool.get_next_size() * sizeof(track_allocWD)), less, aChecker.CheckDelta(), "expected no unfreed memory");
+		assertComparem(static_cast<l_long>(pool.get_next_size() * sizeof(track_allocWD)), less, aChecker.CheckDelta(),
+					   "expected no unfreed memory");
 		t_assertm(!track_allocWD::ok(), "Memory error");
 
 		// Ask pool to give up memory it's not using; this should succeed
@@ -316,7 +313,7 @@ void BoostPoolTest::GlobalStorageMemUsageTest()
 		assertComparem(0LL, equal_to, aChecker.CheckDelta(), "expected no unfreed memory");
 
 		// Should allocate from system again
-		pool.malloc(); // loses the pointer to the returned chunk (*A*)
+		pool.malloc();	// loses the pointer to the returned chunk (*A*)
 
 		// Ask pool to give up memory it's not using; this should fail
 		t_assertm(!pool.release_memory(), "Pool released memory");
@@ -327,7 +324,7 @@ void BoostPoolTest::GlobalStorageMemUsageTest()
 		t_assertm(track_allocWD::ok(), "Memory error");
 
 		// Should allocate from system again
-		pool.malloc(); // loses the pointer to the returned chunk (*B*)
+		pool.malloc();	// loses the pointer to the returned chunk (*B*)
 
 		// pool's destructor should purge the memory
 		//  This will clean up the memory leak from (*B*)
@@ -337,23 +334,17 @@ void BoostPoolTest::GlobalStorageMemUsageTest()
 	assertComparem(0LL, equal_to, aChecker.CheckDelta(), "expected no unfreed memory");
 }
 
-typedef boost::function<void ()> TestCaseFunc;
+typedef boost::function<void()> TestCaseFunc;
 
-class CurrentStorageThread : public Thread
-{
+class CurrentStorageThread : public Thread {
 	TestCaseFunc &fFunc;
+
 public:
-	CurrentStorageThread(TestCaseFunc &f)
-		: Thread("CurrentStorageThread")
-		, fFunc(f)
-	{}
-	void Run() {
-		fFunc();
-	}
+	CurrentStorageThread(TestCaseFunc &f) : Thread("CurrentStorageThread"), fFunc(f) {}
+	void Run() { fFunc(); }
 };
 
-void BoostPoolTest::CurrentStorageMemUsageTest()
-{
+void BoostPoolTest::CurrentStorageMemUsageTest() {
 	StartTrace(BoostPoolTest.CurrentStorageMemUsageTest);
 	{
 		Trace("doing Test with global storage again");
@@ -373,8 +364,7 @@ void BoostPoolTest::CurrentStorageMemUsageTest()
 
 typedef TrackAlloc<itostorage::BoostPoolUserAllocatorCurrent> track_allocWDCurr;
 
-void BoostPoolTest::TestFuncCurrent()
-{
+void BoostPoolTest::TestFuncCurrent() {
 	StartTrace(BoostPoolTest.TestFuncCurrent);
 
 	typedef boost::pool<track_allocWDCurr> pool_typeWDCurr;
@@ -393,10 +383,12 @@ void BoostPoolTest::TestFuncCurrent()
 		// Ask pool to give up memory it's not using; this should succeed
 		t_assertm(pool.release_memory(), "Pool didn't release memory");
 		t_assertm(track_allocWDCurr::ok(), "Memory error");
-		assertComparem(0LL, greater_equal, aCChecker.CheckDelta(), TString("expected no unfreed memory ") << (coast::storage::Current() == coast::storage::Global() ? "G" : "C"));
+		assertComparem(0LL, greater_equal, aCChecker.CheckDelta(),
+					   TString("expected no unfreed memory ")
+						   << (coast::storage::Current() == coast::storage::Global() ? "G" : "C"));
 
 		// Should allocate from system again
-		pool.malloc(); // loses the pointer to the returned chunk (*A*)
+		pool.malloc();	// loses the pointer to the returned chunk (*A*)
 
 		// Ask pool to give up memory it's not using; this should fail
 		t_assertm(!pool.release_memory(), "Pool released memory");
@@ -407,191 +399,144 @@ void BoostPoolTest::TestFuncCurrent()
 		t_assertm(track_allocWDCurr::ok(), "Memory error");
 
 		// Should allocate from system again
-		pool.malloc(); // loses the pointer to the returned chunk (*B*)
+		pool.malloc();	// loses the pointer to the returned chunk (*B*)
 
 		// pool's destructor should purge the memory
 		//  This will clean up the memory leak from (*B*)
 	}
 
 	t_assertm(track_allocWDCurr::ok(), "Memory error");
-	assertComparem(0LL, greater_equal, aCChecker.CheckDelta(), TString("expected no unfreed memory ") << (coast::storage::Current() == coast::storage::Global() ? "G" : "C"));
+	assertComparem(0LL, greater_equal, aCChecker.CheckDelta(),
+				   TString("expected no unfreed memory ")
+					   << (coast::storage::Current() == coast::storage::Global() ? "G" : "C"));
 }
 
-template<unsigned int N>
-class ThisIsASmallObject
-{
+template <unsigned int N>
+class ThisIsASmallObject {
 	char data[N];
 };
 
-template<unsigned int N, class T>
-struct Base : public ThisIsASmallObject<N>, public T
-	{};
+template <unsigned int N, class T>
+struct Base : public ThisIsASmallObject<N>, public T {};
 
-template<unsigned int N>
-struct Base<N, void> : public ThisIsASmallObject<N>
-	{};
+template <unsigned int N>
+struct Base<N, void> : public ThisIsASmallObject<N> {};
 
-template <
-typename Tag,
-		 unsigned int N,
-		 typename UserAllocator = boost::default_user_allocator_new_delete
-		 >
-class BoostSingletonPool : public Base<N, void>
-{
+template <typename Tag, unsigned int N, typename UserAllocator = boost::default_user_allocator_new_delete>
+class BoostSingletonPool : public Base<N, void> {
 public:
-	typedef boost::singleton_pool< Tag, N, UserAllocator > BoostPoolType;
+	typedef boost::singleton_pool<Tag, N, UserAllocator> BoostPoolType;
 
 private:
 	static BoostPoolType BoostPool;
 
 public:
 	/// Throwing single-object new throws bad_alloc when allocation fails.
-	static void *operator new ( std::size_t ) throw ( std::bad_alloc )
-	{
-		return BoostPoolType::malloc();
-	}
+	static void *operator new(std::size_t) throw(std::bad_alloc) { return BoostPoolType::malloc(); }
 
 	/// Non-throwing single-object new returns NULL if allocation fails.
-	static void *operator new ( std::size_t, const std::nothrow_t & ) throw () {
-		return BoostPoolType::malloc();
-	}
+	static void *operator new(std::size_t, const std::nothrow_t &) throw() { return BoostPoolType::malloc(); }
 
 	/// Placement single-object new merely calls global placement new.
-	inline static void *operator new ( std::size_t size, void *place ) {
-		return ::operator new( size, place );
-	}
+	inline static void *operator new(std::size_t size, void *place) { return ::operator new(size, place); }
 
 	/// Single-object delete.
-	static void operator delete ( void *p ) throw () {
-		BoostPoolType::free( reinterpret_cast< BoostSingletonPool * >( p ) );
-	}
+	static void operator delete(void *p) throw() { BoostPoolType::free(reinterpret_cast<BoostSingletonPool *>(p)); }
 
 	/** Non-throwing single-object delete is only called when nothrow
-	    new operator is used, and the constructor throws an exception.
-	    */
-	static void operator delete ( void *p, const std::nothrow_t & ) throw() {
-		BoostPoolType::free( reinterpret_cast< BoostSingletonPool * >( p ) );
+		new operator is used, and the constructor throws an exception.
+		*/
+	static void operator delete(void *p, const std::nothrow_t &)throw() {
+		BoostPoolType::free(reinterpret_cast<BoostSingletonPool *>(p));
 	}
 
 	/// Placement single-object delete merely calls global placement delete.
-	inline static void operator delete ( void *p, void *place ) {
-		::operator delete ( p, place );
-	}
+	inline static void operator delete(void *p, void *place) { ::operator delete(p, place); }
 
 	/** @note This class does not provide new [] and delete [] operators since
 	 the Boost.Pool allocator only works for memory requests of the same size.
 	 */
 };
 
-template <
-typename Tag,
-		 unsigned int N,
-		 typename UserAllocator
-		 >
+template <typename Tag, unsigned int N, typename UserAllocator>
 typename BoostSingletonPool<Tag, N, UserAllocator>::BoostPoolType BoostSingletonPool<Tag, N, UserAllocator>::BoostPool;
 
-template <
-typename tPoolType
->
-void cleanupBoostPool()
-{
+template <typename tPoolType>
+void cleanupBoostPool() {
 	tPoolType::BoostPoolType::release_memory();
 }
 
-typedef boost::function<void (void **, int)> theTestFunc;
+typedef boost::function<void(void **, int)> theTestFunc;
 
-template <
-int loop
->
-void BasicTestMethod(theTestFunc tstFunc)
-{
+template <int loop>
+void BasicTestMethod(theTestFunc tstFunc) {
 	int Narr = 500 * 1000;
 
-	void **a = new void*[Narr];
+	void **a = new void *[Narr];
 
 	tstFunc(a, loop);
 
-	delete [] a;
+	delete[] a;
 }
 
 template <class T>
 struct dummyAlloc {};
 
-#define _SMALLOBJ_BENCH(FUNC, CODE_DECL, CODE_LOOP)                                 \
-template <class T, const int N, template <class> class tAlloc>                                                    \
-void FUNC(void**, int loop)             \
-{                                                                            \
-	CODE_DECL                                                            \
-    for (int i=0; i<loop; ++i)                                               \
-    {                                                                        \
-        CODE_LOOP                                                            \
-    }                                                                        \
-}
+#define _SMALLOBJ_BENCH(FUNC, CODE_DECL, CODE_LOOP)                \
+	template <class T, const int N, template <class> class tAlloc> \
+	void FUNC(void **, int loop) {                                 \
+		CODE_DECL                                                  \
+		for (int i = 0; i < loop; ++i) {                           \
+			CODE_LOOP                                              \
+		}                                                          \
+	}
 
-#define _SMALLOBJ_BENCH_ARRAY(FUNC, CODE_DECL, CODE_NEW, CODE_DELETE)                                 \
-template <class T, const int N, template <class> class tAlloc>                                                    \
-void FUNC(void**arrv, int loop)             \
-{                                                                            \
-    CODE_DECL                                                               \
-    T** arr = reinterpret_cast<T**>(arrv);                                   \
-    for (int i=0; i<loop; ++i)                                               \
-    {                                                                        \
-        CODE_NEW                                                             \
-    }                                                                        \
-    for (int i=0; i<loop; ++i)                                               \
-    {                                                                        \
-        CODE_DELETE                                                          \
-    }                                                                        \
-}
+#define _SMALLOBJ_BENCH_ARRAY(FUNC, CODE_DECL, CODE_NEW, CODE_DELETE) \
+	template <class T, const int N, template <class> class tAlloc>    \
+	void FUNC(void **arrv, int loop) {                                \
+		CODE_DECL                                                     \
+		T **arr = reinterpret_cast<T **>(arrv);                       \
+		for (int i = 0; i < loop; ++i) {                              \
+			CODE_NEW                                                  \
+		}                                                             \
+		for (int i = 0; i < loop; ++i) {                              \
+			CODE_DELETE                                               \
+		}                                                             \
+	}
 
 // first set of methods
-_SMALLOBJ_BENCH(delete_new          , , delete new T;)
-_SMALLOBJ_BENCH(delete_new_mal      , , std::free(std::malloc(sizeof(T)));)
-_SMALLOBJ_BENCH(delete_new_all      , tAlloc<T> st; , st.deallocate(st.allocate(1), 1);)
+_SMALLOBJ_BENCH(delete_new, , delete new T;)
+_SMALLOBJ_BENCH(delete_new_mal, , std::free(std::malloc(sizeof(T)));)
+_SMALLOBJ_BENCH(delete_new_all, tAlloc<T> st;, st.deallocate(st.allocate(1), 1);)
 
 // second set of methods
-_SMALLOBJ_BENCH(delete_new_array    , , delete[] new T[N];)
+_SMALLOBJ_BENCH(delete_new_array, , delete[] new T[N];)
 _SMALLOBJ_BENCH(delete_new_array_mal, , std::free(std::malloc(sizeof(T[N])));)
-_SMALLOBJ_BENCH(delete_new_array_all, tAlloc<T[N]> st; , st.deallocate(st.allocate(1), 1);)
+_SMALLOBJ_BENCH(delete_new_array_all, tAlloc<T[N]> st;, st.deallocate(st.allocate(1), 1);)
 
-_SMALLOBJ_BENCH_ARRAY(new_del_on_arr    , , arr[i] = new T; ,
-					  delete arr[i];)
-_SMALLOBJ_BENCH_ARRAY(new_del_on_arr_mal, , arr[i] = static_cast<T *>(std::malloc(sizeof(T))); ,
-					  std::free(arr[i]);)
-_SMALLOBJ_BENCH_ARRAY(new_del_on_arr_all,    tAlloc<T> st; ,
-					  arr[i] = st.allocate(1); ,
-					  st.deallocate(arr[i], 1);)
+_SMALLOBJ_BENCH_ARRAY(new_del_on_arr, , arr[i] = new T;, delete arr[i];)
+_SMALLOBJ_BENCH_ARRAY(new_del_on_arr_mal, , arr[i] = static_cast<T *>(std::malloc(sizeof(T)));, std::free(arr[i]);)
+_SMALLOBJ_BENCH_ARRAY(new_del_on_arr_all, tAlloc<T> st;, arr[i] = st.allocate(1);, st.deallocate(arr[i], 1);)
 
-_SMALLOBJ_BENCH_ARRAY(new_del_a_on_a    , , arr[i] = new T[N]; ,
-					  delete[] arr[i];)
-_SMALLOBJ_BENCH_ARRAY(new_del_a_on_a_mal, , arr[i] = static_cast<T *>(std::malloc(sizeof(T[N]))); ,
-					  std::free(arr[i]);)
-_SMALLOBJ_BENCH_ARRAY(new_del_a_on_a_all, tAlloc<T[N]> st; ,
-					  arr[i] = reinterpret_cast<T *>(st.allocate(1)); ,
-					  st.deallocate(reinterpret_cast<T( *)[N]>(arr[i]), 1);)
+_SMALLOBJ_BENCH_ARRAY(new_del_a_on_a, , arr[i] = new T[N];, delete[] arr[i];)
+_SMALLOBJ_BENCH_ARRAY(new_del_a_on_a_mal, , arr[i] = static_cast<T *>(std::malloc(sizeof(T[N])));, std::free(arr[i]);)
+_SMALLOBJ_BENCH_ARRAY(new_del_a_on_a_all, tAlloc<T[N]> st;, arr[i] = reinterpret_cast<T *>(st.allocate(1));
+					  , st.deallocate(reinterpret_cast<T (*)[N]>(arr[i]), 1);)
 
-typedef boost::function<void (theTestFunc)> WorkerFunc;
-typedef boost::function<void ()> MemCleanupFunc;
+typedef boost::function<void(theTestFunc)> WorkerFunc;
+typedef boost::function<void()> MemCleanupFunc;
 
 void cleanupDummy() {}
 
-template <
-typename funcType,
-		 typename innerFunc,
-		 typename cleanupFunc
-		 >
-class TestMethodWorkerThread : public Thread
-{
+template <typename funcType, typename innerFunc, typename cleanupFunc>
+class TestMethodWorkerThread : public Thread {
 	funcType fFunc;
 	innerFunc fInnerFunc;
 	cleanupFunc fCleanupFunc;
+
 public:
 	TestMethodWorkerThread(funcType f, innerFunc fi, cleanupFunc cf)
-		: Thread("TestMethodWorkerThread")
-		, fFunc(f)
-		, fInnerFunc(fi)
-		, fCleanupFunc(cf) {
-	}
+		: Thread("TestMethodWorkerThread"), fFunc(f), fInnerFunc(fi), fCleanupFunc(cf) {}
 	void Run() {
 		SetWorking();
 		fFunc(fInnerFunc);
@@ -600,31 +545,23 @@ public:
 	}
 };
 
-template <
-typename funcType,
-		 typename innerFunc,
-		 typename cleanupFunc
-		 >
-class TestMethodWorkerThreadPool : public ThreadPoolManager
-{
+template <typename funcType, typename innerFunc, typename cleanupFunc>
+class TestMethodWorkerThreadPool : public ThreadPoolManager {
 	funcType fFunc;
 	innerFunc fInnerFunc;
 	cleanupFunc fCleanupFunc;
+
 public:
 	TestMethodWorkerThreadPool(const char *pTPName, funcType f, innerFunc fi, cleanupFunc cf)
-		: ThreadPoolManager( pTPName )
-		, fFunc(f)
-		, fInnerFunc(fi)
-		, fCleanupFunc(cf)
-	{}
+		: ThreadPoolManager(pTPName), fFunc(f), fInnerFunc(fi), fCleanupFunc(cf) {}
 
-	~TestMethodWorkerThreadPool()
-	{}
+	~TestMethodWorkerThreadPool() {}
 
 	Thread *DoAllocThread(long i, ROAnything args) {
 		StartTrace(TestMethodWorkerThreadPool.DoAllocThread);
 		TraceAny(args, "Init-Arguments");
-		return new (coast::storage::Global()) TestMethodWorkerThread<funcType, innerFunc, cleanupFunc>(fFunc, fInnerFunc, fCleanupFunc);
+		return new (coast::storage::Global())
+			TestMethodWorkerThread<funcType, innerFunc, cleanupFunc>(fFunc, fInnerFunc, fCleanupFunc);
 	}
 
 	ROAnything DoGetInitConfig(long i, ROAnything args) {
@@ -640,8 +577,7 @@ public:
 	}
 };
 
-Test *BoostPoolTest::suite ()
-{
+Test *BoostPoolTest::suite() {
 	StartTrace(BoostPoolTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, BoostPoolTest, BasicsTest);

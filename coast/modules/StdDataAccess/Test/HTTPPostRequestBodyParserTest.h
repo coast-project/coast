@@ -16,8 +16,8 @@ public:
 	//! \param name name of the test
 	HTTPPostRequestBodyParserTest(TString tstrName);
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
 	TString getConfigFileName();
 

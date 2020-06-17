@@ -11,10 +11,8 @@
 
 #include "ITOStorage.h"
 
-namespace coast
-{
-	class AllocatorNewDelete
-	{
+namespace coast {
+	class AllocatorNewDelete {
 	public:
 		//! force creation of vtable to allow for dynamic_cast
 		virtual ~AllocatorNewDelete() = 0;
@@ -34,7 +32,7 @@ namespace coast
 		/*! delegate operator used for new arrays
 		 * @param size size of memory block to allocate
 		 */
-		static void* operator new[](std::size_t sz) throw();
+		static void *operator new[](std::size_t sz) throw();
 
 		/*! operator used when delete gets called
 		 * @param ptr memory block to delete
@@ -54,12 +52,12 @@ namespace coast
 
 	private:
 		//! disallow unintended creation of non-Allocator instances
-		static void *operator new(std::size_t) throw (std::bad_alloc);
-		static void *operator new (std::size_t, const std::nothrow_t &) throw();
-		static void *operator new[] (std::size_t, const std::nothrow_t &) throw();
-		static void operator delete (void *, const std::nothrow_t &) throw();
-		static void operator delete[] (void *, const std::nothrow_t &) throw();
-		static void operator delete[] (void *, void *) throw();
+		static void *operator new(std::size_t) throw(std::bad_alloc);
+		static void *operator new(std::size_t, const std::nothrow_t &) throw();
+		static void *operator new[](std::size_t, const std::nothrow_t &) throw();
+		static void operator delete(void *, const std::nothrow_t &)throw();
+		static void operator delete[](void *, const std::nothrow_t &) throw();
+		static void operator delete[](void *, void *) throw();
 	};
-}
+}  // namespace coast
 #endif /* ALLOCATORNEWDELETE_H_ */

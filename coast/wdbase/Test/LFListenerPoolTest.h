@@ -13,56 +13,55 @@
 
 class Socket;
 
-class LFListenerPoolTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class LFListenerPoolTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	LFListenerPoolTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~LFListenerPoolTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!sets the environment for this test
-	void setUp ();
+	//! sets the environment for this test
+	void setUp();
 
-	//!describe this testcase
+	//! describe this testcase
 	void NoFactoryTest();
 
-	//!test pool without acceptors
+	//! test pool without acceptors
 	void NoReactorTest();
 
-	//!test pool with one acceptor
+	//! test pool with one acceptor
 	void OneAcceptorTest();
 
-	//!test pool with two acceptors
+	//! test pool with two acceptors
 	void TwoAcceptorsTest();
 
-	//!test pool with two acceptors
+	//! test pool with two acceptors
 	void ManyAcceptorsTest();
 
-	//!test pool with one invalid acceptor
+	//! test pool with one invalid acceptor
 	void InvalidAcceptorTest();
 
-	//!test pool with one invalid reactor
+	//! test pool with one invalid reactor
 	void InvalidReactorTest();
 
-	//!processor callback
+	//! processor callback
 	bool EventProcessed(Socket *);
 
 protected:
-	//!client side api to call into pool from test
+	//! client side api to call into pool from test
 	virtual void ProcessOneEvent();
-	//!client side api to call into pool from test
+	//! client side api to call into pool from test
 	virtual void ProcessTwoEvents();
-	//!client side api to call into pool from test
+	//! client side api to call into pool from test
 	virtual void ProcessManyEvents();
 };
 

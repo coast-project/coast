@@ -7,25 +7,21 @@
  */
 
 #include "HTTPChunkedOStream.h"
+
 #include "Tracer.h"
+
 #include <ctype.h>
 
 HTTPChunkedStreamBuf::HTTPChunkedStreamBuf(std::ostream &os, long chunklength, Allocator *alloc)
-	: fAllocator(alloc ? alloc : coast::storage::Current())
-	, fStore(chunklength, fAllocator)
-	, fOs(&os)
-	, fBufSize(chunklength)
-{
+	: fAllocator(alloc ? alloc : coast::storage::Current()), fStore(chunklength, fAllocator), fOs(&os), fBufSize(chunklength) {
 	xinit();
 }
 
-HTTPChunkedStreamBuf::~HTTPChunkedStreamBuf()
-{
+HTTPChunkedStreamBuf::~HTTPChunkedStreamBuf() {
 	close();
 }
 
-void HTTPChunkedStreamBuf::close()
-{
+void HTTPChunkedStreamBuf::close() {
 	StartTrace(HTTPChunkedStreamBuf.close);
 	if (!fOs) {
 		return;
@@ -36,8 +32,7 @@ void HTTPChunkedStreamBuf::close()
 	fOs = 0;
 }
 
-int HTTPChunkedStreamBuf::sync()
-{
+int HTTPChunkedStreamBuf::sync() {
 	StartTrace(HTTPChunkedStreamBuf.sync);
 
 	if (!fOs) {
@@ -53,44 +48,38 @@ int HTTPChunkedStreamBuf::sync()
 		(*fOs) << std::hex << len << ENDL;
 		fOs->flags(old);
 		fOs->write((const char *)fStore, len);
-		(*fOs) << ENDL ;
+		(*fOs) << ENDL;
 		pinit();
 	}
 	return 0;
 }
 
-HTTPChunkedStreamBuf::pos_type HTTPChunkedStreamBuf::seekpos(pos_type, openmode mode)
-{
+HTTPChunkedStreamBuf::pos_type HTTPChunkedStreamBuf::seekpos(pos_type, openmode mode) {
 	return pos_type(0);
 }
 
-HTTPChunkedStreamBuf::pos_type HTTPChunkedStreamBuf::seekoff(off_type, seekdir, openmode mode)
-{
+HTTPChunkedStreamBuf::pos_type HTTPChunkedStreamBuf::seekoff(off_type, seekdir, openmode mode) {
 	return pos_type(0);
 }
 
-int HTTPChunkedStreamBuf::overflow(int c)
-{
+int HTTPChunkedStreamBuf::overflow(int c) {
 	sync();
-	if (c != EOF && (pptr() < epptr())) { // guard against recursion
+	if (c != EOF && (pptr() < epptr())) {  // guard against recursion
 		sputc(c);
 	}
-	return 0L;  // return 0 if successful
+	return 0L;	// return 0 if successful
 }
 
-int HTTPChunkedStreamBuf::underflow()
-{
+int HTTPChunkedStreamBuf::underflow() {
 	return 0;
 }
 
-void HTTPChunkedStreamBuf::xinit()
-{
+void HTTPChunkedStreamBuf::xinit() {
 	setg(0, 0, 0);
 	pinit();
 }
 
-void HTTPChunkedStreamBuf::pinit()
-{
+void HTTPChunkedStreamBuf::pinit() {
 	char *sc = (char *)(const char *)fStore;
 	char *endptr = sc + fBufSize;
 	setp(sc, endptr);

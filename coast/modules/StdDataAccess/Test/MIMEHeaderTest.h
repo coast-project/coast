@@ -12,15 +12,13 @@
 #include "FoundationTestTypes.h"
 
 //---- MIMEHeaderTest ----------------------------------------------------------
-class MIMEHeaderTest: public testframework::TestCaseWithConfig {
+class MIMEHeaderTest : public testframework::TestCaseWithConfig {
 public:
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
-	MIMEHeaderTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	MIMEHeaderTest(TString tstrName) : TestCaseType(tstrName) {}
 
-	//!builds up a suite of testcases for this test
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
 	void SimpleHeaderTest();

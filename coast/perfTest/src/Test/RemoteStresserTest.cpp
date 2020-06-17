@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "Stresser.h"
 #include "RemoteStresserTest.h"
+
 #include "Server.h"
+#include "Stresser.h"
 #include "TestSuite.h"
 
 RemoteStresserTest::~RemoteStresserTest() {

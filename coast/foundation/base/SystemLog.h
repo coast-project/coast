@@ -15,17 +15,19 @@ namespace coast {
 	namespace system {
 		namespace log {
 			//!< <tt>COAST_DOLOG</tt> controls the level of severities shown in the syslog. See below for possible values.
-			const char * const envnameDoLog = "COAST_DOLOG";
+			const char *const envnameDoLog = "COAST_DOLOG";
 			//!< <tt>COAST_LOGONCERR</tt> controls the level of severities shown on the console. See below for possible values.
-			const char * const envnameLogonCerr = "COAST_LOGONCERR";
-			//!< Enabling <tt>COAST_LOGONCERR_WITH_TIMESTAMP</tt> will prepend a timestamp to all messages logged to the console.
-			const char * const envnameLogonCerrWithTimestamp = "COAST_LOGONCERR_WITH_TIMESTAMP";
+			const char *const envnameLogonCerr = "COAST_LOGONCERR";
+			//!< Enabling <tt>COAST_LOGONCERR_WITH_TIMESTAMP</tt> will prepend a timestamp to all messages logged to the
+			//!< console.
+			const char *const envnameLogonCerrWithTimestamp = "COAST_LOGONCERR_WITH_TIMESTAMP";
 			String formatMessage(const char *level, const char *msg);
 			String formatMessageTimeStamp(const char *level, const char *msg);
-		}
-	}
-}
+		}  // namespace log
+	}	   // namespace system
+}  // namespace coast
 
+// clang-format off
 /*! <b>API for syslog access</b>
 This is the Coast system logging API. It is used for system-level and application-level logging.
 The values of <tt>COAST_LOGONCERR</tt> and <tt>COAST_DOLOG</tt> control the level of severities shown either on the console or in the syslog. Possible values are:
@@ -43,8 +45,10 @@ Enabling <tt>COAST_LOGONCERR_WITH_TIMESTAMP</tt> will prepend a timestamp to all
 Even more control over console message formatting is possible by defining your own formatter function and replacing it
 in your code using SystemLog::replaceMessageFormatter(&myFormatterFunction). Check the SysLogTests to get an idea.
 */
+// clang-format on
 class SystemLog {
 	friend class SysLogTest;
+
 public:
 	typedef String (*messageFormatterFunctionType)(const char *, const char *);
 	typedef boost_or_std::shared_ptr<SystemLog> SystemLogPtr;
@@ -55,18 +59,10 @@ public:
 	//! module termination
 	static void Terminate();
 
-	static SystemLog* getSysLog();
+	static SystemLog *getSysLog();
 
 	/*! define importancy levels in increasing order for easier */
-	enum eLogLevel {
-		eNone,
-		eDEBUG,
-		eINFO,
-		eWARNING,
-		eERR,
-		eALERT,
-		eLast
-	};
+	enum eLogLevel { eNone, eDEBUG, eINFO, eWARNING, eERR, eALERT, eLast };
 
 	//! bottleneck routine used by the other methods, you can use severity levels directly
 	static void Log(eLogLevel level, const char *msg);
@@ -101,62 +97,70 @@ public:
 	// from SysErrorMsg(errno)
 	static String LastSysError();
 
-	//!wrapper to write(2,...) on Unix systems to get things written to stderr
-	//!needed, because some iostream implementations aren't thread safe
+	//! wrapper to write(2,...) on Unix systems to get things written to stderr
+	//! needed, because some iostream implementations aren't thread safe
 	static void WriteToStderr(const char *msg, long length = -1);
 	static void WriteToStderr(const String &msg);
 
-	//!wrapper to write(1,...) on Unix systems to get things written to stdout
-	//!needed, because some iostream implementations aren't thread safe
+	//! wrapper to write(1,...) on Unix systems to get things written to stdout
+	//! needed, because some iostream implementations aren't thread safe
 	static void WriteToStdout(const char *msg, long length = -1);
 	static void WriteToStdout(const String &msg);
 
-	static SystemLog::messageFormatterFunctionType replaceMessageFormatter(SystemLog::messageFormatterFunctionType newFormatter);
+	static SystemLog::messageFormatterFunctionType replaceMessageFormatter(
+		SystemLog::messageFormatterFunctionType newFormatter);
 
 protected:
-	SystemLog() {
-	}
-	virtual ~SystemLog() {
-	}
+	SystemLog() {}
+	virtual ~SystemLog() {}
 
-	//!template method
+	//! template method
 	virtual void DoLog(eLogLevel level, const char *msg);
 
-	//!do a system dependent log call
+	//! do a system dependent log call
 	virtual void DoSystemLevelLog(eLogLevel level, const char *msg) = 0;
 
-	//!write log messages to cerr with a level a string indicating the level if preprocessor flags are set accordingly
+	//! write log messages to cerr with a level a string indicating the level if preprocessor flags are set accordingly
 	virtual void DoLogTrace(eLogLevel level, const char *msg);
 
-	//!write log messages to cerr if preprocessor flags are set accordingly
+	//! write log messages to cerr if preprocessor flags are set accordingly
 	virtual void DoTraceLevel(const char *level, const char *msg);
 
-	//!format the message which we later log to the console
+	//! format the message which we later log to the console
 	virtual String DoFormatTraceLevelMessage(const char *level, const char *msg);
 
 	static SystemLogPtr replaceSysLog(SystemLogPtr newLogger);
 };
 
-#define	SYSDEBUG(msg) \
-	{ String strFileLineMsg(coast::storage::Current());\
-	strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg;\
-	SystemLog::Debug(strFileLineMsg); }
-#define	SYSINFO(msg) \
-	{ String strFileLineMsg(coast::storage::Current());\
-	strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg;\
-	SystemLog::Info(strFileLineMsg); }
-#define	SYSWARNING(msg) \
-	{ String strFileLineMsg(coast::storage::Current());\
-	strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg;\
-	SystemLog::Warning(strFileLineMsg); }
-#define	SYSERROR(msg) \
-	{ String strFileLineMsg(coast::storage::Current());\
-	strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg;\
-	SystemLog::Error(strFileLineMsg); }
-#define	SYSALERT(msg) \
-	{ String strFileLineMsg(coast::storage::Current());\
-	strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg;\
-	SystemLog::Alert(strFileLineMsg); }
+#define SYSDEBUG(msg)                                                                             \
+	{                                                                                             \
+		String strFileLineMsg(coast::storage::Current());                                         \
+		strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg; \
+		SystemLog::Debug(strFileLineMsg);                                                         \
+	}
+#define SYSINFO(msg)                                                                              \
+	{                                                                                             \
+		String strFileLineMsg(coast::storage::Current());                                         \
+		strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg; \
+		SystemLog::Info(strFileLineMsg);                                                          \
+	}
+#define SYSWARNING(msg)                                                                           \
+	{                                                                                             \
+		String strFileLineMsg(coast::storage::Current());                                         \
+		strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg; \
+		SystemLog::Warning(strFileLineMsg);                                                       \
+	}
+#define SYSERROR(msg)                                                                             \
+	{                                                                                             \
+		String strFileLineMsg(coast::storage::Current());                                         \
+		strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg; \
+		SystemLog::Error(strFileLineMsg);                                                         \
+	}
+#define SYSALERT(msg)                                                                             \
+	{                                                                                             \
+		String strFileLineMsg(coast::storage::Current());                                         \
+		strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg; \
+		SystemLog::Alert(strFileLineMsg);                                                         \
+	}
 
-
-#endif		//not defined _SystemLog_H
+#endif	// not defined _SystemLog_H

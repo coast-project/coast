@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "HTTPHeaderFieldParameterMapper.h"
-#include "Timers.h"
+
 #include "HTTPConstants.h"
 #include "StringStream.h"
+#include "Timers.h"
 
 namespace coast {
 	namespace http {
@@ -39,5 +40,5 @@ namespace coast {
 			return false;
 		}
 		RegisterParameterMapper(HTTPHeaderFieldParameterMapper);
-	}
-}
+	}  // namespace http
+}  // namespace coast

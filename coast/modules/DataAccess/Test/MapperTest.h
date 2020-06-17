@@ -13,16 +13,12 @@
 
 class Context;
 
-class MapperTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class MapperTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	MapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	MapperTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 
-	virtual TString getConfigFileName() {
-		return "StdContext";
-	}
+	virtual TString getConfigFileName() { return "StdContext"; }
 
 	//--- public api
 	void GetTests();

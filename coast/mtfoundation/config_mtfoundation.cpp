@@ -10,17 +10,16 @@
 
 #if defined(WIN32)
 #ifdef _DLL
-#include "SystemLog.h"
-#include "StringStream.h"
 #include "AnyIterators.h"
+#include "StringStream.h"
+#include "SystemLog.h"
 #include "Threads.h"
 
 DWORD fgThreadPtrKey;
 Anything fgThreads;
 SimpleMutex fgThreadsMutex("fgThreadsMutex", coast::storage::Global());
 
-void TerminateKilledThreads()
-{
+void TerminateKilledThreads() {
 	static bool once = false;
 	if (!once) {
 		if (fgThreads.GetSize()) {
@@ -34,7 +33,8 @@ void TerminateKilledThreads()
 			ROAnything aAny;
 			while (aIter.Next(aAny)) {
 				Thread *pThr = (Thread *)aAny["Addr"].AsIFAObject();
-				SystemLog::Warning(String("  Thread[") << aAny["Name"].AsString() << "] Handle[" << aAny["id"].AsLong() << "] Addr [" << (long)aAny["Addr"].AsIFAObject() << "]");
+				SystemLog::Warning(String("  Thread[") << aAny["Name"].AsString() << "] Handle[" << aAny["id"].AsLong()
+													   << "] Addr [" << (long)aAny["Addr"].AsIFAObject() << "]");
 				if (pThr && pThr->IsAlive()) {
 					pThr->IntSetState(Thread::eTerminationRequested);
 				}
@@ -44,8 +44,7 @@ void TerminateKilledThreads()
 	}
 }
 
-void RemoveThreadDetach(Thread *pThr)
-{
+void RemoveThreadDetach(Thread *pThr) {
 	String key;
 	key = Anything((long)pThr).AsString();
 	LockUnlockEntry sm(fgThreadsMutex);
@@ -55,12 +54,11 @@ void RemoveThreadDetach(Thread *pThr)
 }
 
 // DllMain() is the entry-point function for this DLL.
-BOOL WINAPI DllMain(HANDLE hinstDLL,  // DLL module handle
-					DWORD fdwReason,                    // reason called
-					LPVOID lpvReserved)                 // reserved
+BOOL WINAPI DllMain(HANDLE hinstDLL,	 // DLL module handle
+					DWORD fdwReason,	 // reason called
+					LPVOID lpvReserved)	 // reserved
 {
 	switch (fdwReason) {
-
 			// The DLL is loading due to process
 			// initialization or a call to LoadLibrary.
 		case DLL_PROCESS_ATTACH:
@@ -78,8 +76,8 @@ BOOL WINAPI DllMain(HANDLE hinstDLL,  // DLL module handle
 			// The thread of the attached process terminates.
 		case DLL_THREAD_DETACH: {
 			Thread *pThr = (Thread *)TlsGetValue(fgThreadPtrKey);
-			SystemLog::Info(String("DLL_THREAD_DETACH for [") << Thread::MyId() << "] &Thread:"  << (long)pThr );
-			if ( pThr ) {
+			SystemLog::Info(String("DLL_THREAD_DETACH for [") << Thread::MyId() << "] &Thread:" << (long)pThr);
+			if (pThr) {
 				// there seems to be a valid ThreadPtr, eg. it is a mtfoundation Thread
 				RemoveThreadDetach(pThr);
 				pThr->SetState(Thread::eTerminated);

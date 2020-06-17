@@ -11,18 +11,16 @@
 
 #include "WDBaseTestPolicies.h"
 
-class HTTPFileLoaderTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class HTTPFileLoaderTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	HTTPFileLoaderTest(TString tname) :
-		TestCaseType(tname) {
-	}
-	//!builds up a suite of testcases for this test
+	HTTPFileLoaderTest(TString tname) : TestCaseType(tname) {}
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!test the reply header expansion
+	//! test the reply header expansion
 	void ReplyHeaderTest();
 
-	//!test the reply header expansion
+	//! test the reply header expansion
 	void ExecTest();
 };
 

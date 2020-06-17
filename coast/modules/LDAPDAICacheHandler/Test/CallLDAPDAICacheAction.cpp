@@ -7,19 +7,19 @@
  */
 
 #include "CallLDAPDAICacheAction.h"
-#include "Tracer.h"
+
 #include "Context.h"
 #include "LDAPDAICachePolicyModule.h"
+#include "Tracer.h"
 
 //---- CallLDAPDAICacheAction ---------------------------------------------------------------
 RegisterAction(CallLDAPDAICacheAction);
 
-CallLDAPDAICacheAction::CallLDAPDAICacheAction(const char *name) : Action(name) { }
+CallLDAPDAICacheAction::CallLDAPDAICacheAction(const char *name) : Action(name) {}
 
-CallLDAPDAICacheAction::~CallLDAPDAICacheAction() { }
+CallLDAPDAICacheAction::~CallLDAPDAICacheAction() {}
 
-bool CallLDAPDAICacheAction::DoExecAction(String &action, Context &ctx, const ROAnything &config)
-{
+bool CallLDAPDAICacheAction::DoExecAction(String &action, Context &ctx, const ROAnything &config) {
 	// this is the new method that also gets a config ( similar to Renderer::RenderAll )
 	// write the action code here - you don't have to override DoAction anymore
 	StartTrace(CallLDAPDAICacheAction.DoExecAction);

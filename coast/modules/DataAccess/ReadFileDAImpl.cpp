@@ -7,28 +7,23 @@
  */
 
 #include "ReadFileDAImpl.h"
+
 #include "Tracer.h"
+
 #include <istream>
 
 //--- ReadFileDAImpl -----------------------------------------------------
 RegisterDataAccessImpl(ReadFileDAImpl);
 
-ReadFileDAImpl::ReadFileDAImpl(const char *name)
-	: FileDAImpl(name)
-{
-}
+ReadFileDAImpl::ReadFileDAImpl(const char *name) : FileDAImpl(name) {}
 
-ReadFileDAImpl::~ReadFileDAImpl()
-{
-}
+ReadFileDAImpl::~ReadFileDAImpl() {}
 
-IFAObject *ReadFileDAImpl::Clone(Allocator *a) const
-{
+IFAObject *ReadFileDAImpl::Clone(Allocator *a) const {
 	return new (a) ReadFileDAImpl(fName);
 }
 
-bool ReadFileDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out)
-{
+bool ReadFileDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out) {
 	StartTrace(ReadFileDAImpl.Exec);
 	bool retVal = false;
 	std::istream *Ios = GetFileStream(context, in);

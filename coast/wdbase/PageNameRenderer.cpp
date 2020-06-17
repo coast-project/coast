@@ -7,16 +7,16 @@
  */
 
 #include "PageNameRenderer.h"
+
 #include "Page.h"
 
 RegisterRenderer(PageNameRenderer);
 
-PageNameRenderer::PageNameRenderer(const char *name) : Renderer(name) { }
+PageNameRenderer::PageNameRenderer(const char *name) : Renderer(name) {}
 
-PageNameRenderer::~PageNameRenderer() { }
+PageNameRenderer::~PageNameRenderer() {}
 
-void PageNameRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void PageNameRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(PageNameRenderer.RenderAll);
 
 	String pageName;

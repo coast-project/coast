@@ -14,13 +14,11 @@
 //---- CallLdapCacheAction ----------------------------------------------------------
 //! Action for testing LDAPCachePoliy.
 //! Overwrites TmpStore in Context.
-class CallLdapCacheAction: public Action {
+class CallLdapCacheAction : public Action {
 public:
 	//--- constructors
-	CallLdapCacheAction(const char *name) :
-		Action(name) {
-	}
-	//!Calls the DataAccess
+	CallLdapCacheAction(const char *name) : Action(name) {}
+	//! Calls the DataAccess
 	//! \param transitionToken (in/out) the event passed by the caller, can be modified.
 	//! \param c the context the action runs within.
 	//! \param config the configuration of the action.

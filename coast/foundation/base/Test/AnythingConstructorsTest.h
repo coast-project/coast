@@ -9,10 +9,10 @@
 #ifndef _AnythingConstructorsTest_H
 #define _AnythingConstructorsTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
+#include "TestCase.h"
 
-class AnythingConstructorsTest: public testframework::TestCase {
+class AnythingConstructorsTest : public testframework::TestCase {
 protected:
 	Anything fString;
 	Anything fLong;
@@ -23,9 +23,7 @@ protected:
 	Anything fNull;
 
 public:
-	AnythingConstructorsTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	AnythingConstructorsTest(TString tname) : TestCaseType(tname) {}
 	virtual void setUp();
 	static Test *suite();
 	void DefaultConstrTest();
@@ -46,4 +44,4 @@ public:
 	void AnythingConstrTest();
 };
 
-#endif		//ifndef _AnythingConstructorsTest_H
+#endif	// ifndef _AnythingConstructorsTest_H

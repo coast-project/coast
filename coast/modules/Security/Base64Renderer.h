@@ -13,8 +13,7 @@
 
 //---- Base64Renderer ----------------------------------------------------------
 //! Base64 renderer (original b64 char set)
-class Base64Renderer : public Renderer
-{
+class Base64Renderer : public Renderer {
 public:
 	//--- constructors
 	Base64Renderer(const char *name);

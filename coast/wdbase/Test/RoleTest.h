@@ -11,31 +11,30 @@
 
 #include "WDBaseTestPolicies.h"
 
-class RoleTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class RoleTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
-	//!TestCases for the Registry classes
+	//! TestCases for the Registry classes
 	//! \param name name of the test
 	RoleTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~RoleTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!sets the environment for this test
-	void setUp ();
+	//! sets the environment for this test
+	void setUp();
 
 protected:
-	void CheckInstalled ();
-	void GetNewPageName ();
-	void VerifyLogout ();
-	void VerifyLevel ();
+	void CheckInstalled();
+	void GetNewPageName();
+	void VerifyLogout();
+	void VerifyLevel();
 	void Synchronize();
 	void PrepareTmpStore();
 	void CollectLinkState();

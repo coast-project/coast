@@ -7,25 +7,22 @@
  */
 
 #include "ZipStreamTest.h"
+
 #include "TestSuite.h"
 #include "ZipStream.h"
 
 //---- ZipStreamTest ----------------------------------------------------------------
-ZipStreamTest::ZipStreamTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+ZipStreamTest::ZipStreamTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(ZipStreamTest.Ctor);
 }
 
-ZipStreamTest::~ZipStreamTest()
-{
+ZipStreamTest::~ZipStreamTest() {
 	StartTrace(ZipStreamTest.Dtor);
 }
 
 static String content("Hello Hello Peter\nhallo\n");
 
-void ZipStreamTest::GzipHdrTest()
-{
+void ZipStreamTest::GzipHdrTest() {
 	StartTrace(ZipStreamTest.GzipHdrTest);
 	GzipHdr aHeader;
 	assertEqual(gz_magic[0], aHeader.ID1);
@@ -38,21 +35,20 @@ void ZipStreamTest::GzipHdrTest()
 	assertEqual(0L, aHeader.ModificationTime[3]);
 	assertEqual(GzipHdr::eUnspecified, aHeader.ExtraFlags);
 #if defined(WIN32)
-#  if !defined(__CYGWIN__)  /* Cygwin is Unix, not Win32 */
-#    define OS_CODE  GzipHdr::eNTFS
-#  endif
+#if !defined(__CYGWIN__) /* Cygwin is Unix, not Win32 */
+#define OS_CODE GzipHdr::eNTFS
+#endif
 #elif defined(__linux__) || defined(__sun)
-#  define OS_CODE  GzipHdr::eUnix
+#define OS_CODE GzipHdr::eUnix
 #endif
 	assertEqual(OS_CODE, aHeader.OperatingSystem);
-	assertEqual(4L, (long) & (aHeader.ModificationTime) - (long)&aHeader);
-	assertEqual(8L, (long) & (aHeader.ExtraFlags) - (long)&aHeader);
-	assertEqual(9L, (long) & (aHeader.OperatingSystem) - (long)&aHeader);
-	t_assert( aHeader.fbValid );
+	assertEqual(4L, (long)&(aHeader.ModificationTime) - (long)&aHeader);
+	assertEqual(8L, (long)&(aHeader.ExtraFlags) - (long)&aHeader);
+	assertEqual(9L, (long)&(aHeader.OperatingSystem) - (long)&aHeader);
+	t_assert(aHeader.fbValid);
 }
 
-void ZipStreamTest::GzipHdrWriteTest()
-{
+void ZipStreamTest::GzipHdrWriteTest() {
 	StartTrace(ZipStreamTest.GzipHdrWriteTest);
 	OStringStream os;
 	ZipOStream zos(os);
@@ -72,14 +68,13 @@ void ZipStreamTest::GzipHdrWriteTest()
 	assertCharPtrEqual(streamHeader.str(), writtenHeader);
 }
 
-void ZipStreamTest::ReadGzipHdrFileTest()
-{
+void ZipStreamTest::ReadGzipHdrFileTest() {
 	StartTrace(ZipStreamTest.ReadGzipHdrFileTest);
 	ROAnything roaConfig;
 	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(roaConfig) ) {
+	while (aEntryIterator.Next(roaConfig)) {
 		TString strCase;
-		if ( !aEntryIterator.SlotName(strCase) ) {
+		if (!aEntryIterator.SlotName(strCase)) {
 			strCase << "idx:" << aEntryIterator.Index();
 		}
 		String strCprs(roaConfig["BinaryData"].AsString());
@@ -87,96 +82,95 @@ void ZipStreamTest::ReadGzipHdrFileTest()
 		ZipIStream zis(stream);
 		ZipIStreamBuf *pBuf = zis.rdbuf();
 		const GzipHdr &aHeader = pBuf->Header();
-		if ( t_assertm( aHeader.fbValid == roaConfig["Valid"].AsBool(false), TString("failure at ") << strCase ) && aHeader.fbValid ) {
+		if (t_assertm(aHeader.fbValid == roaConfig["Valid"].AsBool(false), TString("failure at ") << strCase) &&
+			aHeader.fbValid) {
 			long lFlags = 0L;
-			if ( roaConfig.IsDefined("ModTime") ) {
+			if (roaConfig.IsDefined("ModTime")) {
 				TimeStamp aStampExpected(roaConfig["ModTime"].AsString());
 				TimeStamp aStampHeader = aHeader.GetModificationTime();
 				t_assertm(aStampExpected == aStampHeader, strCase);
 				assertCharPtrEqualm(aStampExpected.AsString(), aStampHeader.AsString(), strCase);
 			}
-			if ( roaConfig.IsDefined("Flags") ) {
+			if (roaConfig.IsDefined("Flags")) {
 				lFlags = roaConfig["Flags"].AsLong();
 				assertEqualm(lFlags, (long)(aHeader.Flags), strCase);
 			}
-			if ( roaConfig.IsDefined("Os") ) {
+			if (roaConfig.IsDefined("Os")) {
 				assertEqualm(roaConfig["Os"].AsLong(255), (long)(aHeader.OperatingSystem), strCase);
 			}
-			if ( lFlags & GzipHdr::eFEXTRA ) {
+			if (lFlags & GzipHdr::eFEXTRA) {
 				assertEqualm(roaConfig["Xlen"].AsLong(0), (long)aHeader.XLEN, strCase);
-				if ( roaConfig.IsDefined("ExtraField") ) {
-					assertEqualRawm( roaConfig["ExtraField"].AsString(), aHeader.ExtraField, strCase);
+				if (roaConfig.IsDefined("ExtraField")) {
+					assertEqualRawm(roaConfig["ExtraField"].AsString(), aHeader.ExtraField, strCase);
 				}
 			}
-			if ( lFlags & GzipHdr::eFNAME ) {
-				assertCharPtrEqualm( roaConfig["FileName"].AsString("undefined"), aHeader.FileName, strCase);
+			if (lFlags & GzipHdr::eFNAME) {
+				assertCharPtrEqualm(roaConfig["FileName"].AsString("undefined"), aHeader.FileName, strCase);
 			}
-			if ( lFlags & GzipHdr::eFCOMMENT ) {
-				assertCharPtrEqualm( roaConfig["Comment"].AsString("undefined"), aHeader.Comment, strCase);
+			if (lFlags & GzipHdr::eFCOMMENT) {
+				assertCharPtrEqualm(roaConfig["Comment"].AsString("undefined"), aHeader.Comment, strCase);
 			}
 		}
 	}
 }
 
-void ZipStreamTest::ReadHeaderInfoTest()
-{
+void ZipStreamTest::ReadHeaderInfoTest() {
 	StartTrace(ZipStreamTest.ReadHeaderInfoTest);
 	ROAnything roaConfig;
 	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(roaConfig) ) {
+	while (aEntryIterator.Next(roaConfig)) {
 		TString strCase;
-		if ( !aEntryIterator.SlotName(strCase) ) {
+		if (!aEntryIterator.SlotName(strCase)) {
 			strCase << "idx:" << aEntryIterator.Index();
 		}
 		String strCprs(roaConfig["BinaryData"].AsString());
 		IStringStream stream(strCprs);
 		ZipIStream zis(stream);
 
-		if ( roaConfig.IsDefined("ModTime") ) {
+		if (roaConfig.IsDefined("ModTime")) {
 			TimeStamp aStampExpected(roaConfig["ModTime"].AsString());
 			TimeStamp aStampHeader = zis.getModificationTime();
 			assertCharPtrEqualm(aStampExpected.AsString(), aStampHeader.AsString(), strCase);
 		}
 		String strComment, strExtraField, strFilename;
-		if ( roaConfig.IsDefined("Comment") ) {
+		if (roaConfig.IsDefined("Comment")) {
 			t_assert(zis.getComment(strComment));
 			assertCharPtrEqual(roaConfig["Comment"].AsString(), strComment);
 		}
-		if ( roaConfig.IsDefined("ExtraField") ) {
+		if (roaConfig.IsDefined("ExtraField")) {
 			t_assert(zis.getExtraField(strExtraField));
 			assertCharPtrEqual(roaConfig["ExtraField"].AsString(), strExtraField);
 		}
-		if ( roaConfig.IsDefined("FileName") ) {
+		if (roaConfig.IsDefined("FileName")) {
 			t_assert(zis.getFilename(strFilename));
 			assertCharPtrEqual(roaConfig["FileName"].AsString(), strFilename);
 		}
 	}
 }
 
-void ZipStreamTest::WriteHeaderInfoTest()
-{
+void ZipStreamTest::WriteHeaderInfoTest() {
 	StartTrace(ZipStreamTest.WriteHeaderInfoTest);
 	ROAnything roaConfig;
 	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(roaConfig) ) {
+	while (aEntryIterator.Next(roaConfig)) {
 		TString strCase;
-		if ( !aEntryIterator.SlotName(strCase) ) {
+		if (!aEntryIterator.SlotName(strCase)) {
 			strCase << "idx:" << aEntryIterator.Index();
 		}
 		String strCprs(roaConfig["BinaryData"].AsString());
 		OStringStream stream;
 		ZipOStream zos(stream);
 
-		if ( roaConfig.IsDefined("ModTime") ) {
+		if (roaConfig.IsDefined("ModTime")) {
 			zos << ZipStream::setModificationTime(TimeStamp(roaConfig["ModTime"].AsString()));
 		}
-		if ( roaConfig.IsDefined("Comment") ) {
+		if (roaConfig.IsDefined("Comment")) {
 			zos << ZipStream::setComment(roaConfig["Comment"].AsString());
 		}
-		if ( roaConfig.IsDefined("FileName") ) {
+		if (roaConfig.IsDefined("FileName")) {
 			zos << ZipStream::setFilename(roaConfig["FileName"].AsString());
 		}
-		if ( roaConfig.IsDefined("Content") ) {
+		if (roaConfig.IsDefined("Content")) {
 			zos << roaConfig["Content"].AsString();
 		}
 		zos << std::flush;
@@ -185,17 +179,17 @@ void ZipStreamTest::WriteHeaderInfoTest()
 	}
 }
 
-void ZipStreamTest::CompressionModeTest()
-{
+void ZipStreamTest::CompressionModeTest() {
 	StartTrace(ZipStreamTest.CompressionModeTest);
 	ROAnything roaConfig;
 	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(roaConfig) ) {
+	while (aEntryIterator.Next(roaConfig)) {
 		TString strCase;
-		if ( !aEntryIterator.SlotName(strCase) ) {
+		if (!aEntryIterator.SlotName(strCase)) {
 			strCase << "idx:" << aEntryIterator.Index();
 		}
-		ZipStream::eStreamMode aMode = ( roaConfig["Mode"].AsString().IsEqual("Z") ? ZipStream::ePlainMode : ZipStream::eGZipMode );
+		ZipStream::eStreamMode aMode =
+			(roaConfig["Mode"].AsString().IsEqual("Z") ? ZipStream::ePlainMode : ZipStream::eGZipMode);
 		String strCprs(roaConfig["In"].AsString());
 		Trace("Mode:" << (long)aMode);
 
@@ -204,7 +198,7 @@ void ZipStreamTest::CompressionModeTest()
 
 		String strLine;
 		long lCount = 0;
-		while ( !!zis && !getline(zis, strLine).bad() && !zis.eof() ) {
+		while (!!zis && !getline(zis, strLine).bad() && !zis.eof()) {
 			assertEqualRaw(roaConfig["Expected"][lCount].AsString(), strLine);
 			++lCount;
 			Trace("count: " << lCount);
@@ -213,11 +207,10 @@ void ZipStreamTest::CompressionModeTest()
 	}
 }
 
-void ZipStreamTest::SetCompressionTest()
-{
+void ZipStreamTest::SetCompressionTest() {
 	StartTrace(ZipStreamTest.SetCompressionTest);
 	String strFileName("MultCprsTest");
-	std::ostream *os = coast::system::OpenOStream (strFileName, "gz", std::ios::binary);
+	std::ostream *os = coast::system::OpenOStream(strFileName, "gz", std::ios::binary);
 	if (!t_assert(os != NULL)) {
 		return;
 	}
@@ -255,8 +248,7 @@ void ZipStreamTest::SetCompressionTest()
 	delete is;
 }
 
-void ZipStreamTest::GzipZlibTest()
-{
+void ZipStreamTest::GzipZlibTest() {
 	StartTrace(ZipStreamTest.GzipZlibTest);
 
 	// check our prezipped master file
@@ -272,8 +264,7 @@ void ZipStreamTest::GzipZlibTest()
 
 	VerifyFile("tt.gz");
 }
-static String ReadStream(std::istream &is)
-{
+static String ReadStream(std::istream &is) {
 	StartTrace(ZipStreamTest.ReadStream);
 
 	String ret(coast::storage::Global());
@@ -290,8 +281,7 @@ static String ReadStream(std::istream &is)
 	return ret;
 }
 
-void ZipStreamTest::GzipLongFileCheck()
-{
+void ZipStreamTest::GzipLongFileCheck() {
 	StartTrace(ZipStreamTest.GzipLongFileCheck);
 
 	std::istream *is = coast::system::OpenIStream("longpage", "html");
@@ -320,10 +310,9 @@ void ZipStreamTest::GzipLongFileCheck()
 	t_assert(raw == cooked);
 }
 
-void ZipStreamTest::GzipSimpleFileCheck()
-{
+void ZipStreamTest::GzipSimpleFileCheck() {
 	StartTrace(ZipStreamTest.GzipSimpleFileCheck);
-	std::ostream *os = coast::system::OpenOStream ("testzip", "gz", std::ios::binary);
+	std::ostream *os = coast::system::OpenOStream("testzip", "gz", std::ios::binary);
 	if (!t_assert(os != NULL)) {
 		return;
 	}
@@ -355,10 +344,9 @@ void ZipStreamTest::GzipSimpleFileCheck()
 	delete is;
 }
 
-void ZipStreamTest::GzipEmptyFile()
-{
+void ZipStreamTest::GzipEmptyFile() {
 	StartTrace(ZipStreamTest.GzipEmptyFile);
-	std::ostream *os = coast::system::OpenOStream ("empty", "gz", std::ios::binary);
+	std::ostream *os = coast::system::OpenOStream("empty", "gz", std::ios::binary);
 	if (!t_assert(os != NULL)) {
 		return;
 	}
@@ -390,15 +378,14 @@ void ZipStreamTest::GzipEmptyFile()
 	delete is;
 }
 
-void ZipStreamTest::GzipConstantBufferCheck()
-{
+void ZipStreamTest::GzipConstantBufferCheck() {
 	StartTrace(ZipStreamTest.GzipConstantBufferCheck);
 
 	srand(12345);
 	char inFile[89000];
 	{
 		for (unsigned i = 0; i < sizeof(inFile); ++i) {
-			inFile[i] = (char) rand();
+			inFile[i] = (char)rand();
 		}
 	}
 	String encoded;
@@ -436,7 +423,7 @@ void ZipStreamTest::GzipConstantBufferCheck()
 			}
 		}
 	}
-	encoded << "a bit of garbage at the end" ;
+	encoded << "a bit of garbage at the end";
 	StringStream ssin2(encoded);
 	ZipIStream zis2(ssin2);
 	String decoded2;
@@ -456,15 +443,14 @@ void ZipStreamTest::GzipConstantBufferCheck()
 	}
 }
 
-void ZipStreamTest::GzipBigFileCheck()
-{
+void ZipStreamTest::GzipBigFileCheck() {
 	StartTrace(ZipStreamTest.GzipBigFileCheck);
 
 	srand(12345);
-	char inFile[1024*64];
+	char inFile[1024 * 64];
 	{
 		for (unsigned i = 0; i < sizeof(inFile); ++i) {
-			inFile[i] = (char) rand();
+			inFile[i] = (char)rand();
 		}
 	}
 	std::ostream *os = coast::system::OpenOStream("big", "gz", std::ios::binary);
@@ -481,12 +467,12 @@ void ZipStreamTest::GzipBigFileCheck()
 
 	std::istream *is = coast::system::OpenIStream("big", "gz", std::ios::binary);
 	if (!t_assert(is != NULL)) {
-		return ;
+		return;
 	}
 	ZipIStream zis(*is);
 	unsigned nread = 0;
 
-	while ( nread < sizeof(outFile) && !zis.eof()) {
+	while (nread < sizeof(outFile) && !zis.eof()) {
 		nread += zis.read(outFile + nread, sizeof(outFile) - nread).gcount();
 
 		Trace("read: " << (long)nread);
@@ -497,7 +483,7 @@ void ZipStreamTest::GzipBigFileCheck()
 	zis.close();
 
 	for (unsigned i = 0; i < sizeof(inFile); ++i) {
-		if ( !t_assert(inFile[i] == outFile[i])) {
+		if (!t_assert(inFile[i] == outFile[i])) {
 			Trace("files not equal: " << (long)i);
 			break;
 		}
@@ -506,12 +492,12 @@ void ZipStreamTest::GzipBigFileCheck()
 
 	std::istream *is2 = coast::system::OpenIStream("big", "gz", std::ios::binary);
 	if (!t_assert(is2 != NULL)) {
-		return ;
+		return;
 	}
 	ZipIStream zis2(*is2);
 	unsigned nread2 = 0;
 
-	while ( nread2 < 20000 && !zis2.eof()) {
+	while (nread2 < 20000 && !zis2.eof()) {
 		nread2 += zis2.read(outFile + nread2, sizeof(outFile) - nread2).gcount();
 
 		Trace("read: " << (long)nread2);
@@ -522,8 +508,7 @@ void ZipStreamTest::GzipBigFileCheck()
 	delete is2;
 }
 
-void ZipStreamTest::GzipCorruptInputCheck()
-{
+void ZipStreamTest::GzipCorruptInputCheck() {
 	String noZip("no zip at all!");
 	StringStream ss1(noZip);
 	ZipIStream zis1(ss1);
@@ -544,18 +529,17 @@ void ZipStreamTest::GzipCorruptInputCheck()
 	zis2.close();
 }
 
-void ZipStreamTest::StringGetlineTest()
-{
+void ZipStreamTest::StringGetlineTest() {
 	StartTrace(ZipStreamTest.StringGetlineTest);
 	std::istream *is = coast::system::OpenIStream("tt", "gz", std::ios::binary);
 	if (!t_assert(is != NULL)) {
-		return ;
+		return;
 	}
 	ZipIStream zis(*is);
 
 	String strLine;
 	long lCount = 0;
-	while ( !!zis && !getline(zis, strLine).bad() && !zis.eof() ) {
+	while (!!zis && !getline(zis, strLine).bad() && !zis.eof()) {
 		++lCount;
 		Trace("count: " << lCount);
 		Trace("read [" << strLine << "]");
@@ -567,10 +551,9 @@ void ZipStreamTest::StringGetlineTest()
 	zis.close();
 }
 
-void ZipStreamTest::StringEmptyFileGetlineTest()
-{
+void ZipStreamTest::StringEmptyFileGetlineTest() {
 	StartTrace(ZipStreamTest.StringEmptyFileGetlineTest);
-	std::ostream *os = coast::system::OpenOStream ("empty2", "gz", std::ios::binary);
+	std::ostream *os = coast::system::OpenOStream("empty2", "gz", std::ios::binary);
 	if (!t_assert(os != NULL)) {
 		return;
 	}
@@ -583,13 +566,13 @@ void ZipStreamTest::StringEmptyFileGetlineTest()
 
 	std::istream *is = coast::system::OpenIStream("empty2", "gz", std::ios::binary);
 	if (!t_assert(is != NULL)) {
-		return ;
+		return;
 	}
 	ZipIStream zis(*is);
 
 	String strLine;
 	long lCount = 0;
-	while ( !!zis && !getline(zis, strLine).bad() && !zis.eof() ) {
+	while (!!zis && !getline(zis, strLine).bad() && !zis.eof()) {
 		++lCount;
 		Trace("count: " << lCount);
 		Trace("read [" << strLine << "]");
@@ -606,8 +589,7 @@ void ZipStreamTest::StringEmptyFileGetlineTest()
 	zis.close();
 }
 
-void ZipStreamTest::VerifyFile(const char *fileName)
-{
+void ZipStreamTest::VerifyFile(const char *fileName) {
 	const long length = content.Length();
 	gzFile inFile = gzopen(fileName, "r");
 	t_assertm(inFile != NULL, (const char *)(String("File '") << fileName << "' must exist!"));
@@ -621,8 +603,7 @@ void ZipStreamTest::VerifyFile(const char *fileName)
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *ZipStreamTest::suite ()
-{
+Test *ZipStreamTest::suite() {
 	StartTrace(ZipStreamTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

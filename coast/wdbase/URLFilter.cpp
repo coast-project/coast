@@ -7,15 +7,15 @@
  */
 
 #include "URLFilter.h"
+
+#include "AnyIterators.h"
 #include "Registry.h"
-#include "SecurityModule.h"
 #include "Renderer.h"
+#include "SecurityModule.h"
 #include "SystemLog.h"
 #include "Tracer.h"
-#include "AnyIterators.h"
 
-bool URLFilter::HandleCookie(Anything &query, Anything &env, const ROAnything &filterCookieConf, Context &ctx)
-{
+bool URLFilter::HandleCookie(Anything &query, Anything &env, const ROAnything &filterCookieConf, Context &ctx) {
 	StartTrace(URLFilter.HandleCookie);
 	SubTraceAny(query, query, "Query: ");
 	SubTraceAny(env, env, "Env: ");
@@ -25,16 +25,15 @@ bool URLFilter::HandleCookie(Anything &query, Anything &env, const ROAnything &f
 	// if they are not already there
 	Anything cookies;
 	bool ret = true;
-	if ( env.LookupPath(cookies, "WDCookies") ) {
+	if (env.LookupPath(cookies, "WDCookies")) {
 		long numOfFilters = filterCookieConf.GetSize();
 		for (long i = 0; i < numOfFilters; ++i) {
 			String filterVal;
 			RenderFilterVal(filterVal, filterCookieConf[i], ctx);
 			const char *slotName = filterVal;
 			env["NrOfCookies"][slotName] = 0L;
-			if ( cookies.IsDefined(slotName) &&
-				 !query.IsDefined(slotName) ) {
-				if ( cookies[slotName].GetType() != AnyArrayType ) {
+			if (cookies.IsDefined(slotName) && !query.IsDefined(slotName)) {
+				if (cookies[slotName].GetType() != AnyArrayType) {
 					// don't override existing tags
 					query[slotName] = cookies[slotName];
 					env["NrOfCookies"][slotName] = 1L;
@@ -63,8 +62,7 @@ bool URLFilter::HandleCookie(Anything &query, Anything &env, const ROAnything &f
 	return ret;
 }
 
-void URLFilter::RenderFilterVal(String &filterVal, const ROAnything &filterCookieConf, Context &ctx)
-{
+void URLFilter::RenderFilterVal(String &filterVal, const ROAnything &filterCookieConf, Context &ctx) {
 	StartTrace(URLFilter.RenderFilterVal);
 	ROAnything filter(filterCookieConf);
 	if (filter.GetType() != AnyCharPtrType) {
@@ -76,8 +74,7 @@ void URLFilter::RenderFilterVal(String &filterVal, const ROAnything &filterCooki
 	return;
 }
 
-bool URLFilter::HandleQuery(Anything &query, const ROAnything &filterQueryConf, Context &ctx)
-{
+bool URLFilter::HandleQuery(Anything &query, const ROAnything &filterQueryConf, Context &ctx) {
 	StartTrace(URLFilter.HandleQuery);
 	SubTraceAny(query, query, "Query: ");
 	SubTraceAny(filterQueryConf, filterQueryConf, "Filter configuration: ");
@@ -85,20 +82,18 @@ bool URLFilter::HandleQuery(Anything &query, const ROAnything &filterQueryConf, 
 	ROAnything filters;
 	ROAnything unscramblers;
 
-	if ( filterQueryConf.LookupPath(filters, "Tags2Suppress") ) {
+	if (filterQueryConf.LookupPath(filters, "Tags2Suppress")) {
 		if (!FilterState(query, filters, ctx)) {
 			return false;
 		}
 	}
-	if ( filterQueryConf.LookupPath(unscramblers, "Tags2Unscramble") ) {
+	if (filterQueryConf.LookupPath(unscramblers, "Tags2Unscramble")) {
 		return UnscrambleState(query, unscramblers, ctx);
 	}
 	return true;
-
 }
 
-bool URLFilter::FilterState(Anything &query, const ROAnything &filterTags, Context &ctx)
-{
+bool URLFilter::FilterState(Anything &query, const ROAnything &filterTags, Context &ctx) {
 	StartTrace(URLFilter.FilterState);
 
 	SubTraceAny(query, query, "Query: ");
@@ -107,12 +102,12 @@ bool URLFilter::FilterState(Anything &query, const ROAnything &filterTags, Conte
 	ROAnything filter, roaQuery(query);
 	String slotName;
 	AnyExtensions::Iterator<ROAnything> aIterator(filterTags);
-	while(aIterator.Next(filter)) {
-		if ( aIterator.SlotName(slotName)) {
+	while (aIterator.Next(filter)) {
+		if (aIterator.SlotName(slotName)) {
 			TraceAny(filter, "filter entry slotname [" << slotName << "]");
 			// key=value type filter
 			// -> remove from query if query[key] is contained in filter
-			if ( filter.Contains(roaQuery[slotName].AsString()) ) {
+			if (filter.Contains(roaQuery[slotName].AsString())) {
 				Trace("removing query[" << slotName << "] <" << query[slotName].AsString() << ">");
 				query.Remove(slotName);
 			}
@@ -125,7 +120,7 @@ bool URLFilter::FilterState(Anything &query, const ROAnything &filterTags, Conte
 				slotName = filter.AsString();
 			}
 			Trace("rendered slotname to remove (if) [" << slotName << "]");
-			if ( !slotName.Length() ) {
+			if (!slotName.Length()) {
 				retCode = false;
 			} else {
 				// simple filter just remove it from query
@@ -136,8 +131,7 @@ bool URLFilter::FilterState(Anything &query, const ROAnything &filterTags, Conte
 	return retCode;
 }
 
-bool URLFilter::UnscrambleState(Anything &query, const ROAnything &unscramblers, Context &ctx)
-{
+bool URLFilter::UnscrambleState(Anything &query, const ROAnything &unscramblers, Context &ctx) {
 	StartTrace(URLFilter.UnscrambleState);
 
 	SubTraceAny(query, query, "Query: ");
@@ -160,8 +154,7 @@ bool URLFilter::UnscrambleState(Anything &query, const ROAnything &unscramblers,
 	return retCode;
 }
 
-bool URLFilter::DoFilterState(Anything &query, const char *slotName, Context &ctx)
-{
+bool URLFilter::DoFilterState(Anything &query, const char *slotName, Context &ctx) {
 	StartTrace(URLFilter.DoFilterState);
 	Trace("Slot: " << NotNull(slotName));
 	SubTraceAny(query, query, "Query: ");
@@ -169,8 +162,8 @@ bool URLFilter::DoFilterState(Anything &query, const char *slotName, Context &ct
 	// filter out some sensitive keywords
 	// that shouldn't appear in the public part
 	// of an URL
-	if ( slotName ) {
-		if ( query.IsDefined(slotName) ) {
+	if (slotName) {
+		if (query.IsDefined(slotName)) {
 			Trace("removing <" << slotName << ">");
 			query.Remove(slotName);
 		}
@@ -179,8 +172,7 @@ bool URLFilter::DoFilterState(Anything &query, const char *slotName, Context &ct
 	return false;
 }
 
-bool URLFilter::DoUnscrambleState(Anything &query, const char *slotName, Context &ctx)
-{
+bool URLFilter::DoUnscrambleState(Anything &query, const char *slotName, Context &ctx) {
 	// Scrambled private information in slotName
 	StartTrace1(URLFilter.DoUnscrambleState, "Slot: " << NotNull(slotName));
 
@@ -202,7 +194,7 @@ bool URLFilter::DoUnscrambleState(Anything &query, const char *slotName, Context
 						query[slot] = a[i];
 					}
 				}
-				SubTraceAny(query, query,	"---- unscrambled query ---------------");
+				SubTraceAny(query, query, "---- unscrambled query ---------------");
 				return true;
 			} else {
 				String errMsg("Private state of URL is corrupt:<");
@@ -221,5 +213,5 @@ bool URLFilter::DoUnscrambleState(Anything &query, const char *slotName, Context
 }
 
 //---- registry api
-RegCacheImpl(URLFilter);	// FindURLFilter()
+RegCacheImpl(URLFilter);  // FindURLFilter()
 RegisterURLFilter(URLFilter);

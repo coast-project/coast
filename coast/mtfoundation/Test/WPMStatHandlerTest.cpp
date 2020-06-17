@@ -7,20 +7,19 @@
  */
 
 #include "WPMStatHandlerTest.h"
-#include "WPMStatHandler.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
-bool WPMStatHandlerTest::AssertState(const WPMStatHandler &wpm, const Anything &state)
-{
-	return
-		(assertEqualm(state[0L]["Value"].AsLong(0L), wpm.fPoolSize, state[0L]["Message"].AsCharPtr("failed")) ) 					&&
-		(assertEqualm(state[1L]["Value"].AsLong(0L), wpm.fCurrentParallelRequests, state[1L]["Message"].AsCharPtr("failed")) ) 	&&
-		(assertEqualm(state[2L]["Value"].AsLong(0L), wpm.fTotalRequests, state[2L]["Message"].AsCharPtr("failed")) )				&&
-		(t_assertm(wpm.fTotalTime >= state[3L]["Value"].AsLong(0L), state[3L]["Message"].AsCharPtr("failed")) );
+#include "TestSuite.h"
+#include "WPMStatHandler.h"
+bool WPMStatHandlerTest::AssertState(const WPMStatHandler &wpm, const Anything &state) {
+	return (assertEqualm(state[0L]["Value"].AsLong(0L), wpm.fPoolSize, state[0L]["Message"].AsCharPtr("failed"))) &&
+		   (assertEqualm(state[1L]["Value"].AsLong(0L), wpm.fCurrentParallelRequests,
+						 state[1L]["Message"].AsCharPtr("failed"))) &&
+		   (assertEqualm(state[2L]["Value"].AsLong(0L), wpm.fTotalRequests, state[2L]["Message"].AsCharPtr("failed"))) &&
+		   (t_assertm(wpm.fTotalTime >= state[3L]["Value"].AsLong(0L), state[3L]["Message"].AsCharPtr("failed")));
 }
 
-void WPMStatHandlerTest::ConstructorTest()
-{
+void WPMStatHandlerTest::ConstructorTest() {
 	StartTrace(WPMStatHandlerTest.ConstructorTest);
 	Anything expectedState;
 	expectedState[0L]["Value"] = 100;
@@ -29,11 +28,9 @@ void WPMStatHandlerTest::ConstructorTest()
 	WPMStatHandler wpm(100);
 
 	t_assertm(AssertState(wpm, expectedState), "wrong state");
-
 }
 
-void WPMStatHandlerTest::StatEvtTests()
-{
+void WPMStatHandlerTest::StatEvtTests() {
 	StartTrace(WPMStatHandlerTest.StatEvtTests);
 	Anything expectedState;
 	expectedState[0L]["Value"] = 100;
@@ -69,11 +66,9 @@ void WPMStatHandlerTest::StatEvtTests()
 	expectedState[3L]["Value"] = 0;
 	expectedState[3L]["Message"] = "fTotalTime wrong value";
 	t_assertm(AssertState(wpm, expectedState), "wrong state");
-
 }
 
-void WPMStatHandlerTest::StatisticTests()
-{
+void WPMStatHandlerTest::StatisticTests() {
 	StartTrace(WPMStatHandlerTest.StatEvtTests);
 	Anything expectedState;
 	expectedState[0L]["Value"] = 100;
@@ -118,8 +113,7 @@ void WPMStatHandlerTest::StatisticTests()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *WPMStatHandlerTest::suite ()
-{
+Test *WPMStatHandlerTest::suite() {
 	StartTrace(WPMStatHandlerTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

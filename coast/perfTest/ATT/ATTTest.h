@@ -13,35 +13,34 @@
 #include "FoundationTestTypes.h"
 
 //---- ATTTest ----------------------------------------------------------
-//!ConfiguredTestCases description
-class ATTTest : public testframework::TestCaseWithConfig
-{
+//! ConfiguredTestCases description
+class ATTTest : public testframework::TestCaseWithConfig {
 public:
 	//--- constructors
 
-	//!ConfiguredTestCase constructor
+	//! ConfiguredTestCase constructor
 	//! \param name name of the test
 	ATTTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~ATTTest();
 
 	//--- public api
 
-	//!builds up a suite of tests
-	static Test *suite ();
+	//! builds up a suite of tests
+	static Test *suite();
 
 	TString getConfigFileName();
 
 protected:
-	//!runs a number of stressers
+	//! runs a number of stressers
 	void RunTheStressers();
 
 	// Print the results for a single run
 	void PrintResult(String &stresserName, Anything &result);
 	// Prints the totals of all runs
 	void PrintResultTotals();
-	//!Prepare and prints results of a single run for distributing
+	//! Prepare and prints results of a single run for distributing
 	void PrepareResults(Anything result);
 
 	long fNrOfTests;
@@ -50,61 +49,54 @@ protected:
 	long fNrOfStepErrors;
 	String fResultOutput;
 	String fSummaryOutput;
-
 };
 
-//!DoneScenariosTest description
-class DoneScenariosTest : public ATTTest
-{
+//! DoneScenariosTest description
+class DoneScenariosTest : public ATTTest {
 public:
-	//!DoneScenariosTest constructor
-	DoneScenariosTest(TString tstrName): ATTTest(tstrName) {};
+	//! DoneScenariosTest constructor
+	DoneScenariosTest(TString tstrName) : ATTTest(tstrName){};
 
-	//!destroys the test case
-	~DoneScenariosTest() {};
+	//! destroys the test case
+	~DoneScenariosTest(){};
 
-	//!builds up a suite of tests
-	static Test *suite ();
+	//! builds up a suite of tests
+	static Test *suite();
 
-	//!Run the scenarios that are done and that should not fail anymore
+	//! Run the scenarios that are done and that should not fail anymore
 	void DoneScenarios();
-
 };
 
-//!InWorkScenariosTest description
-class InWorkScenariosTest : public ATTTest
-{
+//! InWorkScenariosTest description
+class InWorkScenariosTest : public ATTTest {
 public:
-	//!InWorkScenariosTest constructor
-	InWorkScenariosTest(TString tstrName): ATTTest(tstrName) {};
+	//! InWorkScenariosTest constructor
+	InWorkScenariosTest(TString tstrName) : ATTTest(tstrName){};
 
-	//!destroys the test case
-	~InWorkScenariosTest() {};
+	//! destroys the test case
+	~InWorkScenariosTest(){};
 
-	//!builds up a suite of tests
-	static Test *suite ();
+	//! builds up a suite of tests
+	static Test *suite();
 
-	//!Run the scenarios that are in work // can fail
+	//! Run the scenarios that are in work // can fail
 	void InWorkScenarios();
-
 };
 
-//!RunOnlyScenariosTest description
-class RunOnlyScenariosTest : public ATTTest
-{
+//! RunOnlyScenariosTest description
+class RunOnlyScenariosTest : public ATTTest {
 public:
-	//!RunOnlyScenariosTest constructor
-	RunOnlyScenariosTest(TString tstrName): ATTTest(tstrName) {};
+	//! RunOnlyScenariosTest constructor
+	RunOnlyScenariosTest(TString tstrName) : ATTTest(tstrName){};
 
-	//!destroys the test case
-	~RunOnlyScenariosTest() {};
+	//! destroys the test case
+	~RunOnlyScenariosTest(){};
 
-	//!builds up a suite of tests
-	static Test *suite ();
+	//! builds up a suite of tests
+	static Test *suite();
 
-	//!Run the scenarios that are in work // can fail
+	//! Run the scenarios that are in work // can fail
 	void RunOnlyScenarios();
-
 };
 
 #endif

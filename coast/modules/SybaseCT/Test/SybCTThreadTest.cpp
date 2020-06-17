@@ -7,56 +7,47 @@
  */
 
 #include "SybCTThreadTest.h"
+
+#include "DataAccess.h"
+#include "MT_Storage.h"
 #include "SybCTnewDAImpl.h"
 #include "TestSuite.h"
-#include "DataAccess.h"
 #include "Timers.h"
-#include "MT_Storage.h"
 //---- SybCTThreadTest ----------------------------------------------------------------
-SybCTThreadTest::SybCTThreadTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+SybCTThreadTest::SybCTThreadTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(SybCTThreadTest.SybCTThreadTest);
 }
 
-SybCTThreadTest::~SybCTThreadTest()
-{
+SybCTThreadTest::~SybCTThreadTest() {
 	StartTrace(SybCTThreadTest.Dtor);
 }
 
-void SybCTThreadTest::setUp ()
-{
+void SybCTThreadTest::setUp() {
 	StartTrace(SybCTThreadTest.setUp);
 	fbWasInitialized = SybCTnewDAImpl::fgInitialized;
-	if ( fbWasInitialized ) {
+	if (fbWasInitialized) {
 		SybCTnewDAImpl::Finis();
 	}
 }
 
-void SybCTThreadTest::tearDown ()
-{
+void SybCTThreadTest::tearDown() {
 	StartTrace(SybCTThreadTest.tearDown);
 }
 
-class SybTestThread : public Thread
-{
+class SybTestThread : public Thread {
 	SybCTThreadTest &fMaster;
 	long fId;
 	const char *fGoodDAName, *fFailDAName;
 
 public:
 	SybTestThread(SybCTThreadTest &master, long id, const char *goodDAName, const char *failDAName)
-		: Thread("SybTestThread"), fMaster(master), fId(id), fGoodDAName(goodDAName), fFailDAName(failDAName)
-	{}
+		: Thread("SybTestThread"), fMaster(master), fId(id), fGoodDAName(goodDAName), fFailDAName(failDAName) {}
 
 protected:
-	virtual void Run() {
-		fMaster.Run(fId, fGoodDAName, fFailDAName);
-	}
+	virtual void Run() { fMaster.Run(fId, fGoodDAName, fFailDAName); }
 };
 
-void SybCTThreadTest::Run(long id, const char *goodDAName, const char *failDAName)
-{
+void SybCTThreadTest::Run(long id, const char *goodDAName, const char *failDAName) {
 	for (int i = 0; i < 10; i++) {
 		Anything aEnv = GetConfig().DeepClone();
 		Context ctx(aEnv);
@@ -69,31 +60,29 @@ void SybCTThreadTest::Run(long id, const char *goodDAName, const char *failDANam
 		assertComparem(30L, less_equal, tmpStore[goodDAName]["QueryResult"].GetSize(), goodDAName);
 
 		DataAccess da2(failDAName);
-		t_assertm( !da2.StdExec(ctx), TString(failDAName) << " expected test to fail because of SQL syntax error");
+		t_assertm(!da2.StdExec(ctx), TString(failDAName) << " expected test to fail because of SQL syntax error");
 		RequestTimeLogger(ctx);
 	}
 }
 
-void SybCTThreadTest::SybCTnewDAImplTest()
-{
+void SybCTThreadTest::SybCTnewDAImplTest() {
 	StartTrace(SybCTThreadTest.SybCTnewDAImplTest);
 	TraceAny(GetTestCaseConfig(), "case config");
-	if ( t_assert(SybCTnewDAImpl::Init(GetTestCaseConfig())) ) {
+	if (t_assert(SybCTnewDAImpl::Init(GetTestCaseConfig()))) {
 		DiffTimer aTimer;
 		DoTest("SybTestThreadnewDA", "SybTestThreadnewDAWithError");
 		SystemLog::WriteToStderr(String("elapsed time for SybCTnewDAImplTest:") << (long)aTimer.Diff() << "ms\n");
 	}
 }
 
-void SybCTThreadTest::DoTest(const char *goodDAName, const char *failDAName)
-{
+void SybCTThreadTest::DoTest(const char *goodDAName, const char *failDAName) {
 	StartTrace(SybCTThreadTest.DoTest);
 
 	long nThreads = GetTestCaseConfig()["ThreadPoolSize"].AsLong(10L);
 	u_long lPoolSize = (u_long)GetTestCaseConfig()["PoolStorageSize"].AsLong(1000L);
 	u_long lPoolBuckets = (u_long)GetTestCaseConfig()["NumOfPoolBucketSizes"].AsLong(20L);
 
-	SybTestThread **threadArray = new SybTestThread*[nThreads];
+	SybTestThread **threadArray = new SybTestThread *[nThreads];
 	long i = 0;
 	for (i = 0; i < nThreads; i++) {
 		threadArray[i] = new (coast::storage::Global()) SybTestThread(*this, i, goodDAName, failDAName);
@@ -109,8 +98,7 @@ void SybCTThreadTest::DoTest(const char *goodDAName, const char *failDAName)
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *SybCTThreadTest::suite ()
-{
+Test *SybCTThreadTest::suite() {
 	StartTrace(SybCTThreadTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, SybCTThreadTest, SybCTnewDAImplTest);

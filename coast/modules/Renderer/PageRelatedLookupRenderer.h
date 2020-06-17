@@ -17,13 +17,13 @@
 \par Configuration
 \code
 {
-	/LookupName		Rendererspec	optional, specification to lookup in context in a page specific slot
+  /LookupName		Rendererspec	optional, specification to lookup in context in a page specific slot
 }
 \endcode
 or just
 \code
 {
-	"name of a renderer in context"
+  "name of a renderer in context"
 }
 \endcode
 
@@ -37,7 +37,7 @@ pollution (e.g. in LocalizedString.any).
 \par Example:
 \code
 /PageRelatedLookupRenderer {
-	/LookupName "Title_L"
+  /LookupName "Title_L"
 }
 \endcode
 
@@ -49,21 +49,20 @@ page "Bar" performs a lookup of "Bar.Title_L".
 Entries in the LocalizedStrings.any file might look like this:
 \code
 /Foo {		# localized strings for page "Foo"
-	/Title_L {
-		/Type String
-		/Default "Title of page Foo"
-	}
+  /Title_L {
+	/Type String
+	/Default "Title of page Foo"
+  }
 }
 /Bar {		# localized strings for page "Bar"
-	/Title_L {
-		/Type String
-		/Default "Title of page Bar"
-	}
+  /Title_L {
+	/Type String
+	/Default "Title of page Bar"
+  }
 }
 \endcode
 */
-class PageRelatedLookupRenderer : public LookupRenderer
-{
+class PageRelatedLookupRenderer : public LookupRenderer {
 public:
 	PageRelatedLookupRenderer(const char *name);
 
@@ -71,4 +70,4 @@ protected:
 	virtual ROAnything DoLookup(Context &context, const char *name, char delim, char indexdelim);
 };
 
-#endif		//not defined _PageRelatedLookupRenderer_H
+#endif	// not defined _PageRelatedLookupRenderer_H

@@ -17,19 +17,18 @@
 \par Configuration
 \code
 {
-	/Input		Rendererspec	mandatory, RendererSpec used to lookup the Anything in Context
-	/Pretty		long			optional, default=1, pretty Print mode
-	/XmpTags					optional, add XMP tags
-	{
-		/CSSTag					additional style class to be placed within pre tag
-		/PreTag					additional formatting, goes after   <xmp> tag
-		/PostTag				additional formatting, goes before </xmp> tag
-	}
+  /Input		Rendererspec	mandatory, RendererSpec used to lookup the Anything in Context
+  /Pretty		long			optional, default=1, pretty Print mode
+  /XmpTags					optional, add XMP tags
+  {
+	/CSSTag					additional style class to be placed within pre tag
+	/PreTag					additional formatting, goes after   <xmp> tag
+	/PostTag				additional formatting, goes before </xmp> tag
+  }
 }
 \endcode
 */
-class AnythingContentRenderer : public Renderer
-{
+class AnythingContentRenderer : public Renderer {
 public:
 	AnythingContentRenderer(const char *name);
 	~AnythingContentRenderer();
@@ -37,4 +36,4 @@ public:
 	virtual void RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config);
 };
 
-#endif		//ifndef _AnythingContentRenderer_H
+#endif	// ifndef _AnythingContentRenderer_H

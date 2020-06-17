@@ -13,31 +13,32 @@
 
 //---- XMLMapper ----------------------------------------------------------
 //! Mapper to use with ReadXMLFileDAImpl
+// clang-format off
 /*!
 <B>XMLMapper-Configuration:</B><PRE>
 {
-	/Delim				Mapperspec		optional, default is "."  This delim is used to compose the lookup-path
-	/IndexDelim			Mapperspec		optional, default is ":". This delim is used to compose the lookup-path
-	/Elements			Mapperspec		mandatory, an Anything containing element names to search for
-	/IndexedPathOnly    Mapperspec		true/false, default is false.
+  /Delim				Mapperspec		optional, default is "."  This delim is used to compose the lookup-path
+  /IndexDelim			Mapperspec		optional, default is ":". This delim is used to compose the lookup-path
+  /Elements				Mapperspec		mandatory, an Anything containing element names to search for
+  /IndexedPathOnly    	Mapperspec		true/false, default is false.
 										if on, generated LookupPathes contain only indexes e.g. :0:1:2
 										by default Slotnames are used if present, eg. :0.somename.1
-	The result is placed in the tmp store using an Anything. This Anyhing has to be accessed with the name of the mapper you configured
-	in the mapper-hierarchy. eg. tmp["mymapper"]["ParsedXMLAsAny"], tmp["mymapper"]["LookupPathes"]
+  The result is placed in the tmp store using an Anything. This Anyhing has to be accessed with the name of the mapper you
+configured in the mapper-hierarchy. eg. tmp["mymapper"]["ParsedXMLAsAny"], tmp["mymapper"]["LookupPathes"]
 
-	Meaning of the Slots:	 /ParsedXMLAsAny contains the parsed XML as passed to the mapper
-							 /LookupPathes contains the lookup pathes to retrieve the found elements
-							  in the /ParsedXMLAsAny  content.
-	If IndexedPathOnly is on, the /LookupPathes are composed with index-Only semantics. Otherwise the /LookupPath
-	contains the appropriate SlotName, if present.
+  Meaning of the Slots:	/ParsedXMLAsAny contains the parsed XML as passed to the mapper
+			   	   		/LookupPathes 	contains the lookup pathes to retrieve the found elements
+										in the /ParsedXMLAsAny  content.
+  If IndexedPathOnly is on, the /LookupPathes are composed with index-Only semantics. Otherwise the /LookupPath
+  contains the appropriate SlotName, if present.
 
-	Using ReadXMLFileDAImpl and XMLMapper together gives you a neat way to retrieve your XML-Elements
-	from a file. For restrictions see the GenericXMLParser.
+  Using ReadXMLFileDAImpl and XMLMapper together gives you a neat way to retrieve your XML-Elements
+  from a file. For restrictions see the GenericXMLParser.
 }
 </PRE>
 */
-class XMLMapper : public ResultMapper
-{
+// clang-format on
+class XMLMapper : public ResultMapper {
 public:
 	//--- constructors
 	XMLMapper(const char *name);

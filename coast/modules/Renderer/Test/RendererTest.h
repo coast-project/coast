@@ -9,11 +9,11 @@
 #ifndef _RendererTest_h_
 #define _RendererTest_h_
 
-#include "TestCase.h"
 #include "Context.h"
 #include "StringStream.h"
+#include "TestCase.h"
 
-class RendererTest: public testframework::TestCase {
+class RendererTest : public testframework::TestCase {
 public:
 	RendererTest(TString tstrName);
 	void setUp();

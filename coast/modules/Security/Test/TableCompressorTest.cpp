@@ -7,9 +7,10 @@
  */
 
 #include "TableCompressorTest.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
 #include "TableCompressor.h"
+#include "TestSuite.h"
 
 //---- TableCompressorTest ----------------------------------------------------------------
 Test *TableCompressorTest::suite() {
@@ -92,7 +93,6 @@ void TableCompressorTest::MakeTableTest() {
 	MakeTestTable(&tc);
 
 	assertAnyEqual(result, tc.fMap);
-
 }
 
 void TableCompressorTest::MakeRevTableTest() {
@@ -213,7 +213,8 @@ void TableCompressorTest::CompressExpandWithEmptyConfigTest() {
 	state["OtherState"] = "AValue";
 
 	String result;
-	result = "{/Role \"AVerySophisticatedRole\"/Page \"SomeVeryLongPage1\"/Action \"SomeUltraLongAction\"/OtherState \"AValue\"}";
+	result =
+		"{/Role \"AVerySophisticatedRole\"/Page \"SomeVeryLongPage1\"/Action \"SomeUltraLongAction\"/OtherState \"AValue\"}";
 
 	String compressed;
 	Anything expanded;
@@ -328,4 +329,3 @@ void TableCompressorTest::InitWithExpansionTest() {
 
 	assertAnyEqual(result, tc.fMap);
 }
-

@@ -11,18 +11,16 @@
 
 #include "TestCase.h"
 
-class ThreadPoolTest: public testframework::TestCase {
+class ThreadPoolTest : public testframework::TestCase {
 public:
-	ThreadPoolTest(TString tname) :
-		TestCaseType(tname) {
-	}
-	//!builds up a suite of testcases for this test
+	ThreadPoolTest(TString tname) : TestCaseType(tname) {}
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!Tests Init Start Join
+	//! Tests Init Start Join
 	void JoinTest();
 
-	//!Tests Init Start Terminate
+	//! Tests Init Start Terminate
 	void TerminateTest();
 
 	void PoolManagerTest();

@@ -11,15 +11,13 @@
 
 #include "WDBaseTestPolicies.h"
 
-//!TestCases description
-class SimpleDAServiceTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+//! TestCases description
+class SimpleDAServiceTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	SimpleDAServiceTest(TString tname) :
-		TestCaseType(tname) {
-	}
-	//!builds up a suite of testcases for this test
+	SimpleDAServiceTest(TString tname) : TestCaseType(tname) {}
+	//! builds up a suite of testcases for this test
 	static Test *suite();
-	//!use the ServiceDispatcher to obtain a simple service
+	//! use the ServiceDispatcher to obtain a simple service
 	void SimpleDispatch();
 	//! try to use it with a very simple DataAccess backend
 	void SimpleServiceCall();

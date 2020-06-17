@@ -6,10 +6,11 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "StrSpecialTest.h"
+
 #include "StringStream.h"
 #include "SystemFile.h"
 #include "TestSuite.h"
-#include "StrSpecialTest.h"
 
 using namespace coast;
 

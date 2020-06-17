@@ -7,32 +7,30 @@
  */
 
 #include "SybCTnewDATest.h"
+
+#include "Context.h"
+#include "DiffTimer.h"
 #include "SybCTnewDA.h"
 #include "TestSuite.h"
-#include "DiffTimer.h"
-#include "Context.h"
 
 //---- SybCTnewDATest ----------------------------------------------------------------
-SybCTnewDATest::SybCTnewDATest(TString tstrName) : TestCaseType(tstrName)
-{
+SybCTnewDATest::SybCTnewDATest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(SybCTnewDATest.Ctor);
 }
 
-SybCTnewDATest::~SybCTnewDATest()
-{
+SybCTnewDATest::~SybCTnewDATest() {
 	StartTrace(SybCTnewDATest.Dtor);
 }
 
-void SybCTnewDATest::InitOpenSetConPropTest()
-{
+void SybCTnewDATest::InitOpenSetConPropTest() {
 	coast::storage::PrintStatistic();
 	{
 		StartTrace(SybCTnewDATest.InitOpenSetConPropTest);
 		StartTraceMem(SybCTnewDATest.InitOpenSetConPropTest);
 		Anything anyCtxMessages(coast::storage::Global());
-		ROAnything roaDbParams( GetConfig()["Sybase"] );
+		ROAnything roaDbParams(GetConfig()["Sybase"]);
 		String strInterfacesFileName = roaDbParams["InterfacesFile"].AsString();
-		if ( t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename") ) {
+		if (t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename")) {
 			CS_CONTEXT *context;
 			Context ctx;
 			ParameterMapper aParamMapper("aParamMapper");
@@ -41,14 +39,17 @@ void SybCTnewDATest::InitOpenSetConPropTest()
 			t_assert(aResultMapper.Initialize("ResultMapper"));
 			String strDAName(name());
 			// create context
-			if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, 5) == CS_SUCCEED, "Context should have been created")) {
+			if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, 5) == CS_SUCCEED,
+						  "Context should have been created")) {
 				SybCTnewDA sybct(context);
 				SybCTnewDA::DaParams myParams(&ctx, &aParamMapper, &aResultMapper, &strDAName);
-				if (t_assertm(sybct.Open( myParams, roaDbParams["Username"].AsString(),
-						roaDbParams["Password"].AsString(), roaDbParams["Server"].AsString(),
-						  "SimpleQueryTest"), "dbOpen should have succeeded")) {
+				if (t_assertm(sybct.Open(myParams, roaDbParams["Username"].AsString(), roaDbParams["Password"].AsString(),
+										 roaDbParams["Server"].AsString(), "SimpleQueryTest"),
+							  "dbOpen should have succeeded")) {
 					SybCTnewDA::DaParams outParams;
-					if ( t_assertm(sybct.GetConProps(CS_USERDATA, (CS_VOID **)&outParams, CS_SIZEOF(SybCTnewDA::DaParams)) == CS_SUCCEED, "expected setting of properties to succeed") ) {
+					if (t_assertm(sybct.GetConProps(CS_USERDATA, (CS_VOID **)&outParams, CS_SIZEOF(SybCTnewDA::DaParams)) ==
+									  CS_SUCCEED,
+								  "expected setting of properties to succeed")) {
 						assertEqual((long)myParams.fpContext, (long)outParams.fpContext);
 						assertEqual((long)myParams.fpIn, (long)outParams.fpIn);
 						assertEqual((long)myParams.fpOut, (long)outParams.fpOut);
@@ -56,8 +57,12 @@ void SybCTnewDATest::InitOpenSetConPropTest()
 					myParams.fpContext = (Context *)12345;
 					myParams.fpIn = (ParameterMapper *)7777;
 					myParams.fpOut = (ResultMapper *)9999;
-					if ( t_assertm(sybct.SetConProps(CS_USERDATA, (CS_VOID *)&myParams, CS_SIZEOF(SybCTnewDA::DaParams)) == CS_SUCCEED, "expected setting of properties to succeed") ) {
-						if ( t_assertm(sybct.GetConProps(CS_USERDATA, (CS_VOID **)&outParams, CS_SIZEOF(SybCTnewDA::DaParams)) == CS_SUCCEED, "expected setting of properties to succeed") ) {
+					if (t_assertm(
+							sybct.SetConProps(CS_USERDATA, (CS_VOID *)&myParams, CS_SIZEOF(SybCTnewDA::DaParams)) == CS_SUCCEED,
+							"expected setting of properties to succeed")) {
+						if (t_assertm(sybct.GetConProps(CS_USERDATA, (CS_VOID **)&outParams, CS_SIZEOF(SybCTnewDA::DaParams)) ==
+										  CS_SUCCEED,
+									  "expected setting of properties to succeed")) {
 							assertEqual(12345, (long)outParams.fpContext);
 							assertEqual(7777, (long)outParams.fpIn);
 							assertEqual(9999, (long)outParams.fpOut);
@@ -79,16 +84,15 @@ void SybCTnewDATest::InitOpenSetConPropTest()
 	coast::storage::PrintStatistic();
 }
 
-void SybCTnewDATest::SimpleQueryTest()
-{
+void SybCTnewDATest::SimpleQueryTest() {
 	coast::storage::PrintStatistic();
 	{
 		StartTrace(SybCTnewDATest.SimpleQueryTest);
 		StartTraceMem(SybCTnewDATest.SimpleQueryTest);
 		Anything anyCtxMessages(coast::storage::Global());
-		ROAnything roaDbParams( GetConfig()["Sybase"] );
+		ROAnything roaDbParams(GetConfig()["Sybase"]);
 		String strInterfacesFileName = roaDbParams["InterfacesFile"].AsString();
-		if ( t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename") ) {
+		if (t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename")) {
 			CS_CONTEXT *context;
 			// create context
 			Context ctx;
@@ -98,15 +102,16 @@ void SybCTnewDATest::SimpleQueryTest()
 			t_assert(aResultMapper.Initialize("ResultMapper"));
 			String strDAName(name());
 			// create context
-			if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, 5) == CS_SUCCEED, "Context should have been created")) {
+			if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, 5) == CS_SUCCEED,
+						  "Context should have been created")) {
 				SybCTnewDA sybct(context);
 				SybCTnewDA::DaParams myParams(&ctx, &aParamMapper, &aResultMapper, &strDAName);
-				if (t_assertm(sybct.Open( myParams, roaDbParams["Username"].AsString(),
-						roaDbParams["Password"].AsString(), roaDbParams["Server"].AsString(),
-						  "SimpleQueryTest"), "dbOpen should have succeeded")) {
+				if (t_assertm(sybct.Open(myParams, roaDbParams["Username"].AsString(), roaDbParams["Password"].AsString(),
+										 roaDbParams["Server"].AsString(), "SimpleQueryTest"),
+							  "dbOpen should have succeeded")) {
 					String useDB("use ");
 					if (t_assert(sybct.SqlExec(myParams, useDB << roaDbParams["Database"].AsString()))) {
-						if ( t_assert(sybct.SqlExec(myParams, "select * from authors") ) ) {
+						if (t_assert(sybct.SqlExec(myParams, "select * from authors"))) {
 							TraceAny(ctx.GetTmpStore()["TestOutput"], "TestOutput");
 							assertEqual(23, ctx.GetTmpStore()["TestOutput"]["QueryCount"].AsLong(-1));
 						}
@@ -127,16 +132,15 @@ void SybCTnewDATest::SimpleQueryTest()
 	coast::storage::PrintStatistic();
 }
 
-void SybCTnewDATest::LimitedMemoryTest()
-{
+void SybCTnewDATest::LimitedMemoryTest() {
 	coast::storage::PrintStatistic();
 	{
 		StartTrace(SybCTnewDATest.LimitedMemoryTest);
 		StartTraceMem(SybCTnewDATest.LimitedMemoryTest);
 		Anything anyCtxMessages(coast::storage::Global());
-		ROAnything roaDbParams( GetConfig()["Sybase"] );
+		ROAnything roaDbParams(GetConfig()["Sybase"]);
 		String strInterfacesFileName = roaDbParams["InterfacesFile"].AsString();
-		if ( t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename") ) {
+		if (t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename")) {
 			CS_CONTEXT *context;
 			// create context
 			Context ctx;
@@ -146,22 +150,23 @@ void SybCTnewDATest::LimitedMemoryTest()
 			t_assert(aResultMapper.Initialize("ResultMapper"));
 			String strDAName(name());
 			// create context
-			if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, 5) == CS_SUCCEED, "Context should have been created")) {
+			if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, 5) == CS_SUCCEED,
+						  "Context should have been created")) {
 				SybCTnewDA sybct(context);
 				SybCTnewDA::DaParams myParams(&ctx, &aParamMapper, &aResultMapper, &strDAName);
-				if (t_assertm(sybct.Open( myParams, roaDbParams["Username"].AsString(),
-						roaDbParams["Password"].AsString(), roaDbParams["Server"].AsString(),
-						  "SimpleQueryTest"), "dbOpen should have succeeded")) {
+				if (t_assertm(sybct.Open(myParams, roaDbParams["Username"].AsString(), roaDbParams["Password"].AsString(),
+										 roaDbParams["Server"].AsString(), "SimpleQueryTest"),
+							  "dbOpen should have succeeded")) {
 					String useDB("use ");
-					if ( t_assert(sybct.SqlExec(myParams, useDB << roaDbParams["Database"].AsString())) ) {
+					if (t_assert(sybct.SqlExec(myParams, useDB << roaDbParams["Database"].AsString()))) {
 						// we must get a success here even though we bailed out due to a memory limit
-						if ( t_assert( sybct.SqlExec(myParams, "select * from authors", "TitlesAlways", 4L) ) ) {
+						if (t_assert(sybct.SqlExec(myParams, "select * from authors", "TitlesAlways", 4L))) {
 							TraceAny(ctx.GetTmpStore()["TestOutput"], "TestOutput");
 							assertEqual(11, ctx.GetTmpStore()["TestOutput"]["QueryCount"].AsLong(-1));
 						}
 						ctx.GetTmpStore()["TestOutput"] = Anything();
 						// we must get a success here even though we bailed out due to a row limit
-						if ( t_assert( sybct.SqlExec(myParams, "select * from authors", "TitlesAlways", 0L, 5L) ) ) {
+						if (t_assert(sybct.SqlExec(myParams, "select * from authors", "TitlesAlways", 0L, 5L))) {
 							TraceAny(ctx.GetTmpStore()["TestOutput"], "TestOutput");
 							assertEqual(5, ctx.GetTmpStore()["TestOutput"]["QueryCount"].AsLong(-1));
 						}
@@ -182,16 +187,16 @@ void SybCTnewDATest::LimitedMemoryTest()
 	coast::storage::PrintStatistic();
 }
 
-void SybCTnewDATest::LoginTimeoutTest()
-{
+void SybCTnewDATest::LoginTimeoutTest() {
 	StartTrace(SybCTnewDATest.LoginTimeoutTest);
 	Anything anyCtxMessages(coast::storage::Global());
 	String strInterfacesFileName = GetConfig()["Sybase"]["InterfacesFile"].AsString();
-	if ( t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename") ) {
+	if (t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename")) {
 		long lMaxConnections = GetTestCaseConfig()["Connections"].AsLong(26L);
 		// create context
 		CS_CONTEXT *context;
-		if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, lMaxConnections) == CS_SUCCEED, "Context should have been created")) {
+		if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, lMaxConnections) == CS_SUCCEED,
+					  "Context should have been created")) {
 			IntLoginTimeoutTest(context, lMaxConnections, 1L);
 			TraceAny(anyCtxMessages, "Messages");
 			// trace messages which occurred without a connection
@@ -204,8 +209,7 @@ void SybCTnewDATest::LoginTimeoutTest()
 	}
 }
 
-void SybCTnewDATest::IntLoginTimeoutTest(CS_CONTEXT *context, long lMaxNumber, long lCurrent)
-{
+void SybCTnewDATest::IntLoginTimeoutTest(CS_CONTEXT *context, long lMaxNumber, long lCurrent) {
 	StartTrace1(SybCTnewDATest.IntLoginTimeoutTest, String() << lCurrent);
 	ParameterMapper aParamMapper("LoginTimeoutMapper");
 	ResultMapper aResultMapper("SybCTnewDAImpl");
@@ -217,20 +221,20 @@ void SybCTnewDATest::IntLoginTimeoutTest(CS_CONTEXT *context, long lMaxNumber, l
 	strDAName << lCurrent;
 	SybCTnewDA::DaParams myParams(&ctx, &aParamMapper, &aResultMapper, &strDAName);
 	DiffTimer aTimer;
-	ROAnything roaDbParams( GetConfig()["Sybase"] );
-	if ( sybct.Open( myParams, roaDbParams["Username"].AsString(), roaDbParams["Password"].AsString(),
-			roaDbParams["Server"].AsString(), "LoginTimeoutTest") ) {
+	ROAnything roaDbParams(GetConfig()["Sybase"]);
+	if (sybct.Open(myParams, roaDbParams["Username"].AsString(), roaDbParams["Password"].AsString(),
+				   roaDbParams["Server"].AsString(), "LoginTimeoutTest")) {
 		long lDTime = aTimer.Diff();
 		long lTimeout = GetTestCaseConfig()["Timeout"].AsLong(5L) * 1000L;
 		Trace("time used in Open: " << lDTime << "ms, Timeout is: " << lTimeout << "ms");
-		if ( lDTime < 400L ) {
+		if (lDTime < 400L) {
 			// regular case, no login timeout
 			t_assert(true);
 		} else {
 			// login timeout occured
-			t_assertm( lDTime >= lTimeout, TString("expected timeout to be more than ") << lTimeout << "ms");
+			t_assertm(lDTime >= lTimeout, TString("expected timeout to be more than ") << lTimeout << "ms");
 		}
-		if ( lCurrent <= lMaxNumber ) {
+		if (lCurrent <= lMaxNumber) {
 			IntLoginTimeoutTest(context, lMaxNumber, ++lCurrent);
 		}
 		TraceAny(ctx.GetTmpStore(), "TempStore");
@@ -238,13 +242,12 @@ void SybCTnewDATest::IntLoginTimeoutTest(CS_CONTEXT *context, long lMaxNumber, l
 	}
 }
 
-void SybCTnewDATest::ResultTimeoutTest()
-{
+void SybCTnewDATest::ResultTimeoutTest() {
 	StartTrace(SybCTnewDATest.ResultTimeoutTest);
 	Anything anyCtxMessages(coast::storage::Global());
-	ROAnything roaDbParams( GetConfig()["Sybase"] );
+	ROAnything roaDbParams(GetConfig()["Sybase"]);
 	String strInterfacesFileName = roaDbParams["InterfacesFile"].AsString();
-	if ( t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename") ) {
+	if (t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename")) {
 		CS_CONTEXT *context;
 		// create context
 		Context ctx;
@@ -254,23 +257,26 @@ void SybCTnewDATest::ResultTimeoutTest()
 		t_assert(aResultMapper.Initialize("ResultMapper"));
 		String strDAName(name());
 		// create context
-		if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, 5) == CS_SUCCEED, "Context should have been created")) {
+		if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, 5) == CS_SUCCEED,
+					  "Context should have been created")) {
 			SybCTnewDA sybct(context);
 			SybCTnewDA::DaParams myParams(&ctx, &aParamMapper, &aResultMapper, &strDAName);
-			if (t_assertm(sybct.Open( myParams, roaDbParams["Username"].AsString(),
-					roaDbParams["Password"].AsString(), roaDbParams["Server"].AsString(),
-					"ResultTimeoutTest"), "dbOpen should have succeeded")) {
+			if (t_assertm(sybct.Open(myParams, roaDbParams["Username"].AsString(), roaDbParams["Password"].AsString(),
+									 roaDbParams["Server"].AsString(), "ResultTimeoutTest"),
+						  "dbOpen should have succeeded")) {
 				DiffTimer aTimer;
 				String useDB("use ");
 				if (t_assert(sybct.SqlExec(myParams, useDB << roaDbParams["Database"].AsString()))) {
 					String strQuery("exec waitSomeSeconds \"00:00:");
 					strQuery << GetTestCaseConfig()["TimeToWait"].AsString("20") << "\"";
-					t_assertm( !sybct.SqlExec(myParams, strQuery), "exec should have failed because of result timeout" );
+					t_assertm(!sybct.SqlExec(myParams, strQuery), "exec should have failed because of result timeout");
 					TraceAny(ctx.GetTmpStore()["TestOutput"], "TestOutput");
 					long lDTime = aTimer.Diff();
 					long lResultTimeout = GetTestCaseConfig()["ResultTimeout"].AsLong(10L) * 1000L;
 					long lWaitTimeout = GetTestCaseConfig()["TimeToWait"].AsLong(20L) * 1000L;
-					t_assertm( ( ( abs( lDTime - lResultTimeout ) < 1000 ) && ( lDTime < lWaitTimeout ) ), TString("expected elapsed time ") << lDTime << "ms to be between " << lResultTimeout << "ms and " << lWaitTimeout << "ms");
+					t_assertm(((abs(lDTime - lResultTimeout) < 1000) && (lDTime < lWaitTimeout)),
+							  TString("expected elapsed time ")
+								  << lDTime << "ms to be between " << lResultTimeout << "ms and " << lWaitTimeout << "ms");
 				}
 				TraceAny(ctx.GetTmpStore(), "TempStore");
 				sybct.Close();
@@ -287,8 +293,7 @@ void SybCTnewDATest::ResultTimeoutTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *SybCTnewDATest::suite ()
-{
+Test *SybCTnewDATest::suite() {
 	StartTrace(SybCTnewDATest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, SybCTnewDATest, InitOpenSetConPropTest);

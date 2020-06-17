@@ -9,15 +9,14 @@
 #ifndef _AnythingKeyIndexTest_H
 #define _AnythingKeyIndexTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnythingKeyIndexTest: public testframework::TestCase {
+#include "TestCase.h"
+class AnythingKeyIndexTest : public testframework::TestCase {
 	Anything fArray;
 	Anything fSequence;
+
 public:
-	AnythingKeyIndexTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	AnythingKeyIndexTest(TString tname) : TestCaseType(tname) {}
 	virtual void setUp();
 	static Test *suite();
 
@@ -40,4 +39,4 @@ protected:
 	bool check5DimArray(Anything &, Anything &, long);
 };
 
-#endif		//ifndef _AnythingKeyIndexTest_H
+#endif	// ifndef _AnythingKeyIndexTest_H

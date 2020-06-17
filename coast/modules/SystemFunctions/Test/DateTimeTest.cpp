@@ -7,47 +7,45 @@
  */
 
 #include "DateTimeTest.h"
+
 #include "DateTime.h"
 #include "TestSuite.h"
 #include "Tracer.h"
+
 #include <time.h>
 
 //---- DateTimeTest ----------------------------------------------------------------
-DateTimeTest::DateTimeTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+DateTimeTest::DateTimeTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(DateTimeTest.DateTimeTest);
 }
 
-TString DateTimeTest::getConfigFileName()
-{
+TString DateTimeTest::getConfigFileName() {
 	return "DateTimeTestConfig";
 }
 
-DateTimeTest::~DateTimeTest()
-{
+DateTimeTest::~DateTimeTest() {
 	StartTrace(DateTimeTest.Dtor);
 }
 
-void DateTimeTest::GetTimeZoneTest()
-{
+void DateTimeTest::GetTimeZoneTest() {
 	StartTrace(DateTimeTest.test);
 	tzset();
 	assertEqualm(timezone, DateTime::GetTimezone(), "expected timezone to be the same");
 	Anything anyTimeUTC, anyTimeLocal;
 	DateTime::GetTimeOfDay(anyTimeUTC, false);
 	DateTime::GetTimeOfDay(anyTimeLocal, true);
-	long lSecUTC = anyTimeUTC["sec_since_midnight"].AsLong(), lSecLoc = anyTimeLocal["sec_since_midnight"].AsLong(), lSecUTCOneMore = 0L;
+	long lSecUTC = anyTimeUTC["sec_since_midnight"].AsLong(), lSecLoc = anyTimeLocal["sec_since_midnight"].AsLong(),
+		 lSecUTCOneMore = 0L;
 	lSecUTC -= anyTimeUTC["tzone_sec"].AsLong();
 	lSecUTCOneMore = (lSecUTC + 1L) % 86400;
 	lSecUTC = lSecUTC % 86400;
 	Trace("lSecUTC:" << lSecUTC << " lSecUTCOneMore:" << lSecUTCOneMore << " lSecLoc:" << lSecLoc);
-	t_assertm( (lSecUTC == lSecLoc) || (lSecUTCOneMore == lSecLoc), "expected timezone correction to work and be within 1 second difference");
+	t_assertm((lSecUTC == lSecLoc) || (lSecUTCOneMore == lSecLoc),
+			  "expected timezone correction to work and be within 1 second difference");
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *DateTimeTest::suite ()
-{
+Test *DateTimeTest::suite() {
 	StartTrace(DateTimeTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

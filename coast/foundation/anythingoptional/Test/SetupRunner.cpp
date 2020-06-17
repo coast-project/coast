@@ -6,13 +6,13 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
 #include "AnySorterTest.h"
 #include "AnyUtilsTest.h"
 #include "GenericXMLParserTest.h"
+#include "TestRunner.h"
 
 void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, AnySorterTest);
 	ADD_SUITE(runner, AnyUtilsTest);
 	ADD_SUITE(runner, GenericXMLParserTest);
-} // setupRunner
+}  // setupRunner

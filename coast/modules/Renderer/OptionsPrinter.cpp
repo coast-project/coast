@@ -7,29 +7,26 @@
  */
 
 #include "OptionsPrinter.h"
+
 #include "Tracer.h"
+
 #include <ostream>
 
 RegisterRenderer(OptionsPrinter);
 //---- OptionsPrinter ---------------------------------------------------------
 
-OptionsPrinter::OptionsPrinter(const char *name) : Renderer(name)
-{
-}
+OptionsPrinter::OptionsPrinter(const char *name) : Renderer(name) {}
 
-OptionsPrinter::~OptionsPrinter()
-{
-}
+OptionsPrinter::~OptionsPrinter() {}
 
-void OptionsPrinter::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void OptionsPrinter::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(OptionsPrinter.Render);
 	TraceAny(config, "config");
 
-	for ( int i = 0, sz = config.GetSize(); i < sz; ++i ) {
+	for (int i = 0, sz = config.GetSize(); i < sz; ++i) {
 		String name = config.SlotName(i);
 		reply << ' ';
-		if ( name.Length() ) {
+		if (name.Length()) {
 			reply << name.ToLower();
 			// render option value
 			reply << "=\"";

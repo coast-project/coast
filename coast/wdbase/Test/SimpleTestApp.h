@@ -14,19 +14,16 @@
 class AppBooterTest;
 
 //! test application to test sequencing of init and terminate calls by AppBooter
-class SimpleTestApp : public Application
-{
+class SimpleTestApp : public Application {
 public:
 	SimpleTestApp();
 	SimpleTestApp(const char *AppName);
 	~SimpleTestApp();
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) SimpleTestApp(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) SimpleTestApp(fName); }
 
-	//!set the test that drives the booter
+	//! set the test that drives the booter
 	void SetTest(AppBooterTest *test);
 
 protected:
@@ -44,7 +41,7 @@ protected:
 
 	//! GlobalInit: installs ressources shared among all instances
 	virtual int DoGlobalInit(int argc, const char *argv[], const ROAnything config);
-	//!starts up the application; an InterruptHandler is set up to catch signals for shutdown, reset etc.
+	//! starts up the application; an InterruptHandler is set up to catch signals for shutdown, reset etc.
 	virtual int DoGlobalRun();
 	//! frees ressources shared among all instances
 	virtual int DoGlobalTerminate(int val);
@@ -55,19 +52,16 @@ protected:
 	AppBooterTest *fTest;
 };
 
-class SimpleTestServer : public Server
-{
+class SimpleTestServer : public Server {
 public:
 	SimpleTestServer();
 	SimpleTestServer(const char *AppName);
 	~SimpleTestServer();
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) SimpleTestServer(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) SimpleTestServer(fName); }
 
-	//!set the test that drives the booter
+	//! set the test that drives the booter
 	void SetTest(AppBooterTest *test);
 
 protected:
@@ -85,7 +79,7 @@ protected:
 
 	//! GlobalInit: installs ressources shared among all instances
 	virtual int DoGlobalInit(int argc, const char *argv[], const ROAnything config);
-	//!starts up the application; an InterruptHandler is set up to catch signals for shutdown, reset etc.
+	//! starts up the application; an InterruptHandler is set up to catch signals for shutdown, reset etc.
 	virtual int DoGlobalRun();
 
 	//! frees ressources shared among all instances

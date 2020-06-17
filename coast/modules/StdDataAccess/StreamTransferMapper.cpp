@@ -7,10 +7,12 @@
  */
 
 #include "StreamTransferMapper.h"
+
 #include "Renderer.h"
 #include "RequestProcessor.h"
-#include <ostream>
+
 #include <istream>
+#include <ostream>
 
 RegisterResultMapper(StreamTransferMapper);
 
@@ -39,9 +41,9 @@ namespace {
 		} else {
 			Trace("no HTTPHeader");
 		}
-		os << ENDL; // mark the end of the header
+		os << ENDL;	 // mark the end of the header
 	}
-}
+}  // namespace
 
 bool StreamTransferMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, ROAnything config) {
 	StartTrace(StreamTransferMapper.DoPutStream);

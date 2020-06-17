@@ -7,11 +7,12 @@
  */
 
 #include "HTTPResponseMapperTest.h"
-#include "TestSuite.h"
-#include "HTTPResponseMapper.h"
-#include "StringStream.h"
+
 #include "Context.h"
 #include "HTTPConstants.h"
+#include "HTTPResponseMapper.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
 void HTTPResponseMapperTest::TestParsedResponse() {
 	StartTrace(HTTPResponseMapperTest.TestParsedResponse);

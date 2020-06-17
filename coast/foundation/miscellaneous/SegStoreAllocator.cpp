@@ -7,6 +7,7 @@
  */
 
 #include "SegStoreAllocator.h"
+
 #include <iostream>
 
 SegStoreAllocator::~SegStoreAllocator() {
@@ -14,12 +15,12 @@ SegStoreAllocator::~SegStoreAllocator() {
 }
 
 void SegStoreAllocator::PrintStatistic(long lLevel) {
-	long lStatisticLevel = ( ( lLevel >= 0 ) ? lLevel : coast::storage::GetStatisticLevel() );
-	if ( lStatisticLevel >= 1 ) {
+	long lStatisticLevel = ((lLevel >= 0) ? lLevel : coast::storage::GetStatisticLevel());
+	if (lStatisticLevel >= 1) {
 	}
 }
 
-void* SegStoreAllocator::Alloc(size_t sz) {
+void *SegStoreAllocator::Alloc(size_t sz) {
 	AllocPoolMapping::iterator it;
 	CurrentPoolTypePtr aPool;
 

@@ -26,15 +26,16 @@
  * will fill a supplied 16-byte array with the digest.
  */
 
-#include <openssl/md5.h>
+#include <cstring> /* for memcpy() */
 
-#include <cstring>		/* for memcpy() */
+#include <openssl/md5.h>
 
 // Initially MD5Context was Colin Plumb's implementation of MD5
 // now it's just a wrapper for openssl function calls.
 class MD5Context {
 	MD5Context(const MD5Context &);
 	MD5Context &operator=(const MD5Context &);
+
 public:
 	MD5Context();
 
@@ -66,8 +67,7 @@ void MD5Context::Final(unsigned char digest[MD5_DIGEST_LENGTH]) {
 RegisterSigner(MD5Signer);
 RegisterAliasSecurityItem(md5, MD5Signer);
 
-MD5Signer::MD5Signer(const char *name) :
-		Signer(name) {
+MD5Signer::MD5Signer(const char *name) : Signer(name) {
 	InitKey(fgcLegacyMasterKey);
 }
 
@@ -84,17 +84,18 @@ void MD5Signer::DoHash(const String &cleartext, String &hashvalue) {
 	MD5Context md5ctx;
 	unsigned char digest[16];
 
-	md5ctx.Update((const unsigned char *) (const char *) cleartext, cleartext.Length());
+	md5ctx.Update((const unsigned char *)(const char *)cleartext, cleartext.Length());
 	md5ctx.Final(digest);
 
 	hashvalue = "";
-	hashvalue.Append((void *) digest, 16);
-//	MD5 md5ctx;
-//
-//	md5ctx.Update((const unsigned char *)(const char *)cleartext, cleartext.Length());
-//	md5ctx.Finalize(hashvalue);
+	hashvalue.Append((void *)digest, 16);
+	//	MD5 md5ctx;
+	//
+	//	md5ctx.Update((const unsigned char *)(const char *)cleartext, cleartext.Length());
+	//	md5ctx.Finalize(hashvalue);
 
-	Trace("Hashvalue: <" << String().AppendAsHex((const unsigned char *)(const char *)hashvalue, hashvalue.Length(), ' ') << ">");
+	Trace("Hashvalue: <" << String().AppendAsHex((const unsigned char *)(const char *)hashvalue, hashvalue.Length(), ' ')
+						 << ">");
 }
 void MD5Signer::DoEncode(String &scrambledText, const String &cleartext) const {
 	DoSign(fKey, scrambledText, cleartext);
@@ -113,20 +114,21 @@ void MD5Signer::DoSign(const String &strkey, String &scrambledText, const String
 	const char *msg = cleartext;
 	const char *key = strkey;
 
-	md5ctx.Update((const unsigned char *) msg, cleartext.Length());
-	md5ctx.Update((const unsigned char *) key, strkey.Length());
+	md5ctx.Update((const unsigned char *)msg, cleartext.Length());
+	md5ctx.Update((const unsigned char *)key, strkey.Length());
 	md5ctx.Final(digest);
 
-	String strDigest((void *) digest, 16);
+	String strDigest((void *)digest, 16);
 
-	scrambledText << strDigest << cleartext << '$'; // end marker
-
+	scrambledText << strDigest << cleartext << '$';	 // end marker
 }
 
 bool MD5Signer::DoCheck(const String &strkey, String &cleartext, const String &scrambledText) {
 	StartTrace(MD5Signer.DoCheck);
 	Trace("key: <" << strkey << ">");
-	Trace("Scrambled: <" << String().AppendAsHex((const unsigned char *)(const char *)scrambledText, scrambledText.Length(), ' ') << ">");
+	Trace(
+		"Scrambled: <" << String().AppendAsHex((const unsigned char *)(const char *)scrambledText, scrambledText.Length(), ' ')
+					   << ">");
 
 	long effLength = scrambledText.StrRChr('$');
 	Trace("EffLength: " << effLength);
@@ -136,7 +138,8 @@ bool MD5Signer::DoCheck(const String &strkey, String &cleartext, const String &s
 	}
 	if (effLength <= 16) {
 		return false;
-	}Trace("EffLength: " << effLength);
+	}
+	Trace("EffLength: " << effLength);
 	MD5Context md5ctx;
 	unsigned char digest[16];
 	const char *msg = scrambledText;
@@ -145,18 +148,18 @@ bool MD5Signer::DoCheck(const String &strkey, String &cleartext, const String &s
 	const char *key = strkey;
 
 	Trace("Msg: <" << msg << ">");
-	md5ctx.Update(((const unsigned char *) msg), (effLength - 16));
-	md5ctx.Update((const unsigned char *) key, strkey.Length());
+	md5ctx.Update(((const unsigned char *)msg), (effLength - 16));
+	md5ctx.Update((const unsigned char *)key, strkey.Length());
 	md5ctx.Final(digest);
 	Trace("Msg: <" << msg << ">");
 
-	if (::memcmp(digest, (const char *) scrambledText, 16) == 0) {
+	if (::memcmp(digest, (const char *)scrambledText, 16) == 0) {
 		cleartext = scrambledText.SubString(16, effLength - 16);
 		Trace("Cleartext: <" << cleartext << ">");
 		Trace("returning true");
 		return true;
-	}Trace("returning false");
+	}
+	Trace("returning false");
 
 	return false;
 }
-

@@ -13,22 +13,20 @@
 
 //---- LdapCachePolicyTest ----------------------------------------------------------
 //:TestCases description
-class LdapCachePolicyTest: public testframework::TestCaseWithCaseConfigDllAndModuleLoading {
+class LdapCachePolicyTest : public testframework::TestCaseWithCaseConfigDllAndModuleLoading {
 public:
-	LdapCachePolicyTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	LdapCachePolicyTest(TString tstrName) : TestCaseType(tstrName) {}
 
-	//!builds up a suite of testcases for this test
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!Do some reinits to check behaviour on reset.
+	//! Do some reinits to check behaviour on reset.
 	void ReInitTest();
 
-	//!Do same calls in a row, should use cache
+	//! Do same calls in a row, should use cache
 	void CallsInARow();
 
-	//!LDAP query doesn't deliver any data, Module init should fail
+	//! LDAP query doesn't deliver any data, Module init should fail
 	void NoDataReadTest();
 };
 

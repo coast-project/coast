@@ -7,15 +7,16 @@
  */
 
 #include "IncrementRenderer.h"
+
 #include "Tracer.h"
+
 #include <ostream>
 
 //---- IncrementRenderer --------------------------------------------------------------
 RegisterRenderer(IncrementRenderer);
 IncrementRenderer::IncrementRenderer(const char *name) : Renderer(name) {}
 
-void IncrementRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void IncrementRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(IncrementRenderer.Render);
 	TraceAny(config, "config");
 
@@ -32,13 +33,13 @@ void IncrementRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnyth
 		RenderOnString(str, c, len);
 		Trace("IncValue rendered is :" << str);
 
-		Anything conv = Anything( str );
+		Anything conv = Anything(str);
 		TraceAny(conv, "string ready for conversion to long");
 		long val = conv.AsLong();
 		Trace("IncValue as long  is :" << val);
 		++val;
 		Trace("IncValue as long incremented is :" << val);
-		Anything conv2 = Anything( val );
+		Anything conv2 = Anything(val);
 		TraceAny(conv2, "number ready for conversion to String");
 		String valString = conv2.AsString();
 

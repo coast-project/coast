@@ -7,24 +7,15 @@
  */
 
 #include "TimeStampTestThread.h"
+
 #include "ThreadedTimeStampTest.h"
 #include "TimeStamp.h"
 
-TestWorker::TestWorker()
-	: WorkerThread()
-	, fWaitTimeInProcess(0)
-	, fWasPrepared(false)
-	, fCompare(false)
-	, fUtcCtor(false)
-{
-}
+TestWorker::TestWorker() : WorkerThread(), fWaitTimeInProcess(0), fWasPrepared(false), fCompare(false), fUtcCtor(false) {}
 
-TestWorker::~TestWorker()
-{
-}
+TestWorker::~TestWorker() {}
 
-void TestWorker::DoInit(ROAnything workerInit)
-{
+void TestWorker::DoInit(ROAnything workerInit) {
 	StartTrace(TestWorker.DoInit);
 	fNumberOfRuns = workerInit["NumberOfRuns"].AsLong(1);
 	fWaitTimeInProcess = workerInit["timeout"].AsLong(0);
@@ -33,33 +24,31 @@ void TestWorker::DoInit(ROAnything workerInit)
 	fTest = (ThreadedTimeStampTest *)workerInit["test"].AsIFAObject(0);
 }
 
-void TestWorker::DoWorkingHook(ROAnything workloadArgs)
-{
+void TestWorker::DoWorkingHook(ROAnything workloadArgs) {
 	StartTrace(TestWorker.DoWorkingHook);
 	fWasPrepared = true;
 }
 
-void TestWorker::DoProcessWorkload()
-{
+void TestWorker::DoProcessWorkload() {
 	StartTrace(TestWorker.DoProcessWorkload);
 	Thread::Wait(fWaitTimeInProcess);
 	CheckRunningState(eWorking);
 	bool bSomething = false;
 	long l;
 	for (l = 0; l < fNumberOfRuns; l++) {
-		if ( fUtcCtor ) {
+		if (fUtcCtor) {
 			TimeStamp aStamp1(946782245);
-			if ( fCompare ) {
+			if (fCompare) {
 				TimeStamp aStamp2(946782246);
-				if ( aStamp2 > aStamp1 ) {
+				if (aStamp2 > aStamp1) {
 					bSomething = true;
 				}
 			}
 		} else {
 			TimeStamp aStamp1("20000102030405");
-			if ( fCompare ) {
+			if (fCompare) {
 				TimeStamp aStamp2("20000102030406");
-				if ( aStamp2 > aStamp1 ) {
+				if (aStamp2 > aStamp1) {
 					bSomething = true;
 				}
 			}
@@ -67,7 +56,7 @@ void TestWorker::DoProcessWorkload()
 	}
 	fTest->CheckNumberOfRuns(fNumberOfRuns, l, GetName());
 
-	if ( CheckRunningState( eWorking ) ) {
+	if (CheckRunningState(eWorking)) {
 		fTest->CheckProcessWorkload(true, fWasPrepared);
 	}
 	fWasPrepared = false;
@@ -75,21 +64,18 @@ void TestWorker::DoProcessWorkload()
 
 SamplePoolManager::SamplePoolManager(const String &name) : WorkerPoolManager(name), fRequests(0) {}
 
-SamplePoolManager::~SamplePoolManager()
-{
+SamplePoolManager::~SamplePoolManager() {
 	Terminate();
 	Anything dummy;
 	DoDeletePool(dummy);
 }
 
-void SamplePoolManager::DoAllocPool(ROAnything args)
-{
+void SamplePoolManager::DoAllocPool(ROAnything args) {
 	// create the pool of worker threads
 	fRequests = new TestWorker[GetPoolSize()];
 }
 
-WorkerThread *SamplePoolManager::DoGetWorker(long i)
-{
+WorkerThread *SamplePoolManager::DoGetWorker(long i) {
 	// accessor for one specific worker
 	if (fRequests) {
 		return &(fRequests[i]);
@@ -97,13 +83,12 @@ WorkerThread *SamplePoolManager::DoGetWorker(long i)
 	return 0;
 }
 
-void SamplePoolManager::DoDeletePool(ROAnything args)
-{
+void SamplePoolManager::DoDeletePool(ROAnything args) {
 	// cleanup of the sub-class specific stuff
 	// CAUTION: this cleanup method may be called repeatedly..
 
 	if (fRequests) {
-		delete [ ] fRequests;
+		delete[] fRequests;
 		fRequests = 0;
 	}
 }

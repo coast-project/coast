@@ -13,35 +13,34 @@
 
 //---- HTMLCacheLoaderTest ----------------------------------------------------------
 //:TestCases description
-class HTMLCacheLoaderTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class HTMLCacheLoaderTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
 	//:TestCase constructor
-	//!param: name - name of the test
+	//! param: name - name of the test
 	HTMLCacheLoaderTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~HTMLCacheLoaderTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!test simplest cache Loading
+	//! test simplest cache Loading
 	void LoadEmptyCacheTest();
-	//!test simple cache Building
+	//! test simple cache Building
 	void SimpleBuildCacheTest();
-	//!test simple macro cache Building using [[#wd foo ]]
+	//! test simple macro cache Building using [[#wd foo ]]
 	void SimpleMacroBuildCacheTest();
-	//!test simple comment cache Building using <!--#wd Lookup foo -->
+	//! test simple comment cache Building using <!--#wd Lookup foo -->
 	void SimpleCommentBuildCacheTest();
-	//!test two comment cache Building using <!--#wd Lookup foo --><!-- hui --><!--#wd Lookup bar -->
+	//! test two comment cache Building using <!--#wd Lookup foo --><!-- hui --><!--#wd Lookup bar -->
 	void ConsecutiveCommentBuildCacheTest();
 
-	//!check if we really create a cache
+	//! check if we really create a cache
 	void CheckCacheIsLoaded();
 };
 

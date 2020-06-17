@@ -7,13 +7,16 @@
  */
 
 #include "ConversionUtilsTest.h"
-#include "TestSuite.h"
-#include "ConversionUtils.h"
 
-#define TestSpecificValue(valType, value, from, order) \
-	{ valType myX = 0; \
-	ConversionUtils::GetValueFromBuffer(strBuf, myX, from, order); \
-	assertEqual(static_cast<valType>(value), myX); }
+#include "ConversionUtils.h"
+#include "TestSuite.h"
+
+#define TestSpecificValue(valType, value, from, order)                 \
+	{                                                                  \
+		valType myX = 0;                                               \
+		ConversionUtils::GetValueFromBuffer(strBuf, myX, from, order); \
+		assertEqual(static_cast<valType>(value), myX);                 \
+	}
 
 void ConversionUtilsTest::GetValueFromBufferTest() {
 	StartTrace(ConversionUtilsTest.GetValueFromBufferTest);
@@ -21,12 +24,11 @@ void ConversionUtilsTest::GetValueFromBufferTest() {
 	// ordered LSB2MSB
 	TestSpecificValue(ul_long, UINT64_LITERAL(0xccbbaa9944332211), 0L, ConversionUtils::eLSB2MSB);
 	TestSpecificValue(l_long, INT64_LITERAL(0xccbbaa9944332211), 0L, ConversionUtils::eLSB2MSB);
-	TestSpecificValue(unsigned long,
-			(sizeof(unsigned long)>4)?UINT64_LITERAL(0xccbbaa9944332211):0x44332211UL,
-			0L, ConversionUtils::eLSB2MSB);
+	TestSpecificValue(unsigned long, (sizeof(unsigned long) > 4) ? UINT64_LITERAL(0xccbbaa9944332211) : 0x44332211UL, 0L,
+					  ConversionUtils::eLSB2MSB);
 	TestSpecificValue(long,
-			(sizeof(long)>4)?0L:0xccbbaa99,	// overflow handling should be in effect for 64bit
-			4L, ConversionUtils::eLSB2MSB);
+					  (sizeof(long) > 4) ? 0L : 0xccbbaa99,	 // overflow handling should be in effect for 64bit
+					  4L, ConversionUtils::eLSB2MSB);
 	TestSpecificValue(unsigned int, 0x44332211, 0L, ConversionUtils::eLSB2MSB);
 	TestSpecificValue(int, 0xccbbaa99, 4L, ConversionUtils::eLSB2MSB);
 	TestSpecificValue(unsigned short, 0x2211, 0L, ConversionUtils::eLSB2MSB);
@@ -36,12 +38,11 @@ void ConversionUtilsTest::GetValueFromBufferTest() {
 	// ordered MSB2LSB
 	TestSpecificValue(ul_long, UINT64_LITERAL(0x1122334499aabbcc), 0L, ConversionUtils::eMSB2LSB);
 	TestSpecificValue(l_long, INT64_LITERAL(0x1122334499aabbcc), 0L, ConversionUtils::eMSB2LSB);
-	TestSpecificValue(unsigned long,
-			(sizeof(unsigned long)>4)?UINT64_LITERAL(0x1122334499aabbcc):0x11223344UL,
-			0L, ConversionUtils::eMSB2LSB);
+	TestSpecificValue(unsigned long, (sizeof(unsigned long) > 4) ? UINT64_LITERAL(0x1122334499aabbcc) : 0x11223344UL, 0L,
+					  ConversionUtils::eMSB2LSB);
 	TestSpecificValue(long,
-			(sizeof(long)>4)?0L:0x99aabbcc,	// overflow handling should be in effect for 64bit
-			4L, ConversionUtils::eMSB2LSB);
+					  (sizeof(long) > 4) ? 0L : 0x99aabbcc,	 // overflow handling should be in effect for 64bit
+					  4L, ConversionUtils::eMSB2LSB);
 	TestSpecificValue(unsigned int, 0x11223344, 0L, ConversionUtils::eMSB2LSB);
 	TestSpecificValue(int, 0x99aabbcc, 4L, ConversionUtils::eMSB2LSB);
 	TestSpecificValue(unsigned short, 0x1122, 0L, ConversionUtils::eMSB2LSB);

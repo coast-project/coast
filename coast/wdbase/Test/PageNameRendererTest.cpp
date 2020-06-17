@@ -7,24 +7,21 @@
  */
 
 #include "PageNameRendererTest.h"
-#include "TestSuite.h"
+
 #include "Page.h"
 #include "PageNameRenderer.h"
 #include "StringStream.h"
+#include "TestSuite.h"
 
-PageNameRendererTest::PageNameRendererTest(TString tname)
-	: TestCaseType(tname)
-{
+PageNameRendererTest::PageNameRendererTest(TString tname) : TestCaseType(tname) {
 	StartTrace(PageNameRendererTest.Ctor);
 }
 
-PageNameRendererTest::~PageNameRendererTest()
-{
+PageNameRendererTest::~PageNameRendererTest() {
 	StartTrace(PageNameRendererTest.Dtor);
 }
 
-void PageNameRendererTest::RenderTest()
-{
+void PageNameRendererTest::RenderTest() {
 	StartTrace(PageNameRendererTest.RenderTest);
 
 	Context ctx;
@@ -51,13 +48,11 @@ void PageNameRendererTest::RenderTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *PageNameRendererTest::suite ()
-{
+Test *PageNameRendererTest::suite() {
 	StartTrace(PageNameRendererTest.suite);
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, PageNameRendererTest, RenderTest);
 
 	return testSuite;
-
 }

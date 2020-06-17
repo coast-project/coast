@@ -7,8 +7,10 @@
  */
 
 #include "WriteFileDAImpl.h"
+
 #include "SystemLog.h"
 #include "Tracer.h"
+
 #include <istream>
 #include <ostream>
 
@@ -17,25 +19,20 @@ using namespace coast;
 //--- WriteFileDAImpl -----------------------------------------------------
 RegisterDataAccessImpl(WriteFileDAImpl);
 
-WriteFileDAImpl::WriteFileDAImpl(const char *name)
-	: FileDAImpl(name)
-{
+WriteFileDAImpl::WriteFileDAImpl(const char *name) : FileDAImpl(name) {
 	StartTrace(WriteFileDAImpl.Ctor);
 }
 
-WriteFileDAImpl::~WriteFileDAImpl()
-{
+WriteFileDAImpl::~WriteFileDAImpl() {
 	StartTrace(WriteFileDAImpl.Dtor);
 }
 
-IFAObject *WriteFileDAImpl::Clone(Allocator *a) const
-{
+IFAObject *WriteFileDAImpl::Clone(Allocator *a) const {
 	StartTrace(WriteFileDAImpl.Clone);
 	return new (a) WriteFileDAImpl(fName);
 }
 
-bool WriteFileDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out)
-{
+bool WriteFileDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out) {
 	StartTrace(WriteFileDAImpl.Exec);
 
 	String filename, extension;
@@ -44,7 +41,7 @@ bool WriteFileDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper 
 
 	// we need some special logic for std-ios because there is no more ios::noreplace flag...
 	// check if neither trunc nor app flag is set (this is noreplace mode)
-	if ( ( GetMode(context, in) & (std::ios::trunc | std::ios::app ) ) == 0 ) {
+	if ((GetMode(context, in) & (std::ios::trunc | std::ios::app)) == 0) {
 		std::istream *ifp = system::OpenIStream(filename, extension);
 		if (ifp != NULL) {
 			delete ifp;
@@ -67,18 +64,17 @@ bool WriteFileDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper 
 	return true;
 }
 
-system::openmode WriteFileDAImpl::DoGetMode(ROAnything roaModes)
-{
+system::openmode WriteFileDAImpl::DoGetMode(ROAnything roaModes) {
 	StartTrace(WriteFileDAImpl.DoGetMode);
 	system::openmode mode = FileDAImpl::DoGetMode(roaModes) | std::ios::out;
 	Trace("mode so far:" << (long)mode);
-	if ( roaModes.Contains("truncate") ) {
+	if (roaModes.Contains("truncate")) {
 		mode |= std::ios::trunc;
 		Trace("truncating existing file");
-	} else if ( roaModes.Contains("append") ) {
+	} else if (roaModes.Contains("append")) {
 		mode |= std::ios::app;
 		Trace("appending to existing file");
-	} else { // ( roaModes.Contains("noreplace") )
+	} else {  // ( roaModes.Contains("noreplace") )
 		mode &= ~(std::ios::app | std::ios::trunc);
 		Trace("not overwriting existing file (default)");
 	}

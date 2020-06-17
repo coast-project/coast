@@ -11,12 +11,11 @@
 
 #include "FoundationTestTypes.h"
 #include "boost/function.hpp"
-class SystemFileTest: public testframework::TestCaseWithConfig {
-	void testGetFilePath(boost::function<String()> func, const String& notFoundResult);
+class SystemFileTest : public testframework::TestCaseWithConfig {
+	void testGetFilePath(boost::function<String()> func, const String &notFoundResult);
+
 public:
-	SystemFileTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	SystemFileTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 	void initPathTest();
 	void pathListTest();

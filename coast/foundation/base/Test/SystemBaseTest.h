@@ -11,11 +11,9 @@
 
 #include "FoundationTestTypes.h"
 
-class SystemBaseTest: public testframework::TestCase {
+class SystemBaseTest : public testframework::TestCase {
 public:
-	SystemBaseTest(TString tname) :
-			TestCaseType(tname) {
-	}
+	SystemBaseTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 	void GetProcessEnvironmentTest();
 #if !defined(WIN32)

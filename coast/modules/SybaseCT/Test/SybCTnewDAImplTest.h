@@ -13,13 +13,12 @@
 
 //---- SybCTnewDAImplTest ----------------------------------------------------------
 //:TestCases description
-class SybCTnewDAImplTest : public testframework::TestCaseWithConfig
-{
+class SybCTnewDAImplTest : public testframework::TestCaseWithConfig {
 public:
 	//--- constructors
 
 	//:TestCase constructor
-	//!param: name - name of the test
+	//! param: name - name of the test
 	SybCTnewDAImplTest(TString tstrName);
 
 	//:destroys the test case
@@ -28,13 +27,13 @@ public:
 	//--- public api
 
 	//:builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//:sets the environment for this test
-	void setUp ();
+	void setUp();
 
 	//:deletes the environment for this test
-	void tearDown ();
+	void tearDown();
 
 	//:describe this testcase
 	void UninitializedExecTest();

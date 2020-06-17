@@ -12,8 +12,7 @@
 #include "WDModule.h"
 
 //---- StressersModule -----------------------------------------------------------
-class StressersModule : public WDModule
-{
+class StressersModule : public WDModule {
 public:
 	StressersModule(const char *);
 	~StressersModule();
@@ -23,8 +22,7 @@ public:
 };
 
 //---- Stresser -----------------------------------------------------------
-class Stresser : public ConfNamedObject
-{
+class Stresser : public ConfNamedObject {
 public:
 	Stresser(const char *StresserName);
 	~Stresser();
@@ -35,7 +33,7 @@ public:
 
 	static Anything RunStresser(const String &StresserName, long id = 0);
 
-//---- registry interface
+	//---- registry interface
 	RegCacheDef(Stresser);	// FindStresser()
 
 protected:
@@ -55,7 +53,6 @@ private:
 	Stresser();
 	Stresser(const Stresser &);
 	Stresser &operator=(const Stresser &);
-
 };
 
 #define RegisterStresser(name) RegisterObject(name, Stresser)

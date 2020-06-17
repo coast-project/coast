@@ -7,9 +7,10 @@
  */
 
 #include "LogTimerTest.h"
-#include "Timers.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
+#include "TestSuite.h"
+#include "Timers.h"
 
 void LogTimerTest::MethodTimerTest() {
 	StartTrace(LogTimerTest.MethodTimerTest);
@@ -38,8 +39,7 @@ void LogTimerTest::MethodTimerTest() {
 
 		{
 			// trigger the destructor by defining its own scope
-			MethodTimer(Test, msg, ctx)
-			;
+			MethodTimer(Test, msg, ctx);
 		}
 		assertAnyEqual(expected, ctx.GetTmpStore());
 		TraceAny(ctx.GetTmpStore(), "TmpStore");
@@ -61,16 +61,14 @@ void LogTimerTest::MethodTimerTest() {
 		expected["Log"]["Times"].Append(data.DeepClone());
 		expected["Log"]["Times"].Append(data.DeepClone());
 
-		//call a method twice
+		// call a method twice
 		{
 			// trigger the destructor by defining its own scope
-			MethodTimer(Test, msg, ctx)
-			;
+			MethodTimer(Test, msg, ctx);
 		}
 		{
 			// trigger the destructor by defining its own scope
-			MethodTimer(Test, msg, ctx)
-			;
+			MethodTimer(Test, msg, ctx);
 		}
 		TraceAny(ctx.GetTmpStore(), "TmpStore");
 		assertAnyEqual(expected, ctx.GetTmpStore());
@@ -96,16 +94,14 @@ void LogTimerTest::MethodTimerTest() {
 		expected["Log"]["Times"].Append(dataA.DeepClone());
 		expected["Log"]["Times"].Append(dataB.DeepClone());
 
-		//call different methods of a class
+		// call different methods of a class
 		{
 			// trigger the destructor by defining its own scope
-			MethodTimer(Test.SubA, msg, ctx)
-			;
+			MethodTimer(Test.SubA, msg, ctx);
 		}
 		{
 			// trigger the destructor by defining its own scope
-			MethodTimer(Test.SubB, msg, ctx)
-			;
+			MethodTimer(Test.SubB, msg, ctx);
 		}
 		TraceAny(ctx.GetTmpStore(), "TmpStore");
 		assertAnyEqual(expected, ctx.GetTmpStore());

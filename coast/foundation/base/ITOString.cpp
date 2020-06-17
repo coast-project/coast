@@ -7,10 +7,12 @@
  */
 
 #include "ITOString.h"
-#include "SystemLog.h"
-#include "StringStream.h"
+
 #include "InitFinisManager.h"
+#include "StringStream.h"
 #include "SystemBase.h"
+#include "SystemLog.h"
+
 #include <cstring>
 
 //#define IOSTREAM_NUM_CONVERSION
@@ -18,62 +20,55 @@
 
 #include "singleton.hpp"
 
-#include <limits>	// for numeric_limits
+#include <limits>  // for numeric_limits
 #if defined(IOSTREAM_NUM_CONVERSION_STRSTREAM)
 #include <strstream>
 #endif
 
 // tunable parameters for string implementation
-const long cStrAllocMinimum = 32; // minimum size of buffer, tuning param for optimizing
-const long cStrAllocLimit = 4096; // cStrAllocMinimum < StrAllocLimit
-const long cStrAllocIncrement =  1024;
+const long cStrAllocMinimum = 32;  // minimum size of buffer, tuning param for optimizing
+const long cStrAllocLimit = 4096;  // cStrAllocMinimum < StrAllocLimit
+const long cStrAllocIncrement = 1024;
 
 namespace {
 	class StringInitializer {
 		String fmtLow;
 		String fmtHi;
+
 	public:
-		StringInitializer() :
-				fmtHi("%.e") {
+		StringInitializer() : fmtHi("%.e") {
 			initializeFormat();
 			InitFinisManager::IFMTrace("String::Initialized\n");
 		}
-		~StringInitializer() {
-			InitFinisManager::IFMTrace("String::Finalized\n");
-		}
+		~StringInitializer() { InitFinisManager::IFMTrace("String::Finalized\n"); }
 		void initializeFormat() {
-	#if !defined(IOSTREAM_NUM_CONVERSION)
+#if !defined(IOSTREAM_NUM_CONVERSION)
 			int const fmtSize = 10;
-			char pcFmtLow[fmtSize] = { 0 };
+			char pcFmtLow[fmtSize] = {0};
 			coast::system::SnPrintf(pcFmtLow, fmtSize, "%%.%df", std::numeric_limits<double>::digits10);
 			fmtLow = pcFmtLow;
-	#endif
+#endif
 		}
-		const char* getLowFormat() const {
-			return fmtLow.cstr();
-		}
-		const char* getHiFormat() const {
-			return fmtHi.cstr();
-		}
+		const char *getLowFormat() const { return fmtLow.cstr(); }
+		const char *getHiFormat() const { return fmtHi.cstr(); }
 	};
 
 	typedef coast::utility::singleton_default<StringInitializer> StringInitializerSingleton;
-}
+}  // namespace
 
-void String::alloc(long capacity)
-{
+void String::alloc(long capacity) {
 	// this method is extremely performance sensitive
 	// beware of overhead
 	// make initial capacity some power of 2 for saving allocs with short
 	// strings, only if we have fixed size initializers string buffers
 	// smaller than cStrAllocMinimum are created
-	if ( capacity <= 0 ) {
+	if (capacity <= 0) {
 		capacity = cStrAllocMinimum;
 	}
-	capacity += sizeof(*fStringImpl); // add tara
+	capacity += sizeof(*fStringImpl);  // add tara
 
 	capacity = GetAllocator()->SizeHint(capacity);
-	fStringImpl = static_cast<StringImpl *>(fAllocator->Calloc(capacity, sizeof( char )));
+	fStringImpl = static_cast<StringImpl *>(fAllocator->Calloc(capacity, sizeof(char)));
 
 	if (!fStringImpl) {
 		//--- allocation failed
@@ -85,97 +80,77 @@ void String::alloc(long capacity)
 	}
 }
 
-long String::allocCapacity(long newLength)
-{
+long String::allocCapacity(long newLength) {
 	// calculate capacity for optimal allocation
 	// safe old params just in case allocation fails
 
 	long newCapacity = 0;
 	if (GetImpl()) {
-		if ( newLength < cStrAllocLimit ) {
+		if (newLength < cStrAllocLimit) {
 			// cStrAllocMinimum		initial size for very small buffers
 			// newLength*2			double capacity for small buffers
-			newCapacity = ( ( newLength < cStrAllocMinimum ) ? cStrAllocMinimum : ( newLength << 1 ) );
+			newCapacity = ((newLength < cStrAllocMinimum) ? cStrAllocMinimum : (newLength << 1));
 		} else {
 			// increment in fixed sizes with large buffers
 			newCapacity = newLength + cStrAllocIncrement;
 		}
 	} else {
-		newCapacity = newLength + 1; // exact size
+		newCapacity = newLength + 1;  // exact size
 	}
 	return newCapacity;
 }
 
-String::String(Allocator *a)
-	: fStringImpl(0)
-	, fAllocator((a) ? a : coast::storage::Current())
-{
-}
+String::String(Allocator *a) : fStringImpl(0), fAllocator((a) ? a : coast::storage::Current()) {}
 
-String::String(long capacity, Allocator *a)
-	: fStringImpl(0)
-	, fAllocator((a) ? a : coast::storage::Current())
-{
+String::String(long capacity, Allocator *a) : fStringImpl(0), fAllocator((a) ? a : coast::storage::Current()) {
 	alloc(capacity);
 }
 
-String::String(const char *s, long l, Allocator *a)
-	: fStringImpl(0)
-	, fAllocator((a) ? a : coast::storage::Current())
-{
+String::String(const char *s, long l, Allocator *a) : fStringImpl(0), fAllocator((a) ? a : coast::storage::Current()) {
 	if (s) {
 		long sLen = strlen(s);
 		Set(0, s, (sLen < l) ? sLen : l);
 	}
 }
 
-String::String(void const *s, long l, Allocator *a)
-	: fStringImpl(0)
-	, fAllocator((a) ? a : coast::storage::Current())
-{
-	if (l > 0) { // should check l for sanity
+String::String(void const *s, long l, Allocator *a) : fStringImpl(0), fAllocator((a) ? a : coast::storage::Current()) {
+	if (l > 0) {  // should check l for sanity
 		if (s) {
 			Set(0, (const char *)s, l);
 		} else {
-			alloc(l);    // just reserve the space as with String(long)
+			alloc(l);  // just reserve the space as with String(long)
 		}
 	}
 	// no op --> empty string for insane parameters
 }
 
-String::String(const String &s, Allocator *a)
-	: fStringImpl(0)
-	, fAllocator((a) ? a : s.fAllocator)
-{
+String::String(const String &s, Allocator *a) : fStringImpl(0), fAllocator((a) ? a : s.fAllocator) {
 	// copies are always made within the same memory manager
 	// transfers to different allocators occur only in operator=
-	if ( s.GetImpl() ) {
+	if (s.GetImpl()) {
 		Set(0, s.GetContent(), s.Length());
 	}
 }
 
-String::~String()
-{
+String::~String() {
 	if (GetImpl()) {
-		fAllocator->Free(static_cast<void*>(GetImpl()));
+		fAllocator->Free(static_cast<void *>(GetImpl()));
 		fStringImpl = 0;
 	}
 }
 
 // assignment operators are asymmetric !!!
-String &String::operator= (const char *s)
-{
+String &String::operator=(const char *s) {
 	Set(0, s, -1);
 	return *this;
 }
 
-String &String::operator= (const String &s)
-{
+String &String::operator=(const String &s) {
 	// string keeps its allocator for its whole life...
 	if (s.GetImpl()) {
 		Set(0, s.GetContent(), s.Length());
 	} else if (GetImpl()) {
-		Set(0, 0, 0); // make it empty
+		Set(0, 0, 0);  // make it empty
 	}
 	// if we are already empty do a nop
 	return *this;
@@ -183,31 +158,31 @@ String &String::operator= (const String &s)
 
 void String::Set(long start, const char *s, long len)
 /* in: start: at this position we start to copy the contents of s
-		   s: source from where to copy, may be 0
-		 len: number of bytes to copy
-			  (or intention to copy afterwards if s=0)
+	   s: source from where to copy, may be 0
+	 len: number of bytes to copy
+		(or intention to copy afterwards if s=0)
 changes: fCont, fCapacity (if necessary) and fLength
  what: len bytes from s are copied after position start of fCont,
-	   fLength and fCapacity are adjusted accordingly.
-	   If necessary the old buffer is copied to a new location where enough
-	   memory is available.
+	 fLength and fCapacity are adjusted accordingly.
+	 If necessary the old buffer is copied to a new location where enough
+	 memory is available.
 change: PT: string terminated at start if s==0 (no bytes copied anyways),
-			in this case only the capacity is adjusted
+	  in this case only the capacity is adjusted
 note: if start > fLength then the new buffer will contain undefined
-	  memory between oldLength and start!
+	memory between oldLength and start!
 
 */
 {
 	StringImpl *oldImpl = 0;
 	// check for start integrity
-	if ( start < 0 ) {
+	if (start < 0) {
 		start = 0;
 	}
 
 	// check for length integrity: calculate length to add from s
 	// if length is not provided
 	if (len < 0) {
-		len = ( s ? strlen(s) : 0 );
+		len = (s ? strlen(s) : 0);
 	}
 	// maybe <= is appropriate here? nothing happens for len=0
 
@@ -215,7 +190,7 @@ note: if start > fLength then the new buffer will contain undefined
 	long newLength = start + len;
 
 	// expand string if necessary
-	if ( (newLength > 0) && (newLength >= Capacity() ) ) {
+	if ((newLength > 0) && (newLength >= Capacity())) {
 		oldImpl = GetImpl();
 		alloc(allocCapacity(newLength));
 		if (GetImpl()) {
@@ -243,7 +218,7 @@ note: if start > fLength then the new buffer will contain undefined
 			memmove(GetContent() + start, s, len);
 			SetLength(newLength);
 		} else {
-			SetLength(start);	// PT: if nothing is copied the string is terminated at start
+			SetLength(start);  // PT: if nothing is copied the string is terminated at start
 		}
 		GetContent()[Length()] = 0;
 	}
@@ -253,10 +228,9 @@ note: if start > fLength then the new buffer will contain undefined
 	}
 }
 
-String &String::Append(const char c)
-{
+String &String::Append(const char c) {
 	if (Length() + 2 > Capacity()) {
-		Set(Length(), &c, 1);	// PT: use the generic copying here
+		Set(Length(), &c, 1);  // PT: use the generic copying here
 	} else {
 		// optimize for inline expansion, Set allocates additional stuff
 		GetContent()[Length()] = c;
@@ -266,8 +240,7 @@ String &String::Append(const char c)
 	return *this;
 }
 
-String &String::Append(const char *s, long len)
-{
+String &String::Append(const char *s, long len) {
 	if (s) {
 		long sLen = strlen(s);
 		Set(Length(), s, (sLen < len) ? sLen : len);
@@ -275,8 +248,7 @@ String &String::Append(const char *s, long len)
 	return *this;
 }
 
-String &String::Append(const void *s, long len)
-{
+String &String::Append(const void *s, long len) {
 	if (s && len > 0) {
 		Set(Length(), (const char *)s, len);
 	}
@@ -287,12 +259,12 @@ String &String::Append(const void *s, long len)
 String &String::Append(std::istream &is, long length) {
 	if (length > 0) {
 		Reserve(length);
-		is.read(GetContent() + Length(), length); // should do some error checking?
-		long l = is.gcount(); // should be fLength
+		is.read(GetContent() + Length(), length);  // should do some error checking?
+		long l = is.gcount();					   // should be fLength
 		Assert(l <= length);
 		IncrementLength(l);
 		GetContent()[Length()] = '\0';
-	} // else no-op
+	}  // else no-op
 	return *this;
 }
 
@@ -300,35 +272,32 @@ String &String::Append(std::istream &is, long length, char delim) {
 	if (length > 0 && delim != is.peek()) {
 		Reserve(length);
 		// increment length to *really* copy length bytes
-		is.get(GetContent() + Length(), length+1, delim); // should do some error checking?
-		long l = is.gcount(); // should be fLength
+		is.get(GetContent() + Length(), length + 1, delim);	 // should do some error checking?
+		long l = is.gcount();								 // should be fLength
 		Assert(l <= length);
 		IncrementLength(l);
 		// is.get() adds null terminating character
-	} // else nothing to read at all, must consume delim char elsewhere
+	}  // else nothing to read at all, must consume delim char elsewhere
 	return *this;
 }
 
-String &String::Append(const String &s)
-{
-	if ( s.GetImpl() ) {
-		Set(Length(), s.GetContent(), s.Length());//!@FIXME provide special Set..
+String &String::Append(const String &s) {
+	if (s.GetImpl()) {
+		Set(Length(), s.GetContent(), s.Length());	//!@FIXME provide special Set..
 	}
 	return *this;
 }
 
-void String::Dump() const
-{
+void String::Dump() const {
 	String logMsg;
-	SystemLog::Info(logMsg.Append("String::Dump: length ").Append(Length()).Append(", capacity ").Append(Capacity())  );
+	SystemLog::Info(logMsg.Append("String::Dump: length ").Append(Length()).Append(", capacity ").Append(Capacity()));
 }
 
 namespace {
 	const String hexcode("0123456789ABCDEF", -1, coast::storage::Global());
 }
 
-String String::DumpAsHex(long dumpwidth, const char *pcENDL) const
-{
+String String::DumpAsHex(long dumpwidth, const char *pcENDL) const {
 	String strResult(fAllocator);
 	if (Length() > 0) {
 		String outbuf(fAllocator);
@@ -347,9 +316,9 @@ String String::DumpAsHex(long dumpwidth, const char *pcENDL) const
 			}
 			unsigned char c = At(l);
 			// first fill hexnumber of character
-			outbuf.PutAt(x * 3L,    hexcode[ (long)((c >> 4) & 0x0f) ]);
-			outbuf.PutAt(x * 3L + 1L, hexcode[ (long)(c & 0x0f) ]);
-			if ( !isprint((unsigned char) c) ) {
+			outbuf.PutAt(x * 3L, hexcode[(long)((c >> 4) & 0x0f)]);
+			outbuf.PutAt(x * 3L + 1L, hexcode[(long)(c & 0x0f)]);
+			if (!isprint((unsigned char)c)) {
 				// print a dot for unprintable characters
 				c = '.';
 			}
@@ -360,12 +329,11 @@ String String::DumpAsHex(long dumpwidth, const char *pcENDL) const
 	return strResult;
 }
 
-std::ostream &String::DumpAsHex(std::ostream &os, long dumpwidth) const
-{
+std::ostream &String::DumpAsHex(std::ostream &os, long dumpwidth) const {
 	if (Length() > 0) {
 		String strBuf = DumpAsHex(dumpwidth), strToken;
 		StringTokenizer aTok(strBuf, '\n');
-		while ( aTok.NextToken(strToken) ) {
+		while (aTok.NextToken(strToken)) {
 			os << strToken << std::endl;
 		}
 		os << std::flush;
@@ -373,17 +341,16 @@ std::ostream &String::DumpAsHex(std::ostream &os, long dumpwidth) const
 	return os;
 }
 
-String &String::Append(const long &number)
-{
+String &String::Append(const long &number) {
 #if !defined(IOSTREAM_NUM_CONVERSION)
 	const int iBufSize = 100;
-	char pcBuf[iBufSize] = { 0 };
+	char pcBuf[iBufSize] = {0};
 	int charsStoredOrRequired = coast::system::SnPrintf(pcBuf, iBufSize, "%ld", number);
-	Set(Length(), pcBuf, charsStoredOrRequired>=iBufSize?-1:charsStoredOrRequired);
+	Set(Length(), pcBuf, charsStoredOrRequired >= iBufSize ? -1 : charsStoredOrRequired);
 #else
 #if defined(IOSTREAM_NUM_CONVERSION_STRSTREAM)
 	const int iBufSize = 100;
-	char pcBuf[iBufSize] = { 0 };
+	char pcBuf[iBufSize] = {0};
 	std::ostrstream out(pcBuf, iBufSize);
 	out << number;
 	out << std::ends;
@@ -396,17 +363,16 @@ String &String::Append(const long &number)
 	return *this;
 }
 
-String &String::Append(const l_long &number)
-{
+String &String::Append(const l_long &number) {
 #if !defined(IOSTREAM_NUM_CONVERSION)
 	const int iBufSize = 100;
-	char pcBuf[iBufSize] = { 0 };
+	char pcBuf[iBufSize] = {0};
 	int charsStoredOrRequired = coast::system::SnPrintf(pcBuf, iBufSize, "%lld", number);
-	Set(Length(), pcBuf, charsStoredOrRequired>=iBufSize?-1:charsStoredOrRequired);
+	Set(Length(), pcBuf, charsStoredOrRequired >= iBufSize ? -1 : charsStoredOrRequired);
 #else
 #if defined(IOSTREAM_NUM_CONVERSION_STRSTREAM)
 	const int iBufSize = 100;
-	char pcBuf[iBufSize] = { 0 };
+	char pcBuf[iBufSize] = {0};
 	std::ostrstream out(pcBuf, iBufSize);
 	out << number;
 	out << std::ends;
@@ -419,17 +385,16 @@ String &String::Append(const l_long &number)
 	return *this;
 }
 
-String &String::Append(const u_long &number)
-{
+String &String::Append(const u_long &number) {
 #if !defined(IOSTREAM_NUM_CONVERSION)
 	const int iBufSize = 100;
-	char pcBuf[iBufSize] = { 0 };
+	char pcBuf[iBufSize] = {0};
 	int charsStoredOrRequired = coast::system::SnPrintf(pcBuf, iBufSize, "%lu", number);
-	Set(Length(), pcBuf, charsStoredOrRequired>=iBufSize?-1:charsStoredOrRequired);
+	Set(Length(), pcBuf, charsStoredOrRequired >= iBufSize ? -1 : charsStoredOrRequired);
 #else
 #if defined(IOSTREAM_NUM_CONVERSION_STRSTREAM)
 	const int iBufSize = 100;
-	char pcBuf[iBufSize] = { 0 };
+	char pcBuf[iBufSize] = {0};
 	std::ostrstream out(pcBuf, iBufSize);
 	out << number << std::ends;
 	(*this).Append(pcBuf);
@@ -441,45 +406,45 @@ String &String::Append(const u_long &number)
 	return *this;
 }
 
-String &String::Append(const double &number)
-{
+String &String::Append(const double &number) {
 	DoubleToString(number, *this);
 	return *this;
 }
 
-void String::DoubleToString(const double &number, String &strBuf)
-{
+void String::DoubleToString(const double &number, String &strBuf) {
 #if !defined(IOSTREAM_NUM_CONVERSION)
 	const int iBufSize = 500;
-	char pcBuf[iBufSize] = { 0 };
+	char pcBuf[iBufSize] = {0};
 	int charsStoredOrRequired(0);
-	if ( number < 1e+16 ) {
-		charsStoredOrRequired = coast::system::SnPrintf(pcBuf, iBufSize, StringInitializerSingleton::instance().getLowFormat(), number);
-		int iTmp = charsStoredOrRequired>=iBufSize?iBufSize-1:charsStoredOrRequired;
+	if (number < 1e+16) {
+		charsStoredOrRequired =
+			coast::system::SnPrintf(pcBuf, iBufSize, StringInitializerSingleton::instance().getLowFormat(), number);
+		int iTmp = charsStoredOrRequired >= iBufSize ? iBufSize - 1 : charsStoredOrRequired;
 		//!< adjust start index, as we have the size and not the index
 		--iTmp;
 		// eat trailing zeroes
-		while ( pcBuf[iTmp] == '0' && pcBuf[--iTmp] != '.' ) {
+		while (pcBuf[iTmp] == '0' && pcBuf[--iTmp] != '.') {
 			--charsStoredOrRequired;
 		}
 	} else {
-		charsStoredOrRequired = coast::system::SnPrintf(pcBuf, iBufSize, StringInitializerSingleton::instance().getHiFormat(), number);
+		charsStoredOrRequired =
+			coast::system::SnPrintf(pcBuf, iBufSize, StringInitializerSingleton::instance().getHiFormat(), number);
 	}
-	strBuf.Set(strBuf.Length(), pcBuf, charsStoredOrRequired>=iBufSize?-1:charsStoredOrRequired);
+	strBuf.Set(strBuf.Length(), pcBuf, charsStoredOrRequired >= iBufSize ? -1 : charsStoredOrRequired);
 #else
 	{
 #if defined(IOSTREAM_NUM_CONVERSION_STRSTREAM)
 		const int iBufSize = 500;
-		char pcBuf[iBufSize] = { 0 };
+		char pcBuf[iBufSize] = {0};
 		std::ostrstream out(pcBuf, iBufSize);
 #else
-	OStringStream out(strBuf);
+		OStringStream out(strBuf);
 #endif
 		out << setiosflags(ios::left);
 		// current number of decimal digits for double is 15
 		const int iDblDigits = std::numeric_limits<double>::digits10;
 
-		if ( number < 1e+16 ) {
+		if (number < 1e+16) {
 			out << setiosflags(ios::fixed);
 		}
 		out << setprecision(iDblDigits) << number;
@@ -492,23 +457,21 @@ void String::DoubleToString(const double &number, String &strBuf)
 	int iSize(strBuf.Length()), iTmp;
 	iTmp = iSize;
 	const char *pcBuf = strBuf.GetContent();
-	while ( pcBuf[iTmp] == '0' && pcBuf[--iTmp] != '.' ) {
+	while (pcBuf[iTmp] == '0' && pcBuf[--iTmp] != '.') {
 		--iSize;
 	}
 	strBuf.Trim(iSize);
 #endif
 }
 
-char String::At(long ix) const
-{
+char String::At(long ix) const {
 	if (ix >= 0 && ix < Length()) {
 		return GetContent()[ix];
 	}
-	return 0; //PS: return value should be 0 for string loops to work
+	return 0;  // PS: return value should be 0 for string loops to work
 }
 
-String String::SubString(long from, long len) const
-{
+String String::SubString(long from, long len) const {
 	long l = Length();
 
 	if (from >= l) {
@@ -518,7 +481,7 @@ String String::SubString(long from, long len) const
 		from = 0;
 		SystemLog::Error("String::GetSub: from < 0");
 	}
-	if ( (len < 0) || (from + len > l) ) {
+	if ((len < 0) || (from + len > l)) {
 		len = l - from;
 	}
 	if (GetImpl() && GetContent()) {
@@ -528,13 +491,12 @@ String String::SubString(long from, long len) const
 }
 
 // finds first occurence of pattern in String
-String String::SubString(const char *pattern) const
-{
-	if ( pattern ) {
-		if ( GetImpl() ) {
-			const char *c = strstr( GetContent(), pattern );
-			if ( c ) {
-				return String( c, Length() - (c - GetContent()), const_cast<String *>(this)->GetAllocator() );
+String String::SubString(const char *pattern) const {
+	if (pattern) {
+		if (GetImpl()) {
+			const char *c = strstr(GetContent(), pattern);
+			if (c) {
+				return String(c, Length() - (c - GetContent()), const_cast<String *>(this)->GetAllocator());
 			}
 		}
 	}
@@ -542,13 +504,12 @@ String String::SubString(const char *pattern) const
 }
 
 // finds first occurence of pattern in String
-long String::Contains(const char *pattern) const
-{
+long String::Contains(const char *pattern) const {
 	long result = -1;
-	if ( pattern ) {
-		if ( GetImpl() ) {
-			const char *c = strstr( GetContent(), pattern );
-			if ( c )	{
+	if (pattern) {
+		if (GetImpl()) {
+			const char *c = strstr(GetContent(), pattern);
+			if (c) {
 				result = (c - GetContent());
 			}
 		}
@@ -556,8 +517,7 @@ long String::Contains(const char *pattern) const
 	return result;
 }
 
-long String::FirstCharOf(const String &charSet) const
-{
+long String::FirstCharOf(const String &charSet) const {
 	size_t firstchar = strcspn((const char *)(*this), (const char *)charSet);
 	if (static_cast<long>(firstchar) >= Length()) {
 		// not found
@@ -566,21 +526,19 @@ long String::FirstCharOf(const String &charSet) const
 	return firstchar;
 }
 
-long String::LastCharOf(const String &charSet) const
-{
+long String::LastCharOf(const String &charSet) const {
 	size_t firstchar = strspn((const char *)(*this), (const char *)charSet);
-	if ( firstchar == 0 ) {
+	if (firstchar == 0) {
 		// no match at all
 		return -1;
 	}
 	return firstchar;
 }
 
-bool String::StartsWith(const char *pattern) const
-{
-	if ( pattern ) {
-		if ( GetImpl() ) {
-			for (const char *content = GetContent(); ; ++content, ++pattern) {
+bool String::StartsWith(const char *pattern) const {
+	if (pattern) {
+		if (GetImpl()) {
+			for (const char *content = GetContent();; ++content, ++pattern) {
 				if (!(*pattern)) {
 					return true;
 				} else if (!(*content)) {
@@ -595,8 +553,7 @@ bool String::StartsWith(const char *pattern) const
 	return false;
 }
 
-bool String::Replace(const char *pattern, const char *replacement)
-{
+bool String::Replace(const char *pattern, const char *replacement) {
 	long pos = Contains(pattern);
 	if (pos < 0) {
 		return false;
@@ -609,14 +566,13 @@ bool String::Replace(const char *pattern, const char *replacement)
 }
 
 // CR #10 a more robust implementation of StrChar
-long String::StrChr(char c, long start) const
-{
-	if ( start < 0 ) {
+long String::StrChr(char c, long start) const {
+	if (start < 0) {
 		start = 0;
 	}
 	// returns index of c or - 1 if not found
 	long result = -1;
-	if ( GetImpl() && start <= Length() ) {
+	if (GetImpl() && start <= Length()) {
 		char *res = (char *)memchr(GetContent() + start, c, Length() - start);
 		if (res) {
 			result = (res - GetContent());
@@ -625,16 +581,15 @@ long String::StrChr(char c, long start) const
 	return result;
 }
 
-long String::StrRChr(char c, long start) const
-{
-	if ( start < 0 ) {
+long String::StrRChr(char c, long start) const {
+	if (start < 0) {
 		start = Length();
 	}
 	// returns index of c or - 1 if not found
 	long result = -1;
-	if ( GetImpl() && start <= Length() ) {
-		const char *res = GetContent() + start - 1 ; // this is not functional for binary strings!! strrchr(GetContent(), c);
-		while ( ( res >= GetContent() ) && ( (*res) != c ) ) {
+	if (GetImpl() && start <= Length()) {
+		const char *res = GetContent() + start - 1;	 // this is not functional for binary strings!! strrchr(GetContent(), c);
+		while ((res >= GetContent()) && ((*res) != c)) {
 			// PT: some really quick thinking of mine: it only took me 10 minutes
 			//     to figure out it should say >= above ... (guess I leave soon)
 			--res;
@@ -646,9 +601,8 @@ long String::StrRChr(char c, long start) const
 	return result;
 }
 
-String& String::TrimFront(const long newstart)
-{
-	if ( newstart >= 0 && newstart < Length()) {
+String &String::TrimFront(const long newstart) {
+	if (newstart >= 0 && newstart < Length()) {
 		Set(0, GetContent() + newstart, Length() - newstart);
 	} else if (newstart >= Length()) {
 		if (GetImpl()) {
@@ -659,16 +613,14 @@ String& String::TrimFront(const long newstart)
 	return *this;
 }
 
-String& String::Trim(const long newlen)
-{
-	if ( newlen <= Length() ) {
-		Set( ( newlen > 0 ) ? newlen : 0, 0, 0);
+String &String::Trim(const long newlen) {
+	if (newlen <= Length()) {
+		Set((newlen > 0) ? newlen : 0, 0, 0);
 	}
 	return *this;
 }
 
-String& String::TrimWhitespace()
-{
+String &String::TrimWhitespace() {
 	while (At(0) == ' ' || At(0) == '\t') {
 		TrimFront(1);
 	}
@@ -682,26 +634,23 @@ String& String::TrimWhitespace()
 /* in: minreserve: minimal reserve (GetCapacity()-fLength) after this operation
  what: adjusts capacity such that at least minreserve bytes are available
 */
-void String::Reserve(long minreserve)
-{
-	Set(Length(), 0, ( minreserve > 0 ) ? minreserve : 0);
+void String::Reserve(long minreserve) {
+	Set(Length(), 0, (minreserve > 0) ? minreserve : 0);
 }
 
-int String::Compare(const char *other) const
-{
+int String::Compare(const char *other) const {
 	if (GetImpl() && other) {
 		return strcmp(GetContent(), other);
-	} else if ((GetImpl() && *GetContent()) && ! other ) {
+	} else if ((GetImpl() && *GetContent()) && !other) {
 		return 1;
-	} else if (! GetImpl() && (other && *other) ) {
+	} else if (!GetImpl() && (other && *other)) {
 		return -1;
 	} else {
-		return 0;    // both are empty
+		return 0;  // both are empty
 	}
 }
 
-int String::Compare(const String &other) const
-{
+int String::Compare(const String &other) const {
 	if (GetImpl()) {
 		// (const char *)other never returns 0!
 		long otherLength = other.Length();
@@ -722,15 +671,14 @@ int String::Compare(const String &other) const
 	} else {
 		return (Length() < other.Length()) ? -1 : 0;
 	}
-} // Compare
+}  // Compare
 
-int  String::CompareN(const char *other, long length, long start) const
-{
-	if ( start >=  Length() ) {
-		start =  Length() - 1;    // length should be 0 if !GetContent()
+int String::CompareN(const char *other, long length, long start) const {
+	if (start >= Length()) {
+		start = Length() - 1;  // length should be 0 if !GetContent()
 	}
 	if (start < 0) {
-		start = 0;    // PS this is required for robustness.
+		start = 0;	// PS this is required for robustness.
 	}
 	if (!GetImpl() || length <= 0) {
 		// nothing to compare means equal!
@@ -743,32 +691,30 @@ int  String::CompareN(const char *other, long length, long start) const
 	const char *contPtr = GetContent() + start;
 	if (contPtr && other) {
 		return strncmp(contPtr, other, length);
-	} else if ((contPtr && *contPtr) && ! other ) {
+	} else if ((contPtr && *contPtr) && !other) {
 		return 1;
-	} else if (! contPtr && (other && *other) ) {
-		return -1;    // PS there was an error here!
+	} else if (!contPtr && (other && *other)) {
+		return -1;	// PS there was an error here!
 	} else {
-		return 0;    // both are empty
+		return 0;  // both are empty
 	}
 }
 
-void String::PutAt( long pos, char c)
-{
-	if (pos >= 0  ) {
+void String::PutAt(long pos, char c) {
+	if (pos >= 0) {
 		if (GetImpl() && pos < Length()) {
-			GetContent()[pos] = c; // just exchange char
+			GetContent()[pos] = c;	// just exchange char
 		} else {
-			Set(pos, &c, 1); // adjust string as needed
+			Set(pos, &c, 1);  // adjust string as needed
 		}
 	}
 }
 
-void String::ReplaceAt( long pos, const char *s, long len)
-{
-	if (s && pos >= 0 && len > 0) { // parameter sanity check, prevent no-op
-		if (len > (Length() - pos)) { // new string will be longer
+void String::ReplaceAt(long pos, const char *s, long len) {
+	if (s && pos >= 0 && len > 0) {	   // parameter sanity check, prevent no-op
+		if (len > (Length() - pos)) {  // new string will be longer
 			Set(pos, s, len);
-		} else {// replacement within the string buffer
+		} else {  // replacement within the string buffer
 			// use memmove in this case, since "Set" terminates
 			// the string right after the replaced buffer
 			memmove(GetContent() + pos, s, len);
@@ -778,46 +724,44 @@ void String::ReplaceAt( long pos, const char *s, long len)
 
 /* in: s1, s2: C-Strings to compare
  rets: -1 if s1 is caselessly lexicographically smaller than s2
-		0 if s1 is caselessly equal to s2
-		1 if s1 is caselessly lexicographically larger than s2
+	0 if s1 is caselessly equal to s2
+	1 if s1 is caselessly lexicographically larger than s2
  what: checks if both strings are different from 0 and calls the C-function
  note: only works for null terminated C-Strings, everything after the first
-	   \000 byte in either of the strings is ignored (especially notable for
-	   applications involving the String class)
+	 \000 byte in either of the strings is ignored (especially notable for
+	 applications involving the String class)
 */
-long String::CaselessCompare(const char *s1, const char *s2)
-{
-	if ((0 != s1) && ( 0 != s2)) {
+long String::CaselessCompare(const char *s1, const char *s2) {
+	if ((0 != s1) && (0 != s2)) {
 		return strcasecmp(s1, s2);
 	} else if (s1 != 0) {
-		return 1;    // only s1 is there
+		return 1;  // only s1 is there
 	} else if (s2 != 0) {
-		return -1;    // only s2 is there
+		return -1;	// only s2 is there
 	} else {
-		return 0;    // both are 0
+		return 0;  // both are 0
 	}
 }
 
-long String::ContainsCharAbove(unsigned highMark, const String excludeSet) const
-{
+long String::ContainsCharAbove(unsigned highMark, const String excludeSet) const {
 	long ret = -1L;
 	if (highMark > 255) {
 		return 0;
 	}
 	long excludeSetLength = excludeSet.Length();
-	for ( long i = 0, sz = Length(); i < sz; ++i) {
+	for (long i = 0, sz = Length(); i < sz; ++i) {
 		unsigned char c = At(i);
-		if ( c > highMark ) {
-			if ( excludeSetLength == 0L ) {
+		if (c > highMark) {
+			if (excludeSetLength == 0L) {
 				return i;
 			} else {
 				bool found = false;
-				for ( long ii = 0; ii < excludeSetLength; ++ii) {
-					if ( ( found = ((unsigned char) excludeSet.At(ii) == c) ) ) {
+				for (long ii = 0; ii < excludeSetLength; ++ii) {
+					if ((found = ((unsigned char)excludeSet.At(ii) == c))) {
 						break;
 					}
 				}
-				if ( !found ) {
+				if (!found) {
 					return i;
 				}
 			}
@@ -826,11 +770,10 @@ long String::ContainsCharAbove(unsigned highMark, const String excludeSet) const
 	return ret;
 }
 
-String &String::ToLower()
-{
+String &String::ToLower() {
 	if (GetImpl()) {
 		char *s = GetContent();
-		while ( *s ) {
+		while (*s) {
 			*s = tolower(*s);
 			++s;
 		}
@@ -838,11 +781,10 @@ String &String::ToLower()
 	return *this;
 }
 
-String &String::ToUpper()
-{
+String &String::ToUpper() {
 	if (GetImpl()) {
 		char *s = GetContent();
-		while ( *s ) {
+		while (*s) {
 			*s = toupper(*s);
 			++s;
 		}
@@ -850,17 +792,16 @@ String &String::ToUpper()
 	return *this;
 }
 
-bool String::PrependWith(long newLength, const char fill)
-{
+bool String::PrependWith(long newLength, const char fill) {
 	long oldLength = Length();
 	long fillTo = newLength - oldLength;
 	long targetLength = newLength > oldLength ? newLength : oldLength;
-	if ( fillTo > 0 ) {
+	if (fillTo > 0) {
 		Reserve(targetLength);
-		if (  oldLength ) {
+		if (oldLength) {
 			// ReplaceAt uses memcpy, source/dest may not overlap!
 			// Therefore, use a tmp var if copy overlaps
-			if ( (oldLength << 1) <= newLength ) {
+			if ((oldLength << 1) <= newLength) {
 				ReplaceAt(fillTo, GetContent(), oldLength);
 			} else {
 				String tmp(GetContent());
@@ -882,15 +823,14 @@ bool String::PrependWith(long newLength, const char fill)
 // delivers
 // "Hello World\x0A"
 // on stdout
-std::ostream &String::IntPrintOn(std::ostream &os, const char quote) const
-{
+std::ostream &String::IntPrintOn(std::ostream &os, const char quote) const {
 	if (quote) {
 		os.put(quote);
 		// iterate the string and look for characters to mask
 		unsigned char c = '\0';
-		for ( long i = 0, sz = Length(); i < sz; ++i) {
+		for (long i = 0, sz = Length(); i < sz; ++i) {
 			c = At(i);
-			if ( !isprint(c) ) { // http server doesn't like / unencoded in path expressions
+			if (!isprint(c)) {	// http server doesn't like / unencoded in path expressions
 				// use hex \0x20 rep: PS' simple converter
 				os.put('\\');
 				if (c == '\n') {
@@ -899,8 +839,8 @@ std::ostream &String::IntPrintOn(std::ostream &os, const char quote) const
 				} else {
 					// use hex encoding
 					os.put('x');
-					os.put("0123456789ABCDEF"[ (c >> 4) & 0x0f]);
-					os.put("0123456789ABCDEF"[ c  & 0x0f]);
+					os.put("0123456789ABCDEF"[(c >> 4) & 0x0f]);
+					os.put("0123456789ABCDEF"[c & 0x0f]);
 				}
 			} else {
 				// mask also quote and mask character
@@ -927,8 +867,7 @@ std::ostream &String::IntPrintOn(std::ostream &os, const char quote) const
 // PS: post CR:
 // unmasked newline characters also terminate a string
 // check if this "feature" has been used by projects?
-long String::IntReadFrom(std::istream &is, const char quote)
-{
+long String::IntReadFrom(std::istream &is, const char quote) {
 	long newlinecounter = 0;
 	if (GetImpl()) {
 		*GetContent() = 0;
@@ -943,21 +882,21 @@ long String::IntReadFrom(std::istream &is, const char quote)
 		if (!is || !is.good()) {
 			// fail gracefully
 			if (c != quote) {
-				is.clear(); // setf(0); should reset state to good()
-				is.putback(c); // put it into the string
+				is.clear();		// setf(0); should reset state to good()
+				is.putback(c);	// put it into the string
 			}
 		}
 		// now read up to quote character or EOF or EOL (PS)
 		// now behaves more nicely in case of \r\n combinations
 		// the combination \n\r is not treated as new-line
-		while ( (!(!is) && is.good()) ) {
-			c = 0; // PS: post CR for additional safety at EOF, might duplicate c
+		while ((!(!is) && is.good())) {
+			c = 0;	// PS: post CR for additional safety at EOF, might duplicate c
 			is.get(c);
-			if (c == quote || ! is.good()) {
+			if (c == quote || !is.good()) {
 				break;
 			}
 
-			if ( c == '\\') {
+			if (c == '\\') {
 				// special cases of masked characters
 				is.get(c);
 				if (c == '\\' || c == quote) {
@@ -967,9 +906,9 @@ long String::IntReadFrom(std::istream &is, const char quote)
 					// hex char e.g. '\xAB?
 					char h[2];
 					is.get(h[0]);
-					if (isxdigit( (unsigned char) h[0])) {
+					if (isxdigit((unsigned char)h[0])) {
 						is.get(h[1]);
-						if (! isxdigit( (unsigned char) h[1])) {
+						if (!isxdigit((unsigned char)h[1])) {
 							// a single xdigit n pass 0n to it.
 							is.putback(h[1]);
 							h[1] = h[0];
@@ -979,18 +918,18 @@ long String::IntReadFrom(std::istream &is, const char quote)
 					} else {
 						// no hex char follows \x assume its a literal
 						Append("\\x");
-						is.putback(h[0]); // PS: we forgot the putback
+						is.putback(h[0]);  // PS: we forgot the putback
 					}
 				} else if (c >= '0' && c <= '7') {
 					// allow for octal read up to two more
 					char val = c - '0';
 					is.get(c);
-					if ( c >= '0' && c <= '7' ) {
+					if (c >= '0' && c <= '7') {
 						val = val * 8 + (c - '0');
 						is.get(c);
-						if ( c >= '0' && c <= '7' ) {
+						if (c >= '0' && c <= '7') {
 							val = val * 8 + (c - '0');
-						} else { // premature end of ocal code
+						} else {  // premature end of ocal code
 							is.putback(c);
 						}
 					} else {
@@ -1011,7 +950,7 @@ long String::IntReadFrom(std::istream &is, const char quote)
 					++newlinecounter;
 					is.get(c);
 					if ('\n' != c) {
-						is.putback(c);    // do not ignore it.
+						is.putback(c);	// do not ignore it.
 					}
 				} else if (c == '\n') {
 					// a masked newline is ignored, take it as a continuation line
@@ -1043,13 +982,13 @@ long String::IntReadFrom(std::istream &is, const char quote)
 					// do a nasty trick, return a negative number to
 					// show this syntactical error
 					// sorry there is no error message (yet)
-					//SystemLog::Warning("String::IntReadFrom: unexpected end of line (missing quote?)");
+					// SystemLog::Warning("String::IntReadFrom: unexpected end of line (missing quote?)");
 					++newlinecounter;
 					return 0 - newlinecounter;
 				}
 				Append(c);
 			}
-		} // while
+		}  // while
 	} else {
 		// unquoted string read to next whitespace
 		is >> *this;
@@ -1057,22 +996,20 @@ long String::IntReadFrom(std::istream &is, const char quote)
 	return newlinecounter;
 }
 
-String &String::AppendAsHex(unsigned char cc)
-{
+String &String::AppendAsHex(unsigned char cc) {
 	char hexDigits[2];
 
 	hexDigits[0] = "0123456789ABCDEF"[(cc >> 4) & 0x0f];
-	hexDigits[1] = "0123456789ABCDEF"[ cc       & 0x0f];
+	hexDigits[1] = "0123456789ABCDEF"[cc & 0x0f];
 
 	// Force String::Append(void *,	long);
-	return Append((void *) hexDigits, 2L);
+	return Append((void *)hexDigits, 2L);
 }
 
-String &String::AppendAsHex(const unsigned char *cc, long len, char delimiter)
-{
+String &String::AppendAsHex(const unsigned char *cc, long len, char delimiter) {
 	for (long i = 0; i < len; ++i) {
 		AppendAsHex(cc[i]);
-		if ( (delimiter != '\0') && (i + 1 < len) ) {
+		if ((delimiter != '\0') && (i + 1 < len)) {
 			Append(delimiter);
 		}
 	}
@@ -1084,33 +1021,31 @@ String &String::AppendAsHex(const unsigned char *cc, long len, char delimiter)
  * append a char to the string formed from them.
  * return this
  */
-String &String::AppendTwoHexAsChar(const char *p)
-{
+String &String::AppendTwoHexAsChar(const char *p) {
 	char high = 0, low = 0;
-	if (p && isxdigit( (unsigned char) p[0]) && isxdigit( (unsigned char) p[1])) {
+	if (p && isxdigit((unsigned char)p[0]) && isxdigit((unsigned char)p[1])) {
 		high = p[0];
 		// PS: streamline comparison post CR
-		if (isdigit( (unsigned char) high)) { // if ('0' <= high && high <= '9')
+		if (isdigit((unsigned char)high)) {	 // if ('0' <= high && high <= '9')
 			high -= '0';
-		} else if ('a' <= high) { // if ('a' <= high&& high <= 'f')  // assume 'A' < 'a'
+		} else if ('a' <= high) {  // if ('a' <= high&& high <= 'f')  // assume 'A' < 'a'
 			high -= ('a' - 10);
-		} else  {//if ('A' <= high && high <= 'F')
+		} else {  // if ('A' <= high && high <= 'F')
 			high -= ('A' - 10);
 		}
 		low = p[1];
-		if (isdigit( (unsigned char) low)) { // if ('0' <= low && low <= '9')
+		if (isdigit((unsigned char)low)) {	// if ('0' <= low && low <= '9')
 			low -= '0';
-		} else if ('a' <= low) { // if ('a' <= low&& low <= 'f')  // assume 'A' < 'a'
+		} else if ('a' <= low) {  // if ('a' <= low&& low <= 'f')  // assume 'A' < 'a'
 			low -= ('a' - 10);
-		} else  {//if ('A' <= low && low <= 'F')
+		} else {  // if ('A' <= low && low <= 'F')
 			low -= ('A' - 10);
 		}
 	}
 	return Append(char(16 * high + low));
 }
 
-String &String::AppendTwoHexAsChar(const char *cc, long len, bool delimiter)
-{
+String &String::AppendTwoHexAsChar(const char *cc, long len, bool delimiter) {
 	const char steps = (delimiter ? 3 : 2);
 
 	for (long i = 0; i < (len * steps); i += steps) {
@@ -1119,36 +1054,33 @@ String &String::AppendTwoHexAsChar(const char *cc, long len, bool delimiter)
 	return *this;
 }
 
-long String::AsLong(long dflt) const
-{
+long String::AsLong(long dflt) const {
 	if (Length()) {
 		char *firstErrPos = (char *)GetContent();
 		long l = strtol(firstErrPos, &firstErrPos, 10);
-		if ( firstErrPos != GetContent() ) {
+		if (firstErrPos != GetContent()) {
 			return l;
 		}
 	}
 	return dflt;
 }
 
-l_long String::AsLongLong(l_long dflt) const
-{
+l_long String::AsLongLong(l_long dflt) const {
 	if (Length()) {
 		char *firstErrPos = (char *)GetContent();
 		l_long ll = strtoll(GetContent(), &firstErrPos, 10);
-		if ( firstErrPos != GetContent() ) {
+		if (firstErrPos != GetContent()) {
 			return ll;
 		}
 	}
 	return dflt;
 }
 
-double String::AsDouble(double dflt) const
-{
+double String::AsDouble(double dflt) const {
 	if (Length()) {
 		char *firstErrPos = (char *)GetContent();
 		double d = strtod(GetContent(), &firstErrPos);
-		if ( firstErrPos != GetContent() ) {
+		if (firstErrPos != GetContent()) {
 			return d;
 		}
 	}
@@ -1156,26 +1088,22 @@ double String::AsDouble(double dflt) const
 }
 
 // PS: try OOPSLA 98 canonical form operations with optimal buffer stealing
-String::String (String &subject, Pilfer)
-	: fStringImpl(subject.GetImpl())
-	, fAllocator(subject.GetAllocator())
-{
+String::String(String &subject, Pilfer) : fStringImpl(subject.GetImpl()), fAllocator(subject.GetAllocator()) {
 	// stealing CTOR
 	fStringImpl = subject.GetImpl();
 	subject.fStringImpl = 0;
 }
 
-String String::Add(const String &s) const
-{
-	String result(Length() + s.Length() + 1); // no reallocation needed
+String String::Add(const String &s) const {
+	String result(Length() + s.Length() + 1);  // no reallocation needed
 	result.Append(*this);
 	result.Append(s);
-	return String(result, STEAL); // no additional buffer copying
+	return String(result, STEAL);  // no additional buffer copying
 }
 
 //-- implement STL support functionality of class String
 String::size_type String::max_size() const {
-	return std::numeric_limits<size_type>::max()-1;
+	return std::numeric_limits<size_type>::max() - 1;
 }
 String::iterator String::begin() {
 	return String_iterator(this, 0);
@@ -1204,9 +1132,9 @@ String::const_reverse_iterator String::rend() const {
 void String::clear() {
 	Trim(0L);
 }
-String& String::erase(String::size_type pos, String::size_type n) {
+String &String::erase(String::size_type pos, String::size_type n) {
 	if (pos >= 0 && pos <= size()) {
-		if ( n == npos ) {
+		if (n == npos) {
 			Trim(pos);
 		} else {
 			long const remain = size() - pos;
@@ -1223,7 +1151,7 @@ String::iterator String::erase(String::iterator pos) {
 		erase(pos.position, 1);
 		return pos;
 	}
-	return end(); // should throw, but stay robust
+	return end();  // should throw, but stay robust
 }
 String::iterator String::erase(String::iterator from, String::iterator to) {
 	if (from.a == this && to.a == this) {
@@ -1232,22 +1160,16 @@ String::iterator String::erase(String::iterator from, String::iterator to) {
 			return from;
 		}
 	}
-	return end(); // should throw, but stay robust
+	return end();  // should throw, but stay robust
 }
 
 StringTokenizer::StringTokenizer(const char *s, char delimiter)
-	: fString(s)
-	, fTokEnd(fString)
-	, fDelimiter(delimiter)
-	, fLength((s) ? (long)strlen(s) : -1L)
-{
-}
+	: fString(s), fTokEnd(fString), fDelimiter(delimiter), fLength((s) ? (long)strlen(s) : -1L) {}
 
-bool StringTokenizer::NextToken(String &token)
-{
+bool StringTokenizer::NextToken(String &token) {
 	// fPos marks the current position within the original string
 
-	if ( (fLength > 0) && (fTokEnd <= fString + fLength) ) {
+	if ((fLength > 0) && (fTokEnd <= fString + fLength)) {
 		// still got something to work with
 		const char *tokStart = fTokEnd;
 		while (*(fTokEnd) != '\0' && *fTokEnd != fDelimiter) {
@@ -1257,7 +1179,7 @@ bool StringTokenizer::NextToken(String &token)
 		if (*(fTokEnd) == fDelimiter) {
 			// found delimiter
 			token = String(tokStart, (fTokEnd - tokStart));
-			++fTokEnd;		// start of next token
+			++fTokEnd;	// start of next token
 		} else {
 			// no delimiter... whole string is the token
 			token = String(tokStart);
@@ -1271,8 +1193,7 @@ bool StringTokenizer::NextToken(String &token)
 	}
 }
 
-String StringTokenizer::GetRemainder(bool boIncludeDelim)
-{
+String StringTokenizer::GetRemainder(bool boIncludeDelim) {
 	if (boIncludeDelim) {
 		const char *tokStart = fTokEnd;
 		if (tokStart > fString) {
@@ -1287,22 +1208,11 @@ String StringTokenizer::GetRemainder(bool boIncludeDelim)
 	}
 }
 
-StringTokenizer2::StringTokenizer2(const char *s)
-	: fString(s)
-	, fDelimiters(" \t\n")
-	, fPos(0)
-{
-}
+StringTokenizer2::StringTokenizer2(const char *s) : fString(s), fDelimiters(" \t\n"), fPos(0) {}
 
-StringTokenizer2::StringTokenizer2(const char *s, const char *delimiters)
-	: fString(s)
-	, fDelimiters(delimiters)
-	, fPos(0)
-{
-}
+StringTokenizer2::StringTokenizer2(const char *s, const char *delimiters) : fString(s), fDelimiters(delimiters), fPos(0) {}
 
-bool StringTokenizer2::NextToken(String &token)
-{
+bool StringTokenizer2::NextToken(String &token) {
 	long start = fPos;
 	long end = fPos;
 	if (HasMoreTokens(start, end)) {
@@ -1313,8 +1223,7 @@ bool StringTokenizer2::NextToken(String &token)
 	return false;
 }
 
-String StringTokenizer2::GetRemainder(bool boIncludeDelim)
-{
+String StringTokenizer2::GetRemainder(bool boIncludeDelim) {
 	long start = fPos;
 	if (boIncludeDelim) {
 		if (start > 0) {
@@ -1329,8 +1238,7 @@ String StringTokenizer2::GetRemainder(bool boIncludeDelim)
 	}
 }
 
-bool StringTokenizer2::HasMoreTokens(long start, long &end)
-{
+bool StringTokenizer2::HasMoreTokens(long start, long &end) {
 	const char *delims = (const char *)fDelimiters;
 	long l = fString.Length();
 	while (end < l && strchr(delims, fString[end]) == 0) {
@@ -1339,29 +1247,28 @@ bool StringTokenizer2::HasMoreTokens(long start, long &end)
 	return start < l;
 }
 
-std::istream &operator>>(std::istream &is, String &s)
-{
+std::istream &operator>>(std::istream &is, String &s) {
 	char aChar;
 
-	s.Set(0, 0, cStrAllocMinimum); // empty string reserve cStrAllocMinimum chars, tunable param
+	s.Set(0, 0, cStrAllocMinimum);	// empty string reserve cStrAllocMinimum chars, tunable param
 
 	if (is.good() && s.GetImpl()) {
 		// sanity checks
-		is >> std::ws; // skips whitespace
+		is >> std::ws;	// skips whitespace
 		while ((aChar = is.get()) != EOF) {
 			if (isspace(aChar)) {
 				is.putback(aChar);
 				break;
 			}
 			if (s.Length() + 2 > s.Capacity()) {
-				s.Set(s.Length(), &aChar, 1); // auto-expand
+				s.Set(s.Length(), &aChar, 1);  // auto-expand
 			} else {
 				// optimize for inline expansion, Set allocates additional stuff
 				s.GetContent()[s.Length()] = aChar;
 				s.IncrementLength(1);
 			}
 		}
-		s.GetContent()[s.Length()] = '\0'; // add 0 byte for termination
+		s.GetContent()[s.Length()] = '\0';	// add 0 byte for termination
 	}
 	if (is.eof() && s.Length() != 0) {
 		is.clear();
@@ -1370,8 +1277,7 @@ std::istream &operator>>(std::istream &is, String &s)
 	return is;
 }
 
-std::istream &getline(std::istream &is, String &s, char delim)
-{
+std::istream &getline(std::istream &is, String &s, char delim) {
 	char aChar = 0;
 
 	s.Trim(0);
@@ -1390,8 +1296,7 @@ std::istream &getline(std::istream &is, String &s, char delim)
 	return is;
 }
 
-std::ostream &operator<<(std::ostream &os, const String &s)
-{
+std::ostream &operator<<(std::ostream &os, const String &s) {
 	size_t len = s.Length();
 	size_t width = os.width();
 	int left = ((os.flags() & std::ios::left) != 0);
@@ -1401,10 +1306,10 @@ std::ostream &operator<<(std::ostream &os, const String &s)
 	if (width && width > len) {
 		size_t padlen = width - len;
 		char const c = os.fill();
-		while ( padlen-- > 0 ) {
+		while (padlen-- > 0) {
 			os.put(c);
 		}
-		os.width(0); //!< the iostream documentation states this behaviour
+		os.width(0);  //!< the iostream documentation states this behaviour
 	}
 	if (!left) {
 		os.write((const char *)s, len);

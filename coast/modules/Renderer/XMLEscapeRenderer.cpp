@@ -7,18 +7,13 @@
  */
 
 #include "XMLEscapeRenderer.h"
+
 #include "Tracer.h"
+
 #include <cstring>
 #include <ostream>
 
-static const char *entitity_map[] = {
-	"<",	"&lt;",
-	">",	"&gt;",
-	"&",	"&amp;",
-	"\"",	"&quot;",
-	"'",	"&apos;",
-	0
-};
+static const char *entitity_map[] = {"<", "&lt;", ">", "&gt;", "&", "&amp;", "\"", "&quot;", "'", "&apos;", 0};
 
 RegisterRenderer(XMLEscapeRenderer);
 
@@ -36,7 +31,7 @@ void XMLEscapeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAny
 			}
 		}
 		reply << c;
-		found: ;
+	found:;
 	}
 }
 
@@ -59,6 +54,6 @@ void XMLUnescapeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROA
 			}
 		}
 		reply << "&" << token;
-		found: ;
+	found:;
 	}
 }

@@ -23,13 +23,12 @@
 //! or maybe one might prefer the short cut form that consists only in the
 //! NameOfTheDataAccessToPerform
 //! e.g. { /CallDA NameOfTheDataAccessToPerform }
-class CallDataAccessAction: public Action {
+class CallDataAccessAction : public Action {
 public:
-	CallDataAccessAction(const char *name) :
-		Action(name) {
-	}
+	CallDataAccessAction(const char *name) : Action(name) {}
+
 protected:
-	//!Calls the DataAccess
+	//! Calls the DataAccess
 	//! \param transitionToken (in/out) the event passed by the caller, can be modified.
 	//! \param c the context the action runs within.
 	//! \param config the configuration of the action.

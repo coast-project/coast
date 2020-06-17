@@ -10,46 +10,43 @@
 #define _SOCKETSTREAM_H
 
 #include "Socket.h"
+
 #include <cstdio>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 const int cSocketStreamBufferSize = 8024;
 
 //! streambuf implementation for sockets
-class SocketStreamBuf : public std::streambuf
-{
+class SocketStreamBuf : public std::streambuf {
 public:
 	//! constructor takes socket object and timeout
 	/*! \param socket the socket this streambuf is writing to or reading from
-		\param timeout the timeout for a read or write operation uses Socket->IsReady... Method
-		\param sockbufsz initial internal read/write buffer size
-		\param mode is the socket reading, writing or both, default: in/out */
-	SocketStreamBuf(Socket *socket, long timeout = 300 * 1000, long sockbufsz = cSocketStreamBufferSize, int mode = std::ios::out | std::ios::in);
+	  \param timeout the timeout for a read or write operation uses Socket->IsReady... Method
+	  \param sockbufsz initial internal read/write buffer size
+	  \param mode is the socket reading, writing or both, default: in/out */
+	SocketStreamBuf(Socket *socket, long timeout = 300 * 1000, long sockbufsz = cSocketStreamBufferSize,
+					int mode = std::ios::out | std::ios::in);
 	SocketStreamBuf(const SocketStreamBuf &ssbuf);
 
-	//!destructor flushes the buffer and empties put and get areas
+	//! destructor flushes the buffer and empties put and get areas
 	virtual ~SocketStreamBuf();
 
 	//! flushes the buffer, it writes to the socket
 	virtual int sync();
 
-	void SetTimeout(long t) ;
-	long GetTimeout() ;
+	void SetTimeout(long t);
+	long GetTimeout();
 
-	//!returns amount of bytes read from belonging iostream:
-	virtual long GetReadCount() const {
-		return fReadCount;
-	}
-	//!returns amount of bytes wrote from belonging iostream:
-	virtual long GetWriteCount() const {
-		return fWriteCount;
-	}
+	//! returns amount of bytes read from belonging iostream:
+	virtual long GetReadCount() const { return fReadCount; }
+	//! returns amount of bytes wrote from belonging iostream:
+	virtual long GetWriteCount() const { return fWriteCount; }
 
 	//! canonical output operator for SocketStreamBufs
 	friend std::ostream &operator<<(std::ostream &os, SocketStreamBuf *ssbuf);
 
-protected: // seekxxx are protected in the std..
+protected:	// seekxxx are protected in the std..
 	typedef std::streambuf::pos_type pos_type;
 	typedef std::streambuf::off_type off_type;
 	typedef std::ios::seekdir seekdir;
@@ -61,9 +58,7 @@ protected: // seekxxx are protected in the std..
 	virtual pos_type seekoff(off_type off, seekdir dir, openmode mode = std::ios::in | std::ios::out);
 
 	//! no buffer setting needed, because we carry our own buffer, a String object
-	std::streambuf *setbuf(char *buf, int length) {
-		return this;
-	}
+	std::streambuf *setbuf(char *buf, int length) { return this; }
 
 	//! consumes chars of the put area
 	virtual int overflow(int c = EOF);
@@ -93,9 +88,7 @@ protected: // seekxxx are protected in the std..
 			return 0;
 		}
 	}
-	char *endr() {
-		return startr() + fReadBufStorage.Capacity();
-	}
+	char *endr() { return startr() + fReadBufStorage.Capacity(); }
 	char *startw() {
 		if (fWriteBufStorage.Capacity() > 0) {
 			return (char *)(const char *)fWriteBufStorage;
@@ -103,9 +96,7 @@ protected: // seekxxx are protected in the std..
 			return 0;
 		}
 	}
-	char *endw() {
-		return startw() + fWriteBufStorage.Capacity();
-	}
+	char *endw() { return startw() + fWriteBufStorage.Capacity(); }
 
 	//! the storage of the holding area buffer
 	String fReadBufStorage;
@@ -114,10 +105,10 @@ protected: // seekxxx are protected in the std..
 	//! the socket this streambuf uses
 	Socket *fSocket;
 
-	//!stores here the amount of bytes read for LAST reply:
-	void AddReadCount( long bytes );
-	//!stores here the amount of bytes written from LAST request:
-	void AddWriteCount( long bytes );
+	//! stores here the amount of bytes read for LAST reply:
+	void AddReadCount(long bytes);
+	//! stores here the amount of bytes written from LAST request:
+	void AddWriteCount(long bytes);
 
 	//! statistic variable
 	long fReadCount;
@@ -125,76 +116,67 @@ protected: // seekxxx are protected in the std..
 };
 
 //! adapts ios to a Socket Stream buffer
-class iosITOSocket : virtual public std::ios, public coast::AllocatorNewDelete
-{
+class iosITOSocket : virtual public std::ios, public coast::AllocatorNewDelete {
 public:
-	iosITOSocket(Socket *s, long timeout = 300 * 1000, long sockbufsz = cSocketStreamBufferSize, int mode = std::ios::in | std::ios::out );
+	iosITOSocket(Socket *s, long timeout = 300 * 1000, long sockbufsz = cSocketStreamBufferSize,
+				 int mode = std::ios::in | std::ios::out);
 	// s is the source resp. the sink;
 
-	SocketStreamBuf *rdbuf()  {
-		return &fSocketBuf;
-	}
+	SocketStreamBuf *rdbuf() { return &fSocketBuf; }
 
 protected:
-	iosITOSocket();// do not implement { }
-	SocketStreamBuf fSocketBuf;   // the buffer with its underlying string
+	iosITOSocket();				 // do not implement { }
+	SocketStreamBuf fSocketBuf;	 // the buffer with its underlying string
 
-	//!allocator for dynamic allocations
+	//! allocator for dynamic allocations
 	Allocator *fAllocator;
 	// void autoflush()  { flags(flags() | ios::unitbuf); } don't ever use this sh... with sockets
-}; // iosITOSocket
+};	// iosITOSocket
 
 //! istream for sockets
-class ISocketStream : public iosITOSocket, public std::istream
-{
+class ISocketStream : public iosITOSocket, public std::istream {
 public:
 	//! constructor creates iosITOSocket
 	/*! \param s the socket for the istream
-		\param timeout the timeout for read operations
-		\param sockbufsz initial internal read/write buffer size */
+	  \param timeout the timeout for read operations
+	  \param sockbufsz initial internal read/write buffer size */
 	ISocketStream(Socket *s, long timeout = 300 * 1000, long sockbufsz = cSocketStreamBufferSize)
-		: iosITOSocket(s, timeout, sockbufsz, std::ios::in)
-		, std::istream(&fSocketBuf)
-	{ } // read from s
+		: iosITOSocket(s, timeout, sockbufsz, std::ios::in), std::istream(&fSocketBuf) {}  // read from s
 
-	~ISocketStream() { }
+	~ISocketStream() {}
 
 private:
 	ISocketStream();
 	ISocketStream(const ISocketStream &);
 	ISocketStream &operator=(const ISocketStream &);
-}; // ISocketStream
+};	// ISocketStream
 
 //! ostream for sockets
-class OSocketStream : public iosITOSocket, public std::ostream
-{
+class OSocketStream : public iosITOSocket, public std::ostream {
 public:
 	//! constructor creates iosITOSocket
 	/*! \param s the socket for the ostream
-		\param timeout the timeout for write operations
-		\param sockbufsz initial internal read/write buffer size */
+	  \param timeout the timeout for write operations
+	  \param sockbufsz initial internal read/write buffer size */
 	OSocketStream(Socket *s, long timeout = 300 * 1000, long sockbufsz = cSocketStreamBufferSize)
-		: iosITOSocket(s, timeout, sockbufsz, std::ios::out)
-		, std::ostream(&fSocketBuf)
-	{  }
+		: iosITOSocket(s, timeout, sockbufsz, std::ios::out), std::ostream(&fSocketBuf) {}
 
 	//! destructor does nothing
-	~OSocketStream() { }
+	~OSocketStream() {}
 
 private:
 	OSocketStream();
 	OSocketStream(const OSocketStream &);
 	OSocketStream &operator=(const OSocketStream &);
-}; // OSocketStream
+};	// OSocketStream
 
 //! iostream for sockets
-class SocketStream : public iosITOSocket, public std::iostream
-{
+class SocketStream : public iosITOSocket, public std::iostream {
 public:
 	//! constructor creates iosITOSocket
 	/*! \param s the socket for the ostream
-		\param timeout the timeout for read/write operations
-		\param sockbufsz initial internal read/write buffer size */
+	  \param timeout the timeout for read/write operations
+	  \param sockbufsz initial internal read/write buffer size */
 	SocketStream(Socket *s, long timeout = 300 * 1000, long sockbufsz = cSocketStreamBufferSize);
 
 	//! destructor does nothing
@@ -204,22 +186,22 @@ private:
 	SocketStream();
 	SocketStream(const SocketStream &);
 	SocketStream &operator=(const SocketStream &);
-}; // SocketStream
+};	// SocketStream
 
 //! modifies the timeout used by a SocketStream for a scope
-class TimeoutModifier
-{
+class TimeoutModifier {
 public:
-	//!modifies timeout of the SocketStream with timeout; it stores away the original value
+	//! modifies timeout of the SocketStream with timeout; it stores away the original value
 	TimeoutModifier(SocketStream *ios, long timeout);
-	//!restores the original timeout of the socket stream
+	//! restores the original timeout of the socket stream
 	~TimeoutModifier();
 
-	void Use() {};
+	void Use(){};
+
 protected:
-	//!store of original timeout
+	//! store of original timeout
 	long fOriginalTimeout;
-	//!the stream which is modified
+	//! the stream which is modified
 	SocketStream *fStream;
 };
 

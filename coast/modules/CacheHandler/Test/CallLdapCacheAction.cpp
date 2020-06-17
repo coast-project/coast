@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "CallLdapCacheAction.h"
-#include "Tracer.h"
+
 #include "Context.h"
 #include "LDAPCachePolicyModule.h"
+#include "Tracer.h"
 //---- CallLdapCacheAction ---------------------------------------------------------------
 RegisterAction(CallLdapCacheAction);
 

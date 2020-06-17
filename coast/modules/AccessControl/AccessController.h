@@ -14,17 +14,16 @@
 //---- UserDataAccessController -----------------------------------------------------------
 //! This should be the superclass of all user data access controller implementations.
 //! Abstract class.
-class UserDataAccessController : public HierarchConfNamed
-{
+class UserDataAccessController : public HierarchConfNamed {
 public:
-	UserDataAccessController(const char *name) : HierarchConfNamed(name) {};
+	UserDataAccessController(const char *name) : HierarchConfNamed(name){};
 	virtual ~UserDataAccessController() {}
 
 	RegCacheDef(UserDataAccessController);	// creates FindUserDataAccessController()
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
-		Assert(false);    // do not instantiate
+		Assert(false);	// do not instantiate
 		return 0;
 	}
 
@@ -52,17 +51,16 @@ private:
 //---- TokenDataAccessController -----------------------------------------------------------
 //! This should be the superclass of all token data access controller implementations.
 //! Abstract class.
-class TokenDataAccessController : public HierarchConfNamed
-{
+class TokenDataAccessController : public HierarchConfNamed {
 public:
-	TokenDataAccessController(const char *name) : HierarchConfNamed(name) {};
+	TokenDataAccessController(const char *name) : HierarchConfNamed(name){};
 	virtual ~TokenDataAccessController() {}
 
-	RegCacheDef(TokenDataAccessController);	// creates FindTokenDataAccessController()
+	RegCacheDef(TokenDataAccessController);	 // creates FindTokenDataAccessController()
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
-		Assert(false);    // do not instantiate
+		Assert(false);	// do not instantiate
 		return 0;
 	}
 
@@ -84,17 +82,16 @@ private:
 //---- EntityDataAccessController -----------------------------------------------------------
 //! This should be the superclass of all entity data access controller implementations.
 //! Abstract class.
-class EntityDataAccessController : public HierarchConfNamed
-{
+class EntityDataAccessController : public HierarchConfNamed {
 public:
-	EntityDataAccessController(const char *name) : HierarchConfNamed(name) {};
+	EntityDataAccessController(const char *name) : HierarchConfNamed(name){};
 	virtual ~EntityDataAccessController() {}
 
-	RegCacheDef(EntityDataAccessController);	// creates FindEntityDataAccessController()
+	RegCacheDef(EntityDataAccessController);  // creates FindEntityDataAccessController()
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
-		Assert(false);    // do not instantiate
+		Assert(false);	// do not instantiate
 		return 0;
 	}
 

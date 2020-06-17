@@ -7,12 +7,13 @@
  */
 
 #include "SimpleDAServiceTest.h"
-#include "TestSuite.h"
-#include "ServiceDispatcher.h"
-#include "RequestProcessor.h"
-#include "StringStreamSocket.h"
+
 #include "AnyIterators.h"
+#include "RequestProcessor.h"
+#include "ServiceDispatcher.h"
 #include "ServiceHandler.h"
+#include "StringStreamSocket.h"
+#include "TestSuite.h"
 
 //:use the ServiceDispatcher to obtain a simple service
 void SimpleDAServiceTest::SimpleDispatch() {
@@ -38,8 +39,7 @@ void SimpleDAServiceTest::SimpleDispatch() {
 }
 //: try to use it with a very simple DataAccess backend
 void SimpleDAServiceTest::SimpleServiceCall() {
-	StartTrace(SimpleDAServiceTest.SimpleServiceCall)
-	;
+	StartTrace(SimpleDAServiceTest.SimpleServiceCall);
 }
 //: try to use it with a missing DataAccess backend
 void SimpleDAServiceTest::FailedServiceCall() {
@@ -75,14 +75,10 @@ Test *SimpleDAServiceTest::suite() {
 	return testSuite;
 }
 
-class TestHTTPProcessor: public RequestProcessor {
+class TestHTTPProcessor : public RequestProcessor {
 public:
-	//!named object shared by all requests
-	TestHTTPProcessor(const char *processorName) :
-		RequestProcessor(processorName) {
-		StartTrace(TestHTTPProcessor.ctor)
-		;
-	}
+	//! named object shared by all requests
+	TestHTTPProcessor(const char *processorName) : RequestProcessor(processorName) { StartTrace(TestHTTPProcessor.ctor); }
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {
@@ -98,7 +94,8 @@ protected:
 	bool DoReadInput(std::iostream &Ios, Context &ctx) {
 		Anything args;
 		bool status = args.Import(Ios);
-		StatTraceAny(TestHTTPProcessor.DoReadInput, args, "request arguments " << (status ? "success" : "failure"), coast::storage::Current());
+		StatTraceAny(TestHTTPProcessor.DoReadInput, args, "request arguments " << (status ? "success" : "failure"),
+					 coast::storage::Current());
 		ctx.PushRequest(args);
 		return status;
 	}

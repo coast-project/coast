@@ -7,69 +7,62 @@
  */
 
 #include "Registry.h"
+
+#include "CacheHandler.h"
+#include "InitFinisManager.h"
+#include "Policy.h"
 #include "SystemLog.h"
 #include "Tracer.h"
-#include "Policy.h"
-#include "InitFinisManager.h"
-#include "CacheHandler.h"
 
-Registry::Registry(const char *category) :
-		NotCloned(category), fTable(Anything::ArrayMarker(), coast::storage::Global()) {
-}
+Registry::Registry(const char *category) : NotCloned(category), fTable(Anything::ArrayMarker(), coast::storage::Global()) {}
 
-Registry::~Registry() {
-}
+Registry::~Registry() {}
 
-bool Registry::Terminate(TerminationPolicy *terminator)
-{
+bool Registry::Terminate(TerminationPolicy *terminator) {
 	StartTrace1(Registry.Terminate, "category <" << GetName() << ">");
 	bool bRet = true;
-	if ( terminator ) {
+	if (terminator) {
 		bRet = terminator->Terminate(this);
 	}
 	return bRet;
 }
 
-bool Registry::Install(const ROAnything installerSpec, InstallerPolicy *ip)
-{
+bool Registry::Install(const ROAnything installerSpec, InstallerPolicy *ip) {
 	StartTrace1(Registry.Install, "category <" << GetName() << "> in &" << (long)this);
 	TraceAny(GetTable(), "Table");
 	TraceAny(installerSpec, "Installer Specification");
 	bool ret = false;
-	if ( ip ) {
+	if (ip) {
 		ret = ip->Install(installerSpec, this);
 	}
 	TraceAny(GetTable(), "Table after Install in &" << (long)this);
 	return ret;
 }
 
-RegisterableObject *Registry::Find(const char *name)
-{
+RegisterableObject *Registry::Find(const char *name) {
 	// try to find object with name
 	Assert(name);
 	RegisterableObject *r = 0;
 	// make it robust
-	if ( name && GetTable().IsDefined(name) ) {
+	if (name && GetTable().IsDefined(name)) {
 		r = (RegisterableObject *)GetTable()[name].AsIFAObject(0);
 	}
 	return r;
 }
 
-void Registry::RegisterRegisterableObject(const char *name, RegisterableObject *o)
-{
+void Registry::RegisterRegisterableObject(const char *name, RegisterableObject *o) {
 	StatTrace(Registry.RegisterRegisterableObject, "name [" << NotNull(name) << "]", coast::storage::Current());
 	Assert(name && o);
 	// make it robust
-	if ( name && o ) {
+	if (name && o) {
 		GetTable()[name] = Anything(o);
 	}
 }
 
-void Registry::UnregisterRegisterableObject(const char *name)
-{
+void Registry::UnregisterRegisterableObject(const char *name) {
 	StartTrace1(Registry.UnregisterRegisterableObject, "name [" << NotNull(name) << "]");
 	RegisterableObject *o = Find(name);
-	if ( o ) {
+	if (o) {
 		Trace("object with name [" << NotNull(name) << "] found, trying to remove aliases");
 		GetTable().Remove(name);
 		// removing aliases
@@ -77,8 +70,7 @@ void Registry::UnregisterRegisterableObject(const char *name)
 	}
 }
 
-void Registry::RemoveAliases(RegisterableObject *obj)
-{
+void Registry::RemoveAliases(RegisterableObject *obj) {
 	StartTrace(Registry.RemoveAliases);
 	if (obj) {
 		RegistryIterator ri(this, false);
@@ -97,8 +89,7 @@ Anything &Registry::GetTable() {
 	return fTable;
 }
 
-MetaRegistryImpl::MetaRegistryImpl() :
-		fRegistryArray(Anything::ArrayMarker(), coast::storage::Global()) {
+MetaRegistryImpl::MetaRegistryImpl() : fRegistryArray(Anything::ArrayMarker(), coast::storage::Global()) {
 	// force initializing cache handler before us
 	CacheHandler::instance();
 	InitFinisManager::IFMTrace("MetaRegistry::Initialized\n");
@@ -128,7 +119,7 @@ Registry *MetaRegistryImpl::MakeRegistry(const char *category) {
 	msg.Append(NotNull(category)).Append('>');
 	SystemLog::Info(msg);
 	Registry *r = new (coast::storage::Global()) Registry(category);
-	GetRegTable()[category] = Anything(r, coast::storage::Global()); // r stored as pointer to IFAObject (AB)
+	GetRegTable()[category] = Anything(r, coast::storage::Global());  // r stored as pointer to IFAObject (AB)
 	return r;
 }
 
@@ -166,15 +157,11 @@ void MetaRegistryImpl::FinalizeRegArray() {
 }
 
 RegistryIterator::RegistryIterator(Registry *rg, bool forward)
-	: fRegistry(rg)
-	, fForward(forward)
-	, fStart((forward) ? -1 : -2)
-	, fEnd((forward) ? -2 : -1)
-{
+	: fRegistry(rg), fForward(forward), fStart((forward) ? -1 : -2), fEnd((forward) ? -2 : -1) {
 	StartTrace(RegistryIterator.Ctor);
 	if (fRegistry) {
 		Anything table(fRegistry->GetTable());
-		if ( fForward ) {
+		if (fForward) {
 			fStart = 0;
 			fEnd = table.GetSize() - 1;
 		} else {
@@ -186,24 +173,21 @@ RegistryIterator::RegistryIterator(Registry *rg, bool forward)
 	Trace("fStart[" << fStart << "] fEnd[" << fEnd << "]");
 }
 
-RegistryIterator::~RegistryIterator()
-{
+RegistryIterator::~RegistryIterator() {
 	StartTrace(RegistryIterator.Dtor);
 }
 
-bool RegistryIterator::HasMore()
-{
+bool RegistryIterator::HasMore() {
 	StartTrace(RegistryIterator.HasMore);
 	Trace("fStart[" << fStart << "] fEnd[" << fEnd << "]");
-	if ( fForward ) {
+	if (fForward) {
 		return fStart <= fEnd;
 	} else {
 		return fStart >= fEnd;
 	}
 }
 
-RegisterableObject *RegistryIterator::Next(String &key)
-{
+RegisterableObject *RegistryIterator::Next(String &key) {
 	StartTrace(RegistryIterator.Next);
 	RegisterableObject *obj = 0;
 	if (fRegistry) {
@@ -227,8 +211,7 @@ RegisterableObject *RegistryIterator::Next(String &key)
 	return obj;
 }
 
-RegisterableObject *RegistryIterator::RemoveNext(String &key)
-{
+RegisterableObject *RegistryIterator::RemoveNext(String &key) {
 	StartTrace(RegistryIterator.RemoveNext);
 	RegisterableObject *obj = Next(key);
 	if (fRegistry) {

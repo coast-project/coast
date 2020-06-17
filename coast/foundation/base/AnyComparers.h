@@ -12,33 +12,26 @@
 #include "Anything.h"
 
 //! convenience classes implementing the AnyCompare interface
-//class AnyComparer {
-//public:
+// class AnyComparer {
+// public:
 //	virtual int Compare(const Anything &left,const Anything &right)const=0;
 //};
 
-class AnyStringValueComparer: public AnyComparer
-{
+class AnyStringValueComparer : public AnyComparer {
 public:
-	int Compare(const Anything &left, const Anything &right)const {
-		return left.AsString().Compare(right.AsString());
-	}
+	int Compare(const Anything &left, const Anything &right) const { return left.AsString().Compare(right.AsString()); }
 };
-class AnyReverseComparer: public AnyComparer
-{
+class AnyReverseComparer : public AnyComparer {
 	const AnyComparer &ac;
+
 public:
-	AnyReverseComparer(const AnyComparer &theComparer)
-		: ac(theComparer) {}
-	int Compare(const Anything &left, const Anything &right)const {
-		return - ac.Compare(left, right);
-	}
+	AnyReverseComparer(const AnyComparer &theComparer) : ac(theComparer) {}
+	int Compare(const Anything &left, const Anything &right) const { return -ac.Compare(left, right); }
 };
 
-class AnyLongValueComparer: public AnyComparer
-{
+class AnyLongValueComparer : public AnyComparer {
 public:
-	int Compare(const Anything &left, const Anything &right)const {
+	int Compare(const Anything &left, const Anything &right) const {
 		long l = left.AsLong();
 		long r = right.AsLong();
 		if (l < r) {
@@ -50,10 +43,9 @@ public:
 		return 0;
 	}
 };
-class AnyDoubleValueComparer: public AnyComparer
-{
+class AnyDoubleValueComparer : public AnyComparer {
 public:
-	int Compare(const Anything &left, const Anything &right)const {
+	int Compare(const Anything &left, const Anything &right) const {
 		double l = left.AsDouble();
 		double r = right.AsDouble();
 		if (l < r) {
@@ -66,15 +58,15 @@ public:
 	}
 };
 
-class AnyLookupValueComparer: public AnyComparer
-{
+class AnyLookupValueComparer : public AnyComparer {
 protected:
 	String lookup;
 	const AnyComparer &ac;
+
 public:
 	AnyLookupValueComparer(const char *lookuppath, const AnyComparer &theValueComparer)
 		: lookup(lookuppath), ac(theValueComparer) {}
-	int Compare(const Anything &left, const Anything &right)const {
+	int Compare(const Anything &left, const Anything &right) const {
 		// would require more efficient LookupPath version to avoid copies (potential deepclones)
 		Anything intleft, intright;
 		left.LookupPath(intleft, lookup);

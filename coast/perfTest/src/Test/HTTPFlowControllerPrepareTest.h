@@ -10,14 +10,12 @@
 #define _HTTPFlowControllerPrepareTest_H
 
 #include "HTTPFlowControllerTest.h"
-class HTTPFlowControllerPrepareTest: public HTTPFlowControllerTest {
+class HTTPFlowControllerPrepareTest : public HTTPFlowControllerTest {
 public:
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
-	HTTPFlowControllerPrepareTest(TString tstrName) :
-		HTTPFlowControllerTest(tstrName) {
-	}
-	//!TestCase constructor
+	HTTPFlowControllerPrepareTest(TString tstrName) : HTTPFlowControllerTest(tstrName) {}
+	//! TestCase constructor
 	//! \param name name of the test
 	//! \param configFileName name of the tests config file
 	HTTPFlowControllerPrepareTest(TString tstrName, TString configFileName);

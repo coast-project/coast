@@ -11,19 +11,17 @@
 
 #include "DummyDAImpl.h"
 
-//! DummyDataAccess for performing HTTP Requests, uses meta data defined in HTTPMeta.any, difference to base class - uses connector params
-class DummyHTTPDAImpl: public DummyDAImpl {
+//! DummyDataAccess for performing HTTP Requests, uses meta data defined in HTTPMeta.any, difference to base class - uses
+//! connector params
+class DummyHTTPDAImpl : public DummyDAImpl {
 	DummyHTTPDAImpl();
 	DummyHTTPDAImpl(const DummyHTTPDAImpl &);
 	DummyHTTPDAImpl &operator=(const DummyHTTPDAImpl &);
+
 public:
-	DummyHTTPDAImpl(const char *name) :
-		DummyDAImpl(name) {
-	}
+	DummyHTTPDAImpl(const char *name) : DummyDAImpl(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) DummyHTTPDAImpl(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) DummyHTTPDAImpl(fName); }
 	//! executes the transaction
 	//! \param c The context of the transaction
 	//! \pre fData2Send contains the HTTP-Request
@@ -32,4 +30,4 @@ public:
 };
 
 /* Don't add stuff after this #endif */
-#endif		//not defined _DummyHTTPDAImpl_H
+#endif	// not defined _DummyHTTPDAImpl_H

@@ -7,17 +7,17 @@
  */
 
 #include "CompareValuesRenderer.h"
+
 #include "Tracer.h"
 
 //---- CompareValuesRenderer ---------------------------------------------------------------
 RegisterRenderer(CompareValuesRenderer);
 
-CompareValuesRenderer::CompareValuesRenderer(const char *name) : Renderer(name) { }
+CompareValuesRenderer::CompareValuesRenderer(const char *name) : Renderer(name) {}
 
-CompareValuesRenderer::~CompareValuesRenderer() { }
+CompareValuesRenderer::~CompareValuesRenderer() {}
 
-void CompareValuesRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void CompareValuesRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(CompareValuesRenderer.RenderAll);
 
 	TraceAny(config, "config");
@@ -51,32 +51,32 @@ void CompareValuesRenderer::RenderAll(std::ostream &reply, Context &c, const ROA
 	}
 	Trace("Operator: [" << op << "]");
 
-	if ( op.IsEqual(">") ) {
+	if (op.IsEqual(">")) {
 		if (value1.AsLong(0L) > value2.AsLong(0L)) {
 			Render(reply, c, config["True"]);
 			return;
 		}
-	} else if ( op.IsEqual("<") ) {
+	} else if (op.IsEqual("<")) {
 		if (value1.AsLong(0L) < value2.AsLong(0L)) {
 			Render(reply, c, config["True"]);
 			return;
 		}
-	} else if ( op.IsEqual(">=") ) {
+	} else if (op.IsEqual(">=")) {
 		if (value1.AsLong(0L) >= value2.AsLong(0L)) {
 			Render(reply, c, config["True"]);
 			return;
 		}
-	} else if ( op.IsEqual("<=") ) {
+	} else if (op.IsEqual("<=")) {
 		if (value1.AsLong(0L) <= value2.AsLong(0L)) {
 			Render(reply, c, config["True"]);
 			return;
 		}
-	} else if ( op.IsEqual("==") ) {
+	} else if (op.IsEqual("==")) {
 		if (value1.AsLong(0L) == value2.AsLong(0L)) {
 			Render(reply, c, config["True"]);
 			return;
 		}
-	} else if ( op.IsEqual("!=") ) {
+	} else if (op.IsEqual("!=")) {
 		if (value1.AsLong(0L) != value2.AsLong(0L)) {
 			Render(reply, c, config["True"]);
 			return;

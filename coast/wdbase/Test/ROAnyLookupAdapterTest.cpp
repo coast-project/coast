@@ -7,10 +7,11 @@
  */
 
 #include "ROAnyLookupAdapterTest.h"
-#include "Tracer.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
+
 #include "AnyLookupInterfaceAdapter.h"
+#include "FoundationTestTypes.h"
+#include "TestSuite.h"
+#include "Tracer.h"
 
 void ROAnyLookupAdapterTest::LookupTest() {
 	StartTrace(ROAnyLookupAdapterTest.LookupTest);

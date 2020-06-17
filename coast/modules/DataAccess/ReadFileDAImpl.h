@@ -16,20 +16,19 @@
 /*!
 <B>Inputmapper-Configuration:</B><PRE>
 {
-	/DocumentRoot	Mapperspec		optional, if specified, this path will be prepended to the given filename
-	/Filename		Mapperspec		mandatory, path and name of file
-	/Extension		Mapperspec		optional, extension of the file if not already specified in Filename slot
-	/Mode			Mapperspec		optional, [text|binary] (all lowercase!), default text, mode to open file
+  /DocumentRoot	Mapperspec		optional, if specified, this path will be prepended to the given filename
+  /Filename		Mapperspec		mandatory, path and name of file
+  /Extension		Mapperspec		optional, extension of the file if not already specified in Filename slot
+  /Mode			Mapperspec		optional, [text|binary] (all lowercase!), default text, mode to open file
 }
 </PRE>
 <B>Outputmapper-Configuration:</B><PRE>
 {
-	/FileContent	Mapperspec		optional, store the content of the file in this slot
+  /FileContent	Mapperspec		optional, store the content of the file in this slot
 }
 </PRE>
 */
-class ReadFileDAImpl: public FileDAImpl
-{
+class ReadFileDAImpl : public FileDAImpl {
 public:
 	ReadFileDAImpl(const char *name);
 	~ReadFileDAImpl();
@@ -42,9 +41,7 @@ public:
 	virtual bool Exec(Context &c, ParameterMapper *, ResultMapper *);
 
 protected:
-	virtual coast::system::openmode DoGetMode(ROAnything roaModes) {
-		return (FileDAImpl::DoGetMode(roaModes) | std::ios::in);
-	}
+	virtual coast::system::openmode DoGetMode(ROAnything roaModes) { return (FileDAImpl::DoGetMode(roaModes) | std::ios::in); }
 
 private:
 	// constructor
@@ -56,4 +53,4 @@ private:
 	friend class ReadFileDAImplTest;
 };
 
-#endif		//not defined _ReadFileDAImpl_H
+#endif	// not defined _ReadFileDAImpl_H

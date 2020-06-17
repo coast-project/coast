@@ -12,25 +12,24 @@
 #include "ListenerPoolTest.h"
 
 //---- ListenerPoolTest ----------------------------------------------------------
-//!TestCases description
-class SSLListenerPoolTest : public ListenerPoolTest
-{
+//! TestCases description
+class SSLListenerPoolTest : public ListenerPoolTest {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	SSLListenerPoolTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~SSLListenerPoolTest();
 
 	void PoolTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
 protected:
 	virtual void DoTestConnect();

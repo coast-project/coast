@@ -7,11 +7,12 @@
  */
 
 #include "StressAppTest.h"
-#include "TestSuite.h"
+
 #include "StressApp.h"
-#include "StringStream.h"
-#include "Stresser.h"
 #include "StressProcessor.h"
+#include "Stresser.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
 void StressAppTest::AppRunTest() {
 	StressApp stressApp("TestedStressApp");

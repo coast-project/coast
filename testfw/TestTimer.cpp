@@ -7,52 +7,45 @@
  */
 
 #include "TestTimer.h"
-#if !defined (WIN32)
+#if !defined(WIN32)
 #include <unistd.h>
 #endif
 
 //---- TestTimer ----------------------------------------------------------------
-TestTimer::TestTimer(tTimeType resolution)
-	: fResolution(resolution)
-{
-	if ( fResolution <= 0 ) {
-		fResolution = 0;    // measure in clock ticks
+TestTimer::TestTimer(tTimeType resolution) : fResolution(resolution) {
+	if (fResolution <= 0) {
+		fResolution = 0;  // measure in clock ticks
 	}
 
 	Start();
 }
 
-TestTimer::TestTimer(const TestTimer &dt)
-	: fResolution(dt.fResolution)
-{
-	if ( fResolution <= 0 ) {
-		fResolution = 0;    // measure in clock ticks
+TestTimer::TestTimer(const TestTimer &dt) : fResolution(dt.fResolution) {
+	if (fResolution <= 0) {
+		fResolution = 0;  // measure in clock ticks
 	}
 
 	Start();
 }
 
-TestTimer &TestTimer::operator=(const TestTimer &dt)
-{
+TestTimer &TestTimer::operator=(const TestTimer &dt) {
 	fResolution = dt.fResolution;
 	return *this;
 }
 
-TestTimer::tTimeType TestTimer::Scale(tTimeType rawDiff, tTimeType resolution)
-{
-	if ( resolution <= 0 ) {
+TestTimer::tTimeType TestTimer::Scale(tTimeType rawDiff, tTimeType resolution) {
+	if (resolution <= 0) {
 		return rawDiff;
 	}
-	if ( TicksPerSecond() < resolution ) {
+	if (TicksPerSecond() < resolution) {
 		// beware of wrong scale
-		return ( rawDiff * ( resolution / TicksPerSecond() ) );
+		return (rawDiff * (resolution / TicksPerSecond()));
 	}
 	// beware of overflow
-	return ( (rawDiff * resolution) / TicksPerSecond() );
+	return ((rawDiff * resolution) / TicksPerSecond());
 }
 
-TestTimer::tTimeType TestTimer::Diff(tTimeType simulatedValue)
-{
+TestTimer::tTimeType TestTimer::Diff(tTimeType simulatedValue) {
 	if (simulatedValue > -1) {
 		return simulatedValue;
 	} else {
@@ -61,21 +54,18 @@ TestTimer::tTimeType TestTimer::Diff(tTimeType simulatedValue)
 	}
 }
 
-void TestTimer::Start()
-{
+void TestTimer::Start() {
 	fStart = GetHRTESTTIME();
 }
 
-TestTimer::tTimeType TestTimer::Reset()
-{
+TestTimer::tTimeType TestTimer::Reset() {
 	tTimeType delta = Diff();
 	Start();
 	return delta;
 }
 
-TestTimer::tTimeType TestTimer::TicksPerSecond()
-{
-	tTimeType tps( 1 );
+TestTimer::tTimeType TestTimer::TicksPerSecond() {
+	tTimeType tps(1);
 #if defined(__sun)
 	tps = 1000000000;
 #elif defined(WIN32)

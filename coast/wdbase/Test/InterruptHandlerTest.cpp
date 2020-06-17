@@ -7,9 +7,11 @@
  */
 
 #include "InterruptHandlerTest.h"
-#include "TestSuite.h"
-#include "ServerUtils.h"
+
 #include "Server.h"
+#include "ServerUtils.h"
+#include "TestSuite.h"
+
 #include <signal.h>
 
 void InterruptHandlerTest::setUp() {
@@ -34,19 +36,19 @@ void InterruptHandlerTest::PidFileHandlingTest() {
 #endif
 		{
 			// kill without using file
-			InterruptHandler ih(server); // starts thread
+			InterruptHandler ih(server);  // starts thread
 #if !defined(WIN32)
 			if (t_assertm(ih.CheckRunningState(Thread::eWorking, 5), "expected InterruptHandler to startup ok"))
 #endif
 			{
 				String cmd("kill -15 ");
-				cmd << (long) server->GetPid();
+				cmd << (long)server->GetPid();
 
 				// on linux: only after the start of the interrupt handler you have to correct pid
 				String pidfilename;
 				server->PIDFileName(pidfilename);
 				Trace("PIDFileName: <" << pidfilename << ">");
-				std::iostream *Ios = coast::system::OpenStream(pidfilename, (const char *) 0, std::ios::in, true);
+				std::iostream *Ios = coast::system::OpenStream(pidfilename, (const char *)0, std::ios::in, true);
 				if (t_assertm(Ios != 0, "expected pid file to be there")) {
 					delete Ios;
 				}
@@ -66,7 +68,7 @@ void InterruptHandlerTest::PidFileHandlingTest() {
 		String pidfilename;
 		server->PIDFileName(pidfilename);
 		Trace("trying to open <" << pidfilename << ">");
-		std::iostream *Ios = coast::system::OpenStream(pidfilename, (const char *) 0);
+		std::iostream *Ios = coast::system::OpenStream(pidfilename, (const char *)0);
 		if (!t_assertm(Ios == 0, "expected pid file to be deleted")) {
 			delete Ios;
 		}

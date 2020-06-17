@@ -17,14 +17,14 @@
 \par Configuration
 \code
 {
-	/ListName		Rendererspec	mandatory, Defines Anything whose size shall be rendered
-	/Default		Rendererspec	optional, default if LookupName name slot was not found
+  /ListName		Rendererspec	mandatory, Defines Anything whose size shall be rendered
+  /Default		Rendererspec	optional, default if LookupName name slot was not found
 }
 \endcode
 or shorthand:
 \code
 {
-	Data-Rendererspec	"default renderer specification"
+  Data-Rendererspec	"default renderer specification"
 }
 \endcode
 
@@ -32,8 +32,7 @@ This renderer may be handy when constructing tables. It may sometimes
 be handy to know the number of columns/rows, so as to be able to generate
 \em colspan or \em rowspan attributes.
 */
-class ListSizeRenderer : public Renderer
-{
+class ListSizeRenderer : public Renderer {
 public:
 	//--- constructors
 	ListSizeRenderer(const char *name);

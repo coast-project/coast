@@ -7,31 +7,33 @@
  */
 
 #include "RegExpAction.h"
-#include "Renderer.h"
+
 #include "AnythingUtils.h"
 #include "RE.h"
+#include "Renderer.h"
 
 RegisterAction(RegExpAction);
-bool RegExpAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool RegExpAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(RegExpAction.DoExecAction);
 	ROAnything roaText, roaPattern, roaDest, roaMatchFlags;
-	if ( !config.LookupPath(roaText, "Text", '\000') || !config.LookupPath(roaPattern, "Pattern", '\000') || !config.LookupPath(roaDest, "Destination", '\000') ) {
+	if (!config.LookupPath(roaText, "Text", '\000') || !config.LookupPath(roaPattern, "Pattern", '\000') ||
+		!config.LookupPath(roaDest, "Destination", '\000')) {
 		return false;
 	}
-	// check if the string is already a string value or if it equals a "/Lookup ...", in which case has to be rendered to a string
+	// check if the string is already a string value or if it equals a "/Lookup ...", in which case has to be rendered to a
+	// string
 	String sText(1024L);
 	Renderer::RenderOnString(sText, ctx, roaText);
-	String sPattern( roaPattern.AsString() );
+	String sPattern(roaPattern.AsString());
 	Trace("String [" << sText << "] using pattern [" << sPattern << "]");
 	config.LookupPath(roaMatchFlags, "MatchFlags", '\000');
 	RE aRE(sPattern, static_cast<RE::eMatchFlags>(roaMatchFlags.AsLong(0L)));
-	if ( aRE.IsValid() ) {
+	if (aRE.IsValid()) {
 		// does the pattern match from position 0 within search string (but doesn't return the matched String)
-		if ( aRE.ContainedIn(sText) ) {
+		if (aRE.ContainedIn(sText)) {
 			Anything anyToStore;
-			for ( long lMatch=0L, lTotalMatches = aRE.GetRegisterCount(); lMatch < lTotalMatches; ++lMatch ) {
-				if ( lTotalMatches == 1L ) {
+			for (long lMatch = 0L, lTotalMatches = aRE.GetRegisterCount(); lMatch < lTotalMatches; ++lMatch) {
+				if (lTotalMatches == 1L) {
 					anyToStore = aRE.GetMatch(lMatch);
 				} else {
 					anyToStore.Append(aRE.GetMatch(lMatch));

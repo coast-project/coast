@@ -7,19 +7,17 @@
  */
 
 #include "ImageRenderers.h"
+
 #include "Tracer.h"
+
 #include <ostream>
 
 //---- ImageLocationRenderer ----------------------------------------------------------------
 RegisterRenderer(ImageLocationRenderer);
 
-ImageLocationRenderer::ImageLocationRenderer(const char *name) : Renderer(name)
-{
-}
+ImageLocationRenderer::ImageLocationRenderer(const char *name) : Renderer(name) {}
 
-bool ImageLocationRenderer::RenderPathAndFilename(std::ostream &reply, Context &c,
-		const ROAnything &config)
-{
+bool ImageLocationRenderer::RenderPathAndFilename(std::ostream &reply, Context &c, const ROAnything &config) {
 	ROAnything name;
 	if (!config.LookupPath(name, "ImageName")) {
 		if (config.GetType() == AnyArrayType) {
@@ -45,8 +43,7 @@ bool ImageLocationRenderer::RenderPathAndFilename(std::ostream &reply, Context &
 	return false;
 }
 
-void ImageLocationRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void ImageLocationRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(ImageLocationRenderer.Render);
 	TraceAny(config, "config");
 
@@ -57,12 +54,9 @@ void ImageLocationRenderer::RenderAll(std::ostream &reply, Context &c, const ROA
 
 RegisterRenderer(ImageRenderer);
 
-ImageRenderer::ImageRenderer(const char *name) : ImageLocationRenderer(name)
-{
-}
+ImageRenderer::ImageRenderer(const char *name) : ImageLocationRenderer(name) {}
 
-void ImageRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void ImageRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(ImageRenderer.Render);
 	TraceAny(config, "config");
 
@@ -81,12 +75,11 @@ RegisterRenderer(FigureRenderer);
 
 FigureRenderer::FigureRenderer(const char *name) : ImageRenderer(name) {}
 
-void FigureRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void FigureRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(FigureRenderer.Render);
 	TraceAny(config, "config");
 
-	Anything newConfig = config.DeepClone();	// modified for ImageRenderer
+	Anything newConfig = config.DeepClone();  // modified for ImageRenderer
 	String caption;
 
 	ROAnything cap;

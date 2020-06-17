@@ -17,8 +17,7 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class DateTimeTest : public testframework::TestCaseWithConfig
-{
+class DateTimeTest : public testframework::TestCaseWithConfig {
 public:
 	//--- constructors
 
@@ -31,7 +30,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of tests
-	static Test *suite ();
+	static Test *suite();
 
 	TString getConfigFileName();
 

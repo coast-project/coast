@@ -17,15 +17,14 @@
 \par Configuration
 \code
 {
-	/User								Rendererspec
-	/Password							Rendererspec
-	/Scheme								Rendererspec, default is "Basic"
-	/BasicAuthorizationHeaderFieldName	Rendererspec, default is "Authorization"
+  /User								Rendererspec
+  /Password							Rendererspec
+  /Scheme								Rendererspec, default is "Basic"
+  /BasicAuthorizationHeaderFieldName	Rendererspec, default is "Authorization"
 }
 \endcode
 */
-class BasicAuthenticationRenderer : public Renderer
-{
+class BasicAuthenticationRenderer : public Renderer {
 public:
 	//--- constructors
 	BasicAuthenticationRenderer(const char *name);

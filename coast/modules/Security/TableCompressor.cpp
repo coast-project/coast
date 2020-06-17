@@ -7,6 +7,7 @@
  */
 
 #include "TableCompressor.h"
+
 #include "Registry.h"
 #include "StringStream.h"
 #include "Tracer.h"
@@ -15,25 +16,20 @@
 RegisterCompressor(TableCompressor);
 RegisterAliasSecurityItem(tc, TableCompressor);
 
-TableCompressor::TableCompressor(const char *name)
-	: Compressor(name)
-	, fMap(Anything::ArrayMarker(), coast::storage::Global())
-{
+TableCompressor::TableCompressor(const char *name) : Compressor(name), fMap(Anything::ArrayMarker(), coast::storage::Global()) {
 	StatTrace(TableCompressor.Ctor, "Name: <" << NotNull(name) << ">", coast::storage::Current());
 }
 
-TableCompressor::~TableCompressor()
-{
+TableCompressor::~TableCompressor() {
 	StatTrace(TableCompressor.Dtor, "Name: <" << fName << ">", coast::storage::Current());
 }
 
-bool TableCompressor::Init(ROAnything config)
-{
+bool TableCompressor::Init(ROAnything config) {
 	StartTrace(TableCompressor.Init);
 	SubTraceAny(Config, config, "Config: ");
 
 	ROAnything tableCompressorConfig;
-	if ( config.LookupPath(tableCompressorConfig, "SecurityModule.TableCompressor") ) {
+	if (config.LookupPath(tableCompressorConfig, "SecurityModule.TableCompressor")) {
 		MakeTable(tableCompressorConfig["Key2UriMap"], "Key2UriMap", config);
 		MakeReverseTable(fMap["Key2UriMap"], "Key2UriMap", "Uri2KeyMap");
 		MakeTable(tableCompressorConfig["Val2UriMap"], "Val2UriMap", config);
@@ -44,8 +40,7 @@ bool TableCompressor::Init(ROAnything config)
 	return false;
 }
 
-void TableCompressor::DoCompress(String &scrambledText, const Anything &dataIn)
-{
+void TableCompressor::DoCompress(String &scrambledText, const Anything &dataIn) {
 	StartTrace(TableCompressor.DoCompress);
 
 	ROAnything keyTable(GetKey2UriMap());
@@ -55,21 +50,21 @@ void TableCompressor::DoCompress(String &scrambledText, const Anything &dataIn)
 	TraceAny(valMapTags, "value map tags");
 	Anything dataOut;
 
-//	 compress it by short keys in table
+	//	 compress it by short keys in table
 	TraceAny(dataIn, "data to compress");
 	long dataSz = dataIn.GetSize();
 	for (long i = 0; i < dataSz; ++i) {
 		const char *slotname = dataIn.SlotName(i);
 		if (slotname) {
-			if ( keyTable.IsDefined(slotname) ) {
+			if (keyTable.IsDefined(slotname)) {
 				Trace("compressing defined slot [" << slotname << "]");
 				const char *extSlotname = keyTable[slotname].AsCharPtr();
-				String intVal = dataIn[i].AsCharPtr(); // in cases we are interested in it is always a string
+				String intVal = dataIn[i].AsCharPtr();	// in cases we are interested in it is always a string
 				// map some well defined entities e.g. role, page, action
 				// to shorter names
 				if (intVal.Length() > 0) {
-					if ( valMapTags.Contains(slotname) ) {
-						if ( valTable.IsDefined(intVal) ) {
+					if (valMapTags.Contains(slotname)) {
+						if (valTable.IsDefined(intVal)) {
 							dataOut[extSlotname] = valTable[intVal].AsCharPtr();
 						} else {
 							dataOut[extSlotname] = dataIn[i];
@@ -77,7 +72,8 @@ void TableCompressor::DoCompress(String &scrambledText, const Anything &dataIn)
 					} else {
 						dataOut[extSlotname] = dataIn[i];
 					}
-					Trace("mapped [" << slotname << "] to [" << extSlotname << "] value [" << dataOut[extSlotname].AsString() << "]");
+					Trace("mapped [" << slotname << "] to [" << extSlotname << "] value [" << dataOut[extSlotname].AsString()
+									 << "]");
 				}
 			} else {
 				dataOut[slotname] = dataIn[i];
@@ -91,11 +87,9 @@ void TableCompressor::DoCompress(String &scrambledText, const Anything &dataIn)
 	TraceAny(dataOut, "compressed output");
 	OStringStream os(&scrambledText);
 	dataOut.PrintOn(os, false);
-
 }
 
-bool TableCompressor::DoExpand(Anything &dataOut, const String &scrambledText)
-{
+bool TableCompressor::DoExpand(Anything &dataOut, const String &scrambledText) {
 	StartTrace(TableCompressor.DoExpand);
 	IStringStream is(scrambledText);
 	ROAnything keyTable(GetUri2KeyMap());
@@ -105,20 +99,20 @@ bool TableCompressor::DoExpand(Anything &dataOut, const String &scrambledText)
 	Trace(scrambledText);
 	TraceAny(keyTable, "KeyTable: ");
 
-	if ( dataIn.Import(is) ) {
+	if (dataIn.Import(is)) {
 		// expand it to long internal keys
 		long dataSz = dataIn.GetSize();
 		for (long i = 0; i < dataSz; ++i) {
 			const char *slotname = dataIn.SlotName(i);
 			if (slotname) {
-				if ( keyTable.IsDefined(slotname) ) {
+				if (keyTable.IsDefined(slotname)) {
 					const char *intSlotname = keyTable[slotname].AsCharPtr();
 					const char *compVal = dataIn[i].AsCharPtr();
 
 					// expand some well known values also
 					// e.g. role, page action names
-					if ( valMapTags.Contains(intSlotname) ) {
-						if ( valTable.IsDefined(compVal) ) { // is the value really compressed
+					if (valMapTags.Contains(intSlotname)) {
+						if (valTable.IsDefined(compVal)) {	// is the value really compressed
 							dataOut[intSlotname] = valTable[compVal].AsCharPtr();
 						} else {
 							dataOut[intSlotname] = dataIn[i];
@@ -137,8 +131,7 @@ bool TableCompressor::DoExpand(Anything &dataOut, const String &scrambledText)
 	return true;
 }
 
-void TableCompressor::MakeTable(ROAnything baseState, const char *tag, ROAnything config)
-{
+void TableCompressor::MakeTable(ROAnything baseState, const char *tag, ROAnything config) {
 	StartTrace1(TableCompressor.MakeTable, "tag: " << tag);
 	Anything state = baseState.DeepClone();
 	TraceAny(state, "State: ");
@@ -150,17 +143,17 @@ void TableCompressor::MakeTable(ROAnything baseState, const char *tag, ROAnythin
 
 		for (i = sz - 1; i >= 0; --i) {
 			aSlot = state[i];
-			if ( aSlot.GetType() == AnyArrayType ) {
+			if (aSlot.GetType() == AnyArrayType) {
 				ExpandConfig(i, state, config);
 			}
 		}
 
 		for (i = 0; i < sz; ++i) {
 			aSlot = state[i];
-			if ( aSlot.GetType() == AnyCharPtrType ) {
+			if (aSlot.GetType() == AnyCharPtrType) {
 				slotname = aSlot.AsCharPtr("");
 			}
-			if ( slotname ) {
+			if (slotname) {
 				map[slotname] = CalcKey(i);
 			}
 			slotname = 0;
@@ -169,8 +162,7 @@ void TableCompressor::MakeTable(ROAnything baseState, const char *tag, ROAnythin
 	}
 }
 
-void TableCompressor::MakeReverseTable(ROAnything state, const char *tag, const char *reverseTag)
-{
+void TableCompressor::MakeReverseTable(ROAnything state, const char *tag, const char *reverseTag) {
 	StartTrace1(TableCompressor.MakeTable, "tag: <" << tag << "> reverseTag: <" << reverseTag << ">");
 	TraceAny(state, "State: ");
 
@@ -188,8 +180,7 @@ void TableCompressor::MakeReverseTable(ROAnything state, const char *tag, const 
 	}
 }
 
-void TableCompressor::ExpandConfig(long index, Anything &state, ROAnything config)
-{
+void TableCompressor::ExpandConfig(long index, Anything &state, ROAnything config) {
 	StartTrace(TableCompressor.ExpandConfig);
 	Trace("index: " << index);
 	TraceAny(state, "State: ");
@@ -205,8 +196,7 @@ void TableCompressor::ExpandConfig(long index, Anything &state, ROAnything confi
 	}
 }
 
-void TableCompressor::InstallConfig(long index, Anything &state, ROAnything part)
-{
+void TableCompressor::InstallConfig(long index, Anything &state, ROAnything part) {
 	StartTrace(TableCompressor.InstallConfig);
 	Trace("index: " << index);
 	TraceAny(state, "State: ");
@@ -215,7 +205,7 @@ void TableCompressor::InstallConfig(long index, Anything &state, ROAnything part
 	const char *slotname = 0;
 	for (long i = 0; i < sz; ++i) {
 		slotname = part.SlotName(i);
-		if ( slotname ) {
+		if (slotname) {
 			state[index] = slotname;
 			++index;
 			InstallConfig(index, state, part[i]);
@@ -227,11 +217,10 @@ void TableCompressor::InstallConfig(long index, Anything &state, ROAnything part
 	}
 }
 
-String TableCompressor::CalcKey(long index)
-{
+String TableCompressor::CalcKey(long index) {
 	StartTrace1(TableCompressor.CalcKey, "index: " << index);
 	String key;
-	if ( (index / 52) > 0 ) {
+	if ((index / 52) > 0) {
 		key << CalcKey((index / 52) - 1);
 	}
 	key << KeyAt(index % 52);
@@ -239,50 +228,43 @@ String TableCompressor::CalcKey(long index)
 	return key;
 }
 
-char TableCompressor::KeyAt(int index)
-{
+char TableCompressor::KeyAt(int index) {
 	StartTrace1(TableCompressor.KeyAt, "index: " << (long)index);
 	Assert((0 <= index) && (index < 52));
-	if ( index < 0 ) {
+	if (index < 0) {
 		index = 0;
 	}
-	if ( index >= 52 ) {
+	if (index >= 52) {
 		index = 51;
 	}
-	if ( index < 26 ) {
+	if (index < 26) {
 		return (index + 97);
 	}
 	return (index + 65 - 26);
 }
 
-ROAnything TableCompressor::GetMap(const char *tag) const
-{
+ROAnything TableCompressor::GetMap(const char *tag) const {
 	ROAnything a;
 	ROAnything(fMap).LookupPath(a, tag);
 	return a;
 }
 
-ROAnything TableCompressor::GetKey2UriMap() const
-{
+ROAnything TableCompressor::GetKey2UriMap() const {
 	return GetMap("Key2UriMap");
 }
 
-ROAnything TableCompressor::GetVal2UriMap() const
-{
+ROAnything TableCompressor::GetVal2UriMap() const {
 	return GetMap("Val2UriMap");
 }
 
-ROAnything TableCompressor::GetUri2KeyMap() const
-{
+ROAnything TableCompressor::GetUri2KeyMap() const {
 	return GetMap("Uri2KeyMap");
 }
 
-ROAnything TableCompressor::GetUri2ValMap() const
-{
+ROAnything TableCompressor::GetUri2ValMap() const {
 	return GetMap("Uri2ValMap");
 }
 
-ROAnything TableCompressor::GetValMapTags() const
-{
+ROAnything TableCompressor::GetValMapTags() const {
 	return GetMap("ValMapTags");
 }

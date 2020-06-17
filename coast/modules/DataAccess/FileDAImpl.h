@@ -17,27 +17,26 @@
 /*!
 <B>Inputmapper-Configuration:</B><PRE>
 {
-	/DocumentRoot	Mapperspec		optional, if specified, this path will be prepended to the given filename
-	/Filename		Mapperspec		mandatory, path and name of file
-	/Extension		Mapperspec		optional, extension of the file if not already specified in Filename slot
-	/Mode			Mapperspec		optional, [text|binary] (all lowercase!), default text, mode to open file
+  /DocumentRoot	Mapperspec		optional, if specified, this path will be prepended to the given filename
+  /Filename		Mapperspec		mandatory, path and name of file
+  /Extension		Mapperspec		optional, extension of the file if not already specified in Filename slot
+  /Mode			Mapperspec		optional, [text|binary] (all lowercase!), default text, mode to open file
 }
 </PRE>
 <B>Outputmapper-Configuration:</B><PRE>
 {
-	/FileContent	Mapperspec		optional, store the content of the file in this slot
+  /FileContent	Mapperspec		optional, store the content of the file in this slot
 }
 </PRE>
 */
-class FileDAImpl: public DataAccessImpl {
+class FileDAImpl : public DataAccessImpl {
 	FileDAImpl();
 	FileDAImpl(const FileDAImpl &);
 	FileDAImpl &operator=(const FileDAImpl &);
 	friend class FileDAImplTest;
+
 public:
-	FileDAImpl(const char *name) :
-		DataAccessImpl(name) {
-	}
+	FileDAImpl(const char *name) : DataAccessImpl(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
@@ -51,4 +50,4 @@ protected:
 	coast::system::openmode GetMode(Context &context, ParameterMapper *in);
 };
 
-#endif		//not defined _FileDAImpl_H
+#endif	// not defined _FileDAImpl_H

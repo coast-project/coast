@@ -7,23 +7,20 @@
  */
 
 #include "SimpleListenerPoolTest.h"
+
+#include "AnyIterators.h"
 #include "RequestListener.h"
 #include "TestSuite.h"
-#include "AnyIterators.h"
 
-SimpleListenerPoolTest::SimpleListenerPoolTest(TString tname)
-	: ListenerPoolTest(tname)
-{
+SimpleListenerPoolTest::SimpleListenerPoolTest(TString tname) : ListenerPoolTest(tname) {
 	StartTrace(SimpleListenerPoolTest.Ctor);
 }
 
-SimpleListenerPoolTest::~SimpleListenerPoolTest()
-{
+SimpleListenerPoolTest::~SimpleListenerPoolTest() {
 	StartTrace(SimpleListenerPoolTest.Dtor);
 }
 
-void SimpleListenerPoolTest::PoolTest()
-{
+void SimpleListenerPoolTest::PoolTest() {
 	StartTrace(SimpleListenerPoolTest.PoolTest);
 
 	Anything config;
@@ -37,7 +34,8 @@ void SimpleListenerPoolTest::PoolTest()
 	TestCallBackFactory *tcbf = new TestCallBackFactory;
 	ListenerPool lpToTest(tcbf);
 
-	if ( t_assertm( lpToTest.Init(config.GetSize(), config), "Init should work") && t_assertm(lpToTest.Start(false, 0, 0) == 0, "Start should work")) {
+	if (t_assertm(lpToTest.Init(config.GetSize(), config), "Init should work") &&
+		t_assertm(lpToTest.Start(false, 0, 0) == 0, "Start should work")) {
 		DoTestConnect();
 		if (t_assertm(lpToTest.Terminate(1, 10) == 0, "Terminate failed")) {
 			t_assertm(lpToTest.Join() == 0, "Join failed");
@@ -57,29 +55,24 @@ void SimpleListenerPoolTest::PoolTest()
 	}
 }
 
-void SimpleListenerPoolTest::DoTestConnect()
-{
+void SimpleListenerPoolTest::DoTestConnect() {
 	StartTrace(SimpleListenerPoolTest.DoTestConnect);
 
 	ROAnything cConfig;
 	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetConfig()["SimpleListenerPoolTest"]);
-	while ( aEntryIterator.Next(cConfig) ) {
+	while (aEntryIterator.Next(cConfig)) {
 		TString caseName;
-		if ( !aEntryIterator.SlotName(caseName) ) {
+		if (!aEntryIterator.SlotName(caseName)) {
 			caseName << "At index: " << aEntryIterator.Index();
 		}
 		TraceAny(cConfig, "cConfig");
-		Connector c("localhost",
-					cConfig["PortToUse"].AsLong(0L),
-					cConfig["TimeoutToUse"].AsLong(0L),
-					String(),
-					0L,
+		Connector c("localhost", cConfig["PortToUse"].AsLong(0L), cConfig["TimeoutToUse"].AsLong(0L), String(), 0L,
 					cConfig["UseThreadLocalMemory"].AsBool(0));
 
-		if ( cConfig["DoSendReceiveWithFailure"].AsLong(0) ) {
-			t_assertm(DoSendReceiveWithFailure(&c, cConfig["Data"].DeepClone(),
-									 cConfig["IOSGoodAfterSend"].AsLong(0),
-									 cConfig["IOSGoodBeforeSend"].AsLong(1)), caseName);
+		if (cConfig["DoSendReceiveWithFailure"].AsLong(0)) {
+			t_assertm(DoSendReceiveWithFailure(&c, cConfig["Data"].DeepClone(), cConfig["IOSGoodAfterSend"].AsLong(0),
+											   cConfig["IOSGoodBeforeSend"].AsLong(1)),
+					  caseName);
 		} else {
 			DoSendReceive(&c, cConfig["Data"].DeepClone());
 		}
@@ -87,13 +80,12 @@ void SimpleListenerPoolTest::DoTestConnect()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *SimpleListenerPoolTest::suite ()
-{
+Test *SimpleListenerPoolTest::suite() {
 	StartTrace(SimpleListenerPoolTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, SimpleListenerPoolTest, PoolTest);
 #if !defined(WIN32)
-	ADD_CASE(testSuite, SimpleListenerPoolTest, InitFailureTest);	// test does not work on WIN32
+	ADD_CASE(testSuite, SimpleListenerPoolTest, InitFailureTest);  // test does not work on WIN32
 #endif
 	ADD_CASE(testSuite, SimpleListenerPoolTest, NullCallBackFactoryTest);
 	ADD_CASE(testSuite, SimpleListenerPoolTest, InitFailureNullAcceptorTest);

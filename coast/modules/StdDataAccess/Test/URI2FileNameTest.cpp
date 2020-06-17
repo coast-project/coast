@@ -6,27 +6,25 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "URI2FileNameTest.h"
+
+#include "Context.h"
+#include "SystemFile.h"
 #include "TestSuite.h"
 #include "URI2FileNameMapper.h"
-#include "URI2FileNameTest.h"
-#include "SystemFile.h"
-#include "Context.h"
 
 using namespace coast;
 
 //---- URI2FileNameTest ----------------------------------------------------------------
-URI2FileNameTest::URI2FileNameTest(TString tname) : TestCaseType(tname)
-{
+URI2FileNameTest::URI2FileNameTest(TString tname) : TestCaseType(tname) {
 	StartTrace(URI2FileNameTest.Ctor);
 }
 
-URI2FileNameTest::~URI2FileNameTest()
-{
+URI2FileNameTest::~URI2FileNameTest() {
 	StartTrace(URI2FileNameTest.Dtor);
 }
 
-void URI2FileNameTest::Uri2FilenameTest()
-{
+void URI2FileNameTest::Uri2FilenameTest() {
 	StartTrace(URI2FileNameTest.Uri2FilenameTest);
 	Anything env = Anything(Anything::ArrayMarker());
 	Anything content;
@@ -63,7 +61,7 @@ void URI2FileNameTest::Uri2FilenameTest()
 	expected << "/config/index.html";
 	assertEqual(expected, result);
 
-	//check error settings: they should not be set
+	// check error settings: they should not be set
 	assertEqual(200, ctx.Lookup("HTTPError", 200L));
 	assertEqual("not set", ctx.Lookup("HTTPResponse", "not set"));
 	tmpStore.Remove("HTTPError");
@@ -73,7 +71,7 @@ void URI2FileNameTest::Uri2FilenameTest()
 	env["REQUEST_URI"] = "/config";
 	t_assertm(!tst.Get("FileName", result, ctx), "expected Get to fail");
 
-	//check error settings: they should not be set
+	// check error settings: they should not be set
 	assertEqual(301, ctx.Lookup("HTTPError", 200L));
 	assertEqual("Permanently moved", ctx.Lookup("HTTPResponse", "not set"));
 	expected = rootdir;
@@ -92,7 +90,7 @@ void URI2FileNameTest::Uri2FilenameTest()
 	expected << "/config/Config.any";
 	assertEqual(expected, result);
 
-	//check error settings: they should not be set
+	// check error settings: they should not be set
 	assertEqual(200, ctx.Lookup("HTTPError", 200L));
 	assertEqual("not set", ctx.Lookup("HTTPResponse", "not set"));
 	tmpStore.Remove("HTTPError");
@@ -103,14 +101,15 @@ void URI2FileNameTest::Uri2FilenameTest()
 	system::ResolvePath(pwd);
 #if defined(WIN32)
 	char drive;
-	if ( system::GetDriveLetter(pwd, drive)) {
+	if (system::GetDriveLetter(pwd, drive)) {
 		String drvrel;
-		drvrel << drive << ":" << "config";
+		drvrel << drive << ":"
+			   << "config";
 		env["DocumentRoot"] = drvrel;
 		expected = drvrel << "/Config.any";
 		t_assertm(tst.Get("FileName", result, ctx), "expected Get to succeed");
 		assertEqual(expected, result);
-		//check error settings: they should not be set
+		// check error settings: they should not be set
 		assertEqual(200, ctx.Lookup("HTTPError", 200L));
 		assertEqual("not set", ctx.Lookup("HTTPResponse", "not set"));
 		tmpStore.Remove("HTTPError");
@@ -130,8 +129,7 @@ void URI2FileNameTest::Uri2FilenameTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *URI2FileNameTest::suite ()
-{
+Test *URI2FileNameTest::suite() {
 	StartTrace(URI2FileNameTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, URI2FileNameTest, Uri2FilenameTest);

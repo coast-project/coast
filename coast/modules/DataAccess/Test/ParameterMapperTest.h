@@ -17,8 +17,7 @@
 To understand the results of those tests, you should additionally
 consult "InputMapperMeta.any"
 */
-class ParameterMapperTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class ParameterMapperTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
@@ -31,7 +30,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	void DoSelectScriptTest();
 	void DoLoadConfigTest();

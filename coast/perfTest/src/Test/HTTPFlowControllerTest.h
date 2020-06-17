@@ -13,19 +13,19 @@
 #include "Context.h"
 
 //---- HTTPFlowControllerTest ----------------------------------------------------------
-//!TestCases description
-class HTTPFlowControllerTest: public ConfiguredActionTest {
+//! TestCases description
+class HTTPFlowControllerTest : public ConfiguredActionTest {
 public:
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	HTTPFlowControllerTest(TString tstrName);
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	//! \param configFileName name of the tests config file
 	HTTPFlowControllerTest(TString tstrName, TString configFileName);
 
-	//!builds up a suite of testcases for this test
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
 	TString getConfigFileName();

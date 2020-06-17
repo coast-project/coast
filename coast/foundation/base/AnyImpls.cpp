@@ -7,21 +7,23 @@
  */
 
 #include "AnyImpls.h"
+
 #include "AnyVisitor.h"
+#include "SystemBase.h"
 #include "SystemLog.h"
 #include "Tracer.h"
-#include "SystemBase.h"
-#include <iostream>
+
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 
 #if defined(COAST_TRACE)
-#define aimplStatTrace(trigger, msg, allocator) 	StatTrace(trigger, msg, allocator)
-#define aimplStartTrace(trigger)					StartTrace(trigger)
-#define aimplStartTrace1(trigger, msg)			StartTrace1(trigger, msg)
-#define aimplTrace(msg)							Trace(msg);
+#define aimplStatTrace(trigger, msg, allocator) StatTrace(trigger, msg, allocator)
+#define aimplStartTrace(trigger) StartTrace(trigger)
+#define aimplStartTrace1(trigger, msg) StartTrace1(trigger, msg)
+#define aimplTrace(msg) Trace(msg);
 #define aimplStatTraceAny(trigger, any, msg, allocator) StatTraceAny(trigger, any, msg, allocator);
-#define aimplTraceAny(any, msg)					TraceAny(any, msg);
+#define aimplTraceAny(any, msg) TraceAny(any, msg);
 #else
 #define aimplStatTrace(trigger, msg, allocator)
 #define aimplStartTrace(trigger)
@@ -34,12 +36,12 @@
 namespace {
 	//!< avoid temporary
 	const String fgStrEmpty(coast::storage::Global());
-}
+}  // namespace
 
 String AnyImpl::ThisToHex(Allocator *a) const {
-	const int bufSize = 1+2*sizeof(std::ptrdiff_t);
+	const int bufSize = 1 + 2 * sizeof(std::ptrdiff_t);
 	char buf[bufSize] = {0};
-	static char const *const fmt = (sizeof(this)>4)?"%016tx":"%08tx"; // assume large pointers are 64bit = 8 Bytes large
+	static char const *const fmt = (sizeof(this) > 4) ? "%016tx" : "%08tx";	 // assume large pointers are 64bit = 8 Bytes large
 	int charsStoredOrRequired = coast::system::SnPrintf(buf, bufSize, fmt, reinterpret_cast<std::ptrdiff_t>(this));
 	String hexStr(buf, charsStoredOrRequired, a);
 	aimplStatTrace(AnyImpl.ThisToHex, "converted number is " << hexStr, coast::storage::Current());
@@ -50,17 +52,18 @@ AnyImpl *AnyImpl::DeepClone(Allocator *a, Anything &xreftable) const {
 	aimplStartTrace1(AnyImpl.DeepClone, "my-a:&" << (long)MyAllocator() << " a:&" << (long)a);
 	AnyImpl *pObj = 0;
 	// SOP: only use xreftable if 'this' has more than one reference on it, otherwise it does not make sense
-	if ( RefCount() > 1L ) {
+	if (RefCount() > 1L) {
 		String adr = ThisToHex();
 		Anything &pRefEntry = (xreftable[adr]);
-		pObj = reinterpret_cast<AnyImpl*>(pRefEntry.AsIFAObject()); //TODO might not be the best way to do it (requires friendship of Anything and AnyImpl)
+		pObj = reinterpret_cast<AnyImpl *>(
+			pRefEntry.AsIFAObject());  // TODO might not be the best way to do it (requires friendship of Anything and AnyImpl)
 		if (pObj != 0) {
-			aimplTraceAny(pRefEntry, "found existing entry, adding reference " << (pObj?pObj->ThisToHex():"0"));
-			pObj->Ref(); // do not forget to count
+			aimplTraceAny(pRefEntry, "found existing entry, adding reference " << (pObj ? pObj->ThisToHex() : "0"));
+			pObj->Ref();  // do not forget to count
 			return pObj;
 		}
 		pObj = Clone(a);
-		pRefEntry = reinterpret_cast<IFAObject*>(pObj);
+		pRefEntry = reinterpret_cast<IFAObject *>(pObj);
 		aimplTrace("stored xref entry for adr: " << adr << " is " << pObj->ThisToHex());
 	} else {
 		pObj = Clone(a);
@@ -69,8 +72,7 @@ AnyImpl *AnyImpl::DeepClone(Allocator *a, Anything &xreftable) const {
 	return DoDeepClone(pObj, a, xreftable);
 }
 
-AnyLongImpl::AnyLongImpl(long l, Allocator *a) :
-	AnyImpl(a), fLong(l), fBuf(a) {
+AnyLongImpl::AnyLongImpl(long l, Allocator *a) : AnyImpl(a), fLong(l), fBuf(a) {
 	fBuf.Append(fLong);
 }
 
@@ -118,8 +120,7 @@ void AnyObjectImpl::Accept(AnyVisitor &v, long lIdx, const char *slotname) const
 	v.VisitObject(fObject, this, lIdx, slotname);
 }
 
-AnyDoubleImpl::AnyDoubleImpl(double d, Allocator *a) :
-	AnyImpl(a), fDouble(d), fBuf(64, a) {
+AnyDoubleImpl::AnyDoubleImpl(double d, Allocator *a) : AnyImpl(a), fDouble(d), fBuf(64, a) {
 	fBuf.Append(d);
 }
 
@@ -163,7 +164,7 @@ AnyImpl *AnyBinaryBufImpl::Clone(Allocator *a) const {
 }
 
 long AnyStringImpl::Compare(const char *other) const {
-	if ( fString.Compare(other) == 0 ) {
+	if (fString.Compare(other) == 0) {
 		return 0;
 	}
 	return -1;
@@ -182,7 +183,7 @@ String AnyStringImpl::AsString(const char *) const {
 }
 
 const char *AnyStringImpl::AsCharPtr(const char *) const {
-	return fString.cstr(); // PS: fString.AsCharPtr(dft); use operator const char * instead, no i have been wrong!
+	return fString.cstr();	// PS: fString.AsCharPtr(dft); use operator const char * instead, no i have been wrong!
 }
 
 const char *AnyStringImpl::AsCharPtr(const char *, long &buflen) const {
@@ -200,34 +201,19 @@ AnyImpl *AnyStringImpl::Clone(Allocator *a) const {
 
 class AnyKeyAssoc : public coast::SegStorAllocatorNewDelete<AnyKeyAssoc> {
 public:
-	AnyKeyAssoc(const Anything &value, const char *key = 0) :
-		fValue(value), fKey(key, -1, value.GetAllocator()) {
-	}
-	AnyKeyAssoc(const AnyKeyAssoc &aka) :
-		fValue(aka.fValue), fKey(aka.fKey) {
-	}
-	AnyKeyAssoc() {
-	}
+	AnyKeyAssoc(const Anything &value, const char *key = 0) : fValue(value), fKey(key, -1, value.GetAllocator()) {}
+	AnyKeyAssoc(const AnyKeyAssoc &aka) : fValue(aka.fValue), fKey(aka.fKey) {}
+	AnyKeyAssoc() {}
 	// used when allocating arrays... CAUTION: elements then must be initialized manually with Init()!
 	void Init(Allocator *a) {
 		fValue.SetAllocator(a);
 		fKey.SetAllocator(a);
 	}
-	Anything &Value() {
-		return fValue;
-	}
-	const Anything &Value() const {
-		return fValue;
-	}
-	const String &Key() const {
-		return fKey;
-	}
-	void SetKey(const char *key) {
-		fKey = key;
-	}
-	void SetValue(const Anything &val) {
-		fValue = val;
-	}
+	Anything &Value() { return fValue; }
+	const Anything &Value() const { return fValue; }
+	const String &Key() const { return fKey; }
+	void SetKey(const char *key) { fKey = key; }
+	void SetValue(const Anything &val) { fValue = val; }
 	AnyKeyAssoc &operator=(const AnyKeyAssoc &aka) {
 		fValue = aka.Value();
 		if (aka.Key()) {
@@ -235,9 +221,8 @@ public:
 		}
 		return *this;
 	}
-	Allocator *MyAllocator() {
-		return fValue.GetAllocator();
-	}
+	Allocator *MyAllocator() { return fValue.GetAllocator(); }
+
 private:
 	Anything fValue;
 	String fKey;
@@ -247,13 +232,13 @@ long IFANextPrime(long x) {
 	if (x <= 3) {
 		return 3;
 	}
-	if ( !(x & 0x01) ) {
+	if (!(x & 0x01)) {
 		++x;
 	}
 
 	for (;;) {
 		long n;
-		for (n = 3; (n *n <= x) && ((x % n) != 0); ++++n) {
+		for (n = 3; (n * n <= x) && ((x % n) != 0); ++++n) {
 		}
 		if (n * n > x) {
 			return x;
@@ -262,15 +247,15 @@ long IFANextPrime(long x) {
 	}
 }
 
-AnyKeyTable::AnyKeyTable(AnyArrayImpl *table, long initCapacity) :
-	fKeyTable(table), fHashTable(0), fThreshold(0), fCapacity(0), fAllocator(fKeyTable->MyAllocator()) {
+AnyKeyTable::AnyKeyTable(AnyArrayImpl *table, long initCapacity)
+	: fKeyTable(table), fHashTable(0), fThreshold(0), fCapacity(0), fAllocator(fKeyTable->MyAllocator()) {
 	InitTable(initCapacity);
 }
 
 AnyKeyTable::~AnyKeyTable() {
 	if (fHashTable) {
 		Clear();
-		fAllocator->Free(static_cast<void*>(fHashTable));
+		fAllocator->Free(static_cast<void *>(fHashTable));
 		fKeyTable = 0;
 		fHashTable = 0;
 	}
@@ -307,7 +292,7 @@ long AnyKeyTable::DoHash(const char *key, bool append, long sizehint, u_long has
 		switch (lIdx) {
 			case -1:
 				return i;
-			case -2:// slot is deleted
+			case -2:  // slot is deleted
 				if (append) {
 					return i;
 				} else {
@@ -315,16 +300,16 @@ long AnyKeyTable::DoHash(const char *key, bool append, long sizehint, u_long has
 				}
 			default: {
 				long at = fKeyTable->IntAt(lIdx);
-				const String &keyAtVal = fKeyTable->fContents[at/bufSz][at%bufSz].Key(); // might be null
+				const String &keyAtVal = fKeyTable->fContents[at / bufSz][at % bufSz].Key();  // might be null
 				if (keylen == keyAtVal.Length()) {
 					const char *keyPtr = key, *keyAtValPtr = keyAtVal;
 					const char *eptr = keyPtr + keylen;
-					for ( ; keyPtr < eptr; ++keyPtr, ++keyAtValPtr) {
-						if ( *keyPtr != *keyAtValPtr ) {
+					for (; keyPtr < eptr; ++keyPtr, ++keyAtValPtr) {
+						if (*keyPtr != *keyAtValPtr) {
 							goto loop;
 						}
 					}
-					return i; // we found the key
+					return i;  // we found the key
 				}
 			}
 		}
@@ -334,13 +319,13 @@ long AnyKeyTable::DoHash(const char *key, bool append, long sizehint, u_long has
 		if (++i >= fCapacity) {
 			i -= fCapacity;
 		}
-	} while ( i != hash ); // finish loop if wrapped around
+	} while (i != hash);  // finish loop if wrapped around
 	return -1;
 }
 
 long AnyKeyTable::Append(const char *key, long atIndex) {
-	if ( key ) {
-		if ( fKeyTable->fSize > fThreshold) {
+	if (key) {
+		if (fKeyTable->fSize > fThreshold) {
 			// everything gets a new place in the hashtable
 			// so we're done with it
 			Rehash(fCapacity * 2);
@@ -354,10 +339,10 @@ long AnyKeyTable::Append(const char *key, long atIndex) {
 void AnyKeyTable::Update(long fromIndex) {
 	for (long i = 0; i < fCapacity; ++i) {
 		long lIdx = fHashTable[i];
-		if ( lIdx == fromIndex ) {
-			fHashTable[i] = -2;    // mark as deleted
-		} else if ( lIdx > fromIndex ) {
-			fHashTable[i] = lIdx - 1;    // update position in keytable
+		if (lIdx == fromIndex) {
+			fHashTable[i] = -2;	 // mark as deleted
+		} else if (lIdx > fromIndex) {
+			fHashTable[i] = lIdx - 1;  // update position in keytable
 		}
 	}
 }
@@ -365,10 +350,10 @@ void AnyKeyTable::Update(long fromIndex) {
 void AnyKeyTable::Update(long fromIndex, long size) {
 	for (long i = 0; i < fCapacity; i++) {
 		long lIdx = fHashTable[i];
-		if ( size < 0 && lIdx == fromIndex ) {
-			fHashTable[i] = -2;    // mark as deleted
-		} else if ( lIdx >= fromIndex ) {
-			fHashTable[i] = lIdx + size;    // update position in keytable
+		if (size < 0 && lIdx == fromIndex) {
+			fHashTable[i] = -2;	 // mark as deleted
+		} else if (lIdx >= fromIndex) {
+			fHashTable[i] = lIdx + size;  // update position in keytable
 		}
 	}
 }
@@ -377,7 +362,7 @@ long AnyKeyTable::At(const char *key, long sizehint, u_long hashhint) const {
 	// returns valid external index into key table
 	// or -1= not found
 	long lIdx = DoHash(key, false, sizehint, hashhint);
-	if ( lIdx > -1 ) {
+	if (lIdx > -1) {
 		return fHashTable[lIdx];
 	}
 	return lIdx;
@@ -393,10 +378,10 @@ void AnyKeyTable::Rehash(long newCap) {
 
 	// iterate over the old table and rehash
 	// values
-	for ( long i = 0; i < oldCapacity; ++i ) {
+	for (long i = 0; i < oldCapacity; ++i) {
 		long slot = ot[i];
 
-		if (slot > -1) {	// assumption: we found an index for a key
+		if (slot > -1) {  // assumption: we found an index for a key
 			long at = fKeyTable->IntAt(slot);
 			const char *key = fKeyTable->fContents[fKeyTable->IntAtBuf(at)][fKeyTable->IntAtSlot(at)].Key();
 			Assert(key);
@@ -411,7 +396,7 @@ void AnyKeyTable::Rehash(long newCap) {
 
 void AnyKeyTable::PrintHash() const {
 	for (long i = 0; i < fCapacity; ++i) {
-		if ( fHashTable[i] > -1 ) {
+		if (fHashTable[i] > -1) {
 			String m;
 			m << "[" << i << "]<" << fHashTable[i] << "> ";
 			SystemLog::WriteToStderr(m);
@@ -420,8 +405,8 @@ void AnyKeyTable::PrintHash() const {
 	SystemLog::WriteToStderr("\n", 1);
 }
 
-AnyIndTable::AnyIndTable(long initCapacity, Allocator *a) :
-	fIndexTable(0), fEmptyTable(0), fCapacity(initCapacity), fSize(0), fAllocator(a) {
+AnyIndTable::AnyIndTable(long initCapacity, Allocator *a)
+	: fIndexTable(0), fEmptyTable(0), fCapacity(initCapacity), fSize(0), fAllocator(a) {
 	fEmptyTable = 0;
 	InitTable(initCapacity);
 	InitEmpty(0, fCapacity);
@@ -448,14 +433,14 @@ void AnyIndTable::Clear() {
 }
 
 void AnyIndTable::Expand(long slot) {
-	Assert( slot >= fCapacity );
+	Assert(slot >= fCapacity);
 
 	// save old index table and capacity
 	long *old = fIndexTable;
 	long oldCap = fCapacity;
 
 	// check for sufficient new capacity
-	if ( slot >= fCapacity * 2 ) {
+	if (slot >= fCapacity * 2) {
 		fCapacity = slot;
 	}
 
@@ -472,7 +457,8 @@ void AnyIndTable::Expand(long slot) {
 }
 
 void AnyIndTable::InsertReserve(long pos, long size) {
-	Assert(fSize + pos <= fCapacity); Assert(fSize + size <= fCapacity);
+	Assert(fSize + pos <= fCapacity);
+	Assert(fSize + size <= fCapacity);
 	std::rotate(fIndexTable + pos, fIndexTable + fSize - size, fIndexTable + fSize);
 }
 
@@ -485,19 +471,19 @@ void AnyIndTable::InitEmpty(long oldCap, long newCap) {
 	fEmptyTable = static_cast<long *>(fAllocator->Malloc(newCap * sizeof(long)));
 
 	// calculate the size to be copied
-	if ( oldCap < newCap )	{
+	if (oldCap < newCap) {
 		sz = oldCap;
-	} else	{
-		sz = newCap;    // the size has shrunk
+	} else {
+		sz = newCap;  // the size has shrunk
 	}
 
 	// copy the empty index array
-	for (i = 0; i < sz; ++i)	{
+	for (i = 0; i < sz; ++i) {
 		fEmptyTable[i] = old[i];
 	}
 
 	// fill in straight index (never used so far)
-	if ( sz < newCap )
+	if (sz < newCap)
 		for (i = sz; i < newCap; ++i) {
 			fEmptyTable[i] = i;
 		}
@@ -506,12 +492,12 @@ void AnyIndTable::InitEmpty(long oldCap, long newCap) {
 }
 
 void AnyIndTable::InitIndices(long slot, long *ot) {
-	Assert( fSize <= slot );
+	Assert(fSize <= slot);
 
 	long i = 0;
 
 	// copy old indices if they exist
-	if ( ot ) {
+	if (ot) {
 		for (i = 0; i < fSize; ++i) {
 			fIndexTable[i] = ot[i];
 		}
@@ -525,20 +511,20 @@ void AnyIndTable::InitIndices(long slot, long *ot) {
 }
 
 long AnyIndTable::At(long slot) {
-	Assert( slot >= 0 );
+	Assert(slot >= 0);
 
 	// check for capacity overflow
-	if ( slot >= fCapacity ) {
+	if (slot >= fCapacity) {
 		Expand(slot);
 	}
 
 	// check for size overflow
-	if ( slot >= fSize ) {
+	if (slot >= fSize) {
 		InitIndices(slot, 0);
 	}
 
 	// return the index
-	Assert( slot < fSize );
+	Assert(slot < fSize);
 	return fIndexTable[slot];
 }
 
@@ -547,29 +533,30 @@ long AnyIndTable::At(long slot) const {
 	if (slot >= 0 && slot < fCapacity && slot < fSize) {
 		return fIndexTable[slot];
 	}
-	return -1; //see what happens with that, may be zero PS 2010!
+	return -1;	// see what happens with that, may be zero PS 2010!
 }
 
 void AnyIndTable::Remove(long slot) {
-	Assert( slot >= 0 && slot < fSize );
+	Assert(slot >= 0 && slot < fSize);
 
 	// save the index for later reuse
-	fEmptyTable[fSize-1] = fIndexTable[slot];
+	fEmptyTable[fSize - 1] = fIndexTable[slot];
 
 	// shift the table down
 	for (long i = slot; i < fSize - 1; ++i) {
-		fIndexTable[i] = fIndexTable[i+1];
+		fIndexTable[i] = fIndexTable[i + 1];
 	}
 	--fSize;
 }
 void AnyIndTable::Swap(long l, long r) {
-	Assert( l >= 0 && l < fSize ); Assert( r >= 0 && r < fSize );
+	Assert(l >= 0 && l < fSize);
+	Assert(r >= 0 && r < fSize);
 	long t = fIndexTable[l];
 	fIndexTable[l] = fIndexTable[r];
 	fIndexTable[r] = t;
 }
 void AnyIndTable::SetIndex(long slot, long idx) {
-	Assert( slot >= 0 && slot < fSize );
+	Assert(slot >= 0 && slot < fSize);
 	if (slot >= 0 && slot < fSize) {
 		fIndexTable[slot] = idx;
 	} else {
@@ -579,16 +566,16 @@ void AnyIndTable::SetIndex(long slot, long idx) {
 
 void AnyIndTable::PrintTable() const {
 	String m("IndexTable: \n");
-	for ( long i = 0; i < fSize; ++i) {
-		m << "[" << i << "] <" << fIndexTable[i] << ">" << "\n";
+	for (long i = 0; i < fSize; ++i) {
+		m << "[" << i << "] <" << fIndexTable[i] << ">"
+		  << "\n";
 	}
 	SystemLog::WriteToStderr(m);
 }
 
 static const char *gcArrayText = "AnyArrayImpl";
 
-AnyArrayImpl::AnyArrayImpl(Allocator *a) :
-	AnyImpl(a), fContents(0), fKeys(0), fInd(0), fCapacity(4), fSize(0), fNumOfBufs(0) {
+AnyArrayImpl::AnyArrayImpl(Allocator *a) : AnyImpl(a), fContents(0), fKeys(0), fInd(0), fCapacity(4), fSize(0), fNumOfBufs(0) {
 	// allocate a default size structure without keys
 	fCapacity = AdjustCapacity(fCapacity);
 	AllocMemory();
@@ -598,13 +585,13 @@ AnyArrayImpl::~AnyArrayImpl() {
 	if (fContents) {
 		// free the buffers themselves
 		for (int j = 0; j < fNumOfBufs; ++j) {
-			delete [] (fContents[j]);
+			delete[](fContents[j]);
 		}
 		// free the buffer Ptr
 		MyAllocator()->Free(fContents);
 
 		// free the key array
-		if ( fKeys ) {
+		if (fKeys) {
 			delete fKeys;
 		}
 
@@ -624,17 +611,17 @@ const char *AnyArrayImpl::AsCharPtr(const char *, long &buflen) const {
 	return gcArrayText;
 }
 
-Anything &AnyArrayImpl::At(long slot) //const/non-const overload
+Anything &AnyArrayImpl::At(long slot)  // const/non-const overload
 {
 	// return an address of an anything residing at slot
 	// expand the buffers as necessary to fulfill the request
 	long newsz = slot + 1;
 	// check for logical expansion
-	if ( (newsz > fSize) ) {
+	if ((newsz > fSize)) {
 		// reset the size
 		fSize = newsz;
 		// check for physical expansion
-		if ( newsz >= fCapacity ) {
+		if (newsz >= fCapacity) {
 			Expand(newsz);
 		}
 	}
@@ -643,7 +630,7 @@ Anything &AnyArrayImpl::At(long slot) //const/non-const overload
 	return fContents[IntAtBuf(slot)][IntAtSlot(slot)].Value();
 }
 
-Anything const& AnyArrayImpl::At(long slot) const {
+Anything const &AnyArrayImpl::At(long slot) const {
 	// return an address of an anything residing at slot
 	// DO NOT expand the buffers as necessary to fulfill
 	// the request, but throw instead, if out of range
@@ -654,15 +641,15 @@ Anything const& AnyArrayImpl::At(long slot) const {
 	throw std::out_of_range("AnyArrayImpl::At(long)");
 }
 
-Anything const& AnyArrayImpl::operator [](long slot) const {
+Anything const &AnyArrayImpl::operator[](long slot) const {
 	return At(slot);
 }
 
 Anything &AnyArrayImpl::At(const char *key) {
 	long slot = -1;
-	if ( !fKeys ) {
+	if (!fKeys) {
 		// no keys exist yet
-		fKeys = new(MyAllocator()) AnyKeyTable(this);
+		fKeys = new (MyAllocator()) AnyKeyTable(this);
 	} else {
 		// find index of key or return -1
 		slot = fKeys->At(key);
@@ -684,10 +671,10 @@ Anything &AnyArrayImpl::At(const char *key) {
 	return fContents[IntAtBuf(slot)][IntAtSlot(slot)].Value();
 }
 
-Anything const& AnyArrayImpl::At(const char *key) const {
+Anything const &AnyArrayImpl::At(const char *key) const {
 	// calculate the adress of an anything given its key
 	long slot = -1;
-	if ( fKeys ) {
+	if (fKeys) {
 		// find index of key or return -1
 		slot = fKeys->At(key);
 	}
@@ -697,7 +684,7 @@ Anything const& AnyArrayImpl::At(const char *key) const {
 	throw std::out_of_range("AnyArrayImpl::At(const char*)");
 }
 
-Anything const& AnyArrayImpl::operator [](const char *key) const {
+Anything const &AnyArrayImpl::operator[](const char *key) const {
 	return At(key);
 }
 
@@ -705,7 +692,7 @@ long AnyArrayImpl::FindIndex(const char *key, long sizehint, u_long hashhint) co
 	// find the index of an anything given
 	// its key. It returns -1 if not defined
 
-	if ( !fKeys ) {
+	if (!fKeys) {
 		return -1;
 	}
 
@@ -716,12 +703,12 @@ long AnyArrayImpl::FindIndex(const char *key, long sizehint, u_long hashhint) co
 long AnyArrayImpl::FindIndex(const long lIdx) const {
 	// find the index of an anything given
 	// its index. It returns -1 if not defined
-	if ( !fInd ) {
+	if (!fInd) {
 		return -1L;
 	}
 
 	// return index from indexarray
-	return static_cast<const AnyIndTable*> (fInd)->At(lIdx);
+	return static_cast<const AnyIndTable *>(fInd)->At(lIdx);
 }
 
 long AnyArrayImpl::Contains(const char *k) const {
@@ -732,12 +719,12 @@ long AnyArrayImpl::Contains(const char *k) const {
 
 	Assert(k);	// require a valid search string
 
-	long i; 	// external slot index
-	long at;	// internal buffer index
+	long i;	  // external slot index
+	long at;  // internal buffer index
 	for (i = 0; i < fSize; ++i) {
 		at = IntAt(i);	// calculate the internal index
 		Assert(at >= 0 && at < fCapacity);
-		if ( strcmp(fContents[IntAtBuf(at)][IntAtSlot(at)].Value().AsCharPtr(""), k) == 0 ) {
+		if (strcmp(fContents[IntAtBuf(at)][IntAtSlot(at)].Value().AsCharPtr(""), k) == 0) {
 			return i;
 		}
 	}
@@ -758,7 +745,7 @@ void AnyArrayImpl::Remove(long slot) {
 		fInd->Remove(slot);
 
 		// update the key array if it exists
-		if ( fKeys ) {
+		if (fKeys) {
 			fKeys->Update(slot);
 		}
 
@@ -778,8 +765,7 @@ const String &AnyArrayImpl::Key(long slot) const {
 	return fgStrEmpty;
 }
 
-const String &AnyArrayImpl::IntKey(long at) const
-{
+const String &AnyArrayImpl::IntKey(long at) const {
 	if (at >= 0 && at < fCapacity) {
 		return fContents[IntAtBuf(at)][IntAtSlot(at)].Key();
 	}
@@ -826,15 +812,16 @@ void AnyArrayImpl::Expand(long newsize) {
 	long numOfExistingBufs = fNumOfBufs;
 	long numOfNewBufs = fCapacity / static_cast<long>(ARRAY_BUF_SIZE);
 
-	Assert(numOfNewBufs *ARRAY_BUF_SIZE >= newsize);
+	Assert(numOfNewBufs * ARRAY_BUF_SIZE >= newsize);
 
 	// allocate new ptr buffer if necessary
-	if ( numOfNewBufs > fNumOfBufs ) {
+	if (numOfNewBufs > fNumOfBufs) {
 		AnyKeyAssoc **old = fContents;
 		// expand the number of needed ptr buffers
 		fContents = reinterpret_cast<AnyKeyAssoc **>(MyAllocator()->Calloc(numOfNewBufs, sizeof(AnyKeyAssoc *)));
 		if (fContents == 0) {
-			static const char crashmsg[] = "FATAL: AnyArrayImpl::Expand calloc failed (increasing pointer buffer). I will crash :-(\n";
+			static const char crashmsg[] =
+				"FATAL: AnyArrayImpl::Expand calloc failed (increasing pointer buffer). I will crash :-(\n";
 			SystemLog::WriteToStderr(crashmsg, strlen(crashmsg));
 			fContents = old;
 			fCapacity = oldCap;
@@ -843,9 +830,9 @@ void AnyArrayImpl::Expand(long newsize) {
 		fNumOfBufs = numOfNewBufs;
 		for (long bufs = 0; bufs < numOfExistingBufs; ++bufs) {
 			fContents[bufs] = old[bufs];
-			old[bufs]=0;
+			old[bufs] = 0;
 		}
-		MyAllocator()->Free(old); // frees the old ptr buffer array not the contents buffer
+		MyAllocator()->Free(old);  // frees the old ptr buffer array not the contents buffer
 	}
 
 	AllocBuffersFrom(numOfExistingBufs);
@@ -857,21 +844,22 @@ void AnyArrayImpl::AllocBuffersFrom(long idx) {
 		Assert(MyAllocator() != 0);
 		fContents[i] = new (MyAllocator()) AnyKeyAssoc[ARRAY_BUF_SIZE];
 
-		if ( fContents[i] == 0 ) {
+		if (fContents[i] == 0) {
 			static const char crashmsg[] =
-					"FATAL: AnyArrayImpl::Expand calloc failed (assigning memory to increased pointer buffers).\nI will crash :-(\n";
+				"FATAL: AnyArrayImpl::Expand calloc failed (assigning memory to increased pointer buffers).\nI will crash "
+				":-(\n";
 			SystemLog::WriteToStderr(crashmsg, sizeof(crashmsg));
 			return;
 		}
 
-		for ( size_t keyAssocKeyCnt = 0L; keyAssocKeyCnt < ARRAY_BUF_SIZE; ++keyAssocKeyCnt ) {
+		for (size_t keyAssocKeyCnt = 0L; keyAssocKeyCnt < ARRAY_BUF_SIZE; ++keyAssocKeyCnt) {
 			fContents[i][keyAssocKeyCnt].Init(MyAllocator());
 		}
 	}
 }
 
 void AnyArrayImpl::InsertReserve(long pos, long size) {
-	At(fSize + size - 1); // make room for size new elements
+	At(fSize + size - 1);  // make room for size new elements
 	fInd->InsertReserve(pos, size);
 	if (fKeys) {
 		fKeys->Update(pos, size);
@@ -881,9 +869,9 @@ void AnyArrayImpl::InsertReserve(long pos, long size) {
 void AnyArrayImpl::AllocMemory() {
 	// calculate the number of needed buffers
 	// allocate at least ARRAY_BUF_SIZE buffers of the size ARRAY_BUF_SIZE
-	fNumOfBufs = fCapacity / static_cast<long>(ARRAY_BUF_SIZE); // round to the next multiple
+	fNumOfBufs = fCapacity / static_cast<long>(ARRAY_BUF_SIZE);	 // round to the next multiple
 	//(fCapacity / ARRAY_BUF_SIZE > ARRAY_BUF_SIZE) ? fCapacity/ARRAY_BUF_SIZE : ARRAY_BUF_SIZE;
-	fContents = static_cast<AnyKeyAssoc **>( MyAllocator()->Calloc(fNumOfBufs, sizeof(AnyKeyAssoc *)));
+	fContents = static_cast<AnyKeyAssoc **>(MyAllocator()->Calloc(fNumOfBufs, sizeof(AnyKeyAssoc *)));
 
 	// allocate the index table
 	fInd = new (MyAllocator()) AnyIndTable(fCapacity, MyAllocator());
@@ -898,10 +886,11 @@ void AnyArrayImpl::PrintKeys() const {
 	for (long i = 0; i < fSize; ++i) {
 		long at = IntAt(i);
 		if (fKeys) {
-			hash = 	fKeys->At(fContents[IntAtBuf(at)][IntAtSlot(at)].Key());
+			hash = fKeys->At(fContents[IntAtBuf(at)][IntAtSlot(at)].Key());
 		}
 		String m;
-		m << "[" << i << "]<" << NotNullStr(fContents[IntAtBuf(at)][IntAtSlot(at)].Key()) << ">(" << hash << ")" << "\n";
+		m << "[" << i << "]<" << NotNullStr(fContents[IntAtBuf(at)][IntAtSlot(at)].Key()) << ">(" << hash << ")"
+		  << "\n";
 		SystemLog::WriteToStderr(m);
 	}
 }
@@ -921,7 +910,7 @@ AnyImpl *AnyArrayImpl::Clone(Allocator *a) const {
 AnyImpl *AnyArrayImpl::DoDeepClone(AnyImpl *pObj, Allocator *a, Anything &xreftable) const {
 	aimplStartTrace(AnyArrayImpl.DoDeepClone);
 	long count = GetSize();
-	AnyArrayImpl *pImpl = dynamic_cast<AnyArrayImpl*> (pObj);
+	AnyArrayImpl *pImpl = dynamic_cast<AnyArrayImpl *>(pObj);
 	for (long i = 0; pImpl && i < count; ++i) {
 		pImpl->At(SlotName(i)) = At(i).DeepClone(a, xreftable);
 	}
@@ -930,14 +919,16 @@ AnyImpl *AnyArrayImpl::DoDeepClone(AnyImpl *pObj, Allocator *a, Anything &xrefta
 
 void AnyArrayImpl::MergeByComparer(long lo, long hi, long m, const AnyIntCompare &comparer) {
 	if (hi < m + 1 || lo > m) {
-		return;    // nothing to merge
+		return;	 // nothing to merge
 	}
 	long i, j, k;
 	long const sz = m - lo + 1;
-	long a[sz];					// temporary array of lower half
+	long a[sz];	 // temporary array of lower half
 	for (k = 0, i = lo; i <= m && k < sz; ++i, ++k) {
 		a[k] = IntAt(i);
-	} Assert(k == sz); Assert(i > m);
+	}
+	Assert(k == sz);
+	Assert(i > m);
 	j = m + 1;
 	k = 0;
 	i = lo;
@@ -953,7 +944,7 @@ void AnyArrayImpl::MergeByComparer(long lo, long hi, long m, const AnyIntCompare
 		++i;
 	}
 	// copy the remainder
-	while ( k < sz && i < j ) {
+	while (k < sz && i < j) {
 		Assert(j > hi);
 		fInd->SetIndex(i, a[k]);
 		++i;
@@ -974,8 +965,8 @@ void AnyArrayImpl::MergeSortByComparer(long low, long high, const AnyIntCompare 
 }
 
 void AnyArrayImpl::SortByKey() {
-	//HeapSort();
-	//Qsort(0,GetSize()-1);
+	// HeapSort();
+	// Qsort(0,GetSize()-1);
 	MergeSortByComparer(0, GetSize() - 1, theKeyComparer);
 	RecreateKeyTable();
 }
@@ -1011,8 +1002,8 @@ String AnyArrayImpl::AsString(const char *) const {
 }
 
 void AnyArrayImpl::Accept(AnyVisitor &v, long lIdx, const char *slotname) const {
-	ROAnything wrapit(dynamic_cast<AnyImpl const *>(this)); //is there a nicer way
-	Assert(wrapit.fAnyImp == (AnyImpl *)this);		// check for auto conversion by compiler
+	ROAnything wrapit(dynamic_cast<AnyImpl const *>(this));	 // is there a nicer way
+	Assert(wrapit.fAnyImp == (AnyImpl *)this);				 // check for auto conversion by compiler
 	v.VisitArray(wrapit, this, lIdx, slotname);
 }
 

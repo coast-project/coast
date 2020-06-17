@@ -17,13 +17,13 @@
 \par Configuration
 \code
 {
-	/LDAPServer			optional, default = localhost
-	/LDAPPort			optional, default = 389
-	/LDAPTimeout		optional, default = 10 sec
-	/LDAPBindName		optional, default = Anonymous
-	/LDAPBindPW			optional (mandatory, if BindName is defined)
-	/SuppressErrorCodes optional, default none, list of LDAP error codes to suppress from being logged to SystemLog,
-						example: { 32 49 } # suppress "No such object" and "Invalid credentials" messages on SystemLog/console
+  /LDAPServer			optional, default = localhost
+  /LDAPPort			optional, default = 389
+  /LDAPTimeout		optional, default = 10 sec
+  /LDAPBindName		optional, default = Anonymous
+  /LDAPBindPW			optional (mandatory, if BindName is defined)
+  /SuppressErrorCodes optional, default none, list of LDAP error codes to suppress from being logged to SystemLog,
+			example: { 32 49 } # suppress "No such object" and "Invalid credentials" messages on SystemLog/console
 }
 \endcode
 
@@ -50,27 +50,24 @@ In general, an ldap operation is performed as follows (without error checking, a
 - PutResult
 - (Disconnect) (as soon as connection is not used anymore)
 */
-class LDAPAbstractDAI: public DataAccessImpl
-{
+class LDAPAbstractDAI : public DataAccessImpl {
 public:
 	/*! \param name defines the name of the data access */
-	LDAPAbstractDAI(const char *name) : DataAccessImpl(name) {};
-	~LDAPAbstractDAI() {};
+	LDAPAbstractDAI(const char *name) : DataAccessImpl(name){};
+	~LDAPAbstractDAI(){};
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) LDAPAbstractDAI(fName);
-	};
+	IFAObject *Clone(Allocator *a) const { return new (a) LDAPAbstractDAI(fName); };
 
 	//! executes the transaction
 	//  param c The context of the transaction */
 	virtual bool Exec(Context &c, ParameterMapper *getter, ResultMapper *putter);
 
 	/*! Check attributes for Add/Modify/Delete to only contain valid values and attribute names.
-		\param attrs attributes to check and adjust if needed
-		\param bRemoveNullValues must be set to false for checking of attributes to delete, otherwise the name of the attribute to delete gets lost
-		\param eh error message handler
-		\return true in case we did not detect any errors */
+	  \param attrs attributes to check and adjust if needed
+	  \param bRemoveNullValues must be set to false for checking of attributes to delete, otherwise the name of the attribute to delete gets lost
+	  \param eh error message handler
+	  \return true in case we did not detect any errors */
 	bool CheckAttributes(Anything &attrs, bool bRemoveNullValues, LDAPErrorHandler &eh);
 
 protected:
@@ -87,11 +84,12 @@ protected:
 		return -1;
 	}
 
-	/*! Check attributes for Add/Modify/Delete to only contain valid values and attribute names. Subclasses can overwrite for their specific needs.
-		\param attrs attributes to check and adjust if needed
-		\param bRemoveNullValues must be set to false for checking of attributes to delete, otherwise the name of the attribute to delete gets lost
-		\param eh error message handler
-		\return true in case we did not detect any errors */
+	/*! Check attributes for Add/Modify/Delete to only contain valid values and attribute names. Subclasses can overwrite for
+	  their specific needs.
+	  \param attrs attributes to check and adjust if needed
+	  \param bRemoveNullValues must be set to false for checking of attributes to delete, otherwise the name of the attribute to delete gets lost
+	  \param eh error message handler
+	  \return true in case we did not detect any errors */
 	bool DoCheckAttributes(Anything &attrs, bool bRemoveNullValues, LDAPErrorHandler &eh);
 
 	//! executes the transaction
@@ -117,36 +115,36 @@ private:
 <B>Configuration:</B> See LDAPAbstractDAI<br>
 <B>LDAP Query spec:</B><pre>
 {
-	/LDAPBase		required	base DN where addition is to be made
-	/LDAPMods		required	list modifications to perform on entry
+  /LDAPBase		required	base DN where addition is to be made
+  /LDAPMods		required	list modifications to perform on entry
 }
 <b>Mods spec:</b>
 /LDAPMods {
-	/ConfigMapper {
-		/add {
-			/AttrName1	ValToAdd
-			/AttrName2 {
-				Val1
-				Val2
-			}
-		}
-		/delete {
-			/AttrName1	ValToDelete
-			/AttrName2 {
-				Val1
-				Val2
-			}
-			/AttrName3	*	# deletes whole attribute
-		}
-		/replace {
-			/AttrName1	{
-				Val1
-				Val2
-			}
-			/AttrName2	Val
-			/AttrName3	*	# delete whole attribute
-		}
+  /ConfigMapper {
+	/add {
+	  /AttrName1	ValToAdd
+	  /AttrName2 {
+		Val1
+		Val2
+	  }
 	}
+	/delete {
+	  /AttrName1	ValToDelete
+	  /AttrName2 {
+		Val1
+		Val2
+	  }
+	  /AttrName3	*	# deletes whole attribute
+	}
+	/replace {
+	  /AttrName1	{
+		Val1
+		Val2
+	  }
+	  /AttrName2	Val
+	  /AttrName3	*	# delete whole attribute
+	}
+  }
 }
 </pre>
 The list of given modifications (add,del,repl) is performed in
@@ -156,17 +154,14 @@ an attribute can be forced by setting an attribute explicitely to *
 (null). After a replace operation, the attribute will have the
 values listed, be deleted or created if necessary.
 */
-class LDAPModifyDAI: public LDAPAbstractDAI
-{
+class LDAPModifyDAI : public LDAPAbstractDAI {
 public:
 	/*! \param name defines the name of the data access */
-	LDAPModifyDAI(const char *name) : LDAPAbstractDAI(name) {};
-	~LDAPModifyDAI() {};
+	LDAPModifyDAI(const char *name) : LDAPAbstractDAI(name){};
+	~LDAPModifyDAI(){};
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) LDAPModifyDAI(fName);
-	};
+	IFAObject *Clone(Allocator *a) const { return new (a) LDAPModifyDAI(fName); };
 
 protected:
 	//! add + check mods slot (no defaults are given)
@@ -178,19 +173,19 @@ protected:
 	int DoLDAPRequest(Context &ctx, ParameterMapper *getter, LDAPConnection *lc, ROAnything query, int &iMsgId);
 
 	/*! collect attributes/values to modify
-		\param ldapmods container to carry attributes/values to modify
-		\param modcode operation for modification entry [LDAP_MOD_ADD|LDAP_MOD_DELETE|LDAP_MOD_REPLACE] and optionally LDAP_MOD_BVALUES
-		\param lModsCounter reference to count number of entries added  to ldapmods
-		\param attrmods ROAnything holding attributes/values to modify
-		\param bBinaryOperation set to true if we need to handle binary values
-		\return number of attributes added to ldapmods */
+	  \param ldapmods container to carry attributes/values to modify
+	  \param modcode operation for modification entry [LDAP_MOD_ADD|LDAP_MOD_DELETE|LDAP_MOD_REPLACE] and optionally LDAP_MOD_BVALUES
+	  \param lModsCounter reference to count number of entries added  to ldapmods
+	  \param attrmods ROAnything holding attributes/values to modify
+	  \param bBinaryOperation set to true if we need to handle binary values
+	  \return number of attributes added to ldapmods */
 	int IntPrepareLDAPMods(LDAPMod **ldapmods, int modcode, int &lModsCounter, ROAnything attrmods, bool bBinaryOperation);
 
 	/*! specific ldap_ method to call
-		\param lc LDAPConnection class to get ldap handle from
-		\param base dn of entry to modify
-		\param ldapmods attributes/values to modify
-		\return return code of ldap method */
+	  \param lc LDAPConnection class to get ldap handle from
+	  \param base dn of entry to modify
+	  \param ldapmods attributes/values to modify
+	  \return return code of ldap method */
 	virtual int DoSpecificOperation(LDAPConnection *lc, String base, LDAPMod **ldapmods, int &iMsgId);
 
 private:
@@ -206,15 +201,15 @@ private:
 <B>Configuration:</B> See LDAPAbstractDAI<br>
 <B>LDAP Query spec:</B><pre>
 {
-	/LDAPBase	required	base DN where addition is to be made
-	/LDAPAttrs		required	list of attributes and values to add
+  /LDAPBase	required	base DN where addition is to be made
+  /LDAPAttrs		required	list of attributes and values to add
 }
 <b>Attrs spec:</b>
 /LDAPAttrs {
-	/ConfigMapper {
-		/uid		"kgu"
-		/coworker	{ "mke", "jva" "pso" }
-	}
+  /ConfigMapper {
+	/uid		"kgu"
+	/coworker	{ "mke", "jva" "pso" }
+  }
 }
 </pre>
 Adds a leaf entry to the ldap directory. Parent of element to add must
@@ -224,27 +219,24 @@ multiple value (see example). You should use a config mapper to get
 a literal config, i.e. exactly the attribute/value pairings that you wish
 to get. (This mapper stops scripting and returns its config as anything)
 */
-class LDAPAddDAI: public LDAPModifyDAI
-{
+class LDAPAddDAI : public LDAPModifyDAI {
 public:
 	/*! \param name defines the name of the data access */
-	LDAPAddDAI(const char *name) : LDAPModifyDAI(name) {};
-	~LDAPAddDAI() {};
+	LDAPAddDAI(const char *name) : LDAPModifyDAI(name){};
+	~LDAPAddDAI(){};
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) LDAPAddDAI(fName);
-	};
+	IFAObject *Clone(Allocator *a) const { return new (a) LDAPAddDAI(fName); };
 
 protected:
 	//! add + check attributes slot (no defaults are given)
 	bool DoGetQuery(ParameterMapper *getter, Context &ctx, Anything &query, LDAPErrorHandler &eh);
 
 	/*! specific ldap_ method to call
-		\param lc LDAPConnection class to get ldap handle from
-		\param base dn of entry to modify
-		\param ldapmods attributes/values to modify
-		\return return code of ldap method */
+	  \param lc LDAPConnection class to get ldap handle from
+	  \param base dn of entry to modify
+	  \param ldapmods attributes/values to modify
+	  \return return code of ldap method */
 	int DoSpecificOperation(LDAPConnection *lc, String base, LDAPMod **ldapmods, int &iMsgId);
 
 private:
@@ -261,24 +253,21 @@ private:
 <B>Configuration:</B> See LDAPAbstractDAI<br>
 <B>LDAP Query spec:</B><pre>
 {
-	/LDAPBase		required	base DN where comparison is to be made
-	/LDAPAttrName	required	attribute of entry to be compared
-	/LDAPAttrValue	required	value of attribute to be compared against directory
+  /LDAPBase		required	base DN where comparison is to be made
+  /LDAPAttrName	required	attribute of entry to be compared
+  /LDAPAttrValue	required	value of attribute to be compared against directory
 }
 </pre>
 Compares value of an attribute with value in LDAP directory.
 */
-class LDAPCompareDAI: public LDAPAbstractDAI
-{
+class LDAPCompareDAI : public LDAPAbstractDAI {
 public:
 	/*! \param name defines the name of the data access */
-	LDAPCompareDAI(const char *name) : LDAPAbstractDAI(name) {};
-	~LDAPCompareDAI() {};
+	LDAPCompareDAI(const char *name) : LDAPAbstractDAI(name){};
+	~LDAPCompareDAI(){};
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) LDAPCompareDAI(fName);
-	};
+	IFAObject *Clone(Allocator *a) const { return new (a) LDAPCompareDAI(fName); };
 
 protected:
 	//! add + check for base, attrname and attrvalue to compare
@@ -301,22 +290,19 @@ private:
 <B>Configuration:</B> See LDAPAbstractDAI<br>
 <B>LDAP Query spec:</B><pre>
 {
-	/LDAPBase		required	base DN pointing to leaf entry to delete
+  /LDAPBase		required	base DN pointing to leaf entry to delete
 }
 </pre>
 Deletes a whole entry. Base must be a leaf entry or delete will fail.
 */
-class LDAPDeleteDAI: public LDAPAbstractDAI
-{
+class LDAPDeleteDAI : public LDAPAbstractDAI {
 public:
 	/*! \param name defines the name of the data access */
-	LDAPDeleteDAI(const char *name) : LDAPAbstractDAI(name) {};
-	~LDAPDeleteDAI() {};
+	LDAPDeleteDAI(const char *name) : LDAPAbstractDAI(name){};
+	~LDAPDeleteDAI(){};
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) LDAPDeleteDAI(fName);
-	};
+	IFAObject *Clone(Allocator *a) const { return new (a) LDAPDeleteDAI(fName); };
 
 protected:
 	//! hook, called by Exec after connection.
@@ -329,7 +315,6 @@ private:
 	LDAPDeleteDAI(const LDAPDeleteDAI &);
 	// assignement
 	LDAPDeleteDAI &operator=(const LDAPDeleteDAI &);
-
 };
 
 //! Implements an LDAP search DA.
@@ -337,26 +322,23 @@ private:
 <B>Configuration:</B> See LDAPAbstractDAI<br>
 <B>LDAP Query spec:</B><pre>
 {
-	/LDAPBase		required
-	/LDAPScope		optional	one of {base,subtree,onelevel}, defaults to "base"
-	/LDAPFilter		optional 	filter string, defaults to "(objectclass=*)"
-	/LDAPAttrs		optional	list of attributes to return, defaults to all
-	/LDAPAttrsOnly	optional	return attributes only? one of {1,0}. defaults to no
-	/LDAPSizeLimit	optional	give a sizelimit for the result. defaults to LDAP_NO_LIMIT (0)
-	/LDAPTimeLimit	optional	give an own timeout. defaults to timeout of session/connection.
+  /LDAPBase		required
+  /LDAPScope		optional	one of {base,subtree,onelevel}, defaults to "base"
+  /LDAPFilter		optional 	filter string, defaults to "(objectclass=*)"
+  /LDAPAttrs		optional	list of attributes to return, defaults to all
+  /LDAPAttrsOnly	optional	return attributes only? one of {1,0}. defaults to no
+  /LDAPSizeLimit	optional	give a sizelimit for the result. defaults to LDAP_NO_LIMIT (0)
+  /LDAPTimeLimit	optional	give an own timeout. defaults to timeout of session/connection.
 }</pre>
 */
-class LDAPSearchDAI: public LDAPAbstractDAI
-{
+class LDAPSearchDAI : public LDAPAbstractDAI {
 public:
 	/*! \param name defines the name of the data access */
-	LDAPSearchDAI(const char *name) : LDAPAbstractDAI(name) {};
-	~LDAPSearchDAI() {};
+	LDAPSearchDAI(const char *name) : LDAPAbstractDAI(name){};
+	~LDAPSearchDAI(){};
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) LDAPSearchDAI(fName);
-	};
+	IFAObject *Clone(Allocator *a) const { return new (a) LDAPSearchDAI(fName); };
 
 protected:
 	//! call superclass DoGetQuery, then add + check
@@ -376,4 +358,4 @@ private:
 	LDAPSearchDAI &operator=(const LDAPSearchDAI &);
 };
 
-#endif		//not defined _LDAPDataAccessImpls_H
+#endif	// not defined _LDAPDataAccessImpls_H

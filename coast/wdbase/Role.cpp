@@ -6,20 +6,22 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "Role.h"
-#include "Session.h"
-#include "Renderer.h"
+
 #include "AnyIterators.h"
 #include "Policy.h"
-#include <typeinfo>
+#include "Renderer.h"
+#include "Session.h"
+
 #include <cstring>
+#include <typeinfo>
 
 RegisterModule(RolesModule);
 
 RegCacheImpl(Role);
 RegisterRole(Role);
 
-const char* Role::gpcCategory = "Role";
-const char* Role::gpcConfigPath = "Roles";
+const char *Role::gpcCategory = "Role";
+const char *Role::gpcConfigPath = "Roles";
 
 bool RolesModule::Init(const ROAnything config) {
 	ROAnything roaConfig;
@@ -72,7 +74,7 @@ bool Role::CheckLevel(const String &queryRoleName) const {
 						// check if current role is a parent of the query-role
 						Role *pRole = pQRole;
 						String strRoleName;
-						while (!bLevelOk && pRole && (pRole = (Role*) pRole->GetSuper()) && pRole) {
+						while (!bLevelOk && pRole && (pRole = (Role *)pRole->GetSuper()) && pRole) {
 							pRole->GetName(strRoleName);
 							bLevelOk = strRoleName.IsEqual(fName);
 							Trace("role [" << strRoleName << "]" << (bLevelOk ? " is parent" : ""));
@@ -95,10 +97,10 @@ long Role::GetRoleLevel(const Role *pRole) {
 		lLevel = 0L;
 		pRole->GetName(strRoleName);
 		try {
-			while (pRole && (pRole = dynamic_cast<const Role *> (pRole->GetSuper()))) {
+			while (pRole && (pRole = dynamic_cast<const Role *>(pRole->GetSuper()))) {
 				++lLevel;
 			}
-		} catch (std::bad_cast& bc) {
+		} catch (std::bad_cast &bc) {
 			SYSINFO("bad_cast caught: " << bc.what());
 		}
 	}
@@ -130,7 +132,7 @@ void Role::PrepareTmpStore(Context &c) {
 					if (query.IsDefined(stateName) && !query[stateName].IsNull()) {
 						tmpStore[stateName] = query[stateName];
 					}
-					//Implicit value overriding
+					// Implicit value overriding
 					if (fields.IsDefined(stateName) && !fields[stateName].IsNull()) {
 						tmpStore[stateName] = fields[stateName];
 					}
@@ -145,7 +147,8 @@ bool Role::GetNewPageName(Context &c, String &transition, String &pagename) cons
 	// this method implements the default page resolving mechanism
 	// it searches a new page through a lookup in the action/page map
 	// table, defined in the role's *.any file
-	StartTrace1(Role.GetNewPageName, "Rolename <" << fName << "> currentpage= <" << pagename << ">, transition= <" << transition << ">");
+	StartTrace1(Role.GetNewPageName,
+				"Rolename <" << fName << "> currentpage= <" << pagename << ">, transition= <" << transition << ">");
 	if (IsStayOnSamePageToken(transition)) {
 		return true;
 	}
@@ -200,7 +203,7 @@ bool Role::IsStayOnSamePageToken(String &transition) const {
 		transition = "PreprocessAction";
 		bIsStayToken = true;
 	}
-	Trace("resulting token <" << transition << "> is " << (bIsStayToken?"":"not ") << "to StayOnSamePage");
+	Trace("resulting token <" << transition << "> is " << (bIsStayToken ? "" : "not ") << "to StayOnSamePage");
 	return bIsStayToken;
 }
 
@@ -238,13 +241,15 @@ bool Role::TransitionAlwaysOK(const String &transition) const {
 // if everything is ok it let's the subclass verify the
 // detailed parameters of the query in DoVerify
 bool Role::Verify(Context &ctx, String &transition, String &pagename) const {
-	StartTrace1(Role.Verify, "Rolename <" << fName << "> currentpage= <" << pagename << ">, transition= <" << transition << ">");
+	StartTrace1(Role.Verify,
+				"Rolename <" << fName << "> currentpage= <" << pagename << ">, transition= <" << transition << ">");
 	// if the action is always possible (e.g. logout) no further checking is necessary
 	if (TransitionAlwaysOK(transition)) {
 		return true;
 	}
 	// we check the role level by role name
-	// if no role is defined in the query we use the default defined in slot DefaultRole or as last resort, use the Role base class
+	// if no role is defined in the query we use the default defined in slot DefaultRole or as last resort, use the Role base
+	// class
 	String name = GetRequestRoleName(ctx, transition);
 	// check the level of the role it is defined in the config
 	// assuming some levels of roles (e.g. Guest < Customer < PaymentCustomer)
@@ -283,22 +288,24 @@ Role *Role::FindRoleWithDefault(const char *role_name, Context &ctx, const char 
 	Role *ret = Role::FindRole(role_name);
 	if (ret == 0) {
 		String msg;
-		msg << "<" << ctx.GetSessionId() << "> " << "no valid role <" << role_name << "> found; using <" << dflt << ">";
+		msg << "<" << ctx.GetSessionId() << "> "
+			<< "no valid role <" << role_name << "> found; using <" << dflt << ">";
 		SystemLog::Info(msg);
 		ret = Role::FindRole(dflt);
 		if (ret == 0) {
 			msg.Trim(0);
-			msg << "<" << ctx.GetSessionId() << "> " << "Role <" << role_name << "> and Role <" << dflt << "> not registered -- Danger";
+			msg << "<" << ctx.GetSessionId() << "> "
+				<< "Role <" << role_name << "> and Role <" << dflt << "> not registered -- Danger";
 			SYSERROR(msg);
 			// fake a new role...as a last resort before crash
-			Assert(ret != 0); // fail in Debug mode
+			Assert(ret != 0);  // fail in Debug mode
 			::abort();
 		}
 	}
 	return ret;
 }
 
-String Role::DoGetRequestRoleName(Context & ctx, String const &transition) const {
+String Role::DoGetRequestRoleName(Context &ctx, String const &transition) const {
 	String name;
 	Anything query = ctx.GetQuery();
 	if (query.IsDefined("role")) {

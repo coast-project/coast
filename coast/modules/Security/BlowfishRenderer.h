@@ -17,13 +17,12 @@
 \par Configuration
 \code
 {
-	/Base64ArmouredKey			Rendererspec	is the input recieved by a previous Blowfish-encryption with BlowfishSecurityItem. See testcases for further details.
-	/BlowfishSecurityItem		Rendererspec
+  /Base64ArmouredKey			Rendererspec	is the input recieved by a previous Blowfish-encryption with BlowfishSecurityItem. See testcases for further details.
+  /BlowfishSecurityItem		Rendererspec
 }
 \endcode
 */
-class BlowfishRenderer : public Renderer
-{
+class BlowfishRenderer : public Renderer {
 public:
 	//--- constructors
 	/*! \param name defines the name of the renderer */
@@ -31,9 +30,9 @@ public:
 	~BlowfishRenderer();
 
 	/*! Renders ?? on <I>reply </I>
-		\param reply the stream where the rendered output is written on.
-		\param ctx the context the renderer runs within.
-		\param config the configuration of the renderer.
+	  \param reply the stream where the rendered output is written on.
+	  \param ctx the context the renderer runs within.
+	  \param config the configuration of the renderer.
 	*/
 	virtual void RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config);
 };

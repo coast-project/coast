@@ -7,26 +7,22 @@
  */
 
 #include "OTPListTest.h"
+
+#include "AccessController.h"
 #include "MockOTPList.h"
 #include "TestSuite.h"
 #include "Tracer.h"
 #include "WDModule.h"
-#include "AccessController.h"
 
 //---- TDAC_Adapter ---------------------------------------------------------------
 
-class TDAC_Adapter : public TokenDataAccessController
-{
+class TDAC_Adapter : public TokenDataAccessController {
 public:
 	// constructor
-	TDAC_Adapter(MockOTPList *list) : TokenDataAccessController("TDAC_Adapter") {
-		fList = list;
-	}
+	TDAC_Adapter(MockOTPList *list) : TokenDataAccessController("TDAC_Adapter") { fList = list; }
 
 	// adapter methods
-	unsigned long GetCount(String tokenid) {
-		return fList->GetCount(tokenid);
-	}
+	unsigned long GetCount(String tokenid) { return fList->GetCount(tokenid); }
 	bool IncCount(String tokenid, long by) {
 		unsigned long old = GetCount(tokenid);
 		fList->SetCount(tokenid, old + by);
@@ -34,33 +30,26 @@ public:
 	}
 
 	// dummy implementation, not used
-	String GetSeed(String tokenid) {
-		return "";
-	} ;
+	String GetSeed(String tokenid) { return ""; };
 
 private:
 	MockOTPList *fList;
 };
 
 //---- OTPListTest ----------------------------------------------------------------
-OTPListTest::OTPListTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+OTPListTest::OTPListTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(OTPListTest.OTPListTest);
 }
 
-TString OTPListTest::getConfigFileName()
-{
+TString OTPListTest::getConfigFileName() {
 	return "OTPListTestConfig";
 }
 
-OTPListTest::~OTPListTest()
-{
+OTPListTest::~OTPListTest() {
 	StartTrace(OTPListTest.Dtor);
 }
 
-void OTPListTest::RunOtpTests(String implName, OTPList *impl, TokenDataAccessController *tdac)
-{
+void OTPListTest::RunOtpTests(String implName, OTPList *impl, TokenDataAccessController *tdac) {
 	StartTrace(OTPListTest.RunOtpTests);
 
 	String tid, code;
@@ -86,11 +75,9 @@ void OTPListTest::RunOtpTests(String implName, OTPList *impl, TokenDataAccessCon
 			assertEqual(tests[i]["CountResult"].AsLong(), tdac->GetCount(tid));
 		}
 	}
-
 }
 
-void OTPListTest::AlwaysTrueMockOTPListTest()
-{
+void OTPListTest::AlwaysTrueMockOTPListTest() {
 	StartTrace(OTPListTest.AlwaysTrueMockOTPListTest);
 
 	String implName = "AlwaysTrueOtp";
@@ -101,8 +88,7 @@ void OTPListTest::AlwaysTrueMockOTPListTest()
 	}
 }
 
-void OTPListTest::MockOTPListTest()
-{
+void OTPListTest::MockOTPListTest() {
 	StartTrace(OTPListTest.MockOTPListTest);
 
 	String implName = "MockOtp";
@@ -116,8 +102,7 @@ void OTPListTest::MockOTPListTest()
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *OTPListTest::suite ()
-{
+Test *OTPListTest::suite() {
 	StartTrace(OTPListTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, OTPListTest, AlwaysTrueMockOTPListTest);

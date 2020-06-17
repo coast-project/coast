@@ -9,16 +9,14 @@
 #ifndef _CACHEHANDLER_H
 #define _CACHEHANDLER_H
 
-#include "WDModule.h"
 #include "Threads.h"
+#include "WDModule.h"
 
 //! <B>Initializes the global caching structures</B><BR>Configuration: -
 //! This Module should be initialized at first to ensure proper functionality of dependent modules
-class CacheHandlerModule: public WDModule {
+class CacheHandlerModule : public WDModule {
 public:
-	CacheHandlerModule(const char *name) :
-		WDModule(name) {
-	}
+	CacheHandlerModule(const char *name) : WDModule(name) {}
 
 	virtual bool Init(const ROAnything config);
 	virtual bool Finis();
@@ -38,31 +36,23 @@ public:
  */
 class CacheLoadPolicy {
 public:
-	virtual ~CacheLoadPolicy() {
-	}
+	virtual ~CacheLoadPolicy() {}
 
-	virtual Anything Load(const char *key) {
-		return Anything(coast::storage::Global());
-	}
+	virtual Anything Load(const char *key) { return Anything(coast::storage::Global()); }
 };
 
-class SimpleAnyLoader: public CacheLoadPolicy {
+class SimpleAnyLoader : public CacheLoadPolicy {
 public:
 	virtual Anything Load(const char *key);
 };
 
 //! Dummy policy wrap an Anything to cache
-class AnythingLoaderPolicy: public CacheLoadPolicy {
+class AnythingLoaderPolicy : public CacheLoadPolicy {
 public:
-	AnythingLoaderPolicy(const Anything &anyToCache) :
-		fCachedAny(anyToCache, coast::storage::Global()) {
-	}
-	AnythingLoaderPolicy(const ROAnything roaToCache) :
-		fCachedAny(roaToCache.DeepClone(coast::storage::Global())) {
-	}
-	virtual Anything Load(const char *) {
-		return fCachedAny;
-	}
+	AnythingLoaderPolicy(const Anything &anyToCache) : fCachedAny(anyToCache, coast::storage::Global()) {}
+	AnythingLoaderPolicy(const ROAnything roaToCache) : fCachedAny(roaToCache.DeepClone(coast::storage::Global())) {}
+	virtual Anything Load(const char *) { return fCachedAny; }
+
 private:
 	Anything fCachedAny;
 };
@@ -83,7 +73,7 @@ private:
 
  Cache is uniquely identified by Group/Key pair
 */
-class CacheHandlerImpl: public NotCloned {
+class CacheHandlerImpl : public NotCloned {
 	typedef SimpleMutex MutexType;
 	// the central cache data structure
 	Anything fCache;

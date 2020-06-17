@@ -16,8 +16,7 @@
 /*!
 nothing to configure, simply renders TestRenderer on output
 */
-class TestRenderer : public Renderer
-{
+class TestRenderer : public Renderer {
 public:
 	//--- constructors
 	TestRenderer(const char *name);

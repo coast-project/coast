@@ -7,25 +7,23 @@
  */
 
 #include "LDAPDAICachePolicyModule.h"
-#include "DataAccess.h"
+
 #include "Action.h"
 #include "Context.h"
+#include "DataAccess.h"
 
 //---- LDAPDAICachePolicyModule -----------------------------------------------------------
 RegisterModule(LDAPDAICachePolicyModule);
 
-LDAPDAICachePolicyModule::LDAPDAICachePolicyModule(const char *name) : WDModule(name)
-{
+LDAPDAICachePolicyModule::LDAPDAICachePolicyModule(const char *name) : WDModule(name) {
 	StartTrace(LDAPDAICachePolicyModule.LDAPDAICachePolicyModule);
 }
 
-LDAPDAICachePolicyModule::~LDAPDAICachePolicyModule()
-{
+LDAPDAICachePolicyModule::~LDAPDAICachePolicyModule() {
 	StartTrace(LDAPDAICachePolicyModule.~LDAPDAICachePolicyModule);
 }
 
-bool LDAPDAICachePolicyModule::Init(const ROAnything config)
-{
+bool LDAPDAICachePolicyModule::Init(const ROAnything config) {
 	StartTrace(LDAPDAICachePolicyModule.Init);
 	ROAnything LDAPDAICachePolicyModuleConfig;
 	config.LookupPath(LDAPDAICachePolicyModuleConfig, "LDAPDAICachePolicyModule");
@@ -33,39 +31,39 @@ bool LDAPDAICachePolicyModule::Init(const ROAnything config)
 
 	ROAnything dataAccesses(config["LDAPDAICachePolicyModule"]["LDAPDAIDataAccess"]);
 	ROAnything dataAccessActions(config["LDAPDAICachePolicyModule"]["LDAPDAIDataAccessAction"]);
-	if ( dataAccesses.GetSize() == 0 && dataAccessActions.GetSize() == 0 ) {
+	if (dataAccesses.GetSize() == 0 && dataAccessActions.GetSize() == 0) {
 		SystemLog::WriteToStderr("\tLDAPDAICachePolicyModule::Init can't read needed configuration data.\n");
 		return false;
 	}
-	if ( InitialLoad(dataAccesses, LDAPDAICachePolicyModule::dataaccess, config.DeepClone()) 	== false ||
-		 InitialLoad(dataAccessActions, LDAPDAICachePolicyModule::action, config.DeepClone()) 	== false ) {
+	if (InitialLoad(dataAccesses, LDAPDAICachePolicyModule::dataaccess, config.DeepClone()) == false ||
+		InitialLoad(dataAccessActions, LDAPDAICachePolicyModule::action, config.DeepClone()) == false) {
 		return false;
 	}
 	String failedDataAccesses;
 	CheckContractIsFulfilled(failedDataAccesses, dataAccesses);
 	CheckContractIsFulfilled(failedDataAccesses, dataAccessActions);
-	if (failedDataAccesses.Length() != 0 ) {
-		SystemLog::WriteToStderr(String("\tLDAPDAICachePolicyModule::LDAP Query: ") << failedDataAccesses <<
-								 String(" returned no data.\n"));
+	if (failedDataAccesses.Length() != 0) {
+		SystemLog::WriteToStderr(String("\tLDAPDAICachePolicyModule::LDAP Query: ")
+								 << failedDataAccesses << String(" returned no data.\n"));
 		return false;
 	}
 	SystemLog::WriteToStderr("\tLDAPDAICachePolicyModule done\n");
 	return true;
 }
 
-bool LDAPDAICachePolicyModule::InitialLoad(const ROAnything dataAccesses, LDAPDAICachePolicyModule::EDataAccessType daType, const Anything &config )
-{
+bool LDAPDAICachePolicyModule::InitialLoad(const ROAnything dataAccesses, LDAPDAICachePolicyModule::EDataAccessType daType,
+										   const Anything &config) {
 	StartTrace(LDAPDAICachePolicyModule.InitialLoad);
 	LDAPDAIDataAcccessLoader ldl(config);
 	LDAPDAIActionLoader lal(config);
 	Anything tmp;
 	for (int i = 0; i < dataAccesses.GetSize(); i++) {
 		String toDo(dataAccesses[i].AsString());
-		if ( daType == dataaccess ) {
+		if (daType == dataaccess) {
 			Trace("Loading ldl with: " << toDo);
 			CacheHandler::instance().Load("LdapDAIGetter", toDo, &ldl);
 		}
-		if ( daType == action ) {
+		if (daType == action) {
 			Trace("Loading lal with: " << toDo);
 			CacheHandler::instance().Load("LdapDAIGetter", toDo, &lal);
 		}
@@ -73,8 +71,7 @@ bool LDAPDAICachePolicyModule::InitialLoad(const ROAnything dataAccesses, LDAPDA
 	return true;
 }
 
-bool LDAPDAICachePolicyModule::CheckContractIsFulfilled(String &failedDataAccesses, const ROAnything dataAccesses)
-{
+bool LDAPDAICachePolicyModule::CheckContractIsFulfilled(String &failedDataAccesses, const ROAnything dataAccesses) {
 	StartTrace(LDAPDAICachePolicyModule.CheckContractIsFulfilled);
 	bool ret(true);
 	for (int i = 0; i < dataAccesses.GetSize(); i++) {
@@ -92,28 +89,26 @@ bool LDAPDAICachePolicyModule::CheckContractIsFulfilled(String &failedDataAccess
 	return ret;
 }
 
-bool LDAPDAICachePolicyModule::Finis()
-{
+bool LDAPDAICachePolicyModule::Finis() {
 	StartTrace(LDAPDAICachePolicyModule.Finis);
 	return true;
 }
 
 //--- LDAPDAIDataAcccessLoader -----------------------------------------------
-LDAPDAIDataAcccessLoader::LDAPDAIDataAcccessLoader() { }
-LDAPDAIDataAcccessLoader::LDAPDAIDataAcccessLoader(Anything config) : fConfig(config) { }
-LDAPDAIDataAcccessLoader::~LDAPDAIDataAcccessLoader() { }
-Anything LDAPDAIDataAcccessLoader::Load(const char *ldapDa)
-{
+LDAPDAIDataAcccessLoader::LDAPDAIDataAcccessLoader() {}
+LDAPDAIDataAcccessLoader::LDAPDAIDataAcccessLoader(Anything config) : fConfig(config) {}
+LDAPDAIDataAcccessLoader::~LDAPDAIDataAcccessLoader() {}
+Anything LDAPDAIDataAcccessLoader::Load(const char *ldapDa) {
 	StartTrace1(LDAPDAIDataAcccessLoader.Load, "da name to execute [" << NotNull(ldapDa) << "]");
 	Anything theResult(coast::storage::Global());
 	Context ctx;
 	Context::PushPopEntry<Anything> aEntry(ctx, "LdapLoader", fConfig);
 
-	if ( String(ldapDa).Length() ) {
+	if (String(ldapDa).Length()) {
 		DataAccess da(ldapDa);
 		bool retCode = da.StdExec(ctx);
 		Anything tmpStore(ctx.GetTmpStore());
-		TraceAny(tmpStore, "da execution " << (retCode?"successful":"failed"));
+		TraceAny(tmpStore, "da execution " << (retCode ? "successful" : "failed"));
 		if (retCode && tmpStore["LDAPResult"][ldapDa]["NumberOfEntries"].AsLong() > 0) {
 			theResult = tmpStore["LDAPResult"][ldapDa]["Entries"];
 		} else {
@@ -128,17 +123,16 @@ Anything LDAPDAIDataAcccessLoader::Load(const char *ldapDa)
 }
 
 //--- LDAPDAIDataAcccessLoader -----------------------------------------------
-LDAPDAIActionLoader::LDAPDAIActionLoader() { }
-LDAPDAIActionLoader::LDAPDAIActionLoader(Anything config) : fConfig(config) { }
-LDAPDAIActionLoader::~LDAPDAIActionLoader() { }
+LDAPDAIActionLoader::LDAPDAIActionLoader() {}
+LDAPDAIActionLoader::LDAPDAIActionLoader(Anything config) : fConfig(config) {}
+LDAPDAIActionLoader::~LDAPDAIActionLoader() {}
 
-Anything LDAPDAIActionLoader::Load(const char *ldapDaAction)
-{
+Anything LDAPDAIActionLoader::Load(const char *ldapDaAction) {
 	StartTrace(LDAPDAIActionLoader.Load);
 	Anything theResult(coast::storage::Global());
 	Context ctx;
 	Context::PushPopEntry<Anything> aEntry(ctx, "LdapLoader", fConfig);
-	if ( String(ldapDaAction).Length() ) {
+	if (String(ldapDaAction).Length()) {
 		Anything tmpStore = ctx.GetTmpStore();
 		String transition;
 		Anything config;
@@ -161,8 +155,7 @@ Anything LDAPDAIActionLoader::Load(const char *ldapDaAction)
 	return (theResult);
 }
 
-LDAPDAICacheGetter::LDAPDAICacheGetter(const String &dataAccess) :
-		fDA(dataAccess) {
+LDAPDAICacheGetter::LDAPDAICacheGetter(const String &dataAccess) : fDA(dataAccess) {
 	StartTrace("LDAPDAICacheGetter.LDAPDAICacheGetter");
 }
 

@@ -7,17 +7,17 @@
  */
 
 #include "StringUpperLowerRenderer.h"
+
 #include "Tracer.h"
 
 //---- StringUpperLowerRenderer ---------------------------------------------------------------
 RegisterRenderer(StringUpperLowerRenderer);
 
-StringUpperLowerRenderer::StringUpperLowerRenderer(const char *name) : Renderer(name) { }
+StringUpperLowerRenderer::StringUpperLowerRenderer(const char *name) : Renderer(name) {}
 
-StringUpperLowerRenderer::~StringUpperLowerRenderer() { }
+StringUpperLowerRenderer::~StringUpperLowerRenderer() {}
 
-void StringUpperLowerRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void StringUpperLowerRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(StringUpperLowerRenderer.RenderAll);
 
 	TraceAny(config, "config");
@@ -42,12 +42,12 @@ void StringUpperLowerRenderer::RenderAll(std::ostream &reply, Context &c, const 
 	}
 	Trace("Mode: [" << mode << "]");
 
-	if ( ( ! mode.IsEqual("upper") ) &&  ( ! mode.IsEqual("lower") ) ) {
+	if ((!mode.IsEqual("upper")) && (!mode.IsEqual("lower"))) {
 		Trace("Error in StringUpperLowerRenderer::RenderAll, Mode not allowed");
 		reply << String("");
 		return;
 	}
-	if ( mode.IsEqual("upper") ) {
+	if (mode.IsEqual("upper")) {
 		value.ToUpper();
 		reply << value;
 	} else {

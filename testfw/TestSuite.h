@@ -26,29 +26,27 @@ class TestList;
  *
  * see @Test
  */
-class TestSuite : public Test
-{
-	TestSuite(TestSuite const&);
-	TestSuite& operator=(TestSuite const&);
-public:
-	TestSuite       ();
-	~TestSuite		();
+class TestSuite : public Test {
+	TestSuite(TestSuite const &);
+	TestSuite &operator=(TestSuite const &);
 
-	void				run				(TestResult *result);
-	int					countTestCases	();
-	void				addTest			(Test *test);
-	TString				toString		() {
-		return this->getClassName ();
-	}
-	Test 				*setClassName(const char *aName) {
+public:
+	TestSuite();
+	~TestSuite();
+
+	void run(TestResult *result);
+	int countTestCases();
+	void addTest(Test *test);
+	TString toString() { return this->getClassName(); }
+	Test *setClassName(const char *aName) {
 		fClassName = aName;
 		return this;
 	}
 
 private:
-	TestList			*fTests;
+	TestList *fTests;
 };
 
-#define ADD_CASE(SUITE,TESTCASE,CASEMEMBER)		(SUITE)->addTest(NEW_CASE(TESTCASE,CASEMEMBER));
+#define ADD_CASE(SUITE, TESTCASE, CASEMEMBER) (SUITE)->addTest(NEW_CASE(TESTCASE, CASEMEMBER));
 
 #endif

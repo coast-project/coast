@@ -7,12 +7,15 @@
  */
 
 #include "SystemBase.h"
+
+#include "Anything.h"
 #include "SystemLog.h"
 #include "Tracer.h"
-#include "Anything.h"
+
 #include <cerrno>
 #include <cstdarg>
 #include <cstdio>
+
 #include <fcntl.h>
 #include <poll.h>
 #include <unistd.h>
@@ -20,8 +23,8 @@
 #include <crt_externs.h>
 #endif
 #if defined(WIN32)
-#include <io.h>
 #include <direct.h>
+#include <io.h>
 #else
 #include <sys/utsname.h>
 #if defined(__sun)
@@ -33,56 +36,49 @@ namespace coast {
 	namespace system {
 
 		// avoid that fd is shared by forked processes
-		void SetCloseOnExec(int fd)
-		{
-		#if !defined(WIN32)
-			if (fd >= 0 ) {
+		void SetCloseOnExec(int fd) {
+#if !defined(WIN32)
+			if (fd >= 0) {
 				int options = fcntl(fd, F_GETFD);
 				if (options >= 0) {
 					fcntl(fd, F_SETFD, options | FD_CLOEXEC);
 				}
 			}
-		#endif
+#endif
 		}
 
-		int DoSingleSelect(int fd, long timeout, bool bRead, bool bWrite)
-		{
-			StartTrace1(System.DoSingleSelect, "testing fd:" << static_cast<long>(fd) << "(" << (bRead ? "r" : "-") << (bWrite ? "w" : "-") << ") with timeout:" << timeout << "ms");
-			if (fd < 0 ) {
+		int DoSingleSelect(int fd, long timeout, bool bRead, bool bWrite) {
+			StartTrace1(System.DoSingleSelect, "testing fd:" << static_cast<long>(fd) << "(" << (bRead ? "r" : "-")
+															 << (bWrite ? "w" : "-") << ") with timeout:" << timeout << "ms");
+			if (fd < 0) {
 				return -1;
 			}
 			pollfd fds[1];
-			fds[0].fd= fd;
-			fds[0].events= (bRead?POLLIN:0)|(bWrite?POLLOUT:0);
-			return ::poll( fds, 1, timeout);
+			fds[0].fd = fd;
+			fds[0].events = (bRead ? POLLIN : 0) | (bWrite ? POLLOUT : 0);
+			return ::poll(fds, 1, timeout);
 		}
 
-		bool IsReadyForReading(int fd, long timeout) {
-			return 0 < DoSingleSelect(fd, timeout, true, false);
-		}
+		bool IsReadyForReading(int fd, long timeout) { return 0 < DoSingleSelect(fd, timeout, true, false); }
 
-		bool IsReadyForWriting(int fd, long timeout) {
-			return 0 < DoSingleSelect(fd, timeout, false, true);
-		}
+		bool IsReadyForWriting(int fd, long timeout) { return 0 < DoSingleSelect(fd, timeout, false, true); }
 
-		bool MicroSleep(long sleepTime)
-		{
-		#if defined(WIN32)
+		bool MicroSleep(long sleepTime) {
+#if defined(WIN32)
 			Sleep(sleepTime / 1000L);
 			return true;
-		#else
+#else
 			// alternative is to use Posix's nanosleep(struct timespec*,struct timespec*)
 			struct timeval tv;
 			const long MILLION = 1000000L;
 			tv.tv_sec = sleepTime / MILLION;
 			tv.tv_usec = (sleepTime % MILLION);
 			return 0 == select(0, 0, 0, 0, &tv);
-		#endif
+#endif
 		}
 
-		int GetSystemError()
-		{
-		#if defined(WIN32)
+		int GetSystemError() {
+#if defined(WIN32)
 			// either it was a regular system error or a windows socket error, sometimes errno is set
 			// too, but we can't rely on that...
 			if (GetLastError()) {
@@ -91,43 +87,42 @@ namespace coast {
 			if (WSAGetLastError()) {
 				return WSAGetLastError();
 			}
-		#endif
+#endif
 			return errno;
 		}
 
-		bool SyscallWasInterrupted()
-		{
-		#if defined(WIN32)
-			if (GetLastError() == ERROR_INVALID_AT_INTERRUPT_TIME) { // according to cygwin error code mapping
+		bool SyscallWasInterrupted() {
+#if defined(WIN32)
+			if (GetLastError() == ERROR_INVALID_AT_INTERRUPT_TIME) {  // according to cygwin error code mapping
 				return true;
 			}
-			if (WSAGetLastError () == WSAEINTR) {
+			if (WSAGetLastError() == WSAEINTR) {
 				return true;
 			}
-		#endif
-			return ( errno == EINTR ) || (errno == EAGAIN);
+#endif
+			return (errno == EINTR) || (errno == EAGAIN);
 		}
 
-		struct tm *LocalTime( const time_t *timer, struct tm *res ) {
-		#if defined(WIN32)
+		struct tm *LocalTime(const time_t *timer, struct tm *res) {
+#if defined(WIN32)
 			//!@FIXME not 100% thread safe, localtime uses a global variable to store its content
 			// subsequent calls will overwrite the value
 			(*res) = (*::localtime(timer));
 			return res;
-		#else
+#else
 			return ::localtime_r(timer, res);
-		#endif
+#endif
 		}
 
-		struct tm *GmTime( const time_t *timer, struct tm *res ) {
-		#if defined(WIN32)
+		struct tm *GmTime(const time_t *timer, struct tm *res) {
+#if defined(WIN32)
 			//!@FIXME not 100% thread safe, localtime uses a global variable to store its content
 			// subsequent calls will overwrite the value
 			(*res) = (*::localtime(timer));
 			return res;
-		#else
+#else
 			return ::gmtime_r(timer, res);
-		#endif
+#endif
 		}
 
 		String GenTimeStamp(char const *format, bool const useLocalTime, time_t const referenceTime) {
@@ -143,19 +138,17 @@ namespace coast {
 			return date;
 		}
 
-		void AscTime( const struct tm *pTime, String &strTime )
-		{
-		#if defined WIN32
-			strTime = asctime( pTime );
-		#else
+		void AscTime(const struct tm *pTime, String &strTime) {
+#if defined WIN32
+			strTime = asctime(pTime);
+#else
 			char timeBuf[255];
 			asctime_r(pTime, timeBuf);
 			strTime = timeBuf;
-		#endif
+#endif
 		}
 
-		String EnvGet(const char *variable)
-		{
+		String EnvGet(const char *variable) {
 			if (variable) {
 				return String(getenv(variable));
 			} else {
@@ -163,23 +156,22 @@ namespace coast {
 			}
 		}
 
-		#if defined(WIN32)
+#if defined(WIN32)
 		// the following code was taken from ACE
-		bool Uname(Anything &anyInfo)
-		{
+		bool Uname(Anything &anyInfo) {
 			StartTrace(System.Uname);
 			bool bRet = false;
 			anyInfo["sysname"] = "Win32";
 
 			OSVERSIONINFO vinfo;
 			vinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-			::GetVersionEx (&vinfo);
+			::GetVersionEx(&vinfo);
 
 			SYSTEM_INFO sinfo;
 			::GetSystemInfo(&sinfo);
 
 			String processor, subtype;
-			if ( vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT ) {
+			if (vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
 				// Get information from the two structures
 				String os("Windows "), build("Build ");
 				if (vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT) {
@@ -230,12 +222,12 @@ namespace coast {
 							subtype = "620";
 						}
 						break;
-		#if defined(PROCESSOR_ARCHITECTURE_IA64)
+#if defined(PROCESSOR_ARCHITECTURE_IA64)
 					case PROCESSOR_ARCHITECTURE_IA64:
 						processor = "Itanium";
 						subtype = sinfo.wProcessorLevel;
 						break;
-		#endif
+#endif
 					case PROCESSOR_ARCHITECTURE_UNKNOWN:
 					default:
 						break;
@@ -255,7 +247,7 @@ namespace coast {
 				} else if (vinfo.dwMajorVersion == 4 && vinfo.dwMinorVersion == 90) {
 					release = "Windows Me";
 				}
-				if ( release.Length() ) {
+				if (release.Length()) {
 					anyInfo["release"] = release << reladd;
 				}
 				anyInfo["version"] = (long)LOWORD(vinfo.dwBuildNumber);
@@ -268,24 +260,23 @@ namespace coast {
 					processor = "Intel Pentium";
 				}
 			}
-			if ( processor.Length() ) {
+			if (processor.Length()) {
 				anyInfo["machine"] = processor << (subtype.Length() ? " " : "") << subtype;
 			}
 
 			String nodename;
-			bRet = ( HostName(nodename) && bRet );
-			if ( bRet ) {
+			bRet = (HostName(nodename) && bRet);
+			if (bRet) {
 				anyInfo["nodename"] = nodename;
 			}
 			return bRet;
 		}
-		#else
-		bool Uname(Anything &anyInfo)
-		{
+#else
+		bool Uname(Anything &anyInfo) {
 			StartTrace(System.Uname);
 			struct utsname name;
 			int iRet = ::uname(&name);
-			if ( iRet < 0 ) {
+			if (iRet < 0) {
 				String strErr("uname returned:");
 				strErr << static_cast<long>(iRet);
 				SYSERROR(strErr);
@@ -297,76 +288,73 @@ namespace coast {
 				anyInfo["machine"] = name.machine;
 			}
 			TraceAny(anyInfo, "uname retcode:" << static_cast<long>(iRet));
-			return ( iRet >= 0);
+			return (iRet >= 0);
 		}
-		#endif /* WIN32 */
+#endif /* WIN32 */
 
-		bool HostName(String &name)
-		{
+		bool HostName(String &name) {
 			StartTrace(System.HostName);
 			bool bRet = false;
-		#if defined(WIN32)
+#if defined(WIN32)
 			const DWORD dSz = 256;
 			DWORD lBufSz = dSz;
 			char strBuf[dSz];
-			bRet = ( ::GetComputerNameA(strBuf, &lBufSz) != 0);
-			if ( bRet ) {
+			bRet = (::GetComputerNameA(strBuf, &lBufSz) != 0);
+			if (bRet) {
 				name = strBuf;
 			}
-		#else
+#else
 			Anything host_info;
-			if ( ( bRet = Uname(host_info) ) ) {
+			if ((bRet = Uname(host_info))) {
 				name = host_info["nodename"].AsString("unknown");
 			}
-		#endif
+#endif
 			return bRet;
 		}
 
-		pid_t getpid()
-		{
-		#if defined(WIN32)
+		pid_t getpid() {
+#if defined(WIN32)
 			return GetCurrentProcessId();
-		#else
+#else
 			return ::getpid();
-		#endif
-		}
-
-		uid_t getuid()
-		{
-		#if defined(WIN32)
-			return (uid_t) - 1L;
-		#else
-			return ::getuid();
-		#endif
-		}
-
-		long Fork()
-		{
-		#if defined(WIN32)
-			return -1;
-		#elif defined(__sun)
-			return fork1();
-		#else
-			return fork();
-		#endif
-		}
-
-		int SnPrintf(char * buf, size_t buf_size, const char *format, ...) {
-#if defined(WIN32)
-#define vsnprintf	_vsnprintf
 #endif
-		    va_list args;
-		    va_start(args, format);
-			int charsWrittenOrRequired = ::vsnprintf(buf, buf_size, format, args);
-		    va_end(args);
+		}
+
+		uid_t getuid() {
 #if defined(WIN32)
-		    // according to http://msdn.microsoft.com/en-us/library/2ts7cx93.aspx
-		    // If len < count, len characters are stored in buffer, a null-terminator is appended, and len is returned.
-		    // so far so good, but from the next lines on, we stick to our promise of always zero terminating the buffer
-		    // If len == count, len characters are stored in buffer, no null-terminator is appended, and len is returned.
-		    // If len > count, count characters are stored in buffer, no null-terminator is appended, and a negative value is returned.
-			if ( charsWrittenOrRequired >= buf_size ) {
-				buf[buf_size-1] = '\0';
+			return (uid_t)-1L;
+#else
+			return ::getuid();
+#endif
+		}
+
+		long Fork() {
+#if defined(WIN32)
+			return -1;
+#elif defined(__sun)
+			return fork1();
+#else
+			return fork();
+#endif
+		}
+
+		int SnPrintf(char *buf, size_t buf_size, const char *format, ...) {
+#if defined(WIN32)
+#define vsnprintf _vsnprintf
+#endif
+			va_list args;
+			va_start(args, format);
+			int charsWrittenOrRequired = ::vsnprintf(buf, buf_size, format, args);
+			va_end(args);
+#if defined(WIN32)
+			// according to http://msdn.microsoft.com/en-us/library/2ts7cx93.aspx
+			// If len < count, len characters are stored in buffer, a null-terminator is appended, and len is returned.
+			// so far so good, but from the next lines on, we stick to our promise of always zero terminating the buffer
+			// If len == count, len characters are stored in buffer, no null-terminator is appended, and len is returned.
+			// If len > count, count characters are stored in buffer, no null-terminator is appended, and a negative value is
+			// returned.
+			if (charsWrittenOrRequired >= buf_size) {
+				buf[buf_size - 1] = '\0';
 			}
 #undef vsnprintf
 #endif
@@ -381,33 +369,33 @@ namespace coast {
 				}
 				return true;
 			}
-		}
+		}  // namespace
 
-		bool StrToL(long & value, const char* str, int base) {
+		bool StrToL(long &value, const char *str, int base) {
 			using namespace std;
 			value = strtol(str, 0, base);
 			return CheckErrnoForRangeError();
 		}
 
-		bool StrToD(double& value, const char* str) {
+		bool StrToD(double &value, const char *str) {
 			using namespace std;
 			value = strtod(str, 0);
 			return CheckErrnoForRangeError();
 		}
 
-		bool StrToULL(unsigned long long & value, const char* str, int base) {
+		bool StrToULL(unsigned long long &value, const char *str, int base) {
 			using namespace std;
 			value = strtoull(str, 0, base);
 			return CheckErrnoForRangeError();
 		}
 
-		bool StrToLL(long long & value, const char* str, int base) {
+		bool StrToLL(long long &value, const char *str, int base) {
 			using namespace std;
 			value = strtoll(str, 0, base);
 			return CheckErrnoForRangeError();
 		}
 
-		bool StrToUL(unsigned long & value, const char* str, int base) {
+		bool StrToUL(unsigned long &value, const char *str, int base) {
 			using namespace std;
 			value = strtoul(str, 0, base);
 			return CheckErrnoForRangeError();
@@ -416,8 +404,7 @@ namespace coast {
 #if !defined(WIN32)
 		// locking would actually work on WIN32 but unlocking is not as easy because open files can't
 		// be deleted. cygwin remembers the fd to close the file before unlinking.
-		bool GetLockFileState(const char *lockFileName)
-		{
+		bool GetLockFileState(const char *lockFileName) {
 			StartTrace(System.CreateLockFile);
 			// O_EXCL must be set to guarantee atomic lock file creation.
 			int fd = open(lockFileName, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
@@ -436,20 +423,19 @@ namespace coast {
 		}
 #endif
 
-	}
-}
+	}  // namespace system
+}  // namespace coast
 
-void coast::system::GetProcessEnvironment(Anything &anyEnv)
-{
+void coast::system::GetProcessEnvironment(Anything &anyEnv) {
 	StartTrace(System.GetProcessEnvironment);
 	char **envp =
 #if defined(__APPLE__)
-			* _NSGetEnviron()
+		*_NSGetEnviron()
 #else
-			environ
+		environ
 #endif
-			;
-	for (long i = 0; envp && envp[i] ; ++i) {
+		;
+	for (long i = 0; envp && envp[i]; ++i) {
 		String entry(envp[i]);
 		Trace("entry = <" << entry << ">");
 		long equalsign = entry.StrChr('=');

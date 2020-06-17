@@ -7,8 +7,9 @@
  */
 
 #include "HTMLComparerTest.h"
-#include "TestSuite.h"
+
 #include "HTMLComparer.h"
+#include "TestSuite.h"
 
 TString HTMLComparerTest::getConfigFileName() {
 	return "HTMLComparerTestConfig";
@@ -30,7 +31,6 @@ void HTMLComparerTest::NoDifferenceComparison() {
 			assertEqualm("", report, (const char *)thisCaseName);
 		}
 	}
-
 }
 
 void HTMLComparerTest::DifferenceComparison() {

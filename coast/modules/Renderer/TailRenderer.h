@@ -17,14 +17,13 @@
 \par Configuration
 \code
 {
-	/String		Rendererspec	mandatory, rendered string whose most right part after Delim will be output
-	/Delim		char			optional, default =
+  /String		Rendererspec	mandatory, rendered string whose most right part after Delim will be output
+  /Delim		char			optional, default =
 }
 \endcode
 
 */
-class TailRenderer : public Renderer
-{
+class TailRenderer : public Renderer {
 public:
 	//--- constructors
 	TailRenderer(const char *name);

@@ -6,20 +6,20 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "LoopTestAction.h"
+
 #include "Anything.h"
 #include "Context.h"
 #include "Tracer.h"
-#include "LoopTestAction.h"
 
 //---- LoopTestAction ---------------------------------------------------------------
 RegisterAction(LoopTestAction);
 
-LoopTestAction::LoopTestAction(const char *name) : Action(name) { }
+LoopTestAction::LoopTestAction(const char *name) : Action(name) {}
 
-LoopTestAction::~LoopTestAction() { }
+LoopTestAction::~LoopTestAction() {}
 
-bool LoopTestAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool LoopTestAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(LoopTestAction.DoExecAction);
 
 	Anything tmpStore = ctx.GetTmpStore();
@@ -29,12 +29,11 @@ bool LoopTestAction::DoExecAction(String &transitionToken, Context &ctx, const R
 }
 RegisterAction(FailLoopTestAction);
 
-FailLoopTestAction::FailLoopTestAction(const char *name) : Action(name) { }
+FailLoopTestAction::FailLoopTestAction(const char *name) : Action(name) {}
 
-FailLoopTestAction::~FailLoopTestAction() { }
+FailLoopTestAction::~FailLoopTestAction() {}
 
-bool FailLoopTestAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool FailLoopTestAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(FailLoopTestAction.DoExecAction);
 
 	Anything tmpStore = ctx.GetTmpStore();

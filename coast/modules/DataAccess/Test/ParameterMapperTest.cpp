@@ -7,18 +7,16 @@
  */
 
 #include "ParameterMapperTest.h"
-#include "TestSuite.h"
+
+#include "Context.h"
 #include "FoundationTestTypes.h"
 #include "Mapper.h"
 #include "StringStream.h"
-#include "Context.h"
+#include "TestSuite.h"
 
-ParameterMapperTest::ParameterMapperTest(TString tstrName) :
-	TestCaseType(tstrName) {
-}
+ParameterMapperTest::ParameterMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 
-ParameterMapperTest::~ParameterMapperTest() {
-}
+ParameterMapperTest::~ParameterMapperTest() {}
 
 void ParameterMapperTest::DoSelectScriptTest() {
 	StartTrace(ParameterMapperTest.DoSelectScriptTest);
@@ -161,7 +159,8 @@ void ParameterMapperTest::DoGetAnyTest() {
 		ParameterMapper pm("DysfunctionalScript");
 		pm.Initialize(ParameterMapper::gpcCategory);
 		Anything res;
-		t_assertm(!pm.Get("mapkey", res, ctx), "should fail because not everything in mapper config is a mapper and therefor leads to an error in mapping");
+		t_assertm(!pm.Get("mapkey", res, ctx),
+				  "should fail because not everything in mapper config is a mapper and therefor leads to an error in mapping");
 		t_assert(res.IsNull());
 	}
 }

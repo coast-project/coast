@@ -11,40 +11,38 @@
 
 #include "TestCase.h"
 
-class RegistryIteratorTest : public testframework::TestCase
-{
+class RegistryIteratorTest : public testframework::TestCase {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	RegistryIteratorTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~RegistryIteratorTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!tests iteration over null registry
+	//! tests iteration over null registry
 	void IterateOverNullRegistry();
 
-	//!tests iteration over empty registry
+	//! tests iteration over empty registry
 	void IterateOverEmptyRegistry();
 
-	//!tests iteration over empty registry
+	//! tests iteration over empty registry
 	void IterateOverOneElementRegistry();
 
-	//!tests iteration over empty registry
+	//! tests iteration over empty registry
 	void IterateOverNElementRegistry();
 
-	//!tests iteration over empty registry
+	//! tests iteration over empty registry
 	void IterateWhileRemoving();
 
 protected:
-
 };
 
 #endif

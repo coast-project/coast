@@ -6,11 +6,12 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "WebAppService.h"
+
+#include "AnyIterators.h"
+#include "AnythingUtils.h"
 #include "Session.h"
 #include "SessionListManager.h"
 #include "URLUtils.h"
-#include "AnythingUtils.h"
-#include "AnyIterators.h"
 RegisterServiceHandler(WebAppService);
 
 bool WebAppService::DoHandleService(std::ostream &reply, Context &ctx) {
@@ -44,7 +45,8 @@ bool WebAppService::DoHandleService(std::ostream &reply, Context &ctx) {
 		Anything anyError;
 		anyError["Component"] = "WebAppService::DoHandleService";
 		anyError["ResponseCode"] = 406L;
-		anyError["ErrorMessage"] = String(isBusy ? "Session is busy" : "No valid Session").Append(", id <").Append(sessionId).Append('>');
+		anyError["ErrorMessage"] =
+			String(isBusy ? "Session is busy" : "No valid Session").Append(", id <").Append(sessionId).Append('>');
 		StorePutter::Operate(anyError, ctx, "Tmp", ctx.Lookup("RequestProcessorErrorSlot", "WebAppService.Error"), true);
 		return false;
 	}
@@ -54,7 +56,7 @@ bool WebAppService::DoHandleService(std::ostream &reply, Context &ctx) {
 namespace {
 	char const cookieArgumentsDelimiter = ';';
 	char const valueArgumentDelimiter = '=';
-}
+}  // namespace
 
 void WebAppService::PrepareRequest(Context &ctx) {
 	StartTrace(WebAppService.PrepareRequest);
@@ -66,7 +68,7 @@ void WebAppService::PrepareRequest(Context &ctx) {
 		ROAnything roaCookie;
 		while (cookieIterator.Next(roaCookie)) {
 			coast::urlutils::Split(roaCookie.AsString(), cookieArgumentsDelimiter, anyPreparedCookies, valueArgumentDelimiter,
-					coast::urlutils::eUntouched);
+								   coast::urlutils::eUntouched);
 		}
 		request["WDCookies"] = anyPreparedCookies;
 	}
@@ -117,8 +119,8 @@ void WebAppService::ExtractPostBodyFields(Anything &query, const Anything &reque
 
 void WebAppService::DecodeWDQuery(Anything &query, const Anything &request) {
 	StartTrace(WebAppService.DecodeWDQuery);
-	String queryString = ((ROAnything) request)["QUERY_STRING"].AsCharPtr();
-	String pathString = ((ROAnything) request)["PATH_INFO"].AsCharPtr();
+	String queryString = ((ROAnything)request)["QUERY_STRING"].AsCharPtr();
+	String pathString = ((ROAnything)request)["PATH_INFO"].AsCharPtr();
 	Trace("QUERY_STRING =" << queryString);
 	Trace("PATH_INFO =" << pathString);
 	// analyze the encoded request uri and add it to the query
@@ -167,7 +169,7 @@ Anything WebAppService::BuildQuery(const String &pathString, const String &query
 void WebAppService::SplitURI2PathAndQuery(Anything &request) {
 	StartTrace(WebAppService.SplitURI2PathAndQuery);
 	TraceAny(request, "request");
-	String strRequestURI = ((ROAnything) request)["REQUEST_URI"].AsCharPtr(), strPath;
+	String strRequestURI = ((ROAnything)request)["REQUEST_URI"].AsCharPtr(), strPath;
 	Trace("REQUEST_URI [" << strRequestURI << "]");
 	long lSplitIdx = strRequestURI.StrChr('?');
 	if (lSplitIdx >= 0) {

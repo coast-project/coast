@@ -6,9 +6,11 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "HTMLTreeMapper.h"
-#include "MultiWriterParser.h"
+
 #include "HTMLTreeWriter.h"
+#include "MultiWriterParser.h"
 #include "Tracer.h"
+
 #include <ostream>
 
 RegisterResultMapper(HTMLTreeMapper);

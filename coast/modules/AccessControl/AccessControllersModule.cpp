@@ -7,10 +7,11 @@
  */
 
 #include "AccessControllersModule.h"
+
+#include "Policy.h"
+#include "Registry.h"
 #include "SimpleAccessControllers.h"
 #include "Tracer.h"
-#include "Registry.h"
-#include "Policy.h"
 
 //---- AccessControllersModule -----------------------------------------------------------
 RegisterModule(AccessControllersModule);
@@ -19,8 +20,7 @@ AccessControllersModule::AccessControllersModule(const char *name) : WDModule(na
 
 AccessControllersModule::~AccessControllersModule() {}
 
-bool AccessControllersModule::Init(const ROAnything config)
-{
+bool AccessControllersModule::Init(const ROAnything config) {
 	StartTrace(AccessControllersModule.Init);
 
 	if (config.IsDefined("AccessControllers")) {
@@ -34,13 +34,11 @@ bool AccessControllersModule::Init(const ROAnything config)
 
 		AliasInstaller ai3("EntityDataAccessController");
 		return RegisterableObject::Install(controllers["Entity"], "EntityDataAccessController", &ai3) && ret;
-
 	}
 	return false;
 }
 
-bool AccessControllersModule::ResetFinis(const ROAnything )
-{
+bool AccessControllersModule::ResetFinis(const ROAnything) {
 	StartTrace(AccessControllersModule.ResetFinis);
 
 	AliasTerminator at1("UserDataAccessController");
@@ -53,8 +51,7 @@ bool AccessControllersModule::ResetFinis(const ROAnything )
 	return RegisterableObject::ResetTerminate("EntityDataAccessController", &at3) && ret;
 }
 
-bool AccessControllersModule::Finis()
-{
+bool AccessControllersModule::Finis() {
 	StartTrace(AccessControllersModule.Finis);
 
 	bool ret = StdFinis("UserDataAccessController", "UserDataAccessController");

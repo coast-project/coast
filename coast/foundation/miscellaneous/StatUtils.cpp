@@ -7,59 +7,46 @@
  */
 
 #include "StatUtils.h"
+
+#include "Anything.h"
 #include "StringStream.h"
 #include "SystemLog.h"
-#include "Anything.h"
 
-StatEvtHandler::StatEvtHandler()
-{
-}
+StatEvtHandler::StatEvtHandler() {}
 
-StatEvtHandler::~StatEvtHandler()
-{
-}
+StatEvtHandler::~StatEvtHandler() {}
 
-void StatEvtHandler::HandleStatEvt(long evt)
-{
+void StatEvtHandler::HandleStatEvt(long evt) {
 	DoHandleStatEvt(evt);
 }
 
-void StatEvtHandler::Statistic(Anything &statElements)
-{
-	DoStatistic( statElements );
+void StatEvtHandler::Statistic(Anything &statElements) {
+	DoStatistic(statElements);
 }
 
-long StatEvtHandler::GetTotalRequests()
-{
+long StatEvtHandler::GetTotalRequests() {
 	return DoGetTotalRequests();
 }
 
-long StatEvtHandler::GetCurrentParallelRequests()
-{
+long StatEvtHandler::GetCurrentParallelRequests() {
 	return DoGetCurrentParallelRequests();
 }
 
-StatGatherer::StatGatherer()
-{
+StatGatherer::StatGatherer() {}
+
+StatGatherer::~StatGatherer() {}
+
+void StatGatherer::Statistic(Anything &statElements) {
+	DoGetStatistic(statElements);
 }
 
-StatGatherer::~StatGatherer()
-{
-}
-
-void StatGatherer::Statistic(Anything &statElements)
-{
-	DoGetStatistic( statElements );
-}
-
-void StatGatherer::PrintStatisticsOnStderr( const String &strName )
-{
+void StatGatherer::PrintStatisticsOnStderr(const String &strName) {
 	Anything statistic;
 	DoGetStatistic(statistic);
 	String strbuf;
 	{
 		StringStream stream(strbuf);
-		if ( strName.Length() ) {
+		if (strName.Length()) {
 			stream << "Statistics for [" << strName << "] ";
 		}
 		statistic.PrintOn(stream) << "\n";
@@ -67,15 +54,10 @@ void StatGatherer::PrintStatisticsOnStderr( const String &strName )
 	SystemLog::WriteToStderr(strbuf);
 }
 
-StatObserver::StatObserver()
-{
-}
+StatObserver::StatObserver() {}
 
-StatObserver::~StatObserver()
-{
-}
+StatObserver::~StatObserver() {}
 
-void StatObserver::Register(const String &name, StatGatherer *pGatherer)
-{
+void StatObserver::Register(const String &name, StatGatherer *pGatherer) {
 	DoRegisterGatherer(name, pGatherer);
 }

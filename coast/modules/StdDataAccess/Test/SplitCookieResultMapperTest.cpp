@@ -7,15 +7,16 @@
  */
 
 #include "SplitCookieResultMapperTest.h"
-#include "SplitCookieResultMapper.h"
-#include "TestSuite.h"
-#include "HierarchyInstallerWithConfig.h"
+
 #include "CheckStores.h"
 #include "Context.h"
+#include "HierarchyInstallerWithConfig.h"
+#include "SplitCookieResultMapper.h"
+#include "TestSuite.h"
 
 namespace {
-    const char *_Value = "Value";
-    const char *_Stream = "Stream";
+	const char *_Value = "Value";
+	const char *_Stream = "Stream";
 	bool setupMappers(ROAnything roaMapperConfigs) {
 		StartTrace(SplitCookieResultMapperTest.setupMappers);
 		Anything mappersToInitialize;
@@ -42,7 +43,7 @@ namespace {
 		coast::testframework::PutInStore(caseConfig["Query"], ctx.GetQuery());
 		coast::testframework::PutInStore(caseConfig["Env"], ctx.GetEnvStore());
 	}
-}
+}  // namespace
 void SplitCookieResultMapperTest::ConfiguredTests() {
 	StartTrace(SplitCookieResultMapperTest.ConfiguredTests);
 	ROAnything caseConfig;
@@ -64,19 +65,25 @@ void SplitCookieResultMapperTest::ConfiguredTests() {
 				if (caseConfig.LookupPath(roaValue, _Value)) {
 					Anything value = roaValue.DeepClone();
 					t_assertm(rm->Put(putKeyName, value, ctx), caseName);
-				} else  if (caseConfig.LookupPath(roaValue, _Stream)) {
+				} else if (caseConfig.LookupPath(roaValue, _Stream)) {
 					String strValue = roaValue.AsString();
 					IStringStream stream(strValue);
 					t_assertm(rm->Put(putKeyName, stream, ctx), caseName);
 				} else {
-					t_assertm(false, TString("neither ").Append(_Value).Append(" nor ").Append(_Stream).Append(" is defined in configuration for ").Append(caseName));
+					t_assertm(false, TString("neither ")
+										 .Append(_Value)
+										 .Append(" nor ")
+										 .Append(_Stream)
+										 .Append(" is defined in configuration for ")
+										 .Append(caseName));
 					continue;
 				}
 				Anything anyFailureStrings;
-				coast::testframework::CheckStores(anyFailureStrings, caseConfig["Result"], ctx, caseName, coast::testframework::exists);
+				coast::testframework::CheckStores(anyFailureStrings, caseConfig["Result"], ctx, caseName,
+												  coast::testframework::exists);
 				// non-existence tests
 				coast::testframework::CheckStores(anyFailureStrings, caseConfig["NotResult"], ctx, caseName,
-						coast::testframework::notExists);
+												  coast::testframework::notExists);
 				for (long sz = anyFailureStrings.GetSize(), i = 0; i < sz; ++i) {
 					t_assertm(false, anyFailureStrings[i].AsString().cstr());
 				}

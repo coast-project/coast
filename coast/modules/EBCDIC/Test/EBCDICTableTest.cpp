@@ -6,16 +6,16 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "EBCDICTableTest.h"
+
 #include "TestSuite.h"
 #include "a2ee2a.h"
-#include "EBCDICTableTest.h"
 
 EBCDICTableTest::EBCDICTableTest(TString tname) : TestCaseType(tname) {}
 
-EBCDICTableTest::~EBCDICTableTest() {};
+EBCDICTableTest::~EBCDICTableTest(){};
 
-void EBCDICTableTest::WholeTable ()
-{
+void EBCDICTableTest::WholeTable() {
 	const long numChars = 256;
 	unsigned char toConvert[numChars];
 	unsigned char converted[numChars];
@@ -23,21 +23,21 @@ void EBCDICTableTest::WholeTable ()
 
 	long i;
 	for (i = 0; i < numChars; i++) {
-		toConvert[i] = (unsigned char) i;
-	} // for
+		toConvert[i] = (unsigned char)i;
+	}  // for
 
 	ascii2ebcdic(converted, toConvert, numChars);
 	ebcdic2ascii(backConverted, converted, numChars);
 
 	for (i = 0; i < numChars; i++) {
-		assertEqual(i, (long) backConverted[i]);
-	} // for
+		assertEqual(i, (long)backConverted[i]);
+	}  // for
 
-} // WholeTable
+}  // WholeTable
 
-Test *EBCDICTableTest::suite ()
+Test *EBCDICTableTest::suite()
 /* what: return the whole suite of tests for EBCDICTableTest, add all top level
-		 test functions here.
+	 test functions here.
 */
 {
 	TestSuite *testSuite = new TestSuite;

@@ -11,14 +11,14 @@
 
 //! DLL specific settings for Windows NT
 #if defined(WIN32)
-	#ifdef _DLL
-		#include "Anything.h"
-		extern Anything fgThreads;
-		extern DWORD fgThreadPtrKey;
-		class SimpleMutex;
-		extern SimpleMutex fgThreadsMutex;
-		void TerminateKilledThreads();
-	#endif
+#ifdef _DLL
+#include "Anything.h"
+extern Anything fgThreads;
+extern DWORD fgThreadPtrKey;
+class SimpleMutex;
+extern SimpleMutex fgThreadsMutex;
+void TerminateKilledThreads();
+#endif
 #endif
 
 #endif

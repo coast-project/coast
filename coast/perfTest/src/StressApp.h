@@ -16,8 +16,7 @@ class Anything;
 
 //---- StressApp -----------------------------------------------------------
 //! Runs a Stresser and shows the results
-class StressApp : public Application
-{
+class StressApp : public Application {
 public:
 	StressApp();
 	StressApp(const char *AppName);

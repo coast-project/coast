@@ -7,22 +7,19 @@
  */
 
 #include "AnythingPerfTest.h"
-#include "TestSuite.h"
-#include "PoolAllocator.h"
 
-AnythingPerfTest::AnythingPerfTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+#include "PoolAllocator.h"
+#include "TestSuite.h"
+
+AnythingPerfTest::AnythingPerfTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(AnythingPerfTest.Ctor);
 }
 
-AnythingPerfTest::~AnythingPerfTest()
-{
+AnythingPerfTest::~AnythingPerfTest() {
 	StartTrace(AnythingPerfTest.Dtor);
 }
 
-void AnythingPerfTest::RunIndexLoopAsCharPtr(long idx, const Anything &a, const long iterations)
-{
+void AnythingPerfTest::RunIndexLoopAsCharPtr(long idx, const Anything &a, const long iterations) {
 	CatchTimeType aTimer(TString("IndexLoop/AsCharPtr/") << iterations, this, '/');
 	String out;
 	for (long i = 0; i < iterations; ++i) {
@@ -30,8 +27,7 @@ void AnythingPerfTest::RunIndexLoopAsCharPtr(long idx, const Anything &a, const 
 	}
 }
 
-void AnythingPerfTest::RunIndexLoopAsString(long idx, const Anything &a, const long iterations)
-{
+void AnythingPerfTest::RunIndexLoopAsString(long idx, const Anything &a, const long iterations) {
 	CatchTimeType aTimer(TString("IndexLoop/AsString/") << iterations, this, '/');
 	String out;
 	for (long i = 0; i < iterations; ++i) {
@@ -39,8 +35,7 @@ void AnythingPerfTest::RunIndexLoopAsString(long idx, const Anything &a, const l
 	}
 }
 
-void AnythingPerfTest::RunKeyLoop(const char *key, const Anything &a, const long iterations)
-{
+void AnythingPerfTest::RunKeyLoop(const char *key, const Anything &a, const long iterations) {
 	CatchTimeType aTimer(TString("KeyLoop/AsCharPtr/[") << key << "]/" << iterations, this, '/');
 	String out;
 	for (long i = 0; i < iterations; ++i) {
@@ -48,8 +43,7 @@ void AnythingPerfTest::RunKeyLoop(const char *key, const Anything &a, const long
 	}
 }
 
-void AnythingPerfTest::RunLookupPathLoop(const char *key, const Anything &a, const long iterations)
-{
+void AnythingPerfTest::RunLookupPathLoop(const char *key, const Anything &a, const long iterations) {
 	RunROLookupPathLoop(key, a, iterations);
 	CatchTimeType aTimer(TString("LookupPathLoop/") << key << '/' << iterations << "/any", this, '/');
 	const char *out;
@@ -58,11 +52,10 @@ void AnythingPerfTest::RunLookupPathLoop(const char *key, const Anything &a, con
 		a.LookupPath(result, key);
 		out = result.AsCharPtr("lookup hallo");
 	}
-	(void) out;
+	(void)out;
 }
 
-void AnythingPerfTest::RunROLookupPathLoop(const char *key, const ROAnything &a, const long iterations)
-{
+void AnythingPerfTest::RunROLookupPathLoop(const char *key, const ROAnything &a, const long iterations) {
 	CatchTimeType aTimer(TString("LookupPathLoop/") << key << '/' << iterations << "/roa", this, '/');
 	const char *out;
 	ROAnything result;
@@ -70,11 +63,10 @@ void AnythingPerfTest::RunROLookupPathLoop(const char *key, const ROAnything &a,
 		a.LookupPath(result, key);
 		out = result.AsCharPtr("lookup hallo");
 	}
-	(void) out;
+	(void)out;
 }
 
-void AnythingPerfTest::LookupTest()
-{
+void AnythingPerfTest::LookupTest() {
 	StartTrace(AnythingPerfTest.LookupTest);
 	PoolAllocator p(1, 16384, 10);
 
@@ -116,8 +108,7 @@ void AnythingPerfTest::LookupTest()
 	t_assertm(true, "dummy assertion to generate summary output");
 }
 
-void AnythingPerfTest::DeepCloneTest()
-{
+void AnythingPerfTest::DeepCloneTest() {
 	StartTrace(AnythingPerfTest.DeepCloneTest);
 	DoFunctorTest(1L, "long 1L", &AnythingPerfTest::RunDeepCloneLoop);
 	DoFunctorTest(0.1234, "float 0.1234", &AnythingPerfTest::RunDeepCloneLoop);
@@ -126,8 +117,7 @@ void AnythingPerfTest::DeepCloneTest()
 	DoFunctorTest(String("guguseli"), "String guguseli", &AnythingPerfTest::RunDeepCloneLoop);
 }
 
-void AnythingPerfTest::PrintOnTest()
-{
+void AnythingPerfTest::PrintOnTest() {
 	StartTrace(AnythingPerfTest.PrintOnTest);
 	DoFunctorTest(1L, "long 1L", &AnythingPerfTest::RunPrintOnPrettyLoop);
 	DoFunctorTest(0.1234, "float 0.1234", &AnythingPerfTest::RunPrintOnPrettyLoop);
@@ -137,8 +127,7 @@ void AnythingPerfTest::PrintOnTest()
 }
 
 template <typename T>
-void AnythingPerfTest::DoFunctorTest(T value, const char *pName, LoopFunctor pFunc)
-{
+void AnythingPerfTest::DoFunctorTest(T value, const char *pName, LoopFunctor pFunc) {
 	StartTrace(AnythingPerfTest.DoFunctorTest);
 	PoolAllocator p(1, 32768, 20);
 
@@ -151,36 +140,36 @@ void AnythingPerfTest::DoFunctorTest(T value, const char *pName, LoopFunctor pFu
 		(this->*pFunc)("Null-Any", a, iterations);
 	}
 	{
-		Anything m = Anything(Anything::ArrayMarker(),&p);
+		Anything m = Anything(Anything::ArrayMarker(), &p);
 		(this->*pFunc)("Anything::ArrayMarker()", m, iterations);
 	}
-//	p.Refresh();
+	//	p.Refresh();
 	{
 		Anything a(&p);
 		a["key"] = value;
 		(this->*pFunc)(String("1 any ") << pName, a, iterations);
 	}
-//	p.Refresh();
+	//	p.Refresh();
 	{
 		Anything a(&p);
 		a["key1"] = value;
 		a["key2"] = value;
 		(this->*pFunc)(String("2 any ") << pName, a, iterations);
 	}
-//	p.Refresh();
+	//	p.Refresh();
 	{
 		Anything a(&p);
 		a["key"]["second"] = value;
 		(this->*pFunc)(String("11 any ") << pName, a, iterations);
 	}
-//	p.Refresh();
+	//	p.Refresh();
 	{
 		Anything a(&p);
 		a["key"]["second"] = value;
 		a["key"]["third"] = value;
 		(this->*pFunc)(String("12 any ") << pName, a, iterations);
 	}
-//	p.Refresh();
+	//	p.Refresh();
 	{
 		Anything a(&p);
 		a["key1"]["second"] = value;
@@ -192,8 +181,7 @@ void AnythingPerfTest::DoFunctorTest(T value, const char *pName, LoopFunctor pFu
 	t_assertm(true, "dummy assertion to generate summary output");
 }
 
-void AnythingPerfTest::RunDeepCloneLoop(const char *pName, const Anything &a, const long iterations)
-{
+void AnythingPerfTest::RunDeepCloneLoop(const char *pName, const Anything &a, const long iterations) {
 	CatchTimeType aTimer(TString("DeepCloneLoop/[") << pName << "]/" << iterations, this, '/');
 	Anything result;
 	for (long i = 0; i < iterations; ++i) {
@@ -201,8 +189,7 @@ void AnythingPerfTest::RunDeepCloneLoop(const char *pName, const Anything &a, co
 	}
 }
 
-void AnythingPerfTest::RunPrintOnPrettyLoop(const char *pName, const Anything &a, const long iterations)
-{
+void AnythingPerfTest::RunPrintOnPrettyLoop(const char *pName, const Anything &a, const long iterations) {
 	CatchTimeType aTimer(TString("PrintOnPrettyLoop/[") << pName << "]/" << iterations, this, '/');
 	String strBuf;
 	OStringStream stream(&strBuf);
@@ -212,8 +199,7 @@ void AnythingPerfTest::RunPrintOnPrettyLoop(const char *pName, const Anything &a
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *AnythingPerfTest::suite ()
-{
+Test *AnythingPerfTest::suite() {
 	StartTrace(AnythingPerfTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

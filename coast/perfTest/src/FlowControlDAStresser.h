@@ -20,21 +20,18 @@
  * }
  * \endcode
  */
-class FlowControlDAStresser: public Stresser {
+class FlowControlDAStresser : public Stresser {
 public:
-	FlowControlDAStresser(const char *FlowControlDAStresserName) :
-		Stresser(FlowControlDAStresserName) {
-	}
+	FlowControlDAStresser(const char *FlowControlDAStresserName) : Stresser(FlowControlDAStresserName) {}
 	virtual Anything Run(long id);
 
 	//-- Cloning interface
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) FlowControlDAStresser(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) FlowControlDAStresser(fName); }
+
 private:
 	inline void CheckCopyErrorMessage(Anything &result, Anything &tmpStore, long lStepNumber, bool bWasError) {
-		if (tmpStore["result"].IsDefined("ErrorMessage")) { // error msgs
+		if (tmpStore["result"].IsDefined("ErrorMessage")) {	 // error msgs
 			if (bWasError) {
 				Anything conv = lStepNumber;
 				String indexStr = conv.AsString("");

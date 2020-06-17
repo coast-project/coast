@@ -13,18 +13,17 @@
 #ifndef _SelectBoxRenderer_h_
 #define _SelectBoxRenderer_h_
 
-#include "RendererTest.h"
 #include "FieldRendererTest.h"
+#include "RendererTest.h"
 
 //---- SelectBoxRenderer -----------------------------------------------------------
 
-class SelectBoxRendererTest : public FieldRendererTest
-{
+class SelectBoxRendererTest : public FieldRendererTest {
 public:
 	SelectBoxRendererTest(TString tstrName);
 	virtual ~SelectBoxRendererTest();
 
-	static Test *suite ();
+	static Test *suite();
 
 protected:
 	void TestCaseEmptyConf();
@@ -51,4 +50,4 @@ protected:
 };
 
 #endif
-#endif		//not defined _SelectBoxRendererTest_H
+#endif	// not defined _SelectBoxRendererTest_H

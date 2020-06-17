@@ -16,25 +16,23 @@
 \par Configuration
 \code
 {
-	/ListName			Rendererspec		mandatory, Resulting a String which is used to Lookup the List in the context
-	/ListData {			Anything			optional but mandatory if ListName is omitted, inline List to use for executing the action, it is ignored if ListName is also specified and is not the empty list
-		...
-		...
-	}
-	/EntryStore			Rendererspec	 	optional, default EntryData, Resulting a String which is used to Store the entry data in the TempStore
-	/IndexSlot			String				optional, if not defined the index is not added, denotes the slotname where the index of the actual entry is stored in the TempStore
-	/SlotnameSlot		String				optional, if not defined the slotname is not added, denotes the slotname where the slotname of the actual entry is stored in the TempStore
-	/EntryAction		Actionscript		mandatory, called for each entry
-	/Start				Rendererspec		optional, default 0, list index (zero based) with which to start executing the action, useful when only a portion of the list should be used
-	/End				Rendererspec		optional, default size of list, list index (zero based) with which to end executing the action, useful when only a portion of the list should be used
+  /ListName			Rendererspec		mandatory, Resulting a String which is used to Lookup the List in the context
+  /ListData {			Anything			optional but mandatory if ListName is omitted, inline List to use for executing the action, it is ignored if ListName is also specified and is not the empty list
+	...
+	...
+  }
+  /EntryStore			Rendererspec	 	optional, default EntryData, Resulting a String which is used to Store the entry data in the TempStore
+  /IndexSlot			String				optional, if not defined the index is not added, denotes the slotname where the index of the actual entry is stored in the TempStore
+  /SlotnameSlot		String				optional, if not defined the slotname is not added, denotes the slotname where the slotname of the actual entry is stored in the TempStore
+  /EntryAction		Actionscript		mandatory, called for each entry
+  /Start				Rendererspec		optional, default 0, list index (zero based) with which to start executing the action, useful when only a portion of the list should be used
+  /End				Rendererspec		optional, default size of list, list index (zero based) with which to end executing the action, useful when only a portion of the list should be used
 }
 \endcode
 */
-class ListAction: public Action {
+class ListAction : public Action {
 public:
-	ListAction(const char* name) :
-			Action(name) {
-	}
+	ListAction(const char *name) : Action(name) {}
 
 	/*! DoSomething method for configured Actions
 	 \param transitionToken (in/out) the event passed by the caller, can be modified.

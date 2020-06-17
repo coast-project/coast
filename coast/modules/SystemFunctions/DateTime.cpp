@@ -7,8 +7,10 @@
  */
 
 #include "DateTime.h"
-#include "Tracer.h"
+
 #include "SystemLog.h"
+#include "Tracer.h"
+
 #include <time.h>
 #if !defined(WIN32)
 #include <sys/time.h>
@@ -18,8 +20,7 @@
 // the following code was adapted from the ACE-library
 
 #define SECOND_TO_USECS 1000000L
-void normalize (timeval *tv_)
-{
+void normalize(timeval *tv_) {
 	// From Hans Rohnert...
 	if (tv_->tv_usec >= SECOND_TO_USECS) {
 		do {
@@ -42,8 +43,7 @@ void normalize (timeval *tv_)
 	}
 }
 
-int gettimeofday(timeval *tv_, void *dummy)
-{
+int gettimeofday(timeval *tv_, void *dummy) {
 	StartTrace(DateTime.gettimeofday);
 	// Static constant to remove time skew between FILETIME and POSIX
 	// time.  POSIX and Win32 use different epochs (Jan. 1, 1970 v.s.
@@ -54,26 +54,25 @@ int gettimeofday(timeval *tv_, void *dummy)
 	// And Bill said: "Let there be time," and there was time....
 	const DWORDLONG FILETIME_to_timval_skew = 0x19db1ded53e8000ui64;
 
-	FILETIME   file_time;
+	FILETIME file_time;
 	ULARGE_INTEGER _100ns;
-	::GetSystemTimeAsFileTime (&file_time);
+	::GetSystemTimeAsFileTime(&file_time);
 	_100ns.LowPart = file_time.dwLowDateTime;
 	_100ns.HighPart = file_time.dwHighDateTime;
 	_100ns.QuadPart -= FILETIME_to_timval_skew;
 
 	Trace("SystemTime hi:" << (long)_100ns.HighPart << " lo:" << (long)_100ns.LowPart);
 	// Convert 100ns units to seconds;
-	tv_->tv_sec = (long) (_100ns.QuadPart / (10000 * 1000));
+	tv_->tv_sec = (long)(_100ns.QuadPart / (10000 * 1000));
 	// Convert remainder to microseconds;
-	tv_->tv_usec = (long) ((_100ns.QuadPart % (10000 * 1000)) / 10);
+	tv_->tv_usec = (long)((_100ns.QuadPart % (10000 * 1000)) / 10);
 	normalize(tv_);
 	return 0;
 }
-#endif //WIN32
+#endif	// WIN32
 
 //---- DateTime ----------------------------------------------------------------
-void DateTime::GetTimeOfDay(Anything &anyTime, bool bLocalTime)
-{
+void DateTime::GetTimeOfDay(Anything &anyTime, bool bLocalTime) {
 	StartTrace(DateTime.GetTimeOfDay);
 	timeval tv;
 	// timezone defines difference of local time to utc in seconds
@@ -96,8 +95,7 @@ void DateTime::GetTimeOfDay(Anything &anyTime, bool bLocalTime)
 	TraceAny(anyTime, "current time");
 }
 
-long DateTime::GetTimezone()
-{
+long DateTime::GetTimezone() {
 	StartTrace(DateTime.GetTimeZone);
 	// timezone defines difference of local time to utc in seconds
 	tzset();

@@ -10,6 +10,7 @@
 #define _REQUESTREADER_H
 
 #include "Anything.h"
+
 #include <iosfwd>
 
 class MIMEHeader;
@@ -17,32 +18,29 @@ class Context;
 
 //! Policy object to read HTTP Requests unscramble URL Variables
 class HTTPRequestReader {
-	//!product output a request anything
+	//! product output a request anything
 	Anything fRequest;
 
-	//!subpart of output a header, containing all http headers
+	//! subpart of output a header, containing all http headers
 	MIMEHeader &fHeader;
 
-	//!contains the current requests size
+	//! contains the current requests size
 	long fRequestBufferSize;
-public:
-	//!reads request from ios on behalf of processor
-	HTTPRequestReader(MIMEHeader &header) :
-		fHeader(header), fRequestBufferSize(0) {
-	}
-	virtual ~HTTPRequestReader() {}
-	//!delegate to DoReadRequest
-	bool ReadRequest(Context & ctx, std::iostream & Ios);
-	//!get the resulting anything if read request was successful
-	const Anything & GetRequest();
 
-	MIMEHeader& GetHeaderParser() const {
-		return fHeader;
-	}
+public:
+	//! reads request from ios on behalf of processor
+	HTTPRequestReader(MIMEHeader &header) : fHeader(header), fRequestBufferSize(0) {}
+	virtual ~HTTPRequestReader() {}
+	//! delegate to DoReadRequest
+	bool ReadRequest(Context &ctx, std::iostream &Ios);
+	//! get the resulting anything if read request was successful
+	const Anything &GetRequest();
+
+	MIMEHeader &GetHeaderParser() const { return fHeader; }
 
 protected:
-	//!read a request and handle error through ios
-	virtual bool DoReadRequest(Context & ctx, std::iostream & Ios);
+	//! read a request and handle error through ios
+	virtual bool DoReadRequest(Context &ctx, std::iostream &Ios);
 };
 
 #endif

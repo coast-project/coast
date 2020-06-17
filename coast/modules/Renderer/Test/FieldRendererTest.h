@@ -15,17 +15,16 @@ class String;
 class Renderer;
 
 //---- FieldRendererTest -----------------------------------------------------------
-class FieldRendererTest : public RendererTest
-{
+class FieldRendererTest : public RendererTest {
 public:
 	FieldRendererTest(TString tstrName);
 	virtual ~FieldRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
 
 protected:
-	Renderer	*fFieldRenderer;
+	Renderer *fFieldRenderer;
 	String fCurrentTestMethod;
 
 	void RenderConf();
@@ -100,8 +99,6 @@ protected:
 	void TestField3OptMixed();
 	void ConfigureOptEmpty();
 	void TestFieldOptEmpty();
-
 };
 
 #endif
-

@@ -7,26 +7,28 @@
  */
 
 #include "HTTPProcessorWithChecks.h"
-#include "HTTPProtocolReplyRenderer.h"
+
 #include "AnyIterators.h"
-#include "AppLog.h"
 #include "AnythingUtils.h"
-#include "StringStream.h"
+#include "AppLog.h"
 #include "HTTPConstants.h"
+#include "HTTPProtocolReplyRenderer.h"
+#include "StringStream.h"
 #include "Timers.h"
 #include "URLUtils.h"
 
 RegisterRequestProcessor(HTTPProcessorWithChecks);
 
 namespace {
-	bool PostOrGetValuePresent(Context& ctx, ROAnything roaHeaders, String const& msg) {
+	bool PostOrGetValuePresent(Context &ctx, ROAnything roaHeaders, String const &msg) {
 		StartTrace(HTTPProcessorWithChecks.PostOrGetValuePresent);
 		String work(64L);
 		AnyExtensions::Iterator<ROAnything> aValueIter(roaHeaders);
 		ROAnything roaValue;
 		while (aValueIter.Next(roaValue)) {
 			work = roaValue.AsString().ToUpper();
-			if ( work.StartsWith(coast::http::constants::getMethodSlotname) || work.StartsWith(coast::http::constants::postMethodSlotname) ) {
+			if (work.StartsWith(coast::http::constants::getMethodSlotname) ||
+				work.StartsWith(coast::http::constants::postMethodSlotname)) {
 				Trace("value [" << work << "] starts with either POST or GET which is suspicious");
 				String line;
 				aValueIter.SlotName(line);
@@ -56,9 +58,10 @@ namespace {
 	bool UrlPathContainsUnsafeChars(Context &ctx, String const &urlPath) {
 		StartTrace(HTTPProcessorWithChecks.UrlPathContainsUnsafeChars);
 		// according (RFC 1738 -> now rfc 2396)
-		return coast::urlutils::CheckUrlPathContainsUnsafeChars(urlPath, ctx.Lookup("CheckUrlPathContainsUnsafeCharsOverride", ""),
-				ctx.Lookup("CheckUrlPathContainsUnsafeCharsAsciiOverride", ""),
-				!(ctx.Lookup("CheckUrlPathContainsUnsafeCharsDoNotCheckExtendedAscii", 0L)));
+		return coast::urlutils::CheckUrlPathContainsUnsafeChars(
+			urlPath, ctx.Lookup("CheckUrlPathContainsUnsafeCharsOverride", ""),
+			ctx.Lookup("CheckUrlPathContainsUnsafeCharsAsciiOverride", ""),
+			!(ctx.Lookup("CheckUrlPathContainsUnsafeCharsDoNotCheckExtendedAscii", 0L)));
 	}
 	bool DecodedUrlContainedSuspiciousCharacters(Context &ctx, String &urlPath) {
 		StartTrace(HTTPProcessorWithChecks.DecodedUrlContainedSuspiciousCharacters);
@@ -71,7 +74,8 @@ namespace {
 			normalizedUrl = coast::urlutils::urlDecode(urlPath, eUrlCheckStatus, false);
 		}
 		if (eUrlCheckStatus == coast::urlutils::eSuspiciousChar) {
-			coast::http::PutErrorMessageIntoContext(ctx, 400, "Encoded char above 0x255 detected", urlPath, "HTTPProcessorWithChecks::DoPrepareContextRequest");
+			coast::http::PutErrorMessageIntoContext(ctx, 400, "Encoded char above 0x255 detected", urlPath,
+													"HTTPProcessorWithChecks::DoPrepareContextRequest");
 			return true;
 		}
 		urlPath = normalizedUrl;
@@ -80,9 +84,7 @@ namespace {
 	struct RequestURISplitHelper {
 		Anything &fRequest;
 		String fPath, fArgSep, fArgs;
-		RequestURISplitHelper(Anything &request) : fRequest(request) {
-			split();
-		}
+		RequestURISplitHelper(Anything &request) : fRequest(request) { split(); }
 		void split() {
 			StartTrace(RequestURISplitHelper.split);
 			fPath = fRequest["REQUEST_URI"].AsString();
@@ -90,13 +92,14 @@ namespace {
 			// extract request url path, without trailing ? or;
 			long argDelimPos = fPath.FirstCharOf("?;");
 			if (argDelimPos != -1) {
-				if (argDelimPos != fPath.Length()-1) {
+				if (argDelimPos != fPath.Length() - 1) {
 					fArgSep = fPath.SubString(argDelimPos, 1);
 					fArgs = fPath.SubString(argDelimPos + 1, fPath.Length());
 				}
 				fPath = fPath.SubString(0, argDelimPos);
 			}
-			Trace("UrlPath: argDelimPos: " << argDelimPos << " argDelim: " << fArgSep << " Path: " << fPath << " Args: " << fArgs);
+			Trace("UrlPath: argDelimPos: " << argDelimPos << " argDelim: " << fArgSep << " Path: " << fPath
+										   << " Args: " << fArgs);
 		}
 		String merge() {
 			StartTrace(RequestURISplitHelper.merge);
@@ -105,35 +108,42 @@ namespace {
 			return fPath;
 		}
 	};
-}
+}  // namespace
 
-bool HTTPProcessorWithChecks::DoPrepareContextRequest(std::iostream &Ios, Context &ctx, Anything &request, HTTPRequestReader &reader) {
+bool HTTPProcessorWithChecks::DoPrepareContextRequest(std::iostream &Ios, Context &ctx, Anything &request,
+													  HTTPRequestReader &reader) {
 	StartTrace(HTTPProcessorWithChecks.DoPrepareContextRequest);
 	MethodTimer(HTTPProcessorWithChecks.DoPrepareContextRequest, "Preparing request for context", ctx);
 	RequestURISplitHelper splitHelper(request);
-	if ( not HasAllPathCharactersUrlEncoded(ctx, splitHelper.fPath) ) {
-		coast::http::PutErrorMessageIntoContext(ctx, 400, "Not all unsafe chars URL encoded", splitHelper.fPath, "HTTPProcessorWithChecks::DoVerifyRequest");
+	if (not HasAllPathCharactersUrlEncoded(ctx, splitHelper.fPath)) {
+		coast::http::PutErrorMessageIntoContext(ctx, 400, "Not all unsafe chars URL encoded", splitHelper.fPath,
+												"HTTPProcessorWithChecks::DoVerifyRequest");
 		return false;
 	}
-	if ( not HasAllArgsCharactersUrlEncoded(ctx, splitHelper.fArgs) ) {
+	if (not HasAllArgsCharactersUrlEncoded(ctx, splitHelper.fArgs)) {
 		String reason("Argument string (after ");
 		reason << splitHelper.fArgSep << ") was not correctly encoded. Request not rejected.";
-		coast::http::PutErrorMessageIntoContext(ctx, 200, reason, splitHelper.fArgs, "HTTPProcessorWithChecks::DoVerifyRequest");
+		coast::http::PutErrorMessageIntoContext(ctx, 200, reason, splitHelper.fArgs,
+												"HTTPProcessorWithChecks::DoVerifyRequest");
 	}
-	if ( DecodedUrlContainedSuspiciousCharacters(ctx, splitHelper.fPath) ) {
+	if (DecodedUrlContainedSuspiciousCharacters(ctx, splitHelper.fPath)) {
 		return false;
 	}
-	if ( UrlPathContainsUnsafeChars(ctx, splitHelper.fPath) ) {
-		coast::http::PutErrorMessageIntoContext(ctx, 400, "Decoded URL path contains unsafe char", splitHelper.fPath, "HTTPProcessorWithChecks::DoVerifyRequest");
+	if (UrlPathContainsUnsafeChars(ctx, splitHelper.fPath)) {
+		coast::http::PutErrorMessageIntoContext(ctx, 400, "Decoded URL path contains unsafe char", splitHelper.fPath,
+												"HTTPProcessorWithChecks::DoVerifyRequest");
 		return false;
 	}
-	if ( UriChangedDuringPathCleanup(ctx, splitHelper.fPath) ) {
+	if (UriChangedDuringPathCleanup(ctx, splitHelper.fPath)) {
 		if (ctx.Lookup("FixDirectoryTraversial", 0L)) {
-			coast::http::PutErrorMessageIntoContext(ctx, 200, "Directory traversal attack detected and normalized. "
-					"Request not rejected because of FixDirectoryTraversial setting", splitHelper.fPath, "HTTPProcessorWithChecks::DoPrepareContextRequest");
+			coast::http::PutErrorMessageIntoContext(ctx, 200,
+													"Directory traversal attack detected and normalized. "
+													"Request not rejected because of FixDirectoryTraversial setting",
+													splitHelper.fPath, "HTTPProcessorWithChecks::DoPrepareContextRequest");
 			splitHelper.fPath = coast::urlutils::CleanUpUriPath(splitHelper.fPath);
 		} else {
-			coast::http::PutErrorMessageIntoContext(ctx, 400, "Directory traversal attack", splitHelper.fPath, "HTTPProcessorWithChecks::DoPrepareContextRequest");
+			coast::http::PutErrorMessageIntoContext(ctx, 400, "Directory traversal attack", splitHelper.fPath,
+													"HTTPProcessorWithChecks::DoPrepareContextRequest");
 			return false;
 		}
 	}
@@ -145,13 +155,17 @@ bool HTTPProcessorWithChecks::DoVerifyRequest(Context &ctx) {
 	StartTrace(HTTPProcessorWithChecks.DoVerifyRequest);
 	bool const rejectOnFailure = ctx.Lookup("RejectRequestsWithInvalidHeaders", 0L);
 	ROAnything roaHeaders = ctx.Lookup("header");
-	if ( ctx.Lookup("CheckHeaderFields", 1L) ) {
-		if ( PostOrGetValuePresent(ctx, roaHeaders, "Possible SSL Renegotiation attack. A header contains a GET/POST request") && rejectOnFailure) {
+	if (ctx.Lookup("CheckHeaderFields", 1L)) {
+		if (PostOrGetValuePresent(ctx, roaHeaders, "Possible SSL Renegotiation attack. A header contains a GET/POST request") &&
+			rejectOnFailure) {
 			return false;
 		}
 		AnyExtensions::Iterator<ROAnything> bodyHeaderIter(ctx.Lookup("REQUEST_BODY"));
-		while ( bodyHeaderIter.Next(roaHeaders) ) {
-			if ( PostOrGetValuePresent(ctx, roaHeaders["header"], "Possible SSL Renegotiation attack. A multipart mime header (in POST) contains a GET/POST request") && rejectOnFailure) {
+		while (bodyHeaderIter.Next(roaHeaders)) {
+			if (PostOrGetValuePresent(
+					ctx, roaHeaders["header"],
+					"Possible SSL Renegotiation attack. A multipart mime header (in POST) contains a GET/POST request") &&
+				rejectOnFailure) {
 				return false;
 			}
 		}

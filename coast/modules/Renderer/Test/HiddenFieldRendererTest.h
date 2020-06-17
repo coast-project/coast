@@ -11,22 +11,20 @@
 
 //-*-Mode: C++;-*-
 
-#include "RendererTest.h"
 #include "FieldRendererTest.h"
+#include "RendererTest.h"
 
 //---- HiddenFieldRendererTest -----------------------------------------------------------
 
-class HiddenFieldRendererTest : public FieldRendererTest
-{
+class HiddenFieldRendererTest : public FieldRendererTest {
 public:
 	HiddenFieldRendererTest(TString tstrName);
 	virtual ~HiddenFieldRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
 
 protected:
-
 	void TestCaseEmptyConf();
 	void TestCase0();
 	void TestCase1();
@@ -44,7 +42,6 @@ protected:
 	void TestFaultOptionRenderer();
 	void TestOptionRendererOld();
 	void TestFaultOptionRendererOld();
-
 };
 
 #endif

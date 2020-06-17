@@ -11,27 +11,26 @@
 
 #include "TestResult.h"
 
-class TextTestResult : public TestResult
-{
+class TextTestResult : public TestResult {
 public:
-	virtual void		addError	(TestLocation *loc);
-	virtual void		addFailure	(TestLocation *loc);
-	virtual void		startTest	(Test *test);
-	virtual void		endTest		(Test *test);
-	virtual void		print (std::ostream &stream);
-	virtual void		printCauses (std::ostream &stream, TestLocList &causes);
-	virtual void		printErrors (std::ostream &stream);
-	virtual void		printFailures (std::ostream &stream);
-	virtual void		printHeader (std::ostream &stream);
-	virtual void		logSuccesses(std::ostream &stream);
+	virtual void addError(TestLocation *loc);
+	virtual void addFailure(TestLocation *loc);
+	virtual void startTest(Test *test);
+	virtual void endTest(Test *test);
+	virtual void print(std::ostream &stream);
+	virtual void printCauses(std::ostream &stream, TestLocList &causes);
+	virtual void printErrors(std::ostream &stream);
+	virtual void printFailures(std::ostream &stream);
+	virtual void printHeader(std::ostream &stream);
+	virtual void logSuccesses(std::ostream &stream);
+
 private:
 	long fStartTime;
 };
 
 /* insertion operator for easy output */
-inline std::ostream &operator<< (std::ostream &stream, TextTestResult &result)
-{
-	result.print (stream);
+inline std::ostream &operator<<(std::ostream &stream, TextTestResult &result) {
+	result.print(stream);
 	return stream;
 }
 

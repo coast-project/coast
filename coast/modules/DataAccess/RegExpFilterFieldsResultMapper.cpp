@@ -7,41 +7,43 @@
  */
 
 #include "RegExpFilterFieldsResultMapper.h"
-#include "RE.h"
+
 #include "AnyIterators.h"
 #include "Context.h"
+#include "RE.h"
 
 RegisterResultMapper(RegExpFilterFieldsResultMapper);
 
 bool RegExpFilterFieldsResultMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything script) {
 	StartTrace1(RegExpFilterFieldsResultMapper.DoPutAny, "key [" << NotNull(key) << "]");
-	if ( script.IsNull() || not script.GetSize() ) {
+	if (script.IsNull() || not script.GetSize()) {
 		return true;
 	}
 	return ResultMapper::DoPutAny(key, value, ctx, script);
 }
 
-bool RegExpFilterFieldsResultMapper::DoPutAnyWithSlotname(const char *key, Anything &value, Context &ctx, ROAnything roaScript, const char *slotname)
-{
-	StartTrace1(RegExpFilterFieldsResultMapper.DoPutAnyWithSlotname, "key [" << NotNull(key) << "] regular expression [" << NotNull(slotname) << "]");
+bool RegExpFilterFieldsResultMapper::DoPutAnyWithSlotname(const char *key, Anything &value, Context &ctx, ROAnything roaScript,
+														  const char *slotname) {
+	StartTrace1(RegExpFilterFieldsResultMapper.DoPutAnyWithSlotname,
+				"key [" << NotNull(key) << "] regular expression [" << NotNull(slotname) << "]");
 	TraceAny(value, "value");
 	RE aRE(slotname, static_cast<RE::eMatchFlags>(Lookup("MatchFlags", 0L)));
 
 	AnyExtensions::Iterator<Anything> slotnameIterator(value);
 	Anything anyValue, anyProcessed;
 	String strSlotname;
-	bool bMappingSuccess = true, bMappedValues=false;
-	while ( slotnameIterator.Next(anyValue) && bMappingSuccess ) {
-		if ( slotnameIterator.SlotName(strSlotname) && aRE.ContainedIn(strSlotname) ) {
+	bool bMappingSuccess = true, bMappedValues = false;
+	while (slotnameIterator.Next(anyValue) && bMappingSuccess) {
+		if (slotnameIterator.SlotName(strSlotname) && aRE.ContainedIn(strSlotname)) {
 			anyProcessed.Append(slotnameIterator.Index());
 			TraceAny(anyValue, "pattern [" << slotname << "] matched in slotname [" << strSlotname << "] with value:");
-			if ( roaScript.AsString().IsEqual("-") ) {
-				continue; //<! shortcut because we got a negative filter which is not to put through
+			if (roaScript.AsString().IsEqual("-")) {
+				continue;  //<! shortcut because we got a negative filter which is not to put through
 			}
 			bMappedValues = true;
 			String strNewKey = key;
 			strNewKey.Append(getDelim()).Append(strSlotname);
-			if ( roaScript.IsNull() || not roaScript.GetSize() ) {
+			if (roaScript.IsNull() || not roaScript.GetSize()) {
 				//! catch emtpy mapper script and directly use final put
 				Trace("Calling ResultMapper::DoFinalPutAny() with new key [" << strNewKey << "]");
 				bMappingSuccess = DoFinalPutAny(strNewKey, anyValue, ctx) && bMappingSuccess;
@@ -52,9 +54,9 @@ bool RegExpFilterFieldsResultMapper::DoPutAnyWithSlotname(const char *key, Anyth
 			Trace("RetCode of Put:" << (bMappingSuccess ? "true" : "false"));
 		}
 	}
-	for ( long idx = anyProcessed.GetSize()-1l; idx >= 0L; --idx ) {
+	for (long idx = anyProcessed.GetSize() - 1l; idx >= 0L; --idx) {
 		Trace("removing processed entry at index " << anyProcessed[idx].AsLong(-1L));
 		value.Remove(anyProcessed[idx].AsLong(-1L));
 	}
-	return (bMappedValues ? bMappingSuccess : Lookup("NoMatchReturnValue", 1L) > 0L );
+	return (bMappedValues ? bMappingSuccess : Lookup("NoMatchReturnValue", 1L) > 0L);
 }

@@ -9,8 +9,8 @@
 #ifndef _SSLSocketArgsTest_H
 #define _SSLSocketArgsTest_H
 
-#include "TestCase.h"
 #include "SSLSocket.h"
+#include "TestCase.h"
 
 //---- SSLSocketArgsTest ----------------------------------------------------------
 //! <B>single line description of the class</B>
@@ -18,8 +18,7 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class SSLSocketArgsTest : public testframework::TestCase
-{
+class SSLSocketArgsTest : public testframework::TestCase {
 public:
 	//--- constructors
 
@@ -32,7 +31,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of tests
-	static Test *suite ();
+	static Test *suite();
 
 	//! describe this Test
 	void ArgsTest();

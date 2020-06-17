@@ -21,13 +21,12 @@
 //---- BlowfishTest -----------------------------------------------------------
 class Scrambler;
 
-class BlowfishTest : public testframework::TestCase
-{
+class BlowfishTest : public testframework::TestCase {
 public:
 	BlowfishTest(TString tstrName);
 	virtual ~BlowfishTest();
 
-	static Test *suite ();
+	static Test *suite();
 
 	void scrambleUnscramble();
 	void differentKey();
@@ -38,7 +37,7 @@ public:
 
 	void paddingTest();
 	void scrambleLongerStringTheSame();
-//!tests for CBC blowfish encoding
+	//! tests for CBC blowfish encoding
 	void paddingFrontTest();
 	void paddingIsRandomTest();
 	void scrambleSameKeyButDifferentIvec();

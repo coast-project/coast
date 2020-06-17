@@ -16,20 +16,21 @@
  \par Configuration
  \code
 {
-	/LookupName			Rendererspec	mandatory, name to lookup
-	/Default			Rendererspec	optional, default if LookupName name slot was not found
-	/Delim   			String			optional, default ".", first char is taken as delimiter for lookup path
-	/IndexDelim			String			optional, default ":", first char is taken as index-delimiter for lookup path
+  /LookupName			Rendererspec	mandatory, name to lookup
+  /Default			Rendererspec	optional, default if LookupName name slot was not found
+  /Delim   			String			optional, default ".", first char is taken as delimiter for lookup path
+  /IndexDelim			String			optional, default ":", first char is taken as index-delimiter for lookup path
 }
  \endcode
  or just
  \code
 {
-	"name" "default renderer specification" "delim" "indexdelim"
+  "name" "default renderer specification" "delim" "indexdelim"
 }
  \endcode
 
- LookupRenderer is the abstract super class for renderers that use a lookup name and the Context to retrieve an Anything that is then used as a renderer specification (see Renderer::Render() for valid renderer specifications):
+ LookupRenderer is the abstract super class for renderers that use a lookup name and the Context to retrieve an Anything that is
+then used as a renderer specification (see Renderer::Render() for valid renderer specifications):
 
  The LookupRenderer provides indirection of rendering via a renderer
  specification or some simple data that resides somewhere within the current
@@ -38,19 +39,18 @@
  be used to dynamically create some page content using the data.)
 
  -# By using the two explicit tags /LookupName and /Default
- -# Or by just listing two entries in the input 'config' data. The first entry is then used as the lookup name and the second one is used as the default.
+ -# Or by just listing two entries in the input 'config' data. The first entry is then used as the lookup name and the second
+one is used as the default.
 
  \note LookupName and Default may contain any renderer specification. The default may also be omitted. Additional entries in the input data are ignored by the LookupRenderer.
 
  Subclasses of LookupRenderer are supposed to override the method DoLookup() to define how the data is actually retrieved.
  */
-class LookupRenderer: public Renderer {
+class LookupRenderer : public Renderer {
 public:
 	/*! standard named object constructor
 	 \param name name of concrete class */
-	LookupRenderer(const char *name) :
-		Renderer(name) {
-	}
+	LookupRenderer(const char *name) : Renderer(name) {}
 
 	/*! common rendering hook
 	 \param reply out - the stream where the rendered output is written on.
@@ -72,26 +72,24 @@ protected:
  \par Configuration
  \code
 {
-	/LookupName			Rendererspec	mandatory, name to lookup
-	/Default			Rendererspec	optional, default if LookupName name slot was not found
-	/Delim   			String			optional, default ".", first char is taken as delimiter for lookup path
-	/IndexDelim			String			optional, default ":", first char is taken as index-delimiter for lookup path
+  /LookupName			Rendererspec	mandatory, name to lookup
+  /Default			Rendererspec	optional, default if LookupName name slot was not found
+  /Delim   			String			optional, default ".", first char is taken as delimiter for lookup path
+  /IndexDelim			String			optional, default ":", first char is taken as index-delimiter for lookup path
 }
  \endcode
  or just
  \code
 {
-	"name" "default renderer specification" "delim" "indexdelim"
+  "name" "default renderer specification" "delim" "indexdelim"
 }
  \endcode
  */
-class ContextLookupRenderer: public LookupRenderer {
+class ContextLookupRenderer : public LookupRenderer {
 public:
 	/*! standard named object constructor
 	 \param name name of concrete class */
-	ContextLookupRenderer(const char *name) :
-		LookupRenderer(name) {
-	}
+	ContextLookupRenderer(const char *name) : LookupRenderer(name) {}
 
 protected:
 	/*! overriden DoLookup implementation
@@ -107,26 +105,25 @@ protected:
  \par Configuration
  \code
  {
-	 /LookupName			Rendererspec	mandatory, name to lookup
-	 /Default			Rendererspec	optional, default if LookupName name slot was not found
-	 /Delim   			String			optional, default ".", first char is taken as delimiter for lookup path
-	 /IndexDelim			String			optional, default ":", first char is taken as index-delimiter for lookup path
+   /LookupName			Rendererspec	mandatory, name to lookup
+   /Default			Rendererspec	optional, default if LookupName name slot was not found
+   /Delim   			String			optional, default ".", first char is taken as delimiter for lookup path
+   /IndexDelim			String			optional, default ":", first char is taken as index-delimiter for lookup path
  }
  \endcode
  or just
  \code
  {
- 	 "name" "default renderer specification" "delim" "indexdelim"
+   "name" "default renderer specification" "delim" "indexdelim"
  }
  \endcode
  */
-class StoreLookupRenderer: public LookupRenderer {
+class StoreLookupRenderer : public LookupRenderer {
 public:
 	/*! standard named object constructor
 	 \param name name of concrete class */
-	StoreLookupRenderer(const char *name) :
-		LookupRenderer(name) {
-	}
+	StoreLookupRenderer(const char *name) : LookupRenderer(name) {}
+
 protected:
 	/*! overriden DoLookup implementation
 	 \param context the context the renderer runs within.
@@ -141,26 +138,24 @@ protected:
  \par Configuration
  \code
  {
-	 /LookupName			Rendererspec	mandatory, name to lookup
-	 /Default			Rendererspec	optional, default if LookupName name slot was not found
-	 /Delim   			String			optional, default ".", first char is taken as delimiter for lookup path
-	 /IndexDelim			String			optional, default ":", first char is taken as index-delimiter for lookup path
+   /LookupName			Rendererspec	mandatory, name to lookup
+   /Default			Rendererspec	optional, default if LookupName name slot was not found
+   /Delim   			String			optional, default ".", first char is taken as delimiter for lookup path
+   /IndexDelim			String			optional, default ":", first char is taken as index-delimiter for lookup path
  }
  \endcode
  or just
  \code
  {
- 	 "name" "default renderer specification" "delim" "indexdelim"
+   "name" "default renderer specification" "delim" "indexdelim"
  }
  \endcode
  \note The query is not included using an ordinary ContextLookupRenderer */
-class QueryLookupRenderer: public LookupRenderer {
+class QueryLookupRenderer : public LookupRenderer {
 public:
 	/*! standard named object constructor
 	 \param name name of concrete class */
-	QueryLookupRenderer(const char *name) :
-		LookupRenderer(name) {
-	}
+	QueryLookupRenderer(const char *name) : LookupRenderer(name) {}
 
 protected:
 	/*! overriden DoLookup implementation

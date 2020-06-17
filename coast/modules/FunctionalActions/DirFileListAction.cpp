@@ -7,34 +7,34 @@
  */
 
 #include "DirFileListAction.h"
-#include "SystemFile.h"
-#include "Renderer.h"
+
 #include "Context.h"
-#include "Tracer.h"
+#include "Renderer.h"
+#include "SystemFile.h"
 #include "Timers.h"
+#include "Tracer.h"
 
 using namespace coast;
 
 //---- DirFileListAction ---------------------------------------------------------------
 RegisterAction(DirFileListAction);
 
-DirFileListAction::DirFileListAction(const char *name) : Action(name) { }
+DirFileListAction::DirFileListAction(const char *name) : Action(name) {}
 
-DirFileListAction::~DirFileListAction() { }
+DirFileListAction::~DirFileListAction() {}
 
-bool DirFileListAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool DirFileListAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	// this is the new method that also gets a config ( similar to Renderer::RenderAll )
 	// write the action code here - you don't have to override DoAction anymore
 	StartTrace(DirFileListAction.DoExecAction);
 	String sPath, sFilter, sTarget, sSort;
 
 	// Check Config if Path is defined cause mandatory
-	if ( config.IsDefined("Path") ) {
+	if (config.IsDefined("Path")) {
 		// Render slot
 		Renderer::RenderOnString(sPath, ctx, config["Path"]);
 		Trace("rendered sPath [" << sPath << "]");
-		if ( !sPath.Length() ) {
+		if (!sPath.Length()) {
 			Trace("mandatory slot Path is empty after rendering !");
 			return false;
 		}
@@ -43,19 +43,19 @@ bool DirFileListAction::DoExecAction(String &transitionToken, Context &ctx, cons
 		return false;
 	}
 	// Check Config if Filter is defined
-	if ( config.IsDefined("Filter") ) {
+	if (config.IsDefined("Filter")) {
 		sFilter = config["Filter"].AsString();
 		Trace("optional slot Filter is [" << sFilter << "]");
 	}
 	// Check Config if Target is defined
-	if ( config.IsDefined("Target") ) {
+	if (config.IsDefined("Target")) {
 		sTarget = config["Target"].AsString();
 		Trace("optional slot Target is [" << sTarget << "]");
 	}
 
 	Anything aTmpStore(ctx.GetTmpStore());
 	// Check if path is a valid path
-	if ( !system::IsDirectory(sPath) ) {
+	if (!system::IsDirectory(sPath)) {
 		String strMsg("Slot Path contains not a valid path !");
 		Trace(strMsg);
 		aTmpStore["Error"] = strMsg;
@@ -75,31 +75,31 @@ bool DirFileListAction::DoExecAction(String &transitionToken, Context &ctx, cons
 		sSort = config["Sort"].AsString();
 		Trace("optional slot Sort is [" << sSort << "]");
 		MethodTimerUnit(DirFileListAction.DoExecAction, "SortList", ctx, TimeLogger::eMicroseconds);
-//XXX
+		// XXX
 		aFileList.SortByStringValues();
 	}
 
-	if ( config.IsDefined("DirsOnly") ) {
-		bool bDirs( config["DirsOnly"].AsBool(false) );
+	if (config.IsDefined("DirsOnly")) {
+		bool bDirs(config["DirsOnly"].AsBool(false));
 		Trace("optional slot DirsOnly is [" << bDirs << "]");
-		long ii( aFileList.GetSize() - 1 );
+		long ii(aFileList.GetSize() - 1);
 		while (ii >= 0) {
-			Trace ("File to check [" << aFileList[ii].AsString() << "]");
+			Trace("File to check [" << aFileList[ii].AsString() << "]");
 			String sCurrPath(sPath);
-			if ( sPath[sPath.Length()-1] != system::Sep() ) {
+			if (sPath[sPath.Length() - 1] != system::Sep()) {
 				sCurrPath << system::Sep();
 			}
 			sCurrPath << aFileList[ii].AsString();
-			Trace ("Path to check [" << sCurrPath << "]");
-			if ( system::IsDirectory(sCurrPath) ) {
-				Trace ("File to check [" << aFileList[ii].AsString() << "] is Directory !!");
-				if ( !bDirs ) {
+			Trace("Path to check [" << sCurrPath << "]");
+			if (system::IsDirectory(sCurrPath)) {
+				Trace("File to check [" << aFileList[ii].AsString() << "] is Directory !!");
+				if (!bDirs) {
 					Trace("Removing Directory [" << aFileList[ii].AsString() << "] from list");
 					aFileList.Remove(ii);
 					++ii;
 				}
 			} else {
-				if ( bDirs ) {
+				if (bDirs) {
 					Trace("Removing File [" << aFileList[ii].AsString() << "] from list");
 					aFileList.Remove(ii);
 					++ii;
@@ -109,7 +109,7 @@ bool DirFileListAction::DoExecAction(String &transitionToken, Context &ctx, cons
 		}
 	}
 
-	if ( sTarget.Length() ) {
+	if (sTarget.Length()) {
 		aTmpStore[sTarget] = aFileList;
 	} else {
 		aTmpStore["RetrievedFileList"] = aFileList;

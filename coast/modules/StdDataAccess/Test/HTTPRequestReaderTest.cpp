@@ -7,14 +7,15 @@
  */
 
 #include "HTTPRequestReaderTest.h"
-#include "HTTPRequestReader.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "Context.h"
-#include "MIMEHeader.h"
-#include "StringStreamSocket.h"
+
 #include "AnyIterators.h"
 #include "AnyUtils.h"
+#include "Context.h"
+#include "FoundationTestTypes.h"
+#include "HTTPRequestReader.h"
+#include "MIMEHeader.h"
+#include "StringStreamSocket.h"
+#include "TestSuite.h"
 
 void HTTPRequestReaderTest::ReadMinimalInputTest() {
 	StartTrace(HTTPRequestReaderTest.ReadMinimalInputTest);

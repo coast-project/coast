@@ -14,13 +14,12 @@
 
 //---- SybCTnewDATest ----------------------------------------------------------
 //:TestCases description
-class SybCTnewDATest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class SybCTnewDATest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
 	//:TestCase constructor
-	//!param: name - name of the test
+	//! param: name - name of the test
 	SybCTnewDATest(TString tstrName);
 
 	//:destroys the test case
@@ -29,7 +28,7 @@ public:
 	//--- public api
 
 	//:builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//:describe this testcase
 	void InitOpenSetConPropTest();

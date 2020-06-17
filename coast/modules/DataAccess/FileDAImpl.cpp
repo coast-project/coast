@@ -7,6 +7,7 @@
  */
 
 #include "FileDAImpl.h"
+
 #include "Tracer.h"
 
 using namespace coast;
@@ -14,13 +15,11 @@ using namespace coast;
 //--- FileDAImpl -----------------------------------------------------
 RegisterDataAccessImpl(FileDAImpl);
 
-IFAObject *FileDAImpl::Clone(Allocator *a) const
-{
+IFAObject *FileDAImpl::Clone(Allocator *a) const {
 	return new (a) FileDAImpl(fName);
 }
 
-bool FileDAImpl::GetFileName(String &filename, String &ext, Context &context, ParameterMapper *in)
-{
+bool FileDAImpl::GetFileName(String &filename, String &ext, Context &context, ParameterMapper *in) {
 	StartTrace(FileDAImpl.GetFileName);
 
 	String name;
@@ -46,34 +45,31 @@ bool FileDAImpl::GetFileName(String &filename, String &ext, Context &context, Pa
 	return ret;
 }
 
-system::openmode FileDAImpl::GetMode(Context &context, ParameterMapper *in)
-{
+system::openmode FileDAImpl::GetMode(Context &context, ParameterMapper *in) {
 	StartTrace(FileDAImpl.GetMode);
 	system::openmode mode = (system::openmode)0;
 	Anything anyModes;
 	// do not fail when Get did not find a Mode...
 	in->Get("Mode", anyModes, context);
-	TraceAny(anyModes, "mapped modes" );
+	TraceAny(anyModes, "mapped modes");
 	mode = DoGetMode(anyModes);
 	Trace("mode to return:" << (long)mode);
 	return mode;
 }
 
-system::openmode FileDAImpl::DoGetMode(ROAnything roaModes)
-{
+system::openmode FileDAImpl::DoGetMode(ROAnything roaModes) {
 	StartTrace(FileDAImpl.DoGetMode);
 	system::openmode mode = (system::openmode)0;
-	if ( roaModes.Contains("text") ) {
+	if (roaModes.Contains("text")) {
 		Trace("text mode");
-	} else if ( roaModes.Contains("binary") ) {
+	} else if (roaModes.Contains("binary")) {
 		mode |= std::ios::binary;
 		Trace("binary mode");
 	}
 	return mode;
 }
 
-std::iostream *FileDAImpl::GetFileStream(Context &context, ParameterMapper *in)
-{
+std::iostream *FileDAImpl::GetFileStream(Context &context, ParameterMapper *in) {
 	StartTrace(FileDAImpl.GetFileStream);
 	std::iostream *pStream = NULL;
 	String filename, ext;

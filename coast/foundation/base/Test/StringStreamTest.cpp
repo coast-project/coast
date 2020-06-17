@@ -7,10 +7,11 @@
  */
 
 #include "StringStreamTest.h"
-#include "TestSuite.h"
+
 #include "StringStream.h"
 #include "SystemFile.h"
 #include "SystemLog.h"
+#include "TestSuite.h"
 
 using namespace coast;
 
@@ -24,24 +25,18 @@ const char *const StringStreamTest::fgcContent =
 	"it consists of several lines of simple Text\n"
 	"and will be written to a string using the StringStream iostream\n";
 
-StringStreamTest::StringStreamTest(TString tname) :
-	TestCaseType(tname)
-{
-}
+StringStreamTest::StringStreamTest(TString tname) : TestCaseType(tname) {}
 
-StringStreamTest::~StringStreamTest()
-{
-}
+StringStreamTest::~StringStreamTest() {}
 
-void StringStreamTest::OperatorShiftLeftWithReadBuf()
-{
+void StringStreamTest::OperatorShiftLeftWithReadBuf() {
 	String testContent("hank");
 	IStringStream is(testContent);
 	if (t_assert(is.good())) {
 		OStringStream oss;
 		t_assert(oss.good());
 		t_assert(is.rdbuf());
-		oss.operator << (is.rdbuf());
+		oss.operator<<(is.rdbuf());
 		t_assert(oss.good());
 		assertEqual(testContent, oss.str());
 	}
@@ -55,8 +50,8 @@ void StringStreamTest::SimpleWrite()
 	t_assert(os.good() != 0);
 	os << fgcContent << std::flush;
 	assertCharPtrEqual(fgcContent, os.str());
-	t_assert(os.good() != 0); // some error should occur, eof or fail or bad
-	assertEqual(0, os.rdstate()); // some error should occur, eof or fail or bad
+	t_assert(os.good() != 0);	   // some error should occur, eof or fail or bad
+	assertEqual(0, os.rdstate());  // some error should occur, eof or fail or bad
 	// should check if file really exists just with low level syscalls and fcts
 	assertEqual(strlen(fgcContent), os.str().Length());
 	// now check for simple stream output with put
@@ -68,7 +63,7 @@ void StringStreamTest::SimpleWrite()
 	assertCharPtrEqual(testit, os2.str());
 	assertEqual(testit.Length(), os2.str().Length());
 
-} // SimpleWrite
+}  // SimpleWrite
 
 void StringStreamTest::SimpleRead()
 // what:
@@ -79,36 +74,32 @@ void StringStreamTest::SimpleRead()
 	const char *pc = fgcContent;
 	char c;
 	while ((!!is.get(c)) && (c == *pc++))
-		; // compare content
-	assertEqual(pc - fgcContent, strlen(fgcContent)); // have we reached the end?
+		;											   // compare content
+	assertEqual(pc - fgcContent, strlen(fgcContent));  // have we reached the end?
 	t_assert(is.eof() != 0);
-} // SimpleRead
+}  // SimpleRead
 
 void StringStreamTest::SimpleAppend()
 // what:
-{
-
-} // SimpleAppend
+{}	// SimpleAppend
 
 void StringStreamTest::SimpleAtEnd()
 // what:
-{
-
-} // SimpleAtEnd
+{}	// SimpleAtEnd
 
 void StringStreamTest::SimpleSeek()
 // what:
 {
-	const long searchpos = 10000; // larger as a memory page
+	const long searchpos = 10000;  // larger as a memory page
 	OStringStream os;
 	t_assert(os.good() != 0);
-	os << fgcContent; // put something into it.
-	os.seekp(searchpos); // force enlargement
+	os << fgcContent;	  // put something into it.
+	os.seekp(searchpos);  // force enlargement
 	os << fgcContent << std::flush;
 	long len = os.str().Length();
 	assertEqual(searchpos + strlen(fgcContent), len);
 
-} // SimpleSeek
+}  // SimpleSeek
 
 void StringStreamTest::SimpleOStringStreamWriteTest()
 // what:
@@ -120,12 +111,11 @@ void StringStreamTest::SimpleOStringStreamWriteTest()
 
 	os << a;
 
-	assertEqual("A pretty good thing: It works now", sample); //BIA: was kommt hier raus ??
+	assertEqual("A pretty good thing: It works now", sample);  // BIA: was kommt hier raus ??
 
-} // SimpleSeek
+}  // SimpleSeek
 
-void StringStreamTest::WriteAnyOnString()
-{
+void StringStreamTest::WriteAnyOnString() {
 	Anything any;
 	String expected("{\n");
 
@@ -140,8 +130,8 @@ void StringStreamTest::WriteAnyOnString()
 		} else {
 			any[s] = s;
 			expected << "\"" << i << "\"\n";
-		} // if
-	} // for
+		}  // if
+	}	   // for
 	expected << "}";
 
 	String out;
@@ -150,16 +140,14 @@ void StringStreamTest::WriteAnyOnString()
 	os << any;
 	os.flush();
 
-	assertEqual( '}', expected[expected.Length() - 1L] );
+	assertEqual('}', expected[expected.Length() - 1L]);
 	assertEqual(expected, out);
 	assertEqual(expected.Length(), out.Length());
 
-} // WriteAnyOnString
+}  // WriteAnyOnString
 
-void StringStreamTest::ReadFromAndWriteToStringTest()
-{
-	String
-	orig(
+void StringStreamTest::ReadFromAndWriteToStringTest() {
+	String orig(
 		"{/Total-{/Time-103/Nr-1000000/Sum-90/Max-1/Min-1/Error-0}"
 		"/Results-{{/Nr-100000/Sum-9/Max-1/Min-1/Error-0}"
 		"{/Nr-100000/Sum-9/Max-1/Min-1/Error-0}{/Nr-100000"
@@ -177,8 +165,7 @@ void StringStreamTest::ReadFromAndWriteToStringTest()
 	assertEqual(orig, kopie);
 }
 
-void StringStreamTest::ReadFromAndWriteToAnythingTest()
-{
+void StringStreamTest::ReadFromAndWriteToAnythingTest() {
 	Anything a;
 	std::istream *ifp = system::OpenStream("Test", "any");
 	if (ifp == 0) {
@@ -199,8 +186,7 @@ void StringStreamTest::ReadFromAndWriteToAnythingTest()
 	delete ifp;
 }
 
-void StringStreamTest::ReadFromAndWriteToAnythingTest2()
-{
+void StringStreamTest::ReadFromAndWriteToAnythingTest2() {
 	Anything a;
 	std::istream *ifp = system::OpenStream("Test", "any");
 	if (ifp == 0) {
@@ -238,9 +224,7 @@ void StringStreamTest::ReadFromAndWriteToAnythingTest2()
 }
 
 // check formatting problems:
-void StringStreamTest::testformat(const String &source, long expect,
-								  bool mustfail, const TString &msg)
-{
+void StringStreamTest::testformat(const String &source, long expect, bool mustfail, const TString &msg) {
 	IStringStream is(source);
 	long l = -1;
 	is >> l;
@@ -248,9 +232,7 @@ void StringStreamTest::testformat(const String &source, long expect,
 	t_assertm((mustfail != 0) == (is.fail() != 0), msg);
 }
 
-void StringStreamTest::testformat(const String &source, double expect,
-								  bool mustfail, const TString &msg)
-{
+void StringStreamTest::testformat(const String &source, double expect, bool mustfail, const TString &msg) {
 	IStringStream is(source);
 
 	double l = -1;
@@ -259,8 +241,7 @@ void StringStreamTest::testformat(const String &source, double expect,
 	t_assertm((mustfail != 0) == (is.fail() != 0), msg);
 }
 
-void StringStreamTest::FormatTests()
-{
+void StringStreamTest::FormatTests() {
 	testformat("1212", 1212L, false, "test good long conversion");
 	testformat("gaga", -1L, true, "test bad long conversion");
 	testformat("1212.0", 1212.0, false, "test good double conversion");
@@ -268,8 +249,7 @@ void StringStreamTest::FormatTests()
 	testformat("gaga", -1.0, true, "test bad double conversion");
 }
 
-void StringStreamTest::OperatorShiftLeftWithLongLong()
-{
+void StringStreamTest::OperatorShiftLeftWithLongLong() {
 	OStringStream ostr, ostr2;
 	ostr << ll_limits::max();
 	assertCharPtrEqual("9223372036854775807", ostr.str());
@@ -277,15 +257,13 @@ void StringStreamTest::OperatorShiftLeftWithLongLong()
 	assertCharPtrEqual("-9223372036854775808", ostr2.str());
 }
 
-void StringStreamTest::OperatorShiftLeftWithUnsignedLongLong()
-{
+void StringStreamTest::OperatorShiftLeftWithUnsignedLongLong() {
 	OStringStream ostr, ostr2;
 	ostr << UINT64_LITERAL(0xFFFFFFFFFFFFFFFF);
 	assertCharPtrEqual("18446744073709551615", ostr.str());
 }
 
-void StringStreamTest::OperatorShiftRightWithLongLong()
-{
+void StringStreamTest::OperatorShiftRightWithLongLong() {
 	{
 		StringStream stream;
 		stream << ll_limits::max() << std::flush;
@@ -302,8 +280,7 @@ void StringStreamTest::OperatorShiftRightWithLongLong()
 	}
 }
 
-void StringStreamTest::OperatorShiftRightWithUnsignedLongLong()
-{
+void StringStreamTest::OperatorShiftRightWithUnsignedLongLong() {
 	{
 		StringStream stream;
 		stream << ull_limits::max() << std::flush;
@@ -313,8 +290,7 @@ void StringStreamTest::OperatorShiftRightWithUnsignedLongLong()
 	}
 }
 
-Test *StringStreamTest::suite()
-{
+Test *StringStreamTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, StringStreamTest, SimpleWrite);
 	ADD_CASE(testSuite, StringStreamTest, FormatTests);
@@ -333,4 +309,3 @@ Test *StringStreamTest::suite()
 	ADD_CASE(testSuite, StringStreamTest, OperatorShiftRightWithUnsignedLongLong);
 	return testSuite;
 }
-

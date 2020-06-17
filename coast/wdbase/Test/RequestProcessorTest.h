@@ -9,38 +9,34 @@
 #ifndef _RequestProcessorTest_H
 #define _RequestProcessorTest_H
 
-#include "TestCase.h"
 #include "RequestProcessor.h"
+#include "TestCase.h"
 
-class RequestProcessorTest: public testframework::TestCase {
+class RequestProcessorTest : public testframework::TestCase {
 public:
-	RequestProcessorTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	RequestProcessorTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void InitTest();
 
-	//!test processing of request with stub objects
+	//! test processing of request with stub objects
 	void ProcessRequestTest();
 	void tearDown();
 };
 
 //! policy object shared by all threads to handle a request message;
-class LoopbackProcessor: public RequestProcessor {
+class LoopbackProcessor : public RequestProcessor {
 public:
-	//!named object shared by all requests
+	//! named object shared by all requests
 	LoopbackProcessor(const char *processorName);
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) LoopbackProcessor(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) LoopbackProcessor(fName); }
 
 protected:
-	//!read the input arguments from the stream and generate an anything
+	//! read the input arguments from the stream and generate an anything
 	virtual bool DoReadInput(std::iostream &Ios, Context &ctx);
 
-	//!process the arguments and generate a reply
+	//! process the arguments and generate a reply
 	virtual bool DoProcessRequest(std::ostream &reply, Context &ctx);
 
 private:

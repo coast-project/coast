@@ -7,29 +7,26 @@
  */
 
 #include "AnyToXMLRenderer.h"
+
 #include "SystemLog.h"
 #include "Tracer.h"
+
 #include <ostream>
 
 //---- AnyToXMLRenderer ---------------------------------------------------------
 RegisterRenderer(AnyToXMLRenderer);
 
-AnyToXMLRenderer::AnyToXMLRenderer(const char *name) : Renderer(name)
-{
-}
+AnyToXMLRenderer::AnyToXMLRenderer(const char *name) : Renderer(name) {}
 
-AnyToXMLRenderer::~AnyToXMLRenderer()
-{
-}
+AnyToXMLRenderer::~AnyToXMLRenderer() {}
 
-void AnyToXMLRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void AnyToXMLRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(AnyToXMLRenderer.RenderAll);
 	TraceAny(config, "config");
 
 	// Check mandatory slots
 	ROAnything inputInfo;
-	if (! config.LookupPath(inputInfo, "Input")) {
+	if (!config.LookupPath(inputInfo, "Input")) {
 		return;
 	}
 
@@ -39,20 +36,18 @@ void AnyToXMLRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnythi
 	RenderOnString(inputAnyName, c, inputInfo);
 
 	ROAnything input = c.Lookup(inputAnyName);
-	if ( !input.IsNull() ) {
+	if (!input.IsNull()) {
 		// We have found the input - lets start
 		RenderXML(reply, input);
 	}
 }
 
-void AnyToXMLRenderer::RenderXML(std::ostream &reply, ROAnything &input)
-{
+void AnyToXMLRenderer::RenderXML(std::ostream &reply, ROAnything &input) {
 	StartTrace(AnyToXMLRenderer.RenderXML);
 	TraceAny(input, "Input");
 
 	// Check pre condition
-	if	( input.GetSize() < 1 || !input.SlotName(0)
-		  || HasUnnamedChilds(ROAnything(input[0L])) ) {
+	if (input.GetSize() < 1 || !input.SlotName(0) || HasUnnamedChilds(ROAnything(input[0L]))) {
 		Trace("Input not wellformed");
 		return;
 	}
@@ -60,12 +55,11 @@ void AnyToXMLRenderer::RenderXML(std::ostream &reply, ROAnything &input)
 	RenderNamedChilds(reply, input);
 }
 
-void AnyToXMLRenderer::RenderNamedChilds(std::ostream &reply, ROAnything &list)
-{
+void AnyToXMLRenderer::RenderNamedChilds(std::ostream &reply, ROAnything &list) {
 	StartTrace(AnyToXMLRenderer.RenderNamedChilds);
 
 	long sz = list.GetSize();
-	for ( long i = 0; i < sz; ++i) {
+	for (long i = 0; i < sz; ++i) {
 		String slotname = list.SlotName(i);
 		if (!slotname.Length()) {
 			SystemLog::Error("Unnamed child in RenderNamedChilds found");
@@ -89,12 +83,11 @@ void AnyToXMLRenderer::RenderNamedChilds(std::ostream &reply, ROAnything &list)
 	}
 }
 
-void AnyToXMLRenderer::RenderUnnamedChilds(std::ostream &reply, String &tagname, ROAnything &list)
-{
+void AnyToXMLRenderer::RenderUnnamedChilds(std::ostream &reply, String &tagname, ROAnything &list) {
 	StartTrace(AnyToXMLRenderer.RenderUnnamedChilds);
 
 	long sz = list.GetSize();
-	for ( long i = 0; i < sz; ++i) {
+	for (long i = 0; i < sz; ++i) {
 		ROAnything element = list[i];
 		if (HasUnnamedChilds(element)) {
 			// Unnamed childs -> should not happen
@@ -112,8 +105,6 @@ void AnyToXMLRenderer::RenderUnnamedChilds(std::ostream &reply, String &tagname,
 	}
 }
 
-bool AnyToXMLRenderer::HasUnnamedChilds(ROAnything element)
-{
+bool AnyToXMLRenderer::HasUnnamedChilds(ROAnything element) {
 	return (element.GetType() == AnyArrayType && !element.SlotName(0));
 }
-

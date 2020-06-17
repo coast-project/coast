@@ -19,61 +19,59 @@ class Socket;
 class WPMStatHandler;
 
 //! Leader Follower implementation for socket connection dispatching and request processing
-class LFListenerPool : public LeaderFollowerPool
-{
+class LFListenerPool : public LeaderFollowerPool {
 public:
-	//!configure LeaderFollowerPool with request reactor
+	//! configure LeaderFollowerPool with request reactor
 	LFListenerPool(RequestReactor *reactor);
 
-	//!terminates lfpool anyway
+	//! terminates lfpool anyway
 	virtual ~LFListenerPool();
 	/*! adapts ListenerPool configuration to new LF requirements by creating acceptors as arguments to ListenerPool::Init
-		\param maxParallelRequests size of the pool
-		\param args names of the acceptor factories to be used
-		\param useThreadLocalStorage set to true if Acceptor threads should have their own memory
-		\return returns true if bind succeeds */
+	  \param maxParallelRequests size of the pool
+	  \param args names of the acceptor factories to be used
+	  \param useThreadLocalStorage set to true if Acceptor threads should have their own memory
+	  \return returns true if bind succeeds */
 	virtual bool Init(int maxParallelRequests, ROAnything args, bool useThreadLocalStorage);
 
-	//!initialize reactor
+	//! initialize reactor
 	virtual bool InitReactor(ROAnything args);
 
-	//!support reinitialization of server by blocking request handling
+	//! support reinitialization of server by blocking request handling
 	virtual void BlockRequests();
 
-	//!support reinitialization of server by unblocking request handling after the fact
+	//! support reinitialization of server by unblocking request handling after the fact
 	virtual void UnblockRequests();
 
-	//!blocks the caller waiting for the running requests to terminate. It waits at most 'secs' seconds
+	//! blocks the caller waiting for the running requests to terminate. It waits at most 'secs' seconds
 	virtual bool AwaitEmpty(long secs);
 };
 
-//!dispatcher of socket connection requests
-class RequestReactor: public Reactor, public StatGatherer
-{
+//! dispatcher of socket connection requests
+class RequestReactor : public Reactor, public StatGatherer {
 public:
-	//!takes Request processor and WPMStatHandler as strategies for request processing with regard to protocol (e.g. http) and statistics
+	//! takes Request processor and WPMStatHandler as strategies for request processing with regard to protocol (e.g. http) and
+	//! statistics
 	RequestReactor(RequestProcessor *rp, WPMStatHandler *stat);
 
-	//!deletes processor and stat handler
+	//! deletes processor and stat handler
 	virtual ~RequestReactor();
 
 	//! process one accepted socket connections
 	virtual void DoProcessEvent(Socket *);
 
-	//! implementation of AwaitEmpty needs fStatHandler since it is the only one knowing how many requests are being processed right now
+	//! implementation of AwaitEmpty needs fStatHandler since it is the only one knowing how many requests are being processed
+	//! right now
 	virtual bool AwaitEmpty(long sec);
 
 	virtual bool ValidInit();
 
-	//!register an acceptor in the HandleSet and set it to nonblocking
+	//! register an acceptor in the HandleSet and set it to nonblocking
 	virtual void RegisterHandle(Acceptor *acceptor);
 
-	RequestProcessor* GetRequestProcessor() {
-		return fProcessor;
-	}
+	RequestProcessor *GetRequestProcessor() { return fProcessor; }
 
 protected:
-	//!get the statistics gathered so far in item
+	//! get the statistics gathered so far in item
 	void DoGetStatistic(Anything &item);
 
 private:

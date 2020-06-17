@@ -7,30 +7,31 @@
  */
 
 #include "FieldRendererTest.h"
+
 #include "FormRenderer.h"
 #include "TestSuite.h"
+
 #include <iostream>
 #if defined(WIN32)
 #include <time.h>
 #endif
 
-FieldRendererTest::FieldRendererTest (TString tname) : RendererTest(tname), fFieldRenderer(0) {};
-FieldRendererTest::~FieldRendererTest() {};
+FieldRendererTest::FieldRendererTest(TString tname) : RendererTest(tname), fFieldRenderer(0){};
+FieldRendererTest::~FieldRendererTest(){};
 
 /*===============================================================*/
 /*     Init                                                      */
 /*===============================================================*/
-void FieldRendererTest::setUp ()
-{
+void FieldRendererTest::setUp() {
 	RendererTest::setUp();
 	fCurrentTestMethod = "Test-Method has been forgotten";
 }
 
-Test *FieldRendererTest::suite ()
+Test *FieldRendererTest::suite()
 /* what: return the whole suite of tests for renderers, we could add the suites
-		 of the derived classes here, but we would need to include all the headers
-		 of the derived classes which is not nice.
-		 Add cases for the generic Renderer here (if you find any that is);
+	 of the derived classes here, but we would need to include all the headers
+	 of the derived classes which is not nice.
+	 Add cases for the generic Renderer here (if you find any that is);
 */
 {
 	TestSuite *testSuite = new TestSuite;
@@ -39,80 +40,73 @@ Test *FieldRendererTest::suite ()
 /*===============================================================*/
 /*     Check where all is correctly defined                      */
 /*===============================================================*/
-void FieldRendererTest::RenderConf()
-{
+void FieldRendererTest::RenderConf() {
 	ROAnything roConfig = fConfig;
 	fFieldRenderer->RenderAll(fReply, fContext, roConfig);
 	// assert the result
-//	this->PrintResult();
+	//	this->PrintResult();
 }
 
-void FieldRendererTest::PrintResult()
-{
+void FieldRendererTest::PrintResult() {
 	std::cerr << std::endl << (const char *)fCurrentTestMethod << " :   " << (const char *)fReply.str() << std::endl;
 }
 
-void FieldRendererTest::ConfigureField0()
-{
-//	1) Textfieldrenderer
-//	2) TextAreaRendererTest
-//	3) PulldownMenuRendererTest
-//	4) SelectBoxRendererTest
-//																1	2	3	4
+void FieldRendererTest::ConfigureField0() {
+	//	1) Textfieldrenderer
+	//	2) TextAreaRendererTest
+	//	3) PulldownMenuRendererTest
+	//	4) SelectBoxRendererTest
+	//																1	2	3	4
 
-	fConfig["Name"] 		= "the name of field";			//	x	x
-	fConfig["Label"] 		= "the label of field";			//
-	fConfig["Value"] 		= "the value of field";			//	x	x
-	fConfig["Src"] 			= "the source of field";		//
-	fConfig["Multiple"] 	= 1L;
-	fConfig["Checked"] 		= "the checked of field";
-	fConfig["Unreadable"] 	= 1;							//	x
-	fConfig["Size"] 		= 50;							//	x
-	fConfig["Maxlength"] 	= 40;							//	x
-	fConfig["Width"]		= 30;							//		x
-	fConfig["Height"]		= 20;							//		x
-	fConfig["Wrap"]			= 10;							//		x
+	fConfig["Name"] = "the name of field";	  //	x	x
+	fConfig["Label"] = "the label of field";  //
+	fConfig["Value"] = "the value of field";  //	x	x
+	fConfig["Src"] = "the source of field";	  //
+	fConfig["Multiple"] = 1L;
+	fConfig["Checked"] = "the checked of field";
+	fConfig["Unreadable"] = 1;	//	x
+	fConfig["Size"] = 50;		//	x
+	fConfig["Maxlength"] = 40;	//	x
+	fConfig["Width"] = 30;		//		x
+	fConfig["Height"] = 20;		//		x
+	fConfig["Wrap"] = 10;		//		x
 
-	fConfig["Options"] = "the options of field";			//	x
+	fConfig["Options"] = "the options of field";  //	x
 }
 
-void FieldRendererTest::TestField0()
-{
+void FieldRendererTest::TestField0() {
 	// set up the configuration
 	this->ConfigureField0();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureField1()
-{
+void FieldRendererTest::ConfigureField1() {
 	fConfig["Name"] = "the name of field";
 	fConfig["Label"] = "the label of field";
 	fConfig["Value"] = "the value of field";
 	fConfig["Src"] = "the source of field";
-	fConfig["Multiple"] 	= 1L;
-	fConfig["Checked"] 		= "the checked of field";
-	fConfig["Unreadable"] 	= 1;
-	fConfig["Size"] 		= 50;
-	fConfig["Maxlength"] 	= 40;
-	fConfig["Width"]		= 30;
-	fConfig["Height"]		= 20;
-	fConfig["Wrap"]			= 10;
+	fConfig["Multiple"] = 1L;
+	fConfig["Checked"] = "the checked of field";
+	fConfig["Unreadable"] = 1;
+	fConfig["Size"] = 50;
+	fConfig["Maxlength"] = 40;
+	fConfig["Width"] = 30;
+	fConfig["Height"] = 20;
+	fConfig["Wrap"] = 10;
 	fConfig["Options"]["0"] = "the option nr. 0 of field";
 	fConfig["Options"]["1"] = "the option nr. 1 of field";
 	fConfig["Options"]["2"] = "the option nr. 2 of field";
 }
 
-void FieldRendererTest::TestField1()
-{
+void FieldRendererTest::TestField1() {
 	// set up the configuration
 	this->ConfigureField1();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureFieldWithRenderer()
-{
+void FieldRendererTest::ConfigureFieldWithRenderer() {
 	Anything optionRenderer;
 	Anything nameRenderer;
 	Anything srcRenderer;
@@ -132,16 +126,14 @@ void FieldRendererTest::ConfigureFieldWithRenderer()
 	fConfig["Options"]["2"] = optionRenderer;
 }
 
-void FieldRendererTest::TestConfigureFieldWithRenderer()
-{
+void FieldRendererTest::TestConfigureFieldWithRenderer() {
 	// set up the configuration
 	this->ConfigureFieldWithRenderer();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureField2()
-{
+void FieldRendererTest::ConfigureField2() {
 	fConfig["Name"] = "the name of field";
 	fConfig["Label"] = "the label of field";
 	fConfig["Value"] = "the value of field";
@@ -153,16 +145,14 @@ void FieldRendererTest::ConfigureField2()
 	fConfig["Options"]["2"] = "the option nr. 2 of field";
 }
 
-void FieldRendererTest::TestField2()
-{
+void FieldRendererTest::TestField2() {
 	// set up the configuration
 	this->ConfigureField2();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureField3()
-{
+void FieldRendererTest::ConfigureField3() {
 	fConfig["Name"] = "the name of field";
 	fConfig["Label"] = "the label of field";
 	fConfig["Value"] = "the value of field";
@@ -174,17 +164,15 @@ void FieldRendererTest::ConfigureField3()
 	fConfig["Options"]["2"] = "the option nr. 2 of field";
 }
 
-void FieldRendererTest::TestField3()
-{
+void FieldRendererTest::TestField3() {
 	// set up the configuration
 	this->ConfigureField3();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureFieldOptionRendererOld()
-{
-	time_t absolut = 870912000;		// seconds
+void FieldRendererTest::ConfigureFieldOptionRendererOld() {
+	time_t absolut = 870912000;	 // seconds
 	const char *format = "%d.%m.%y";
 
 	Anything Config4RendererAny;
@@ -202,17 +190,15 @@ void FieldRendererTest::ConfigureFieldOptionRendererOld()
 	fConfig["Options"]["1"] = RendererAny;
 }
 
-void FieldRendererTest::TestFieldOptionRendererOld()
-{
+void FieldRendererTest::TestFieldOptionRendererOld() {
 	// set up the configuration
 	this->ConfigureFieldOptionRendererOld();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureFieldOptionRenderer()
-{
-	time_t absolut = 870912000;		// seconds
+void FieldRendererTest::ConfigureFieldOptionRenderer() {
+	time_t absolut = 870912000;	 // seconds
 	const char *format = "%d.%m.%y";
 
 	Anything Config4RendererAny;
@@ -228,17 +214,15 @@ void FieldRendererTest::ConfigureFieldOptionRenderer()
 	fConfig["Options"]["1"] = RendererAny;
 }
 
-void FieldRendererTest::TestFieldOptionRenderer()
-{
+void FieldRendererTest::TestFieldOptionRenderer() {
 	// set up the configuration
 	this->ConfigureFieldOptionRenderer();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureFieldFaultOptionRendererOld()
-{
-	time_t absolut = 870912000;		// seconds
+void FieldRendererTest::ConfigureFieldFaultOptionRendererOld() {
+	time_t absolut = 870912000;	 // seconds
 	const char *format = "%d.%m.%y";
 
 	Anything Config4RendererAny;
@@ -256,17 +240,15 @@ void FieldRendererTest::ConfigureFieldFaultOptionRendererOld()
 	fConfig["Options"]["1"] = RendererAny;
 }
 
-void FieldRendererTest::TestFieldFaultOptionRendererOld()
-{
+void FieldRendererTest::TestFieldFaultOptionRendererOld() {
 	// set up the configuration
 	this->ConfigureFieldFaultOptionRendererOld();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureFieldFaultOptionRenderer()
-{
-	time_t absolut = 870912000;		// seconds
+void FieldRendererTest::ConfigureFieldFaultOptionRenderer() {
+	time_t absolut = 870912000;	 // seconds
 	const char *format = "%d.%m.%y";
 
 	Anything Config4RendererAny;
@@ -282,8 +264,7 @@ void FieldRendererTest::ConfigureFieldFaultOptionRenderer()
 	fConfig["Options"]["1"] = RendererAny;
 }
 
-void FieldRendererTest::TestFieldFaultOptionRenderer()
-{
+void FieldRendererTest::TestFieldFaultOptionRenderer() {
 	// set up the configuration
 	this->ConfigureFieldFaultOptionRenderer();
 	// render the configuration
@@ -293,22 +274,19 @@ void FieldRendererTest::TestFieldFaultOptionRenderer()
 /*===============================================================*/
 /*     Check where not all is correctly defined                  */
 /*===============================================================*/
-void FieldRendererTest::ConfigureEmptyConf()
-{
+void FieldRendererTest::ConfigureEmptyConf() {
 	Anything any;
 	fConfig = any;
 }
 
-void FieldRendererTest::TestEmptyConf()
-{
+void FieldRendererTest::TestEmptyConf() {
 	// set up the configuration
 	this->ConfigureEmptyConf();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::TestFieldWithoutName()
-{
+void FieldRendererTest::TestFieldWithoutName() {
 	// fConfig["Name"] is mandatory
 	// set up the configuration
 	this->ConfigureField0();
@@ -317,8 +295,7 @@ void FieldRendererTest::TestFieldWithoutName()
 	this->RenderConf();
 }
 
-void FieldRendererTest::TestFieldWithoutLabel()
-{
+void FieldRendererTest::TestFieldWithoutLabel() {
 	// fConfig["Label"] is not mandatory
 	// set up the configuration
 	this->ConfigureField0();
@@ -327,8 +304,7 @@ void FieldRendererTest::TestFieldWithoutLabel()
 	this->RenderConf();
 }
 
-void FieldRendererTest::TestFieldWithoutValue()
-{
+void FieldRendererTest::TestFieldWithoutValue() {
 	// fConfig["Value"] is not mandatory
 	// set up the configuration
 	this->ConfigureField0();
@@ -337,8 +313,7 @@ void FieldRendererTest::TestFieldWithoutValue()
 	this->RenderConf();
 }
 
-void FieldRendererTest::TestFieldWithoutSource()
-{
+void FieldRendererTest::TestFieldWithoutSource() {
 	// fConfig["Source"] is not mandatory
 	// set up the configuration
 	this->ConfigureField0();
@@ -347,8 +322,7 @@ void FieldRendererTest::TestFieldWithoutSource()
 	this->RenderConf();
 }
 
-void FieldRendererTest::TestFieldWithoutMultiple()
-{
+void FieldRendererTest::TestFieldWithoutMultiple() {
 	// fConfig["Multiple"] is not mandatory
 	// set up the configuration
 	this->ConfigureField0();
@@ -357,8 +331,7 @@ void FieldRendererTest::TestFieldWithoutMultiple()
 	this->RenderConf();
 }
 
-void FieldRendererTest::TestFieldWithoutChecked()
-{
+void FieldRendererTest::TestFieldWithoutChecked() {
 	// fConfig["Checked"] is not mandatory
 	// set up the configuration
 	this->ConfigureField0();
@@ -367,8 +340,7 @@ void FieldRendererTest::TestFieldWithoutChecked()
 	this->RenderConf();
 }
 
-void FieldRendererTest::TestFieldWithoutOptions()
-{
+void FieldRendererTest::TestFieldWithoutOptions() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->ConfigureField0();
@@ -380,8 +352,7 @@ void FieldRendererTest::TestFieldWithoutOptions()
 /*===============================================================*/
 /*     Check where there is a fault fConfig                      */
 /*===============================================================*/
-void FieldRendererTest::ConfigureWrongField()
-{
+void FieldRendererTest::ConfigureWrongField() {
 	fConfig["Name"] = "";
 	fConfig["Label"] = "";
 	fConfig["Value"] = "";
@@ -391,8 +362,7 @@ void FieldRendererTest::ConfigureWrongField()
 	fConfig["Options"] = "";
 }
 
-void FieldRendererTest::TestWrongField()
-{
+void FieldRendererTest::TestWrongField() {
 	// Can the reply be interpreted by HTML?
 	// set up the configuration
 	this->ConfigureField0();
@@ -405,8 +375,7 @@ void FieldRendererTest::TestWrongField()
 /* SelectBoxRenderer and are applied only in such cases.                                 */
 /* It is of course possible to use following configurations for all other FieldRenderers */
 /*---------------------------------------------------------------------------------------*/
-void FieldRendererTest::ConfigureFieldWithLookupList()
-{
+void FieldRendererTest::ConfigureFieldWithLookupList() {
 	fConfig["Name"] = "the name of field";
 	fConfig["Label"] = "the label of field";
 	fConfig["Value"] = "the value of field";
@@ -418,24 +387,24 @@ void FieldRendererTest::ConfigureFieldWithLookupList()
 
 	Anything any0, any1, any2, any3, any4, any5, any6, any7;
 
-	any0["ValueRenderer"]    = "the value from list[0]";
+	any0["ValueRenderer"] = "the value from list[0]";
 	any0["SelectedRenderer"] = "the selected from list[0]";
-	any0["TextRenderer"]                = "the text from list[0]";
+	any0["TextRenderer"] = "the text from list[0]";
 
-	any1["ValueRenderer"]    = "the value from list[1]";
+	any1["ValueRenderer"] = "the value from list[1]";
 	any1["SelectedRenderer"] = "the selected from list[1]";
 
-	any2["ValueRenderer"]    = "the value from list[2]";
-	any2["TextRenderer"]                = "the text from list[2]";
+	any2["ValueRenderer"] = "the value from list[2]";
+	any2["TextRenderer"] = "the text from list[2]";
 
 	any3["SelectedRenderer"] = "the selected from list[3]";
-	any3["TextRenderer"]                = "the text from list[3]";
+	any3["TextRenderer"] = "the text from list[3]";
 
-	any4["ValueRenderer"]    = "the value from list[4]";
+	any4["ValueRenderer"] = "the value from list[4]";
 
 	any5["SelectedRenderer"] = "the selected from list[5]";
 
-	any6["TextRenderer"]                = "the text from list[6]";
+	any6["TextRenderer"] = "the text from list[6]";
 
 	// any7 must be empty !!!
 
@@ -455,8 +424,7 @@ void FieldRendererTest::ConfigureFieldWithLookupList()
 	tmpStore["KeyInContext"] = anyList;
 }
 
-void FieldRendererTest::TestFieldWithLookupList()
-{
+void FieldRendererTest::TestFieldWithLookupList() {
 	// fConfig["ListName"] is not mandatory
 	// set up the configuration
 	this->ConfigureFieldWithLookupList();
@@ -464,8 +432,7 @@ void FieldRendererTest::TestFieldWithLookupList()
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureFieldWithUndefList()
-{
+void FieldRendererTest::ConfigureFieldWithUndefList() {
 	fConfig["Name"] = "the name of field";
 	fConfig["Label"] = "the label of field";
 	fConfig["Value"] = "the value of field";
@@ -479,38 +446,33 @@ void FieldRendererTest::ConfigureFieldWithUndefList()
 	fConfig["ListData"].Append(any0);
 }
 
-void FieldRendererTest::TestFieldWithUndefList()
-{
+void FieldRendererTest::TestFieldWithUndefList() {
 	// set up the configuration
 	this->ConfigureFieldWithUndefList();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureNameAndMultiple()
-{
+void FieldRendererTest::ConfigureNameAndMultiple() {
 	PulldownMenuRenderer pulldownMenuRenderer("");
 
 	fConfig["Name"] = "EinName";
 	fConfig["Multiple"] = 1L;
 }
 
-void FieldRendererTest::TestNameAndMultiple()
-{
+void FieldRendererTest::TestNameAndMultiple() {
 	// set up the configuration
 	this->ConfigureNameAndMultiple();
 	// render the configuration
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureValue()
-{
-	fConfig["Name"] 		= "the name of field";
-	fConfig["Value"] 		= "the value of field";
+void FieldRendererTest::ConfigureValue() {
+	fConfig["Name"] = "the name of field";
+	fConfig["Value"] = "the value of field";
 }
 
-void FieldRendererTest::TestFieldValue()
-{
+void FieldRendererTest::TestFieldValue() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->ConfigureValue();
@@ -518,14 +480,12 @@ void FieldRendererTest::TestFieldValue()
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureUnreadable()
-{
-	fConfig["Name"] 		= "the name of field";
-	fConfig["Unreadable"] 	= 1;
+void FieldRendererTest::ConfigureUnreadable() {
+	fConfig["Name"] = "the name of field";
+	fConfig["Unreadable"] = 1;
 }
 
-void FieldRendererTest::TestFieldUnreadable()
-{
+void FieldRendererTest::TestFieldUnreadable() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->ConfigureUnreadable();
@@ -533,14 +493,12 @@ void FieldRendererTest::TestFieldUnreadable()
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureSize()
-{
-	fConfig["Name"] 		= "the name of field";
-	fConfig["Size"] 		= 50;
+void FieldRendererTest::ConfigureSize() {
+	fConfig["Name"] = "the name of field";
+	fConfig["Size"] = 50;
 }
 
-void FieldRendererTest::TestFieldSize()
-{
+void FieldRendererTest::TestFieldSize() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->ConfigureSize();
@@ -548,14 +506,12 @@ void FieldRendererTest::TestFieldSize()
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureMaxlength()
-{
-	fConfig["Name"] 		= "the name of field";
-	fConfig["Maxlength"] 	= 40;
+void FieldRendererTest::ConfigureMaxlength() {
+	fConfig["Name"] = "the name of field";
+	fConfig["Maxlength"] = 40;
 }
 
-void FieldRendererTest::TestFieldMaxlength()
-{
+void FieldRendererTest::TestFieldMaxlength() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->ConfigureMaxlength();
@@ -563,14 +519,12 @@ void FieldRendererTest::TestFieldMaxlength()
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureWidth()
-{
-	fConfig["Name"] 		= "the name of field";
-	fConfig["Width"]		= 30;
+void FieldRendererTest::ConfigureWidth() {
+	fConfig["Name"] = "the name of field";
+	fConfig["Width"] = 30;
 }
 
-void FieldRendererTest::TestFieldWidth()
-{
+void FieldRendererTest::TestFieldWidth() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->ConfigureWidth();
@@ -578,14 +532,12 @@ void FieldRendererTest::TestFieldWidth()
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureHeight()
-{
-	fConfig["Name"] 		= "the name of field";
-	fConfig["Height"]		= 20;
+void FieldRendererTest::ConfigureHeight() {
+	fConfig["Name"] = "the name of field";
+	fConfig["Height"] = 20;
 }
 
-void FieldRendererTest::TestFieldHeight()
-{
+void FieldRendererTest::TestFieldHeight() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->ConfigureHeight();
@@ -593,14 +545,12 @@ void FieldRendererTest::TestFieldHeight()
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureWrap()
-{
-	fConfig["Name"] 		= "the name of field";
-	fConfig["Wrap"]			= 10;
+void FieldRendererTest::ConfigureWrap() {
+	fConfig["Name"] = "the name of field";
+	fConfig["Wrap"] = 10;
 }
 
-void FieldRendererTest::TestFieldWrap()
-{
+void FieldRendererTest::TestFieldWrap() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->ConfigureWrap();
@@ -608,17 +558,15 @@ void FieldRendererTest::TestFieldWrap()
 	this->RenderConf();
 }
 
-void FieldRendererTest::Configure4Opt()
-{
-	fConfig["Name"] 		= "the name of field";
+void FieldRendererTest::Configure4Opt() {
+	fConfig["Name"] = "the name of field";
 	fConfig["Options"]["0"] = "the option nr. 0 of field";
 	fConfig["Options"]["1"] = "the option nr. 1 of field";
 	fConfig["Options"]["2"] = "the option nr. 2 of field";
 	fConfig["Options"]["3"] = "the option nr. 3 of field";
 }
 
-void FieldRendererTest::TestField4Opt()
-{
+void FieldRendererTest::TestField4Opt() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->Configure4Opt();
@@ -626,16 +574,14 @@ void FieldRendererTest::TestField4Opt()
 	this->RenderConf();
 }
 
-void FieldRendererTest::Configure3Opt()
-{
-	fConfig["Name"] 		= "the name of field";
+void FieldRendererTest::Configure3Opt() {
+	fConfig["Name"] = "the name of field";
 	fConfig["Options"]["0"] = "the option nr. 0 of field";
 	fConfig["Options"]["1"] = "the option nr. 1 of field";
 	fConfig["Options"]["2"] = "the option nr. 2 of field";
 }
 
-void FieldRendererTest::TestField3Opt()
-{
+void FieldRendererTest::TestField3Opt() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->Configure3Opt();
@@ -643,15 +589,13 @@ void FieldRendererTest::TestField3Opt()
 	this->RenderConf();
 }
 
-void FieldRendererTest::Configure2Opt()
-{
-	fConfig["Name"] 		= "the name of field";
+void FieldRendererTest::Configure2Opt() {
+	fConfig["Name"] = "the name of field";
 	fConfig["Options"]["0"] = "the option nr. 0 of field";
 	fConfig["Options"]["1"] = "the option nr. 1 of field";
 }
 
-void FieldRendererTest::TestField2Opt()
-{
+void FieldRendererTest::TestField2Opt() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->Configure2Opt();
@@ -659,14 +603,12 @@ void FieldRendererTest::TestField2Opt()
 	this->RenderConf();
 }
 
-void FieldRendererTest::Configure1Opt()
-{
-	fConfig["Name"] 		= "the name of field";
+void FieldRendererTest::Configure1Opt() {
+	fConfig["Name"] = "the name of field";
 	fConfig["Options"]["0"] = "the option nr. 0 of field";
 }
 
-void FieldRendererTest::TestField1Opt()
-{
+void FieldRendererTest::TestField1Opt() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->Configure1Opt();
@@ -674,16 +616,14 @@ void FieldRendererTest::TestField1Opt()
 	this->RenderConf();
 }
 
-void FieldRendererTest::Configure2OptNoSlotName()
-{
+void FieldRendererTest::Configure2OptNoSlotName() {
 	Anything OptAny;
-	fConfig["Name"] 		= "the name of field";
-	OptAny.Append( "the option nr. 0 of field" );
-	OptAny.Append( "the option nr. 1 of field" );
+	fConfig["Name"] = "the name of field";
+	OptAny.Append("the option nr. 0 of field");
+	OptAny.Append("the option nr. 1 of field");
 	fConfig["Options"] = OptAny;
 }
-void FieldRendererTest::TestField2OptNoSlotName()
-{
+void FieldRendererTest::TestField2OptNoSlotName() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->Configure2OptNoSlotName();
@@ -691,16 +631,14 @@ void FieldRendererTest::TestField2OptNoSlotName()
 	this->RenderConf();
 }
 
-void FieldRendererTest::Configure1OptNoSlotName()
-{
+void FieldRendererTest::Configure1OptNoSlotName() {
 	Anything OptAny;
-	fConfig["Name"] 		= "the name of field";
-	OptAny.Append( "the option nr. 0 of field" );
+	fConfig["Name"] = "the name of field";
+	OptAny.Append("the option nr. 0 of field");
 	fConfig["Options"] = OptAny;
 }
 
-void FieldRendererTest::TestField1OptNoSlotName()
-{
+void FieldRendererTest::TestField1OptNoSlotName() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->Configure1OptNoSlotName();
@@ -708,18 +646,16 @@ void FieldRendererTest::TestField1OptNoSlotName()
 	this->RenderConf();
 }
 
-void FieldRendererTest::Configure3OptMixed()
-{
+void FieldRendererTest::Configure3OptMixed() {
 	Anything OptAny;
-	fConfig["Name"] 		= "the name of field";
-	OptAny.Append( "the option nr. 0 of field" );
+	fConfig["Name"] = "the name of field";
+	OptAny.Append("the option nr. 0 of field");
 	OptAny["1"] = "the option nr. 1 of field";
-	OptAny.Append( "the option nr. 2 of field" );
+	OptAny.Append("the option nr. 2 of field");
 	fConfig["Options"] = OptAny;
 }
 
-void FieldRendererTest::TestField3OptMixed()
-{
+void FieldRendererTest::TestField3OptMixed() {
 	// fConfig["Options"] is not mandatory
 	// set up the configuration
 	this->Configure3OptMixed();
@@ -727,15 +663,13 @@ void FieldRendererTest::TestField3OptMixed()
 	this->RenderConf();
 }
 
-void FieldRendererTest::ConfigureOptEmpty()
-{
+void FieldRendererTest::ConfigureOptEmpty() {
 	Anything AnyOpt;
 	fConfig["Name"] = "the name of field";
 	fConfig["Options"] = AnyOpt;
 }
 
-void FieldRendererTest::TestFieldOptEmpty()
-{
+void FieldRendererTest::TestFieldOptEmpty() {
 	// Can the reply be interpreted by HTML?
 	// set up the configuration
 	this->ConfigureOptEmpty();

@@ -13,9 +13,11 @@
 
 //! Search for regular expression in a string
 /*!
- * Searches a regular expression pattern in a string and stores the matched string or groups (if any) into the defined Destination.
+ * Searches a regular expression pattern in a string and stores the matched string or groups (if any) into the defined
+Destination.
  * When no group expression is present, the matched string will be stored at index 0 within the destination slot.
- * If groups are present, the whole match is stored at index 0 and each subsequent group will be stored at its index beginning at 1.
+ * If groups are present, the whole match is stored at index 0 and each subsequent group will be stored at its index beginning
+at 1.
  * @section regexpactionconfig Action Configuration
  * @par \c Text
  * \b mandatory, the string to which the regular expression pattern will be applied, can also be a Renderer specification
@@ -28,19 +30,19 @@
  *
  * @section regexpactionexample Example
  * @subsection regexpactionexampleconfig Configuration (ActionScript)
- * The following example uses a regular expression to extract the last 3 characters of a string in slot \c Text and saves the result in into slot UserInfo.short_uid_db of Role store.
+ * The following example uses a regular expression to extract the last 3 characters of a string in slot \c Text and saves the
+result in into slot UserInfo.short_uid_db of Role store.
  * @code
 /RegExpAction {
-	/Text		{ /Lookup UserInfo.uid }
-	/Pattern    "\\w{3}$"
-	/Destination {
-		/Store  Role
-		/Slot   UserInfo.short_uid_db
-	}
+  /Text		{ /Lookup UserInfo.uid }
+  /Pattern    "\\w{3}$"
+  /Destination {
+	/Store  Role
+	/Slot   UserInfo.short_uid_db
+  }
 }
  * @endcode */
-class RegExpAction : public Action
-{
+class RegExpAction : public Action {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	RegExpAction(const char *name) : Action(name) {}

@@ -7,17 +7,15 @@
  */
 
 #include "ConfiguredLookupAdapter.h"
+
 #include "Tracer.h"
 
 ConfiguredLookupAdapter::ConfiguredLookupAdapter(ROAnything config, ROAnything defaultConfig)
-	: fConfig(config), fDefaultConfig(defaultConfig)
-{
+	: fConfig(config), fDefaultConfig(defaultConfig) {
 	StartTrace(ConfiguredLookupAdapter.Ctor);
 }
 
-bool ConfiguredLookupAdapter::DoLookup(const char *key, ROAnything &result, char delim, char indexdelim) const
-{
+bool ConfiguredLookupAdapter::DoLookup(const char *key, ROAnything &result, char delim, char indexdelim) const {
 	StartTrace(ConfiguredLookupAdapter.Ctor);
-	return (fConfig.LookupPath(result, key, delim, indexdelim)
-			|| fDefaultConfig.LookupPath(result, key, delim, indexdelim));
+	return (fConfig.LookupPath(result, key, delim, indexdelim) || fDefaultConfig.LookupPath(result, key, delim, indexdelim));
 }

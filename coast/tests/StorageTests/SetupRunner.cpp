@@ -10,13 +10,12 @@
 #include "TestSuite.h"
 
 //--- test cases -------------------------------------------------------------
+#include "BoostPoolTest.h"
 #include "MemTrackerTest.h"
 #include "PoolAllocatorTest.h"
 #include "STLStorageTest.h"
-#include "BoostPoolTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, MemTrackerTest);
 	ADD_SUITE(runner, PoolAllocatorTest);
 	ADD_SUITE(runner, STLStorageTest);

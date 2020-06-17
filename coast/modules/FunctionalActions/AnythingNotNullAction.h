@@ -17,13 +17,12 @@
 \par Configuration
 \code
 {
-	/Store	String			optional, default TempStore one of [Role|Session|Query|Fields], lookup Slot in this store
-	/Slot	Rendererscript	mandatory, slotname to check for
+  /Store	String			optional, default TempStore one of [Role|Session|Query|Fields], lookup Slot in this store
+  /Slot	Rendererscript	mandatory, slotname to check for
 }
 \endcode
 */
-class AnythingNotNullAction : public Action
-{
+class AnythingNotNullAction : public Action {
 public:
 	//--- constructors
 	AnythingNotNullAction(const char *name);

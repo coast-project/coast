@@ -10,29 +10,21 @@
 #define _AnyIterators_H
 
 #include "Anything.h"
-#include "Tracer.h"
 #include "ITOTypeTraits.h"
+#include "Tracer.h"
 
-namespace AnyExtensions
-{
+namespace AnyExtensions {
 
 	/*! Iterates simply over the (RO)Anythings slots, staying always on the uppermost level
 	 */
-	template
-	<
-	class XThing,
-		  class XRetThing = XThing,
-		  class SlotNameType = String
-		  >
-	class Iterator
-	{
+	template <class XThing, class XRetThing = XThing, class SlotNameType = String>
+	class Iterator {
 	public:
 		typedef XThing PlainType;
 		typedef XThing &PlainTypeRef;
 		typedef XRetThing &PlainRetTypeRef;
-		typedef typename boost_or_std::conditional< boost_or_std::is_same<PlainType, ROAnything>::value ,
-				ROAnything,
-				PlainTypeRef>::type StoredType;
+		typedef typename boost_or_std::conditional<boost_or_std::is_same<PlainType, ROAnything>::value, ROAnything,
+												   PlainTypeRef>::type StoredType;
 
 		typedef long PositionType;
 		typedef long &PositionTypeRef;
@@ -43,61 +35,46 @@ namespace AnyExtensions
 		typedef SlotNameType &SlotNameTypeRef;
 
 		/*! Constructor
-			\param a the Anything to iterate on */
-		explicit Iterator(StoredType a)
-			: fAny(a)
-			, fPosition(-1)
-			, fSize(a.GetSize()) {
+		  \param a the Anything to iterate on */
+		explicit Iterator(StoredType a) : fAny(a), fPosition(-1), fSize(a.GetSize()) {
 			StartTrace1(Iterator.Ctor, "size:" << fSize);
 		}
-		virtual ~Iterator() {
-			StartTrace(Iterator.Dtor);
-		}
+		virtual ~Iterator() { StartTrace(Iterator.Dtor); }
 
 		/*! Gets the next Anything
-			\param a out - reference to the next element
-			\return true, if there was a next element, false if the iteration has finished */
-		bool Next(PlainRetTypeRef a) {
-			return DoGetNext(a);
-		}
+		  \param a out - reference to the next element
+		  \return true, if there was a next element, false if the iteration has finished */
+		bool Next(PlainRetTypeRef a) { return DoGetNext(a); }
 
 		/*! Gets the next Anything
-			\param a out - reference to the next element
-			\return true, if there was a next element, false if the iteration has finished */
-		bool operator()(PlainRetTypeRef a) {
-			return Next(a);
-		}
+		  \param a out - reference to the next element
+		  \return true, if there was a next element, false if the iteration has finished */
+		bool operator()(PlainRetTypeRef a) { return Next(a); }
 
 		/*! Get current index into base (RO)Anything
-			\return current iterator index */
-		ConstPositionTypeRef Index() const {
-			return fPosition;
-		}
+		  \return current iterator index */
+		ConstPositionTypeRef Index() const { return fPosition; }
 
 		/*! Get slotname of current position if any
-			\param strSlotName name of slot to check for
-			\return true if it is a named slot and slotname could be retrieved */
+		  \param strSlotName name of slot to check for
+		  \return true if it is a named slot and slotname could be retrieved */
 		bool SlotName(SlotNameTypeRef strSlotName) const {
 			const char *pcSN = fAny.SlotName(fPosition);
-			if ( pcSN != NULL ) {
+			if (pcSN != NULL) {
 				strSlotName = pcSN;
 			}
-			return ( pcSN != NULL );
+			return (pcSN != NULL);
 		}
 
 	protected:
-		PlainTypeRef GetAny() {
-			return fAny;
-		}
+		PlainTypeRef GetAny() { return fAny; }
 
 		/*! Get current index into base (RO)Anything for modification
-			\return current iterator index */
-		PositionTypeRef IndexRef() {
-			return fPosition;
-		}
+		  \return current iterator index */
+		PositionTypeRef IndexRef() { return fPosition; }
 
 		bool SetIndex(PositionType lPos) {
-			if ( lPos >= 0L && lPos < MaxIndex() ) {
+			if (lPos >= 0L && lPos < MaxIndex()) {
 				IndexRef() = lPos;
 				return true;
 			}
@@ -105,23 +82,21 @@ namespace AnyExtensions
 		}
 
 		virtual bool NextIndex() {
-			if ( ++IndexRef() < MaxIndex() ) {
+			if (++IndexRef() < MaxIndex()) {
 				return true;
 			}
 			--IndexRef();
 			return false;
 		}
 
-		ConstSizeTypeRef MaxIndex() {
-			return fSize;
-		}
+		ConstSizeTypeRef MaxIndex() { return fSize; }
 
 		/*! Get the next element based on some criteria, subclasses could implement special behavior
-			\param a reference to the next Anything
-			\return true if a matching next element was found, false otherwise */
+		  \param a reference to the next Anything
+		  \return true if a matching next element was found, false otherwise */
 		virtual bool DoGetNext(PlainRetTypeRef a) {
 			StartTrace(Iterator.DoGetNext);
-			if ( NextIndex() ) {
+			if (NextIndex()) {
 				a = GetAny()[Index()];
 				return true;
 			}
@@ -129,9 +104,9 @@ namespace AnyExtensions
 		}
 
 	private:
-		StoredType		fAny;
-		PositionType	fPosition;
-		SizeType		fSize;
+		StoredType fAny;
+		PositionType fPosition;
+		SizeType fSize;
 
 		Iterator();
 		Iterator(const Iterator &);
@@ -140,13 +115,8 @@ namespace AnyExtensions
 
 	/*! Iterates through the whole Anything structure, and returns all Leafs (i.e. Type!=eArray)
 	 */
-	template <
-	class XThing,
-		  class XRetThing = XThing,
-		  class SlotNameType = String
-		  >
-	class LeafIterator: public Iterator<XThing, XRetThing, SlotNameType>
-	{
+	template <class XThing, class XRetThing = XThing, class SlotNameType = String>
+	class LeafIterator : public Iterator<XThing, XRetThing, SlotNameType> {
 	public:
 		typedef Iterator<XThing, XRetThing, SlotNameType> BaseIterator;
 		typedef LeafIterator<XThing, XRetThing, SlotNameType> ThisIterator;
@@ -155,12 +125,8 @@ namespace AnyExtensions
 		typedef typename BaseIterator::PlainTypeRef PlainTypeRef;
 
 		/*! Constructor
-			\param a the Anything to iterate on */
-		LeafIterator(StoredType a)
-			: BaseIterator(a)
-			, subIter(0) {
-			StartTrace(LeafIterator.Ctor);
-		}
+		  \param a the Anything to iterate on */
+		LeafIterator(StoredType a) : BaseIterator(a), subIter(0) { StartTrace(LeafIterator.Ctor); }
 
 		virtual ~LeafIterator() {
 			StartTrace(LeafIterator.Dtor);
@@ -169,13 +135,13 @@ namespace AnyExtensions
 
 	private:
 		/*! Get the next element based on some criteria, subclasses could implement special behavior
-			\param a reference to the next Anything
-			\return true if a matching next element was found, false otherwise */
+		  \param a reference to the next Anything
+		  \return true if a matching next element was found, false otherwise */
 		virtual bool DoGetNext(PlainTypeRef a) {
 			StartTrace(LeafIterator.DoGetNext);
-			if ( subIter ) {
+			if (subIter) {
 				// We are already descended into the Anything
-				if ( subIter->Next(a) ) {
+				if (subIter->Next(a)) {
 					// He has found the next
 					return true;
 				} else {
@@ -187,10 +153,10 @@ namespace AnyExtensions
 			// Move to the Next slot that holds something different from an empty Array
 			bool found(false);
 			TraceAny(this->GetAny(), "current content");
-			while ( !found && BaseIterator::DoGetNext(fanySubRef) ) {
+			while (!found && BaseIterator::DoGetNext(fanySubRef)) {
 				TraceAny(fanySubRef, "descendant");
-				if ( fanySubRef.GetType() == AnyArrayType ) {
-					if ( fanySubRef.GetSize() > 0 ) {
+				if (fanySubRef.GetType() == AnyArrayType) {
+					if (fanySubRef.GetSize() > 0) {
 						// its an Array and not empty, we have to descend
 						subIter = new ThisIterator(fanySubRef);
 						found = subIter->Next(a);
@@ -205,8 +171,8 @@ namespace AnyExtensions
 		}
 
 		BaseIterator *subIter;
-		PlainType	fanySubRef;
+		PlainType fanySubRef;
 	};
 
-}
+}  // namespace AnyExtensions
 #endif

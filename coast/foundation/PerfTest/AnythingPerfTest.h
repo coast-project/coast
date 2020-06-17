@@ -11,32 +11,32 @@
 
 #include "FoundationTestTypes.h"
 
-class AnythingPerfTest : public testframework::TestCaseWithStatistics
-{
+class AnythingPerfTest : public testframework::TestCaseWithStatistics {
 public:
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	AnythingPerfTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~AnythingPerfTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!describe this testcase
+	//! describe this testcase
 	void LookupTest();
 
-	//!describe this testcase
+	//! describe this testcase
 	void DeepCloneTest();
 	void PrintOnTest();
 
 protected:
-	typedef void (AnythingPerfTest::* LoopFunctor)(const char *pName, const Anything &a, const long iterations);
+	typedef void (AnythingPerfTest::*LoopFunctor)(const char *pName, const Anything &a, const long iterations);
 
-	template <typename T> void DoFunctorTest(T value, const char *pName, LoopFunctor pFunc);
+	template <typename T>
+	void DoFunctorTest(T value, const char *pName, LoopFunctor pFunc);
 
 	void RunIndexLoopAsCharPtr(long index, const Anything &a, const long iterations);
 	void RunIndexLoopAsString(long index, const Anything &a, const long iterations);

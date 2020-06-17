@@ -6,27 +6,26 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "Anything.h"
-#include "StringStream.h"
-#include "Context.h"
-#include "Renderer.h"
-#include "TestSuite.h"
-#include "ConditionalRenderers.h"
 #include "ConditionalRendererTest.h"
 
-ConditionalRendererTest::ConditionalRendererTest (TString tname) : RendererTest(tname) {};
-ConditionalRendererTest::~ConditionalRendererTest() {};
+#include "Anything.h"
+#include "ConditionalRenderers.h"
+#include "Context.h"
+#include "Renderer.h"
+#include "StringStream.h"
+#include "TestSuite.h"
+
+ConditionalRendererTest::ConditionalRendererTest(TString tname) : RendererTest(tname){};
+ConditionalRendererTest::~ConditionalRendererTest(){};
 
 /*===============================================================*/
 /*     Init                                                      */
 /*===============================================================*/
-void ConditionalRendererTest::setUp ()
-{
+void ConditionalRendererTest::setUp() {
 	RendererTest::setUp();
 }
 
-Test *ConditionalRendererTest::suite ()
-{
+Test *ConditionalRendererTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, ConditionalRendererTest, CondTrue);
@@ -62,14 +61,12 @@ Test *ConditionalRendererTest::suite ()
 	ADD_CASE(testSuite, ConditionalRendererTest, CondTrueSpecCharsWithRendering);
 
 	return testSuite;
-
 }
 
 /*===============================================================*/
 /*     Check the single cases where all is correctly defined     */
 /*===============================================================*/
-void ConditionalRendererTest::ConfigureTrue(const String &key)
-{
+void ConditionalRendererTest::ConfigureTrue(const String &key) {
 	StartTrace(ConditionalRendererTest.ConfigureTrue);
 	fConfig["ContextCondition"] = key;
 	fConfig["True"] = "That is True";
@@ -83,8 +80,7 @@ void ConditionalRendererTest::ConfigureTrue(const String &key)
 	TraceAny(tmpStore, "tmpStore");
 }
 
-void ConditionalRendererTest::ConfigureFalse(const String &key)
-{
+void ConditionalRendererTest::ConfigureFalse(const String &key) {
 	StartTrace(ConditionalRendererTest.ConfigureTrue);
 	fConfig["ContextCondition"] = key;
 	fConfig["True"] = "That is True";
@@ -98,8 +94,7 @@ void ConditionalRendererTest::ConfigureFalse(const String &key)
 	TraceAny(tmpStore, "tmpStore");
 }
 
-void ConditionalRendererTest::ConfigureDefined(const String &key)
-{
+void ConditionalRendererTest::ConfigureDefined(const String &key) {
 	StartTrace(ConditionalRendererTest.ConfigureDefined);
 	fConfig["ContextCondition"] = key;
 	fConfig["True"] = "That is True";
@@ -113,8 +108,7 @@ void ConditionalRendererTest::ConfigureDefined(const String &key)
 	TraceAny(tmpStore, "tmpStore");
 }
 
-void ConditionalRendererTest::ConfigureUndefined(const String &key)
-{
+void ConditionalRendererTest::ConfigureUndefined(const String &key) {
 	StartTrace(ConditionalRendererTest.ConfigureUndefined);
 	fConfig["ContextCondition"] = key;
 	fConfig["True"] = "That is True";
@@ -123,23 +117,22 @@ void ConditionalRendererTest::ConfigureUndefined(const String &key)
 	fConfig["Undefined"] = "That is Undefined";
 	TraceAny(fConfig, "fConfig");
 
-//	tmpStore["ContextConditionKey"] = undef
-//
-//	Anything tmpStore(fContext.GetTmpStore());
-//	tmpStore["ContextConditionKey"] = "string";
+	//	tmpStore["ContextConditionKey"] = undef
+	//
+	//	Anything tmpStore(fContext.GetTmpStore());
+	//	tmpStore["ContextConditionKey"] = "string";
 }
 
-void ConditionalRendererTest::ConfigureError()
-{
+void ConditionalRendererTest::ConfigureError() {
 	StartTrace(ConditionalRendererTest.ConfigureTrue);
-//	fConfig["ContextCondition"] = undef
-//
-//	fConfig["ContextCondition"] = "ContextConditionKey";
+	//	fConfig["ContextCondition"] = undef
+	//
+	//	fConfig["ContextCondition"] = "ContextConditionKey";
 	fConfig["True"] = "That is True";
 	fConfig["False"] = "That is False";
 	fConfig["Defined"] = "That is Defined";
 	fConfig["Undefined"] = "That is Undefined";
-	fConfig["Error"] = "That is Error";	// normally this slot is missing
+	fConfig["Error"] = "That is Error";	 // normally this slot is missing
 }
 
 void ConditionalRendererTest::CondTrue()
@@ -155,7 +148,7 @@ void ConditionalRendererTest::CondTrue()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["True"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["True"].AsCharPtr(), fReply.str());
 }
 
 void ConditionalRendererTest::CondTrueSpecChars()
@@ -166,7 +159,7 @@ void ConditionalRendererTest::CondTrueSpecChars()
 
 	// set up the configuration
 	ConditionalRendererTest::ConfigureTrue("/gugus.dada:txt");
-	fConfig["PathDelim"]  = "Ignore";
+	fConfig["PathDelim"] = "Ignore";
 	fConfig["IndexDelim"] = "Ignore";
 
 	// render the configuration
@@ -174,29 +167,28 @@ void ConditionalRendererTest::CondTrueSpecChars()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["True"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["True"].AsCharPtr(), fReply.str());
 }
 
-void ConditionalRendererTest::CondTrueSpecCharsWithRendering()
-{
+void ConditionalRendererTest::CondTrueSpecCharsWithRendering() {
 	StartTrace(SwitchRendererTest.CondTrueSpecCharsWithRendering);
 	ConditionalRenderer conditionalRenderer("");
 
 	// set up the configuration
 	ConditionalRendererTest::ConfigureTrue("/gugus.dada:txt");
-	fConfig["PathDelim"]["ContextLookupRenderer"]	= "ThePathDelim";
-	fConfig["IndexDelim"]["ContextLookupRenderer"]	= "TheIndexDelim";
+	fConfig["PathDelim"]["ContextLookupRenderer"] = "ThePathDelim";
+	fConfig["IndexDelim"]["ContextLookupRenderer"] = "TheIndexDelim";
 	Anything tmpStore(fContext.GetTmpStore());
-	tmpStore["ThePathDelim"]	= "!";
-	tmpStore["TheIndexDelim"]	= "?";
+	tmpStore["ThePathDelim"] = "!";
+	tmpStore["TheIndexDelim"] = "?";
 	TraceAny(tmpStore, "tmpStore")
 
-	// render the configuration
-	ROAnything roConfig = fConfig;
+		// render the configuration
+		ROAnything roConfig = fConfig;
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["True"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["True"].AsCharPtr(), fReply.str());
 }
 
 void ConditionalRendererTest::SpecCharsWithDefDelims()
@@ -207,7 +199,7 @@ void ConditionalRendererTest::SpecCharsWithDefDelims()
 
 	// set up the configuration
 	ConditionalRendererTest::ConfigureTrue("/gugus.dada:txt");
-	fConfig["PathDelim"]  = ".";
+	fConfig["PathDelim"] = ".";
 	fConfig["IndexDelim"] = ":";
 
 	// render the configuration
@@ -215,7 +207,7 @@ void ConditionalRendererTest::SpecCharsWithDefDelims()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Undefined"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Undefined"].AsCharPtr(), fReply.str());
 }
 
 void ConditionalRendererTest::CondFalse()
@@ -231,7 +223,7 @@ void ConditionalRendererTest::CondFalse()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["False"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["False"].AsCharPtr(), fReply.str());
 }
 
 void ConditionalRendererTest::CondDefined()
@@ -247,7 +239,7 @@ void ConditionalRendererTest::CondDefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Defined"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Defined"].AsCharPtr(), fReply.str());
 }
 
 void ConditionalRendererTest::CondUndefined()
@@ -263,7 +255,7 @@ void ConditionalRendererTest::CondUndefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Undefined"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Undefined"].AsCharPtr(), fReply.str());
 }
 
 void ConditionalRendererTest::CondError()
@@ -279,15 +271,14 @@ void ConditionalRendererTest::CondError()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Error"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Error"].AsCharPtr(), fReply.str());
 }
 
 /*===============================================================*/
 /*     Check the single cases where only the the                 */
 /*     right fConfig is defined                                  */
 /*===============================================================*/
-void ConditionalRendererTest::ConfigureOnlyTrue()
-{
+void ConditionalRendererTest::ConfigureOnlyTrue() {
 	StartTrace(ConditionalRendererTest.ConfigureOnlyTrue);
 	fConfig["ContextCondition"] = "ContextConditionKey";
 	fConfig["True"] = "That is True";
@@ -296,8 +287,7 @@ void ConditionalRendererTest::ConfigureOnlyTrue()
 	tmpStore["ContextConditionKey"] = 1L;
 }
 
-void ConditionalRendererTest::ConfigureOnlyFalse()
-{
+void ConditionalRendererTest::ConfigureOnlyFalse() {
 	StartTrace(ConditionalRendererTest.ConfigureOnlyFalse);
 	fConfig["ContextCondition"] = "ContextConditionKey";
 	fConfig["False"] = "That is False";
@@ -306,8 +296,7 @@ void ConditionalRendererTest::ConfigureOnlyFalse()
 	tmpStore["ContextConditionKey"] = 0L;
 }
 
-void ConditionalRendererTest::ConfigureOnlyDefined()
-{
+void ConditionalRendererTest::ConfigureOnlyDefined() {
 	StartTrace(ConditionalRendererTest.ConfigureOnlyDefined);
 	fConfig["ContextCondition"] = "ContextConditionKey";
 	fConfig["Defined"] = "That is Defined";
@@ -316,25 +305,23 @@ void ConditionalRendererTest::ConfigureOnlyDefined()
 	tmpStore["ContextConditionKey"] = "string";
 }
 
-void ConditionalRendererTest::ConfigureOnlyUndefined()
-{
+void ConditionalRendererTest::ConfigureOnlyUndefined() {
 	StartTrace(ConditionalRendererTest.ConfigureOnlyUndefined);
 	fConfig["ContextCondition"] = "ContextConditionKey";
 	fConfig["Undefined"] = "That is Undefined";
 
-//	tmpStore["ContextConditionKey"] = undef
-//
-//	Anything tmpStore(fContext.GetTmpStore());
-//	tmpStore["ContextConditionKey"] = "string";
+	//	tmpStore["ContextConditionKey"] = undef
+	//
+	//	Anything tmpStore(fContext.GetTmpStore());
+	//	tmpStore["ContextConditionKey"] = "string";
 }
 
-void ConditionalRendererTest::ConfigureOnlyError()
-{
+void ConditionalRendererTest::ConfigureOnlyError() {
 	StartTrace(ConditionalRendererTest.ConfigureOnlyError);
-//	fConfig["ContextCondition"] = undef
-//
-//	fConfig["ContextCondition"] = "ContextConditionKey";
-	fConfig["Error"] = "That is Error";	// normally this slot is missing
+	//	fConfig["ContextCondition"] = undef
+	//
+	//	fConfig["ContextCondition"] = "ContextConditionKey";
+	fConfig["Error"] = "That is Error";	 // normally this slot is missing
 }
 
 void ConditionalRendererTest::CondOnlyTrue()
@@ -350,7 +337,7 @@ void ConditionalRendererTest::CondOnlyTrue()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["True"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["True"].AsCharPtr(), fReply.str());
 }
 
 void ConditionalRendererTest::CondOnlyFalse()
@@ -366,7 +353,7 @@ void ConditionalRendererTest::CondOnlyFalse()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["False"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["False"].AsCharPtr(), fReply.str());
 }
 
 void ConditionalRendererTest::CondOnlyDefined()
@@ -382,7 +369,7 @@ void ConditionalRendererTest::CondOnlyDefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Defined"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Defined"].AsCharPtr(), fReply.str());
 }
 
 void ConditionalRendererTest::CondOnlyUndefined()
@@ -398,7 +385,7 @@ void ConditionalRendererTest::CondOnlyUndefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Undefined"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Undefined"].AsCharPtr(), fReply.str());
 }
 
 void ConditionalRendererTest::CondOnlyError()
@@ -414,18 +401,17 @@ void ConditionalRendererTest::CondOnlyError()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Error"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Error"].AsCharPtr(), fReply.str());
 }
 
 /*===============================================================*/
 /*     Check the single cases where the right fConfig            */
 /*     is not defined                                            */
 /*===============================================================*/
-void ConditionalRendererTest::ConfigureMissingTrue()
-{
+void ConditionalRendererTest::ConfigureMissingTrue() {
 	StartTrace(ConditionalRendererTest.ConfigureMissingTrue);
 	fConfig["ContextCondition"] = "ContextConditionKey";
-//	fConfig["True"] = "That is True";
+	//	fConfig["True"] = "That is True";
 	fConfig["False"] = "That is False";
 	fConfig["Defined"] = "That is Defined";
 	fConfig["Undefined"] = "That is Undefined";
@@ -434,12 +420,11 @@ void ConditionalRendererTest::ConfigureMissingTrue()
 	tmpStore["ContextConditionKey"] = 1L;
 }
 
-void ConditionalRendererTest::ConfigureMissingFalse()
-{
+void ConditionalRendererTest::ConfigureMissingFalse() {
 	StartTrace(ConditionalRendererTest.ConfigureMissingFalse);
 	fConfig["ContextCondition"] = "ContextConditionKey";
 	fConfig["True"] = "That is True";
-//	fConfig["False"] = "That is False";
+	//	fConfig["False"] = "That is False";
 	fConfig["Defined"] = "That is Defined";
 	fConfig["Undefined"] = "That is Undefined";
 
@@ -447,45 +432,42 @@ void ConditionalRendererTest::ConfigureMissingFalse()
 	tmpStore["ContextConditionKey"] = 0L;
 }
 
-void ConditionalRendererTest::ConfigureMissingDefined()
-{
+void ConditionalRendererTest::ConfigureMissingDefined() {
 	StartTrace(ConditionalRendererTest.ConfigureMissingDefined);
 	fConfig["ContextCondition"] = "ContextConditionKey";
 	fConfig["True"] = "That is True";
 	fConfig["False"] = "That is False";
-//	fConfig["Defined"] = "That is Defined";
+	//	fConfig["Defined"] = "That is Defined";
 	fConfig["Undefined"] = "That is Undefined";
 
 	Anything tmpStore(fContext.GetTmpStore());
 	tmpStore["ContextConditionKey"] = "string";
 }
 
-void ConditionalRendererTest::ConfigureMissingUndefined()
-{
+void ConditionalRendererTest::ConfigureMissingUndefined() {
 	StartTrace(ConditionalRendererTest.ConfigureMissingUndefined);
 	fConfig["ContextCondition"] = "ContextConditionKey";
 	fConfig["True"] = "That is True";
 	fConfig["False"] = "That is False";
 	fConfig["Defined"] = "That is Defined";
-//	fConfig["Undefined"] = "That is Undefined";
+	//	fConfig["Undefined"] = "That is Undefined";
 
-//	tmpStore["ContextConditionKey"] = undef
-//
-//	Anything tmpStore(fContext.GetTmpStore());
-//	tmpStore["ContextConditionKey"] = "string";
+	//	tmpStore["ContextConditionKey"] = undef
+	//
+	//	Anything tmpStore(fContext.GetTmpStore());
+	//	tmpStore["ContextConditionKey"] = "string";
 }
 
-void ConditionalRendererTest::ConfigureMissingError()
-{
+void ConditionalRendererTest::ConfigureMissingError() {
 	StartTrace(ConditionalRendererTest.ConfigureMissingError);
-//	fConfig["ContextCondition"] = undef
-//
-//	fConfig["ContextCondition"] = "ContextConditionKey";
+	//	fConfig["ContextCondition"] = undef
+	//
+	//	fConfig["ContextCondition"] = "ContextConditionKey";
 	fConfig["True"] = "That is True";
 	fConfig["False"] = "That is False";
 	fConfig["Defined"] = "That is Defined";
 	fConfig["Undefined"] = "That is Undefined";
-//	fConfig["Error"] = "That is Error";
+	//	fConfig["Error"] = "That is Error";
 }
 
 void ConditionalRendererTest::CondMissingTrue()
@@ -501,8 +483,8 @@ void ConditionalRendererTest::CondMissingTrue()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Defined"].AsCharPtr(), fReply.str());
-	t_assert( fConfig.IsDefined("True") == false );
+	assertCharPtrEqual(fConfig["Defined"].AsCharPtr(), fReply.str());
+	t_assert(fConfig.IsDefined("True") == false);
 }
 
 void ConditionalRendererTest::CondMissingFalse()
@@ -518,8 +500,8 @@ void ConditionalRendererTest::CondMissingFalse()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Defined"].AsCharPtr(), fReply.str());
-	t_assert( fConfig.IsDefined("False") == false );
+	assertCharPtrEqual(fConfig["Defined"].AsCharPtr(), fReply.str());
+	t_assert(fConfig.IsDefined("False") == false);
 }
 
 void ConditionalRendererTest::CondMissingDefined()
@@ -535,8 +517,8 @@ void ConditionalRendererTest::CondMissingDefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
-	t_assert( fConfig.IsDefined("Defined") == false );
+	assertCharPtrEqual("", fReply.str());
+	t_assert(fConfig.IsDefined("Defined") == false);
 }
 
 void ConditionalRendererTest::CondMissingUndefined()
@@ -552,8 +534,8 @@ void ConditionalRendererTest::CondMissingUndefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
-	t_assert( fConfig.IsDefined("Undefined") == false );
+	assertCharPtrEqual("", fReply.str());
+	t_assert(fConfig.IsDefined("Undefined") == false);
 }
 
 void ConditionalRendererTest::CondMissingError()
@@ -569,35 +551,32 @@ void ConditionalRendererTest::CondMissingError()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
-	t_assert( fConfig.IsDefined("Error") == false );
-
+	assertCharPtrEqual("", fReply.str());
+	t_assert(fConfig.IsDefined("Error") == false);
 }
 
 /*===============================================================*/
 /*     Check the "True/False" cases where                        */
 /*    fConfig.True/False/Defined are not defined                 */
 /*===============================================================*/
-void ConditionalRendererTest::ConfigureTrueWithoutTrueDefined()
-{
+void ConditionalRendererTest::ConfigureTrueWithoutTrueDefined() {
 	StartTrace(ConditionalRendererTest.ConfigureTrueWithoutTrueDefined);
 	fConfig["ContextCondition"] = "ContextConditionKey";
-//	fConfig["True"] = "That is True";
+	//	fConfig["True"] = "That is True";
 	fConfig["False"] = "That is False";
-//	fConfig["Defined"] = "That is Defined";
+	//	fConfig["Defined"] = "That is Defined";
 	fConfig["Undefined"] = "That is Undefined";
 
 	Anything tmpStore(fContext.GetTmpStore());
 	tmpStore["ContextConditionKey"] = 1L;
 }
 
-void ConditionalRendererTest::ConfigureFalseWithoutFalseDefined()
-{
+void ConditionalRendererTest::ConfigureFalseWithoutFalseDefined() {
 	StartTrace(ConditionalRendererTest.ConfigureFalseWithoutFalseDefined);
 	fConfig["ContextCondition"] = "ContextConditionKey";
 	fConfig["True"] = "That is True";
-//	fConfig["False"] = "That is False";
-//	fConfig["Defined"] = "That is Defined";
+	//	fConfig["False"] = "That is False";
+	//	fConfig["Defined"] = "That is Defined";
 	fConfig["Undefined"] = "That is Undefined";
 
 	Anything tmpStore(fContext.GetTmpStore());
@@ -617,9 +596,9 @@ void ConditionalRendererTest::CondTrueWithoutTrueDefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
-	t_assert( fConfig.IsDefined("True") == false );
-	t_assert( fConfig.IsDefined("Defined") == false );
+	assertCharPtrEqual("", fReply.str());
+	t_assert(fConfig.IsDefined("True") == false);
+	t_assert(fConfig.IsDefined("Defined") == false);
 }
 
 void ConditionalRendererTest::CondFalseWithoutFalseDefined()
@@ -635,79 +614,74 @@ void ConditionalRendererTest::CondFalseWithoutFalseDefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
-	t_assert( fConfig.IsDefined("False") == false );
-	t_assert( fConfig.IsDefined("Defined") == false );
+	assertCharPtrEqual("", fReply.str());
+	t_assert(fConfig.IsDefined("False") == false);
+	t_assert(fConfig.IsDefined("Defined") == false);
 }
 
 /*===============================================================*/
 /*     Check the single cases where fConfig is undefined         */
 /*===============================================================*/
-void ConditionalRendererTest::ConfigureTrueConfUndefined()
-{
+void ConditionalRendererTest::ConfigureTrueConfUndefined() {
 	StartTrace(ConditionalRendererTest.ConfigureTrueConfUndefined);
 	fConfig["ContextCondition"] = "ContextConditionKey";
-//	fConfig["True"] = "That is True";
-//	fConfig["False"] = "That is False";
-//	fConfig["Defined"] = "That is Defined";
-//	fConfig["Undefined"] = "That is Undefined";
+	//	fConfig["True"] = "That is True";
+	//	fConfig["False"] = "That is False";
+	//	fConfig["Defined"] = "That is Defined";
+	//	fConfig["Undefined"] = "That is Undefined";
 
 	Anything tmpStore(fContext.GetTmpStore());
 	tmpStore["ContextConditionKey"] = 1L;
 }
 
-void ConditionalRendererTest::ConfigureFalseConfUndefined()
-{
+void ConditionalRendererTest::ConfigureFalseConfUndefined() {
 	StartTrace(ConditionalRendererTest.ConfigureFalseConfUndefined);
 	fConfig["ContextCondition"] = "ContextConditionKey";
-//	fConfig["True"] = "That is True";
-//	fConfig["False"] = "That is False";
-//	fConfig["Defined"] = "That is Defined";
-//	fConfig["Undefined"] = "That is Undefined";
+	//	fConfig["True"] = "That is True";
+	//	fConfig["False"] = "That is False";
+	//	fConfig["Defined"] = "That is Defined";
+	//	fConfig["Undefined"] = "That is Undefined";
 
 	Anything tmpStore(fContext.GetTmpStore());
 	tmpStore["ContextConditionKey"] = 0L;
 }
 
-void ConditionalRendererTest::ConfigureDefinedConfUndefined()
-{
+void ConditionalRendererTest::ConfigureDefinedConfUndefined() {
 	StartTrace(ConditionalRendererTest.ConfigureDefinedConfUndefined);
 	fConfig["ContextCondition"] = "ContextConditionKey";
-//	fConfig["True"] = "That is True";
-//	fConfig["False"] = "That is False";
-//	fConfig["Defined"] = "That is Defined";
-//	fConfig["Undefined"] = "That is Undefined";
+	//	fConfig["True"] = "That is True";
+	//	fConfig["False"] = "That is False";
+	//	fConfig["Defined"] = "That is Defined";
+	//	fConfig["Undefined"] = "That is Undefined";
 
 	Anything tmpStore(fContext.GetTmpStore());
 	tmpStore["ContextConditionKey"] = "string";
 }
 
-void ConditionalRendererTest::ConfigureUndefinedConfUndefined()
-{
+void ConditionalRendererTest::ConfigureUndefinedConfUndefined() {
 	StartTrace(ConditionalRendererTest.ConfigureUndefinedConfUndefined);
 	fConfig["ContextCondition"] = "ContextConditionKey";
-//	fConfig["True"] = "That is True";
-//	fConfig["False"] = "That is False";
-//	fConfig["Defined"] = "That is Defined";
-//	fConfig["Undefined"] = "That is Undefined";
+	//	fConfig["True"] = "That is True";
+	//	fConfig["False"] = "That is False";
+	//	fConfig["Defined"] = "That is Defined";
+	//	fConfig["Undefined"] = "That is Undefined";
 
-//	tmpStore["ContextConditionKey"] = undef
-//
-//	Anything tmpStore(fContext.GetTmpStore());
-//	tmpStore["ContextConditionKey"] = "string";
+	//	tmpStore["ContextConditionKey"] = undef
+	//
+	//	Anything tmpStore(fContext.GetTmpStore());
+	//	tmpStore["ContextConditionKey"] = "string";
 }
 
-void ConditionalRendererTest::ConfigureErrorConfUndefined()
-{
+void ConditionalRendererTest::ConfigureErrorConfUndefined() {
 	StartTrace(ConditionalRendererTest.ConfigureErrorConfUndefined);
-//	fConfig["ContextCondition"] = undef
-//
-//	fConfig["ContextCondition"] = "ContextConditionKey";
-//	fConfig["True"] = "That is True";
-//	fConfig["False"] = "That is False";
-//	fConfig["Defined"] = "That is Defined";
-//	fConfig["Undefined"] = "That is Undefined";
-//	fConfig["Error"] = "That is Error";
+	//	fConfig["ContextCondition"] = undef
+	//
+	//	fConfig["ContextCondition"] = "ContextConditionKey";
+	//	fConfig["True"] = "That is True";
+	//	fConfig["False"] = "That is False";
+	//	fConfig["Defined"] = "That is Defined";
+	//	fConfig["Undefined"] = "That is Undefined";
+	//	fConfig["Error"] = "That is Error";
 }
 
 void ConditionalRendererTest::CondTrueConfUndefined()
@@ -723,7 +697,7 @@ void ConditionalRendererTest::CondTrueConfUndefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
+	assertCharPtrEqual("", fReply.str());
 }
 
 void ConditionalRendererTest::CondFalseConfUndefined()
@@ -739,7 +713,7 @@ void ConditionalRendererTest::CondFalseConfUndefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
+	assertCharPtrEqual("", fReply.str());
 }
 
 void ConditionalRendererTest::CondDefinedConfUndefined()
@@ -755,7 +729,7 @@ void ConditionalRendererTest::CondDefinedConfUndefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
+	assertCharPtrEqual("", fReply.str());
 }
 
 void ConditionalRendererTest::CondUndefinedConfUndefined()
@@ -771,7 +745,7 @@ void ConditionalRendererTest::CondUndefinedConfUndefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
+	assertCharPtrEqual("", fReply.str());
 }
 
 void ConditionalRendererTest::CondErrorConfUndefined()
@@ -787,14 +761,13 @@ void ConditionalRendererTest::CondErrorConfUndefined()
 	conditionalRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
+	assertCharPtrEqual("", fReply.str());
 }
 
 /*===============================================================*/
 /*     Check if "True/False" cases are correctly selected        */
 /*===============================================================*/
-void ConditionalRendererTest::SetTrueFalseCase(long condition, const String &key)
-{
+void ConditionalRendererTest::SetTrueFalseCase(long condition, const String &key) {
 	StartTrace(ConditionalRendererTest.SetTrueFalseCase);
 	fConfig["ContextCondition"] = key;
 	fConfig["True"] = "That is True";
@@ -806,25 +779,23 @@ void ConditionalRendererTest::SetTrueFalseCase(long condition, const String &key
 	tmpStore[key] = condition;
 }
 
-void ConditionalRendererTest::TestTrueFalseCase()
-{
+void ConditionalRendererTest::TestTrueFalseCase() {
 	StartTrace(ConditionalRendererTest.TestTrueFalseCase);
 	long condition;
-	for ( condition = -5; condition < 6; condition++ ) {
+	for (condition = -5; condition < 6; condition++) {
 		OStringStream reply;
 		ConditionalRenderer conditionalRenderer("");
 		// set up the configuration
-		ConditionalRendererTest::SetTrueFalseCase( condition, "ContextConditionKey");
+		ConditionalRendererTest::SetTrueFalseCase(condition, "ContextConditionKey");
 		// render the configuration
 		ROAnything roConfig = fConfig;
 		conditionalRenderer.RenderAll(reply, fContext, roConfig);
-		if ( condition != 0 ) {
+		if (condition != 0) {
 			// true Case
-			assertCharPtrEqual( fConfig["True"].AsCharPtr(), reply.str());
+			assertCharPtrEqual(fConfig["True"].AsCharPtr(), reply.str());
 		} else {
 			// false case
-			assertCharPtrEqual( fConfig["False"].AsCharPtr(), reply.str());
+			assertCharPtrEqual(fConfig["False"].AsCharPtr(), reply.str());
 		}
 	}
 }
-

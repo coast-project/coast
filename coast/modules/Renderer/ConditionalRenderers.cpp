@@ -7,10 +7,11 @@
  */
 
 #include "ConditionalRenderers.h"
+
 #include "StringStream.h"
 
 //---- ConditionalRenderer ----------------------------------------------------------------
-RegisterRenderer( ConditionalRenderer);
+RegisterRenderer(ConditionalRenderer);
 
 static void IdentifyPathAndIndexDelim(char &pathDelim, char &indexDelim, Context &ctx, const ROAnything &config) {
 	pathDelim = '.';
@@ -39,9 +40,7 @@ static void IdentifyPathAndIndexDelim(char &pathDelim, char &indexDelim, Context
 	}
 }
 
-ConditionalRenderer::ConditionalRenderer(const char *name) :
-	Renderer(name) {
-}
+ConditionalRenderer::ConditionalRenderer(const char *name) : Renderer(name) {}
 void ConditionalRenderer::TestCondition(Context &ctx, const ROAnything &config, String &res) {
 	StartTrace(ConditionalRenderer.TestCondition);
 	ROAnything lookupNameConfig;
@@ -65,7 +64,7 @@ void ConditionalRenderer::TestCondition(Context &ctx, const ROAnything &config, 
 			} else {
 				res = "Defined";
 			}
-			return; // we are done. anything else is an error.
+			return;	 // we are done. anything else is an error.
 		} else {
 			if (TriggerEnabled(ConditionalRenderer.TestCondition)) {
 				String strbuf;
@@ -104,11 +103,9 @@ void ConditionalRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROA
 
 //---- SwitchRenderer ----------------------------------------------------------------
 
-RegisterRenderer( SwitchRenderer);
+RegisterRenderer(SwitchRenderer);
 
-SwitchRenderer::SwitchRenderer(const char *name) :
-	Renderer(name) {
-}
+SwitchRenderer::SwitchRenderer(const char *name) : Renderer(name) {}
 
 void SwitchRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(SwitchRenderer.Render);
@@ -126,8 +123,8 @@ void SwitchRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnythi
 		if (condname.Length() > 0) {
 			// lookup data
 			ROAnything result = ctx.Lookup(condname, pathDelim, indexDelim);
-			if ((result.GetType() == AnyCharPtrType) || (result.GetType() == AnyLongType) || (result.GetType() == AnyDoubleType)
-					|| (result.GetType() == AnyNullType)) {
+			if ((result.GetType() == AnyCharPtrType) || (result.GetType() == AnyLongType) ||
+				(result.GetType() == AnyDoubleType) || (result.GetType() == AnyNullType)) {
 				// PFM: accept empty result
 				// get different alternatives for renderer specifications
 				String slot = result.AsString("");
@@ -136,7 +133,7 @@ void SwitchRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnythi
 				if (config.LookupPath(alternatives, "Case")) {
 					// choose suitable renderer specification
 					ROAnything renderer;
-					if (!alternatives.LookupPath(renderer, slot, pathDelim, indexDelim)) { // found slot
+					if (!alternatives.LookupPath(renderer, slot, pathDelim, indexDelim)) {	// found slot
 						if (renderer.IsNull()) {
 							// no matching case statement found.. render default
 							config.LookupPath(renderer, "Default", pathDelim, indexDelim);
@@ -154,7 +151,7 @@ void SwitchRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnythi
 				String error("SwitchRenderer::RenderAll: data is not a valid switch criteria: ");
 
 				OStringStream os(&error);
-				result.PrintOn(os); // append Anything to ease debugging
+				result.PrintOn(os);	 // append Anything to ease debugging
 				os.flush();
 				error << '\n' << "ContextLookupName was [" << condname << "]" << '\n';
 				SystemLog::Error(error);
@@ -165,7 +162,7 @@ void SwitchRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnythi
 			String error("SwitchRenderer::RenderAll: Invalid lookup name: ");
 
 			OStringStream os(&error);
-			lookupName.PrintOn(os, false); // append Anything to ease debugging
+			lookupName.PrintOn(os, false);	// append Anything to ease debugging
 
 			SystemLog::Error(error);
 		}

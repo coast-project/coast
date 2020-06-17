@@ -6,16 +6,18 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "HTTPHeaderRenderer.h"
+
 #include "AnyIterators.h"
-#include "RE.h"
 #include "HTTPConstants.h"
+#include "RE.h"
+
 #include <ostream>
 
 RegisterRenderer(HTTPHeaderRenderer);
 
 namespace {
 	namespace constants {
-		const char * const headerSlot = "HeaderSlot";
+		const char *const headerSlot = "HeaderSlot";
 	}
 
 	void RenderHeader(std::ostream &reply, Context &ctx, const ROAnything &config) {
@@ -25,7 +27,7 @@ namespace {
 		ROAnything fieldValues;
 		String strSlotname;
 		while (headerStructureIter.Next(fieldValues)) {
-			if ( not headerStructureIter.SlotName(strSlotname) ) {
+			if (not headerStructureIter.SlotName(strSlotname)) {
 				//! prepared "header: value" entry or a Renderer specification
 				Renderer::Render(reply, ctx, fieldValues);
 				reply << coast::http::constants::newLine;
@@ -34,7 +36,7 @@ namespace {
 			}
 		}
 	}
-}
+}  // namespace
 
 void HTTPHeaderRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(HTTPHeaderRenderer.RenderAll);

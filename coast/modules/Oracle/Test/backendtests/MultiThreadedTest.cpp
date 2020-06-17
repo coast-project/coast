@@ -7,15 +7,16 @@
  */
 
 #include "MultiThreadedTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "DataAccess.h"
-#include "Context.h"
-#include "AnyUtils.h"
-#include "Timers.h"
-#include"MT_Storage.h"
 
-class DATestThread: public Thread {
+#include "AnyUtils.h"
+#include "Context.h"
+#include "DataAccess.h"
+#include "FoundationTestTypes.h"
+#include "MT_Storage.h"
+#include "TestSuite.h"
+#include "Timers.h"
+
+class DATestThread : public Thread {
 	MultiThreadedTest &fMaster;
 	long fId, fLoopCount, fLoopWait;
 	const char *fGoodDAName, *fFailDAName;
@@ -23,18 +24,22 @@ class DATestThread: public Thread {
 
 public:
 	DATestThread(MultiThreadedTest &master, long id, const char *goodDAName, const char *failDAName, long lLoops, long lWait,
-			ROAnything roaExpected) :
-		Thread("DATestThread"), fMaster(master), fId(id), fLoopCount(lLoops), fLoopWait(lWait), fGoodDAName(goodDAName),
-				fFailDAName(failDAName), froaExpected(roaExpected) {
-	}
+				 ROAnything roaExpected)
+		: Thread("DATestThread"),
+		  fMaster(master),
+		  fId(id),
+		  fLoopCount(lLoops),
+		  fLoopWait(lWait),
+		  fGoodDAName(goodDAName),
+		  fFailDAName(failDAName),
+		  froaExpected(roaExpected) {}
 
 protected:
-	virtual void Run() {
-		fMaster.Run(fId, fGoodDAName, fFailDAName, fLoopCount, fLoopWait, froaExpected);
-	}
+	virtual void Run() { fMaster.Run(fId, fGoodDAName, fFailDAName, fLoopCount, fLoopWait, froaExpected); }
 };
 
-void MultiThreadedTest::Run(long id, const char *goodDAName, const char *failDAName, long lLoops, long lWait, ROAnything roaExpected) {
+void MultiThreadedTest::Run(long id, const char *goodDAName, const char *failDAName, long lLoops, long lWait,
+							ROAnything roaExpected) {
 	for (int i = 0; i < lLoops; i++) {
 		Anything aEnv(GetConfig().DeepClone(coast::storage::Current()));
 		Context ctx(aEnv);
@@ -61,14 +66,15 @@ void MultiThreadedTest::Run(long id, const char *goodDAName, const char *failDAN
 void MultiThreadedTest::DAImplTest() {
 	StartTrace(MultiThreadedTest.DAImplTest);
 	TraceAny(GetTestCaseConfig(), "case config");
-	AnyExtensions::Iterator < ROAnything > tcIterator(GetTestCaseConfig());
+	AnyExtensions::Iterator<ROAnything> tcIterator(GetTestCaseConfig());
 	ROAnything roaEntry;
 	while (tcIterator.Next(roaEntry)) {
 		DiffTimer aTimer;
-		String strSuccDA(roaEntry["SuccessDA"].AsString("MultiThreadedDA")), strFailDA(
-				roaEntry["FailureDA"].AsString("MultiThreadedDAWithError"));
+		String strSuccDA(roaEntry["SuccessDA"].AsString("MultiThreadedDA")),
+			strFailDA(roaEntry["FailureDA"].AsString("MultiThreadedDAWithError"));
 		DoTest(roaEntry, strSuccDA, strFailDA);
-		SystemLog::WriteToStderr(String("elapsed time for [") << strSuccDA << '&' << strFailDA << "] " << (long) aTimer.Diff() << "ms\n");
+		SystemLog::WriteToStderr(String("elapsed time for [")
+								 << strSuccDA << '&' << strFailDA << "] " << (long)aTimer.Diff() << "ms\n");
 	}
 }
 
@@ -76,14 +82,15 @@ void MultiThreadedTest::DoTest(ROAnything roaTestConfig, const char *goodDAName,
 	StartTrace(MultiThreadedTest.DoTest);
 
 	long nThreads = roaTestConfig["ThreadPoolSize"].AsLong(10L);
-	u_long lPoolSize = (u_long) roaTestConfig["PoolStorageSize"].AsLong(1000L);
-	u_long lPoolBuckets = (u_long) roaTestConfig["NumOfPoolBucketSizes"].AsLong(20L);
+	u_long lPoolSize = (u_long)roaTestConfig["PoolStorageSize"].AsLong(1000L);
+	u_long lPoolBuckets = (u_long)roaTestConfig["NumOfPoolBucketSizes"].AsLong(20L);
 
-	DATestThread **threadArray = new DATestThread*[nThreads];
+	DATestThread **threadArray = new DATestThread *[nThreads];
 	long i = 0;
 	for (i = 0; i < nThreads; i++) {
-		threadArray[i] = new (coast::storage::Global()) DATestThread(*this, i, goodDAName, failDAName,
-				roaTestConfig["ThreadDALoops"].AsLong(10L), roaTestConfig["ThreadLoopWait"].AsLong(0L), roaTestConfig["Result"]);
+		threadArray[i] = new (coast::storage::Global())
+			DATestThread(*this, i, goodDAName, failDAName, roaTestConfig["ThreadDALoops"].AsLong(10L),
+						 roaTestConfig["ThreadLoopWait"].AsLong(0L), roaTestConfig["Result"]);
 		threadArray[i]->Start(MT_Storage::MakePoolAllocator(lPoolSize, lPoolBuckets, i));
 	}
 	for (i = 0; i < nThreads; i++) {

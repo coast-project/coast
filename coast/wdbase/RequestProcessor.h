@@ -12,21 +12,18 @@
 #include "Context.h"
 
 //! Policy object shared by all threads to handle a request message;
-class RequestProcessor : public RegisterableObject
-{
+class RequestProcessor : public RegisterableObject {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	RequestProcessor(const char *name);
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) RequestProcessor(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) RequestProcessor(fName); }
 
-	//!configure request processor with server object
+	//! configure request processor with server object
 	virtual void Init(Server *server);
 
-	//!general entry point called by handle request thread
+	//! general entry point called by handle request thread
 	virtual void ProcessRequest(Context &ctx);
 
 	//! checks if the connection should keep-alive after the request has been processed
@@ -39,19 +36,17 @@ public:
 	//! render the protocol specific status
 	static void RenderProtocolStatus(std::ostream &os, Context &ctx);
 
-	Server* GetServer() {
-		return fServer;
-	}
+	Server *GetServer() { return fServer; }
 	//! registry api
 	RegCacheDef(RequestProcessor);	// FindRequestProcessor()
 
 protected:
-	//!read the input arguments from the stream and generate an anything
+	//! read the input arguments from the stream and generate an anything
 	virtual bool DoReadInput(std::iostream &Ios, Context &ctx);
 
 	virtual bool DoVerifyRequest(Context &ctx);
 
-	//!process the arguments and generate a reply
+	//! process the arguments and generate a reply
 	virtual bool DoProcessRequest(std::ostream &reply, Context &ctx);
 
 	//! render the protocol specific status
@@ -71,10 +66,10 @@ private:
 
 	bool VerifyRequest(std::iostream &Ios, Context &ctx);
 
-	//!process the arguments and generate a reply
+	//! process the arguments and generate a reply
 	bool IntProcessRequest(std::iostream &Ios, Context &ctx);
 
-	//!the server we use as callback for application functionality
+	//! the server we use as callback for application functionality
 	Server *fServer;
 
 	RequestProcessor(const RequestProcessor &);

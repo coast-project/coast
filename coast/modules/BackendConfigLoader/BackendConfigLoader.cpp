@@ -7,26 +7,28 @@
  */
 
 #include "BackendConfigLoader.h"
+
 #include "AnyIterators.h"
-#include "SystemFile.h"
-#include "HierarchyInstallerWithConfig.h"
 #include "DataAccessImpl.h"
-#include "ServiceHandler.h"
+#include "HierarchyInstallerWithConfig.h"
 #include "Page.h"
 #include "Role.h"
+#include "ServiceHandler.h"
+#include "SystemFile.h"
 
 using namespace coast;
 
 RegisterModule(BackendConfigLoaderModule);
 
-Anything BackendConfigLoaderModule::backendConfigurations = Anything(Anything::ArrayMarker(),storage::Global());
+Anything BackendConfigLoaderModule::backendConfigurations = Anything(Anything::ArrayMarker(), storage::Global());
 
 bool BackendConfigLoaderModule::Init(const ROAnything config) {
 	StartTrace(BackendConfigLoaderModule.Init);
 	bool retCode = true;
 	ROAnything roaModuleConfig, roaConfigDir;
 
-	if (config.LookupPath(roaModuleConfig, "BackendConfigLoaderModule") && roaModuleConfig.LookupPath(roaConfigDir, "BackendConfigDir")) {
+	if (config.LookupPath(roaModuleConfig, "BackendConfigLoaderModule") &&
+		roaModuleConfig.LookupPath(roaConfigDir, "BackendConfigDir")) {
 		TraceAny(roaModuleConfig, "BackendConfigLoaderConfig:");
 		SystemLog::WriteToStderr("\tReading Backend Configuration Files");
 		String path(roaConfigDir.AsString());
@@ -84,7 +86,7 @@ Anything BackendConfigLoaderModule::GetBackendList() {
 	return backendList;
 }
 
-bool BackendConfigLoaderModule::RegisterBackend(const String& backendName, ROAnything roaBackendConfig) {
+bool BackendConfigLoaderModule::RegisterBackend(const String &backendName, ROAnything roaBackendConfig) {
 	StartTrace(BackendConfigLoaderModule.RegisterBackend);
 	TraceAny(roaBackendConfig, "Registering backend [" << backendName << "]");
 	bool ret = true;

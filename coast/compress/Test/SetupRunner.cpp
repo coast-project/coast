@@ -14,9 +14,7 @@
 #include "TestRunner.h"
 #include "ZipStreamTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	// add a whole suite with the ADD_SUITE(runner,"Suites's Classname") macro
 	ADD_SUITE(runner, ZipStreamTest);
-} // setupRunner
-
+}  // setupRunner

@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "LDAPCachePolicyModule.h"
-#include "DataAccess.h"
+
 #include "Action.h"
 #include "Context.h"
+#include "DataAccess.h"
 
 //---- LdapCachePolicyModule -----------------------------------------------------------
 RegisterModule(LdapCachePolicyModule);
@@ -25,15 +26,16 @@ bool LdapCachePolicyModule::Init(const ROAnything config) {
 		SystemLog::WriteToStderr("\tLdapCachePolicyModule::Init can't read needed configuration data.\n");
 		return false;
 	}
-	if (InitialLoad(dataAccesses, LdapCachePolicyModule::dataaccess) == false || InitialLoad(dataAccessActions,
-			LdapCachePolicyModule::action) == false) {
+	if (InitialLoad(dataAccesses, LdapCachePolicyModule::dataaccess) == false ||
+		InitialLoad(dataAccessActions, LdapCachePolicyModule::action) == false) {
 		return false;
 	}
 	String failedDataAccesses;
 	CheckContractIsFulfilled(failedDataAccesses, dataAccesses);
 	CheckContractIsFulfilled(failedDataAccesses, dataAccessActions);
 	if (failedDataAccesses.Length() != 0) {
-		SystemLog::WriteToStderr(String("\tLdapCachePolicyModule::LDAP Query: ") << failedDataAccesses << String(" returned no data.\n"));
+		SystemLog::WriteToStderr(String("\tLdapCachePolicyModule::LDAP Query: ")
+								 << failedDataAccesses << String(" returned no data.\n"));
 		return false;
 	}
 	SystemLog::WriteToStderr("\tLdapCachePolicyModule done\n");

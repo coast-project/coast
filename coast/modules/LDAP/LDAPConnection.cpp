@@ -7,23 +7,20 @@
  */
 
 #include "LDAPConnection.h"
+
 #include "LDAPMessageEntry.h"
 #include "Tracer.h"
 #if defined(USE_OPENLDAP)
 namespace {
 	const long fgOptNetworkTimeout = LDAP_OPT_NETWORK_TIMEOUT;
 	const String fgstrOptNetworkTimeout = String("LDAP_OPT_NETWORK_TIMEOUT", -1, coast::storage::Global());
-	unsigned long ldap_utf8getcc( const char **src ) {
-		char UTF8len[64]
-		= {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		   2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 6
-		  };
+	unsigned long ldap_utf8getcc(const char **src) {
+		char UTF8len[64] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+							0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 6};
 
 		unsigned long c;
-		const unsigned char *s = (const unsigned char *) * src;
-		switch (UTF8len [(*s >> 2) & 0x3F]) {
+		const unsigned char *s = (const unsigned char *)*src;
+		switch (UTF8len[(*s >> 2) & 0x3F]) {
 			case 0: /* erroneous: s points to the middle of a character. */
 				c = (*s++) & 0x3F;
 				goto more5;
@@ -75,58 +72,51 @@ namespace {
 		*src = (const char *)s;
 		return c;
 	}
-}
+}  // namespace
 #else
 namespace {
 	const long fgOptNetworkTimeout = LDAP_X_OPT_CONNECT_TIMEOUT;
 	const String fgstrOptNetworkTimeout = String("LDAP_X_OPT_CONNECT_TIMEOUT", -1, coast::storage::Global());
-}
+}  // namespace
 #endif
 
-LDAPConnection::LDAPConnection(ROAnything connectionParams)
-{
+LDAPConnection::LDAPConnection(ROAnything connectionParams) {
 	StartTrace(LDAPConnection.LDAPConnection);
 	fServer = connectionParams["Server"].AsString("localhost");
 	fPort = connectionParams["Port"].AsLong(389L);
-	fSearchTimeout  = (int) connectionParams["Timeout"].AsLong(60L);
+	fSearchTimeout = (int)connectionParams["Timeout"].AsLong(60L);
 	// A reasonable connection timeout default
 	fConnectionTimeout = connectionParams["ConnectionTimeout"].AsLong(10);
 	fConnectionTimeout *= 1000;
 	TraceAny(connectionParams, "ConnectionParams");
-	fHandle = (LDAP *) NULL;
+	fHandle = (LDAP *)NULL;
 }
 
-LDAPConnection::~LDAPConnection()
-{
+LDAPConnection::~LDAPConnection() {
 	StartTrace(LDAPConnection.~LDAPConnection);
 }
 
-LDAP *LDAPConnection::GetConnection()
-{
+LDAP *LDAPConnection::GetConnection() {
 	StartTrace(LDAPConnection.GetConnection);
 	return fHandle;
 }
 
-int LDAPConnection::GetSearchTimeout()
-{
+int LDAPConnection::GetSearchTimeout() {
 	StartTrace(LDAPConnection.GetSearchTimeout);
 	return fSearchTimeout;
 }
 
-int LDAPConnection::GetConnectionTimeout()
-{
+int LDAPConnection::GetConnectionTimeout() {
 	StartTrace(LDAPConnection.GetConnectionTimeout);
 	return fConnectionTimeout;
 }
 
-bool LDAPConnection::Connect(ROAnything bindParams, LDAPErrorHandler &eh)
-{
+bool LDAPConnection::Connect(ROAnything bindParams, LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.Connect);
 	return IsConnectOk(DoConnect(bindParams, eh));
 }
 
-bool LDAPConnection::IsConnectOk(LDAPConnection::EConnectState eConnectState)
-{
+bool LDAPConnection::IsConnectOk(LDAPConnection::EConnectState eConnectState) {
 	StartTrace(LDAPConnection.IsConnectOk);
 	switch (eConnectState) {
 		case eOk:
@@ -139,36 +129,32 @@ bool LDAPConnection::IsConnectOk(LDAPConnection::EConnectState eConnectState)
 	return false;
 }
 
-String LDAPConnection::ConnectRetToString(LDAPConnection::EConnectState eConnectState)
-{
+String LDAPConnection::ConnectRetToString(LDAPConnection::EConnectState eConnectState) {
 	StartTrace(LDAPConnection.ConnectRetToString);
 	Anything conv;
-	conv[eOk]				= "eOk";
-	conv[eNok]				= "eNok";
-	conv[eMustRebind]		= "eMustRebind";
-	conv[eMustNotRebind]	= "eMustNotRebind";
-	conv[eRebindOk]			= "eRebindOk";
-	conv[eInitNok] 			= "eInitNok";
-	conv[eBindNok] 			= "eBindNok";
-	conv[eSetOptionsNok] 	= "eSetOptionsNok";
+	conv[eOk] = "eOk";
+	conv[eNok] = "eNok";
+	conv[eMustRebind] = "eMustRebind";
+	conv[eMustNotRebind] = "eMustNotRebind";
+	conv[eRebindOk] = "eRebindOk";
+	conv[eInitNok] = "eInitNok";
+	conv[eBindNok] = "eBindNok";
+	conv[eSetOptionsNok] = "eSetOptionsNok";
 	return conv[eConnectState].AsString();
 }
 
-bool LDAPConnection::ReleaseHandleInfo()
-{
+bool LDAPConnection::ReleaseHandleInfo() {
 	StartTrace(LDAPConnection.ReleaseHandleInfo);
 	return DoReleaseHandleInfo();
 }
 
-bool LDAPConnection::DoReleaseHandleInfo()
-{
+bool LDAPConnection::DoReleaseHandleInfo() {
 	StartTrace(LDAPConnection.DoReleaseHandleInfo);
 	Disconnect();
 	return true;
 }
 
-LDAPConnection::EConnectState LDAPConnection::DoConnect(ROAnything bindParams, LDAPErrorHandler &eh)
-{
+LDAPConnection::EConnectState LDAPConnection::DoConnect(ROAnything bindParams, LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.DoConnect);
 
 	// set handle to null
@@ -178,17 +164,17 @@ LDAPConnection::EConnectState LDAPConnection::DoConnect(ROAnything bindParams, L
 	String bindPW = bindParams["BindPW"].AsString("");
 	EConnectState aRetState = LDAPConnection::eInitNok;
 	// get connection handle
-	if ( (fHandle = Init(eh)) != NULL ) {
+	if ((fHandle = Init(eh)) != NULL) {
 		aRetState = LDAPConnection::eSetOptionsNok;
 		// set protocol, timeout and rebind procedure
-		if ( SetProtocol(eh) && SetConnectionTimeout(eh) && SetSearchTimeout(eh) /* && SetRebindProc(eh) */  ) {
+		if (SetProtocol(eh) && SetConnectionTimeout(eh) && SetSearchTimeout(eh) /* && SetRebindProc(eh) */) {
 			aRetState = LDAPConnection::eBindNok;
 			// send bind request (asynchronous)
 			int msgId;
-			if ( Bind(bindName, bindPW, msgId, eh) ) {
+			if (Bind(bindName, bindPW, msgId, eh)) {
 				// wait for bind result (using msgId)
 				Anything result;
-				if ( WaitForResult(msgId, result, eh) ) {
+				if (WaitForResult(msgId, result, eh)) {
 					aRetState = LDAPConnection::eOk;
 				}
 			}
@@ -197,12 +183,11 @@ LDAPConnection::EConnectState LDAPConnection::DoConnect(ROAnything bindParams, L
 	return aRetState;
 }
 
-LDAP *LDAPConnection::Init(LDAPErrorHandler &eh)
-{
+LDAP *LDAPConnection::Init(LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.Init);
 
-	LDAP *locLdap = ::ldap_init( fServer, fPort );
-	if ( !locLdap ) {
+	LDAP *locLdap = ::ldap_init(fServer, fPort);
+	if (!locLdap) {
 		Trace("ldap_init FAILED");
 		String errMsg = "ldap_init(";
 		errMsg << fServer << "," << fPort << ") failed";
@@ -211,12 +196,11 @@ LDAP *LDAPConnection::Init(LDAPErrorHandler &eh)
 	return locLdap;
 }
 
-bool LDAPConnection::SetProtocol(LDAPErrorHandler &eh)
-{
+bool LDAPConnection::SetProtocol(LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.SetProtocol);
 
 	int ldapVersion = LDAP_VERSION_MAX;
-	if ( ::ldap_set_option( fHandle, LDAP_OPT_PROTOCOL_VERSION, &ldapVersion ) != LDAP_SUCCESS ) {
+	if (::ldap_set_option(fHandle, LDAP_OPT_PROTOCOL_VERSION, &ldapVersion) != LDAP_SUCCESS) {
 		Trace("ldap_set_option: LDAP_OPT_PROTOCOL_VERSION   FAILED");
 		eh.HandleSessionError(fHandle, "Could not set protocol version.");
 		return false;
@@ -224,12 +208,11 @@ bool LDAPConnection::SetProtocol(LDAPErrorHandler &eh)
 	return true;
 }
 
-bool LDAPConnection::SetSearchTimeout(LDAPErrorHandler &eh)
-{
+bool LDAPConnection::SetSearchTimeout(LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.SetSearchTimeout);
 
 	// This will be overridden in DoLDAPRequest - valid only for searches
-	if ( ::ldap_set_option( fHandle, LDAP_OPT_TIMELIMIT, &fSearchTimeout ) != LDAP_SUCCESS ) {
+	if (::ldap_set_option(fHandle, LDAP_OPT_TIMELIMIT, &fSearchTimeout) != LDAP_SUCCESS) {
 		Trace("ldap_set_option: LDAP_OPT_TIMELIMIT   FAILED");
 		eh.HandleSessionError(fHandle, "Could not set timelimit for searches.");
 		return false;
@@ -237,11 +220,10 @@ bool LDAPConnection::SetSearchTimeout(LDAPErrorHandler &eh)
 	return true;
 }
 
-bool LDAPConnection::SetConnectionTimeout(LDAPErrorHandler &eh)
-{
+bool LDAPConnection::SetConnectionTimeout(LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.SetConnectionTimeout);
 
-	if ( ::ldap_set_option( fHandle, fgOptNetworkTimeout, &fConnectionTimeout ) != LDAP_SUCCESS ) {
+	if (::ldap_set_option(fHandle, fgOptNetworkTimeout, &fConnectionTimeout) != LDAP_SUCCESS) {
 		Trace("==================================== ::ldap_set_option: " << fgstrOptNetworkTimeout << "   FAILED");
 		eh.HandleSessionError(fHandle, String("ldap_set_option  [") << fgstrOptNetworkTimeout << "]");
 		return false;
@@ -249,32 +231,31 @@ bool LDAPConnection::SetConnectionTimeout(LDAPErrorHandler &eh)
 	return true;
 }
 
-bool LDAPConnection::Bind(String bindName, String bindPW, int &msgId, LDAPErrorHandler &eh)
-{
+bool LDAPConnection::Bind(String bindName, String bindPW, int &msgId, LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.Bind);
 
 	String errMsg = "Binding request failed. ";
 	errMsg << "[Server: '" << fServer << "', Port: '" << fPort << "'] ";
 
-	if ( bindName.IsEqual("") || bindName.IsEqual("Anonymous") ) {
+	if (bindName.IsEqual("") || bindName.IsEqual("Anonymous")) {
 		Trace("Binding as Anonymous");
 		errMsg << " (Anonymous bind.)";
-		msgId = ::ldap_simple_bind( fHandle, NULL, NULL );
+		msgId = ::ldap_simple_bind(fHandle, NULL, NULL);
 	} else {
 		errMsg << " (Authorized bind.)";
 
-		if ( bindPW == "undefined" ) {
-			Trace("Bindpassword NOT OK: pwd = ["  << bindPW << "]");
+		if (bindPW == "undefined") {
+			Trace("Bindpassword NOT OK: pwd = [" << bindPW << "]");
 			eh.HandleSessionError(fHandle, errMsg);
 			return false;
 		} else {
 			Trace("Binding with <" << bindName << "><" << bindPW << ">");
-			msgId = ::ldap_simple_bind( fHandle, bindName, bindPW );
+			msgId = ::ldap_simple_bind(fHandle, bindName, bindPW);
 		}
 	}
 
 	// bind request successful?
-	if ( msgId == -1 ) {
+	if (msgId == -1) {
 		DoHandleBindFailure(eh, errMsg);
 		return false;
 	}
@@ -283,18 +264,16 @@ bool LDAPConnection::Bind(String bindName, String bindPW, int &msgId, LDAPErrorH
 	return true;
 }
 
-void LDAPConnection::DoHandleBindFailure(LDAPErrorHandler &eh, String &errMsg)
-{
+void LDAPConnection::DoHandleBindFailure(LDAPErrorHandler &eh, String &errMsg) {
 	StartTrace1(LDAPConnection.DoHandleBindFailure, "Binding request FAILED!");
 	eh.HandleSessionError(fHandle, errMsg);
 }
 
-bool LDAPConnection::WaitForResult(int msgId, Anything &result, LDAPErrorHandler &eh)
-{
+bool LDAPConnection::WaitForResult(int msgId, Anything &result, LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.WaitForResult);
 	Trace("msgId: [" << msgId << "]");
 	timeval tv;
-	tv.tv_sec  = fSearchTimeout;
+	tv.tv_sec = fSearchTimeout;
 	tv.tv_usec = 0;
 
 	timeval *tvp = (fSearchTimeout == 0) ? NULL : &tv;
@@ -306,7 +285,7 @@ bool LDAPConnection::WaitForResult(int msgId, Anything &result, LDAPErrorHandler
 	int resultCode;
 
 	LDAPMessage *ldapResult;
-	LDAPMessageEntry lmAutoDestruct(&ldapResult);	// automatic destructor for LDAPMessage
+	LDAPMessageEntry lmAutoDestruct(&ldapResult);  // automatic destructor for LDAPMessage
 	lmAutoDestruct.Use();
 
 	while (!finished) {
@@ -318,14 +297,14 @@ bool LDAPConnection::WaitForResult(int msgId, Anything &result, LDAPErrorHandler
 			// error, abandon!
 			Trace("[Timeout: 0] received an error");
 			int opRet;
-			ldap_parse_result( fHandle, ldapResult, &opRet, NULL, NULL, NULL, NULL, 0 );
-			errMsg << "Synchronous Wait4Result: ErrorCode: [" << (long)opRet << "] ErrorMsg: " << ldap_err2string( opRet );
+			ldap_parse_result(fHandle, ldapResult, &opRet, NULL, NULL, NULL, NULL, 0);
+			errMsg << "Synchronous Wait4Result: ErrorCode: [" << (long)opRet << "] ErrorMsg: " << ldap_err2string(opRet);
 			HandleWait4ResultError(msgId, errMsg, eh);
 			finished = true;
 		} else if (resultCode == 0 || (resultCode == -1 && fSearchTimeout != 0)) {
 			// resultCode 0 means timeout, abandon
 			Trace("[Timeout != 0] encountered a timeout ...");
-			errMsg << "Asynchronous Wait4Result: The request <" << (long) msgId << "> timed out.";
+			errMsg << "Asynchronous Wait4Result: The request <" << (long)msgId << "> timed out.";
 			HandleWait4ResultError(msgId, errMsg, eh);
 			DoHandleWaitForResultTimeout(eh);
 			finished = true;
@@ -365,10 +344,9 @@ bool LDAPConnection::WaitForResult(int msgId, Anything &result, LDAPErrorHandler
 	return success;
 }
 
-void LDAPConnection::HandleWait4ResultError(int msgId, String &errMsg, LDAPErrorHandler &eh)
-{
+void LDAPConnection::HandleWait4ResultError(int msgId, String &errMsg, LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.HandleWait4ResultError);
-	if ( msgId != -1 ) {
+	if (msgId != -1) {
 		int errCode = ldap_abandon(fHandle, msgId);
 		errMsg << " Request abandoned: " << (errCode == LDAP_SUCCESS ? " successfully." : " FAILED!");
 	} else {
@@ -378,8 +356,7 @@ void LDAPConnection::HandleWait4ResultError(int msgId, String &errMsg, LDAPError
 	DoHandleWait4ResultError(eh);
 }
 
-void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, LDAPErrorHandler &eh)
-{
+void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.TransformResult);
 	TraceAny(eh.GetQueryParams(), "QueryParams");
 	TraceAny(eh.GetConnectionParams(), "ConnectionParams");
@@ -412,9 +389,9 @@ void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, 
 		while (entry) {
 			dn.Trim(0L);
 			char *ptrToDn = ldap_get_dn(fHandle, entry);
-			if ( ptrToDn != ( char * ) NULL ) {
+			if (ptrToDn != (char *)NULL) {
 				dn = ptrToDn;
-				ldap_memfree( ptrToDn );
+				ldap_memfree(ptrToDn);
 			}
 			char *attr = ldap_first_attribute(fHandle, entry, &ber);
 			//
@@ -425,7 +402,7 @@ void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, 
 
 			Trace("processing entries of dn [" << dn << "]");
 			// step through all attributes
-			while ( attr != (char *) NULL ) {
+			while (attr != (char *)NULL) {
 				attrString = attr;
 				// normalize all attributes to lowercase
 				attrString.ToLower();
@@ -433,7 +410,7 @@ void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, 
 				vals = ldap_get_values_len(fHandle, entry, attr);
 				nofVals = ldap_count_values_len(vals);
 
-				if ( nofVals == 0 ) {
+				if (nofVals == 0) {
 					// there might be attributes without values
 					// (eg. if AttrsOnly was requested)
 					entries[dn].Append(attrString);
@@ -441,7 +418,7 @@ void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, 
 					for (int i = 0; i < nofVals; ++i) {
 						valStr = String((void *)vals[i]->bv_val, (long)vals[i]->bv_len);
 
-						if ( !eh.GetConnectionParams()["PlainBinaryValues"].AsBool(false) ) {
+						if (!eh.GetConnectionParams()["PlainBinaryValues"].AsBool(false)) {
 							MapUTF8Chars(valStr, eh.GetConnectionParams()["MapUTF8"].AsBool(true));
 						}
 						if (i == 0) {
@@ -452,10 +429,10 @@ void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, 
 					}
 				}
 				// free used memory
-				if ( vals != ( berval ** ) NULL ) {
+				if (vals != (berval **)NULL) {
 					ldap_value_free_len(vals);
 				}
-				if ( attr != ( char * ) NULL ) {
+				if (attr != (char *)NULL) {
 					ldap_memfree(attr);
 				}
 				attr = ldap_next_attribute(fHandle, entry, ber);
@@ -471,16 +448,14 @@ void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, 
 	}
 }
 
-bool LDAPConnection::Disconnect()
-{
+bool LDAPConnection::Disconnect() {
 	StartTrace(LDAPConnection.Disconnect);
 
 	Trace("Disconnecting LDAP...");
 	return Disconnect(fHandle);
 }
 
-bool LDAPConnection::Disconnect(LDAP *handle)
-{
+bool LDAPConnection::Disconnect(LDAP *handle) {
 	StartTrace(LDAPConnection.Disconnect);
 
 	Trace("Disconnecting LDAP...");
@@ -496,19 +471,18 @@ bool LDAPConnection::Disconnect(LDAP *handle)
 	return true;
 }
 
-void LDAPConnection::MapUTF8Chars(String &str, bool bMapUTF8)
-{
+void LDAPConnection::MapUTF8Chars(String &str, bool bMapUTF8) {
 	StartTrace(LDAPConnection.MapUTF8Chars);
 	Trace("Do UTF8 to HTML mapping: " << (bMapUTF8 ? "yes" : "no"));
 
 	String result;
-	for (long i = 0; i < str.Length(); ) {
+	for (long i = 0; i < str.Length();) {
 		const char *theChar = ((const char *)str) + i;
 		const char *theStartChar = theChar;
 		unsigned long utfChar = ldap_utf8getcc(&theChar);
-		i += (theChar - theStartChar); // one utf8 symbol might be several characters
+		i += (theChar - theStartChar);	// one utf8 symbol might be several characters
 
-		if ( bMapUTF8 ) {
+		if (bMapUTF8) {
 			switch (utfChar) {
 				case 252:
 					result.Append("&uuml;");
@@ -540,25 +514,25 @@ void LDAPConnection::MapUTF8Chars(String &str, bool bMapUTF8)
 				case 232:
 					result.Append("&egrave;");
 					break;
-				case 242 :
+				case 242:
 					result.Append("&Egrave;");
 					break;
-				case 250 :
+				case 250:
 					result.Append("&Euml;");
 					break;
 				case 233:
 					result.Append("&eacute;");
 					break;
-				case 167 :
+				case 167:
 					result.Append("&Eacute;");
 					break;
-				case 231 :
+				case 231:
 					result.Append("&ccedil;");
 					break;
-				case 174 :
+				case 174:
 					result.Append("&Ccedil;");
 					break;
-				default :
+				default:
 					// undo UTF8-encoding
 					result.Append((char)utfChar);
 			}
@@ -571,8 +545,7 @@ void LDAPConnection::MapUTF8Chars(String &str, bool bMapUTF8)
 	str = result;
 }
 
-String LDAPConnection::GetTypeStr(int msgType)
-{
+String LDAPConnection::GetTypeStr(int msgType) {
 	StartTrace(LDAPConnection.GetTypeStr);
 
 	String type;
@@ -623,13 +596,12 @@ String LDAPConnection::GetTypeStr(int msgType)
 	return type;
 }
 
-String LDAPConnection::DumpConnectionHandle(LDAP *handle)
-{
+String LDAPConnection::DumpConnectionHandle(LDAP *handle) {
 	StartTrace(LDAPConnection.DumpConnectionHandle);
 	String returnString("Connection handle is: [");
-	if ( handle != (LDAP *) NULL ) {
+	if (handle != (LDAP *)NULL) {
 		// LDAP * is an opaque data type, but we know it is a pointer
-		returnString.AppendAsHex((const unsigned char *) (void *) handle, sizeof(long));
+		returnString.AppendAsHex((const unsigned char *)(void *)handle, sizeof(long));
 		return returnString << "]";
 	}
 	return returnString << "NULL POINTER!]";

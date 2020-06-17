@@ -7,25 +7,25 @@
  */
 
 #include "FilterFieldsMapper.h"
+
 #include "Tracer.h"
 
 //---- FilterFieldsMapper ------------------------------------------------------------------
 RegisterResultMapper(FilterFieldsMapper);
 
-bool FilterFieldsMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything script)
-{
+bool FilterFieldsMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything script) {
 	StartTrace1(FilterFieldsMapper.DoPutAny, NotNull(key));
 	TraceAny(value, "value to put");
 	ROAnything roaFieldList;
 	Anything anyNew, anyFilterValue;
-	if ( Lookup("FieldList", roaFieldList) ) {
-		const char *pSlotname( NULL );
-		for ( long lIdx = 0, lSize = roaFieldList.GetSize(); lIdx < lSize; ++lIdx) {
+	if (Lookup("FieldList", roaFieldList)) {
+		const char *pSlotname(NULL);
+		for (long lIdx = 0, lSize = roaFieldList.GetSize(); lIdx < lSize; ++lIdx) {
 			pSlotname = roaFieldList[lIdx].AsCharPtr();
-			if ( pSlotname != NULL && value.LookupPath( anyFilterValue, pSlotname ) ) {
-				if ( pSlotname[0L] == getIndexDelim() ) {
+			if (pSlotname != NULL && value.LookupPath(anyFilterValue, pSlotname)) {
+				if (pSlotname[0L] == getIndexDelim()) {
 					Trace("appending value in output because it was an indexed lookup [" << pSlotname << "]");
-					anyNew.Append( anyFilterValue );
+					anyNew.Append(anyFilterValue);
 				} else {
 					anyNew[pSlotname] = anyFilterValue;
 				}

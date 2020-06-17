@@ -7,20 +7,20 @@
  */
 
 #include "BlowfishRenderer.h"
-#include "Tracer.h"
-#include "SecurityModule.h"
+
 #include "Base64.h"
+#include "SecurityModule.h"
 #include "SystemLog.h"
+#include "Tracer.h"
 
 //---- BlowfishRenderer ---------------------------------------------------------------
 RegisterRenderer(BlowfishRenderer);
 
-BlowfishRenderer::BlowfishRenderer(const char *name) : Renderer(name) { }
+BlowfishRenderer::BlowfishRenderer(const char *name) : Renderer(name) {}
 
-BlowfishRenderer::~BlowfishRenderer() { }
+BlowfishRenderer::~BlowfishRenderer() {}
 
-void BlowfishRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void BlowfishRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(BlowfishRenderer.RenderAll);
 
 	String blowfishSecurityItem, base64ArmouredInput, deArmouredInput, decodedInput;
@@ -30,9 +30,8 @@ void BlowfishRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnyt
 	Base64("DecryptAppdecodedInput").DoDecode(deArmouredInput, base64ArmouredInput);
 	Scrambler *scrambler = Scrambler::FindScrambler(blowfishSecurityItem);
 	String msg;
-	msg << "BlowfishRenderer: BlowfishSecurityItem: " << blowfishSecurityItem <<
-		" Base64ArmouredInput: " << base64ArmouredInput <<
-		" DeArmouredInput: " << deArmouredInput;
+	msg << "BlowfishRenderer: BlowfishSecurityItem: " << blowfishSecurityItem << " Base64ArmouredInput: " << base64ArmouredInput
+		<< " DeArmouredInput: " << deArmouredInput;
 	if (scrambler) {
 		if (!scrambler->DoDecode(decodedInput, deArmouredInput)) {
 			msg << " Couldn't decode Base64ArmouredInput";

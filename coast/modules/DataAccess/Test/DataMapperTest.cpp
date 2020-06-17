@@ -7,10 +7,11 @@
  */
 
 #include "DataMapperTest.h"
-#include "DataMapper.h"
-#include "TestSuite.h"
-#include "StringStream.h"
+
 #include "Context.h"
+#include "DataMapper.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
 //---- DataMapperTest ----------------------------------------------------------------
 Test *DataMapperTest::suite() {
@@ -24,12 +25,9 @@ Test *DataMapperTest::suite() {
 	return testSuite;
 }
 
-DataMapperTest::DataMapperTest(TString tname) :
-	TestCaseType(tname) {
-}
+DataMapperTest::DataMapperTest(TString tname) : TestCaseType(tname) {}
 
-DataMapperTest::~DataMapperTest() {
-}
+DataMapperTest::~DataMapperTest() {}
 
 void DataMapperTest::StdGetTest() {
 	Anything dummy, anyContext(GetConfig().DeepClone());

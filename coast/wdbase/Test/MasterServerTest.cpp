@@ -7,11 +7,12 @@
  */
 
 #include "MasterServerTest.h"
-#include "TestSuite.h"
+
+#include "AnyIterators.h"
 #include "FoundationTestTypes.h"
 #include "Server.h"
 #include "Socket.h"
-#include "AnyIterators.h"
+#include "TestSuite.h"
 #define TESTHOST "localhost"
 
 void MasterServerTest::setUp() {
@@ -44,7 +45,7 @@ void MasterServerTest::InitRunTerminateTest() {
 			long numOfThreads = 0;
 			TraceAny(roaConfig, "Ports to check");
 			serverName << "_of_InitRunTerminateTest";
-			server = (Server *) server->ConfiguredClone("Server", serverName, true);
+			server = (Server *)server->ConfiguredClone("Server", serverName, true);
 			if (t_assertm(server != NULL, "expected server-clone to succeed")) {
 				ServerThread mt(server);
 				numOfThreads = Thread::NumOfThreads();
@@ -90,7 +91,7 @@ void MasterServerTest::InitRunResetRunTerminateTest() {
 			long numOfThreads = 0;
 			TraceAny(roaConfig, "Ports to check");
 			serverName << "_of_InitRunResetRunTerminateTest";
-			server = (Server *) server->ConfiguredClone("Server", serverName, true);
+			server = (Server *)server->ConfiguredClone("Server", serverName, true);
 			if (t_assertm(server != NULL, "expected server-clone to succeed")) {
 				ServerThread mt(server);
 				numOfThreads = Thread::NumOfThreads();
@@ -114,7 +115,8 @@ void MasterServerTest::InitRunResetRunTerminateTest() {
 				server->Finalize();
 				delete server;
 			}
-			assertComparem(numOfThreads, equal_to, Thread::NumOfThreads(), TString("expected number of threads to match in loop ").Append(aEntryIterator.Index()));
+			assertComparem(numOfThreads, equal_to, Thread::NumOfThreads(),
+						   TString("expected number of threads to match in loop ").Append(aEntryIterator.Index()));
 		}
 	}
 }
@@ -137,7 +139,7 @@ void MasterServerTest::RunTestSequence(ROAnything roaConfig) {
 			replyMessage.Import((*con.GetStream()), "Server reply");
 			t_assert(!!(*con.GetStream()));
 
-			assertAnyEqual(testMessage, replyMessage[0L]); // implies LoopbackProcessor
+			assertAnyEqual(testMessage, replyMessage[0L]);	// implies LoopbackProcessor
 		}
 	}
 }

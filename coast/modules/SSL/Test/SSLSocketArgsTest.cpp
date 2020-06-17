@@ -7,22 +7,19 @@
  */
 
 #include "SSLSocketArgsTest.h"
+
 #include "TestSuite.h"
 #include "Tracer.h"
 
 //---- SSLSocketArgsTest ----------------------------------------------------------------
 
-SSLSocketArgsTest::SSLSocketArgsTest(TString tname) : TestCaseType(tname)
-{
-}
+SSLSocketArgsTest::SSLSocketArgsTest(TString tname) : TestCaseType(tname) {}
 
-SSLSocketArgsTest::~SSLSocketArgsTest()
-{
+SSLSocketArgsTest::~SSLSocketArgsTest() {
 	StartTrace(SSLSocketArgsTest.Dtor);
 }
 
-void SSLSocketArgsTest::ArgsTest()
-{
+void SSLSocketArgsTest::ArgsTest() {
 	StartTrace(SSLSocketArgsTest.ArgsTest);
 	SSLSocketArgs sslsa(true, "gugus", true, true);
 	assertEqual(sslsa.VerifyCertifiedEntity(), true);
@@ -36,7 +33,7 @@ void SSLSocketArgsTest::ArgsTest()
 	assertEqual(sslsa1.CertVerifyStringIsFilter(), false);
 	assertEqual(sslsa1.SessionResumption(), false);
 	// Default constructor
-	SSLSocketArgs  sslsa2;
+	SSLSocketArgs sslsa2;
 	assertEqual(sslsa2.VerifyCertifiedEntity(), false);
 	assertEqual(sslsa2.CertVerifyString(), "");
 	assertEqual(sslsa2.CertVerifyStringIsFilter(), false);
@@ -59,8 +56,7 @@ void SSLSocketArgsTest::ArgsTest()
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *SSLSocketArgsTest::suite ()
-{
+Test *SSLSocketArgsTest::suite() {
 	StartTrace(SSLSocketArgsTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, SSLSocketArgsTest, ArgsTest);

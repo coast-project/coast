@@ -14,8 +14,8 @@ void StringCompareRenderer::RenderAll(std::ostream &reply, Context &c, const ROA
 	StartTrace(StringCompareRenderer.Render);
 	TraceAny(config, "config");
 	ROAnything S1Config, S2Config;
-	if (config.LookupPath(S1Config, "String1") && // if there are no two strings
-			config.LookupPath(S2Config, "String2")) { // forget about it
+	if (config.LookupPath(S1Config, "String1") &&  // if there are no two strings
+		config.LookupPath(S2Config, "String2")) {  // forget about it
 		String s1;
 		RenderOnString(s1, c, S1Config);
 		String s2;
@@ -26,7 +26,7 @@ void StringCompareRenderer::RenderAll(std::ostream &reply, Context &c, const ROA
 			s2.ToLower();
 		}
 		ROAnything conf;
-		if (s1.IsEqual(s2)) { // They are equal
+		if (s1.IsEqual(s2)) {  // They are equal
 			Trace(s1 << " equals " << s2);
 			if (config.LookupPath(conf, "Equal")) {
 				Render(reply, c, conf);

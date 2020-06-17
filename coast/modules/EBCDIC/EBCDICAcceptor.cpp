@@ -6,26 +6,23 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "EBCDICAcceptor.h"
+
 #include "Anything.h"
 #include "EBCDICSocket.h"
 #include "Tracer.h"
-#include "EBCDICAcceptor.h"
 
 //---- EBCDICAcceptor ----------------------------------------------------------
-EBCDICAcceptor::EBCDICAcceptor(const char *ipadress, long port,
-							   long backlog, AcceptorCallBack *cb):
-	Acceptor(ipadress, port, backlog, cb)
-{
+EBCDICAcceptor::EBCDICAcceptor(const char *ipadress, long port, long backlog, AcceptorCallBack *cb)
+	: Acceptor(ipadress, port, backlog, cb) {
 	StartTrace(EBCDICAcceptor.Ctor);
 }
 
-EBCDICAcceptor::~EBCDICAcceptor()
-{
+EBCDICAcceptor::~EBCDICAcceptor() {
 	StartTrace(EBCDICAcceptor.Dtor);
 }
 
-Socket *EBCDICAcceptor::DoMakeSocket(int socket, Anything &clientInfo, bool doClose)
-{
+Socket *EBCDICAcceptor::DoMakeSocket(int socket, Anything &clientInfo, bool doClose) {
 	StartTrace(EBCDICAcceptor.DoMakeSocket);
 	Allocator *a = GetSocketAllocator();
 	return new (a) EBCDICSocket(socket, clientInfo, doClose, a);

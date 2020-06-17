@@ -11,11 +11,9 @@
 
 #include "TestCase.h"
 
-class ObjectList_rTest: public testframework::TestCase {
+class ObjectList_rTest : public testframework::TestCase {
 public:
-	ObjectList_rTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	ObjectList_rTest(TString tstrName) : TestCaseType(tstrName) {}
 	//! builds up a suite of testcases for this test
 	static Test *suite();
 	//! describe this testcase

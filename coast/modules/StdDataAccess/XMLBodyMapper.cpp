@@ -7,19 +7,18 @@
  */
 
 #include "XMLBodyMapper.h"
+
 #include "Tracer.h"
+
 #include <istream>
 
 class TagToken {
 	String fTag;
-public:
-	TagToken(String Tag) :
-		fTag(Tag) {
-	}
 
-	bool IsValid() {
-		return (fTag.Length() != 0);
-	}
+public:
+	TagToken(String Tag) : fTag(Tag) {}
+
+	bool IsValid() { return (fTag.Length() != 0); }
 	bool IsEndTag() {
 		if (!IsValid()) {
 			return false;
@@ -46,6 +45,7 @@ class XMLTagParser {
 	TagToken ReadNextTag(std::istream &Is, String &LeadingText);
 	bool ParseTag(std::istream &Is, String &Tag);
 	bool ReadToExpectedChar(char ExpectedChar, std::istream &Is, String &Content);
+
 public:
 	Anything DoParse(std::istream &Is);
 };

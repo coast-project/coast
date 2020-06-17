@@ -7,31 +7,28 @@
  */
 
 #include "FirstNonEmptyRendererTest.h"
-#include "TestSuite.h"
+
 #include "FirstNonEmptyRenderer.h"
+#include "TestSuite.h"
 #include "Tracer.h"
 
 //---- FirstNonEmptyRendererTest ----------------------------------------------------------------
-FirstNonEmptyRendererTest::FirstNonEmptyRendererTest(TString tstrName) : RendererTest(tstrName)
-{
+FirstNonEmptyRendererTest::FirstNonEmptyRendererTest(TString tstrName) : RendererTest(tstrName) {
 	StartTrace(FirstNonEmptyRendererTest.Ctor);
 }
 
-FirstNonEmptyRendererTest::~FirstNonEmptyRendererTest()
-{
+FirstNonEmptyRendererTest::~FirstNonEmptyRendererTest() {
 	StartTrace(FirstNonEmptyRendererTest.Dtor);
 }
 
-void FirstNonEmptyRendererTest::EmptyList()
-{
+void FirstNonEmptyRendererTest::EmptyList() {
 	StartTrace(FirstNonEmptyRendererTest.EmptyList);
 	FirstNonEmptyRenderer r("EmptyList");
 	fConfig = Anything();
 	r.RenderAll(fReply, fContext, fConfig);
 	assertEqual("", fReply.str());
 }
-void FirstNonEmptyRendererTest::OneElement()
-{
+void FirstNonEmptyRendererTest::OneElement() {
 	StartTrace(FirstNonEmptyRendererTest.OneElement);
 	FirstNonEmptyRenderer r("OneElement");
 	fConfig = Anything();
@@ -39,8 +36,7 @@ void FirstNonEmptyRendererTest::OneElement()
 	r.RenderAll(fReply, fContext, fConfig);
 	assertEqual("output", fReply.str());
 }
-void FirstNonEmptyRendererTest::MultipleElements()
-{
+void FirstNonEmptyRendererTest::MultipleElements() {
 	StartTrace(FirstNonEmptyRendererTest.MultipleElements);
 	FirstNonEmptyRenderer r("MultipleElements");
 	fConfig = Anything();
@@ -57,8 +53,7 @@ void FirstNonEmptyRendererTest::MultipleElements()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *FirstNonEmptyRendererTest::suite ()
-{
+Test *FirstNonEmptyRendererTest::suite() {
 	StartTrace(FirstNonEmptyRendererTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

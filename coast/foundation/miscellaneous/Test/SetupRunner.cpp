@@ -6,13 +6,13 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
-#include "ObjectListTest.h"
 #include "ConversionUtilsTest.h"
+#include "ObjectListTest.h"
 #include "SegStoreAllocatorTest.h"
+#include "TestRunner.h"
 
 void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, ObjectListTest);
 	ADD_SUITE(runner, ConversionUtilsTest);
 	ADD_SUITE(runner, SegStoreAllocatorTest);
-} // setupRunner
+}  // setupRunner

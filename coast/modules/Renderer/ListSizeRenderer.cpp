@@ -7,16 +7,17 @@
  */
 
 #include "ListSizeRenderer.h"
+
 #include "Tracer.h"
+
 #include <ostream>
 
 //---- ListSizeRenderer ---------------------------------------------------------------
 RegisterRenderer(ListSizeRenderer);
 
-ListSizeRenderer::ListSizeRenderer(const char *name) : Renderer(name) { }
+ListSizeRenderer::ListSizeRenderer(const char *name) : Renderer(name) {}
 
-void ListSizeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void ListSizeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(ListSizeRenderer.RenderAll);
 
 	ROAnything data;
@@ -24,12 +25,12 @@ void ListSizeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnyt
 		data = config[0L];
 	}
 
-	if ( !data.IsNull() ) {
+	if (!data.IsNull()) {
 		String str;
 		RenderOnString(str, ctx, data);
 		Trace("ListName is [" << str << "]");
 		ROAnything roaData = ctx.Lookup(str);
-		if ( !roaData.IsNull() ) {
+		if (!roaData.IsNull()) {
 			long size = roaData.GetSize();
 			Trace("size of [" << str << "] is: " << size);
 			reply << size;

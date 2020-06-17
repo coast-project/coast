@@ -7,8 +7,10 @@
  */
 
 #include "StringTestExtreme.h"
-#include "TestSuite.h"
+
 #include "SystemFile.h"
+#include "TestSuite.h"
+
 #include <iostream>
 
 using namespace coast;
@@ -36,6 +38,6 @@ Test *StringTestExtreme::suite() {
 
 void StringTestExtreme::extremeLength() {
 	// Init a string without parameters
-	t_assert(extremelyLongString.Length()>0);
+	t_assert(extremelyLongString.Length() > 0);
 	assertEqual(trueString.length(), extremelyLongString.Length());
 }

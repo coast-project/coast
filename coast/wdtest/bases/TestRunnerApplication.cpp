@@ -7,43 +7,34 @@
  */
 
 #include "TestRunnerApplication.h"
-#include "TestRunner.h"
+
 #include "SetupRunner.h"
+#include "TestRunner.h"
 #include "Tracer.h"
 
 RegisterApplication(TestRunnerApplication);
 
-TestRunnerApplication::TestRunnerApplication()
-	: Application("TestRunnerApplication")
-{ }
+TestRunnerApplication::TestRunnerApplication() : Application("TestRunnerApplication") {}
 
-TestRunnerApplication::TestRunnerApplication(const char *AppName)
-	: Application(AppName)
-	, fgArgc(0)
-	, fgArgv(0)
-{ }
+TestRunnerApplication::TestRunnerApplication(const char *AppName) : Application(AppName), fgArgc(0), fgArgv(0) {}
 
-TestRunnerApplication::~TestRunnerApplication()
-{
-}
+TestRunnerApplication::~TestRunnerApplication() {}
 
 // GlobalInit: keeps argc and argv for later use
-int TestRunnerApplication::DoGlobalInit(int argc, const char *argv[], const ROAnything config)
-{
+int TestRunnerApplication::DoGlobalInit(int argc, const char *argv[], const ROAnything config) {
 	StartTrace(TestRunnerApplication.DoGlobalInit);
 	fgArgc = argc;
 	fgArgv = argv;
-	return Application::DoGlobalInit(argc, argv, config);	// Call instance init
+	return Application::DoGlobalInit(argc, argv, config);  // Call instance init
 }
 
 // doing the work
-int TestRunnerApplication::DoRun()
-{
+int TestRunnerApplication::DoRun() {
 	StartTrace(TestRunnerApplication.DoRun);
 	TestRunner runner;
 
 	setupRunner(runner);
-	runner.run (fgArgc, fgArgv);
+	runner.run(fgArgc, fgArgv);
 
 	return runner.getNumberOfFailures();
 }

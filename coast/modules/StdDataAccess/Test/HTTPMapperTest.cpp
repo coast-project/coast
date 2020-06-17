@@ -7,25 +7,21 @@
  */
 
 #include "HTTPMapperTest.h"
-#include "HTTPMapper.h"
-#include "TestSuite.h"
-#include "StringStream.h"
+
 #include "Context.h"
+#include "HTTPMapper.h"
+#include "Role.h"
 #include "Server.h"
 #include "Session.h"
-#include "Role.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
 //---- HTTPMapperTest ----------------------------------------------------------------
-HTTPMapperTest::HTTPMapperTest(TString tname) : TestCaseType(tname)
-{
-}
+HTTPMapperTest::HTTPMapperTest(TString tname) : TestCaseType(tname) {}
 
-HTTPMapperTest::~HTTPMapperTest()
-{
-}
+HTTPMapperTest::~HTTPMapperTest() {}
 
-void HTTPMapperTest::FDTest1()
-{
+void HTTPMapperTest::FDTest1() {
 	StartTrace(HTTPMapperTest.FDTest1);
 
 	String httpOutput;
@@ -50,8 +46,7 @@ void HTTPMapperTest::FDTest1()
 	Trace("Expected  httpRequest: " << result);
 }
 
-void HTTPMapperTest::FDTest2()
-{
+void HTTPMapperTest::FDTest2() {
 	StartTrace(HTTPMapperTest.FDTest2);
 
 	String httpOutput;
@@ -76,8 +71,7 @@ void HTTPMapperTest::FDTest2()
 	Trace("Expected  httpRequest: " << result);
 }
 
-void HTTPMapperTest::FDTest3()
-{
+void HTTPMapperTest::FDTest3() {
 	StartTrace(HTTPMapperTest.FDTest3);
 
 	String httpOutput;
@@ -96,8 +90,7 @@ void HTTPMapperTest::FDTest3()
 	t_assert(!httpmapper.Get("Input", os, ctx));
 }
 
-void HTTPMapperTest::FDTest4()
-{
+void HTTPMapperTest::FDTest4() {
 	StartTrace(HTTPMapperTest.FDTest4);
 
 	String httpOutput;
@@ -120,31 +113,27 @@ void HTTPMapperTest::FDTest4()
 	os << std::flush;
 	Trace("Resulting httpRequest: " << httpOutput);
 	Trace("Expected  httpRequest: " << result);
-
 }
 
-void HTTPMapperTest::GetTestInput(Anything &testInput, const char *testname)
-{
+void HTTPMapperTest::GetTestInput(Anything &testInput, const char *testname) {
 	std::iostream *Ios = coast::system::OpenStream(testname, "any");
-	if ( Ios ) {
+	if (Ios) {
 		testInput.Import((*Ios));
 		delete Ios;
 	}
 }
 
-String HTTPMapperTest::PrepareResults(ROAnything resultsAsAny)
-{
+String HTTPMapperTest::PrepareResults(ROAnything resultsAsAny) {
 	String results;
 	long l;
-	for ( l = 0; l < resultsAsAny.GetSize() - 1; l ++ ) {
+	for (l = 0; l < resultsAsAny.GetSize() - 1; l++) {
 		results << resultsAsAny[l].AsString() << "\r\n";
 	}
 	results << resultsAsAny[l].AsString();
 	return results;
 }
 
-void HTTPMapperTest::HTTPBodyMapperBadStream()
-{
+void HTTPMapperTest::HTTPBodyMapperBadStream() {
 	String strBuf("Bad\nBody\n");
 	StringStream is(strBuf);
 	is.setstate(std::ios::failbit | std::ios::badbit);
@@ -156,8 +145,7 @@ void HTTPMapperTest::HTTPBodyMapperBadStream()
 	t_assert(dummyctx.Lookup("body", b) != NULL);
 }
 
-Test *HTTPMapperTest::suite ()
-{
+Test *HTTPMapperTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, HTTPMapperTest, FDTest1);
@@ -167,5 +155,4 @@ Test *HTTPMapperTest::suite ()
 	ADD_CASE(testSuite, HTTPMapperTest, HTTPBodyMapperBadStream);
 
 	return testSuite;
-
 }

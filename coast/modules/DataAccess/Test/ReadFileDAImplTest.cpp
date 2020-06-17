@@ -7,9 +7,11 @@
  */
 
 #include "ReadFileDAImplTest.h"
-#include "TestSuite.h"
-#include "ReadFileDAImpl.h"
+
 #include "Context.h"
+#include "ReadFileDAImpl.h"
+#include "TestSuite.h"
+
 #include <istream>
 
 void ReadFileDAImplTest::GetFileNameTest() {

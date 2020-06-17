@@ -17,12 +17,12 @@ class OracleConnection;
 /*!
  * This class is used to abort the program flow with either a self written message or a message provided using the
  * return code of the last OCI API call.
-*/
-class OracleException : public std::exception
-{
+ */
+class OracleException : public std::exception {
 	OracleConnection &fConnection;
 	sword fStatus;
 	String fMessage;
+
 public:
 	/*! Create an exception object using an individual reason message
 	 * @param rConn reference to OracleConnection object
@@ -35,7 +35,7 @@ public:
 	 */
 	OracleException(OracleConnection &rConn, sword status);
 	//! do nothing dtor
-	~OracleException() throw() {};
+	~OracleException() throw(){};
 	/*! Access error message
 	 * @return internally stored error message which lead to the exception
 	 */

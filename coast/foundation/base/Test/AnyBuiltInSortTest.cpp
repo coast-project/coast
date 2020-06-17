@@ -7,9 +7,11 @@
  */
 
 #include "AnyBuiltInSortTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
+
 #include "DiffTimer.h"
+#include "FoundationTestTypes.h"
+#include "TestSuite.h"
+
 #include <iostream>
 
 bool AnyBuiltInSortTest::checksorted(const Anything &a, bool shouldfail) {
@@ -56,7 +58,6 @@ void AnyBuiltInSortTest::SortOne() {
 	Anything b(a);
 	b.SortByKey();
 	assertAnyEqual(a, b);
-
 }
 void AnyBuiltInSortTest::SortTwo() {
 	StartTrace(AnyBuiltInSortTest.SortTwo);
@@ -73,7 +74,7 @@ void AnyBuiltInSortTest::SortTwo() {
 	assertEqual(2, b[0].AsLong());
 	assertEqual(2, b["a"].AsLong());
 	assertEqual(1, b["b"].AsLong());
-	b.SortByKey(); // should be same!
+	b.SortByKey();	// should be same!
 	t_assert(checksorted(b));
 	assertEqual("a", b.SlotName(0));
 	assertEqual("b", b.SlotName(1));
@@ -111,7 +112,7 @@ void AnyBuiltInSortTest::SortMany() {
 		long r = random();
 #endif
 		String sr;
-		sr << i << "bar" << r << "foo"; // needs i to make it unique
+		sr << i << "bar" << r << "foo";	 // needs i to make it unique
 		a[sr] = i;
 		b[sr] = i;
 	}
@@ -150,7 +151,7 @@ void AnyBuiltInSortTest::SortManyStringValues() {
 		long r = random();
 #endif
 		String sr;
-		sr << "bar" << r << "foo"; // needs i to make it unique
+		sr << "bar" << r << "foo";	// needs i to make it unique
 		a.Append(sr);
 		;
 	}
@@ -177,9 +178,9 @@ void AnyBuiltInSortTest::SortIsStable() {
 	a.SortByKey();
 	for (i = 0; i < a.GetSize() - 1; i++)
 		if (!a.SlotName(i) && !a.SlotName(i + 1)) {
-			t_assertm(a[i].AsLong() < a[i+1].AsLong(), TString("unstable at: ") << i << ":" << a[i].AsLong() << " not less than " << a[i+1].AsLong());
+			t_assertm(a[i].AsLong() < a[i + 1].AsLong(),
+					  TString("unstable at: ") << i << ":" << a[i].AsLong() << " not less than " << a[i + 1].AsLong());
 		}
-
 }
 
 // builds up a suite of testcases, add a line for each testmethod

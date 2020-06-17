@@ -20,49 +20,48 @@ class Server;
  * static api supports installation, termination and resets of configured extensions
  * WDModule components are singletons since they are not cloned
  */
-class WDModule: public NotCloned
-{
+class WDModule : public NotCloned {
 public:
-	//!standard named object constructor
-	WDModule( const char *name );
-	//!does nothing
+	//! standard named object constructor
+	WDModule(const char *name);
+	//! does nothing
 	virtual ~WDModule();
 
-	//!implementers should initialize module using config
-	virtual bool Init( const ROAnything roaConfig ) = 0;
-	//!implementers should terminate module expecting destruction
+	//! implementers should initialize module using config
+	virtual bool Init(const ROAnything roaConfig) = 0;
+	//! implementers should terminate module expecting destruction
 	virtual bool Finis() = 0;
-	//!initializes module after termination for reinitialization; default uses Init
-	virtual bool ResetInit( const ROAnything roaConfig );
-	//!terminates module for reinitialization; default uses Finis
-	virtual bool ResetFinis( const ROAnything roaConfig );
+	//! initializes module after termination for reinitialization; default uses Init
+	virtual bool ResetInit(const ROAnything roaConfig);
+	//! terminates module for reinitialization; default uses Finis
+	virtual bool ResetFinis(const ROAnything roaConfig);
 
-	//!installs a list of "Modules" defined in config or all modules registered so far
-	static int Install( const ROAnything roaConfig );
-	//!terminates a list of "Modules" defined in config or all modules registered
-	static int Terminate( const ROAnything roaConfig );
-	//!resets all modules terminating with oldconfig and reinitialising with config
-	static int Reset( const ROAnything roaOldconfig, const ROAnything roaConfig );
+	//! installs a list of "Modules" defined in config or all modules registered so far
+	static int Install(const ROAnything roaConfig);
+	//! terminates a list of "Modules" defined in config or all modules registered
+	static int Terminate(const ROAnything roaConfig);
+	//! resets all modules terminating with oldconfig and reinitialising with config
+	static int Reset(const ROAnything roaOldconfig, const ROAnything roaConfig);
 
-	RegCacheDef(WDModule); // FindWDModule()
+	RegCacheDef(WDModule);	// FindWDModule()
 
 protected:
-	//!terminating a category of RegisterableObjects using title as name on cerr
-	virtual bool StdFinis( const char *category, const char *title );
-	//!installing modules after terminating for reset
-	static int ResetInstall( const ROAnything roaConfig );
-	//!terminating modules for reset
-	static int ResetTerminate( const ROAnything roaConfig );
+	//! terminating a category of RegisterableObjects using title as name on cerr
+	virtual bool StdFinis(const char *category, const char *title);
+	//! installing modules after terminating for reset
+	static int ResetInstall(const ROAnything roaConfig);
+	//! terminating modules for reset
+	static int ResetTerminate(const ROAnything roaConfig);
 
 private:
-	//!should not be used
+	//! should not be used
 	WDModule();
-	//!should not be used
-	WDModule( const WDModule & );
-	//!should not be used
-	WDModule &operator=( const WDModule & );
+	//! should not be used
+	WDModule(const WDModule &);
+	//! should not be used
+	WDModule &operator=(const WDModule &);
 };
 
 #define RegisterModule(name) RegisterObject(name, WDModule)
 
-#endif		//ifndef _WDMODULE_H
+#endif	// ifndef _WDMODULE_H

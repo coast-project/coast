@@ -7,28 +7,35 @@
  */
 
 #include "Session.h"
-#include "Role.h"
+
+#include "AnythingUtils.h"
+#include "LocalizationUtils.h"
 #include "Page.h"
 #include "Renderer.h"
-#include "LocalizationUtils.h"
-#include "AnythingUtils.h"
+#include "Role.h"
+
 #include <ostream>
 
 class AccessTimer {
 	Session *fSession;
+
 public:
-	AccessTimer(Session *session) :
-		fSession(session) {
-	}
-	~AccessTimer() {
-		fSession->ResetAccessTime();
-	}
+	AccessTimer(Session *session) : fSession(session) {}
+	~AccessTimer() { fSession->ResetAccessTime(); }
 };
 
-Session::Session(const char *name) :
-	NotCloned(name), fMutex("Session"), fTerminated(false), fStore(coast::storage::Global()), fId(coast::storage::Global()),
-			fAddress(coast::storage::Global()), fAccessCounter(1), fAccessTime(time(NULL)), fRemoteAddr(coast::storage::Global()),
-			fBrowser(coast::storage::Global()), fRefCount(0L) {
+Session::Session(const char *name)
+	: NotCloned(name),
+	  fMutex("Session"),
+	  fTerminated(false),
+	  fStore(coast::storage::Global()),
+	  fId(coast::storage::Global()),
+	  fAddress(coast::storage::Global()),
+	  fAccessCounter(1),
+	  fAccessTime(time(NULL)),
+	  fRemoteAddr(coast::storage::Global()),
+	  fBrowser(coast::storage::Global()),
+	  fRefCount(0L) {
 	StartTrace(Session.Session);
 	fStore["RoleStore"] = Anything(Anything::ArrayMarker(), fStore.GetAllocator());
 }
@@ -55,7 +62,7 @@ void Session::Init(const char *id, Context &ctx) {
 	// is entrypoint but doesn't need Mutex, since it is similar to a constructor
 	fId = id;
 	PutInStore("SessionId", fId);
-	Role* pRole = GetRole(ctx);
+	Role *pRole = GetRole(ctx);
 	if (pRole) {
 		PutInStore("RoleName", pRole->GetName());
 	}
@@ -68,7 +75,7 @@ void Session::Init(const char *id, Context &ctx) {
 	Anything query(ctx.GetQuery());
 	fAddress = 0;
 	fPort = -1;
-	if (query.IsDefined("adr")) { // PS: keep care of duplicate entries!
+	if (query.IsDefined("adr")) {  // PS: keep care of duplicate entries!
 		fAddress = query["adr"][0L].AsCharPtr("");
 	}
 	if (query.IsDefined("port")) {
@@ -80,7 +87,7 @@ void Session::Init(const char *id, Context &ctx) {
 }
 
 const char *Session::GetId() const {
-	return (const char *) fId;
+	return (const char *)fId;
 }
 
 long Session::GetAccessTime() const {
@@ -133,7 +140,7 @@ long Session::GetTimeout(Context &ctx) const {
 	if (role) {
 		return role->GetTimeout();
 	}
-	return 60; // one minute
+	return 60;	// one minute
 }
 
 void Session::SetRole(Role *newRole, Context &ctx) {
@@ -148,7 +155,7 @@ void Session::SetRole(Role *newRole, Context &ctx) {
 		}
 		if (oldRole) {
 			oldRole->GetName(oldRoleName);
-			oldRole->Finis(*this, newRole); // clean up rolestore if required, here we know the new newRole
+			oldRole->Finis(*this, newRole);	 // clean up rolestore if required, here we know the new newRole
 		}
 		String msg("switching newRole from <");
 		msg << oldRoleName << "> to <" << newRoleName << ">";
@@ -178,7 +185,7 @@ Role *Session::GetRole(Context &ctx) const {
 }
 
 String Session::GetRoleName(Context &ctx, String const &strDefaultRolename) const {
-	return ((ROAnything) fStore)["RoleName"].AsString(strDefaultRolename);
+	return ((ROAnything)fStore)["RoleName"].AsString(strDefaultRolename);
 }
 
 bool Session::IsBusy() {
@@ -208,7 +215,7 @@ bool Session::DoLookup(const char *key, ROAnything &result, char delim, char ind
 }
 
 TrickyThing &Session::GetRoleStoreGlobal() {
-	return (TrickyThing &) fStore["RoleStore"];
+	return (TrickyThing &)fStore["RoleStore"];
 }
 
 TrickyThing &Session::GetStoreGlobal() {
@@ -239,7 +246,7 @@ bool Session::MakeInvalid(Context &ctx) {
 		// invalidate session by setting last access time before timeout period
 		fAccessTime = time(0) - GetTimeout(ctx) - 1;
 		if (ctx.GetSession() == this) {
-			ctx.Push((Session *) 0);
+			ctx.Push((Session *)0);
 		}
 		fMutex.Unlock();
 		return true;
@@ -294,22 +301,23 @@ bool Session::IsDeletable(long secs, Context &ctx, bool roleNotRelevant) {
 		fMutex.Unlock();
 	}
 	if (isBusy) {
-		msg << "SessionId <" << fId << ">  isBusy " << isBusy << " isUnRefed " << isUnRefed << " isTimeout " << isTimeout << " [" << delta
-				<< "," << timeout << "] isDeletable 0";
+		msg << "SessionId <" << fId << ">  isBusy " << isBusy << " isUnRefed " << isUnRefed << " isTimeout " << isTimeout
+			<< " [" << delta << "," << timeout << "] isDeletable 0";
 		SystemLog::Info(msg);
 		return false;
 	}
 	if (isUnRefed && isTimeout) {
 		isDeletable = true;
 	}
-	msg << "SessionId <" << fId << ">  isBusy " << isBusy << " isUnRefed " << isUnRefed << " isTimeout " << isTimeout << " [" << delta
-			<< "," << timeout << "] isDeletable " << isDeletable;
+	msg << "SessionId <" << fId << ">  isBusy " << isBusy << " isUnRefed " << isUnRefed << " isTimeout " << isTimeout << " ["
+		<< delta << "," << timeout << "] isDeletable " << isDeletable;
 	SystemLog::Info(msg);
 	return isDeletable;
 }
 
 namespace {
-	bool isHeaderFieldStillTheSame(Context &ctx, const String &hdrSlot, const String &expValue, const String &turnOffSlot, String &reason) {
+	bool isHeaderFieldStillTheSame(Context &ctx, const String &hdrSlot, const String &expValue, const String &turnOffSlot,
+								   String &reason) {
 		StartTrace1(Session.isHeaderFieldStillTheSame, "looking up [" << hdrSlot << "]");
 		reason.Trim(0);
 		String currValue = ctx.Lookup(hdrSlot).AsString();
@@ -324,7 +332,7 @@ namespace {
 		}
 		return true;
 	}
-}
+}  // namespace
 
 bool Session::Verify(Context &ctx) {
 	StartTrace(Session.Verify);
@@ -337,7 +345,8 @@ bool Session::Verify(Context &ctx) {
 	}
 	ResetAccessTime();
 	String reason;
-	if (!isHeaderFieldStillTheSame(ctx, "header.REMOTE_ADDR", fRemoteAddr, "InstableRemoteAdress", reason) || !isHeaderFieldStillTheSame(ctx, "header.USER-AGENT", fBrowser, "InstableUserAgent", reason)) {
+	if (!isHeaderFieldStillTheSame(ctx, "header.REMOTE_ADDR", fRemoteAddr, "InstableRemoteAdress", reason) ||
+		!isHeaderFieldStillTheSame(ctx, "header.USER-AGENT", fBrowser, "InstableUserAgent", reason)) {
 		SystemLog::Info(reason);
 		return false;
 	}
@@ -396,7 +405,8 @@ bool Session::DoRenderBusyPage(std::ostream &reply, Context &ctx) {
 //--- auxiliary methods and hooks for RenderNextPage
 void Session::DoFindNextPage(Context &context, String &transition, String &currentpage) {
 	StartTrace(Session.DoFindNextPage);
-	Trace( "before transition =<" << transition << "> page = <" << currentpage << ">" << " role of session = <" << GetRoleName(context) << ">");
+	Trace("before transition =<" << transition << "> page = <" << currentpage << ">"
+								 << " role of session = <" << GetRoleName(context) << ">");
 	bool done = false;
 	long lLoopCount = 0;
 	String strLastTransition(transition), strLastPage(currentpage), strInitialPage(currentpage);
@@ -423,41 +433,45 @@ void Session::DoFindNextPage(Context &context, String &transition, String &curre
 			if (strLastTransition == transition && strLastPage == currentpage) {
 				// increment loop counter to be able to break when we detect no change in transition and page over time
 				++lLoopCount;
-				Trace("Detected same transition [" << transition << "] and page [" << currentpage << "] as before!, LoopCount:" << lLoopCount);
+				Trace("Detected same transition [" << transition << "] and page [" << currentpage
+												   << "] as before!, LoopCount:" << lLoopCount);
 			} else {
 				strLastTransition = transition;
 				strLastPage = currentpage;
 				lLoopCount = 0;
 			}
 			Trace("last transition =<" << strLastTransition << "> page = <" << strLastPage << ">");
-			Trace("intermediate transition =<" << transition << "> page = <" << currentpage << "> role of session = <" << GetRoleName(context) << ">");
+			Trace("intermediate transition =<" << transition << "> page = <" << currentpage << "> role of session = <"
+											   << GetRoleName(context) << ">");
 		}
 	} while (not done && (lLoopCount < 2L));
 	if (not done) {
-		SYSERROR("Cancelled DoFindNextPage due to potential endless loop on Page [" << strLastPage << "] and Token [" << strLastTransition << "], InitialPage was [" << strInitialPage << "]");
+		SYSERROR("Cancelled DoFindNextPage due to potential endless loop on Page ["
+				 << strLastPage << "] and Token [" << strLastTransition << "], InitialPage was [" << strInitialPage << "]");
 	}
-	Trace("after transition =<" << transition << "> page = <" << currentpage << "> role of session = <" << GetRoleName(context) << ">");
+	Trace("after transition =<" << transition << "> page = <" << currentpage << "> role of session = <" << GetRoleName(context)
+								<< ">");
 }
 
 namespace {
-	void getDefaultAction(Context& context, String& transition) {
+	void getDefaultAction(Context &context, String &transition) {
 		StartTrace(Session.getDefaultAction);
 		ROAnything roTransition;
-		if (context.Lookup("DefaultAction", roTransition) ) {
+		if (context.Lookup("DefaultAction", roTransition)) {
 			TraceAny(roTransition, "transition/action evaluation config");
 			transition.clear();
-			Renderer::RenderOnString( transition, context, roTransition );
+			Renderer::RenderOnString(transition, context, roTransition);
 		} else {
 			transition = "Home";
 		}
 		Trace("resulting transition <" << transition << ">");
 	}
-}
+}  // namespace
 
 void Session::SetupContext(Context &context, String &transition, String &pagename) {
 	StartTrace(Session.SetupContext);
 	Anything query(context.GetQuery());
-	Normalize(query); // remove "fld_" first implicit dependency to FieldRenderers
+	Normalize(query);  // remove "fld_" first implicit dependency to FieldRenderers
 	//!@FIXME this dependency should be removed
 	//			the prefix mechanism should be standardized
 	//			with several types e.g. buttons
@@ -473,9 +487,9 @@ void Session::SetupContext(Context &context, String &transition, String &pagenam
 	}
 	// we have to finish the last page (so as to exec Action)
 	// so lets try to extract a page from the query
-	pagename = context.Lookup("StartPage", "HomePage"); // use default
+	pagename = context.Lookup("StartPage", "HomePage");	 // use default
 	if (query.IsDefined("page")) {
-		pagename = query["page"].AsCharPtr(pagename); // use AsCharPtr() as to catch NULL
+		pagename = query["page"].AsCharPtr(pagename);  // use AsCharPtr() as to catch NULL
 	}
 	if (query.IsDefined("delayedIndex")) {
 		// save delayed environment to keep lookup semantics consistent
@@ -503,7 +517,8 @@ void Session::prepareForcedLogin(Context &context, String &transition, String &c
 	transition = "Login";
 	// and start this transition from the /StartPage or HomePage
 	currentpage = context.Lookup("StartPage", "HomePage");
-	StatTrace(Session.prepareForcedLogin, "transition <" << transition << "> startpage <" << currentpage << ">", coast::storage::Current());
+	StatTrace(Session.prepareForcedLogin, "transition <" << transition << "> startpage <" << currentpage << ">",
+			  coast::storage::Current());
 }
 
 bool Session::NeedsPageInsert(Context &context, String &transition, String &currentpage) {
@@ -514,25 +529,26 @@ bool Session::NeedsPageInsert(Context &context, String &transition, String &curr
 		// the role is insufficient
 		prepareForcedLogin(context, transition, currentpage);
 	}
-	StatTrace(Session.NeedsPageInsert, (bNeedsInsert?"needs":"no need for") << " page insert", coast::storage::Current());
+	StatTrace(Session.NeedsPageInsert, (bNeedsInsert ? "needs" : "no need for") << " page insert", coast::storage::Current());
 	return bNeedsInsert;
 }
 
-bool Session::RequirePageInsert(Context &context, String &transition, String &currentpage)
-{
+bool Session::RequirePageInsert(Context &context, String &transition, String &currentpage) {
 	// just a hook might use a lookup for easier configurability
 	// invent a config key based on currentpage
 	// use /InsertPage { /page transitiontotake }
-//    ROAnything inserttransitions = context.Lookup("InsertAction");
-//
-//    if (inserttransitions.IsDefined(currentpage)){
-//        String newtrans = inserttransitions[currentpage].AsCharPtr(0);
-//        if (newtrans.Length()>0){
-//            transition = newtrans;
-//            return true;
-//        }
-//    }
-	StatTrace(Session.RequirePageInsert,"transition [" << transition << "] current page [" << currentpage << "] returning false", coast::storage::Current());
+	//    ROAnything inserttransitions = context.Lookup("InsertAction");
+	//
+	//    if (inserttransitions.IsDefined(currentpage)){
+	//        String newtrans = inserttransitions[currentpage].AsCharPtr(0);
+	//        if (newtrans.Length()>0){
+	//            transition = newtrans;
+	//            return true;
+	//        }
+	//    }
+	StatTrace(Session.RequirePageInsert,
+			  "transition [" << transition << "] current page [" << currentpage << "] returning false",
+			  coast::storage::Current());
 	return false;
 }
 
@@ -566,7 +582,7 @@ void Session::SaveToDelayed(Context &context, String &transition, String &pagena
 		//!@FIXME allow only one delayed query, quick fix for no logon of frontdoor stresser
 		fStore["delayed"][0L] = delayed;
 		query["delayedIndex"] = 0L;
-		tmpStore["delayed"] = delayed; // to make it accessible by Lookups for delayed
+		tmpStore["delayed"] = delayed;	// to make it accessible by Lookups for delayed
 		query["action"] = transition;
 		query["page"] = pagename;
 		// Collect the roles state full information
@@ -596,7 +612,7 @@ bool Session::FinishPage(Context &context, String &action, String &pagename) {
 			String msg;
 			msg << "Finalizing page <" << pagename << "> failed";
 			Trace(msg);
-			return false; // stuck user on page, because we failed
+			return false;  // stuck user on page, because we failed
 		}
 	}
 	return true;
@@ -642,7 +658,8 @@ bool Session::CameFromPageInsert(Context &context, String &action, String &pagen
 }
 
 bool Session::RetrieveFromDelayed(Context &context, String &action, String &currentpage) {
-	StartTrace1(Session.RetrieveFromDelayed, "Session: <" << fId << "> Action: <" << action << "> CurrentPage: <" << currentpage << ">");
+	StartTrace1(Session.RetrieveFromDelayed,
+				"Session: <" << fId << "> Action: <" << action << "> CurrentPage: <" << currentpage << ">");
 	// but first we have to check whether the current action triggers a role exchange has already happened
 	ROAnything roaQuery(context.GetQuery());
 	TraceAny(((ROAnything)fStore)["delayed"], "delayed content in session");
@@ -658,14 +675,14 @@ bool Session::RetrieveFromDelayed(Context &context, String &action, String &curr
 				TraceAny(env, "env before modification");
 				for (long i = 0, sz = previousEnv.GetSize(); i < sz; ++i) {
 					const char *slot = previousEnv.SlotName(i);
-					env[slot] = previousEnv[i]; //! this will copy
+					env[slot] = previousEnv[i];	 //! this will copy
 				}
 				TraceAny(env, "modified env");
 			}
 			context.SetQuery(fStore["delayed"][index]);
 			fStore["delayed"].Remove(index);
 			if (fStore["delayed"].GetSize() == 0) {
-				fStore.Remove("delayed"); // clean up
+				fStore.Remove("delayed");  // clean up
 			}
 			String transition;
 			getDefaultAction(context, transition);
@@ -678,7 +695,7 @@ bool Session::RetrieveFromDelayed(Context &context, String &action, String &curr
 				action = lastAction;
 				currentpage = lastpage;
 				Trace("final action [" << action << "] on page [" << currentpage << "]");
-				return true; //! re-iterate in RenderNextPage
+				return true;  //! re-iterate in RenderNextPage
 			}
 		}
 	}
@@ -690,7 +707,7 @@ bool Session::PreparePage(Context &ctx, String &transition, String &currentpage)
 	Page *p = Page::FindPage(currentpage);
 	if (p) {
 		bool ret = p->Prepare(transition, ctx);
-		Trace(currentpage << ".Prepare() " << (ret?"successful":"failed") << " -> transition [" << transition << "]");
+		Trace(currentpage << ".Prepare() " << (ret ? "successful" : "failed") << " -> transition [" << transition << "]");
 		return ret;
 	}
 	Trace("oops, could not find page [" << currentpage << "]");
@@ -700,12 +717,12 @@ bool Session::PreparePage(Context &ctx, String &transition, String &currentpage)
 		String msg(fId);
 		msg << " Session::PreparePage: " << errorpage << " not found";
 		SYSWARNING(msg);
-		return true; // force break of loop in RenderNextPage
+		return true;  // force break of loop in RenderNextPage
 	}
 	// we need to render an errorpage
 	currentpage = errorpage;
 	transition = "Error";
-	return false; // try one more time for ErrorPage
+	return false;  // try one more time for ErrorPage
 }
 
 bool Session::InReAuthenticate(Role *r, Context &context) {
@@ -717,7 +734,7 @@ bool Session::InReAuthenticate(Role *r, Context &context) {
 	if (r && tmpStore.IsDefined("InReauthenticate")) {
 		String rolename;
 		if (r->GetName(rolename) && rolename == tmpStore["InReauthenticate"].AsCharPtr(0)) {
-			return true; // yes we are trying to reauthenticate
+			return true;  // yes we are trying to reauthenticate
 		}
 	}
 	return false;
@@ -743,7 +760,8 @@ Role *Session::CheckRoleExchange(const char *action, Context &ctx) const {
 	if (roaActionToRoleEntry.GetType() != AnyArrayType) {
 		roleName = roaActionToRoleEntry.AsString(roleName);
 	}
-	Trace("action to role entry to lookup in context [" << strActionToRoleEntry << "] resulted in rolename [" << roleName << "]");
+	Trace("action to role entry to lookup in context [" << strActionToRoleEntry << "] resulted in rolename [" << roleName
+														<< "]");
 	// now lets try to find this role
 	return Role::FindRole(roleName);
 }
@@ -820,8 +838,8 @@ const String Session::FR_IMAGEPREFIX = "i_";
 
 void Session::Normalize(Anything &query) {
 	Anything fields(query["fields"]);
-	Anything koord(query["Click"]); // Stores Image.x and Image.y koordinates
-	//Separate fields
+	Anything koord(query["Click"]);	 // Stores Image.x and Image.y koordinates
+	// Separate fields
 	long s = query.GetSize();
 	for (long i = 0; i < s; ++i) {
 		String slotname = query.SlotName(i);
@@ -831,7 +849,7 @@ void Session::Normalize(Anything &query) {
 				slotname = slotname.SubString(FR_FIELDPREFIX.Length());
 				fields[slotname] = query.At(i);
 			} else if (slotname.SubString(0, FR_BUTTONPREFIX.Length()).IsEqual(FR_BUTTONPREFIX)) {
-				//button
+				// button
 				slotname = slotname.SubString(FR_BUTTONPREFIX.Length());
 				if (!query.IsDefined("Button")) {
 					query["Button"] = slotname;

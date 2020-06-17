@@ -7,6 +7,7 @@
  */
 
 #include "MySQLDAImpl.h"
+
 #include "StringStream.h"
 #include "SystemLog.h"
 #include "Tracer.h"
@@ -14,21 +15,15 @@
 //--- MySQLDAImpl -----------------------------------------------------
 RegisterDataAccessImpl(MySQLDAImpl);
 
-MySQLDAImpl::MySQLDAImpl(const char *name) : DataAccessImpl(name)
-{
-}
+MySQLDAImpl::MySQLDAImpl(const char *name) : DataAccessImpl(name) {}
 
-MySQLDAImpl::~MySQLDAImpl()
-{
-}
+MySQLDAImpl::~MySQLDAImpl() {}
 
-IFAObject *MySQLDAImpl::Clone(Allocator *a) const
-{
+IFAObject *MySQLDAImpl::Clone(Allocator *a) const {
 	return new (a) MySQLDAImpl(fName);
 }
 
-bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out)
-{
+bool MySQLDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out) {
 	StartTrace(MySQLDAImpl.Exec);
 
 	MYSQL mysql, *sock;
@@ -53,7 +48,8 @@ bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out
 	long port = 3306L;
 	in->Get("Port", port, context);
 
-	Trace("trying connect to DB:[" << dataBase << "], with user@host:port [" << user << "@" << host << ":" << port << "], and pass:[" << pw << "]");
+	Trace("trying connect to DB:[" << dataBase << "], with user@host:port [" << user << "@" << host << ":" << port
+								   << "], and pass:[" << pw << "]");
 	if (!(sock = mysql_real_connect(&mysql, host, user, pw, dataBase, port, NULL, 0))) {
 		SetErrorMsg("Couldn't connect to mySQL engine!", &mysql, context, out);
 		return false;
@@ -64,7 +60,7 @@ bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out
 	OStringStream os(theQuery);
 	in->Get("SQL", os, context);
 	os.flush();
-	SubTrace (Query, "QUERY IS:" << theQuery );
+	SubTrace(Query, "QUERY IS:" << theQuery);
 
 	bool result = true;
 	if (mysql_query(sock, theQuery)) {
@@ -85,12 +81,12 @@ bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out
 			Anything theSet;
 			MYSQL_ROW myRow;
 			long rowNum = 0;
-			while ( (myRow = mysql_fetch_row(res) ) ) {
+			while ((myRow = mysql_fetch_row(res))) {
 				Anything newRow;
 
 				for (long i = 0; i < num_fields; i++) {
 					String fieldName = fields[i].name;
-					newRow[fieldName] = myRow[i];					// assume only char *
+					newRow[fieldName] = myRow[i];  // assume only char *
 				}
 				TraceAny(newRow, "Row");
 				Anything rowNumber = rowNum++;
@@ -115,8 +111,7 @@ bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out
 	return result;
 }
 
-void MySQLDAImpl::SetErrorMsg(const char *msg, MYSQL *mysql, Context &context, ResultMapper *out )
-{
+void MySQLDAImpl::SetErrorMsg(const char *msg, MYSQL *mysql, Context &context, ResultMapper *out) {
 	StartTrace(MySQLDAImpl.SetErrorMsg);
 
 	String errorMsg(msg);

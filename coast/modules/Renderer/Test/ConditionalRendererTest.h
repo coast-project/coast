@@ -15,14 +15,14 @@
 
 //---- ConditionalRendererTest -----------------------------------------------------------
 
-class ConditionalRendererTest : public RendererTest
-{
+class ConditionalRendererTest : public RendererTest {
 public:
 	ConditionalRendererTest(TString tstrName);
 	virtual ~ConditionalRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
+
 protected:
 	void ConfigureTrue(const String &key);
 	void ConfigureFalse(const String &key);

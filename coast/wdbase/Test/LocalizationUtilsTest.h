@@ -9,17 +9,16 @@
 #ifndef _LocalizationUtilsTest_h_
 #define _LocalizationUtilsTest_h_
 
-#include "TestCase.h"
 #include "Context.h"
+#include "TestCase.h"
 
-class LocalizationUtilsTest : public testframework::TestCase
-{
+class LocalizationUtilsTest : public testframework::TestCase {
 public:
 	LocalizationUtilsTest(TString tstrName);
-	virtual ~LocalizationUtilsTest() {};
+	virtual ~LocalizationUtilsTest(){};
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
 
 protected:
 	void PrepareRootDir();

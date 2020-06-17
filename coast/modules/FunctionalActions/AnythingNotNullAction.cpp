@@ -7,20 +7,20 @@
  */
 
 #include "AnythingNotNullAction.h"
-#include "Context.h"
+
 #include "AnythingUtils.h"
+#include "Context.h"
 #include "Renderer.h"
 #include "Tracer.h"
 
 //---- AnythingNotNullAction ---------------------------------------------------------------
 RegisterAction(AnythingNotNullAction);
 
-AnythingNotNullAction::AnythingNotNullAction(const char *name) : Action(name) { }
+AnythingNotNullAction::AnythingNotNullAction(const char *name) : Action(name) {}
 
-AnythingNotNullAction::~AnythingNotNullAction() { }
+AnythingNotNullAction::~AnythingNotNullAction() {}
 
-bool AnythingNotNullAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool AnythingNotNullAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	// this is the new method that also gets a config ( similar to Renderer::RenderAll )
 	// write the action code here - you don't have to override DoAction anymore
 	StartTrace(AnythingNotNullAction.DoExecAction);
@@ -32,7 +32,8 @@ bool AnythingNotNullAction::DoExecAction(String &transitionToken, Context &ctx, 
 	}
 	ROAnything roaStore = StoreFinder::FindStore(ctx, strStore);
 	bool boRet = roaStore.LookupPath(roaTemp, strSlot) && !roaTemp.IsNull();
-	Trace("slot ["  << strSlot << "] in " << (strStore.Length() ? strStore : String("TempStore")) << " is " << (boRet ? "not " : "") << "Null");
+	Trace("slot [" << strSlot << "] in " << (strStore.Length() ? strStore : String("TempStore")) << " is "
+				   << (boRet ? "not " : "") << "Null");
 
 	return boRet;
 }

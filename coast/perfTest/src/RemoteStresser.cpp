@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "RemoteStresser.h"
+
+#include "Context.h"
 #include "DataAccess.h"
 #include "DiffTimer.h"
-#include "Context.h"
 RegisterStresser(RemoteStresser);
 
 Anything RemoteStresser::Run(long id) {

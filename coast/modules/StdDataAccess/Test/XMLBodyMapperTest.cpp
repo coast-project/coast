@@ -7,17 +7,18 @@
  */
 
 #include "XMLBodyMapperTest.h"
-#include "TestSuite.h"
+
+#include "Context.h"
 #include "FoundationTestTypes.h"
 #include "StringStream.h"
 #include "SystemFile.h"
-#include "Context.h"
+#include "TestSuite.h"
 
 void XMLBodyMapperTest::setUp() {
 	String configFilename("XMLBodyMapperTestConfig");
 	std::istream *ifp = coast::system::OpenStream(configFilename, "any");
 
-	if (ifp) { // found
+	if (ifp) {	// found
 		fConfig.Import(*ifp, configFilename);
 		delete ifp;
 	}

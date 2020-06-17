@@ -6,19 +6,17 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
-
-#include "SystemAPITest.h"
-#include "MTStorageTest2.h"
-#include "ThreadsTest.h"
-#include "ThreadPoolTest.h"
-#include "WorkerPoolManagerTest.h"
-#include "WPMStatHandlerTest.h"
 #include "LeaderFollowerPoolTest.h"
+#include "MTStorageTest2.h"
 #include "ObjectList_rTest.h"
+#include "SystemAPITest.h"
+#include "TestRunner.h"
+#include "ThreadPoolTest.h"
+#include "ThreadsTest.h"
+#include "WPMStatHandlerTest.h"
+#include "WorkerPoolManagerTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	// !! ThreadsTest should be runned first, it tests synchronization and MT specific things which are
 	// elementary things for the lib
 	ADD_SUITE(runner, ThreadsTest);
@@ -30,5 +28,4 @@ void setupRunner(TestRunner &runner)
 	ADD_SUITE(runner, ObjectList_rTest);
 	// SystemAPITest should be run last because it makes low-level modifications which could influence other tests
 	ADD_SUITE(runner, SystemAPITest);
-} // setupRunner
-
+}  // setupRunner

@@ -7,14 +7,15 @@
  */
 
 #include "MockAccessControllerTests.h"
+
+#include "FoundationTestTypes.h"
 #include "SimpleAccessControllers.h"
 #include "TestSuite.h"
-#include "FoundationTestTypes.h"
 
 void MockAccessControllerTests::MockUDACTest() {
 	StartTrace(MockAccessControllerTests.MockUDACTest);
 
-	MockUDAC *mudac = static_cast<MockUDAC *> (UserDataAccessController::FindUserDataAccessController("MockUserData"));
+	MockUDAC *mudac = static_cast<MockUDAC *>(UserDataAccessController::FindUserDataAccessController("MockUserData"));
 	doTestUDAC(mudac);
 
 	// check results
@@ -24,7 +25,7 @@ void MockAccessControllerTests::MockUDACTest() {
 void MockAccessControllerTests::MockTDACTest() {
 	StartTrace(MockAccessControllerTests.MockTDACTest);
 
-	MockTDAC *mtdac = static_cast<MockTDAC *> (TokenDataAccessController::FindTokenDataAccessController("MockTokenData"));
+	MockTDAC *mtdac = static_cast<MockTDAC *>(TokenDataAccessController::FindTokenDataAccessController("MockTokenData"));
 	doTestTDAC(mtdac);
 
 	// check results
@@ -34,7 +35,7 @@ void MockAccessControllerTests::MockTDACTest() {
 void MockAccessControllerTests::MockEDACTest() {
 	StartTrace(MockAccessControllerTests.MockEDACTest);
 
-	MockEDAC *medac = static_cast<MockEDAC *> (EntityDataAccessController::FindEntityDataAccessController("MockEntityData"));
+	MockEDAC *medac = static_cast<MockEDAC *>(EntityDataAccessController::FindEntityDataAccessController("MockEntityData"));
 	doTestEDAC(medac);
 
 	// check results

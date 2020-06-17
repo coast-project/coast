@@ -7,19 +7,17 @@
  */
 
 #include "SS1Test.h"
+
 #include "StringStream.h"
 #include "TestSuite.h"
 
-SS1Test::SS1Test(TString tname)
-	: TestCaseType(tname)
-{}
+SS1Test::SS1Test(TString tname) : TestCaseType(tname) {}
 
-SS1Test::~SS1Test()
-{}
+SS1Test::~SS1Test() {}
 
-Test *SS1Test::suite ()
+Test *SS1Test::suite()
 /* what: return the suite of tests
-*/
+ */
 {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, SS1Test, SimpleTest);
@@ -44,9 +42,10 @@ void SS1Test::SimpleTest()
 	assertEqual(20, out2.Length());
 
 	out << " a little bit more, this should now double the string";
-	assertEqual("something very small a little bit more, this "
-				"should now double the string", out);
+	assertEqual(
+		"something very small a little bit more, this "
+		"should now double the string",
+		out);
 	assertEqual(146, out.Capacity());
 	assertEqual(73, out.Length());
-} // SimpleTest
-
+}  // SimpleTest

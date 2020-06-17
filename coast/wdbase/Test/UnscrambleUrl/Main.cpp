@@ -6,30 +6,28 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include <fstream>
-#include "WDModule.h"
+#include "AppBooter.h"
+#include "Application.h"
 #include "Context.h"
 #include "SecurityModule.h"
-#include "Application.h"
-#include "AppBooter.h"
+#include "WDModule.h"
+
+#include <fstream>
+
 #include <unistd.h>
 
-class MyAppBooter : public AppBooter
-{
+class MyAppBooter : public AppBooter {
 	Application *FindApplication(const Anything &config, String &applicationName) {
 		applicationName = "UnscrambleUrl";
 		return Application::FindApplication(applicationName);
 	}
 };
 
-class UnscrambleUrl : public Application
-{
+class UnscrambleUrl : public Application {
 public:
 	UnscrambleUrl(const char *n) : Application(n) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) UnscrambleUrl(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) UnscrambleUrl(fName); }
 
 	int GlobalInit(int argc, char *argv[], const Anything &config) {
 		if (argc < 2) {
@@ -41,7 +39,6 @@ public:
 		for (int i = 1; i < argc; i++) {
 			fUrls.Append(argv[i]);
 		}
-
 	}
 	int GlobalRun() {
 		for (long i = 0; i < fUrls.GetSize(); i++) {
@@ -54,14 +51,13 @@ public:
 		}
 		return 0;
 	}
+
 private:
 	Anything fUrls;
 };
 RegisterApplication(UnscrambleUrl);
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	int result = MyAppBooter().Run(argc, argv);
 	return result;
 }
-

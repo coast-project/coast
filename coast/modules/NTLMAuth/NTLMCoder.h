@@ -128,10 +128,10 @@ namespace NTLMCoder {
 	String EncodeClientMsg(String domain, String host);
 	String EncodeServerNonce(String nonce, long flags = 0x8201);
 	bool DecodeServerNonce(const String &base64msg, String &nonce);
-	bool DecodeResponse(const String &base64msg, const String &nonce, const String &lmhash, const String &nthash, String &domain,
-			String &host, String &user);
-	String EncodeResponse(const String &nonce, const String &lmhash, const String &nthash, const String &domain, const String &host,
-			const String &user);
+	bool DecodeResponse(const String &base64msg, const String &nonce, const String &lmhash, const String &nthash,
+						String &domain, String &host, String &user);
+	String EncodeResponse(const String &nonce, const String &lmhash, const String &nthash, const String &domain,
+						  const String &host, const String &user);
 
 	String EncodeLMPassword(String password);
 	String EncodeNTPassword(String password);
@@ -142,6 +142,6 @@ namespace NTLMCoder {
 	String MakeBase64(const String &buffer);
 	bool DecodeBase64(String &result, const String &input);
 	String MakeUtf16Upper(const String &in);
-};
+};	// namespace NTLMCoder
 
 #endif

@@ -1,6 +1,7 @@
 #include "AnythingIteratorTest.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
+#include "TestSuite.h"
 
 void AnythingIteratorTest::testEmptyAnythingBegin() {
 	Anything a;
@@ -44,7 +45,6 @@ void AnythingIteratorTest::testSimpleAnythingAssignment() {
 	Anything a(1L);
 	*a.begin() = 5L;
 	t_assert(*a.begin() == Anything(5L));
-
 }
 void AnythingIteratorTest::testAnythingIteration() {
 	Anything a;
@@ -194,10 +194,10 @@ void AnythingIteratorTest::testAnythingSingleErase() {
 	assertEqual(5, a.end() - a.begin());
 	t_assert(a.begin() == a.erase(a.begin()));
 	assertEqual(4, a.end() - a.begin());
-	t_assert(a.end() == a.erase(a.end()));// cannot delete past the end
+	t_assert(a.end() == a.erase(a.end()));	// cannot delete past the end
 	assertEqual(4, a.end() - a.begin());
 	Anything_iterator aItEnd(a.end());
-	t_assert( aItEnd - 1 == a.erase( aItEnd - 1 ) );
+	t_assert(aItEnd - 1 == a.erase(aItEnd - 1));
 	assertEqual(3, a.end() - a.begin());
 	t_assert(a.begin() + 1 == a.erase(a.begin() + 1));
 	assertEqual(2, a.end() - a.begin());
@@ -215,7 +215,6 @@ void AnythingIteratorTest::testAnythingRangeErase() {
 	// until now, no-ops
 	t_assert(a.begin() == a.erase(a.begin(), a.begin() + 1));
 	assertEqual(4, a.end() - a.begin());
-
 }
 void AnythingIteratorTest::setUp() {
 	fAny5.clear();

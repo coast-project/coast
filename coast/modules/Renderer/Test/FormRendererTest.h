@@ -9,36 +9,33 @@
 #ifndef _FormRendererTest_h_
 #define _FormRendererTest_h_
 
-#include "TestCase.h"
-#include "Role.h"
 #include "FormRenderer.h"
+#include "Role.h"
 #include "StringStream.h"
+#include "TestCase.h"
 
-class TestRole : public Role
-{
+class TestRole : public Role {
 public:
 	TestRole(const char *name) : Role(name) {}
 };
 
 //---- FormRendererTest -----------------------------------------------------------
-class FormRendererTest : public testframework::TestCase
-{
+class FormRendererTest : public testframework::TestCase {
 protected:
-
 public:
-	FormRendererTest (TString tstrName);
+	FormRendererTest(TString tstrName);
 	virtual ~FormRendererTest();
-	virtual void	setUp ();
-	static Test		*suite ();
+	virtual void setUp();
+	static Test *suite();
 
 protected:
-	Anything		fConfig;
-	Anything		fEnvironment;
-	TestRole		fRole;
-	Context			fContext;
-	OStringStream	fReply;
-	FormRenderer	fFormRenderer;
-	String			fCurrentTestMethod;
+	Anything fConfig;
+	Anything fEnvironment;
+	TestRole fRole;
+	Context fContext;
+	OStringStream fReply;
+	FormRenderer fFormRenderer;
+	String fCurrentTestMethod;
 
 	void PrintResult();
 

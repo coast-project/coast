@@ -17,16 +17,15 @@
 \par Configuration
 \code
 {
-	/Slot1		Rendererspec	[mandatory|optional], ...
-	...
+  /Slot1		Rendererspec	[mandatory|optional], ...
+  ...
 }
 \endcode
 
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class DecimalFormatRenderer : public Renderer
-{
+class DecimalFormatRenderer : public Renderer {
 public:
 	//--- constructors
 	/*! \param name defines the name of the renderer */
@@ -34,15 +33,14 @@ public:
 	~DecimalFormatRenderer();
 
 	/*! Renders ?? on <I>reply </I>
-		\param reply the stream where the rendered output is written on.
-		\param ctx the context the renderer runs within.
-		\param config the configuration of the renderer.
+	  \param reply the stream where the rendered output is written on.
+	  \param ctx the context the renderer runs within.
+	  \param config the configuration of the renderer.
 	*/
 	virtual void RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config);
-	bool ReadConfig( Context &ctx, const ROAnything &config, String &sString, String &sScale, String &sDecSeparator);
-	bool FormatNumber( String &sString, String &sScale, String &sDecSeparator );
-	void InsertFiller( String &sScale, String &strDecPlaces );
-
+	bool ReadConfig(Context &ctx, const ROAnything &config, String &sString, String &sScale, String &sDecSeparator);
+	bool FormatNumber(String &sString, String &sScale, String &sDecSeparator);
+	void InsertFiller(String &sScale, String &strDecPlaces);
 };
 
 #endif

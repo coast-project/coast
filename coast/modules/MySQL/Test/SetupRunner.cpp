@@ -11,7 +11,6 @@
 //--- test cases ---------------------------------------------------------------
 #include "ConfiguredActionTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, ConfiguredActionTest);
-} // setupRunner
+}  // setupRunner

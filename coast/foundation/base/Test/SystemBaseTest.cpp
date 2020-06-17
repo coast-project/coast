@@ -7,16 +7,18 @@
  */
 
 #include "SystemBaseTest.h"
-#include "TestSuite.h"
+
 #include "DiffTimer.h"
 #include "SystemLog.h"
+#include "TestSuite.h"
+
 #include <unistd.h>
 
 using namespace coast;
 
 void SystemBaseTest::DoSingleSelectTest() {
 	StartTrace(SystemBaseTest.DoSingleSelectTest);
-#if !defined(WIN32) // select not possible on non-socket handles on WIN32
+#if !defined(WIN32)	 // select not possible on non-socket handles on WIN32
 	// assume writability of stdout
 	int result = system::DoSingleSelect(STDOUT_FILENO, 100, false, true);
 	assertEqual(1L, result);
@@ -26,7 +28,7 @@ void SystemBaseTest::DoSingleSelectTest() {
 
 	// just wait 100ms
 	const long waittime = 1000L;
-	DiffTimer dt(DiffTimer::eMilliseconds); //1ms accuracy
+	DiffTimer dt(DiffTimer::eMilliseconds);	 // 1ms accuracy
 	// wait for stdin, only test cases where we really have a timeout (==0)
 	int iSSRet = system::DoSingleSelect(STDIN_FILENO, waittime, false, false);
 	if (t_assertm(iSSRet >= 0, "expected select to timeout or succeed")) {
@@ -37,7 +39,7 @@ void SystemBaseTest::DoSingleSelectTest() {
 			Trace("difference to expected waittime of " << waittime << "ms : " << difft << "ms");
 			// need some tolerance on some systems, eg. older SunOS5.6
 			t_assertm(difft >= -10, TString("assume waiting long enough >=-10ms, diff was:") << difft << "ms");
-			t_assertm(difft < waittime / 5, (const char * )(String("assume 20% (20ms) accuracy, but was ") << difft));
+			t_assertm(difft < waittime / 5, (const char *)(String("assume 20% (20ms) accuracy, but was ") << difft));
 		}
 	} else {
 		SYSERROR("error in DoSingleSelect [" << SystemLog::LastSysError() << "]");
@@ -51,13 +53,13 @@ void SystemBaseTest::DoSingleSelectTest() {
 
 void SystemBaseTest::MicroSleepTest() {
 	DiffTimer::eResolution resolution(DiffTimer::eMicroseconds);
-	DiffTimer dt(resolution); // microsecond accuracy
-	const long SLEEP = resolution / 10; // = 100000L; // 100ms
+	DiffTimer dt(resolution);			 // microsecond accuracy
+	const long SLEEP = resolution / 10;	 // = 100000L; // 100ms
 	t_assert(system::MicroSleep(SLEEP));
 	long sleptdelta = dt.Diff() - SLEEP;
 	t_assertm(SLEEP / 5 > abs(sleptdelta),
-			(const char * )(String("expected sleeping with 20% = 20'000 microsecs (0.02s) accuracy -- but was ")
-					<< sleptdelta << " microseconds"));
+			  (const char *)(String("expected sleeping with 20% = 20'000 microsecs (0.02s) accuracy -- but was ")
+							 << sleptdelta << " microseconds"));
 }
 
 void SystemBaseTest::GetProcessEnvironmentTest() {
@@ -97,7 +99,7 @@ void SystemBaseTest::GenTimeStampTest() {
 	const String expectedStringGmt = "20090213233130";
 	assertCharPtrEqual(expectedStringLocal, coast::system::GenTimeStamp("%Y%m%d%H%M%S", true, refTime));
 	assertCharPtrEqual(expectedStringGmt, coast::system::GenTimeStamp("%Y%m%d%H%M%S", false, refTime));
-	assertCharPtrEqual(expectedStringLocal.SubString(0,8), coast::system::GenTimeStamp("%Y%m%d", true, refTime));
+	assertCharPtrEqual(expectedStringLocal.SubString(0, 8), coast::system::GenTimeStamp("%Y%m%d", true, refTime));
 }
 
 #if !defined(WIN32)
@@ -114,7 +116,7 @@ void SystemBaseTest::LockFileTest() {
 void SystemBaseTest::SnPrintf_ReturnsBytesOfContentWrittenWithoutTerminatingZero() {
 	{
 		const int bufSize = 64;
-		char buf[bufSize] = { 'X' };
+		char buf[bufSize] = {'X'};
 		int bytesWritten = coast::system::SnPrintf(buf, bufSize, "%s", "123456789");
 		assertEqual(9, bytesWritten);
 		assertCharPtrEqual("123456789", buf);
@@ -122,7 +124,7 @@ void SystemBaseTest::SnPrintf_ReturnsBytesOfContentWrittenWithoutTerminatingZero
 	}
 	{
 		const int bufSize = 10;
-		char buf[bufSize] = { 'X' };
+		char buf[bufSize] = {'X'};
 		int bytesWritten = coast::system::SnPrintf(buf, bufSize, "%s", "123456789");
 		assertEqual(9, bytesWritten);
 		assertCharPtrEqual("123456789", buf);
@@ -133,7 +135,7 @@ void SystemBaseTest::SnPrintf_ReturnsBytesOfContentWrittenWithoutTerminatingZero
 void SystemBaseTest::SnPrintf_ReturnsBytesRequiredWithoutTerminatingZero() {
 	{
 		const int bufSize = 9;
-		char buf[bufSize] = { 'X' };
+		char buf[bufSize] = {'X'};
 		int bytesRequired = coast::system::SnPrintf(buf, bufSize, "%s", "12345678901234567890");
 		assertEqual(20, bytesRequired);
 		assertCharPtrEqual("12345678", buf);
@@ -144,7 +146,7 @@ void SystemBaseTest::SnPrintf_ReturnsBytesRequiredWithoutTerminatingZero() {
 void SystemBaseTest::SnPrintf_WritesTerminatingZeroEvenWhenTruncatingBuffer() {
 	{
 		const int bufSize = 9;
-		char buf[bufSize] = { 0 };
+		char buf[bufSize] = {0};
 		int bytesRequired = coast::system::SnPrintf(buf, bufSize, "%s", "123456789");
 		assertEqual(9, bytesRequired);
 		assertCharPtrEqual("12345678", buf);

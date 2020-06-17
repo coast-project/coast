@@ -6,21 +6,21 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "NotEmptyCheckAction.h"
+
 #include "Anything.h"
 #include "Context.h"
 #include "Renderer.h"
 #include "Tracer.h"
-#include "NotEmptyCheckAction.h"
 
 //---- NotEmptyCheckAction ---------------------------------------------------------------
 RegisterAction(NotEmptyCheckAction);
 
-NotEmptyCheckAction::NotEmptyCheckAction(const char *name) : Action(name) { }
+NotEmptyCheckAction::NotEmptyCheckAction(const char *name) : Action(name) {}
 
-NotEmptyCheckAction::~NotEmptyCheckAction() { }
+NotEmptyCheckAction::~NotEmptyCheckAction() {}
 
-bool NotEmptyCheckAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool NotEmptyCheckAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(NotEmptyCheckAction.DoExecAction);
 
 	ROAnything query, roaSlotConfig;
@@ -58,12 +58,11 @@ bool NotEmptyCheckAction::DoExecAction(String &transitionToken, Context &ctx, co
 	return false;
 }
 
-bool NotEmptyCheckAction::DoCheck(String &fieldToCheck, Context &ctx, const ROAnything &config)
-{
+bool NotEmptyCheckAction::DoCheck(String &fieldToCheck, Context &ctx, const ROAnything &config) {
 	StartTrace(NotEmptyCheckAction.DoCheck);
 
 	long sz = fieldToCheck.Length();
-	for (long i = 0; i < sz; ++i)	{
+	for (long i = 0; i < sz; ++i) {
 		if (fieldToCheck[i] != ' ') {
 			return true;
 		}

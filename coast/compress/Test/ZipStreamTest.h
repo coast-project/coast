@@ -13,38 +13,37 @@
 
 //---- ZipStreamTest ----------------------------------------------------------
 //! TestCases description
-class ZipStreamTest : public testframework::TestCaseWithConfig
-{
+class ZipStreamTest : public testframework::TestCaseWithConfig {
 public:
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	ZipStreamTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~ZipStreamTest();
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!test the gzip header after init
+	//! test the gzip header after init
 	void GzipHdrWriteTest();
-	//!test the gzip file creation and reading
+	//! test the gzip file creation and reading
 	void GzipSimpleFileCheck();
-	//!test empty file
+	//! test empty file
 	void GzipEmptyFile();
-	//!test the gzip file creation and reading for a bigger file
+	//! test the gzip file creation and reading for a bigger file
 	void GzipBigFileCheck();
-	//!read a long file, zip and unzip it
+	//! read a long file, zip and unzip it
 	void GzipLongFileCheck();
-	//!test with constant output/input buffers
+	//! test with constant output/input buffers
 	void GzipConstantBufferCheck();
 	//! Corrupted input for ZipIStream
 	void GzipCorruptInputCheck();
-	//!test the gzip file creation
+	//! test the gzip file creation
 	void GzipZlibTest();
-	//!describe this testcase
+	//! describe this testcase
 	void StringGetlineTest();
-	//!read empty file using getline()
+	//! read empty file using getline()
 	void StringEmptyFileGetlineTest();
 
 	void GzipHdrTest();

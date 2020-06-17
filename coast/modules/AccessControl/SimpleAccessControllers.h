@@ -19,8 +19,7 @@
 //! The first should store the contents of the user file under /FileContent
 //! in tmp store the latter should read from /FileContent and store it in
 //! user file.
-class FileUDAC : public UserDataAccessController
-{
+class FileUDAC : public UserDataAccessController {
 public:
 	// constructors
 	FileUDAC(const char *name) : UserDataAccessController(name), fUserDataMutex("fUserdataMutex") {}
@@ -47,7 +46,7 @@ public:
 
 protected:
 	virtual bool LoadUserData();
-	virtual bool SaveUserData() ;
+	virtual bool SaveUserData();
 
 	Anything fUserData;
 	Mutex fUserDataMutex;
@@ -60,8 +59,7 @@ protected:
 //! The first should store the contents of the token file (which is an Anything)
 //! under tmp.FileContent, the latter should read from tmp.FileContent and store
 // it in user file.
-class FileTDAC : public TokenDataAccessController
-{
+class FileTDAC : public TokenDataAccessController {
 public:
 	// constructors
 	FileTDAC(const char *name) : TokenDataAccessController(name), fTokenDataMutex("fTokenDataMutex") {}
@@ -75,12 +73,12 @@ public:
 
 	// access queries via userid (all modifications are locked)
 	String GetSeed(String tokenid);
-	unsigned long GetCount(String tokenid);	// return 0 if not defined (>0 == ok)
+	unsigned long GetCount(String tokenid);	 // return 0 if not defined (>0 == ok)
 	bool IncCount(String userid, long by);
 
 protected:
 	virtual bool LoadTokenData();
-	virtual bool SaveTokenData() ;
+	virtual bool SaveTokenData();
 
 	Anything fTokenData;
 	Mutex fTokenDataMutex;
@@ -93,8 +91,7 @@ protected:
 //! The first should store the contents of the entity file (which is an Anything)
 //! under tmp.FileContent, the latter should read from tmp.FileContent and store
 //! it in entity file.
-class FileEDAC : public EntityDataAccessController
-{
+class FileEDAC : public EntityDataAccessController {
 public:
 	// constructors
 	FileEDAC(const char *name) : EntityDataAccessController(name), fEntityDataMutex("fEntityDataMutex") {}
@@ -113,10 +110,10 @@ public:
 
 protected:
 	virtual bool LoadEntityData();
-	virtual bool SaveEntityData() ;
+	virtual bool SaveEntityData();
 
 	Anything fEntityData;
-	Mutex fEntityDataMutex;		// not really needed yet, since no modifications are performed
+	Mutex fEntityDataMutex;	 // not really needed yet, since no modifications are performed
 };
 
 //---- MockUDAC -----------------------------------------------------------
@@ -124,41 +121,38 @@ protected:
 /*!
 Configuration:<PRE>
 {
-	/User {
-		/UserId		uid
-		/Password	pwd
-		/TokenId	tid
-		/Groups {
-			group1
-			group2
-		}
+  /User {
+	/UserId		uid
+	/Password	pwd
+	/TokenId	tid
+	/Groups {
+	  group1
+	  group2
 	}
-	... etc.
+  }
+  ... etc.
 
-	# Example:
-	/tester {
-		/UserId		"tester"
-		/Password	"secret"
-		/TokenId	"000100002"
-		/Groups {
-			"ultraUsers"
-			"tvJunkies"
-		}
+  # Example:
+  /tester {
+	/UserId		"tester"
+	/Password	"secret"
+	/TokenId	"000100002"
+	/Groups {
+	  "ultraUsers"
+	  "tvJunkies"
 	}
-	... etc.
+  }
+  ... etc.
 }
 </PRE>
 Initial test config is modified in memory only.
 */
-class MockUDAC : public FileUDAC
-{
+class MockUDAC : public FileUDAC {
 public:
-	MockUDAC(const char *name) : FileUDAC(name) {};
+	MockUDAC(const char *name) : FileUDAC(name){};
 	virtual ~MockUDAC() {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) MockUDAC(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) MockUDAC(fName); }
 
 protected:
 	virtual bool LoadUserData() {
@@ -167,14 +161,10 @@ protected:
 		}
 		return true;
 	}
-	virtual bool SaveUserData() {
-		return true;
-	}
+	virtual bool SaveUserData() { return true; }
 
 	friend class MockAccessControllerTests;
-	virtual Anything GetMockedState() {
-		return fUserData.DeepClone();
-	}
+	virtual Anything GetMockedState() { return fUserData.DeepClone(); }
 };
 
 //---- MockTDAC -----------------------------------------------------------
@@ -182,31 +172,28 @@ protected:
 /*!
 Configuration:<PRE>
 {
-	/TokenId {
-		/Seed	seed
-		/Count	count
-	}
-	... etc.
+  /TokenId {
+	/Seed	seed
+	/Count	count
+  }
+  ... etc.
 
-	# Example:
-	/"000100002" {
-		/Seed 	"e5a4103be54395b743c1c70365d47603"
-		/Count 	612314215
-	}
-	... etc.
+  # Example:
+  /"000100002" {
+	/Seed 	"e5a4103be54395b743c1c70365d47603"
+	/Count 	612314215
+  }
+  ... etc.
 }
 </PRE>
 Initial test config is modified in memory only.
 */
-class MockTDAC : public FileTDAC
-{
+class MockTDAC : public FileTDAC {
 public:
-	MockTDAC(const char *name) : FileTDAC(name) {};
+	MockTDAC(const char *name) : FileTDAC(name){};
 	virtual ~MockTDAC() {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) MockTDAC(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) MockTDAC(fName); }
 
 protected:
 	virtual bool LoadTokenData() {
@@ -215,14 +202,10 @@ protected:
 		}
 		return true;
 	}
-	virtual bool SaveTokenData() {
-		return true;
-	}
+	virtual bool SaveTokenData() { return true; }
 
 	friend class MockAccessControllerTests;
-	virtual Anything GetMockedState() {
-		return fTokenData.DeepClone();
-	}
+	virtual Anything GetMockedState() { return fTokenData.DeepClone(); }
 };
 
 //---- MockEDAC -----------------------------------------------------------
@@ -230,34 +213,31 @@ protected:
 /*!
 Configuration:<PRE>
 {
-	/Group {
-		right1
-		right2
-	}
-	... etc.
+  /Group {
+	right1
+	right2
+  }
+  ... etc.
 
-	# Example:
-	/tvJunkies {
-		"remoteControl"
-		"tvGuide"
-	}
-	/ultraUsers {
-		"format"
-	}
-	... etc.
+  # Example:
+  /tvJunkies {
+	"remoteControl"
+	"tvGuide"
+  }
+  /ultraUsers {
+	"format"
+  }
+  ... etc.
 }
 </PRE>
 Initial test config is modified in memory only.
 */
-class MockEDAC : public FileEDAC
-{
+class MockEDAC : public FileEDAC {
 public:
-	MockEDAC(const char *name) : FileEDAC(name) {};
+	MockEDAC(const char *name) : FileEDAC(name){};
 	virtual ~MockEDAC() {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) MockEDAC(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) MockEDAC(fName); }
 
 protected:
 	virtual bool LoadEntityData() {
@@ -266,14 +246,10 @@ protected:
 		}
 		return true;
 	}
-	virtual bool SaveEntityData() {
-		return true;
-	}
+	virtual bool SaveEntityData() { return true; }
 
 	friend class MockAccessControllerTests;
-	virtual Anything GetMockedState() {
-		return fEntityData.DeepClone();
-	}
+	virtual Anything GetMockedState() { return fEntityData.DeepClone(); }
 };
 
 #endif

@@ -7,6 +7,7 @@
  */
 
 #include "DecimalFormatRenderer.h"
+
 #include "AnythingUtils.h"
 #include "SystemLog.h"
 #include "Tracer.h"
@@ -14,23 +15,22 @@
 //---- DecimalFormatRenderer ---------------------------------------------------------------
 RegisterRenderer(DecimalFormatRenderer);
 
-DecimalFormatRenderer::DecimalFormatRenderer(const char *name) : Renderer(name) { }
+DecimalFormatRenderer::DecimalFormatRenderer(const char *name) : Renderer(name) {}
 
-DecimalFormatRenderer::~DecimalFormatRenderer() { }
+DecimalFormatRenderer::~DecimalFormatRenderer() {}
 
-void DecimalFormatRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void DecimalFormatRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(DecimalFormatRenderer.RenderAll);
 
 	TraceAny(config, "config");
 	String sString, sScale, sDecSeparator, sMaxLength;
 
-	if (!ReadConfig( ctx, config, sString, sScale, sDecSeparator )) {
+	if (!ReadConfig(ctx, config, sString, sScale, sDecSeparator)) {
 		return;
 	}
 
 	if (sString.Length()) {
-		if (!FormatNumber( sString, sScale, sDecSeparator )) {
+		if (!FormatNumber(sString, sScale, sDecSeparator)) {
 			return;
 		}
 	}
@@ -39,8 +39,8 @@ void DecimalFormatRenderer::RenderAll(std::ostream &reply, Context &ctx, const R
 	reply << sString;
 }
 
-bool DecimalFormatRenderer::ReadConfig( Context &ctx, const ROAnything &config, String &sString, String &sScale, String &sDecSeparator )
-{
+bool DecimalFormatRenderer::ReadConfig(Context &ctx, const ROAnything &config, String &sString, String &sScale,
+									   String &sDecSeparator) {
 	StartTrace(DecimalFormatRenderer.ReadConfig);
 
 	ROAnything roaSlotConfig;
@@ -68,26 +68,23 @@ bool DecimalFormatRenderer::ReadConfig( Context &ctx, const ROAnything &config, 
 	Trace("DecimalSeparator: [" << sDecSeparator << "]");
 
 	return true;
-
 }
 
-bool DecimalFormatRenderer::FormatNumber( String &sString, String &sScale, String &sDecSeparator )
-{
+bool DecimalFormatRenderer::FormatNumber(String &sString, String &sScale, String &sDecSeparator) {
 	StartTrace(DecimalFormatRenderer.FormatNumber);
 
 	String strTmp(sString);
 	String strToken, strNumber, strDecPlaces;
 	StringTokenizer tok(strTmp, sDecSeparator[0L]);
 
-	if ( tok(strToken) ) {
-
+	if (tok(strToken)) {
 		Trace("current token [" << strToken << "]");
 		strNumber = strToken;
 	} else {
 		strNumber = "0";
 	}
 
-	if ( tok(strToken) ) {
+	if (tok(strToken)) {
 		Trace("current token [" << strToken << "]");
 		strDecPlaces = strToken;
 	} else {
@@ -95,7 +92,7 @@ bool DecimalFormatRenderer::FormatNumber( String &sString, String &sScale, Strin
 	}
 
 	if (sScale.AsLong(0L) > 0L) {
-		InsertFiller( sScale, strDecPlaces );
+		InsertFiller(sScale, strDecPlaces);
 		Trace("decimal [" << strDecPlaces << "] scale [" << sScale.AsLong(0L) << "]");
 		sString = strNumber << sDecSeparator << strDecPlaces.SubString(0L, sScale.AsLong(0L));
 	} else {
@@ -104,16 +101,13 @@ bool DecimalFormatRenderer::FormatNumber( String &sString, String &sScale, Strin
 	}
 
 	return true;
-
 }
 
-void DecimalFormatRenderer::InsertFiller(String  &sScale, String &strDecPlaces )
-{
+void DecimalFormatRenderer::InsertFiller(String &sScale, String &strDecPlaces) {
 	StartTrace(DecimalFormatRenderer.InsertFiller);
 
-	for ( long lIdx = strDecPlaces.Length(); lIdx < sScale.AsLong(0L) ; lIdx++) {
+	for (long lIdx = strDecPlaces.Length(); lIdx < sScale.AsLong(0L); lIdx++) {
 		strDecPlaces.Append("0");
 		Trace("scale [ " << strDecPlaces << "] index [ " << lIdx << " ]");
 	}
 }
-

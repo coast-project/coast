@@ -8,13 +8,15 @@
 
 // if &copy etc is to be translated to local character set
 // SPECIAL_CHAR_CONVERSION to be defined
-#undef CONTROL_CHAR_CHECK // iscntrl is locale specific, it is avoided if this define is set
-#define SPECIAL_CHAR_CONVERSION // should you need to turn conversion of &copy etc into local characters
+#undef CONTROL_CHAR_CHECK		 // iscntrl is locale specific, it is avoided if this define is set
+#define SPECIAL_CHAR_CONVERSION	 // should you need to turn conversion of &copy etc into local characters
 #include "HTMLParser.h"
+
+#include "DiffTimer.h"
 #include "StringStream.h"
 #include "SystemLog.h"
-#include "DiffTimer.h"
 #include "Tracer.h"
+
 #include <cstring>
 #include <ostream>
 
@@ -26,8 +28,7 @@ public:
 
 class MethodMeter {
 public:
-	MethodMeter(const char *name, Anything &result) :
-		fResult(result), fName(name), fTimer(DiffTimer::eClockTicks) {
+	MethodMeter(const char *name, Anything &result) : fResult(result), fName(name), fTimer(DiffTimer::eClockTicks) {
 		fTimer.Start();
 	}
 	~MethodMeter();
@@ -42,77 +43,148 @@ static MethodInfoCollector gMeter;
 
 //#define METHOD_METER
 #ifdef METHOD_METER
-#define Meter(key)	MethodMeter mme(_QUOTE_(key), gMeter.fResults);
+#define Meter(key) MethodMeter mme(_QUOTE_(key), gMeter.fResults);
 #else
 #define Meter(key)
 #endif
 
-HTMLParser::TagInfo HTMLParser::TagTable[] = { // keep table sorted!
-		{ "a", HTMLParser::eANCHOR }, { "abbrev", HTMLParser::eABBREV }, { "acronym", HTMLParser::eACRONYM }, { "address",
-				HTMLParser::eADDRESS }, { "applet", HTMLParser::eAPPLET },
-				{ "area", HTMLParser::eAREA }, // ??
-				{ "arg", HTMLParser::eARGUMENT }, { "au", HTMLParser::eAUTHOR }, { "b", HTMLParser::eBOLD }, { "banner",
-						HTMLParser::eBANNER }, { "base", HTMLParser::eBASE }, { "basefont", HTMLParser::eBASEFONT }, { "big",
-						HTMLParser::eBIG }, { "blink", HTMLParser::eBLINK },
-				{ "blockquote", HTMLParser::eBLOCKQUOTE }, // ??
-				{ "body", HTMLParser::eBODY }, { "bq", HTMLParser::eBLOCKQUOTE }, { "br", HTMLParser::eLINEBREAK }, { "caption",
-						HTMLParser::eCAPTION },
-				{ "center", HTMLParser::eCENTER }, // ??
-				{ "cite", HTMLParser::eCITATION }, { "cmd", HTMLParser::eCOMMAND }, { "code", HTMLParser::eCODE }, { "col",
-						HTMLParser::eCOLUMN }, { "credit", HTMLParser::eCREDIT }, { "dd", HTMLParser::eDEF_DEF }, { "del",
-						HTMLParser::eDELETED }, { "dfn", HTMLParser::eDEFINITION },
-				{ "dir", HTMLParser::eDIRECTORY }, // ??
-				{ "div", HTMLParser::eDIV },
-				{ "division", HTMLParser::eDIVISION }, // ??
-				{ "dl", HTMLParser::eDEF_LIST }, { "doctype", HTMLParser::eDOCTYPE }, { "dt", HTMLParser::eDEF_TERM }, { "em",
-						HTMLParser::eEMPHASIZED }, { "embed", HTMLParser::eEMBEDDED }, { "fig", HTMLParser::eFIGURE }, { "fn",
-						HTMLParser::eFOOTNOTE }, { "font", HTMLParser::eFONT }, { "form", HTMLParser::eFORM }, { "frame",
-						HTMLParser::eFRAME }, { "frameset", HTMLParser::eFRAMESET }, { "h1", HTMLParser::eHEADER_1 }, { "h2",
-						HTMLParser::eHEADER_2 }, { "h3", HTMLParser::eHEADER_3 }, { "h4", HTMLParser::eHEADER_4 }, { "h5",
-						HTMLParser::eHEADER_5 }, { "h6", HTMLParser::eHEADER_6 }, { "head", HTMLParser::eHEAD },
-				{ "hr", HTMLParser::eHRULE }, { "html", HTMLParser::eHTML }, { "i", HTMLParser::eITALIC }, { "img", HTMLParser::eIMAGE }, {
-						"input", HTMLParser::eINPUT }, { "ins", HTMLParser::eINSERTED }, { "isindex", HTMLParser::eISINDEX }, { "kbd",
-						HTMLParser::eKEYBOARD }, { "lang", HTMLParser::eLANGUAGE }, { "lh", HTMLParser::eLISTHEADER }, { "li",
-						HTMLParser::eLIST_ITEM }, { "link", HTMLParser::eLINK }, { "listing", HTMLParser::ePREFORMAT }, // ??
-				{ "map", HTMLParser::eMAP }, // ??
-				{ "marquee", HTMLParser::eMARQUEE }, { "math", HTMLParser::eMATH }, { "menu", HTMLParser::eMENU }, // obsolete
-				{ "meta", HTMLParser::eMETA }, // ??
-				{ "nextid", HTMLParser::eNEXTID }, { "nobr", HTMLParser::eNOBR }, { "note", HTMLParser::eNOTE }, { "object",
-						HTMLParser::eOBJECT }, { "ol", HTMLParser::eORDERED_LIST }, { "option", HTMLParser::eOPTION }, { "overlay",
-						HTMLParser::eOVERLAY }, { "p", HTMLParser::ePARAGRAPH }, { "param", HTMLParser::ePARAM }, { "person",
-						HTMLParser::ePERSON }, { "pre", HTMLParser::ePREFORMAT }, { "q", HTMLParser::eQUOTATION_MARK }, { "samp",
-						HTMLParser::eSAMPLE }, { "script", HTMLParser::eSCRIPT }, // ??
-				{ "select", HTMLParser::eSELECT }, { "small", HTMLParser::eSMALL }, { "strike", HTMLParser::eSTRIKEOUT }, { "strong",
-						HTMLParser::eSTRONG }, { "style", HTMLParser::eSTYLE }, // ??
-				{ "sub", HTMLParser::eSUBSCRIPT }, { "sup", HTMLParser::eSUPERSCRIPT }, { "tab", HTMLParser::eTAB }, { "table",
-						HTMLParser::eTABLE }, { "tbody", HTMLParser::eTBODY }, { "td", HTMLParser::eTABLECELL }, { "textarea",
-						HTMLParser::eTEXTAREA }, { "textflow", HTMLParser::eTEXTFLOW }, // ??
-				{ "tfoot", HTMLParser::eTABLEFOOTER }, // ??
-				{ "th", HTMLParser::eTABLEHEADER }, { "thead", HTMLParser::eTABLEHEAD }, { "title", HTMLParser::eTITLE }, { "tr",
-						HTMLParser::eTABLEROW }, { "tt", HTMLParser::eTELETYPE }, { "u", HTMLParser::eUNDERLINE }, { "ul",
-						HTMLParser::eUNORDERED_LIST }, { "var", HTMLParser::eVARIABLE }, { "wbr", HTMLParser::eWBR }, { "xmp",
-						HTMLParser::ePREFORMAT }, // ??
-				{ 0, HTMLParser::eUNKNOWN } };
+HTMLParser::TagInfo HTMLParser::TagTable[] = {	// keep table sorted!
+	{"a", HTMLParser::eANCHOR},
+	{"abbrev", HTMLParser::eABBREV},
+	{"acronym", HTMLParser::eACRONYM},
+	{"address", HTMLParser::eADDRESS},
+	{"applet", HTMLParser::eAPPLET},
+	{"area", HTMLParser::eAREA},  // ??
+	{"arg", HTMLParser::eARGUMENT},
+	{"au", HTMLParser::eAUTHOR},
+	{"b", HTMLParser::eBOLD},
+	{"banner", HTMLParser::eBANNER},
+	{"base", HTMLParser::eBASE},
+	{"basefont", HTMLParser::eBASEFONT},
+	{"big", HTMLParser::eBIG},
+	{"blink", HTMLParser::eBLINK},
+	{"blockquote", HTMLParser::eBLOCKQUOTE},  // ??
+	{"body", HTMLParser::eBODY},
+	{"bq", HTMLParser::eBLOCKQUOTE},
+	{"br", HTMLParser::eLINEBREAK},
+	{"caption", HTMLParser::eCAPTION},
+	{"center", HTMLParser::eCENTER},  // ??
+	{"cite", HTMLParser::eCITATION},
+	{"cmd", HTMLParser::eCOMMAND},
+	{"code", HTMLParser::eCODE},
+	{"col", HTMLParser::eCOLUMN},
+	{"credit", HTMLParser::eCREDIT},
+	{"dd", HTMLParser::eDEF_DEF},
+	{"del", HTMLParser::eDELETED},
+	{"dfn", HTMLParser::eDEFINITION},
+	{"dir", HTMLParser::eDIRECTORY},  // ??
+	{"div", HTMLParser::eDIV},
+	{"division", HTMLParser::eDIVISION},  // ??
+	{"dl", HTMLParser::eDEF_LIST},
+	{"doctype", HTMLParser::eDOCTYPE},
+	{"dt", HTMLParser::eDEF_TERM},
+	{"em", HTMLParser::eEMPHASIZED},
+	{"embed", HTMLParser::eEMBEDDED},
+	{"fig", HTMLParser::eFIGURE},
+	{"fn", HTMLParser::eFOOTNOTE},
+	{"font", HTMLParser::eFONT},
+	{"form", HTMLParser::eFORM},
+	{"frame", HTMLParser::eFRAME},
+	{"frameset", HTMLParser::eFRAMESET},
+	{"h1", HTMLParser::eHEADER_1},
+	{"h2", HTMLParser::eHEADER_2},
+	{"h3", HTMLParser::eHEADER_3},
+	{"h4", HTMLParser::eHEADER_4},
+	{"h5", HTMLParser::eHEADER_5},
+	{"h6", HTMLParser::eHEADER_6},
+	{"head", HTMLParser::eHEAD},
+	{"hr", HTMLParser::eHRULE},
+	{"html", HTMLParser::eHTML},
+	{"i", HTMLParser::eITALIC},
+	{"img", HTMLParser::eIMAGE},
+	{"input", HTMLParser::eINPUT},
+	{"ins", HTMLParser::eINSERTED},
+	{"isindex", HTMLParser::eISINDEX},
+	{"kbd", HTMLParser::eKEYBOARD},
+	{"lang", HTMLParser::eLANGUAGE},
+	{"lh", HTMLParser::eLISTHEADER},
+	{"li", HTMLParser::eLIST_ITEM},
+	{"link", HTMLParser::eLINK},
+	{"listing", HTMLParser::ePREFORMAT},  // ??
+	{"map", HTMLParser::eMAP},			  // ??
+	{"marquee", HTMLParser::eMARQUEE},
+	{"math", HTMLParser::eMATH},
+	{"menu", HTMLParser::eMENU},  // obsolete
+	{"meta", HTMLParser::eMETA},  // ??
+	{"nextid", HTMLParser::eNEXTID},
+	{"nobr", HTMLParser::eNOBR},
+	{"note", HTMLParser::eNOTE},
+	{"object", HTMLParser::eOBJECT},
+	{"ol", HTMLParser::eORDERED_LIST},
+	{"option", HTMLParser::eOPTION},
+	{"overlay", HTMLParser::eOVERLAY},
+	{"p", HTMLParser::ePARAGRAPH},
+	{"param", HTMLParser::ePARAM},
+	{"person", HTMLParser::ePERSON},
+	{"pre", HTMLParser::ePREFORMAT},
+	{"q", HTMLParser::eQUOTATION_MARK},
+	{"samp", HTMLParser::eSAMPLE},
+	{"script", HTMLParser::eSCRIPT},  // ??
+	{"select", HTMLParser::eSELECT},
+	{"small", HTMLParser::eSMALL},
+	{"strike", HTMLParser::eSTRIKEOUT},
+	{"strong", HTMLParser::eSTRONG},
+	{"style", HTMLParser::eSTYLE},	// ??
+	{"sub", HTMLParser::eSUBSCRIPT},
+	{"sup", HTMLParser::eSUPERSCRIPT},
+	{"tab", HTMLParser::eTAB},
+	{"table", HTMLParser::eTABLE},
+	{"tbody", HTMLParser::eTBODY},
+	{"td", HTMLParser::eTABLECELL},
+	{"textarea", HTMLParser::eTEXTAREA},
+	{"textflow", HTMLParser::eTEXTFLOW},  // ??
+	{"tfoot", HTMLParser::eTABLEFOOTER},  // ??
+	{"th", HTMLParser::eTABLEHEADER},
+	{"thead", HTMLParser::eTABLEHEAD},
+	{"title", HTMLParser::eTITLE},
+	{"tr", HTMLParser::eTABLEROW},
+	{"tt", HTMLParser::eTELETYPE},
+	{"u", HTMLParser::eUNDERLINE},
+	{"ul", HTMLParser::eUNORDERED_LIST},
+	{"var", HTMLParser::eVARIABLE},
+	{"wbr", HTMLParser::eWBR},
+	{"xmp", HTMLParser::ePREFORMAT},  // ??
+	{0, HTMLParser::eUNKNOWN}};
 
 static struct SpecialCharInfo {
 	const char *fName;
 	unsigned char fCode;
-} SpecialCharTable[] = { { "AElig", 198 }, { "Aacute", 193 }, { "Acirc", 194 }, { "Agrave", 192 }, { "Aring", 197 }, { "Atilde", 195 }, {
-		"Auml", 196 }, { "Ccedil", 199 }, { "ETH", 208 }, { "Eacute", 201 }, { "Ecirc", 202 }, { "Egrave", 200 }, { "Euml", 203 }, {
-		"Iacute", 205 }, { "Icirc", 206 }, { "Igrave", 204 }, { "Iuml", 207 }, { "Ntilde", 209 }, { "Oacute", 211 }, { "Ocirc", 212 }, {
-		"Ograve", 210 }, { "Oslash", 216 }, { "Otilde", 213 }, { "Ouml", 214 }, { "THORN", 222 }, { "Uacute", 218 }, { "Ucirc", 219 }, {
-		"Ugrave", 217 }, { "Uuml", 220 }, { "Yacute", 221 }, { "aacute", 225 }, { "acirc", 226 }, { "aelig", 230 }, { "agrave", 224 }, {
-		"amp", 38 }, { "aring", 229 }, { "atilde", 227 }, { "auml", 228 }, { "ccedil", 231 }, { "copy", 169 }, { "eacute", 233 }, {
-		"ecirc", 234 }, { "egrave", 232 }, { "eth", 240 }, { "euml", 235 }, { "gt", 62 }, { "iacute", 237 }, { "icirc", 238 }, { "igrave",
-		236 }, { "iuml", 239 }, { "lt", 60 }, { "nbsp", 32 }, { "ntilde", 241 }, { "oacute", 243 }, { "ocirc", 244 }, { "ograve", 242 }, {
-		"oslash", 248 }, { "otilde", 245 }, { "ouml", 246 }, { "quot", 34 }, { "reg", 174 }, { "shyp", 45 }, { "szlig", 223 }, { "thorn",
-		254 }, { "uacute", 250 }, { "ucirc", 251 }, { "ugrave", 249 }, { "uuml", 252 }, { "yacute", 253 }, { "yuml", 255 } };
+} SpecialCharTable[] = {
+	{"AElig", 198},	 {"Aacute", 193}, {"Acirc", 194},  {"Agrave", 192}, {"Aring", 197},	 {"Atilde", 195}, {"Auml", 196},
+	{"Ccedil", 199}, {"ETH", 208},	  {"Eacute", 201}, {"Ecirc", 202},	{"Egrave", 200}, {"Euml", 203},	  {"Iacute", 205},
+	{"Icirc", 206},	 {"Igrave", 204}, {"Iuml", 207},   {"Ntilde", 209}, {"Oacute", 211}, {"Ocirc", 212},  {"Ograve", 210},
+	{"Oslash", 216}, {"Otilde", 213}, {"Ouml", 214},   {"THORN", 222},	{"Uacute", 218}, {"Ucirc", 219},  {"Ugrave", 217},
+	{"Uuml", 220},	 {"Yacute", 221}, {"aacute", 225}, {"acirc", 226},	{"aelig", 230},	 {"agrave", 224}, {"amp", 38},
+	{"aring", 229},	 {"atilde", 227}, {"auml", 228},   {"ccedil", 231}, {"copy", 169},	 {"eacute", 233}, {"ecirc", 234},
+	{"egrave", 232}, {"eth", 240},	  {"euml", 235},   {"gt", 62},		{"iacute", 237}, {"icirc", 238},  {"igrave", 236},
+	{"iuml", 239},	 {"lt", 60},	  {"nbsp", 32},	   {"ntilde", 241}, {"oacute", 243}, {"ocirc", 244},  {"ograve", 242},
+	{"oslash", 248}, {"otilde", 245}, {"ouml", 246},   {"quot", 34},	{"reg", 174},	 {"shyp", 45},	  {"szlig", 223},
+	{"thorn", 254},	 {"uacute", 250}, {"ucirc", 251},  {"ugrave", 249}, {"uuml", 252},	 {"yacute", 253}, {"yuml", 255}};
 
 static struct Aligns {
 	const char *tag;
 	EAlign align;
-} AlignTags[] = { { "top", eTop }, { "texttop", eTop }, { "middle", eCenter }, { "absmiddle", eCenter }, { "bottom", eBottom }, {
-		"baseline", eBase }, { "absbottom", eBottom }, { "center", eCenter }, { "right", eRight }, { "left", eLeft }, { 0, eTop } };
+} AlignTags[] = {{"top", eTop},
+				 {"texttop", eTop},
+				 {"middle", eCenter},
+				 {"absmiddle", eCenter},
+				 {"bottom", eBottom},
+				 {"baseline", eBase},
+				 {"absbottom", eBottom},
+				 {"center", eCenter},
+				 {"right", eRight},
+				 {"left", eLeft},
+				 {0, eTop}};
 
 Unicode HTMLParser::IntGet() {
 	return EOF;
@@ -129,9 +201,9 @@ void HTMLParser::PutSpecial(Unicode c, const String &) {
 Unicode HTMLParser::Get() {
 	Meter(HTMLParser.Get);
 	Unicode c = IntGet();
-	if (c == '\015') { // CR
+	if (c == '\015') {	// CR
 		Unicode cc = IntGet();
-		if (cc != '\012') { // LF
+		if (cc != '\012') {	 // LF
 			IntPutBack(cc);
 		}
 		c = '\n';
@@ -147,7 +219,7 @@ Unicode HTMLParser::ParseName(char *name, Unicode c) {
 	StartTrace(HTMLParser.ParseName);
 	for (int i = 0;; i++) {
 		if (i >= 72) {
-			Error(String("name too long (> 72)") << (char) c);
+			Error(String("name too long (> 72)") << (char)c);
 		} else {
 			*name++ = tolower(c);
 		}
@@ -156,7 +228,7 @@ Unicode HTMLParser::ParseName(char *name, Unicode c) {
 			Error("unexpected EOF in name");
 			break;
 		}
-		if (!(isalnum(c) || c == '.' || c == '-' || c == '_')) { // XXX added "_"
+		if (!(isalnum(c) || c == '.' || c == '-' || c == '_')) {  // XXX added "_"
 			break;
 		}
 	}
@@ -199,7 +271,7 @@ void HTMLParser::ParseComment() {
 			comment.Append(endtry);
 			endtry = "";
 		}
-		comment.Append((char) c);
+		comment.Append((char)c);
 	}
 	IntComment(comment);
 }
@@ -237,7 +309,7 @@ void HTMLParser::ParseTag(int type, Unicode c) {
 
 	IntTag(type, tag);
 
-	if (strcmp(tag, "script") == 0) {// special treatment of scripts
+	if (strcmp(tag, "script") == 0) {  // special treatment of scripts
 		ParseScript(type, c, tag);
 	}
 }
@@ -247,10 +319,9 @@ void HTMLParser::ParseScript(int /* type */, Unicode c, char *tag) {
 	// parse the remainer of the script (incl. end tag)
 	for (;;) {
 		switch (c = Get()) {
-
 			case EOF:
 				goto out2;
-			case '<': // find </SCRIPT> tag
+			case '<':  // find </SCRIPT> tag
 				c = Get();
 				switch (c) {
 					case EOF:
@@ -262,7 +333,7 @@ void HTMLParser::ParseScript(int /* type */, Unicode c, char *tag) {
 							Anything dummy;
 							IntTag('/', tag);
 
-							if (strcmp(tag, "script") == 0) { // done with script
+							if (strcmp(tag, "script") == 0) {  // done with script
 								goto out2;
 							}
 
@@ -284,7 +355,8 @@ void HTMLParser::ParseScript(int /* type */, Unicode c, char *tag) {
 				IntPut(c);
 		}
 	}
-	out2: return;
+out2:
+	return;
 }
 
 void HTMLParser::ParseCharacterEntity() {
@@ -304,7 +376,7 @@ void HTMLParser::ParseCharacterEntity() {
 			if (isdigit(c)) {
 				String num;
 				for (;;) {
-					num.Append((char) c);
+					num.Append((char)c);
 					c = Get();
 					if (!isdigit(c)) {
 						if (c != ';') {
@@ -328,7 +400,7 @@ void HTMLParser::ParseCharacterEntity() {
 				String name;
 
 				for (;;) {
-					name.Append((char) c);
+					name.Append((char)c);
 
 					c = Get();
 					if (!isalpha(c)) {
@@ -368,15 +440,14 @@ long HTMLParser::IntParse() {
 
 	for (;;) {
 		switch (c = Get()) {
-
 			// end of file
 			case EOF:
 				goto out;
 
 				// end of line
-			case 9: // Hor Tab
-			case 10: // LF
-			case 13: // CR
+			case 9:	  // Hor Tab
+			case 10:  // LF
+			case 13:  // CR
 				IntPut(c);
 				break;
 #ifdef SPECIAL_CHAR_CONVERSION
@@ -392,7 +463,7 @@ long HTMLParser::IntParse() {
 					case '/':
 						c = Get();
 						if (isalpha(c)) {
-							ParseTag('/', c); // end tag
+							ParseTag('/', c);  // end tag
 							if (fExitParser) {
 								goto out;
 							}
@@ -423,8 +494,7 @@ long HTMLParser::IntParse() {
 								// empty comment
 								String comment;
 								IntComment(comment);
-							}
-								break;
+							} break;
 							default:
 								if (isalpha(c)) {
 									ParseTag('!', c);
@@ -444,7 +514,7 @@ long HTMLParser::IntParse() {
 						break;
 					default:
 						if (isalpha(c)) {
-							ParseTag(' ', c); // start tag
+							ParseTag(' ', c);  // start tag
 							if (fExitParser) {
 								goto out;
 							}
@@ -460,11 +530,12 @@ long HTMLParser::IntParse() {
 #ifdef CONTROL_CHAR_CHECK
 				if (!iscntrl(c))
 #endif
-				IntPut(c);
+					IntPut(c);
 				break;
 		}
 	}
-	out: IntFlush();
+out:
+	IntFlush();
 	return 0;
 }
 
@@ -485,7 +556,6 @@ Unicode HTMLParser::NextToken(String &token, bool withDelims, bool acceptEqual) 
 	} while (isspace(c));
 
 	switch (c) {
-
 		case '\0':
 			return EOF;
 		case '>':
@@ -497,7 +567,7 @@ Unicode HTMLParser::NextToken(String &token, bool withDelims, bool acceptEqual) 
 			token = "";
 
 			if (withDelims) {
-				token.Append((char) c);
+				token.Append((char)c);
 			}
 
 			for (i = 0; i < 1025; i++) {
@@ -508,10 +578,10 @@ Unicode HTMLParser::NextToken(String &token, bool withDelims, bool acceptEqual) 
 				if (c == enddelim) {
 					break;
 				}
-				token.Append((char) c);
+				token.Append((char)c);
 			}
 			if (withDelims) {
-				token.Append((char) c);
+				token.Append((char)c);
 			}
 
 			return 's';
@@ -530,7 +600,7 @@ Unicode HTMLParser::NextToken(String &token, bool withDelims, bool acceptEqual) 
 					if (!isalnum(c) && !IsOtherAcceptableChar(c)) {
 						name = false;
 					}
-					token.Append((char) c);
+					token.Append((char)c);
 					c = Get();
 					if (isspace(c) || c == '>' || (!acceptEqual && (c == '='))) {
 						IntPutBack(c);
@@ -593,7 +663,7 @@ void HTMLParser::ParseArguments(const char *tag, Anything &node) {
 			} else {
 				TraceAny(node, tag);
 				String msg("unexpected token [");
-				msg << token << "] for type " << static_cast<char> (t) << " in argument list (2) for tag <" << tag << ">";
+				msg << token << "] for type " << static_cast<char>(t) << " in argument list (2) for tag <" << tag << ">";
 				Error(msg);
 			}
 			t = NextToken(key, false);
@@ -694,7 +764,7 @@ void AAT_StdHTMLParser::IntError(long line, const String &msg) {
 
 void MyHTMLWriter::Put(char c) {
 	Meter(MyHTMLWriter.Put);
-	Put((Unicode) c);
+	Put((Unicode)c);
 }
 
 void MyHTMLWriter::Put(Unicode c) {
@@ -704,21 +774,23 @@ void MyHTMLWriter::Put(Unicode c) {
 	}
 
 	if (fStoreTitle) {
-		StatTrace(MyHTMLWriter.Put, "storing title, unicode:" << c << " ->" << static_cast<char>(c) << "<-", coast::storage::Current());
-		fTitle.Append(static_cast<char> (c));
+		StatTrace(MyHTMLWriter.Put, "storing title, unicode:" << c << " ->" << static_cast<char>(c) << "<-",
+				  coast::storage::Current());
+		fTitle.Append(static_cast<char>(c));
 		if (isalnum(c)) {
-			fAllStringsInPage.Append(static_cast<char> (c));
+			fAllStringsInPage.Append(static_cast<char>(c));
 		}
 	} else {
 		if (fNodeStack.GetSize() > 0) {
-			StatTrace(MyHTMLWriter.Put, "nodestack, unicode:" << c << " ->" << static_cast<char>(c) << "<-", coast::storage::Current());
+			StatTrace(MyHTMLWriter.Put, "nodestack, unicode:" << c << " ->" << static_cast<char>(c) << "<-",
+					  coast::storage::Current());
 			String myString(fNodeStack[fNodeStack.GetSize() - 1]["String"].AsCharPtr());
 			if (((c != ' ') && (c != '\n') && (c != '\t') && (c != '\r')) || ((myString.Length() > 0) && (c == ' '))) {
-				myString.Append(static_cast<char> (c));
+				myString.Append(static_cast<char>(c));
 				// only add text for valid tags
 				// - should not add text for __unstructured tag anymore
 				if (fNodeStack[fNodeStack.GetSize() - 1].IsDefined("Tag")) {
-					fAllStringsInPage.Append(static_cast<char> (c));
+					fAllStringsInPage.Append(static_cast<char>(c));
 					fNodeStack[fNodeStack.GetSize() - 1]["String"] = myString;
 				}
 			}
@@ -737,7 +809,6 @@ void MyHTMLWriter::Put(const String &str) {
 		fTitle << str;
 		fAllStringsInPage << str;
 	} else {
-
 		if (fNodeStack.GetSize() > 0) {
 			fNodeStack[fNodeStack.GetSize() - 1]["String"] = str;
 			fAllStringsInPage << str;
@@ -757,14 +828,14 @@ void MyHTMLWriter::Comment(const String &) {
 void MyHTMLWriter::Tag(int t, const char *s) {
 	Meter(MyHTMLWriter.Tag);
 	StartTrace(MyHTMLWriter.Tag);
-	Trace( "Int is->" << (long)t << "[" << (char)t << "] String Tag is [" << s << "]" );
+	Trace("Int is->" << (long)t << "[" << (char)t << "] String Tag is [" << s << "]");
 	if (fNodeStack.GetSize() > 0L) {
 		Anything node = fNodeStack[fNodeStack.GetSize() - 1];
 		if (t == ' ') {
 			node["Tag"] = s;
 		}
-		TraceAny( node, "current node is" );
-		Trace("fFormNr is-->" << fFormNr );
+		TraceAny(node, "current node is");
+		Trace("fFormNr is-->" << fFormNr);
 
 		HTMLParser::TagType tt = HTMLParser::LookupTag(s);
 
@@ -813,7 +884,7 @@ void MyHTMLWriter::Tag(int t, const char *s) {
 				RenderFontTag(t, s, node);
 			default:
 				if (!strcmp(s, "s")) {
-					RenderFontTag(t, s, node); // promote text to containing node
+					RenderFontTag(t, s, node);	// promote text to containing node
 				} else {
 					if (t == '/') {
 						SubTraceAny(NodeStack, fNodeStack, "NodeStack");
@@ -827,7 +898,7 @@ void MyHTMLWriter::Tag(int t, const char *s) {
 							if (node.IsDefined("Tag")) {
 								thisNodesTag = node["Tag"].AsCharPtr("");
 							}
-							Trace("This Level ->" << thisNodesTag );
+							Trace("This Level ->" << thisNodesTag);
 							if (thisNodesTag == s) {
 								break;
 							}
@@ -854,7 +925,7 @@ void MyHTMLWriter::Tag(int t, const char *s) {
 									node.Remove("String");
 								}
 								fNodeStack.Remove(stackTop);
-								Trace("POP - stack, new size " << stackTop );
+								Trace("POP - stack, new size " << stackTop);
 								if (thisNodesTag == s) {
 									break;
 								}
@@ -865,7 +936,7 @@ void MyHTMLWriter::Tag(int t, const char *s) {
 				}
 		}
 	} else {
-		SYSINFO( "Int is->" << (long)t << "[" << (char)t << "] String Tag is [" << s << "]" );
+		SYSINFO("Int is->" << (long)t << "[" << (char)t << "] String Tag is [" << s << "]");
 	}
 }
 
@@ -905,8 +976,8 @@ void MyHTMLWriter::RenderImageTag(int t, const char *s, Anything &node, const ch
 
 void MyHTMLWriter::RenderATag(int t, const char *s, Anything &node) {
 	Meter(MyHTMLWriter.RenderATag);
-	StartTrace1(MyHTMLWriter.RenderATag, NotNull(s)); // won't work with nested links, but they can't happen right(?)
-	TraceAny(fUrls["Links"], "Links so far" );
+	StartTrace1(MyHTMLWriter.RenderATag, NotNull(s));  // won't work with nested links, but they can't happen right(?)
+	TraceAny(fUrls["Links"], "Links so far");
 
 	if (t == ' ') {
 		// start tag
@@ -926,7 +997,7 @@ void MyHTMLWriter::RenderATag(int t, const char *s, Anything &node) {
 			fUrls["Links"][index].Remove("String");
 		}
 	}
-	TraceAny(fUrls["Links"], "Links after" );
+	TraceAny(fUrls["Links"], "Links after");
 }
 
 void MyHTMLWriter::RenderFontTag(int t, const char *s, Anything &node) {
@@ -948,7 +1019,7 @@ void MyHTMLWriter::RenderBASETag(int t, const char *s, Anything &node) {
 		// if BASE tag contains href keep this base link
 		if (node.IsDefined("href")) {
 			String strHREF(node["href"].AsCharPtr(""));
-			//strHREF.TrimFront(7); // eliminate 'HTTP://' // MIKE, don't! leave HTTP in there
+			// strHREF.TrimFront(7); // eliminate 'HTTP://' // MIKE, don't! leave HTTP in there
 			fUrls["BASE"] = strHREF;
 		}
 	} else {
@@ -959,8 +1030,8 @@ void MyHTMLWriter::RenderBASETag(int t, const char *s, Anything &node) {
 void MyHTMLWriter::RenderMetaTag(int t, const char *s, Anything &node) {
 	Meter(MyHTMLWriter.RenderMetaTag);
 	StartTrace1(MyHTMLWriter.RenderMetaTag, NotNull(s));
-	Trace( "Int is->" << (long)t << " String Tag is->" << s );
-	TraceAny( node, " Node is" );
+	Trace("Int is->" << (long)t << " String Tag is->" << s);
+	TraceAny(node, " Node is");
 
 	if (t == ' ') {
 		// start tag
@@ -992,7 +1063,7 @@ void MyHTMLWriter::RenderTitleTag(int t, const char *s, Anything &node) {
 void MyHTMLWriter::RenderSelectTag(int t, const char *s, Anything &node) {
 	Meter(MyHTMLWriter.RenderSelectTag);
 	StartTrace1(MyHTMLWriter.RenderSelectTag, NotNull(s));
-	Trace( "Int is->" << (long)t << " String Tag is->" << s );
+	Trace("Int is->" << (long)t << " String Tag is->" << s);
 	if (t == ' ') {
 		Anything fNr(fFormNr);
 
@@ -1006,8 +1077,8 @@ void MyHTMLWriter::RenderInputTag(int t, const char *s, Anything &node) {
 	Meter(MyHTMLWriter.RenderInputTag);
 	// Input field in a form
 	StartTrace1(MyHTMLWriter.RenderInputTag, NotNull(s));
-	Trace( "Int is->" << (long)t << " String Tag is->" << s );
-	TraceAny( node, "<-- input Node is" );
+	Trace("Int is->" << (long)t << " String Tag is->" << s);
+	TraceAny(node, "<-- input Node is");
 	if (t == ' ') {
 		// start tag; keep this form specification
 		// Anything converter(fUrls["Forms"].GetSize());
@@ -1018,7 +1089,7 @@ void MyHTMLWriter::RenderInputTag(int t, const char *s, Anything &node) {
 		String nodeType(node["type"].AsCharPtr());
 		nodeType.ToUpper();
 
-		Trace( "Node type is->" << nodeType );
+		Trace("Node type is->" << nodeType);
 
 		// what about TEXTAREA and SELECT -> See RenderSelectTag RenderTextAreaTag
 		// checked-ness of buttons still needs to be done...
@@ -1029,13 +1100,13 @@ void MyHTMLWriter::RenderInputTag(int t, const char *s, Anything &node) {
 
 		if (nodeType.IsEqual("SUBMIT")) {
 			// render submit button(s) other way around so they can be more easily found by stresser browser...
-			// only one of these buttons is sent back as form selected button to the server... also notice rendered in a separate
-			// anything from other fields
+			// only one of these buttons is sent back as form selected button to the server... also notice rendered in a
+			// separate anything from other fields
 			fUrls["Forms"][fNr.AsCharPtr("")]["Buttons"][node["value"].AsCharPtr("")] = node["name"];
 			fUrls["Forms"][fNr.AsCharPtr("")]["Buttons"][node["name"].AsCharPtr("")] = node["name"];
 		} else if (nodeType.IsEqual("IMAGE")) {
 			fUrls["Forms"][fNr.AsCharPtr("")]["ImageButtons"][node["name"].AsCharPtr("")] = "IMAGETYPE";
-		} else { // planned Mike:
+		} else {  // planned Mike:
 			fUrls["Forms"][fNr.AsCharPtr("")]["Fields"][node["name"].AsCharPtr("")] = node["value"];
 		}
 	} else {
@@ -1055,7 +1126,7 @@ void MyHTMLWriter::RenderFrameTag(int t, const char *s, Anything &node) {
 		}
 
 		if (node.IsDefined("name")) {
-			//String s = node["src"].AsString("");
+			// String s = node["src"].AsString("");
 			fUrls["FramesNameMap"][node["name"].AsCharPtr("")] = index;
 		}
 	} else {
@@ -1066,7 +1137,7 @@ void MyHTMLWriter::RenderFrameTag(int t, const char *s, Anything &node) {
 void MyHTMLWriter::RenderFormTag(int t, const char *s, Anything &node) {
 	Meter(MyHTMLWriter.RenderFormTag);
 	StartTrace(MyHTMLWriter.RenderFormTag);
-	Trace("fFormNr is-B4 ->" << fFormNr );
+	Trace("fFormNr is-B4 ->" << fFormNr);
 
 	if (t == ' ') {
 		fFormNr++;
@@ -1075,7 +1146,7 @@ void MyHTMLWriter::RenderFormTag(int t, const char *s, Anything &node) {
 		String index(converter.AsCharPtr("IllegalNumber"));
 		fUrls["Forms"][index] = node;
 	}
-	Trace("fFormNr is-after ->" << fFormNr );
+	Trace("fFormNr is-after ->" << fFormNr);
 }
 
 void MyHTMLWriter::PushNode(Anything &node) {
@@ -1083,7 +1154,7 @@ void MyHTMLWriter::PushNode(Anything &node) {
 	StartTrace(MyHTMLWriter.PushNode);
 	TraceAny(node, "<--------------------push this node");
 	fNodeStack[fNodeStack.GetSize()] = node;
-	Trace("Stack size now -->" << fNodeStack.GetSize() );
+	Trace("Stack size now -->" << fNodeStack.GetSize());
 }
 
 void MyHTMLWriter::Argument(const String &key, const String &value) {
@@ -1117,7 +1188,7 @@ MethodInfoCollector::~MethodInfoCollector() {
 		HRTIME t = ul;
 		SystemLog::WriteToStderr(String(fResults.SlotName(i)) << ":[");
 		SystemLog::WriteToStderr(String() << fResults[i][0L].AsLong(1) << ", ");
-		SystemLog::WriteToStderr(String() << (long) (t * 1000L / DiffTimer::TicksPerSecond()) << "]\n");
+		SystemLog::WriteToStderr(String() << (long)(t * 1000L / DiffTimer::TicksPerSecond()) << "]\n");
 	}
 }
 
@@ -1128,4 +1199,3 @@ int AAT_HTMLReader::Get() {
 void AAT_HTMLReader::PutBack(char c) {
 	fFile ? fFile->putback(c) : (*fFile);
 }
-

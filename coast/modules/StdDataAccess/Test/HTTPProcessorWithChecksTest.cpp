@@ -7,24 +7,23 @@
  */
 
 #include "HTTPProcessorWithChecksTest.h"
-#include "HTTPProcessorWithChecks.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
+
+#include "AnyIterators.h"
+#include "AnyLookupInterfaceAdapter.h"
+#include "AnyUtils.h"
 #include "Context.h"
+#include "FoundationTestTypes.h"
 #include "HTTPProcessorWithChecks.h"
-#include "Tracer.h"
+#include "HTTPRequestReader.h"
+#include "MIMEHeader.h"
+#include "Renderer.h"
+#include "Server.h"
 #include "StringStream.h"
 #include "StringStreamSocket.h"
-#include "AnyIterators.h"
-#include "AnyUtils.h"
-#include "HTTPRequestReader.h"
-#include "Server.h"
-#include "AnyLookupInterfaceAdapter.h"
-#include "Renderer.h"
-#include "MIMEHeader.h"
+#include "TestSuite.h"
+#include "Tracer.h"
 
-HTTPProcessorWithChecksTest::HTTPProcessorWithChecksTest(TString tstrName) :
-	TestCaseType(tstrName) {
+HTTPProcessorWithChecksTest::HTTPProcessorWithChecksTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(HTTPProcessorWithChecksTest.HTTPProcessorWithChecksTest);
 }
 
@@ -33,23 +32,21 @@ TString HTTPProcessorWithChecksTest::getConfigFileName() {
 }
 
 namespace {
-	String GetFirstResponseLine(String const &result) {
-		return result.SubString(0L, result.Contains(ENDL));
-	}
-}
+	String GetFirstResponseLine(String const &result) { return result.SubString(0L, result.Contains(ENDL)); }
+}  // namespace
 
 void HTTPProcessorWithChecksTest::CheckFaultyHeadersTest() {
 	StartTrace(HTTPProcessorWithChecksTest.CheckFaultyHeadersTest);
 	RequestProcessor *httpProcessor = RequestProcessor::FindRequestProcessor("HTTPProcessorWithChecks");
 	Server *pServer = Server::FindServer("Server");
-	if ( t_assert(pServer) ) {
+	if (t_assert(pServer)) {
 		pServer->GlobalInit(0, 0, ROAnything());
 		Anything anyTmpStore, anyRequest, env;
 		ROAnything caseConfig;
 		AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
 		while (aEntryIterator.Next(caseConfig)) {
 			TString caseName;
-			if ( !aEntryIterator.SlotName(caseName) ) {
+			if (!aEntryIterator.SlotName(caseName)) {
 				caseName << "At index: " << aEntryIterator.Index();
 			}
 			AnyLookupInterfaceAdapter<ROAnything> lia(caseConfig);
@@ -69,17 +66,18 @@ void HTTPProcessorWithChecksTest::CheckFaultyHeadersTest() {
 			ctx.DebugStores("bla", oss, true);
 			Trace(oss.str());
 			assertCharPtrEqualm(caseConfig["Expected"]["Reply"].AsString(), GetFirstResponseLine(strInOut), caseName);
-			if (caseConfig["Expected"].IsDefined("Request") ) {
+			if (caseConfig["Expected"].IsDefined("Request")) {
 				TraceAny(caseConfig["Expected"]["Request"], "Expected Request");
 				assertAnyCompareEqual(caseConfig["Expected"]["Request"], ctx.GetRequest(), caseName, '.', ':');
 			}
-			if (caseConfig["Expected"].IsDefined("TmpStore") ) {
+			if (caseConfig["Expected"].IsDefined("TmpStore")) {
 				assertAnyCompareEqual(caseConfig["Expected"]["TmpStore"], ctx.GetTmpStore(), caseName, '.', ':');
 			}
 			ROAnything roaErrorMessages, roaExpectedMessage;
-			if ( caseConfig["Expected"].LookupPath(roaExpectedMessage, "ErrorMessages") &&
-					ctx.Lookup(ctx.Lookup("RequestProcessorErrorSlot",
-							caseConfig["Expected"]["ErrorsSlotname"].AsString("NoSlotDefined")), roaErrorMessages) ) {
+			if (caseConfig["Expected"].LookupPath(roaExpectedMessage, "ErrorMessages") &&
+				ctx.Lookup(
+					ctx.Lookup("RequestProcessorErrorSlot", caseConfig["Expected"]["ErrorsSlotname"].AsString("NoSlotDefined")),
+					roaErrorMessages)) {
 				TraceAny(roaExpectedMessage, "Expected error messages");
 				assertAnyCompareEqual(roaExpectedMessage, roaErrorMessages, caseName, '.', ':');
 			}

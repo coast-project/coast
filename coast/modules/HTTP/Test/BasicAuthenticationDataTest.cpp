@@ -7,34 +7,30 @@
  */
 
 #include "BasicAuthenticationDataTest.h"
+
 #include "BasicAuthenticationData.h"
 #include "TestSuite.h"
 #include "Tracer.h"
 
 //---- BasicAuthenticationDataTest ----------------------------------------------------------------
-BasicAuthenticationDataTest::BasicAuthenticationDataTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+BasicAuthenticationDataTest::BasicAuthenticationDataTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(BasicAuthenticationDataTest.BasicAuthenticationDataTest);
 }
 
-TString BasicAuthenticationDataTest::getConfigFileName()
-{
+TString BasicAuthenticationDataTest::getConfigFileName() {
 	return "BasicAuthenticationDataTestConfig";
 }
 
-BasicAuthenticationDataTest::~BasicAuthenticationDataTest()
-{
+BasicAuthenticationDataTest::~BasicAuthenticationDataTest() {
 	StartTrace(BasicAuthenticationDataTest.Dtor);
 }
 
-void BasicAuthenticationDataTest::AuthenticationTest()
-{
+void BasicAuthenticationDataTest::AuthenticationTest() {
 	StartTrace(BasicAuthenticationDataTest.AuthenticationTest);
 
 	ROAnything cConfig;
 	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(cConfig) ) {
+	while (aEntryIterator.Next(cConfig)) {
 		TString cName;
 		aEntryIterator.SlotName(cName);
 		BasicAuthenticationData bad(cConfig["Input"].AsString());
@@ -49,8 +45,7 @@ void BasicAuthenticationDataTest::AuthenticationTest()
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *BasicAuthenticationDataTest::suite ()
-{
+Test *BasicAuthenticationDataTest::suite() {
 	StartTrace(BasicAuthenticationDataTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, BasicAuthenticationDataTest, AuthenticationTest);

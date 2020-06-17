@@ -7,9 +7,10 @@
  */
 
 #include "OraclePooledConnection.h"
+
 #include "Tracer.h"
-OraclePooledConnection::OraclePooledConnection(u_long lId, u_long lPoolSize, u_long lPoolBuckets) :
-		fId(lId), fPoolSize(lPoolSize), fPoolBuckets(lPoolBuckets) {
+OraclePooledConnection::OraclePooledConnection(u_long lId, u_long lPoolSize, u_long lPoolBuckets)
+	: fId(lId), fPoolSize(lPoolSize), fPoolBuckets(lPoolBuckets) {
 	StatTrace(OraclePooledConnection.OraclePooledConnection, "empty", coast::storage::Current());
 }
 
@@ -22,8 +23,8 @@ OraclePooledConnection::~OraclePooledConnection() {
 bool OraclePooledConnection::Open(String const &strServer, String const &strUsername, String const &strPassword) {
 	StartTrace1(OraclePooledConnection.Open, "server [" << strServer << "] user [" << strUsername << "]");
 	if (!fEnvironment.get()) {
-		fEnvironment = OracleEnvironmentPtr(
-				new (coast::storage::Global()) OracleEnvironment(OracleEnvironment::THREADED_UNMUTEXED, fId, fPoolSize, fPoolBuckets));
+		fEnvironment = OracleEnvironmentPtr(new (coast::storage::Global()) OracleEnvironment(
+			OracleEnvironment::THREADED_UNMUTEXED, fId, fPoolSize, fPoolBuckets));
 	}
 	if (fEnvironment.get() && fEnvironment->valid()) {
 		if (!fConnection.get())

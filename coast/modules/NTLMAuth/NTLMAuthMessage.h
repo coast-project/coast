@@ -18,67 +18,53 @@
  */
 class NTLMAuthMessage {
 public:
-	NTLMAuthMessage(const String &binarybuffer) :
-			fMsg(binarybuffer) {
-	}
-	virtual ~NTLMAuthMessage() {
-	}
+	NTLMAuthMessage(const String &binarybuffer) : fMsg(binarybuffer) {}
+	virtual ~NTLMAuthMessage() {}
 	virtual bool IsValid();
 	long GetMessageType();
-	virtual unsigned long GetFlags() {
-		return 0;
-	}
-	virtual String GetDomain() {
-		return "";
-	}
-	virtual String GetHost() {
-		return "";
-	}
+	virtual unsigned long GetFlags() { return 0; }
+	virtual String GetDomain() { return ""; }
+	virtual String GetHost() { return ""; }
 	virtual String GetNonce() {
-		return ""; // only for type 2
+		return "";	// only for type 2
 	}
 	virtual String GetUser() {
-		return ""; // only for type 3
+		return "";	// only for type 3
 	}
 	virtual String GetNTHash() {
-		return ""; // only for type 3
+		return "";	// only for type 3
 	}
 	virtual String GetLMHash() {
-		return ""; // only for type 3
+		return "";	// only for type 3
 	}
 	String GetAsBase64();
 	static NTLMAuthMessage *MakeMessage(const String &binarybuffer);
+
 protected:
 	String DecodeString(long pos, bool striputf = false);
 	long DecodeLong(long pos);
 	long DecodeShort(long pos);
 	String fMsg;
 };
-class NTLMAuthClientMsgType1: public NTLMAuthMessage {
+class NTLMAuthClientMsgType1 : public NTLMAuthMessage {
 public:
-	NTLMAuthClientMsgType1(const String &binarybuffer) :
-			NTLMAuthMessage(binarybuffer) {
-	}
+	NTLMAuthClientMsgType1(const String &binarybuffer) : NTLMAuthMessage(binarybuffer) {}
 	virtual bool IsValid();
 	virtual unsigned long GetFlags();
 	virtual String GetDomain();
 	virtual String GetHost();
 };
-class NTLMAuthServerMsgType2: public NTLMAuthMessage {
+class NTLMAuthServerMsgType2 : public NTLMAuthMessage {
 public:
-	NTLMAuthServerMsgType2(const String &binarybuffer) :
-			NTLMAuthMessage(binarybuffer) {
-	}
+	NTLMAuthServerMsgType2(const String &binarybuffer) : NTLMAuthMessage(binarybuffer) {}
 	virtual bool IsValid();
 
 	virtual unsigned long GetFlags();
 	virtual String GetNonce();
 };
-class NTLMAuthClientMsgType3: public NTLMAuthMessage {
+class NTLMAuthClientMsgType3 : public NTLMAuthMessage {
 public:
-	NTLMAuthClientMsgType3(const String &binarybuffer) :
-			NTLMAuthMessage(binarybuffer) {
-	}
+	NTLMAuthClientMsgType3(const String &binarybuffer) : NTLMAuthMessage(binarybuffer) {}
 	virtual bool IsValid();
 
 	virtual unsigned long GetFlags();
@@ -87,6 +73,5 @@ public:
 	virtual String GetUser();
 	virtual String GetNTHash();
 	virtual String GetLMHash();
-
 };
 #endif

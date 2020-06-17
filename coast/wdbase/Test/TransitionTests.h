@@ -11,25 +11,24 @@
 
 #include "WDBaseTestPolicies.h"
 
-class TransitionTests : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class TransitionTests : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
-	//!TestCases
+	//! TestCases
 	//! \param name name of the test
 	TransitionTests(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~TransitionTests();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!sets the environment for this test
-	void setUp ();
+	//! sets the environment for this test
+	void setUp();
 
 	TString getConfigFileName();
 
@@ -42,7 +41,7 @@ public:
 	void PBOWBookmarkSequence();
 
 protected:
-	Anything	fBookmarkedRequest;
+	Anything fBookmarkedRequest;
 
 	bool EvalRequest(ROAnything request, Anything &returned);
 	Anything AddSessionInfo(ROAnything request, Anything context);

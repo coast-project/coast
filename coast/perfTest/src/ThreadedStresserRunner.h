@@ -23,8 +23,7 @@
 //!	}</PRE>
 //! This configuration defines that Nr1 threads are run with StresserName1,
 //! Nr2 threads with StresserName2 and so on.
-class ThreadedStresserRunner : public Stresser
-{
+class ThreadedStresserRunner : public Stresser {
 public:
 	//--- constructors
 	ThreadedStresserRunner(const char *StresserName);
@@ -58,16 +57,12 @@ public:
 	//!		}
 	//!	}</PRE>
 	virtual Anything Run(long id);
-//-- Cloning interface
+	//-- Cloning interface
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) ThreadedStresserRunner(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) ThreadedStresserRunner(fName); }
 
 protected:
-
 	virtual long ConfigStressers(long numOfStressers, long &sz, ROAnything &stresser);
-
 };
 
 #endif

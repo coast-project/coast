@@ -7,44 +7,39 @@
  */
 
 #include "SSLSocketUtilsTest.h"
+
+#include "SSLSocketUtils.h"
 #include "TestSuite.h"
 #include "Tracer.h"
-#include "SSLSocketUtils.h"
 
 //---- SSLSocketUtilsTest ----------------------------------------------------------------
-SSLSocketUtilsTest::SSLSocketUtilsTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+SSLSocketUtilsTest::SSLSocketUtilsTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(SSLSocketUtilsTest.SSLSocketUtilsTest);
 }
 
-TString SSLSocketUtilsTest::getConfigFileName()
-{
+TString SSLSocketUtilsTest::getConfigFileName() {
 	return "SSLSocketUtilsTestConfig";
 }
 
-SSLSocketUtilsTest::~SSLSocketUtilsTest()
-{
+SSLSocketUtilsTest::~SSLSocketUtilsTest() {
 	StartTrace(SSLSocketUtilsTest.Dtor);
 }
 
-void SSLSocketUtilsTest::ParseDNTest()
-{
+void SSLSocketUtilsTest::ParseDNTest() {
 	StartTrace(SSLSocketUtilsTest.ParseDNTest);
 	ROAnything cConfig;
 	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(cConfig) ) {
+	while (aEntryIterator.Next(cConfig)) {
 		String dn(cConfig["DN"].AsString());
 		assertAnyEqual(cConfig["Result"], SSLSocketUtils::ParseDN(dn));
 	}
 }
 
-void SSLSocketUtilsTest::VerifyDNTest()
-{
+void SSLSocketUtilsTest::VerifyDNTest() {
 	StartTrace(SSLSocketUtilsTest.ParseDNTest);
 	ROAnything cConfig;
 	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(cConfig) ) {
+	while (aEntryIterator.Next(cConfig)) {
 		String dnFilter(cConfig["DNFilter"].AsString());
 		ROAnything dnParts(cConfig["DNParts"]);
 		assertEqual(cConfig["Result"].AsBool(1), SSLSocketUtils::VerifyDN(dnFilter, dnParts));
@@ -52,8 +47,7 @@ void SSLSocketUtilsTest::VerifyDNTest()
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *SSLSocketUtilsTest::suite ()
-{
+Test *SSLSocketUtilsTest::suite() {
 	StartTrace(SSLSocketUtilsTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, SSLSocketUtilsTest, ParseDNTest);

@@ -6,14 +6,12 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
-#include "DummyTest.h"
 #include "AssertionTest.h"
+#include "DummyTest.h"
+#include "TestRunner.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	// add a whole suite with the ADD_SUITE(runner,"Suites's Classname") macro
 	ADD_SUITE(runner, DummyTest);
 	ADD_SUITE(runner, AssertionTest);
 }
-

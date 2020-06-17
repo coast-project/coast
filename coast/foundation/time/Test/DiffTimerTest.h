@@ -11,23 +11,22 @@
 
 #include "TestCase.h"
 
-class DiffTimerTest : public testframework::TestCase
-{
+class DiffTimerTest : public testframework::TestCase {
 public:
 	//--- constructors
 	DiffTimerTest(TString tstrName);
 	~DiffTimerTest();
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!tests assumption about the constructor
+	//! tests assumption about the constructor
 	void ConstructorTest();
-	//!tests scaling of time measurements beware of overflows
+	//! tests scaling of time measurements beware of overflows
 	void ScaleTest();
-	//!a simple time test
+	//! a simple time test
 	void DiffTest();
-	//!a simulated time test
+	//! a simulated time test
 	void SimulatedDiffTest();
 };
 

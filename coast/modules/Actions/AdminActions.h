@@ -13,16 +13,13 @@
 
 //@deprecated
 //! Used to execute a server command
-class ServerManagement : public Action
-{
+class ServerManagement : public Action {
 public:
 	ServerManagement(const char *name);
 	bool DoAction(String &action, Context &c);
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) ServerManagement(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) ServerManagement(fName); }
 };
 
 #endif

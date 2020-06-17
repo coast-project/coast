@@ -16,11 +16,10 @@ class TokenDataAccessController;
 
 //---- OTPListsModule -----------------------------------------------------------
 //! Manages OneTimePasswordList-Singletons
-class OTPListsModule : public WDModule
-{
+class OTPListsModule : public WDModule {
 public:
-	OTPListsModule(const char *name) : WDModule(name) {};
-	~OTPListsModule() {};
+	OTPListsModule(const char *name) : WDModule(name){};
+	~OTPListsModule(){};
 
 	virtual bool Init(const ROAnything config);
 	virtual bool Finis();
@@ -28,14 +27,13 @@ public:
 
 //---- OTPList -----------------------------------------------------------
 //! \em Abstract OneTimePassword List. Do not instantiate directly.
-class OTPList : public ConfNamedObject
-{
+class OTPList : public ConfNamedObject {
 public:
-	OTPList(const char *name) : ConfNamedObject(name) {};
-	~OTPList() {};
+	OTPList(const char *name) : ConfNamedObject(name){};
+	~OTPList(){};
 
 	//---- registry interface
-	RegCacheDef(OTPList);	// FindOTPList()
+	RegCacheDef(OTPList);  // FindOTPList()
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const {

@@ -7,18 +7,18 @@
  */
 
 #include "HTMLEscapeRenderer.h"
+
 #include "Tracer.h"
 #include "URLUtils.h"
 
 //---- HTMLEscapeRenderer ---------------------------------------------------------------
 RegisterRenderer(HTMLEscapeRenderer);
 
-HTMLEscapeRenderer::HTMLEscapeRenderer(const char *name) : Renderer(name) { }
+HTMLEscapeRenderer::HTMLEscapeRenderer(const char *name) : Renderer(name) {}
 
-HTMLEscapeRenderer::~HTMLEscapeRenderer() { }
+HTMLEscapeRenderer::~HTMLEscapeRenderer() {}
 
-void HTMLEscapeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void HTMLEscapeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(HTMLEscapeRenderer.RenderAll);
 
 	String work;

@@ -6,6 +6,7 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "StringLengthRenderer.h"
+
 #include <ostream>
 
 RegisterRenderer(StringLengthRenderer);

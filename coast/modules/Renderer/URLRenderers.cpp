@@ -7,21 +7,20 @@
  */
 
 #include "URLRenderers.h"
+
 #include "SecurityModule.h"
-#include "URLUtils.h"
 #include "Tracer.h"
+#include "URLUtils.h"
+
 #include <ostream>
 
 //---- LinkRenderer ----------------------------------------------------------------
 
 RegisterRenderer(LinkRenderer);
 
-LinkRenderer::LinkRenderer(const char *name) : Renderer(name)
-{
-}
+LinkRenderer::LinkRenderer(const char *name) : Renderer(name) {}
 
-void LinkRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void LinkRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(LinkRenderer.Render);
 	TraceAny(config, "config");
 
@@ -51,17 +50,12 @@ void LinkRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &
 //---- URLPrinter -------------------------------------------------------
 RegisterRenderer(URLPrinter);
 
-URLPrinter::URLPrinter(const char *name) : Renderer(name)
-{
+URLPrinter::URLPrinter(const char *name) : Renderer(name) {}
 
-}
+URLPrinter::URLPrinter(const char *name, char cmdSep, char argSep, char entrySep)
+	: Renderer(name), fArgSep(argSep), fCmdSep(cmdSep), fEntrySep(entrySep) {}
 
-URLPrinter::URLPrinter(const char *name, char cmdSep, char argSep, char entrySep) : Renderer(name), fArgSep(argSep), fCmdSep(cmdSep), fEntrySep(entrySep)
-{
-}
-
-void URLPrinter::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void URLPrinter::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(URLPrinter.Render);
 	TraceAny(config, "config");
 
@@ -69,8 +63,7 @@ void URLPrinter::RenderAll(std::ostream &reply, Context &c, const ROAnything &co
 	RenderState(reply, c, config);
 }
 
-void URLPrinter::RenderState(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void URLPrinter::RenderState(std::ostream &reply, Context &c, const ROAnything &config) {
 	Anything state;
 
 	// collect the state
@@ -87,7 +80,7 @@ void URLPrinter::RenderScriptName(std::ostream &reply, Context &context)
 /* in: env: The environment of the current request
   out: reply: The name of the script to access the server
  what: Determines the script name based on the environment.
-	   The entry /ServicePrefix in the config can overrule this behavior.
+	 The entry /ServicePrefix in the config can overrule this behavior.
 */
 {
 	ROAnything env(context.GetEnvStore());
@@ -95,7 +88,7 @@ void URLPrinter::RenderScriptName(std::ostream &reply, Context &context)
 
 	if (scriptName.IsNull()) {
 		env.LookupPath(scriptName, "SCRIPT_NAME");
-	} // if
+	}  // if
 
 	String s;
 	RenderOnString(s, context, scriptName);
@@ -106,10 +99,9 @@ void URLPrinter::RenderScriptName(std::ostream &reply, Context &context)
 	reply << s << CmdSep();
 	// fallback is valid for no base URL's, otherwise we assume the user knows
 	// what he is doing.
-} // RenderScriptName
+}  // RenderScriptName
 
-void URLPrinter::RenderPublicPartOfURL(std::ostream &reply, Context &c, const ROAnything &config, Anything &state)
-{
+void URLPrinter::RenderPublicPartOfURL(std::ostream &reply, Context &c, const ROAnything &config, Anything &state) {
 	RenderScriptName(reply, c);
 
 	// renders the public information of the URL
@@ -126,8 +118,8 @@ void URLPrinter::RenderPublicPartOfURL(std::ostream &reply, Context &c, const RO
 	if (state.IsDefined("port")) {
 		port = state["port"].AsCharPtr(0);
 		if (port) {
-			if ( adr ) {
-				reply <<  ArgSep();
+			if (adr) {
+				reply << ArgSep();
 			}
 			reply << "port=" << port;
 			state.Remove("port");
@@ -138,19 +130,18 @@ void URLPrinter::RenderPublicPartOfURL(std::ostream &reply, Context &c, const RO
 	//	but insert the argument separator here if there is either because otherwise
 	//	there is always a the CmdSep
 	if (port || adr) {
-		reply <<  ArgSep();
+		reply << ArgSep();
 	}
 }
 
-void URLPrinter::RenderPublicState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state)
-{
-	StartTrace (URLPrinter.RenderPublicState);
+void URLPrinter::RenderPublicState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state) {
+	StartTrace(URLPrinter.RenderPublicState);
 
 	ROAnything env(c.GetEnvStore());
 
 	ROAnything bAddr;
 
-	if ( config.LookupPath(bAddr, "BaseAddr") ) {
+	if (config.LookupPath(bAddr, "BaseAddr")) {
 		String baseAddr;
 		RenderOnString(baseAddr, c, bAddr);
 		reply << baseAddr;
@@ -160,12 +151,9 @@ void URLPrinter::RenderPublicState(std::ostream &reply, Context &c, const ROAnyt
 	RenderPublicPartOfURL(reply, c, config, state);
 }
 
-void URLPrinter::RenderPrivateState(std::ostream &, Context &, const ROAnything &, Anything &)
-{
-}
+void URLPrinter::RenderPrivateState(std::ostream &, Context &, const ROAnything &, Anything &) {}
 
-void URLPrinter::BuildPrivateState(std::ostream &, Context &c, const ROAnything &config,  Anything &state)
-{
+void URLPrinter::BuildPrivateState(std::ostream &, Context &c, const ROAnything &config, Anything &state) {
 	StartTrace(URLPrinter.BuildPrivateState);
 	TraceAny(config, "config");
 	// append action from config
@@ -198,15 +186,14 @@ void URLPrinter::BuildPrivateState(std::ostream &, Context &c, const ROAnything 
 	}
 }
 
-void URLPrinter::AppendEncodedState(std::ostream &reply, Context &c, const Anything &state, const char *argName)
-{
+void URLPrinter::AppendEncodedState(std::ostream &reply, Context &c, const Anything &state, const char *argName) {
 	StartTrace(URLPrinter.AppendEncodedState);
 	// encode state string
 	String s(argName);
 	s.Append("=");
 	SecurityModule::ScrambleState(s, state);
 	Trace("scrambled state [" << s << "]");
-	if ( coast::urlutils::CheckUrlEncoding(s) ) {
+	if (coast::urlutils::CheckUrlEncoding(s)) {
 		reply << s;
 	} else {
 		// now we need to encode the string according to RFC1738/1808
@@ -216,20 +203,16 @@ void URLPrinter::AppendEncodedState(std::ostream &reply, Context &c, const Anyth
 	}
 }
 
-void URLPrinter::GetState(Anything &state, Context &c)
-{
+void URLPrinter::GetState(Anything &state, Context &c) {
 	c.CollectLinkState(state);
 }
 
 //---- FullURLPrinter -------------------------------------------------------
 RegisterRenderer(FullURLPrinter);
 
-FullURLPrinter::FullURLPrinter(const char *name) : URLPrinter(name, '?', '&', ' ')
-{
-}
+FullURLPrinter::FullURLPrinter(const char *name) : URLPrinter(name, '?', '&', ' ') {}
 
-void FullURLPrinter::RenderPrivateState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state)
-{
+void FullURLPrinter::RenderPrivateState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state) {
 	StartTrace(FullURLPrinter.RenderPrivateState);
 	TraceAny(config, "config");
 
@@ -247,12 +230,9 @@ void FullURLPrinter::RenderPrivateState(std::ostream &reply, Context &c, const R
 //---- BaseURLRenderer -------------------------------------------------------
 RegisterRenderer(BaseURLRenderer);
 
-BaseURLRenderer::BaseURLRenderer(const char *name) : BaseURLPrinter(name)
-{
-}
+BaseURLRenderer::BaseURLRenderer(const char *name) : BaseURLPrinter(name) {}
 
-void BaseURLRenderer::RenderAll(std::ostream &reply, Context &context, const ROAnything &config)
-{
+void BaseURLRenderer::RenderAll(std::ostream &reply, Context &context, const ROAnything &config) {
 	if (context.Lookup("UseBaseURL").AsLong(0L) != 0L) {
 		reply << "<base href=\"";
 		BaseURLPrinter::RenderAll(reply, context, config);
@@ -263,26 +243,22 @@ void BaseURLRenderer::RenderAll(std::ostream &reply, Context &context, const ROA
 //---- BaseURLPrinter -------------------------------------------------------
 RegisterRenderer(BaseURLPrinter);
 
-BaseURLPrinter::BaseURLPrinter(const char *name) : URLPrinter(name, '/', '/', '/')
-{
-}
+BaseURLPrinter::BaseURLPrinter(const char *name) : URLPrinter(name, '/', '/', '/') {}
 
-void BaseURLPrinter::RenderPrivateState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state)
-{
+void BaseURLPrinter::RenderPrivateState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state) {
 	StartTrace(BaseURLPrinter.RenderPrivateState);
 	// append encoded arguments under a single name
 	AppendEncodedState(reply, c, state, "X1");
 	reply << ArgSep();
 }
 
-void BaseURLPrinter::RenderPublicState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state)
-{
-	StartTrace (URLPrinter.RenderPublicState);
+void BaseURLPrinter::RenderPublicState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state) {
+	StartTrace(URLPrinter.RenderPublicState);
 	TraceAny(config, "config");
 
 	ROAnything bAddr;
 
-	if ( config.LookupPath(bAddr, "BaseAddr") ) {
+	if (config.LookupPath(bAddr, "BaseAddr")) {
 		String baseAddr;
 		RenderOnString(baseAddr, c, bAddr);
 		reply << baseAddr;
@@ -293,7 +269,7 @@ void BaseURLPrinter::RenderPublicState(std::ostream &reply, Context &c, const RO
 		RenderOnString(baseAddr, c, bAddr);
 		Trace("BaseAddr :" << baseAddr);
 
-		if ( baseAddr.Length() ) {	// use base address defined in Config.any
+		if (baseAddr.Length()) {  // use base address defined in Config.any
 			reply << baseAddr;
 		} else {
 			// generate an absolute address from environment info
@@ -307,19 +283,15 @@ void BaseURLPrinter::RenderPublicState(std::ostream &reply, Context &c, const RO
 //---- SimpleURLPrinter -------------------------------------------------------
 RegisterRenderer(SimpleURLPrinter);
 
-SimpleURLPrinter::SimpleURLPrinter(const char *name) : URLPrinter(name, '/', '/', '/')
-{
-}
+SimpleURLPrinter::SimpleURLPrinter(const char *name) : URLPrinter(name, '/', '/', '/') {}
 
-void SimpleURLPrinter::RenderState(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void SimpleURLPrinter::RenderState(std::ostream &reply, Context &c, const ROAnything &config) {
 	Anything state;
 	// render only the private state for a simple URL
 	RenderPrivateState(reply, c, config, state);
 }
 
-void SimpleURLPrinter::RenderPrivateState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state)
-{
+void SimpleURLPrinter::RenderPrivateState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state) {
 	StartTrace(SimpleURLPrinter.RenderPrivateState);
 	TraceAny(config, "config");
 
@@ -333,12 +305,9 @@ void SimpleURLPrinter::RenderPrivateState(std::ostream &reply, Context &c, const
 //---- URLRenderer ----------------------------------------------------------------
 RegisterRenderer(URLRenderer);
 
-URLRenderer::URLRenderer(const char *name) : Renderer(name)
-{
-}
+URLRenderer::URLRenderer(const char *name) : Renderer(name) {}
 
-void URLRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void URLRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(URLRenderer.Render);
 	TraceAny(config, "config");
 
@@ -354,8 +323,7 @@ void URLRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &c
 	}
 }
 
-String URLRenderer::CreateIntraPageLink(Context &c, String id)
-{
+String URLRenderer::CreateIntraPageLink(Context &c, String id) {
 	// creates intra page links that also work with the
 	// base URL feature.. (In the presence of a base URL absolute URLs
 	// need to be generated. Otherwise the link will not be recognized
@@ -365,14 +333,13 @@ String URLRenderer::CreateIntraPageLink(Context &c, String id)
 
 	bool useBaseURL = (c.Lookup("UseBaseURL", 0L) != 0);
 	String path;
-	if ( useBaseURL ) {	// use BaseURL if defined in Config.any
+	if (useBaseURL) {  // use BaseURL if defined in Config.any
 		Anything env = c.GetEnvStore();
 		Anything tmpStore = c.GetTmpStore();
 
 		// create the absolute URL of the current document
 		Anything absURL;
 		if (!tmpStore.LookupPath(absURL, "ABSOLUTE_URL")) {
-
 			// reconstruct actual referer URL
 
 			const char *baseAddr = c.Lookup("BaseAddress", (const char *)0);
@@ -381,7 +348,7 @@ String URLRenderer::CreateIntraPageLink(Context &c, String id)
 			path << env["SCRIPT_NAME"].AsCharPtr("/wdgateway");
 			path << env["PATH_INFO"].AsCharPtr("");
 
-			tmpStore["ABSOLUTE_URL"] = path;	// cache it in tmpStore
+			tmpStore["ABSOLUTE_URL"] = path;  // cache it in tmpStore
 
 		} else {
 			path = absURL.AsString();

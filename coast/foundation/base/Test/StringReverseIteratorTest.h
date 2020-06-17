@@ -1,17 +1,16 @@
 #ifndef StringReverseIteratorTest_H
 #define StringReverseIteratorTest_H
 
-#include "TestCase.h"
 #include "ITOString.h"
+#include "TestCase.h"
 
-class StringReverseIteratorTest: public testframework::TestCase {
+class StringReverseIteratorTest : public testframework::TestCase {
 protected:
-	String fStr5; // string with 5 elements set-up in setUp
+	String fStr5;  // string with 5 elements set-up in setUp
 	virtual void setUp();
+
 public:
-	StringReverseIteratorTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	StringReverseIteratorTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 
 	void testEmptyStringBegin();

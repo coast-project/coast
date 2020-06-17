@@ -11,16 +11,13 @@
 
 #include "ServiceHandler.h"
 
-class AuthenticationService: public ServiceHandler {
+class AuthenticationService : public ServiceHandler {
 	AuthenticationService();
+
 public:
-	AuthenticationService(const char *authenticationServiceHandlerName) :
-		ServiceHandler(authenticationServiceHandlerName) {
-	}
+	AuthenticationService(const char *authenticationServiceHandlerName) : ServiceHandler(authenticationServiceHandlerName) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) AuthenticationService(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) AuthenticationService(fName); }
 
 protected:
 	bool DoHandleService(std::ostream &os, Context &ctx);

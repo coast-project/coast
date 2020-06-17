@@ -15,8 +15,7 @@
 class Context;
 class SessionListManagerTest;
 
-class TestSession : public Session
-{
+class TestSession : public Session {
 public:
 	//--- constructors
 	TestSession(const char *name, Context &ctx, SessionListManagerTest *slmt);
@@ -25,31 +24,28 @@ public:
 	void Notify(Session::ESessionEvt, Context &ctx);
 
 protected:
-	//!callback into test
+	//! callback into test
 	SessionListManagerTest *fTest;
-private:
 
+private:
 };
 
-class TestSessionFactory : public SessionFactory
-{
+class TestSessionFactory : public SessionFactory {
 public:
 	TestSessionFactory(const char *testSessionFactoryName, SessionListManagerTest *slmt = 0);
 	~TestSessionFactory();
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) TestSessionFactory(fName, fTest);
-	}
-	//!allocation protocol for session allocation
+	IFAObject *Clone(Allocator *a) const { return new (a) TestSessionFactory(fName, fTest); }
+	//! allocation protocol for session allocation
 	virtual Session *DoMakeSession(Context &ctx);
-	//!custom steps to prepare a session
+	//! custom steps to prepare a session
 	virtual Session *DoPrepareSession(Context &ctx, Session *session, bool &isBusy);
 
 	void SetTest(SessionListManagerTest *test);
 
 protected:
-	//!callback into test
+	//! callback into test
 	SessionListManagerTest *fTest;
 
 private:
@@ -58,7 +54,6 @@ private:
 	TestSessionFactory();
 	TestSessionFactory(const TestSessionFactory &);
 	TestSessionFactory &operator=(const TestSessionFactory &);
-
 };
 
 #endif

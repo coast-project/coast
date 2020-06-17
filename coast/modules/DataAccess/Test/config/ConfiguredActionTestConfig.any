@@ -184,8 +184,8 @@
 				  /DataAccess {
 					/DATest_NoMappersGiven {
 					  /Error {
-						"DataAccess.cpp:120 DataAccess::GetMyParameterMapper returned 0 for [DATest_NoMappersGiven]"
-						"DataAccess.cpp:156 DataAccess::GetMyResultMapper returned 0 for [DATest_NoMappersGiven]"
+						"DataAccess.cpp:113 DataAccess::GetMyParameterMapper returned 0 for [DATest_NoMappersGiven]"
+						"DataAccess.cpp:148 DataAccess::GetMyResultMapper returned 0 for [DATest_NoMappersGiven]"
 					  }
 					}
 				  }
@@ -206,7 +206,7 @@
 				  /DataAccess {
 					/DATest_OnlyResultMapperGiven {
 					  /Error {
-						"DataAccess.cpp:120 DataAccess::GetMyParameterMapper returned 0 for [DATest_OnlyResultMapperGiven]"
+						"DataAccess.cpp:113 DataAccess::GetMyParameterMapper returned 0 for [DATest_OnlyResultMapperGiven]"
 					  }
 					}
 				  }

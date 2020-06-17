@@ -7,10 +7,11 @@
  */
 
 #include "HTTPHeaderRendererTest.h"
-#include "TestSuite.h"
-#include "StringStream.h"
-#include "Renderer.h"
+
 #include "HTTPConstants.h"
+#include "Renderer.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
 void HTTPHeaderRendererTest::WholeHeaderConfig() {
 	StartTrace(HTTPHeaderRendererTest.WholeHeaderConfig);
@@ -58,22 +59,26 @@ void HTTPHeaderRendererTest::MultiLine() {
 	cfg["HTTPHeaderRenderer"]["HeaderSlot"] = "header";
 	StringStream result;
 	Renderer::Render(result, c, cfg);
-	assertEqual("WWW-Authenticate: NTLM\r\n"
-			"Connection: close\r\n"
-			"Content-Type: text/html\r\n", result.str());
+	assertEqual(
+		"WWW-Authenticate: NTLM\r\n"
+		"Connection: close\r\n"
+		"Content-Type: text/html\r\n",
+		result.str());
 }
 
 void HTTPHeaderRendererTest::Issue299MissingFilenamePrefix() {
 	StartTrace(HTTPHeaderRendererTest.Issue299MissingFilenamePrefix);
 	Context c;
 	c.GetTmpStore()["header"][coast::http::constants::contentDispositionSlotname][0] = "attachment";
-	c.GetTmpStore()["header"][coast::http::constants::contentDispositionSlotname]["FILENAME"] = "12166_reservation_07.12.2011.pdf";
+	c.GetTmpStore()["header"][coast::http::constants::contentDispositionSlotname]["FILENAME"] =
+		"12166_reservation_07.12.2011.pdf";
 	Anything cfg;
 	cfg["HTTPHeaderRenderer"]["HeaderSlot"] = "header";
 	StringStream result;
 	Renderer::Render(result, c, cfg);
-	assertEqual(String(coast::http::constants::contentDispositionSlotname).Append(": attachment; FILENAME=12166_reservation_07.12.2011.pdf\r\n")
-			, result.str());
+	assertEqual(String(coast::http::constants::contentDispositionSlotname)
+					.Append(": attachment; FILENAME=12166_reservation_07.12.2011.pdf\r\n"),
+				result.str());
 }
 
 // builds up a suite of testcases, add a line for each testmethod

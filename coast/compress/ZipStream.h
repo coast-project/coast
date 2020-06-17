@@ -12,19 +12,20 @@
 #include "StringStream.h"
 #include "TimeStamp.h"
 #include "zlib.h"
+
 #include <stdint.h>
 
 static const int gz_magic[2] = {0x1f, 0x8b}; /* gzip magic header */
 
 #ifndef Z_BUFSIZE
-#  ifdef MAXSEG_64K
-#    define Z_BUFSIZE 4096 /* minimize memory usage for 16-bit DOS */
-#  else
-#    define Z_BUFSIZE 16384
-#  endif
+#ifdef MAXSEG_64K
+#define Z_BUFSIZE 4096 /* minimize memory usage for 16-bit DOS */
+#else
+#define Z_BUFSIZE 16384
+#endif
 #endif
 #ifndef Z_PRINTF_BUFSIZE
-#  define Z_PRINTF_BUFSIZE 4096
+#define Z_PRINTF_BUFSIZE 4096
 #endif
 
 struct GzipHdr {
@@ -37,29 +38,27 @@ struct GzipHdr {
 	friend std::ostream &operator<<(std::ostream &os, GzipHdr &header);
 	friend std::istream &operator>>(std::istream &is, GzipHdr &header);
 
-	unsigned char ID1;					/* gzip magic header[0] */
-	unsigned char ID2;					/* gzip magic header[1] */
+	unsigned char ID1; /* gzip magic header[0] */
+	unsigned char ID2; /* gzip magic header[1] */
 
-	unsigned char CompressionMethod;	/* 0-7 are reserved, 8 denotes the 'deflate' method used by gzip */
+	unsigned char CompressionMethod; /* 0-7 are reserved, 8 denotes the 'deflate' method used by gzip */
 	enum eCompressionMethod {
 		eDeflate = Z_DEFLATED,
 	};
 
 	unsigned char Flags;
 	enum {
-		eFTEXT = 0x01,					/* set if the content is propably ASCII text, optional indication */
-		eFHCRC = 0x02,					/* set if a header crc16 sum is present */
-		eFEXTRA = 0x04,					/* set if an extra field is present */
-		eFNAME = 0x08,					/* set if an original, zero terminated, file name is present */
-		eFCOMMENT = 0x10,				/* set if a zero terminated file comment is present */
+		eFTEXT = 0x01,	  /* set if the content is propably ASCII text, optional indication */
+		eFHCRC = 0x02,	  /* set if a header crc16 sum is present */
+		eFEXTRA = 0x04,	  /* set if an extra field is present */
+		eFNAME = 0x08,	  /* set if an original, zero terminated, file name is present */
+		eFCOMMENT = 0x10, /* set if a zero terminated file comment is present */
 	};
 
-	enum {
-		eModificationTimeLen = 4
-	};
-	unsigned char ModificationTime[eModificationTimeLen];	/* original file time if present, time of compression or left 0 */
+	enum { eModificationTimeLen = 4 };
+	unsigned char ModificationTime[eModificationTimeLen]; /* original file time if present, time of compression or left 0 */
 
-	unsigned char ExtraFlags;			/* set if deflate compression method is given */
+	unsigned char ExtraFlags; /* set if deflate compression method is given */
 	enum eExtraFlags {
 		eUnspecified = 0,
 		eMaxCompression = 2,
@@ -98,13 +97,12 @@ struct GzipHdr {
 	bool fbValid;
 };
 
-namespace ZipStream
-{
+namespace ZipStream {
 	enum eStreamMode {
 		ePlainMode = 0,
 		eWriteHeader = 1 << 0,
 		eWriteTrailer = 1 << 1,
-		eGZipMode = ( eWriteHeader | eWriteTrailer ),
+		eGZipMode = (eWriteHeader | eWriteTrailer),
 		eMaxMode = 1 << 2
 	};
 };
@@ -113,19 +111,14 @@ namespace ZipStream
 //! Does not do anything in particular except hold a few static constants.
 //! Once could merge ZipOStreamBuf and ZipIStreamBuf into this class, but
 //! this would result in a very complex class.
-class ZipStreamBuf : public std::streambuf
-{
+class ZipStreamBuf : public std::streambuf {
 public:
 	ZipStreamBuf(ZipStream::eStreamMode aMode, Allocator *alloc);
 	virtual const GzipHdr &Header() = 0;
 
 protected:
-	bool HasHeader() const {
-		return ( ( fStreamMode & ZipStream::eWriteHeader ) == ZipStream::eWriteHeader );
-	}
-	bool HasTrailer() const {
-		return ( ( fStreamMode & ZipStream::eWriteTrailer ) == ZipStream::eWriteTrailer );
-	}
+	bool HasHeader() const { return ((fStreamMode & ZipStream::eWriteHeader) == ZipStream::eWriteHeader); }
+	bool HasTrailer() const { return ((fStreamMode & ZipStream::eWriteTrailer) == ZipStream::eWriteTrailer); }
 	bool isInitialized;
 	unsigned char fStreamMode;
 	Allocator *fAllocator;
@@ -143,11 +136,11 @@ private:
 
 //---- ZipIStreamBuf ----------------------------------------------------------
 //! wrap other istream objects with decompression
-class ZipIStreamBuf : public ZipStreamBuf
-{
+class ZipIStreamBuf : public ZipStreamBuf {
 public:
 	//--- constructors
-	ZipIStreamBuf(std::istream &zis, std::istream &, ZipStream::eStreamMode aMode = ZipStream::eGZipMode, Allocator *alloc = coast::storage::Current());
+	ZipIStreamBuf(std::istream &zis, std::istream &, ZipStream::eStreamMode aMode = ZipStream::eGZipMode,
+				  Allocator *alloc = coast::storage::Current());
 	~ZipIStreamBuf();
 
 	void close();
@@ -189,11 +182,11 @@ private:
 
 //---- ZipOStreamBuf ----------------------------------------------------------
 //! wrap other ostream objects with compression compression
-class ZipOStreamBuf : public ZipStreamBuf
-{
+class ZipOStreamBuf : public ZipStreamBuf {
 public:
 	//--- constructors
-	ZipOStreamBuf(std::ostream &, ZipStream::eStreamMode aMode = ZipStream::eGZipMode, Allocator *a = coast::storage::Current());
+	ZipOStreamBuf(std::ostream &, ZipStream::eStreamMode aMode = ZipStream::eGZipMode,
+				  Allocator *a = coast::storage::Current());
 	~ZipOStreamBuf();
 
 	//! not much to do when synchronizing, just insert string termination character
@@ -227,76 +220,66 @@ protected:
 	int fCompLevel, fCompStrategy;
 };
 
-namespace ZipStream
-{
+namespace ZipStream {
 	struct _CRCType {
 		bool fCrc;
-	}; inline _CRCType setHeaderCRC(bool bFlag = true)
-	{
-		_CRCType aType = { bFlag };
+	};
+	inline _CRCType setHeaderCRC(bool bFlag = true) {
+		_CRCType aType = {bFlag};
 		return aType;
 	}
 	struct _CprsType {
 		int comp_level;
 		int comp_strategy;
-	}; inline _CprsType setCompression(int comp_level, int comp_strategy = Z_DEFAULT_STRATEGY)
-	{
-		_CprsType aType = { comp_level, comp_strategy };
+	};
+	inline _CprsType setCompression(int comp_level, int comp_strategy = Z_DEFAULT_STRATEGY) {
+		_CprsType aType = {comp_level, comp_strategy};
 		return aType;
 	}
 	struct _EFType {
 		String fBuf;
-	}; inline _EFType setExtraField(const String &strBuf)
-	{
+	};
+	inline _EFType setExtraField(const String &strBuf) {
 		_EFType aArgument;
 		aArgument.fBuf = strBuf;
 		return aArgument;
 	}
 	struct _FnameType {
 		String fBuf;
-	}; inline _FnameType setFilename(String strFilename)
-	{
+	};
+	inline _FnameType setFilename(String strFilename) {
 		_FnameType aArgument;
 		aArgument.fBuf = strFilename;
 		return aArgument;
 	}
 	struct _CommType {
 		String fBuf;
-	}; inline _CommType setComment(String strComment)
-	{
+	};
+	inline _CommType setComment(String strComment) {
 		_CommType aArgument;
 		aArgument.fBuf = strComment;
 		return aArgument;
 	}
 	struct _ModTType {
 		TimeStamp fStamp;
-	}; inline _ModTType setModificationTime(TimeStamp aStamp)
-	{
+	};
+	inline _ModTType setModificationTime(TimeStamp aStamp) {
 		_ModTType aArgument;
 		aArgument.fStamp = aStamp;
 		return aArgument;
 	}
-}
+}  // namespace ZipStream
 //---- ZipOStream ----------------------------------------------------------
 //! wrap other ostream objects with compression
-class ZipOStream : public std::ostream
-{
+class ZipOStream : public std::ostream {
 public:
 	//--- constructors
-	ZipOStream(std::ostream &os, ZipStream::eStreamMode aMode = ZipStream::eGZipMode):
-		std::ostream(&fBuf),
-		fBuf(os, aMode) {
+	ZipOStream(std::ostream &os, ZipStream::eStreamMode aMode = ZipStream::eGZipMode) : std::ostream(&fBuf), fBuf(os, aMode) {
 		init(&fBuf);
 	}
-	~ZipOStream() {
-		close();
-	}
-	ZipOStreamBuf *rdbuf()  {
-		return &fBuf;
-	}
-	void close() {
-		fBuf.close();
-	}
+	~ZipOStream() { close(); }
+	ZipOStreamBuf *rdbuf() { return &fBuf; }
+	void close() { fBuf.close(); }
 
 	friend inline ZipOStream &operator<<(ZipOStream &os, ZipStream::_CRCType aArgs) {
 		os.fBuf.setHeaderCRC(aArgs.fCrc);
@@ -322,43 +305,28 @@ public:
 		os.fBuf.setModificationTime(aArgs.fStamp);
 		return os;
 	}
+
 protected:
 	ZipOStreamBuf fBuf;
 };
 
 //---- ZipOStreamBuf ----------------------------------------------------------
 //! wrap other istream objects with decompression
-class ZipIStream : public std::istream
-{
+class ZipIStream : public std::istream {
 public:
 	//--- constructors
-	ZipIStream(std::istream &is, ZipStream::eStreamMode aMode = ZipStream::eGZipMode):
-		std::istream(&fBuf),
-		fBuf(*this, is, aMode) {
+	ZipIStream(std::istream &is, ZipStream::eStreamMode aMode = ZipStream::eGZipMode)
+		: std::istream(&fBuf), fBuf(*this, is, aMode) {
 		init(&fBuf);
 	}
-	~ZipIStream() {
-		close();
-	}
-	ZipIStreamBuf *rdbuf()  {
-		return &fBuf;
-	}
-	void close() {
-		fBuf.close();
-	}
+	~ZipIStream() { close(); }
+	ZipIStreamBuf *rdbuf() { return &fBuf; }
+	void close() { fBuf.close(); }
 
-	bool getExtraField(String &strBuf) {
-		return fBuf.getExtraField(strBuf);
-	}
-	bool getFilename(String &strFilename) {
-		return fBuf.getFilename(strFilename);
-	}
-	bool getComment(String &strComment) {
-		return fBuf.getComment(strComment);
-	}
-	TimeStamp getModificationTime() {
-		return fBuf.getModificationTime();
-	}
+	bool getExtraField(String &strBuf) { return fBuf.getExtraField(strBuf); }
+	bool getFilename(String &strFilename) { return fBuf.getFilename(strFilename); }
+	bool getComment(String &strComment) { return fBuf.getComment(strComment); }
+	TimeStamp getModificationTime() { return fBuf.getModificationTime(); }
 
 protected:
 	ZipIStreamBuf fBuf;

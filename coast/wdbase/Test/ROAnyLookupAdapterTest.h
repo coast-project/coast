@@ -11,11 +11,9 @@
 
 #include "TestCase.h"
 
-class ROAnyLookupAdapterTest: public testframework::TestCase {
+class ROAnyLookupAdapterTest : public testframework::TestCase {
 public:
-	ROAnyLookupAdapterTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	ROAnyLookupAdapterTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void LookupTest();
 };

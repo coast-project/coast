@@ -7,10 +7,12 @@
  */
 
 #include "ConnectorParams.h"
+
 #include "Mapper.h"
 
 //---- ConnectorParams ----------------------------------------------
-ConnectorParams::ConnectorParams(Context &ctx, ParameterMapper *pMapper) : fParams(Anything::ArrayMarker()), fParamEntry(ctx, "ConnectorParams", fParams, "Backend") {
+ConnectorParams::ConnectorParams(Context &ctx, ParameterMapper *pMapper)
+	: fParams(Anything::ArrayMarker()), fParamEntry(ctx, "ConnectorParams", fParams, "Backend") {
 	fParams["Name"] = pMapper->Get("Name", ctx).AsString();
 	fParams["Server"] = pMapper->Get("Server", ctx).AsString("127.0.0.1");
 	fParams["Port"] = pMapper->Get("Port", ctx).AsLong(80L);

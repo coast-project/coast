@@ -12,16 +12,13 @@
 #include "ServerPoolsManagerInterface.h"
 
 class LFListenerPool;
-class ServerLFThreadPoolsManager: public ServerPoolsManagerInterface
-{
+class ServerLFThreadPoolsManager : public ServerPoolsManagerInterface {
 public:
 	ServerLFThreadPoolsManager(const char *ServerThreadPoolsManagerName);
 	virtual ~ServerLFThreadPoolsManager();
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) ServerLFThreadPoolsManager(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) ServerLFThreadPoolsManager(fName); }
 
 	//! initialize the managed thread pools
 	virtual int Init(Server *server);
@@ -32,30 +29,30 @@ public:
 	//! run the the thread pools
 	virtual int Run(Server *server);
 
-	//!block the request handling in the managed pools
+	//! block the request handling in the managed pools
 	virtual bool BlockRequests(Server *server);
 
-	//!unblock the request handling in the managed pools
+	//! unblock the request handling in the managed pools
 	virtual void UnblockRequests();
 
-	//!terminate thread pool operation
+	//! terminate thread pool operation
 	virtual int RequestTermination();
 
-	//!terminate thread pool operation
+	//! terminate thread pool operation
 	virtual void Terminate();
 
-	//!access to configuration data
+	//! access to configuration data
 	virtual long GetThreadPoolSize();
 
 protected:
 	bool SetupLFPool(Server *server);
 
-	//!leader follower
+	//! leader follower
 	LFListenerPool *fLFPool;
 	long fThreadPoolSz;
 
 private:
-	virtual RequestProcessor* DoGetRequestProcessor();
+	virtual RequestProcessor *DoGetRequestProcessor();
 	// block the following default elements of this class
 	// because they're not allowed to be used
 	ServerLFThreadPoolsManager();

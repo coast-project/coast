@@ -12,7 +12,7 @@
 #include "CacheHandler.h"
 
 //--- LdapDataAccessLoader -----------------------------------------------
-class LdapDataAccessLoader: public CacheLoadPolicy {
+class LdapDataAccessLoader : public CacheLoadPolicy {
 public:
 	//! Method to get a cached ldap result
 	//! Key must equal the name of a DataAccess definition as follows:
@@ -20,7 +20,7 @@ public:
 };
 
 //--- LdapActionLoder --------------------------------------------------
-class LdapActionLoader: public CacheLoadPolicy {
+class LdapActionLoader : public CacheLoadPolicy {
 public:
 	//! Method to get a cached ldap result
 	//! Key must equal the name of a DataAccess definition as follows:
@@ -35,18 +35,16 @@ public:
 //! <PRE> { /LdapDataAccessAction { DA1Action DA2Action }
 //! }</PRE>
 //! This allows you to define multiple ldap queries to be cached on initialization.
-class LdapCachePolicyModule: public WDModule {
+class LdapCachePolicyModule : public WDModule {
 	bool CheckContractIsFulfilled(String &failedDataAccesseses, const ROAnything dataAccesses);
 	friend class LdapCacheLoaderTest;
+
 public:
-	enum EDataAccessType {
-		dataaccess, action
-	};
-	LdapCachePolicyModule(const char *name) :
-		WDModule(name) {
-	}
+	enum EDataAccessType { dataaccess, action };
+	LdapCachePolicyModule(const char *name) : WDModule(name) {}
 	virtual bool Init(const ROAnything config);
 	virtual bool Finis();
+
 private:
 	//! Design by Contract: Every configured LDAPDataAccessImpl query must return data
 	bool InitialLoad(const ROAnything dataAccesses, LdapCachePolicyModule::EDataAccessType daType);
@@ -56,12 +54,11 @@ private:
 //! Invoke with Get(<DataAccessName>,<LookupPath>or<*>);
 //! Get("TestDA1",:0.DN");
 //! See test cases more examples.
-class LdapCacheGetter: public LookupInterface {
+class LdapCacheGetter : public LookupInterface {
 	String fDA;
+
 public:
-	LdapCacheGetter(const String &da) :
-		fDA(da) {
-	}
+	LdapCacheGetter(const String &da) : fDA(da) {}
 	static bool Get(ROAnything &res, const String &da, const String &key, char sepS = '.', char sepI = ':');
 	static ROAnything GetAll(const String &dataAccess);
 

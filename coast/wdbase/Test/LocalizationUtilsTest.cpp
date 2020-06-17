@@ -6,28 +6,26 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestSuite.h"
 #include "LocalizationUtils.h"
+
 #include "LocalizationUtilsTest.h"
 #include "SystemFile.h"
+#include "TestSuite.h"
+
 #include <istream>
 
 using namespace coast;
 
-LocalizationUtilsTest::LocalizationUtilsTest (TString tname)
-	: TestCaseType(tname)
-	, fContext( Anything(Anything::ArrayMarker()), Anything(), 0, 0, 0, 0 )
-{
-}
+LocalizationUtilsTest::LocalizationUtilsTest(TString tname)
+	: TestCaseType(tname), fContext(Anything(Anything::ArrayMarker()), Anything(), 0, 0, 0, 0) {}
 
-void LocalizationUtilsTest::setUp ()
-{
-	system::SetRootDir("."); // Root is usually local
+void LocalizationUtilsTest::setUp() {
+	system::SetRootDir(".");  // Root is usually local
 
 	Anything Languages;
 	Languages.Append("Deutsch");
 
-	Anything env( fContext.GetEnvStore() );
+	Anything env(fContext.GetEnvStore());
 	env["header"]["ACCEPT-LANGUAGE"] = Languages;
 
 	Anything TmpStore(fContext.GetTmpStore());
@@ -54,11 +52,11 @@ void LocalizationUtilsTest::EvalNullLangEmptyConfigWODefault()
 {
 	ROAnything ROconfig;
 
-	String TestString( LocalizationUtils::Eval( 0, ROconfig) );
+	String TestString(LocalizationUtils::Eval(0, ROconfig));
 
-	assertEqual( "", TestString );
+	assertEqual("", TestString);
 
-} // EvalNullLangEmptyConfigWODefault
+}  // EvalNullLangEmptyConfigWODefault
 
 void LocalizationUtilsTest::EvalEmptyLangEmptyConfigWODefault()
 // 'config' is an empty anything, without default Language
@@ -67,11 +65,11 @@ void LocalizationUtilsTest::EvalEmptyLangEmptyConfigWODefault()
 
 	const char Lang = 0;
 
-	String TestString( LocalizationUtils::Eval( &Lang, ROconfig) );
+	String TestString(LocalizationUtils::Eval(&Lang, ROconfig));
 
-	assertEqual( "", TestString );
+	assertEqual("", TestString);
 
-} // EvalEmptyLangEmptyConfigWODefault
+}  // EvalEmptyLangEmptyConfigWODefault
 
 void LocalizationUtilsTest::EvalEmptyConfigWODefault()
 // 'lang' exists but 'config' is an empty anything, without default Language
@@ -80,11 +78,11 @@ void LocalizationUtilsTest::EvalEmptyConfigWODefault()
 
 	const char *Lang = "TestLang";
 
-	String TestString( LocalizationUtils::Eval( Lang, ROconfig) );
+	String TestString(LocalizationUtils::Eval(Lang, ROconfig));
 
-	assertEqual( "", TestString );
+	assertEqual("", TestString);
 
-} // EvalEmptyConfigWODefault
+}  // EvalEmptyConfigWODefault
 
 void LocalizationUtilsTest::EvalNormalCaseWODefault()
 // Usual case, without default Language
@@ -97,11 +95,11 @@ void LocalizationUtilsTest::EvalNormalCaseWODefault()
 
 	const char *Lang = "TestLang";
 
-	String TestString( LocalizationUtils::Eval( Lang, ROconfig) );
+	String TestString(LocalizationUtils::Eval(Lang, ROconfig));
 
-	assertEqual( "TestString", TestString );
+	assertEqual("TestString", TestString);
 
-} // EvalNormalCaseWODefault
+}  // EvalNormalCaseWODefault
 
 void LocalizationUtilsTest::EvalNullLangEmptyConfigWithDefault()
 // 'lang' is a NULL pointer 'config' is an empty anything, with default Language
@@ -112,11 +110,11 @@ void LocalizationUtilsTest::EvalNullLangEmptyConfigWithDefault()
 
 	ROAnything ROconfig = config;
 
-	String TestString( LocalizationUtils::Eval( 0, ROconfig) );
+	String TestString(LocalizationUtils::Eval(0, ROconfig));
 
-	assertEqual( "TestDefault", TestString );
+	assertEqual("TestDefault", TestString);
 
-} // EvalNullLangEmptyConfigWithDefault
+}  // EvalNullLangEmptyConfigWithDefault
 
 void LocalizationUtilsTest::EvalEmptyLangEmptyConfigWithDefault()
 // 'config' is an empty anything, with default Language
@@ -129,11 +127,11 @@ void LocalizationUtilsTest::EvalEmptyLangEmptyConfigWithDefault()
 
 	const char Lang = 0;
 
-	String TestString( LocalizationUtils::Eval( &Lang, ROconfig) );
+	String TestString(LocalizationUtils::Eval(&Lang, ROconfig));
 
-	assertEqual( "TestDefault", TestString );
+	assertEqual("TestDefault", TestString);
 
-} // EvalEmptyLangEmptyConfigWithDefault
+}  // EvalEmptyLangEmptyConfigWithDefault
 
 void LocalizationUtilsTest::EvalEmptyConfigWithDefault()
 // 'lang' exists but 'config' is an empty anything, with default Language
@@ -146,11 +144,11 @@ void LocalizationUtilsTest::EvalEmptyConfigWithDefault()
 
 	const char *Lang = "TestLang";
 
-	String TestString( LocalizationUtils::Eval( Lang, ROconfig) );
+	String TestString(LocalizationUtils::Eval(Lang, ROconfig));
 
-	assertEqual( "TestDefault", TestString );
+	assertEqual("TestDefault", TestString);
 
-} // EvalEmptyConfigWithDefault
+}  // EvalEmptyConfigWithDefault
 
 void LocalizationUtilsTest::EvalNormalCaseWithDefault()
 // Usual case, with default language
@@ -164,23 +162,23 @@ void LocalizationUtilsTest::EvalNormalCaseWithDefault()
 
 	const char *Lang = "TestLang";
 
-	String TestString( LocalizationUtils::Eval( Lang, ROconfig) );
+	String TestString(LocalizationUtils::Eval(Lang, ROconfig));
 
-	assertEqual( "TestString", TestString );
+	assertEqual("TestString", TestString);
 
-} // EvalTest
+}  // EvalTest
 
 void LocalizationUtilsTest::EvalAnyNullLangEmptyConfigWODefault()
 // 'lang' is a NULL pointer 'config' is an empty anything, without default Language
 {
 	ROAnything ROconfig;
 
-	ROAnything TestAny = LocalizationUtils::EvalAny( 0, ROconfig);
+	ROAnything TestAny = LocalizationUtils::EvalAny(0, ROconfig);
 
 	String assertString = TestAny.AsCharPtr();
-	assertEqual( "", assertString );
+	assertEqual("", assertString);
 
-} // EvalAnyNullLangEmptyConfigWODefault
+}  // EvalAnyNullLangEmptyConfigWODefault
 
 void LocalizationUtilsTest::EvalAnyEmptyLangEmptyConfigWODefault()
 // 'config' is an empty anything, without default Language
@@ -189,12 +187,12 @@ void LocalizationUtilsTest::EvalAnyEmptyLangEmptyConfigWODefault()
 
 	const char Lang = 0;
 
-	ROAnything TestAny = LocalizationUtils::EvalAny( &Lang, ROconfig);
+	ROAnything TestAny = LocalizationUtils::EvalAny(&Lang, ROconfig);
 
 	String assertString = TestAny.AsCharPtr();
-	assertEqual( "", assertString );
+	assertEqual("", assertString);
 
-} // EvalAnyEmptyLangEmptyConfigWODefault
+}  // EvalAnyEmptyLangEmptyConfigWODefault
 
 void LocalizationUtilsTest::EvalAnyEmptyConfigWODefault()
 // 'lang' exists but 'config' is an empty anything, without default Language
@@ -203,12 +201,12 @@ void LocalizationUtilsTest::EvalAnyEmptyConfigWODefault()
 
 	const char *Lang = "TestLang";
 
-	ROAnything TestAny = LocalizationUtils::EvalAny( Lang, ROconfig);
+	ROAnything TestAny = LocalizationUtils::EvalAny(Lang, ROconfig);
 
 	String assertString = TestAny.AsCharPtr();
-	assertEqual( "", assertString );
+	assertEqual("", assertString);
 
-} // EvalAnyEmptyConfigWODefault
+}  // EvalAnyEmptyConfigWODefault
 
 void LocalizationUtilsTest::EvalAnyNormalCaseWODefault()
 // Usual case, without default Language
@@ -221,11 +219,11 @@ void LocalizationUtilsTest::EvalAnyNormalCaseWODefault()
 
 	const char *Lang = "TestLang";
 
-	ROAnything TestAny = LocalizationUtils::EvalAny( Lang, ROconfig);
+	ROAnything TestAny = LocalizationUtils::EvalAny(Lang, ROconfig);
 
-	assertEqual( "TestString", TestAny.AsCharPtr() );
+	assertEqual("TestString", TestAny.AsCharPtr());
 
-} // EvalAnyNormalCaseWODefault
+}  // EvalAnyNormalCaseWODefault
 
 void LocalizationUtilsTest::EvalAnyNullLangEmptyConfigWithDefault()
 // 'lang' is a NULL pointer 'config' is an empty anything, with default Language
@@ -236,11 +234,11 @@ void LocalizationUtilsTest::EvalAnyNullLangEmptyConfigWithDefault()
 
 	ROAnything ROconfig = config;
 
-	ROAnything TestAny = LocalizationUtils::EvalAny( 0, ROconfig);
+	ROAnything TestAny = LocalizationUtils::EvalAny(0, ROconfig);
 
-	assertEqual( "TestDefault", TestAny.AsCharPtr() );
+	assertEqual("TestDefault", TestAny.AsCharPtr());
 
-} // EvalAnyNullLangEmptyConfigWithDefault
+}  // EvalAnyNullLangEmptyConfigWithDefault
 
 void LocalizationUtilsTest::EvalAnyEmptyLangEmptyConfigWithDefault()
 // 'config' is an empty anything, with default Language
@@ -253,11 +251,11 @@ void LocalizationUtilsTest::EvalAnyEmptyLangEmptyConfigWithDefault()
 
 	const char Lang = 0;
 
-	ROAnything TestAny = LocalizationUtils::EvalAny( &Lang, ROconfig);
+	ROAnything TestAny = LocalizationUtils::EvalAny(&Lang, ROconfig);
 
-	assertEqual( "TestDefault", TestAny.AsCharPtr() );
+	assertEqual("TestDefault", TestAny.AsCharPtr());
 
-} // EvalAnyEmptyLangEmptyConfigWithDefault
+}  // EvalAnyEmptyLangEmptyConfigWithDefault
 
 void LocalizationUtilsTest::EvalAnyEmptyConfigWithDefault()
 // 'lang' exists but 'config' is an empty anything, with default Language
@@ -270,11 +268,11 @@ void LocalizationUtilsTest::EvalAnyEmptyConfigWithDefault()
 
 	const char *Lang = "TestLang";
 
-	ROAnything TestAny = LocalizationUtils::EvalAny( Lang, ROconfig);
+	ROAnything TestAny = LocalizationUtils::EvalAny(Lang, ROconfig);
 
-	assertEqual( "TestDefault", TestAny.AsCharPtr() );
+	assertEqual("TestDefault", TestAny.AsCharPtr());
 
-} // EvalAnyEmptyConfigWithDefault
+}  // EvalAnyEmptyConfigWithDefault
 
 void LocalizationUtilsTest::EvalAnyNormalCaseWithDefault()
 // Usual case, with default language
@@ -288,17 +286,17 @@ void LocalizationUtilsTest::EvalAnyNormalCaseWithDefault()
 
 	const char *Lang = "TestLang";
 
-	ROAnything TestAny = LocalizationUtils::EvalAny( Lang, ROconfig);
+	ROAnything TestAny = LocalizationUtils::EvalAny(Lang, ROconfig);
 
-	assertEqual( "TestString", TestAny.AsCharPtr() );
+	assertEqual("TestString", TestAny.AsCharPtr());
 
-} // EvalAnyNormalCaseWithDefault
+}  // EvalAnyNormalCaseWithDefault
 
 void LocalizationUtilsTest::LangKeyKey0()
 // Find the 1st language 'Deutsch' ( key0 )
 {
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "Key0", TestString );
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("Key0", TestString);
 }
 
 void LocalizationUtilsTest::LangKeyKey1()
@@ -307,11 +305,11 @@ void LocalizationUtilsTest::LangKeyKey1()
 	Anything Languages;
 	Languages.Append("Francais");
 	Languages.Append("Deutsch");
-	Anything env( fContext.GetEnvStore() );
+	Anything env(fContext.GetEnvStore());
 	env["header"]["ACCEPT-LANGUAGE"] = Languages;
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "Key1", TestString );
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("Key1", TestString);
 }
 
 void LocalizationUtilsTest::LangKeyKey2()
@@ -321,13 +319,13 @@ void LocalizationUtilsTest::LangKeyKey2()
 	Languages.Append("Italiano");
 	Languages.Append("Deutsch");
 
-	Anything env( fContext.GetEnvStore() );
+	Anything env(fContext.GetEnvStore());
 	env["header"]["ACCEPT-LANGUAGE"] = Languages;
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "Key2", TestString );
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("Key2", TestString);
 
-} // LangKeyKey2
+}  // LangKeyKey2
 
 void LocalizationUtilsTest::LangKeyKey3()
 // Find the 4th language ( key3 )
@@ -336,13 +334,13 @@ void LocalizationUtilsTest::LangKeyKey3()
 	Languages.Append("English");
 	Languages.Append("Deutsch");
 
-	Anything env( fContext.GetEnvStore() );
+	Anything env(fContext.GetEnvStore());
 	env["header"]["ACCEPT-LANGUAGE"] = Languages;
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "Key3", TestString );
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("Key3", TestString);
 
-} // LangKeyKey3
+}  // LangKeyKey3
 
 void LocalizationUtilsTest::LangKeyKeyOneLang()
 // Only one language available
@@ -350,7 +348,7 @@ void LocalizationUtilsTest::LangKeyKeyOneLang()
 	Anything Languages;
 	Languages.Append("Deutsch");
 
-	Anything env( fContext.GetEnvStore() );
+	Anything env(fContext.GetEnvStore());
 	env["header"]["ACCEPT-LANGUAGE"] = Languages;
 
 	Anything TmpStore(fContext.GetTmpStore());
@@ -359,9 +357,9 @@ void LocalizationUtilsTest::LangKeyKeyOneLang()
 	TmpStore["UseBrowserLang"] = 1;
 	TmpStore["LanguageKeyMap"] = LangKeyMap;
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "Key0", TestString );
-} // LangKeyKeyOneLang
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("Key0", TestString);
+}  // LangKeyKeyOneLang
 
 void LocalizationUtilsTest::LangKeyBadAndGoodLanguages()
 // Not existing languages
@@ -371,25 +369,25 @@ void LocalizationUtilsTest::LangKeyBadAndGoodLanguages()
 	Languages.Append("Hollaendisch");
 	Languages.Append("Italiano");
 	Languages.Append("English");
-	Anything env( fContext.GetEnvStore() );
+	Anything env(fContext.GetEnvStore());
 	env["header"]["ACCEPT-LANGUAGE"] = Languages;
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "Key2", TestString );
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("Key2", TestString);
 
-} // LangKeyBadAndGoodLanguages
+}  // LangKeyBadAndGoodLanguages
 
 void LocalizationUtilsTest::LangKeyEmptyLanguages()
 // No languages ( empty anything ), take default language
 {
 	Anything Languages;
 
-	Anything env( fContext.GetEnvStore() );
+	Anything env(fContext.GetEnvStore());
 	env["header"]["ACCEPT-LANGUAGE"] = Languages;
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "DefKey", TestString );
-} // LangKeyEmptyLanguages
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("DefKey", TestString);
+}  // LangKeyEmptyLanguages
 
 void LocalizationUtilsTest::LangKeyEmptyKeyMap()
 // Key map is empty anything, take default language
@@ -402,16 +400,16 @@ void LocalizationUtilsTest::LangKeyEmptyKeyMap()
 	TmpStore["UseBrowserLang"] = 1;
 	TmpStore["LanguageKeyMap"] = LangKeyMap;
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "DefKey", TestString );
-} // LangKeyEmptyKeyMap
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("DefKey", TestString);
+}  // LangKeyEmptyKeyMap
 
 void LocalizationUtilsTest::LangKeyEmptyLanguagesEmptyKeyMap()
 // No languages, empty key map, take default language
 {
 	Anything Languages;
 
-	Anything env( fContext.GetEnvStore() );
+	Anything env(fContext.GetEnvStore());
 	env["header"]["ACCEPT-LANGUAGE"] = Languages;
 
 	Anything TmpStore(fContext.GetTmpStore());
@@ -419,41 +417,37 @@ void LocalizationUtilsTest::LangKeyEmptyLanguagesEmptyKeyMap()
 
 	TmpStore["LanguageKeyMap"] = LangKeyMap;
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "DefKey", TestString );
-} // LangKeyEmptyLanguagesEmptyKeyMap
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("DefKey", TestString);
+}  // LangKeyEmptyLanguagesEmptyKeyMap
 
-void LocalizationUtilsTest::LangKeyMissingLanguages()
-{
+void LocalizationUtilsTest::LangKeyMissingLanguages() {
 	Anything EnvStore(fContext.GetEnvStore());
 	Anything header = EnvStore["header"];
 
 	header.Remove("ACCEPT-LANGUAGE");
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "DefKey", TestString );
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("DefKey", TestString);
 
 	fContext.SetLanguage("Key0");
 	// Context language now ignored by FindLanguageKey
-	TestString = LocalizationUtils::FindLanguageKey( fContext, "DefKey") ;
+	TestString = LocalizationUtils::FindLanguageKey(fContext, "DefKey");
 	// Language found is independent of language set
-	assertEqual( "DefKey", TestString );
-	assertEqual( "Key0", fContext.Language() );
+	assertEqual("DefKey", TestString);
+	assertEqual("Key0", fContext.Language());
 
-} // LangKeyMissingLanguages
+}  // LangKeyMissingLanguages
 
-void LocalizationUtilsTest::LangKeyMissingKeyMap()
-{
+void LocalizationUtilsTest::LangKeyMissingKeyMap() {
 	Anything TmpStore(fContext.GetTmpStore());
 	TmpStore.Remove("LanguageKeyMap");
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "DefKey", TestString );
-
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("DefKey", TestString);
 }
 
-void LocalizationUtilsTest::LangKeyMissingLanguagesMissingKeyMap()
-{
+void LocalizationUtilsTest::LangKeyMissingLanguagesMissingKeyMap() {
 	Anything TmpStore(fContext.GetTmpStore());
 	TmpStore.Remove("LanguageKeyMap");
 
@@ -462,10 +456,10 @@ void LocalizationUtilsTest::LangKeyMissingLanguagesMissingKeyMap()
 
 	header.Remove("ACCEPT-LANGUAGE");
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "DefKey", TestString );
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("DefKey", TestString);
 
-} // LangKeyMissingLanguagesMissingKeyMap
+}  // LangKeyMissingLanguagesMissingKeyMap
 
 void LocalizationUtilsTest::LangKeyDoNotUseBrowserLang()
 // Normal constellation, but "UseBrowserLang" not set, take default language key
@@ -473,10 +467,10 @@ void LocalizationUtilsTest::LangKeyDoNotUseBrowserLang()
 	Anything TmpStore(fContext.GetTmpStore());
 	TmpStore.Remove("UseBrowserLang");
 
-	String TestString( LocalizationUtils::FindLanguageKey( fContext, "DefKey") );
-	assertEqual( "DefKey", TestString );
+	String TestString(LocalizationUtils::FindLanguageKey(fContext, "DefKey"));
+	assertEqual("DefKey", TestString);
 
-} // LangKeyDoNotUseBrowserLang
+}  // LangKeyDoNotUseBrowserLang
 
 void LocalizationUtilsTest::OpenStreamLangD()
 // Language D, Root directory relativ
@@ -484,27 +478,26 @@ void LocalizationUtilsTest::OpenStreamLangD()
 	assertEqual(".", system::GetRootDir());
 
 	String absoluteFileName;
-	std::istream *is = LocalizationUtils::OpenStream( fContext, "Test", absoluteFileName );
+	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
 
 	Anything any;
-	if ( t_assert( is != NULL ) ) {
+	if (t_assert(is != NULL)) {
 		*is >> any;
-		assertEqual( "TestDir1Localized_D", any[ 0L ].AsCharPtr() );
+		assertEqual("TestDir1Localized_D", any[0L].AsCharPtr());
 		delete is;
 	}
 
 	// search a file in the second dir
-	is = LocalizationUtils::OpenStream( fContext, "Test1", absoluteFileName );
+	is = LocalizationUtils::OpenStream(fContext, "Test1", absoluteFileName);
 
-	if ( t_assert( is != NULL ) ) {
+	if (t_assert(is != NULL)) {
 		*is >> any;
-		assertEqual( "TestDir2NonLocalizedTest1", any[ 0L ].AsCharPtr() );
+		assertEqual("TestDir2NonLocalizedTest1", any[0L].AsCharPtr());
 		delete is;
 	}
 
-} // OpenStreamLangD
-void LocalizationUtilsTest::PrepareRootDir()
-{
+}  // OpenStreamLangD
+void LocalizationUtilsTest::PrepareRootDir() {
 	String cwd;
 	system::GetCWD(cwd);
 	system::ResolvePath(cwd);
@@ -519,17 +512,17 @@ void LocalizationUtilsTest::OpenStreamLangDAbsolut()
 	PrepareRootDir();
 
 	String absoluteFileName;
-	std::istream *is = LocalizationUtils::OpenStream( fContext, "Test", absoluteFileName );
-	t_assert( is != 0 );
+	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
+	t_assert(is != 0);
 	// this will fail if daily build did not check out correctly
 
 	Anything any;
-	if ( is ) {
+	if (is) {
 		*is >> any;
-		assertEqual( any[ 0L ].AsCharPtr(), "TestDir1Localized_D" );
+		assertEqual(any[0L].AsCharPtr(), "TestDir1Localized_D");
 		delete is;
 	}
-} // OpenStreamLangDAbsolut
+}  // OpenStreamLangDAbsolut
 
 void LocalizationUtilsTest::OpenStreamLangF()
 // Language F, Root directory relative
@@ -539,15 +532,15 @@ void LocalizationUtilsTest::OpenStreamLangF()
 	// using FindLanguage which is used during construction of the Context
 
 	String absoluteFileName;
-	std::istream *is = LocalizationUtils::OpenStream( fContext, "Test", absoluteFileName );
-	t_assert( is != 0 );
+	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
+	t_assert(is != 0);
 	Anything any;
-	if ( is ) {
+	if (is) {
 		*is >> any;
-		assertEqual( "TestDir1Localized_F", any[ 0L ].AsCharPtr() );
+		assertEqual("TestDir1Localized_F", any[0L].AsCharPtr());
 		delete is;
 	}
-} // OpenStreamLangF
+}  // OpenStreamLangF
 
 void LocalizationUtilsTest::OpenStreamLangF1stTemplateDirWrong()
 // Language F, File is at the 2nd Template Directory
@@ -558,15 +551,15 @@ void LocalizationUtilsTest::OpenStreamLangF1stTemplateDirWrong()
 	TmpStore["HTMLTemplateConfig"]["TemplateDir"] = "Schrott:TestDir1:TestDir2";
 
 	String absoluteFileName;
-	std::istream *is = LocalizationUtils::OpenStream( fContext, "Test", absoluteFileName );
-	t_assert( is != 0 );
+	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
+	t_assert(is != 0);
 	Anything any;
-	if ( is ) {
+	if (is) {
 		*is >> any;
-		assertEqual( "TestDir1Localized_F", any[ 0L ].AsCharPtr() );
+		assertEqual("TestDir1Localized_F", any[0L].AsCharPtr());
 		delete is;
 	}
-} // OpenStreamLangF1stTemplateDirWrong
+}  // OpenStreamLangF1stTemplateDirWrong
 
 void LocalizationUtilsTest::OpenStreamLangDDefault()
 // Language I not found, take the default language
@@ -574,15 +567,15 @@ void LocalizationUtilsTest::OpenStreamLangDDefault()
 	fContext.SetLanguage("Key2");
 
 	String absoluteFileName;
-	std::istream *is = LocalizationUtils::OpenStream( fContext, "Test", absoluteFileName );
-	t_assert( is != 0 );
+	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
+	t_assert(is != 0);
 	Anything any;
-	if ( is ) {
+	if (is) {
 		*is >> any;
-		assertEqual( "TestDir1NonLocalized", any[ 0L ].AsCharPtr() );
+		assertEqual("TestDir1NonLocalized", any[0L].AsCharPtr());
 		delete is;
 	}
-} // OpenStreamLangDDefault
+}  // OpenStreamLangDDefault
 
 void LocalizationUtilsTest::OpenStreamLangDDefaultAbsolut()
 // Language I not found, Root dir absolut, take the default language
@@ -597,18 +590,18 @@ void LocalizationUtilsTest::OpenStreamLangDDefaultAbsolut()
 	// language dir will not be found, use non localized version
 
 	String absoluteFileName;
-	std::istream *is = LocalizationUtils::OpenStream( fContext, "Test", absoluteFileName );
-//	system::ResolvePath(absoluteFileName);
+	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
+	//	system::ResolvePath(absoluteFileName);
 	assertEqual(expectedPath, absoluteFileName);
-	t_assert( is != 0 );
+	t_assert(is != 0);
 	// these will fail if daily build did not check out correctly
 	Anything any;
-	if ( is ) {
+	if (is) {
 		*is >> any;
-		assertEqual( "TestDir1NonLocalized", any[ 0L ].AsCharPtr() );
+		assertEqual("TestDir1NonLocalized", any[0L].AsCharPtr());
 		delete is;
 	}
-} // OpenStreamLangDDefaultAbsolut
+}  // OpenStreamLangDDefaultAbsolut
 
 void LocalizationUtilsTest::OpenStreamLangDDefaultAbsolut1stTemplateDirWrong()
 // Language I not found, Root dir absolut, 1st template dir wrong,
@@ -619,16 +612,16 @@ void LocalizationUtilsTest::OpenStreamLangDDefaultAbsolut1stTemplateDirWrong()
 	fContext.SetLanguage("Key2");
 
 	String absoluteFileName;
-	std::istream *is = LocalizationUtils::OpenStream( fContext, "Test", absoluteFileName );
-	t_assert( is != 0 );
+	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
+	t_assert(is != 0);
 	// this will fail if daily build did not check out correctly
 	Anything any;
-	if ( is ) {
+	if (is) {
 		*is >> any;
-		assertEqual( "TestDir1NonLocalized", any[ 0L ].AsCharPtr() );
+		assertEqual("TestDir1NonLocalized", any[0L].AsCharPtr());
 		delete is;
 	}
-} // OpenStreamLangDDefaultAbsolut1stTemplateDirWrong
+}  // OpenStreamLangDDefaultAbsolut1stTemplateDirWrong
 
 void LocalizationUtilsTest::OpenStreamDefaultTemplateDir()
 // Language specific directory not found, try template dirctory
@@ -636,18 +629,17 @@ void LocalizationUtilsTest::OpenStreamDefaultTemplateDir()
 	fContext.SetLanguage("Key2");
 
 	String absoluteFileName;
-	std::istream *is = LocalizationUtils::OpenStream( fContext, "Test", absoluteFileName );
-	t_assert( is != 0 );
+	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
+	t_assert(is != 0);
 	Anything any;
-	if ( is ) {
+	if (is) {
 		*is >> any;
-		assertEqual( "TestDir1NonLocalized", any[ 0L ].AsCharPtr() );
+		assertEqual("TestDir1NonLocalized", any[0L].AsCharPtr());
 		delete is;
 	}
-} // OpenStreamDefaultTemplateDir
+}  // OpenStreamDefaultTemplateDir
 
-Test *LocalizationUtilsTest::suite ()
-{
+Test *LocalizationUtilsTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, LocalizationUtilsTest, EvalNullLangEmptyConfigWODefault);
@@ -689,5 +681,4 @@ Test *LocalizationUtilsTest::suite ()
 	ADD_CASE(testSuite, LocalizationUtilsTest, OpenStreamDefaultTemplateDir);
 
 	return testSuite;
-
 }

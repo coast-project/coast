@@ -7,36 +7,34 @@
  */
 
 #include "LDAPErrorHandler.h"
+
+#include "Context.h"
 #include "StringStream.h"
 #include "TimeStamp.h"
-#include "Context.h"
+
 #include <algorithm>
 
 namespace {
-	char const * const ErrorSuppressionKey = "SuppressErrorCodes";
-	char const * const BindPWSlotname = "LdapConnectionParams.BindPW";
+	char const *const ErrorSuppressionKey = "SuppressErrorCodes";
+	char const *const BindPWSlotname = "LdapConnectionParams.BindPW";
 	struct wipeoutPasswordEntry {
 		Anything &errorAny;
 		Anything password, fakepass;
 		wipeoutPasswordEntry(Anything &error) : errorAny(error), fakepass("WipedOut") {
-			if ( errorAny.LookupPath(password, BindPWSlotname) ) {
+			if (errorAny.LookupPath(password, BindPWSlotname)) {
 				errorAny["LdapConnectionParams"]["BindPW"] = fakepass;
 			}
 		}
 		~wipeoutPasswordEntry() {
-			if ( not password.IsNull() ) {
+			if (not password.IsNull()) {
 				errorAny["LdapConnectionParams"]["BindPW"] = password;
 			}
 		}
 	};
-}
+}  // namespace
 
-LDAPErrorHandler::LDAPErrorHandler(Context &ctx, ParameterMapper *in, ResultMapper *out, String daName) :
-		fCtx(ctx),
-		fIn(in),
-		fOut(out),
-		fName(daName),
-		fRetryState(eNoRetry) {
+LDAPErrorHandler::LDAPErrorHandler(Context &ctx, ParameterMapper *in, ResultMapper *out, String daName)
+	: fCtx(ctx), fIn(in), fOut(out), fName(daName), fRetryState(eNoRetry) {
 	fIn->Get(ErrorSuppressionKey, fErrorSuppressCodes, fCtx);
 }
 
@@ -50,8 +48,8 @@ void LDAPErrorHandler::HandleSessionError(LDAP *handle, String msg) {
 		ldap_get_option(handle, LDAP_OPT_ERROR_NUMBER, &rc);
 		error["LdapCode"] = rc;
 		error["LdapMsg"] = ldap_err2string(rc);
-		logToSyslog = std::find(fErrorSuppressCodes.begin(), fErrorSuppressCodes.end(), static_cast<long>(rc))
-				== fErrorSuppressCodes.end();
+		logToSyslog = std::find(fErrorSuppressCodes.begin(), fErrorSuppressCodes.end(), static_cast<long>(rc)) ==
+					  fErrorSuppressCodes.end();
 	} else {
 		if (fRetryState == eNoRetry) {
 			error["LdapMsg"] = "Connection does not exist (no handle available).";
@@ -61,7 +59,7 @@ void LDAPErrorHandler::HandleSessionError(LDAP *handle, String msg) {
 	}
 	// get connection parameters + append
 	error["LdapConnectionParams"] = GetConnectionParams().DeepClone();
-	Trace("" << (logToSyslog?"not ":"") << "suppressing error message to SystemLog");
+	Trace("" << (logToSyslog ? "not " : "") << "suppressing error message to SystemLog");
 	if (logToSyslog) {
 		WriteSysLog(error, msg);
 	}
@@ -69,12 +67,11 @@ void LDAPErrorHandler::HandleSessionError(LDAP *handle, String msg) {
 	PutLDAPError(error);
 }
 
-void LDAPErrorHandler::HandleUnbindError(LDAP *handle)
-{
+void LDAPErrorHandler::HandleUnbindError(LDAP *handle) {
 	StartTrace(LDAPErrorHandler.HandleUnbindError);
 	int rc;
 	String msg;
-	if ( handle ) {
+	if (handle) {
 		ldap_get_option(handle, LDAP_OPT_ERROR_NUMBER, &rc);
 		msg << "LdapCode: [" << rc << "] LdapMsg: [" << ldap_err2string(rc) << "] ldap_unbind";
 	} else {
@@ -84,13 +81,12 @@ void LDAPErrorHandler::HandleUnbindError(LDAP *handle)
 	Trace(msg);
 }
 
-void LDAPErrorHandler::HandleError(String msg, Anything args, String argDescr)
-{
+void LDAPErrorHandler::HandleError(String msg, Anything args, String argDescr) {
 	StartTrace(LDAPErrorHandler.HandleError);
 
 	Anything error;
 	error["Msg"] = msg;
-	if ( !args.IsNull() ) {
+	if (!args.IsNull()) {
 		error[argDescr] = args;
 	}
 
@@ -101,8 +97,7 @@ void LDAPErrorHandler::HandleError(String msg, Anything args, String argDescr)
 	PutLDAPError(error);
 }
 
-void LDAPErrorHandler::WriteSysLog(Anything &error, String const &msg)
-{
+void LDAPErrorHandler::WriteSysLog(Anything &error, String const &msg) {
 	wipeoutPasswordEntry nopassentry(error);
 	String sSysLog(1024);
 	{
@@ -112,18 +107,17 @@ void LDAPErrorHandler::WriteSysLog(Anything &error, String const &msg)
 	SystemLog::Error(String(msg) << " " << fName << " " << sSysLog);
 }
 
-String LDAPErrorHandler::CreateMessageAsString(Anything &error)
-{
+String LDAPErrorHandler::CreateMessageAsString(Anything &error) {
 	wipeoutPasswordEntry nopassentry(error);
 	String msgAsString(1024);
 	msgAsString << "LdapDataAccess: [" << fName << "]";
-	for ( long l = 0; l < error.GetSize(); ++l ) {
-		if ( error[l].GetType() == AnyArrayType ) {
+	for (long l = 0; l < error.GetSize(); ++l) {
+		if (error[l].GetType() == AnyArrayType) {
 			String sMsgDetails;
 			OStringStream ossMsgDetails(&sMsgDetails);
 			error[l].PrintOn(ossMsgDetails, false);
 			ossMsgDetails.flush();
-			msgAsString << " " << error.SlotName(l) << " [" <<	sMsgDetails << "]";
+			msgAsString << " " << error.SlotName(l) << " [" << sMsgDetails << "]";
 		} else {
 			msgAsString << " " << error.SlotName(l) << " [" << error[l].AsString() << "]";
 		}
@@ -131,8 +125,7 @@ String LDAPErrorHandler::CreateMessageAsString(Anything &error)
 	return msgAsString;
 }
 
-void LDAPErrorHandler::PutLDAPError(Anything &error)
-{
+void LDAPErrorHandler::PutLDAPError(Anything &error) {
 	StartTrace(LDAPErrorHandler.PutLDAPError);
 	String key;
 	key << "LDAPError." << fName;
@@ -141,8 +134,7 @@ void LDAPErrorHandler::PutLDAPError(Anything &error)
 	fOut->Put(key, error, fCtx);
 }
 
-bool LDAPErrorHandler::GetLDAPError(Anything &error)
-{
+bool LDAPErrorHandler::GetLDAPError(Anything &error) {
 	StartTrace(LDAPErrorHandler.GetLDAPError);
 	String key;
 	key << "LDAPError." << fName;
@@ -150,49 +142,42 @@ bool LDAPErrorHandler::GetLDAPError(Anything &error)
 	return fIn->Get(key, error, fCtx);
 }
 
-void LDAPErrorHandler::CleanUp()
-{
+void LDAPErrorHandler::CleanUp() {
 	StartTrace(LDAPErrorHandler.CleanUp);
 	Anything tmp = fCtx.GetTmpStore();
 	tmp["LDAPError"].Remove(fName);
-	if ( tmp["LDAPError"].GetSize() == 0L ) {
+	if (tmp["LDAPError"].GetSize() == 0L) {
 		tmp.Remove("LDAPError");
 	}
 	tmp["LDAPResult"].Remove(fName);
-	if ( tmp["LDAPResult"].GetSize() == 0L ) {
+	if (tmp["LDAPResult"].GetSize() == 0L) {
 		tmp.Remove("LDAPResult");
 	}
 }
 
-ROAnything LDAPErrorHandler::GetQueryParams()
-{
+ROAnything LDAPErrorHandler::GetQueryParams() {
 	return (ROAnything)fQueryParams;
 }
 
-void LDAPErrorHandler::PutQueryParams(Anything qp)
-{
+void LDAPErrorHandler::PutQueryParams(Anything qp) {
 	fQueryParams = qp;
 }
 
-ROAnything LDAPErrorHandler::GetConnectionParams()
-{
+ROAnything LDAPErrorHandler::GetConnectionParams() {
 	return (ROAnything)fConnectionParams;
 }
 
-void LDAPErrorHandler::PutConnectionParams(Anything cp)
-{
+void LDAPErrorHandler::PutConnectionParams(Anything cp) {
 	fConnectionParams = cp;
 }
 
-void LDAPErrorHandler::SetRetryState(eRetryState retryState)
-{
+void LDAPErrorHandler::SetRetryState(eRetryState retryState) {
 	StartTrace(LDAPErrorHandler.SetRetryState);
 	Trace("Setting: [" << RetryStateAsString(retryState) << "]");
 	fRetryState = retryState;
 }
 
-void LDAPErrorHandler::SetShouldRetry()
-{
+void LDAPErrorHandler::SetShouldRetry() {
 	StartTrace(LDAPErrorHandler.SetShouldRetry);
 	String msg;
 	if (!IsRetry()) {
@@ -204,24 +189,21 @@ void LDAPErrorHandler::SetShouldRetry()
 	SystemLog::Info(msg);
 }
 
-LDAPErrorHandler::eRetryState LDAPErrorHandler::GetRetryState()
-{
+LDAPErrorHandler::eRetryState LDAPErrorHandler::GetRetryState() {
 	StartTrace(LDAPErrorHandler.GetRetryState);
 	Trace("Getting: [" << RetryStateAsString(fRetryState) << "]");
 	return fRetryState;
 }
 
-bool LDAPErrorHandler::IsRetry()
-{
+bool LDAPErrorHandler::IsRetry() {
 	StartTrace(LDAPErrorHandler.IsRetry);
-	bool ret =	(fRetryState == LDAPErrorHandler::eIsInRetrySequence);
+	bool ret = (fRetryState == LDAPErrorHandler::eIsInRetrySequence);
 	Trace("IsRetry: " << ret);
 	return ret;
 }
 
-String LDAPErrorHandler::RetryStateAsString(eRetryState retryState)
-{
-	switch ( retryState) {
+String LDAPErrorHandler::RetryStateAsString(eRetryState retryState) {
+	switch (retryState) {
 		case eRetry:
 			return "eRetry";
 			break;

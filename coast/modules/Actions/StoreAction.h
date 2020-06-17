@@ -22,11 +22,10 @@
  * @par \c Destination
  * See \ref storeputterconfiguration "StorePutter Configuration" to see options.
  */
-class StoreAction: public Action {
+class StoreAction : public Action {
 public:
-	StoreAction(const char *name) :
-		Action(name) {
-	}
+	StoreAction(const char *name) : Action(name) {}
+
 protected:
 	/*! copy a optionally rendered value into a slot in a store
 	 * @copydetails Action::DoExecAction(String &, Context &, const ROAnything &)

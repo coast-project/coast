@@ -10,11 +10,9 @@
 #define _PipeStreamTest_H
 
 #include "TestCase.h"
-class PipeStreamTest: public testframework::TestCase {
+class PipeStreamTest : public testframework::TestCase {
 public:
-	PipeStreamTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	PipeStreamTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void SimpleWriteandRead();
 	void MoreWriteandRead();

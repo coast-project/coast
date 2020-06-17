@@ -11,7 +11,7 @@
 
 #include "FoundationTestTypes.h"
 
-class URLUtilsTest: public testframework::TestCaseWithConfig {
+class URLUtilsTest : public testframework::TestCaseWithConfig {
 public:
 	URLUtilsTest(TString tstrName);
 

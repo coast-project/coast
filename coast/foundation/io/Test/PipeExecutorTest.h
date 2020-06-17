@@ -12,26 +12,25 @@
 #include "FoundationTestTypes.h"
 
 //!
-class PipeExecutorTest : public testframework::TestCaseWithConfig
-{
+class PipeExecutorTest : public testframework::TestCaseWithConfig {
 public:
 	//--- constructors
 	PipeExecutorTest(TString tstrName);
 	virtual ~PipeExecutorTest();
-	void EchoCatTest(); // call cat for echoing stdin stdout
-	void CatWorkingDirTest(); // call cat for reading a file in separate dir
+	void EchoCatTest();		   // call cat for echoing stdin stdout
+	void CatWorkingDirTest();  // call cat for reading a file in separate dir
 	void EchoEnvTest();
 	void FailExecTest();
 	void KillTest();
 	void CatGugusErrTest();
 
-	void ParseParamTest(); // check for mechanism working
-	void PrepareEnvTest(); // check for mechanism working
-	void PrepareParamTest(); // check for mechanism working
-	void DummyKillTest(); // check for mechanism working
+	void ParseParamTest();	  // check for mechanism working
+	void PrepareEnvTest();	  // check for mechanism working
+	void PrepareParamTest();  // check for mechanism working
+	void DummyKillTest();	  // check for mechanism working
 	void ShellInvocationTest();
 
-	static Test *suite ();
+	static Test *suite();
 };
 
 #endif

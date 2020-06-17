@@ -7,12 +7,12 @@
  */
 
 #include "ActionCoreTest.h"
-#include "TestSuite.h"
-#include "Context.h"
-#include "Action.h"
 
-ActionCoreTest::ActionCoreTest(TString tname) :
-		TestCaseType(tname) {
+#include "Action.h"
+#include "Context.h"
+#include "TestSuite.h"
+
+ActionCoreTest::ActionCoreTest(TString tname) : TestCaseType(tname) {
 	StartTrace(ActionCoreTest.Ctor);
 }
 

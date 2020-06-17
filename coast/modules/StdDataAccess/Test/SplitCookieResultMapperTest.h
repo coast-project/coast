@@ -11,13 +11,11 @@
 
 #include "FoundationTestTypes.h"
 
-class SplitCookieResultMapperTest: public testframework::TestCaseWithConfig {
+class SplitCookieResultMapperTest : public testframework::TestCaseWithConfig {
 public:
 	//! ConfiguredTestCase constructor
 	//! \param name name of the test
-	SplitCookieResultMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	SplitCookieResultMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//! builds up a suite of tests
 	static Test *suite();

@@ -7,24 +7,21 @@
  */
 
 #include "PipeExecutorTest.h"
-#include "TestSuite.h"
+
 #include "PipeExecutor.h"
+#include "TestSuite.h"
 
 using namespace coast;
 
-PipeExecutorTest::PipeExecutorTest(TString className)
-	: TestCaseType(className)
-{
+PipeExecutorTest::PipeExecutorTest(TString className) : TestCaseType(className) {
 	StartTrace(PipeExecutorTest.Ctor);
 }
 
-PipeExecutorTest::~PipeExecutorTest()
-{
+PipeExecutorTest::~PipeExecutorTest() {
 	StartTrace(PipeExecutorTest.Dtor);
 }
 
-void PipeExecutorTest::EchoEnvTest()
-{
+void PipeExecutorTest::EchoEnvTest() {
 	StartTrace(PipeExecutorTest.EchoEnvTest);
 	Anything env;
 	env["HALLO"] = "Peter";
@@ -55,8 +52,7 @@ void PipeExecutorTest::EchoEnvTest()
 	}
 }
 
-void PipeExecutorTest::FailExecTest()
-{
+void PipeExecutorTest::FailExecTest() {
 	StartTrace(PipeExecutorTest.FailExecTest);
 	Anything env;
 	PipeExecutor Execute("/wuggiwaggi", env);
@@ -74,8 +70,7 @@ void PipeExecutorTest::FailExecTest()
 	}
 }
 
-void PipeExecutorTest::CatGugusErrTest()
-{
+void PipeExecutorTest::CatGugusErrTest() {
 	StartTrace(PipeExecutorTest.CatGugusErrTest);
 	Anything env;
 	String fullname;
@@ -86,7 +81,7 @@ void PipeExecutorTest::CatGugusErrTest()
 #endif
 	Trace("Path:[" << fullname << "]");
 	fullname << " ./gugus";
-	PipeExecutor Execute(fullname, env, ".", 3000L, true); // file doesn't exist
+	PipeExecutor Execute(fullname, env, ".", 3000L, true);	// file doesn't exist
 	t_assert(Execute.Start());
 	std::istream *err = Execute.GetStderr();
 	t_assertm(err != NULL, "Execute cat stderr failed");
@@ -95,19 +90,18 @@ void PipeExecutorTest::CatGugusErrTest()
 		t_assertm(!!(*err), "Execute cat failed");
 		// may be we need to close it here...
 		String s1;
-		(*err) >> s1; // we expect an error messags
+		(*err) >> s1;  // we expect an error messags
 		t_assert(s1.Length() > 0);
 	}
 }
 
-void PipeExecutorTest::CatWorkingDirTest()
-{
+void PipeExecutorTest::CatWorkingDirTest() {
 	StartTrace(PipeExecutorTest.CatWorkingDirTest);
 	Anything env;
 	String wd = GetTestCaseConfig()["WorkingDir"].AsString();
 	String filename(wd);
 	const char *fileName = "PipeExecutorTest.txt";
-	String msg( "Hello_world!" );
+	String msg("Hello_world!");
 	filename << system::Sep() << fileName;
 	std::ostream *os = system::OpenOStream(filename, 0);
 	t_assertm(os && !!(*os), "opening test file for writing failed");
@@ -128,7 +122,7 @@ void PipeExecutorTest::CatWorkingDirTest()
 	std::istream *is = Execute.GetStream();
 	t_assertm(is != NULL, "Execute cat failed");
 
-	if (is ) {
+	if (is) {
 		t_assertm(!!(*is), "Execute cat failed");
 		Execute.ShutDownWriting();
 		String s1;
@@ -136,10 +130,9 @@ void PipeExecutorTest::CatWorkingDirTest()
 		(*is) >> s1;
 		assertEqual(msg, s1);
 	}
-	assertEqual(0, Execute.TerminateChild()); // everything is over
+	assertEqual(0, Execute.TerminateChild());  // everything is over
 }
-void PipeExecutorTest::EchoCatTest()
-{
+void PipeExecutorTest::EchoCatTest() {
 	StartTrace(PipeExecutorTest.EchoCatTest);
 	Anything env;
 	String fullname;
@@ -166,11 +159,10 @@ void PipeExecutorTest::EchoCatTest()
 		(*is) >> s1;
 		assertEqual(s0, s1);
 	}
-	assertEqual(0, Execute.TerminateChild()); // everything is over
+	assertEqual(0, Execute.TerminateChild());  // everything is over
 }
 
-void PipeExecutorTest::KillTest()
-{
+void PipeExecutorTest::KillTest() {
 	StartTrace(PipeExecutorTest.KillTest);
 	Anything env;
 	String fullname;
@@ -205,12 +197,11 @@ void PipeExecutorTest::KillTest()
 		// after killing a process with -SIGKILL
 		// so this test is HIGHLY timing and signal dependent
 		// e.g. worthless
-//		t_assertm(!(*is),"oops, reading from dead cat possible");
+		//		t_assertm(!(*is),"oops, reading from dead cat possible");
 	}
 }
 
-void PipeExecutorTest::ParseParamTest()
-{
+void PipeExecutorTest::ParseParamTest() {
 	StartTrace(PipeExecutorTest.ParseParamTest);
 	PipeExecutor Execute;
 	Anything p;
@@ -219,8 +210,7 @@ void PipeExecutorTest::ParseParamTest()
 	assertEqual("/etc/passwd", p[1L].AsCharPtr());
 }
 
-void PipeExecutorTest::PrepareParamTest()
-{
+void PipeExecutorTest::PrepareParamTest() {
 	StartTrace(PipeExecutorTest.PrepareParamTest);
 	PipeExecutor Execute;
 	Anything pm;
@@ -232,8 +222,7 @@ void PipeExecutorTest::PrepareParamTest()
 	assertEqual(0, p[2]);
 }
 
-void PipeExecutorTest::PrepareEnvTest()
-{
+void PipeExecutorTest::PrepareEnvTest() {
 	StartTrace(PipeExecutorTest.PrepareEnvTest);
 	PipeExecutor Execute;
 	Anything pm;
@@ -255,27 +244,25 @@ void PipeExecutorTest::PrepareEnvTest()
 #endif
 }
 
-void PipeExecutorTest::DummyKillTest()
-{
+void PipeExecutorTest::DummyKillTest() {
 	StartTrace(PipeExecutorTest.DummyKillTest);
 	PipeExecutor Execute;
 	assertEqual(-1, Execute.TerminateChild());
 }
 
-void PipeExecutorTest::ShellInvocationTest()
-{
+void PipeExecutorTest::ShellInvocationTest() {
 	StartTrace(PipeExecutorTest.ShellInvocationTest);
 	ROAnything roaConfig;
 	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(roaConfig) ) {
+	while (aEntryIterator.Next(roaConfig)) {
 		TString strCase;
-		if ( !aEntryIterator.SlotName(strCase) ) {
+		if (!aEntryIterator.SlotName(strCase)) {
 			strCase << "idx:" << aEntryIterator.Index();
 		}
 		ROAnything roaExpected = roaConfig["Expected"], roaParams = roaConfig["Params"];
 		Anything env;
-		if ( roaParams.IsDefined("Env") ) {
-			if ( roaParams["Env"].IsNull() ) {
+		if (roaParams.IsDefined("Env")) {
+			if (roaParams["Env"].IsNull()) {
 				system::GetProcessEnvironment(env);
 			} else {
 				env = roaParams["Env"].DeepClone();
@@ -293,12 +280,12 @@ void PipeExecutorTest::ShellInvocationTest()
 		PipeExecutor Execute(fullname, env, roaParams["Path"].AsString("."), roaParams["Timeout"].AsLong(1000L), bUseStderr);
 		TString tstrMsg("Executing ");
 		tstrMsg << fullname << " failed";
-		if ( t_assertm( Execute.Start() == roaExpected["ExecOk"].AsBool(false), tstrMsg) && roaExpected["ExecOk"].AsBool(false) ) {
+		if (t_assertm(Execute.Start() == roaExpected["ExecOk"].AsBool(false), tstrMsg) && roaExpected["ExecOk"].AsBool(false)) {
 			std::ostream *os = Execute.GetStream();
 			t_assertm(os != NULL, "could not get stdout to write to!");
 			std::istream *is = Execute.GetStream(), *isErr = NULL;
 			t_assertm(is != NULL, "could not get stdin to read from!");
-			if ( bUseStderr ) {
+			if (bUseStderr) {
 				isErr = Execute.GetStderr();
 				t_assertm(isErr != NULL, "could not get stderr to read from!");
 			}
@@ -309,24 +296,25 @@ void PipeExecutorTest::ShellInvocationTest()
 				t_assertm(Execute.ShutDownWriting(), "shutdown writing side failed");
 				OStringStream aShellOutput, aErrOutput;
 				long lRecv = 0, lToRecv = 2048;
-				while ( NSStringStream::PlainCopyStream2Stream(is, aShellOutput, lRecv, lToRecv) && lRecv == lToRecv ) ;
+				while (NSStringStream::PlainCopyStream2Stream(is, aShellOutput, lRecv, lToRecv) && lRecv == lToRecv)
+					;
 				t_assert(lRecv > 0);
 				Trace("Stdout [" << aShellOutput.str() << "]");
 				assertCharPtrEqual(roaExpected["Output"].AsString(""), aShellOutput.str());
-				if ( bUseStderr && isErr ) {
-					while ( NSStringStream::PlainCopyStream2Stream(isErr, aErrOutput, lRecv, lToRecv) && lRecv == lToRecv ) ;
+				if (bUseStderr && isErr) {
+					while (NSStringStream::PlainCopyStream2Stream(isErr, aErrOutput, lRecv, lToRecv) && lRecv == lToRecv)
+						;
 					assertEqual(0, lRecv);
 					Trace("Stderr [" << aErrOutput.str() << "]");
 					assertCharPtrEqual(roaExpected["Error"].AsString(""), aErrOutput.str());
 				}
 			}
-			assertEqual(0, Execute.TerminateChild()); // everything is over
+			assertEqual(0, Execute.TerminateChild());  // everything is over
 		}
 	}
 }
 
-Test *PipeExecutorTest::suite ()
-{
+Test *PipeExecutorTest::suite() {
 	StartTrace(PipeExecutorTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, PipeExecutorTest, ParseParamTest);

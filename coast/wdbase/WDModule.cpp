@@ -7,21 +7,19 @@
  */
 
 #include "WDModule.h"
-#include "SystemLog.h"
-#include "Registry.h"
-#include "Tracer.h"
+
 #include "Policy.h"
+#include "Registry.h"
+#include "SystemLog.h"
+#include "Tracer.h"
 
 class WDModuleCaller;
 
 //:abstracting iteration over a module list calling some operation on each module
 class WDModuleIterator {
 public:
-	WDModuleIterator(WDModuleCaller *wdmc, bool forward = true) :
-		fCaller(wdmc), fForward(forward) {
-	}
-	virtual ~WDModuleIterator() {
-	}
+	WDModuleIterator(WDModuleCaller *wdmc, bool forward = true) : fCaller(wdmc), fForward(forward) {}
+	virtual ~WDModuleIterator() {}
 	virtual int DoForEach();
 
 protected:
@@ -32,7 +30,7 @@ protected:
 	bool fForward;
 };
 
-class ConfiguredWDMIterator: public WDModuleIterator {
+class ConfiguredWDMIterator : public WDModuleIterator {
 public:
 	ConfiguredWDMIterator(WDModuleCaller *wdmc, const ROAnything roaModules, bool forward = true);
 
@@ -45,7 +43,7 @@ protected:
 	long fIndex;
 };
 
-class RegistryWDMIterator: public WDModuleIterator {
+class RegistryWDMIterator : public WDModuleIterator {
 public:
 	RegistryWDMIterator(WDModuleCaller *wdmc, bool forward = true);
 
@@ -60,12 +58,9 @@ protected:
 class WDModuleCaller {
 public:
 	WDModuleCaller(const ROAnything roaConfig);
-	virtual ~WDModuleCaller() {
-	}
+	virtual ~WDModuleCaller() {}
 	virtual bool Call(WDModule *wdm);
-	virtual void SetModules(const ROAnything roaModules) {
-		fModules = roaModules;
-	}
+	virtual void SetModules(const ROAnything roaModules) { fModules = roaModules; }
 
 protected:
 	virtual void HandleError(WDModule *wdm);
@@ -77,93 +72,74 @@ protected:
 
 	ROAnything fModules;
 	ROAnything fConfig;
-	String fModuleName; // only set temporary
+	String fModuleName;	 // only set temporary
 };
 
-class WDInit: public WDModuleCaller {
+class WDInit : public WDModuleCaller {
 public:
-	WDInit(const ROAnything roaConfig) :
-		WDModuleCaller(roaConfig) {
-	}
+	WDInit(const ROAnything roaConfig) : WDModuleCaller(roaConfig) {}
 
 	virtual bool DoCall(WDModule *wdm);
-	virtual const char *CallName() {
-		return "Initialization";
-	}
+	virtual const char *CallName() { return "Initialization"; }
 };
 
-class WDTerminate: public WDModuleCaller {
+class WDTerminate : public WDModuleCaller {
 public:
-	WDTerminate(const ROAnything roaConfig) :
-		WDModuleCaller(roaConfig) {
-	}
+	WDTerminate(const ROAnything roaConfig) : WDModuleCaller(roaConfig) {}
 
 protected:
 	virtual bool DoCall(WDModule *wdm);
-	virtual const char *CallName() {
-		return "\tTermination";
-	}
+	virtual const char *CallName() { return "\tTermination"; }
 	virtual bool DoCallInner(WDModule *wdm);
 };
 
-class WDResetInstall: public WDModuleCaller {
+class WDResetInstall : public WDModuleCaller {
 public:
-	WDResetInstall(const ROAnything roaConfig) :
-		WDModuleCaller(roaConfig) {
-	}
+	WDResetInstall(const ROAnything roaConfig) : WDModuleCaller(roaConfig) {}
 
 	virtual bool DoCall(WDModule *wdm);
-	virtual const char *CallName() {
-		return "\tResetInitialization";
-	}
+	virtual const char *CallName() { return "\tResetInitialization"; }
 };
 
-class WDResetTerminate: public WDTerminate {
+class WDResetTerminate : public WDTerminate {
 public:
-	WDResetTerminate(const ROAnything roaConfig) :
-		WDTerminate(roaConfig) {
-	}
+	WDResetTerminate(const ROAnything roaConfig) : WDTerminate(roaConfig) {}
 
 	virtual bool DoCallInner(WDModule *wdm);
-	virtual const char *CallName() {
-		return "\tResetTermination";
-	}
+	virtual const char *CallName() { return "\tResetTermination"; }
 };
 
-RegCacheImpl(WDModule);	// FindWDModule()
-int WDModule::Install(const ROAnything roaConfig)
-{
+RegCacheImpl(WDModule);	 // FindWDModule()
+int WDModule::Install(const ROAnything roaConfig) {
 	StartTrace(WDModule.Install);
 	ROAnything roaModules;
 	WDInit wdi(roaConfig);
-	if ( roaConfig.LookupPath(roaModules, "Modules") ) {
+	if (roaConfig.LookupPath(roaModules, "Modules")) {
 		return ConfiguredWDMIterator(&wdi, roaModules).DoForEach();
 	}
 	return RegistryWDMIterator(&wdi).DoForEach();
 }
 
-int WDModule::Terminate(const ROAnything roaConfig)
-{
+int WDModule::Terminate(const ROAnything roaConfig) {
 	StartTrace(WDModule.Terminate);
 	SystemLog::WriteToStderr("\tTerminating modules:\n");
 	ROAnything roaModules;
 	WDTerminate wdt(roaConfig);
 
-	if ( roaConfig.LookupPath(roaModules, "Modules") ) {
+	if (roaConfig.LookupPath(roaModules, "Modules")) {
 		return ConfiguredWDMIterator(&wdt, roaModules, false).DoForEach();
 	}
 	SystemLog::WriteToStderr("\t\tNO /Modules configured: Terminating ALL REGISTERED MODULES!\n");
 	return RegistryWDMIterator(&wdt, false).DoForEach();
 }
 
-int WDModule::ResetInstall(const ROAnything roaConfig)
-{
+int WDModule::ResetInstall(const ROAnything roaConfig) {
 	StartTrace(WDModule.ResetInstall);
 	SystemLog::WriteToStderr("\tInstalling modules after reset:\n");
 	ROAnything roaModules;
 	WDResetInstall wdt(roaConfig);
 	int result = 0;
-	if ( roaConfig.LookupPath(roaModules, "Modules") ) {
+	if (roaConfig.LookupPath(roaModules, "Modules")) {
 		result = ConfiguredWDMIterator(&wdt, roaModules).DoForEach();
 	} else {
 		SystemLog::WriteToStderr("\t\tNO /Modules configured: ResetInstal all registered modules\n");
@@ -173,44 +149,34 @@ int WDModule::ResetInstall(const ROAnything roaConfig)
 	return result;
 }
 
-int WDModule::ResetTerminate(const ROAnything roaConfig)
-{
+int WDModule::ResetTerminate(const ROAnything roaConfig) {
 	StartTrace(WDModule.ResetTerminate);
 	SystemLog::WriteToStderr("\tTerminating modules for reset:\n");
 	ROAnything roaModules;
 	WDResetTerminate wdt(roaConfig);
 
-	if ( roaConfig.LookupPath(roaModules, "Modules") ) {
+	if (roaConfig.LookupPath(roaModules, "Modules")) {
 		return ConfiguredWDMIterator(&wdt, roaModules, false).DoForEach();
 	}
 	SystemLog::WriteToStderr("\t\tNO /Modules configured: Terminating ALL REGISTERED MODULES for reset\n");
 	return RegistryWDMIterator(&wdt, false).DoForEach();
 }
 
-int WDModule::Reset(const ROAnything roaOldconfig, const ROAnything roaConfig)
-{
+int WDModule::Reset(const ROAnything roaOldconfig, const ROAnything roaConfig) {
 	StartTrace(WDModule.Reset);
-	if ( ResetTerminate(roaOldconfig) == 0 ) {
+	if (ResetTerminate(roaOldconfig) == 0) {
 		return ResetInstall(roaConfig);
 	}
 	return -1;
 }
 
-WDModule::WDModule() : NotCloned("WDModule")
-{
-}
+WDModule::WDModule() : NotCloned("WDModule") {}
 
-WDModule::WDModule(const char *name)
-	: NotCloned(name)
-{
-}
+WDModule::WDModule(const char *name) : NotCloned(name) {}
 
-WDModule::~WDModule()
-{
-}
+WDModule::~WDModule() {}
 
-bool WDModule::StdFinis(const char *category, const char *title)
-{
+bool WDModule::StdFinis(const char *category, const char *title) {
 	StartTrace(WDModule.StdFinis);
 	bool success;
 	AliasTerminator at(category);
@@ -218,77 +184,62 @@ bool WDModule::StdFinis(const char *category, const char *title)
 	return success;
 }
 
-bool WDModule::ResetInit(const ROAnything config)
-{
+bool WDModule::ResetInit(const ROAnything config) {
 	StartTrace(WDModule.ResetInit);
 	return Init(config);
 }
 
-bool WDModule::ResetFinis(const ROAnything )
-{
+bool WDModule::ResetFinis(const ROAnything) {
 	StartTrace(WDModule.ResetFinis);
 	return Finis();
 }
 
-int WDModuleIterator::DoForEach()
-{
-	while ( HasMore() ) {
+int WDModuleIterator::DoForEach() {
+	while (HasMore()) {
 		if (!fCaller->Call(Next())) {
 			return -1;
 		}
-	} // while
+	}  // while
 	return 0;
 }
 
 //--- ConfiguredWDMIterator
 ConfiguredWDMIterator::ConfiguredWDMIterator(WDModuleCaller *wdmc, const ROAnything roaModules, bool forward)
-	: WDModuleIterator(wdmc, forward)
-	, fModules(roaModules)
-{
+	: WDModuleIterator(wdmc, forward), fModules(roaModules) {
 	fCaller->SetModules(fModules);
 	fSize = fModules.GetSize();
 	fIndex = (fForward) ? 0 : fSize - 1;
 }
 
-bool ConfiguredWDMIterator::HasMore()
-{
-	return (( fForward ) ? (fIndex < fSize) : (fIndex >= 0));
+bool ConfiguredWDMIterator::HasMore() {
+	return ((fForward) ? (fIndex < fSize) : (fIndex >= 0));
 }
 
-WDModule *ConfiguredWDMIterator::Next()
-{
+WDModule *ConfiguredWDMIterator::Next() {
 	String moduleName(fModules[fIndex][0L].AsCharPtr("NoModule"));
 	WDModule *wdm = WDModule::FindWDModule(moduleName);
 	(fForward) ? ++fIndex : --fIndex;
-	if ( !wdm ) {
+	if (!wdm) {
 		SystemLog::WriteToStderr(moduleName << " not found.\n");
 	}
 	return wdm;
 }
 
 RegistryWDMIterator::RegistryWDMIterator(WDModuleCaller *wdmc, bool forward)
-	: WDModuleIterator(wdmc, forward)
-	, fIter(MetaRegistry::instance().GetRegistry("WDModule"), forward)
-{
-}
+	: WDModuleIterator(wdmc, forward), fIter(MetaRegistry::instance().GetRegistry("WDModule"), forward) {}
 
-bool RegistryWDMIterator::HasMore()
-{
+bool RegistryWDMIterator::HasMore() {
 	return fIter.HasMore();
 }
 
-WDModule *RegistryWDMIterator::Next()
-{
+WDModule *RegistryWDMIterator::Next() {
 	String moduleName;
 	return (WDModule *)fIter.Next(moduleName);
 }
 
-WDModuleCaller::WDModuleCaller(const ROAnything roaConfig)
-	: fConfig(roaConfig)
-{}
+WDModuleCaller::WDModuleCaller(const ROAnything roaConfig) : fConfig(roaConfig) {}
 
-bool WDModuleCaller::Call(WDModule *wdm)
-{
+bool WDModuleCaller::Call(WDModule *wdm) {
 	if (wdm && SetModuleName(wdm) && DoCall(wdm)) {
 		return true;
 	}
@@ -301,55 +252,47 @@ bool WDModuleCaller::Call(WDModule *wdm)
 	return true;
 }
 
-bool WDModuleCaller::SetModuleName(WDModule *wdm)
-{
+bool WDModuleCaller::SetModuleName(WDModule *wdm) {
 	return wdm->GetName(fModuleName);
 }
 
-bool WDModuleCaller::CheckMandatory()
-{
+bool WDModuleCaller::CheckMandatory() {
 	if (fModuleName.Length() > 0) {
 		return fModules[fModuleName]["Mandatory"].AsBool(false);
 	}
 	return false;
 }
 
-void WDModuleCaller::HandleError(WDModule *wdm)
-{
+void WDModuleCaller::HandleError(WDModule *wdm) {
 	// call failed, send a message for the poor config debugger
 	if (wdm) {
 		SystemLog::WriteToStderr(String(CallName()) << " of " << fModuleName << " failed\n");
 	}
 }
-bool WDInit::DoCall(WDModule *wdm)
-{
+bool WDInit::DoCall(WDModule *wdm) {
 	return wdm->Init(fConfig);
 }
 
-bool WDTerminate::DoCall(WDModule *wdm)
-{
+bool WDTerminate::DoCall(WDModule *wdm) {
 	SystemLog::WriteToStderr("\tTerminating ");
 	SystemLog::WriteToStderr(wdm->GetName());
 	bool ret = DoCallInner(wdm);
-	if ( !wdm->IsStatic() ) {
+	if (!wdm->IsStatic()) {
 		MetaRegistry::instance().GetRegistry("WDModule")->UnregisterRegisterableObject(fModuleName);
 		delete wdm;
 	}
-	SystemLog::WriteToStderr( ( ret ? " done\n" : " failed\n" ) );
+	SystemLog::WriteToStderr((ret ? " done\n" : " failed\n"));
 	return ret;
 }
 
-bool WDTerminate::DoCallInner(WDModule *wdm)
-{
+bool WDTerminate::DoCallInner(WDModule *wdm) {
 	return wdm->Finis();
 }
 
-bool WDResetInstall::DoCall(WDModule *wdm)
-{
+bool WDResetInstall::DoCall(WDModule *wdm) {
 	return wdm->ResetInit(fConfig);
 }
 
-bool WDResetTerminate::DoCallInner(WDModule *wdm)
-{
+bool WDResetTerminate::DoCallInner(WDModule *wdm) {
 	return wdm->ResetFinis(fConfig);
 }

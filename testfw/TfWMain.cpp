@@ -12,18 +12,16 @@
 #include "SetupRunner.h"
 #include "sys/times.h"
 #if !defined(WIN32) && !defined(gettimes)
-HRTESTTIME  gettimes()
-{
+HRTESTTIME gettimes() {
 	struct tms tt;
 	return times(&tt);
 }
 #endif
 
-int main (int ac, const char **av)
-{
+int main(int ac, const char **av) {
 	TestRunner runner;
 
 	setupRunner(runner);
-	runner.run (ac, av);
+	runner.run(ac, av);
 	return runner.getNumberOfFailures();
 }

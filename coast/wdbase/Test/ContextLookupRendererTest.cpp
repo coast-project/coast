@@ -7,16 +7,13 @@
  */
 
 #include "ContextLookupRendererTest.h"
-#include "TestSuite.h"
+
 #include "LookupRenderers.h"
+#include "TestSuite.h"
 
-ContextLookupRendererTest::ContextLookupRendererTest (TString tname)
-	: TestCaseType(tname)
-{
-}
+ContextLookupRendererTest::ContextLookupRendererTest(TString tname) : TestCaseType(tname) {}
 
-void ContextLookupRendererTest::ContextCharPtr()
-{
+void ContextLookupRendererTest::ContextCharPtr() {
 	ContextLookupRenderer contextLookupRenderer("");
 	Context fContext;
 	Anything tmpStore(fContext.GetTmpStore());
@@ -28,67 +25,63 @@ void ContextLookupRendererTest::ContextCharPtr()
 	fConfig["ContextLookupName"] = testKey;
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual(testString, fReply.str());
 }
 
-void ContextLookupRendererTest::ContextLong()
-{
+void ContextLookupRendererTest::ContextLong() {
 	ContextLookupRenderer contextLookupRenderer("");
 	Context fContext;
 	Anything tmpStore(fContext.GetTmpStore());
-	long 	testLong = 123456;
-	String 	testKey = "EinSchl�ssel";
+	long testLong = 123456;
+	String testKey = "EinSchl�ssel";
 
 	tmpStore[testKey] = testLong;
 
 	fConfig["ContextLookupName"] = testKey;
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual("123456", fReply.str());
 }
 
-void ContextLookupRendererTest::ContextDouble()
-{
+void ContextLookupRendererTest::ContextDouble() {
 	ContextLookupRenderer contextLookupRenderer("");
 	Context fContext;
 	Anything tmpStore(fContext.GetTmpStore());
-	double 	testDouble 	= 123.456;
-	String 	testKey 	= "EinSchl�ssel";
+	double testDouble = 123.456;
+	String testKey = "EinSchl�ssel";
 
 	tmpStore[testKey] = testDouble;
 
 	fConfig["ContextLookupName"] = testKey;
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual("123.456", fReply.str().SubString(0, 7));
 }
 
-void ContextLookupRendererTest::ContextNull()
-{
+void ContextLookupRendererTest::ContextNull() {
 	ContextLookupRenderer contextLookupRenderer("");
 	Context fContext;
 	Anything tmpStore(fContext.GetTmpStore());
 	Anything NullAny;
-	String 	testKey 	= "EinSchl�ssel";
+	String testKey = "EinSchl�ssel";
 
 	tmpStore[testKey] = NullAny;
 
 	fConfig["ContextLookupName"] = testKey;
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual("", fReply.str());
 }
 
-void ContextLookupRendererTest::ContextCharPtrConfigArray()
-{
+void ContextLookupRendererTest::ContextCharPtrConfigArray() {
 	ContextLookupRenderer contextLookupRenderer("");
 	Context fContext;
 	Anything tmpStore(fContext.GetTmpStore());
@@ -97,16 +90,15 @@ void ContextLookupRendererTest::ContextCharPtrConfigArray()
 
 	tmpStore[testKey] = testString;
 
-	fConfig.Append( testKey );
+	fConfig.Append(testKey);
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual("EinString", fReply.str());
 }
 
-void ContextLookupRendererTest::ContextCharPtrDef()
-{
+void ContextLookupRendererTest::ContextCharPtrDef() {
 	Context fContext;
 
 	ContextLookupRenderer contextLookupRenderer("");
@@ -116,45 +108,42 @@ void ContextLookupRendererTest::ContextCharPtrDef()
 	fConfig["Default"] = testString;
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual("EinString", fReply.str());
 }
 
-void ContextLookupRendererTest::ContextLongDef()
-{
+void ContextLookupRendererTest::ContextLongDef() {
 	Context fContext;
 
 	ContextLookupRenderer contextLookupRenderer("");
-	long 	testLong = 123456;
+	long testLong = 123456;
 
 	fConfig["ContextLookupName"] = "";
 	fConfig["Default"] = testLong;
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual("123456", fReply.str());
 }
 
-void ContextLookupRendererTest::ContextDoubleDef()
-{
+void ContextLookupRendererTest::ContextDoubleDef() {
 	Context fContext;
 
 	ContextLookupRenderer contextLookupRenderer("");
-	double 	testDouble 	= 123.456;
+	double testDouble = 123.456;
 
 	fConfig["ContextLookupName"] = "";
 	fConfig["Default"] = testDouble;
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual("123.456", fReply.str().SubString(0, 7));
 }
 
-void ContextLookupRendererTest::ContextNullDef()
-{
+void ContextLookupRendererTest::ContextNullDef() {
 	Context fContext;
 
 	ContextLookupRenderer contextLookupRenderer("");
@@ -164,13 +153,12 @@ void ContextLookupRendererTest::ContextNullDef()
 	fConfig["Default"] = NullAny;
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual("", fReply.str());
 }
 
-void ContextLookupRendererTest::NestedLookup()
-{
+void ContextLookupRendererTest::NestedLookup() {
 	ContextLookupRenderer contextLookupRenderer("");
 	Context fContext;
 	Anything tmpStore(fContext.GetTmpStore());
@@ -180,7 +168,7 @@ void ContextLookupRendererTest::NestedLookup()
 	String arrayKey = "AnArray";
 	String combinedKey(arrayKey);
 	combinedKey << "." << testKey;
-	String nullDelim( (void *)"\0", 1);
+	String nullDelim((void *)"\0", 1);
 	const char *atDelim = "@";
 	// it is a bit tricky to store 0 in an Anything programmatically
 	String expectedResult(testString1);
@@ -193,7 +181,7 @@ void ContextLookupRendererTest::NestedLookup()
 	fConfig["ContextLookupName"] = combinedKey;
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual(expectedResult, fReply.str());
 	// by default I use '.' as delimiter.
@@ -202,10 +190,10 @@ void ContextLookupRendererTest::NestedLookup()
 	String combinedKey2(arrayKey);
 	combinedKey2 << atDelim << testKey;
 	fConfig["ContextLookupName"] = combinedKey2;
-	fConfig["Delim"] = atDelim;		// use a special delimiter
+	fConfig["Delim"] = atDelim;	 // use a special delimiter
 	roConfig = fConfig;
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 	expectedResult << testString1;
 
 	assertEqual(expectedResult, fReply.str());
@@ -213,24 +201,23 @@ void ContextLookupRendererTest::NestedLookup()
 
 	// test access to non nested testString2 without delimiter
 	fConfig["ContextLookupName"] = combinedKey;
-	fConfig["Delim"] = nullDelim;		// do not use delimiters
+	fConfig["Delim"] = nullDelim;  // do not use delimiters
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 	expectedResult << testString2;
 
 	assertEqual(expectedResult, fReply.str());
 
 	// test access to non nested testString2 with nonpresent delimiter
-	fConfig["Delim"] = "/";		// this delimiter is not in combinedKey
+	fConfig["Delim"] = "/";	 // this delimiter is not in combinedKey
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 	expectedResult << testString2;
 
 	assertEqual(expectedResult, fReply.str());
-} // NestedLookup
+}  // NestedLookup
 
-void ContextLookupRendererTest::NestedLookupWithoutSlotnames()
-{
+void ContextLookupRendererTest::NestedLookupWithoutSlotnames() {
 	ContextLookupRenderer contextLookupRenderer("");
 	Context fContext;
 	Anything tmpStore(fContext.GetTmpStore());
@@ -250,7 +237,7 @@ void ContextLookupRendererTest::NestedLookupWithoutSlotnames()
 	fConfig[0L] = combinedKey;
 	ROAnything roConfig(fConfig);
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 
 	assertEqual(expectedResult, fReply.str());
 	// by default I use '.' as delimiter.
@@ -261,37 +248,36 @@ void ContextLookupRendererTest::NestedLookupWithoutSlotnames()
 	combinedKey2 << atDelim << testKey;
 	fConfig[0L] = combinedKey2;
 	fConfig[1L] = "Default";
-	fConfig[2L] = atDelim;		// use a special delimiter
+	fConfig[2L] = atDelim;	// use a special delimiter
 	roConfig = fConfig;
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 	expectedResult << testString1;
 
 	assertEqual(expectedResult, fReply.str());
 	// by default I use '.' as delimiter.
 
 	// test access to non nested testString2 without delimiter
-	String nullDelim( (void *)"\0", 1);
+	String nullDelim((void *)"\0", 1);
 	// it is a bit tricky to store 0 in an Anything programmatically
 	fConfig[0L] = combinedKey;
-	fConfig[2L] = nullDelim;		// do not use delimiters
+	fConfig[2L] = nullDelim;  // do not use delimiters
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 	expectedResult << testString2;
 
 	assertEqual(expectedResult, fReply.str());
 
 	// test access to non nested testString2 with nonpresent delimiter
-	fConfig[2L] = "/";		// this delimiter is not in combinedKey
+	fConfig[2L] = "/";	// this delimiter is not in combinedKey
 
-	contextLookupRenderer.RenderAll( fReply, fContext, roConfig);
+	contextLookupRenderer.RenderAll(fReply, fContext, roConfig);
 	expectedResult << testString2;
 
 	assertEqual(expectedResult, fReply.str());
-} // NestedLookupWithoutSlotnames
+}  // NestedLookupWithoutSlotnames
 
-Test *ContextLookupRendererTest::suite ()
-{
+Test *ContextLookupRendererTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, ContextLookupRendererTest, ContextCharPtr);

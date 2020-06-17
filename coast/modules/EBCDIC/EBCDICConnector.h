@@ -12,11 +12,10 @@
 #include "Socket.h"
 
 //---- EBCDICConnector ---------------------------------------------------
-//!opens a socket connection to a server who understands and speaks EBCDIC text
+//! opens a socket connection to a server who understands and speaks EBCDIC text
 
 //--- EBCDICConnector --------------------------------------------
-class EBCDICConnector : public Connector
-{
+class EBCDICConnector : public Connector {
 	// this class takes an active end point specification
 	// of a socket and connects to a server on the other
 	// side, creating a socket connection that's read/writeable
@@ -32,7 +31,6 @@ private:
 	EBCDICConnector();
 	EBCDICConnector(const EBCDICConnector &);
 	EBCDICConnector &operator=(const EBCDICConnector &);
-
 };
 
 #endif

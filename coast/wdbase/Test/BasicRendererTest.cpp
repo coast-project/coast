@@ -7,29 +7,26 @@
  */
 
 #include "BasicRendererTest.h"
-#include "TestSuite.h"
+
 #include "Renderer.h"
 #include "StringStream.h"
+#include "TestSuite.h"
 
-BasicRendererTest::BasicRendererTest(TString tstrName) : TestCaseType(tstrName)
-{
+BasicRendererTest::BasicRendererTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(BasicRendererTest.Ctor);
 }
 
-BasicRendererTest::~BasicRendererTest()
-{
+BasicRendererTest::~BasicRendererTest() {
 	StartTrace(BasicRendererTest.Dtor);
 }
 
-void BasicRendererTest::setUp ()
-{
+void BasicRendererTest::setUp() {
 	StartTrace(BasicRendererTest.setUp);
 	//!@FIXME depends on AppBooterTest loading libTestLib.so
 	// should init renderer module and dll loading itself.
 }
 
-void BasicRendererTest::RenderASimpleString()
-{
+void BasicRendererTest::RenderASimpleString() {
 	StartTrace(BasicRendererTest.RenderASimpleString);
 
 	OStringStream os;
@@ -39,8 +36,7 @@ void BasicRendererTest::RenderASimpleString()
 	assertEqual("output", os.str());
 }
 
-void BasicRendererTest::RenderASimpleList()
-{
+void BasicRendererTest::RenderASimpleList() {
 	StartTrace(BasicRendererTest.RenderASimpleList);
 
 	String result;
@@ -50,13 +46,13 @@ void BasicRendererTest::RenderASimpleList()
 	info.Append("is a ");
 	info.Append(5L);
 	info.Append(" element ");
-	info.Append("list!");;
+	info.Append("list!");
+	;
 	Renderer::RenderOnString(result, ctx, info);
 	assertEqual("This is a 5 element list!", result);
 }
 
-void BasicRendererTest::RenderOnStringTest()
-{
+void BasicRendererTest::RenderOnStringTest() {
 	StartTrace(BasicRendererTest.RenderOnStringTest);
 	String result;
 	Context ctx;
@@ -64,8 +60,7 @@ void BasicRendererTest::RenderOnStringTest()
 	Renderer::RenderOnString(result, ctx, info);
 	assertEqual("output", result);
 }
-void BasicRendererTest::RenderOnStringDefaultTest()
-{
+void BasicRendererTest::RenderOnStringDefaultTest() {
 	StartTrace(BasicRendererTest.RenderOnStringDefaultTest);
 	String result;
 	Context ctx;
@@ -75,10 +70,8 @@ void BasicRendererTest::RenderOnStringDefaultTest()
 	result = "";
 	Renderer::RenderOnStringWithDefault(result, ctx, Anything("something"), info);
 	assertEqual("something", result);
-
 }
-void BasicRendererTest::RenderWithConfig()
-{
+void BasicRendererTest::RenderWithConfig() {
 	StartTrace(BasicRendererTest.RenderWithConfig);
 
 	String result;
@@ -91,14 +84,13 @@ void BasicRendererTest::RenderWithConfig()
 	info.Append("This ");
 	info.Append("is ");
 	info.Append(trcfg);
-	info.Append(notfoundcfg); // expect a syslog warning
+	info.Append(notfoundcfg);  // expect a syslog warning
 	Renderer::RenderOnString(result, ctx, info);
 	assertEqual("This is output from TestRenderer configuration!", result);
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *BasicRendererTest::suite ()
-{
+Test *BasicRendererTest::suite() {
 	StartTrace(BasicRendererTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

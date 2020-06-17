@@ -19,19 +19,15 @@
 //!		/Input 		"{ /StresserName TStresserRunner }"		# The input for the stress server
 //!	}</PRE>
 //! The configuration is search in the file StresserMeta.any
-class RemoteStresser: public Stresser {
+class RemoteStresser : public Stresser {
 public:
-	RemoteStresser(const char *StresserName) :
-		Stresser(StresserName) {
-	}
+	RemoteStresser(const char *StresserName) : Stresser(StresserName) {}
 	//! does the work (connect, send input, collect result)
 	//! \return an Anything containing collected data
 	virtual Anything Run(long id);
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) RemoteStresser(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) RemoteStresser(fName); }
 };
 
 #endif

@@ -12,19 +12,18 @@
 #include "Anything.h"
 
 //---- HTMLComparer ----------------------------------------------------------
-//!compares two HTML any trees
+//! compares two HTML any trees
 //! to be defined
 //!
 class HTMLComparer {
 	HTMLComparer();
 	HTMLComparer(const HTMLComparer &);
 	HTMLComparer &operator=(const HTMLComparer &);
+
 public:
-	HTMLComparer(Anything master, Anything slave) :
-		fMaster(master), fSlave(slave), fPathStack() {
-	}
+	HTMLComparer(Anything master, Anything slave) : fMaster(master), fSlave(slave), fPathStack() {}
 	//--- public api
-	//!compares the two HTML trees
+	//! compares the two HTML trees
 	//! \param the comparison report is written on this string
 	//! \return true if they are considered equal, false otherwise
 	//! \pre explanation of precondition for the method call

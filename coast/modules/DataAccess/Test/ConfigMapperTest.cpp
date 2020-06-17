@@ -7,11 +7,12 @@
  */
 
 #include "ConfigMapperTest.h"
-#include "Mapper.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
+
 #include "AnyIterators.h"
 #include "Context.h"
+#include "FoundationTestTypes.h"
+#include "Mapper.h"
+#include "TestSuite.h"
 
 void ConfigMapperTest::ConfigTest() {
 	StartTrace(ConfigMapperTest.ConfigTest);

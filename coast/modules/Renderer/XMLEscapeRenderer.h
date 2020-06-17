@@ -12,12 +12,10 @@
 #include "Renderer.h"
 
 //! Escapes &lt &gt &amp &quot &apos
-class XMLEscapeRenderer: public Renderer {
+class XMLEscapeRenderer : public Renderer {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	XMLEscapeRenderer(const char *name) :
-			Renderer(name) {
-	}
+	XMLEscapeRenderer(const char *name) : Renderer(name) {}
 
 	//! Escapes html entities within rendered content and puts it onto \em reply
 	/*! @copydetails Renderer::RenderAll(std::ostream &, Context &, const ROAnything &) */
@@ -25,12 +23,10 @@ public:
 };
 
 //! Unescapes &lt &gt &amp &quot &apos
-class XMLUnescapeRenderer: public Renderer {
+class XMLUnescapeRenderer : public Renderer {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	XMLUnescapeRenderer(const char *name) :
-			Renderer(name) {
-	}
+	XMLUnescapeRenderer(const char *name) : Renderer(name) {}
 
 	//! Unescapes html entities within rendered content and puts it onto \em reply
 	/*! @copydetails Renderer::RenderAll(std::ostream &, Context &, const ROAnything &) */

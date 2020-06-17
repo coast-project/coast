@@ -12,6 +12,7 @@
 #include "Action.h"
 
 //---- CopyAction ----------------------------------------------------------
+// clang-format off
 //! <B>Abstract base action for copying data from a source into one destination slot.</B><BR>Configuration:
 //! <PRE>
 //! {
@@ -35,9 +36,10 @@
 //! the TempStore.<BR>
 //! The copying  works as follows:<BR>
 //! With each the slotname of each entry a lookup in the source is performed.
-//! The entry's value defines the slotname under which the lookuped result is put into the Destination's slot defined by Destination.
-class CopyAction : public Action
-{
+//! The entry's value defines the slotname under which the lookuped result is put into the Destination's slot defined by
+//! Destination.
+// clang-format on
+class CopyAction : public Action {
 public:
 	//--- constructors
 	CopyAction(const char *name);
@@ -64,6 +66,7 @@ protected:
 };
 
 //---- CopyContextAction ----------------------------------------------------------
+// clang-format off
 //! <B>Copies data from context into slots in a store.</B><BR>Configuration:
 //! <PRE>
 //! {
@@ -94,12 +97,13 @@ protected:
 //!		}
 //!	}
 //! </PRE>
-class CopyContextAction : public CopyAction
-{
+// clang-format on
+class CopyContextAction : public CopyAction {
 public:
 	//--- constructors
 	CopyContextAction(const char *name);
 	virtual ~CopyContextAction();
+
 protected:
 	//! copy the data from the context into rolestore's destination slot
 	//! \param dest defines the destination slot
@@ -110,6 +114,7 @@ protected:
 };
 
 //---- CopyQueryAction ----------------------------------------------------------
+// clang-format off
 //! <B>Copies data from the Query into a store.</B><BR>Configuration:
 //! <PRE>
 //! {
@@ -140,8 +145,8 @@ protected:
 //!		}
 //!	}
 //! </PRE>
-class CopyQueryAction : public CopyContextAction
-{
+// clang-format on
+class CopyQueryAction : public CopyContextAction {
 public:
 	//--- constructors
 	CopyQueryAction(const char *name);
@@ -157,6 +162,7 @@ protected:
 };
 
 //---- CopyQueryIfNotEmptyAction ----------------------------------------------------------
+// clang-format off
 //! <B>Copies data from the Query into a store slot if they are not emtpy.</B><BR>Configuration:
 //! <PRE>
 //! {
@@ -188,8 +194,8 @@ protected:
 //!		}
 //! }
 //! </PRE>
-class CopyQueryIfNotEmptyAction : public CopyQueryAction
-{
+// clang-format on
+class CopyQueryIfNotEmptyAction : public CopyQueryAction {
 public:
 	//--- constructors
 	CopyQueryIfNotEmptyAction(const char *name);

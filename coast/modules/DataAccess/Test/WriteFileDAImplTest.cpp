@@ -7,33 +7,29 @@
  */
 
 #include "WriteFileDAImplTest.h"
-#include "TestSuite.h"
-#include "Context.h"
+
 #include "AnyIterators.h"
+#include "Context.h"
 #include "StringStream.h"
+#include "TestSuite.h"
 #if defined(WIN32)
 #include <io.h>
 #endif
 
 //---- WriteFileDAImplTest ----------------------------------------------------------------
-WriteFileDAImplTest::WriteFileDAImplTest(TString tname)
-	: ConfiguredActionTest(tname)
-{
+WriteFileDAImplTest::WriteFileDAImplTest(TString tname) : ConfiguredActionTest(tname) {
 	StartTrace(WriteFileDAImplTest.WriteFileDAImplTest);
 }
 
-TString WriteFileDAImplTest::getConfigFileName()
-{
+TString WriteFileDAImplTest::getConfigFileName() {
 	return "WriteFileDAImplTestConfig";
 }
 
-WriteFileDAImplTest::~WriteFileDAImplTest()
-{
+WriteFileDAImplTest::~WriteFileDAImplTest() {
 	StartTrace(WriteFileDAImplTest.Dtor);
 }
 
-bool WriteFileDAImplTest::CompareResult(TString strResult)
-{
+bool WriteFileDAImplTest::CompareResult(TString strResult) {
 	StartTrace(WriteFileDAImplTest.CompareResult);
 	bool bRet = false;
 	std::iostream *fp = coast::system::OpenStream("WriteTestFile", "txt");
@@ -45,8 +41,7 @@ bool WriteFileDAImplTest::CompareResult(TString strResult)
 	return bRet;
 }
 
-void WriteFileDAImplTest::WriteFileTest()
-{
+void WriteFileDAImplTest::WriteFileTest() {
 	StartTrace(WriteFileDAImplTest.WriteFileTest);
 
 	String testCaseName(name());
@@ -54,15 +49,14 @@ void WriteFileDAImplTest::WriteFileTest()
 	Context ctx;
 	ROAnything roaConfig;
 	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(roaConfig) ) {
+	while (aEntryIterator.Next(roaConfig)) {
 		DoTestWithContext(roaConfig, testCaseName, ctx);
 		t_assert(CompareResult(roaConfig["Result"].AsCharPtr()));
 	}
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *WriteFileDAImplTest::suite ()
-{
+Test *WriteFileDAImplTest::suite() {
 	StartTrace(WriteFileDAImplTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, WriteFileDAImplTest, WriteFileTest);

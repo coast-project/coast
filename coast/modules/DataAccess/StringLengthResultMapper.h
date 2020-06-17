@@ -23,12 +23,12 @@
  * @par Example1:
 @code
 /StringLengthResultMapper {
-	/DestinationSlot	Body
-	/Content {
-	    /Content-Length { # on the fly slot rename
-			/ResultMapper *
-		}
+  /DestinationSlot	Body
+  /Content {
+	  /Content-Length { # on the fly slot rename
+	  /ResultMapper *
 	}
+  }
 }
 @endcode
  * value to put with key \b Content
@@ -38,20 +38,17 @@
  * resulting output in TmpStore would be:
 @code
 /Body {
-	/Content-Length 3
+  /Content-Length 3
 }
 @endcode
 */
-class StringLengthResultMapper: public ResultMapper {
+class StringLengthResultMapper : public ResultMapper {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	StringLengthResultMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	StringLengthResultMapper(const char *name) : ResultMapper(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) StringLengthResultMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) StringLengthResultMapper(fName); }
+
 protected:
 	//! calculate string length of given value and store it away
 	/*! @copydoc ResultMapper::DoPutAny() */

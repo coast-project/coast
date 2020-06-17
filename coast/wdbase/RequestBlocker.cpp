@@ -7,36 +7,31 @@
  */
 
 #include "RequestBlocker.h"
+
 #include "SystemLog.h"
 
 RequestBlocker *RequestBlocker::fgRequestBlocker = 0;
 bool RequestBlocker::fBlocked = false;
 
-RequestBlocker *RequestBlocker::RB()
-{
+RequestBlocker *RequestBlocker::RB() {
 	fgRequestBlocker = SafeCast(WDModule::FindWDModule("RequestBlocker"), RequestBlocker);
 	return fgRequestBlocker;
 }
 
 RegisterModule(RequestBlocker);
-RequestBlocker::RequestBlocker(const char *name)
-	: WDModule(name)
-	, fRequestBlockerRWLock("RequestBlockerRWLock")
-{
+RequestBlocker::RequestBlocker(const char *name) : WDModule(name), fRequestBlockerRWLock("RequestBlockerRWLock") {
 	StartTrace1(RequestBlocker.RequestBlocker, "Name:<" << NotNull(name) << ">");
 	SystemLog::Info("RequestBlocker: <unblocked>");
 }
 
-RequestBlocker::~RequestBlocker()
-{
+RequestBlocker::~RequestBlocker() {
 	StartTrace(RequestBlocker.~RequestBlocker);
 	Finis();
 }
 
-bool RequestBlocker::Block()
-{
+bool RequestBlocker::Block() {
 	StartTrace(RequestBlocker.Block);
-	if ( IsBlocked() == true) {
+	if (IsBlocked() == true) {
 		return true;
 	}
 	{
@@ -47,10 +42,9 @@ bool RequestBlocker::Block()
 	return true;
 }
 
-bool RequestBlocker::UnBlock()
-{
+bool RequestBlocker::UnBlock() {
 	StartTrace(RequestBlocker.UnBlock);
-	if ( IsBlocked() == false) {
+	if (IsBlocked() == false) {
 		return true;
 	}
 	{
@@ -61,8 +55,7 @@ bool RequestBlocker::UnBlock()
 	return true;
 }
 
-bool RequestBlocker::IsBlocked()
-{
+bool RequestBlocker::IsBlocked() {
 	StartTrace(RequestBlocker.IsBlocked);
 	bool theState = false;
 	{
@@ -72,37 +65,31 @@ bool RequestBlocker::IsBlocked()
 	return theState;
 }
 
-bool RequestBlocker::Init(const ROAnything config)
-{
+bool RequestBlocker::Init(const ROAnything config) {
 	StartTrace(RequestBlocker.Init);
 	return ResetInit(config);
 }
 
-bool RequestBlocker::Finis()
-{
+bool RequestBlocker::Finis() {
 	StartTrace(RequestBlocker.Finis);
 	// might set state to blocked here?
 	return true;
 }
 
-bool RequestBlocker::ResetFinis(const ROAnything )
-{
+bool RequestBlocker::ResetFinis(const ROAnything) {
 	StartTrace(RequestBlocker.ResetFinis);
 	return true;
 }
 
-bool RequestBlocker::ResetInit(const ROAnything config)
-{
+bool RequestBlocker::ResetInit(const ROAnything config) {
 	StartTrace(RequestBlocker.ResetInit);
 	return true;
 }
 
-void RequestBlocker::EnterReInit()
-{
+void RequestBlocker::EnterReInit() {
 	StartTrace(RequestBlocker.EnterReInit);
 }
 
-void RequestBlocker::LeaveReInit()
-{
+void RequestBlocker::LeaveReInit() {
 	StartTrace(RequestBlocker.LeaveReInit);
 }

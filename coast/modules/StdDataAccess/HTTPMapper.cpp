@@ -6,20 +6,22 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "HTTPMapper.h"
-#include "Timers.h"
-#include "CacheHandler.h"
+
 #include "AnyIterators.h"
+#include "CacheHandler.h"
 #include "HTTPConstants.h"
-#include <ostream>
+#include "Timers.h"
+
 #include <istream>
+#include <ostream>
 
 RegisterParameterMapper(HTTPHeaderParameterMapper);
 
 namespace {
 	namespace constants {
-		const char * const groupName = "HeaderMapperCache";
-		const char * const suppressName = "Suppress";
-	}
+		const char *const groupName = "HeaderMapperCache";
+		const char *const suppressName = "Suppress";
+	}  // namespace constants
 
 	void SuppressListToUpper(ROAnything suppressList, Anything &suppressListToUpper) {
 		const long size = suppressList.GetSize();
@@ -31,7 +33,7 @@ namespace {
 			}
 		}
 	}
-}
+}  // namespace
 
 bool HTTPHeaderParameterMapper::DoInitialize() {
 	StartTrace1(HTTPHeaderParameterMapper.DoInitialize, "cat <" << fCategory << "> name <" << fName << ">");
@@ -141,7 +143,7 @@ RegisterParameterMapperAlias(HTTPBodyMapper, HTTPBodyParameterMapper);
 bool HTTPBodyParameterMapper::DoFinalGetStream(const char *key, std::ostream &os, Context &ctx) {
 	StartTrace1(HTTPBodyParameterMapper.DoFinalGetStream, NotNull(key));
 	bool mapSuccess = true;
-	ROAnything params(ctx.Lookup(key)); //!@FIXME ??: use Get(key,any,ctx) instead?
+	ROAnything params(ctx.Lookup(key));	 //!@FIXME ??: use Get(key,any,ctx) instead?
 	if (!params.IsNull()) {
 		long bPSz = params.GetSize();
 		String value;

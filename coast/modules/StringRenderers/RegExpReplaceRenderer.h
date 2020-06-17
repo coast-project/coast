@@ -18,17 +18,17 @@
  * @section rerr1 Renderer configuration
 \code
 {
-	/Text
-	/Expressions {
-		{	# optional if only one expression used
-			/Pattern			# either
-			/SimplePattern		# or
-			/MatchFlags
-			/Replacement
-			/ReplaceAll
-		}
-		...
+  /Text
+  /Expressions {
+	{	# optional if only one expression used
+	  /Pattern			# either
+	  /SimplePattern		# or
+	  /MatchFlags
+	  /Replacement
+	  /ReplaceAll
 	}
+	...
+  }
 }
 \endcode
  * @par \c Text
@@ -45,7 +45,8 @@
  *
  * @par \c SimplePattern
  * Mandatory, if \c Pattern not specified\n
- * Simple Regular expression pattern used to search within contents of \c Text. The pattern will be filtered through RE::SimplePatternToFullRegularExpression()
+ * Simple Regular expression pattern used to search within contents of \c Text. The pattern will be filtered through
+RE::SimplePatternToFullRegularExpression()
  * to create a valid regular expression string. Simple String or Renderer specification supported.
  *
  * @par \c MatchFlags
@@ -53,21 +54,23 @@
  *
  * @par \c Replacement
  * Mandatory\n
- * Simple String or Renderer specification resulting in a string to be used as replacement for the matching regular expression.\n
+ * Simple String or Renderer specification resulting in a string to be used as replacement for the matching regular
+expression.\n
  * \note Group specific replacement strings like \\1 are not supported.
  *
  * @par \c ReplaceAll
  * Optional, default 1 (true)\n
- * Default is to replace all regular expression matches within \c Text. Set to 0 if you want to only replace the first occurrence.
+ * Default is to replace all regular expression matches within \c Text. Set to 0 if you want to only replace the first
+occurrence.
  *
  * @par Example1:
 \code
 { /RegExpReplaceRenderer {
-	/Text	"Try to match anything within this string"
-	/Expressions {
-		/Pattern		"any"
-		/Replacement	"some"
-	}
+  /Text	"Try to match anything within this string"
+  /Expressions {
+	/Pattern		"any"
+	/Replacement	"some"
+  }
 } }
 \endcode
 
@@ -76,33 +79,32 @@ Renders : "Try to match something within this string"
 \par Example2:
 \code
 /TmpStore {
-	/blub	anything
-	/replacewith some
+  /blub	anything
+  /replacewith some
 }
 { /RegExpReplaceRenderer {
-	/Text {
-		"Try to match "
-		/Lookup blub
-		" within this string"
+  /Text {
+	"Try to match "
+	/Lookup blub
+	" within this string"
+  }
+  /Expressions {
+	{
+	  /Pattern		"any"
+	  /Replacement { /Lookup replacewith }
 	}
-	/Expressions {
-		{
-			/Pattern		"any"
-			/Replacement { /Lookup replacewith }
-		}
-	}
+  }
 } }
 \endcode
 
 Renders : "Try to match something within this string"
 */
-class RegExpReplaceRenderer: public Renderer {
+class RegExpReplaceRenderer : public Renderer {
 	RegExpReplaceRenderer();
+
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	RegExpReplaceRenderer(const char *name) :
-		Renderer(name) {
-	}
+	RegExpReplaceRenderer(const char *name) : Renderer(name) {}
 
 protected:
 	//! Renders the corresponding result based on the regular expression match and replacement

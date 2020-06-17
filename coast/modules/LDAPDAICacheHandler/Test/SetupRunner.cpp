@@ -9,12 +9,11 @@
 #include "TestRunner.h"
 
 //--- test cases ---------------------------------------------------------------
-#include "LDAPDAICachePolicyTest.h"
 #include "ConfiguredActionTest.h"
+#include "LDAPDAICachePolicyTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	// add a whole suite with the ADD_SUITE(runner,"Suites's Classname") macro
 	ADD_SUITE(runner, LDAPDAICachePolicyTest);
 	ADD_SUITE(runner, ConfiguredActionTest);
-} // setupRunner
+}  // setupRunner

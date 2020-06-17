@@ -10,16 +10,15 @@
 #include "TestRunner.h"
 
 //--- test cases ---------------------------------------------------------------
-#include "MD5Test.h"
-#include "BlowfishTest.h"
 #include "Base64Test.h"
+#include "BlowfishTest.h"
+#include "MD5Test.h"
+#include "NewRendererTest.h"
 #include "ScrambleStateTest.h"
 #include "TableCompressorTest.h"
-#include "NewRendererTest.h"
 #include "UniqueIdGenTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	// execute tests in test dir with defined structure
 	ADD_SUITE(runner, Base64Test);
 	ADD_SUITE(runner, MD5Test);
@@ -28,4 +27,4 @@ void setupRunner(TestRunner &runner)
 	ADD_SUITE(runner, TableCompressorTest);
 	ADD_SUITE(runner, NewRendererTest);
 	ADD_SUITE(runner, UniqueIdGenTest);
-} // setupRunner
+}  // setupRunner

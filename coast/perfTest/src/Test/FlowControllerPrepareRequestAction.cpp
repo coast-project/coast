@@ -5,8 +5,9 @@
  * This library/application is free software; you can redistribute and/or modify it under the terms of
  * the license that is included with this library/application in the file license.txt.
  */
-#include "FlowController.h"
 #include "FlowControllerPrepareRequestAction.h"
+
+#include "FlowController.h"
 RegisterAction(FlowControllerPrepareRequestAction);
 
 bool FlowControllerPrepareRequestAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
@@ -15,7 +16,7 @@ bool FlowControllerPrepareRequestAction::DoExecAction(String &transitionToken, C
 	StartTrace(FlowControllerPrepareRequestAction.DoExecAction);
 
 	String controllerName = config[0L].AsString("Invalid");
-	FlowController *fc = FlowController::FindFlowController(controllerName); // build the FC object...
+	FlowController *fc = FlowController::FindFlowController(controllerName);  // build the FC object...
 
 	if (!fc) {
 		return false;

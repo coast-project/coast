@@ -14,20 +14,18 @@ class Test;
 //---- TestElt ------------------------------------------------------
 class TestElt {
 	TestElt();
+
 protected:
 	Test *fValue;
 	TestElt *fNext;
-	TestElt(Test *aValue) :
-			fValue(aValue), fNext(0) {
-	}
+	TestElt(Test *aValue) : fValue(aValue), fNext(0) {}
 	~TestElt();
 	friend class TestList;
 };
 
 //---- TestList ------------------------------------------------------
 //! simple list class for tests to avoid the use of STL
-class TestList
-{
+class TestList {
 protected:
 	TestElt *fList;
 	TestElt *fIn;
@@ -35,15 +33,13 @@ protected:
 	long fSize;
 
 public:
-	TestList(): fList(0), fIn(0), fIt(0), fSize(0) {};
+	TestList() : fList(0), fIn(0), fIt(0), fSize(0){};
 	~TestList();
 
 	Test *first();
 	Test *next();
-	void push_back( Test *aValue );
-	long size() {
-		return fSize;
-	};
+	void push_back(Test *aValue);
+	long size() { return fSize; };
 };
 
 #endif

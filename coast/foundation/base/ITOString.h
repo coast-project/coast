@@ -11,49 +11,49 @@
 
 #include "ITOStorage.h"
 #include "StringIterator.h"
+
 #include <stdexcept>
 
 //! simple mt-safe string handling class
 /*! class that eases use of strings and its memory management, a notorious source of errors in c and c++ */
-class String
-{
+class String {
 	//! factor out mem alloc for ctors and Set()
 	//! allocation bottleneck, writes to Syslog if memory exhausted
 	void alloc(long capacity);
 
 	//! calculate the real capacity to ask for, optimizated to save calls to alloc on expanding the string
 	/*! strategy is: start with a minimum size, double in the middle
-		and  round to the next 1k for large strings (\> 4k)
-		new allocators provide additional support exploited by alloc to
-		find an optimal size for allocation */
+	  and  round to the next 1k for large strings (\> 4k)
+	  new allocators provide additional support exploited by alloc to
+	  find an optimal size for allocation */
 	long allocCapacity(long newLength);
 
 public:
 	//! default ctor, makes an empty string
 	/*! \param a Allocator to allocate memory from */
-	String( Allocator *a = coast::storage::Current());
+	String(Allocator *a = coast::storage::Current());
 
 	//! ctor, reserves buffer spaces with capacity bytes
 	/*! \param capacity number of bytes reserved
-		\param a Allocator to allocate memory from */
+	  \param a Allocator to allocate memory from */
 	String(long capacity, Allocator *a = coast::storage::Current());
 
 	//! ctor, creates string with a copy of s
 	/*! \param s initial value of String object, may be 0
-		\param length take at most length characters from s, if negative use strlen(s)
-		\param a Allocator to allocate memory from */
-	String(const char *s, long length = -1,  Allocator *a = coast::storage::Current());
+	  \param length take at most length characters from s, if negative use strlen(s)
+	  \param a Allocator to allocate memory from */
+	String(const char *s, long length = -1, Allocator *a = coast::storage::Current());
 
 	//! ctor, creates string with a copy of binary buffer s
 	/*! \param s initial value of String object
-		\param length take exactly length bytes from s
-		\param a Allocator to allocate memory from
-		\pre length >= 0 AND s != 0, false implies empty string */
-	String(void const *s, long length,  Allocator *a = coast::storage::Current());
+	  \param length take exactly length bytes from s
+	  \param a Allocator to allocate memory from
+	  \pre length >= 0 AND s != 0, false implies empty string */
+	String(void const *s, long length, Allocator *a = coast::storage::Current());
 
 	//! copy ctor
 	/*! \param s initial value of String object
-		\param a Allocator to allocate memory from */
+	  \param a Allocator to allocate memory from */
 	String(const String &s, Allocator *a = coast::storage::Current());
 
 	//! dtor, deallocates memory used by string content
@@ -61,11 +61,11 @@ public:
 
 	//! assignment with character pointers, uses strlen(s)
 	//! \param s new value of string, if 0 makes this empty
-	String &operator= (const char *s);
+	String &operator=(const char *s);
 
 	//! assignment with new String value
 	//! \param s new value of this, no buffer sharing
-	String &operator= (const String &s);
+	String &operator=(const String &s);
 
 	//! append a character (single byte)
 	//! return value for convenient multi-appends
@@ -120,8 +120,8 @@ public:
 
 	//! append len single bytes in hexadecimal encoding, results in two characters added
 	/*! \param cc  - points a string of bytes
-		\param len count of bytes to be hex encoded
-		\param delimiter delimiter used between two encoded byes (default ('\\0') -> no delimiter) */
+	  \param len count of bytes to be hex encoded
+	  \param delimiter delimiter used between two encoded byes (default ('\\0') -> no delimiter) */
 	String &AppendAsHex(const unsigned char *cc, long len, char delimiter = '\0');
 
 	//! decode a hexadecimal number with two digits pointed to by cc, append the resulting byte
@@ -147,72 +147,56 @@ public:
 	double AsDouble(double dflt) const;
 
 	// streaming like operators
-	String &operator << (char c)				{
-		return Append(c);
-	}
-	String &operator << (int i)					{
-		return Append(static_cast<long>(i));
-	}
-	String &operator << (long l)				{
-		return Append(l);
-	}
-	String &operator << (bool b)				{
-		return Append(static_cast<long>(b));
-	}
-	String &operator << (double d)				{
-		return Append(d);
-	}
-	String &operator << (l_long ll)				{
-		return Append(ll);
-	}
+	String &operator<<(char c) { return Append(c); }
+	String &operator<<(int i) { return Append(static_cast<long>(i)); }
+	String &operator<<(long l) { return Append(l); }
+	String &operator<<(bool b) { return Append(static_cast<long>(b)); }
+	String &operator<<(double d) { return Append(d); }
+	String &operator<<(l_long ll) { return Append(ll); }
 
-	String &operator << (const char *s)			{
-		return Append(s);
-	}
-	String &operator << (const String &s)		{
-		return Append(s);
-	}
+	String &operator<<(const char *s) { return Append(s); }
+	String &operator<<(const String &s) { return Append(s); }
 
 	//! canonical Add operation with optimal buffer handling, see OOPSLA 98
-	String    Add(const String &) const ;
+	String Add(const String &) const;
 
 	//! deprecated: convenient operator for easier use when GetLength is not needed one can use const char * params
 	operator const char *() const;
 	//! future substitution for static_cast<const char *>(*this)
-    const char * cstr() const;
+	const char *cstr() const;
 	//! compare this with char *, return true if equal
 	bool IsEqual(const char *other) const;
 	//! compare this with String, return true if equal
 	bool IsEqual(const String &other) const;
 	//! compare this with String
 	//! \return integer like strcmp for lexicographical order
-	int  Compare(const String &other) const;
+	int Compare(const String &other) const;
 	//! compare this with char *
 	//! \return integer like strcmp for lexicographical order
-	int  Compare(const char *other) const;
+	int Compare(const char *other) const;
 	//! compare this with at most length bytes from char *
 	//! \param other partner for comparison
 	//! \param length number of chars to compare
 	//! \param start optional offset from the beginning of other
 	//! \return integer like strcmp for lexicographical order
-	int  CompareN(const char *other, long length, long start = 0) const;
+	int CompareN(const char *other, long length, long start = 0) const;
 	//! reveal the Length of the String
 	long Length() const;
 	//! reveal the Capacity of the underlying buffer
 	long Capacity() const;
 	//! cut (remove) newStart characters from the begining of the String
-	String& TrimFront(const long newStart) ;
+	String &TrimFront(const long newStart);
 	//! cut (remove) characters from the end of the String, make it shorter
 	//! no-op if newlen >= Length()
-	String& Trim(const long newlen);
-	String& TrimWhitespace();
+	String &Trim(const long newlen);
+	String &TrimWhitespace();
 	//! ensure internal buffer contains at least minreserve characters
 	//! \post Capacity() >= minreserve
-	void Reserve(long minreserve) ;
+	void Reserve(long minreserve);
 	//! take n characters from buf and place them into this at position pos
 	//! I am not sure if that operation is still useful, it has been used by old IFAStringStream
 	//! \pre buf AND n > 0 AND pos >= 0
-	void ReplaceAt(long pos, const char *buf, long n) ;
+	void ReplaceAt(long pos, const char *buf, long n);
 	//! place a character at a defined position within String
 	//! adjusts string size if required
 	//! an char & operator[](long pos) would give us problems.
@@ -226,7 +210,7 @@ public:
 	//! works like strstr
 	String SubString(const char *pattern) const;
 	//! tests if char * pattern is in this
-	long   Contains(const char *pattern) const;
+	long Contains(const char *pattern) const;
 	//! computes the length of the maximum initial segment of the string that consists
 	//! entirely of characters that are not in the charSet
 	//! -1 indicates "failure" (no char matched), values >= 0 indicate the position of found char in String.
@@ -245,10 +229,10 @@ public:
 	bool Replace(const char *pattern, const char *replacement);
 	//! find index of first occurance of character c after start
 	//! \return index of c or -1 if not found
-	long   StrChr(char c, long start = 0) const;
+	long StrChr(char c, long start = 0) const;
 	//! find index of last occurance of character c
 	//! \return return last index of c or -1 if not contained
-	long   StrRChr(char c, long start = -1) const;
+	long StrRChr(char c, long start = -1) const;
 	//! Prepend String with char c, String will be expanded to newLength
 	//! Method is a no-op if String is already equal/larger then newLength
 	bool PrependWith(long newLength, const char fill);
@@ -274,47 +258,47 @@ public:
 
 	//! internal output routine with masking and embedding in quote characters
 	/*! to be used by AnyStringImpl
-		example:
-		\code
-		String("Hello World\n").IntPrintOn(cerr)
-		\endcode
-		delivers
-		\code
-		"Hello World\x0A"
-		\endcode
-		on stdout */
+	  example:
+	  \code
+	  String("Hello World\n").IntPrintOn(cerr)
+	  \endcode
+	  delivers
+	  \code
+	  "Hello World\x0A"
+	  \endcode
+	  on stdout */
 	std::ostream &IntPrintOn(std::ostream &os, const char quote = '\"') const;
 
 	/*! output routine to dump the string content as hexadecimal numbers in the form: 30 31 32 33  0123
-		\param dumpwidth number of buffered characters to trace per line into output string
-		\param pcENDL line terminating character(s)
-		\return hexdump of stringbuffer as new string */
+	  \param dumpwidth number of buffered characters to trace per line into output string
+	  \param pcENDL line terminating character(s)
+	  \return hexdump of stringbuffer as new string */
 	String DumpAsHex(long dumpwidth = 16L, const char *pcENDL = "\n") const;
 
 	/*! output routine to dump the string content as hexadecimal numbers to the given stream
-		\param os the stream to print the hexdump onto
-		\param dumpwidth number of buffered characters to trace into output string
-		\return given stream reference */
+	  \param os the stream to print the hexdump onto
+	  \param dumpwidth number of buffered characters to trace into output string
+	  \return given stream reference */
 	std::ostream &DumpAsHex(std::ostream &os, long dumpwidth = 16L) const;
 
 	//! internal input routine with masking and embedding in quote characters
 	/*! symmetric function to IntPrintOn
-		if quote is '\\0' reads up to the next white space character
-		otherwise it assumes that quote is the first char on
-		the stream. The previous content of the string object is deleted
-		in any case
-		\return the number of newline characters read for adjusting line count in parsing */
+	  if quote is '\\0' reads up to the next white space character
+	  otherwise it assumes that quote is the first char on
+	  the stream. The previous content of the string object is deleted
+	  in any case
+	  \return the number of newline characters read for adjusting line count in parsing */
 	long IntReadFrom(std::istream &os, const char quote = '\"');
 
 	//! canonical input operator for strings
 	/*! reads up to the next whitespace character
-		use getline() function for reading lines */
+	  use getline() function for reading lines */
 	friend std::istream &operator>>(std::istream &is, String &s);
 
 	//! manually set the allocator (should not usually be used...)
-	bool SetAllocator(Allocator *a) ;
+	bool SetAllocator(Allocator *a);
 
-//------ support STL compliant container behavior
+	//------ support STL compliant container behavior
 	typedef String_iterator iterator;
 	typedef String_const_iterator const_iterator;
 	typedef std::reverse_iterator<String_iterator> reverse_iterator;
@@ -327,23 +311,19 @@ public:
 	static size_type const npos = -1;
 	iterator begin();
 	iterator end();
-	const_iterator begin()const;
+	const_iterator begin() const;
 	const_iterator end() const;
 	reverse_iterator rbegin();
 	reverse_iterator rend();
 	const_reverse_iterator rbegin() const;
 	const_reverse_iterator rend() const;
 	void clear();
-	bool empty() const {
-		return 0 == size();
-	}
-	String& erase(size_type pos = 0, size_type n = npos);
+	bool empty() const { return 0 == size(); }
+	String &erase(size_type pos = 0, size_type n = npos);
 	iterator erase(iterator pos);
 	iterator erase(iterator from, iterator to);
 	size_type max_size() const;
-	size_type size() const {
-		return Length();
-	}
+	size_type size() const { return Length(); }
 	const_reference at(size_type n) const {
 		if (n >= 0 && n < Length()) {
 			return GetContent()[n];
@@ -356,8 +336,8 @@ public:
 		}
 		throw std::out_of_range("array index out of range");
 	}
-       //! return character at position n, if n is out of range return 0
-	template< typename index_type >
+	//! return character at position n, if n is out of range return 0
+	template <typename index_type>
 	const_reference operator[](index_type n) const {
 		if (n >= 0 && n < Length()) {
 			return GetContent()[n];
@@ -366,45 +346,29 @@ public:
 		static char const c0 = 0;
 		return c0;
 	}
-	template< typename index_type >
+	template <typename index_type>
 	reference operator[](index_type x) {
 		static char const c0 = 0;
-		size_type n = std::max(static_cast<size_type> (x), 0L); //!< adjust index bounds
+		size_type n = std::max(static_cast<size_type>(x), 0L);	//!< adjust index bounds
 		//!@note ugly with empty string (forced allocation of space for fStringImpl), but at least safe to return a reference
 		if (not Capacity()) {
 			alloc(n);
 		} else if (n > Length()) {
-			Set(n, &c0, 1); //!< adjust string as needed
+			Set(n, &c0, 1);	 //!< adjust string as needed
 		}
 		return GetContent()[n];
 	}
-	reference back() {
-		return at(size() - 1);
-	}
-	const_reference back() const {
-		return at(size() - 1);
-	}
-	reference front() {
-		return at(0);
-	}
-	const_reference front() const {
-		return at(0);
-	}
-	void pop_back() {
-		erase(end() - 1);
-	}
-	void pop_front() {
-		erase(begin());
-	}
-	void push_back(const value_type &a) {
-		Append(a);
-	}
-	void push_front(const value_type &a) {
-		insert(begin(), a);
-	}
-	String& assign(String const &str, size_type pos, size_type n) {
+	reference back() { return at(size() - 1); }
+	const_reference back() const { return at(size() - 1); }
+	reference front() { return at(0); }
+	const_reference front() const { return at(0); }
+	void pop_back() { erase(end() - 1); }
+	void pop_front() { erase(begin()); }
+	void push_back(const value_type &a) { Append(a); }
+	void push_front(const value_type &a) { insert(begin(), a); }
+	String &assign(String const &str, size_type pos, size_type n) {
 		clear();
-		return operator =(str.SubString(pos, n));
+		return operator=(str.SubString(pos, n));
 	}
 	template <typename InputIterator>
 	void assign(InputIterator first, InputIterator last) {
@@ -429,7 +393,7 @@ public:
 		size_type pos = it.position;
 		size_type const remain = size() - pos;
 		//! move contents n character to the right
-		Set(pos+n, GetContent() + pos, remain);
+		Set(pos + n, GetContent() + pos, remain);
 		for (; n > 0; ++pos, --n) {
 			GetContent()[pos] = v;
 		}
@@ -453,12 +417,12 @@ public:
 		size_type pos = it.position;
 		size_type const remain = size() - pos;
 		//! move contents offset character to the right
-		Set(pos+dist, GetContent() + pos, remain);
+		Set(pos + dist, GetContent() + pos, remain);
 		for (; first != last; ++pos, ++first) {
 			GetContent()[pos] = *first;
 		}
 	}
-	String substr(size_type pos=0, size_type n=npos) const {
+	String substr(size_type pos = 0, size_type n = npos) const {
 		if (pos > size()) {
 			throw std::out_of_range("array index out of range");
 		}
@@ -466,20 +430,20 @@ public:
 	}
 	template <typename InputIterator>
 	String(InputIterator first, InputIterator last, Allocator *a = coast::storage::Current())
-		: fStringImpl(0)
-		, fAllocator((a) ? a : coast::storage::Current()) {
+		: fStringImpl(0), fAllocator((a) ? a : coast::storage::Current()) {
 		for (; first != last; ++first) {
 			Append(*first);
 		}
 	}
 
 protected:
-
-	enum Pilfer { STEAL }; // for syntactical difference of CTOR
-//!  buffer stealing ctor to implement canonical operators like +
-//!  see OOPSLA 98, Anthony J. H. Simmons: "Borrow, Copy or Steal? Loans and
-//!     Larceny in the Orthodox Canonical From".
-	String (String &, Pilfer);
+	enum Pilfer {
+		STEAL
+	};	// for syntactical difference of CTOR
+		//!  buffer stealing ctor to implement canonical operators like +
+		//!  see OOPSLA 98, Anthony J. H. Simmons: "Borrow, Copy or Steal? Loans and
+		//!     Larceny in the Orthodox Canonical From".
+	String(String &, Pilfer);
 
 	//! internal bottleneck routine for string allocation and content adjustment
 	//! replace and reserve l characters of string s at position start
@@ -498,51 +462,35 @@ protected:
 		//! the length of the String as perceived by the user of this class
 		long fLength;
 		//! the allocated characters follow just after this so the start of the characters is (char *)(fStringImpl+1);
-		char *Content() {
-			return reinterpret_cast<char *>(this + 1);
-		}
+		char *Content() { return reinterpret_cast<char *>(this + 1); }
 		//! the allocated characters follow just after this so the start of the characters is (char *)(fStringImpl+1);
-		const char *Content() const {
-			return reinterpret_cast<char const *>(this + 1);
-		}
-	} *fStringImpl;
+		const char *Content() const { return reinterpret_cast<char const *>(this + 1); }
+	} * fStringImpl;
 
 	Allocator *fAllocator;
 
-	Allocator *GetAllocator() {
-		return fAllocator;
-	}
-	const Allocator *GetAllocator() const {
-		return fAllocator;
-	}
+	Allocator *GetAllocator() { return fAllocator; }
+	const Allocator *GetAllocator() const { return fAllocator; }
 
-	void IncrementLength(long incr) {
-		fStringImpl->fLength += incr;
-	}
+	void IncrementLength(long incr) { fStringImpl->fLength += incr; }
 
-	template< typename BufType, typename IoDirType > friend class StringStreamBuf; // we directly operate on fCont, fCapacity, fLength
+	template <typename BufType, typename IoDirType>
+	friend class StringStreamBuf;  // we directly operate on fCont, fCapacity, fLength
 
-	const String::StringImpl *GetImpl() const {
-		return fStringImpl;
-	}
-	const char *GetContent()const {
-		return GetImpl()->Content();
-	}
-	String::StringImpl *GetImpl() {
-		return fStringImpl;
-	}
+	const String::StringImpl *GetImpl() const { return fStringImpl; }
+	const char *GetContent() const { return GetImpl()->Content(); }
+	String::StringImpl *GetImpl() { return fStringImpl; }
 	char *GetContent() {
-		return GetImpl()->Content();   //  optimize, sanity already checked
+		return GetImpl()->Content();  //  optimize, sanity already checked
 	}
 	void SetLength(long len) {
-		fStringImpl->fLength = len;   // no sanity check!
+		fStringImpl->fLength = len;	 // no sanity check!
 	}
 	friend class StringTest;
 };
 
 //! an efficient implementation of tokenization with one delimiter
-class StringTokenizer
-{
+class StringTokenizer {
 public:
 	//! ctor takes content s and delimiting character
 	StringTokenizer(const char *s, char delimiter);
@@ -556,9 +504,8 @@ public:
 	bool operator()(String &token);
 	//! restart iteration
 	//! may be a reset with a new delimiter is useful?
-	void Reset() {
-		fTokEnd = fString;
-	}
+	void Reset() { fTokEnd = fString; }
+
 protected:
 	const char *fString;
 	const char *fTokEnd;
@@ -569,8 +516,7 @@ protected:
 
 //! more flexible but slower implementation of tokenization
 //! allows several delimiting characters, instead of one
-class StringTokenizer2
-{
+class StringTokenizer2 {
 public:
 	//! ctor, take content s and use whitespace (" \t\n") as delimiters
 	StringTokenizer2(const char *s);
@@ -588,9 +534,8 @@ public:
 	bool operator()(String &token);
 	//! restart iteration
 	//! may be a reset with a new delimiter set is useful?
-	void Reset() {
-		fPos = 0;
-	}
+	void Reset() { fPos = 0; }
+
 protected:
 	//! implements look ahead for tokens
 	bool HasMoreTokens(long start, long &end);
@@ -602,36 +547,32 @@ protected:
 #define NotNull(s) ((s) ? (s) : "null")
 #define NotNullStr(s) ((s.Length() > 0) ? s.cstr() : "null")
 
-inline bool String::SetAllocator(Allocator *a)
-{
+inline bool String::SetAllocator(Allocator *a) {
 	if (!fAllocator || !fStringImpl) {
 		fAllocator = a;
 		return true;
 	}
-	return false; // cannot change allocator later on
+	return false;  // cannot change allocator later on
 }
 
-inline long String::Length() const
-{
+inline long String::Length() const {
 	if (GetImpl()) {
 		return GetImpl()->fLength;
 	} else {
 		return 0;
 	}
 }
-inline long String::Capacity() const
-{
+inline long String::Capacity() const {
 	if (GetImpl()) {
 		return GetImpl()->fCapacity;
 	} else {
 		return 0;
 	}
 }
-inline String::operator const char *() const
-{
+inline String::operator const char *() const {
 	return cstr();
 }
-inline char const * String::cstr() const {
+inline char const *String::cstr() const {
 	if (GetImpl()) {
 		return GetContent();
 	} else {
@@ -639,32 +580,30 @@ inline char const * String::cstr() const {
 	}
 }
 
-inline bool String::IsEqual(const char *other) const
-{
-	return ! Compare(other);
+inline bool String::IsEqual(const char *other) const {
+	return !Compare(other);
 }
 
-inline bool String::IsEqual(const String &other) const
-{
-	return ((Length() == other.Length()) && ! Compare(other));
+inline bool String::IsEqual(const String &other) const {
+	return ((Length() == other.Length()) && !Compare(other));
 }
 // this is just a performance shortcut
 
 //! function for reading strings from a stream up to a delimiter
 /*! \param is istream read from
-	\param s result of input is stored here
-	\param delim delimiting character, usually newline */
+  \param s result of input is stored here
+  \param delim delimiting character, usually newline */
 std::istream &getline(std::istream &is, String &s, char delim);
 
 //! function for reading strings from a stream up to a newline
 /*! \param is istream read from
-	\param s result of input is stored here */
+  \param s result of input is stored here */
 inline std::istream &getline(std::istream &is, String &s) {
 	return getline(is, s, '\n');
 }
 
 //! canonical output operator for strings
-std::ostream  &operator<<(std::ostream &os, const String &s);
+std::ostream &operator<<(std::ostream &os, const String &s);
 
 inline bool operator==(const String &s1, const String &s2) {
 	return s1.IsEqual(s2);
@@ -675,7 +614,7 @@ inline bool operator==(const char *s1, const String &s2) {
 inline bool operator==(const String &s1, const char *s2) {
 	return s1.IsEqual(s2);
 }
-inline bool operator!=(const String &s1, const String &s2){
+inline bool operator!=(const String &s1, const String &s2) {
 	return !s1.IsEqual(s2);
 }
 inline bool operator!=(const char *s1, const String &s2) {
@@ -691,13 +630,11 @@ inline bool operator>(const String &s1, const char *s2) {
 	return (s1.Compare(s2) > 0);
 }
 
-inline bool StringTokenizer::operator()(String &token)
-{
+inline bool StringTokenizer::operator()(String &token) {
 	return NextToken(token);
 }
-inline bool StringTokenizer2::operator()(String &token)
-{
+inline bool StringTokenizer2::operator()(String &token) {
 	return NextToken(token);
 }
 
-#endif		//not defined _ITOString_H
+#endif	// not defined _ITOString_H

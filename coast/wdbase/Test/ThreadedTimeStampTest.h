@@ -13,22 +13,21 @@
 #include "Threads.h"
 class Mutex;
 
-class ThreadedTimeStampTest : public testframework::TestCaseWithConfigAndStatistics
-{
+class ThreadedTimeStampTest : public testframework::TestCaseWithConfigAndStatistics {
 public:
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	ThreadedTimeStampTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~ThreadedTimeStampTest();
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
 	TString getConfigFileName();
 
-	//!test initialization
+	//! test initialization
 	void TimestampConcurrencyTest();
 
 	void CheckProcessWorkload(bool isReady, bool wasPrepared);

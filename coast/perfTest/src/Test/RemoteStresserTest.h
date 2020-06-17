@@ -15,29 +15,25 @@ class Server;
 class ServerThread;
 
 //---- RemoteStresserTest ----------------------------------------------------------
-//!TestCases for the RemoteStresser class
+//! TestCases for the RemoteStresser class
 //! These tests have to start a stress server first
-class RemoteStresserTest : public StressAppTest
-{
+class RemoteStresserTest : public StressAppTest {
 public:
 	//--- constructors
 
-	//!TestCases for the StressApp classes
+	//! TestCases for the StressApp classes
 	//! \param name name of the test
-	RemoteStresserTest(TString tstrName)
-    :StressAppTest(tstrName), fServerRunner(0), fStressServer(0)
-    {
-}
-    //!destroys the test case
+	RemoteStresserTest(TString tstrName) : StressAppTest(tstrName), fServerRunner(0), fStressServer(0) {}
+	//! destroys the test case
 	~RemoteStresserTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!sets the environment for this test
-	void setUp ();
+	//! sets the environment for this test
+	void setUp();
 
 	void tearDown();
 

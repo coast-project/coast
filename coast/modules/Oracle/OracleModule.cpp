@@ -10,8 +10,7 @@
 
 RegisterModule(OracleModule);
 
-OracleModule::OracleModule(const char *name) :
-		WDModule(name) {
+OracleModule::OracleModule(const char *name) : WDModule(name) {
 	StartTrace(OracleModule.OracleModule);
 }
 

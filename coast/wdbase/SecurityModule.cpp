@@ -6,12 +6,13 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "SecurityModule.h"
-#include "StringStream.h"
-#include "Registry.h"
-#include "SystemLog.h"
-#include "SystemFile.h"
+
 #include "DiffTimer.h"
 #include "Policy.h"
+#include "Registry.h"
+#include "StringStream.h"
+#include "SystemFile.h"
+#include "SystemLog.h"
 
 RegisterModule(SecurityModule);
 
@@ -30,9 +31,7 @@ namespace {
 #endif
 			InitFinisManager::IFMTrace("RandomNumber::Initialized\n");
 		}
-		~RandomNumberInitializer() {
-			InitFinisManager::IFMTrace("RandomNumber::Finalized\n");
-		}
+		~RandomNumberInitializer() { InitFinisManager::IFMTrace("RandomNumber::Finalized\n"); }
 		unsigned long nextRandomNumber() const {
 #if !defined(WIN32)
 			return lrand48();
@@ -41,34 +40,34 @@ namespace {
 #endif
 		}
 	};
-    typedef coast::utility::singleton_default<RandomNumberInitializer> RandomNumberInitializerSingleton;
-}
+	typedef coast::utility::singleton_default<RandomNumberInitializer> RandomNumberInitializerSingleton;
+}  // namespace
 
 namespace coast {
 	namespace security {
-		unsigned long nextRandomNumber() {
-			return RandomNumberInitializerSingleton::instance().nextRandomNumber();
-		}
+		unsigned long nextRandomNumber() { return RandomNumberInitializerSingleton::instance().nextRandomNumber(); }
 		String generateRandomString(long length) {
 			StartTrace(Coast.Security.generateRandomString);
 			String result(length);
 			typedef unsigned long randNumberType;
-			std::size_t const randomBytes=sizeof(randNumberType);
+			std::size_t const randomBytes = sizeof(randNumberType);
 			while (result.Length() < length) {
-				randNumberType randNumber=nextRandomNumber();
-				result.AppendAsHex(reinterpret_cast<const unsigned char*>(&randNumber), randomBytes);
+				randNumberType randNumber = nextRandomNumber();
+				result.AppendAsHex(reinterpret_cast<const unsigned char *>(&randNumber), randomBytes);
 			}
 			result.Trim(length);
 			return result;
 		}
-	}
-}
+	}  // namespace security
+}  // namespace coast
 
-#define FindSecurityItemWithDefault(var,name,Type)\
-	const Type *var = SafeCast(FindSecurityItem(name),Type);\
-	if (!var){ Trace("using standard item: " _QUOTE_(Type));\
-		var=SafeCast(FindSecurityItem(_QUOTE_(Type)),Type);\
-	} Assert(var);
+#define FindSecurityItemWithDefault(var, name, Type)           \
+	const Type *var = SafeCast(FindSecurityItem(name), Type);  \
+	if (!var) {                                                \
+		Trace("using standard item: " _QUOTE_(Type));          \
+		var = SafeCast(FindSecurityItem(_QUOTE_(Type)), Type); \
+	}                                                          \
+	Assert(var);
 
 long SecurityItem::GetNamePrefixFromEncodedText(String &scramblername, const String &encodedText) {
 	StartTrace(SecurityItem.GetNamePrefixFromEncodedText);
@@ -121,7 +120,8 @@ bool SecurityItem::DoLoadConfig(const char *category) {
 	if (HierarchConfNamed::DoLoadConfig(category)) {
 		if (fConfig.IsDefined(fName)) {
 			fConfig = fConfig[fName];
-			TraceAny(fConfig, "Config:");Assert(!fConfig.IsNull());
+			TraceAny(fConfig, "Config:");
+			Assert(!fConfig.IsNull());
 			return Init(fConfig);
 		}
 		Trace("nothing to configure");
@@ -157,18 +157,17 @@ bool SecurityItem::Init(ROAnything config) {
 
 bool SecurityItem::DoLoadKeyFile(const char *name, String &key) {
 	StartTrace1(SecurityItem.DoLoadKeyFile, name);
-	String resolvedFileName = coast::system::GetFilePath(name, (const char *) 0);
+	String resolvedFileName = coast::system::GetFilePath(name, (const char *)0);
 	std::iostream *Ios = coast::system::OpenIStream(resolvedFileName, "");
 	if (Ios) {
 		String sBuf(4096);
-		char *buf = (char *) (const char *) sBuf;
+		char *buf = (char *)(const char *)sBuf;
 		while (!(Ios->eof())) {
 			Ios->getline(buf, 4096);
 			key.Append(buf);
 		}
 		delete Ios;
 		return (key.Length() > 0L);
-
 	}
 
 	Trace("Unable to open file: [" << name << " resolved: [" << resolvedFileName << "]");
@@ -180,10 +179,10 @@ namespace {
 	String fgEncoder(coast::storage::Global());
 	String fgSigner(coast::storage::Global());
 	String fgCompressor(coast::storage::Global());
-}
+}  // namespace
 
 bool SecurityModule::Init(const ROAnything config) {
-	StartTrace( SecurityModule.Init );
+	StartTrace(SecurityModule.Init);
 	bool result = true;
 	TraceAny(config, "Config");
 	SystemLog::WriteToStderr(String("\t") << fName << ". ");
@@ -276,7 +275,7 @@ void SecurityModule::ScrambleState(String &result, const Anything &state) {
 #endif
 	}
 	Trace("resulting text <" << result << ">");
-} // DoScrambleState
+}  // DoScrambleState
 
 bool SecurityModule::UnscrambleState(Anything &state, const String &s) {
 	StartTrace(SecurityModule.UnscrambleState);
@@ -305,10 +304,9 @@ bool SecurityModule::UnscrambleState(Anything &state, const String &s) {
 	}
 	Trace("Unscrambling failed");
 	return false;
-} // DoUnscrambleState
+}  // DoUnscrambleState
 
-RegCacheImpl(SecurityItem)
-; // FindSecurityItem()
+RegCacheImpl(SecurityItem);	 // FindSecurityItem()
 RegisterScrambler(Scrambler);
 RegisterAliasSecurityItem(ascs, Scrambler);
 // register legacy keymanager generated names with a 0 appended

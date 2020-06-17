@@ -7,8 +7,10 @@
  */
 
 #include "GetThisHostNameRenderer.h"
-#include "SystemBase.h"
+
 #include "Resolver.h"
+#include "SystemBase.h"
+
 #include <ostream>
 
 RegisterRenderer(GetThisHostNameRenderer);
@@ -19,7 +21,7 @@ void GetThisHostNameRenderer::RenderAll(std::ostream &reply, Context &ctx, const
 	if (coast::system::HostName(thisHostName)) {
 		String thisHostIp(Resolver::DNS2IPAddress(thisHostName));
 		String what(config["Representation"].AsString("Full"));
-		if ( what.IsEqual("IPAddress") ) {
+		if (what.IsEqual("IPAddress")) {
 			reply << thisHostIp << std::flush;
 			return;
 		}

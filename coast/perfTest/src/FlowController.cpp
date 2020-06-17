@@ -6,16 +6,16 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "FlowController.h"
+
 #include "Application.h"
 #include "DataAccess.h"
-#include "Timers.h"
 #include "Policy.h"
 #include "Registry.h"
+#include "Timers.h"
 
 RegCacheImpl(FlowController);
 RegisterFlowController(FlowController);
-FlowController::FlowController(const char *FlowControllerName) :
-	ConfNamedObject(FlowControllerName) {
+FlowController::FlowController(const char *FlowControllerName) : ConfNamedObject(FlowControllerName) {
 	StartTrace1(FlowController.FlowController, "<" << FlowControllerName << ">");
 }
 
@@ -50,7 +50,7 @@ bool FlowController::PrepareRequest(Context &ctx) {
 	Application *application = Application::GetGlobalApplication(appName);
 	if (application) {
 		nrOfRuns = application->Lookup("NumberOfRuns", fConfig["NumberOfRuns"].AsLong(1));
-		Trace(appName << " application found" );
+		Trace(appName << " application found");
 	} else {
 		nrOfRuns = fConfig["NumberOfRuns"].AsLong(1);
 	}
@@ -58,7 +58,7 @@ bool FlowController::PrepareRequest(Context &ctx) {
 	long runNr = flowState["RunNr"].AsLong(0);
 	Trace("INIT Number of Run: " << runNr << " of " << nrOfRuns);
 
-	while (runNr < nrOfRuns) { // loop thru steps and incr. runNr after each batch has been processed
+	while (runNr < nrOfRuns) {	// loop thru steps and incr. runNr after each batch has been processed
 		Trace("Number of Run: " << runNr << " of " << nrOfRuns);
 		TraceAny(fConfig["Run"], "Config Run");
 		long nrOfRequests = fConfig["Run"].GetSize();
@@ -69,7 +69,7 @@ bool FlowController::PrepareRequest(Context &ctx) {
 			TraceAny(tmpStore["FlowState"], "Flow State on exit");
 			return true;
 		}
-		reqNr = 0; // reset request number
+		reqNr = 0;	// reset request number
 		flowState["RunNr"] = ++runNr;
 	}
 
@@ -98,13 +98,12 @@ long FlowController::GetRequestNr(Context &ctx) {
 		tmpStore["FlowState"]["RequestNr"] = 0L;
 		tmpStore["FlowState"]["PreRunDone"] = false;
 		tmpStore["FlowState"]["RunNr"] = 0L;
-		//TraceAny(tmpStore["FlowState"],"Flow State initialized");
+		// TraceAny(tmpStore["FlowState"],"Flow State initialized");
 	}
 	Anything flowState = tmpStore["FlowState"];
 
 	// Check PreRun
 	return flowState["RequestNr"].AsLong(0);
-
 }
 
 bool FlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucceeded) {

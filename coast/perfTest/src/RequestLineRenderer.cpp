@@ -7,24 +7,22 @@
  */
 
 #include "RequestLineRenderer.h"
+
 #include "SecurityModule.h"
 #include "StringStream.h"
 
 //---- RequestLineRenderer ---------------------------------------------------------
 RegisterRenderer(RequestLineRenderer);
 
-RequestLineRenderer::RequestLineRenderer(const char *name) : Renderer(name)
-{
+RequestLineRenderer::RequestLineRenderer(const char *name) : Renderer(name) {
 	StartTrace(RequestLineRenderer.Ctor);
 }
 
-RequestLineRenderer::~RequestLineRenderer()
-{
+RequestLineRenderer::~RequestLineRenderer() {
 	StartTrace(RequestLineRenderer.Dtor);
 }
 
-void RequestLineRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void RequestLineRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(RequestLineRenderer.RenderAll);
 	SubTraceAny(TraceConfig, config, "config");
 	String buffer(1024L);
@@ -33,78 +31,78 @@ void RequestLineRenderer::RenderAll(std::ostream &reply, Context &c, const ROAny
 		// logic is, if CurrentServer.Path is available, render that but if link nr is available try to render that first
 
 		// config not so interesting - does this renderer even have one??
-		SubTraceAny(TraceTmp, c.GetTmpStore(), "tmp store" );
+		SubTraceAny(TraceTmp, c.GetTmpStore(), "tmp store");
 		ROAnything roaResult;
 		bool postIsMethod = false;
 
-		if ( c.Lookup("CurrentServer.Method", roaResult) ) {
-			Trace( "RequestMethod is->" << roaResult.AsString("") );
-			String methodName = 	roaResult.AsString("");
+		if (c.Lookup("CurrentServer.Method", roaResult)) {
+			Trace("RequestMethod is->" << roaResult.AsString(""));
+			String methodName = roaResult.AsString("");
 			methodName.ToUpper();
 
-			if ( methodName == "POST" ) {
+			if (methodName == "POST") {
 				postIsMethod = true;
 			}
 			replyDebugBuffer << methodName << " ";
 		} else {
-			Trace( "Default RequestMethod is-> GET" );
+			Trace("Default RequestMethod is-> GET");
 			replyDebugBuffer << "GET ";
 		}
 
 		String path;
-		if ( c.Lookup("CurrentServer.Path", roaResult) ) {
+		if (c.Lookup("CurrentServer.Path", roaResult)) {
 			RenderOnString(path, c, roaResult);
 			long qmarkPos = path.StrChr('?');
-			if (qmarkPos >= 0 && !postIsMethod && c.Lookup("CurrentServer.formContents", roaResult) ) {
+			if (qmarkPos >= 0 && !postIsMethod && c.Lookup("CurrentServer.formContents", roaResult)) {
 				path = path.SubString(0, qmarkPos);
 			}
 		} else {
 			path = "/";
 		}
 
-		Trace( "RequestURI is->" << path );
+		Trace("RequestURI is->" << path);
 		replyDebugBuffer << path;
 
 		String formContentString;
-		if ( c.Lookup("CurrentServer.formContents", roaResult) ) {
+		if (c.Lookup("CurrentServer.formContents", roaResult)) {
 			formContentString = roaResult.AsString("");
 			// If 'Enctype' is multipart/form-data and a specific boundary was given too
 			// then "resolve" the formContent to a boundary separated multipart content:
 			String encTypeString = c.Lookup("CurrentServer.Enctype", "");
-			if ( encTypeString.Contains("multipart/form-data; boundary") == 0 ) {
+			if (encTypeString.Contains("multipart/form-data; boundary") == 0) {
 				// formContentString already resolved to boundaryseparated multiparts!
 				// no encoding required here.
 			} else {
 				long posn = 0L;
-				while ( (posn = formContentString.StrChr(' ', 0)) > 0 ) {
+				while ((posn = formContentString.StrChr(' ', 0)) > 0) {
 					Trace("b4 - formContentString [" << formContentString << "]");
-					formContentString.ReplaceAt(posn, "+", 1 );
+					formContentString.ReplaceAt(posn, "+", 1);
 					Trace("after -formContentString [" << formContentString << "]");
 				}
 			}
 
-			if ( !postIsMethod ) {
+			if (!postIsMethod) {
 				// append form content in GET to URI
 				replyDebugBuffer << "?";
 				replyDebugBuffer << formContentString;
 			}
-		} else if ( c.Lookup("CurrentServer.MsgBody", roaResult) ) {
-			for (long i = 0; i < roaResult.GetSize(); ++i ) {
-				formContentString.Append( roaResult[i].AsString("") );
+		} else if (c.Lookup("CurrentServer.MsgBody", roaResult)) {
+			for (long i = 0; i < roaResult.GetSize(); ++i) {
+				formContentString.Append(roaResult[i].AsString(""));
 			}
 		}
 
 		Trace("END formContentString [" << formContentString << "]");
 
-		if ( c.Lookup("CurrentServer.OverallProtocol", roaResult) ) {
-			Trace( "RequestProtocol is->" << roaResult.AsString("") );
+		if (c.Lookup("CurrentServer.OverallProtocol", roaResult)) {
+			Trace("RequestProtocol is->" << roaResult.AsString(""));
 			replyDebugBuffer << roaResult.AsString("");
 		} else {
 			Anything renderedheader;
 			renderedheader["User-Agent"] = c.Lookup("CurrentServer.UserAgent", "Mozilla/4.51 [en] (WinNT; I)");
 			String hostHeader(c.Lookup("CurrentServer.ServerName", "localhost"));
 			long lPort = -1L;
-			if ( ( lPort = c.Lookup("CurrentServer.Port", -1L) ) != -1L ) {
+			if ((lPort = c.Lookup("CurrentServer.Port", -1L)) != -1L) {
 				hostHeader << ':' << lPort;
 			}
 			renderedheader["Host"] = hostHeader;
@@ -113,20 +111,20 @@ void RequestLineRenderer::RenderAll(std::ostream &reply, Context &c, const ROAny
 			renderedheader["Accept-Language"] = "en-GB,de";
 			renderedheader["Accept-Charset"] = "iso-8859-1,*,utf-8";
 
-			for (long i = 0; i < config["Headerfields"].GetSize(); i ++) {
+			for (long i = 0; i < config["Headerfields"].GetSize(); i++) {
 				String rendered;
 				Renderer::RenderOnString(rendered, c, config["Headerfields"][i]);
 				renderedheader[config["Headerfields"].SlotName(i)] = rendered;
 			}
 			replyDebugBuffer << " HTTP/1.1";
-			for (long j = 0; j < renderedheader.GetSize(); j ++) {
+			for (long j = 0; j < renderedheader.GetSize(); j++) {
 				replyDebugBuffer << "\r\n" << renderedheader.SlotName(j) << ": " << renderedheader[j].AsString();
 			}
 		}
 
 		// check if we have to add an authorization
 		ROAnything roaUser, roaPass;
-		if ( c.Lookup("CurrentServer.User", roaUser) && c.Lookup("CurrentServer.Pass", roaPass) ) {
+		if (c.Lookup("CurrentServer.User", roaUser) && c.Lookup("CurrentServer.Pass", roaPass)) {
 			// encode the string and add the authorization slot to the request
 			String strUserPass;
 			String authorizationHeaderFieldName;
@@ -137,11 +135,12 @@ void RequestLineRenderer::RenderAll(std::ostream &reply, Context &c, const ROAny
 			RenderOnString(strUserPass, c, roaPass);
 			Trace("User:Pass:[" << strUserPass << "]");
 			ROAnything roaAuth;
-			if ( c.Lookup("CurrentServer.BasicAuthorizationHeaderFieldName", roaAuth) ) {
+			if (c.Lookup("CurrentServer.BasicAuthorizationHeaderFieldName", roaAuth)) {
 				RenderOnString(authorizationHeaderFieldName, c, roaAuth);
-				Trace("authorizationHeaderFieldName: " << authorizationHeaderFieldName << "Length: " << authorizationHeaderFieldName.Length());
+				Trace("authorizationHeaderFieldName: " << authorizationHeaderFieldName
+													   << "Length: " << authorizationHeaderFieldName.Length());
 			}
-			if ( authorizationHeaderFieldName.Length() == 0L ) {
+			if (authorizationHeaderFieldName.Length() == 0L) {
 				authorizationHeaderFieldName = "Authorization";
 			}
 			Trace("Authorization header field name:[" << authorizationHeaderFieldName << "]");
@@ -160,7 +159,7 @@ void RequestLineRenderer::RenderAll(std::ostream &reply, Context &c, const ROAny
 		Renderer *r = Renderer::FindRenderer("CookieToServerRenderer");
 		r->RenderAll(replyDebugBuffer, c, config);
 
-		if ( formContentString.Length() > 0 && postIsMethod ) {
+		if (formContentString.Length() > 0 && postIsMethod) {
 			replyDebugBuffer << "\r\nContent-Length: " << formContentString.Length();
 			replyDebugBuffer << "\r\nContent-Type: " << c.Lookup("CurrentServer.Enctype", "");
 			replyDebugBuffer << "\r\n\r\n";
@@ -171,18 +170,18 @@ void RequestLineRenderer::RenderAll(std::ostream &reply, Context &c, const ROAny
 		// this information is passed up to and used by the Watchdog as a kind of pseudo trace
 		Anything myEnv = c.GetQuery();
 		String ThreadNumber = "default";
-		if ( myEnv.IsDefined("Id" ) ) {
+		if (myEnv.IsDefined("Id")) {
 			ThreadNumber = myEnv["Id"].AsString("unknown");
 		}
-		String infoMsg = "\r\nRequest to server from Thread [" ;
-		infoMsg << ThreadNumber  << "] (";
+		String infoMsg = "\r\nRequest to server from Thread [";
+		infoMsg << ThreadNumber << "] (";
 		infoMsg << "Name:" << c.Lookup("CurrentServer.ServerName", "");
 		infoMsg << " IP:" << c.Lookup("CurrentServer.Server", "");
 		infoMsg << " Port:" << c.Lookup("CurrentServer.Port", "") << ")\r\n";
 		infoMsg << replyDebugBuffer.str();
 
-		if ( TriggerEnabled(RequestLineRenderer.Render) ) {
-			SystemLog::Info( infoMsg ); // perhaps enable this line with an entry in RequestLineRenderer.any.... future
+		if (TriggerEnabled(RequestLineRenderer.Render)) {
+			SystemLog::Info(infoMsg);  // perhaps enable this line with an entry in RequestLineRenderer.any.... future
 		}
 
 #ifdef WDOG_RELEASE

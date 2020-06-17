@@ -16,8 +16,7 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class WebAppServiceTest : public testframework::TestCaseWithConfig
-{
+class WebAppServiceTest : public testframework::TestCaseWithConfig {
 public:
 	//! ConfiguredTestCase constructor
 	//! \param name name of the test
@@ -27,7 +26,7 @@ public:
 	~WebAppServiceTest();
 
 	//! builds up a suite of tests
-	static Test *suite ();
+	static Test *suite();
 
 	TString getConfigFileName();
 

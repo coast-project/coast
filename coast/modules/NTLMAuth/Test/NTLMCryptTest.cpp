@@ -7,13 +7,13 @@
  */
 
 #include "NTLMCryptTest.h"
-#include "TestSuite.h"
-#include "NTLMCoder.h"
+
 #include "NTLMAuthMessage.h"
+#include "NTLMCoder.h"
+#include "TestSuite.h"
 #include "Tracer.h"
 
-void NTLMCryptTest::DecodeClientMsg()
-{
+void NTLMCryptTest::DecodeClientMsg() {
 	StartTrace(NTLMCryptTest.DecodeClientMsg);
 	String msgb64("TlRMTVNTUAABAAAAA7IAAAoACgApAAAACQAJACAAAABMSUdIVENJVFlVUlNBLU1JTk9S");
 	String host;
@@ -22,8 +22,7 @@ void NTLMCryptTest::DecodeClientMsg()
 	assertEqual("URSA-MINOR", domain);
 	assertEqual("LIGHTCITY", host);
 }
-void NTLMCryptTest::EncodeClientMsg()
-{
+void NTLMCryptTest::EncodeClientMsg() {
 	StartTrace(NTLMCryptTest.EncodeClientMsg);
 	String expected("TlRMTVNTUAABAAAAA7IAAAoACgApAAAACQAJACAAAABMSUdIVENJVFlVUlNBLU1JTk9S");
 	String host("LightCity");
@@ -40,18 +39,15 @@ void NTLMCryptTest::EncodeClientMsg()
 	t_assert(NTLMCoder::DecodeClientMsg(msgb64, domain, host));
 	assertEqual("MYHOST", host);
 	assertEqual("MYDOMAIN", domain);
-
 }
-void NTLMCryptTest::EncodeServerNonce()
-{
+void NTLMCryptTest::EncodeServerNonce() {
 	StartTrace(NTLMCryptTest.EncodeServerNonce);
 	String expected("TlRMTVNTUAACAAAAAAAAACgAAAABggAAU3J2Tm9uY2UAAAAAAAAAAA==");
 
 	String msgb64 = NTLMCoder::EncodeServerNonce("SrvNonce");
 	assertEqual(expected, msgb64);
 }
-void NTLMCryptTest::DecodeServerNonce()
-{
+void NTLMCryptTest::DecodeServerNonce() {
 	StartTrace(NTLMCryptTest.DecodeServerNonce);
 	String msgb64("TlRMTVNTUAACAAAAAAAAACgAAAABggAAU3J2Tm9uY2UAAAAAAAAAAA==");
 	String nonce;
@@ -61,14 +57,14 @@ void NTLMCryptTest::DecodeServerNonce()
 	t_assert(NTLMCoder::DecodeServerNonce(msgb64, nonce));
 	assertEqual("12345678", nonce);
 }
-void NTLMCryptTest::DecodeResponse()
-{
+void NTLMCryptTest::DecodeResponse() {
 	StartTrace(NTLMCryptTest.DecodeResponse);
-	String msgb64("TlRMTVNTUAADAAAAGAAYAHIAAAAYABgAigAAA"
-				  "BQAFABAAAAADAAMAFQAAAASABIAYAAAAAAAAACiAAAAAYIAAFU"
-				  "AUgBTAEEALQBNAEkATgBPAFIAWgBhAHAAaABvAGQAT"
-				  "ABJAEcASABUAEMASQBUAFkArYfKbe/jRoW5xDxHeox"
-				  "C1gBmfWiS5+iX4OAN4xBKG/IFPwfH3agtPEia6YnhsADT");
+	String msgb64(
+		"TlRMTVNTUAADAAAAGAAYAHIAAAAYABgAigAAA"
+		"BQAFABAAAAADAAMAFQAAAASABIAYAAAAAAAAACiAAAAAYIAAFU"
+		"AUgBTAEEALQBNAEkATgBPAFIAWgBhAHAAaABvAGQAT"
+		"ABJAEcASABUAEMASQBUAFkArYfKbe/jRoW5xDxHeox"
+		"C1gBmfWiS5+iX4OAN4xBKG/IFPwfH3agtPEia6YnhsADT");
 	String host;
 	String domain;
 	String user;
@@ -80,14 +76,14 @@ void NTLMCryptTest::DecodeResponse()
 	assertEqual("LIGHTCITY", host);
 	assertEqual("Zaphod", user);
 }
-void NTLMCryptTest::EncodeResponse()
-{
+void NTLMCryptTest::EncodeResponse() {
 	StartTrace(NTLMCryptTest.EncodeResponse);
-	String expect("TlRMTVNTUAADAAAAGAAYAHIAAAAYABgAigAAA"
-				  "BQAFABAAAAADAAMAFQAAAASABIAYAAAAAAAAACiAAAAAYIAAFU"
-				  "AUgBTAEEALQBNAEkATgBPAFIAWgBhAHAAaABvAGQAT"
-				  "ABJAEcASABUAEMASQBUAFkArYfKbe/jRoW5xDxHeox"
-				  "C1gBmfWiS5+iX4OAN4xBKG/IFPwfH3agtPEia6YnhsADT");
+	String expect(
+		"TlRMTVNTUAADAAAAGAAYAHIAAAAYABgAigAAA"
+		"BQAFABAAAAADAAMAFQAAAASABIAYAAAAAAAAACiAAAAAYIAAFU"
+		"AUgBTAEEALQBNAEkATgBPAFIAWgBhAHAAaABvAGQAT"
+		"ABJAEcASABUAEMASQBUAFkArYfKbe/jRoW5xDxHeox"
+		"C1gBmfWiS5+iX4OAN4xBKG/IFPwfH3agtPEia6YnhsADT");
 	String host("LightCity");
 	String domain("URSA-minor");
 	String user("Zaphod");
@@ -103,7 +99,7 @@ void NTLMCryptTest::EncodeResponse()
 
 	host = "myhost";
 	domain = "myDomain";
-	user = "it's me";//'
+	user = "it's me";  //'
 	password = "geheim";
 	lmhash = NTLMCoder::EncodeLMPassword(password);
 	nthash = NTLMCoder::EncodeNTPassword(password);
@@ -111,52 +107,36 @@ void NTLMCryptTest::EncodeResponse()
 	t_assert(NTLMCoder::DecodeResponse(result, "12345678", lmhash, nthash, domain, host, user));
 	assertEqual("MYDOMAIN", domain);
 	assertEqual("MYHOST", host);
-	assertEqual("it's me", user); //'
-
+	assertEqual("it's me", user);  //'
 }
 
-void NTLMCryptTest::EncodeLMPassword()
-{
+void NTLMCryptTest::EncodeLMPassword() {
 	StartTrace(NTLMCryptTest.EncodeLMPassword);
-	unsigned char expected[21] = {
-		145, 144, 22, 246, 78, 199, 176, 11,
-		162, 53, 2, 140, 165, 12, 122, 3,
-		0, 0, 0, 0, 0
-	};
+	unsigned char expected[21] = {145, 144, 22, 246, 78, 199, 176, 11, 162, 53, 2, 140, 165, 12, 122, 3, 0, 0, 0, 0, 0};
 	String expect((void *)expected, 21L);
 	String result = NTLMCoder::EncodeLMPassword("Beeblebrox");
 	assertEqualRaw(expect, result);
 }
 
-void NTLMCryptTest::EncodeNTPassword()
-{
+void NTLMCryptTest::EncodeNTPassword() {
 	StartTrace(NTLMCryptTest.EncodeNTPassword);
-	unsigned char expected[21] = {
-		140, 27, 89, 227, 46, 102, 109, 173,
-		241, 117, 116, 95, 173, 98, 193, 51,
-		0, 0, 0, 0, 0
-	};
+	unsigned char expected[21] = {140, 27, 89, 227, 46, 102, 109, 173, 241, 117, 116, 95, 173, 98, 193, 51, 0, 0, 0, 0, 0};
 	String expect((void *)expected, 21L);
 	String result = NTLMCoder::EncodeNTPassword("Beeblebrox");
 	assertEqualRaw(expect, result);
 }
 
-void NTLMCryptTest::MakeUtf16()
-{
+void NTLMCryptTest::MakeUtf16() {
 	StartTrace(NTLMCryptTest.MakeUtf16);
-	unsigned char expected[] = {
-		'A', '\0', 'd', '\0', 'u', '\0', 'm', '\0',
-		'b', '\0', 'T', '\0', 'h', '\0', 'i', '\0',
-		'n', '\0', 'g', '\0'
-	};
+	unsigned char expected[] = {'A', '\0', 'd', '\0', 'u', '\0', 'm', '\0', 'b', '\0',
+								'T', '\0', 'h', '\0', 'i', '\0', 'n', '\0', 'g', '\0'};
 	String expect((void *)expected, 20L);
 	const char *input = "AdumbThing";
 	String result = NTLMCoder::MakeUtf16("AdumbThing");
 	assertEqualRaw(expect, result);
 	assertEqual(2 * strlen(input), result.Length());
 }
-void NTLMCryptTest::ClientMsgFactory()
-{
+void NTLMCryptTest::ClientMsgFactory() {
 	StartTrace(NTLMCryptTest.ClientMsgFactory);
 	String buffer;
 	t_assert(NTLMCoder::DecodeBase64(buffer, "TlRMTVNTUAABAAAAA7IAAAoACgApAAAACQAJACAAAABMSUdIVENJVFlVUlNBLU1JTk9S"));
@@ -169,7 +149,8 @@ void NTLMCryptTest::ClientMsgFactory()
 	assertEqual("", m->GetNonce());
 	buffer = "";
 	delete m;
-	t_assert(NTLMCoder::DecodeBase64(buffer, "TlRMTVNTUAADAAAAGAAYAHIAAAAYABgAigAAA"
+	t_assert(NTLMCoder::DecodeBase64(buffer,
+									 "TlRMTVNTUAADAAAAGAAYAHIAAAAYABgAigAAA"
 									 "BQAFABAAAAADAAMAFQAAAASABIAYAAAAAAAAACiAAAAAYIAAFU"
 									 "AUgBTAEEALQBNAEkATgBPAFIAWgBhAHAAaABvAGQAT"
 									 "ABJAEcASABUAEMASQBUAFkArYfKbe/jRoW5xDxHeox"
@@ -181,12 +162,10 @@ void NTLMCryptTest::ClientMsgFactory()
 	assertEqual("URSA-MINOR", m->GetDomain());
 	assertEqual("LIGHTCITY", m->GetHost());
 	assertEqual("Zaphod", m->GetUser());
-
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *NTLMCryptTest::suite ()
-{
+Test *NTLMCryptTest::suite() {
 	StartTrace(NTLMCryptTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

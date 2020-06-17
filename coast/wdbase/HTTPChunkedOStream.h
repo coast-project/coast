@@ -12,8 +12,7 @@
 #include "StringStream.h"
 
 //! Streambuffer for HTTPChunkedOStream.
-class HTTPChunkedStreamBuf : public std::streambuf
-{
+class HTTPChunkedStreamBuf : public std::streambuf {
 public:
 	//! \param os wrapped output stream
 	//! \param chunklength max length of a single chunk
@@ -29,7 +28,7 @@ public:
 	//! After close() the ostream can not be used anymore.
 	void close();
 
-protected: // seekxxx are protected in the std..
+protected:	// seekxxx are protected in the std..
 	typedef std::streambuf::pos_type pos_type;
 	typedef std::streambuf::off_type off_type;
 	typedef std::ios::seekdir seekdir;
@@ -65,30 +64,22 @@ private:
 };
 
 //! Base class for HTTPChunkedStream classes (see RFC 2068 sec 3.6).
-class HTTPChunkedStreamBase : virtual public std::ios
-{
+class HTTPChunkedStreamBase : virtual public std::ios {
 public:
 	//! \param os wrapped output stream
 	//! \param chunklength max length of a single chunk
 	//! \param mode ios::out or ios::in
-	HTTPChunkedStreamBase(std::ostream &os, long chunklength, int mode = std::ios::out)
-		: fBuf(os, chunklength) {
-		init(&fBuf);
-	}
+	HTTPChunkedStreamBase(std::ostream &os, long chunklength, int mode = std::ios::out) : fBuf(os, chunklength) { init(&fBuf); }
 	// init from ios is needed, because
 	// ios() won't do the job;
 	// (see comment in iostream.h)
 
 	//! Gets the internal buffer of the stream.
-	HTTPChunkedStreamBuf *rdbuf()  {
-		return &fBuf;
-	}
+	HTTPChunkedStreamBuf *rdbuf() { return &fBuf; }
 
 	//! Writes the rest of the buffer and the termination chunk to the wrapped ostream.
 	//! After close() the ostream can not be used anymore.
-	void close() {
-		fBuf.close();
-	}
+	void close() { fBuf.close(); }
 
 protected:
 	HTTPChunkedStreamBuf fBuf;
@@ -98,8 +89,7 @@ protected:
 //! Can be used if the content length of the generated server output is not known in advanced,
 //! but persistent connections are required.
 //! The HTTP header must contain the field "Transfer-Encoding: chunked".
-class HTTPChunkedOStream : public HTTPChunkedStreamBase, public std::ostream
-{
+class HTTPChunkedOStream : public HTTPChunkedStreamBase, public std::ostream {
 public:
 	//! \param os wrapped output stream
 	//! \param chunklength max length of a single chunk (deafault 1024)
@@ -108,9 +98,7 @@ public:
 
 	//! The chunked encoding is finished and the stream is closed.
 	//! The wrapped ostream is not closed.
-	virtual ~HTTPChunkedOStream() {
-		close();
-	}
+	virtual ~HTTPChunkedOStream() { close(); }
 };
 
 #endif

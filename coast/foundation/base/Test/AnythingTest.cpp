@@ -7,28 +7,26 @@
  */
 
 #include "AnythingTest.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
 #include "IFAObject.h"
+#include "TestSuite.h"
 
 using namespace coast;
 
 void AnythingTest::setUp() {
 	StartTrace(AnythingTest.setUp);
 	if (!system::LoadConfigFile(fConfig, "AnythingTest", "any")) {
-		assertEqual( "'read AnythingTest.any'", "'could not read AnythingTest.any'" );
+		assertEqual("'read AnythingTest.any'", "'could not read AnythingTest.any'");
 	}
 	fQuery = fConfig["Queries"][name()];
 }
 
-class DummyIFAObj: public IFAObject {
+class DummyIFAObj : public IFAObject {
 public:
-	DummyIFAObj(const char *) {
-	}
+	DummyIFAObj(const char *) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) DummyIFAObj("dummy");
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) DummyIFAObj("dummy"); }
 };
 
 Test *AnythingTest::suite() {
@@ -63,250 +61,250 @@ void AnythingTest::TypeTest() {
 	Anything ArrayTypeTest;
 	Anything KeyTypeTest;
 	Anything AnyLong(5L);
-	Anything AnyVoidBuff((void *) "Bytebuffer", 10);
+	Anything AnyVoidBuff((void *)"Bytebuffer", 10);
 	Anything SubAnything;
 	String MyString("Another String");
 
 	// Simple Types
-	t_assert( TypeChange.GetType() == AnyNullType );
+	t_assert(TypeChange.GetType() == AnyNullType);
 
 	TypeChange = 12L;
-	t_assert( TypeChange.GetType() == AnyLongType );
+	t_assert(TypeChange.GetType() == AnyLongType);
 
-	TypeChange = (char *) "Ein String";
-	t_assert( TypeChange.GetType() == AnyCharPtrType );
+	TypeChange = (char *)"Ein String";
+	t_assert(TypeChange.GetType() == AnyCharPtrType);
 
-	TypeChange = (long) 34;
-	t_assert( TypeChange.GetType() == AnyLongType );
+	TypeChange = (long)34;
+	t_assert(TypeChange.GetType() == AnyLongType);
 
-	TypeChange = (double) 300.44;
-	t_assert( TypeChange.GetType() == AnyDoubleType );
+	TypeChange = (double)300.44;
+	t_assert(TypeChange.GetType() == AnyDoubleType);
 
-	TypeChange = (long) 56;
-	t_assert( TypeChange.GetType() == AnyLongType );
+	TypeChange = (long)56;
+	t_assert(TypeChange.GetType() == AnyLongType);
 
 	TypeChange = MyString;
-	t_assert( TypeChange.GetType() == AnyCharPtrType );
+	t_assert(TypeChange.GetType() == AnyCharPtrType);
 
-	TypeChange = (float) 1.37;
-	t_assert( TypeChange.GetType() == AnyDoubleType );
+	TypeChange = (float)1.37;
+	t_assert(TypeChange.GetType() == AnyDoubleType);
 
 	TypeChange = AnyLong;
-	t_assert( TypeChange.GetType() == AnyLongType );
+	t_assert(TypeChange.GetType() == AnyLongType);
 
 	// Array
 	ArrayTypeTest[""] = ("Noch ein String");
-	t_assert( ArrayTypeTest.GetType() == AnyArrayType );
-	t_assert( ArrayTypeTest[0L].GetType() == AnyCharPtrType );
+	t_assert(ArrayTypeTest.GetType() == AnyArrayType);
+	t_assert(ArrayTypeTest[0L].GetType() == AnyCharPtrType);
 
 	ArrayTypeTest[""] = (12L);
-	t_assert( ArrayTypeTest.GetType() == AnyArrayType );
-	t_assert( ArrayTypeTest[0L].GetType() == AnyCharPtrType );
-	t_assert( ArrayTypeTest[ 1].GetType() == AnyLongType );
+	t_assert(ArrayTypeTest.GetType() == AnyArrayType);
+	t_assert(ArrayTypeTest[0L].GetType() == AnyCharPtrType);
+	t_assert(ArrayTypeTest[1].GetType() == AnyLongType);
 
-	ArrayTypeTest[""] = ((long) 34);
-	t_assert( ArrayTypeTest.GetType() == AnyArrayType );
-	t_assert( ArrayTypeTest[0L].GetType() == AnyCharPtrType );
-	t_assert( ArrayTypeTest[ 1].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 2].GetType() == AnyLongType );
+	ArrayTypeTest[""] = ((long)34);
+	t_assert(ArrayTypeTest.GetType() == AnyArrayType);
+	t_assert(ArrayTypeTest[0L].GetType() == AnyCharPtrType);
+	t_assert(ArrayTypeTest[1].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[2].GetType() == AnyLongType);
 
-	ArrayTypeTest[""] = ((long) 56);
-	t_assert( ArrayTypeTest.GetType() == AnyArrayType );
-	t_assert( ArrayTypeTest[0L].GetType() == AnyCharPtrType );
-	t_assert( ArrayTypeTest[ 1].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 2].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 3].GetType() == AnyLongType );
+	ArrayTypeTest[""] = ((long)56);
+	t_assert(ArrayTypeTest.GetType() == AnyArrayType);
+	t_assert(ArrayTypeTest[0L].GetType() == AnyCharPtrType);
+	t_assert(ArrayTypeTest[1].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[2].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[3].GetType() == AnyLongType);
 
-	ArrayTypeTest[""] = ((float) 98.765);
-	t_assert( ArrayTypeTest.GetType() == AnyArrayType );
-	t_assert( ArrayTypeTest[0L].GetType() == AnyCharPtrType );
-	t_assert( ArrayTypeTest[ 1].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 2].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 3].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 4].GetType() == AnyDoubleType );
+	ArrayTypeTest[""] = ((float)98.765);
+	t_assert(ArrayTypeTest.GetType() == AnyArrayType);
+	t_assert(ArrayTypeTest[0L].GetType() == AnyCharPtrType);
+	t_assert(ArrayTypeTest[1].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[2].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[3].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[4].GetType() == AnyDoubleType);
 
-	ArrayTypeTest[""] = ((double) 12.345);
-	t_assert( ArrayTypeTest.GetType() == AnyArrayType );
-	t_assert( ArrayTypeTest[0L].GetType() == AnyCharPtrType );
-	t_assert( ArrayTypeTest[ 1].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 2].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 3].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 4].GetType() == AnyDoubleType );
-	t_assert( ArrayTypeTest[ 5].GetType() == AnyDoubleType );
+	ArrayTypeTest[""] = ((double)12.345);
+	t_assert(ArrayTypeTest.GetType() == AnyArrayType);
+	t_assert(ArrayTypeTest[0L].GetType() == AnyCharPtrType);
+	t_assert(ArrayTypeTest[1].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[2].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[3].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[4].GetType() == AnyDoubleType);
+	t_assert(ArrayTypeTest[5].GetType() == AnyDoubleType);
 
 	ArrayTypeTest[0L] = 12L;
-	t_assert( ArrayTypeTest[0L].GetType() == AnyLongType );
+	t_assert(ArrayTypeTest[0L].GetType() == AnyLongType);
 
-	ArrayTypeTest[0L] = (char *) "Ein String";
-	t_assert( ArrayTypeTest[0L].GetType() == AnyCharPtrType );
+	ArrayTypeTest[0L] = (char *)"Ein String";
+	t_assert(ArrayTypeTest[0L].GetType() == AnyCharPtrType);
 
 	ArrayTypeTest[0L] = 34L;
-	t_assert( ArrayTypeTest[0L].GetType() == AnyLongType );
+	t_assert(ArrayTypeTest[0L].GetType() == AnyLongType);
 
-	ArrayTypeTest[0L] = (double) 300.44;
-	t_assert( ArrayTypeTest[0L].GetType() == AnyDoubleType );
+	ArrayTypeTest[0L] = (double)300.44;
+	t_assert(ArrayTypeTest[0L].GetType() == AnyDoubleType);
 
-	ArrayTypeTest[0L] = (long) 56;
-	t_assert( ArrayTypeTest[0L].GetType() == AnyLongType );
+	ArrayTypeTest[0L] = (long)56;
+	t_assert(ArrayTypeTest[0L].GetType() == AnyLongType);
 
-	ArrayTypeTest[0L] = (float) 1.37;
-	t_assert( ArrayTypeTest[0L].GetType() == AnyDoubleType );
+	ArrayTypeTest[0L] = (float)1.37;
+	t_assert(ArrayTypeTest[0L].GetType() == AnyDoubleType);
 
 	ArrayTypeTest[0L] = AnyLong;
-	t_assert( ArrayTypeTest[0L].GetType() == AnyLongType );
+	t_assert(ArrayTypeTest[0L].GetType() == AnyLongType);
 
 	ArrayTypeTest[0L] = MyString;
-	t_assert( ArrayTypeTest[0L].GetType() == AnyCharPtrType );
+	t_assert(ArrayTypeTest[0L].GetType() == AnyCharPtrType);
 
 	SubAnything = ArrayTypeTest;
-	ArrayTypeTest.Append(SubAnything); // this will lead to a leak!
-	t_assert( ArrayTypeTest.GetType() == AnyArrayType );
-	t_assert( ArrayTypeTest[0L].GetType() == AnyCharPtrType );
-	t_assert( ArrayTypeTest[ 1].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 2].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 3].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[ 4].GetType() == AnyDoubleType );
-	t_assert( ArrayTypeTest[ 5].GetType() == AnyDoubleType );
-	t_assert( ArrayTypeTest[ 6].GetType() == AnyArrayType );
-	t_assert( ArrayTypeTest[6][0L].GetType() == AnyCharPtrType );
-	t_assert( ArrayTypeTest[6][ 1].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[6][ 2].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[6][ 3].GetType() == AnyLongType );
-	t_assert( ArrayTypeTest[6][ 4].GetType() == AnyDoubleType );
-	t_assert( ArrayTypeTest[6][ 5].GetType() == AnyDoubleType );
+	ArrayTypeTest.Append(SubAnything);	// this will lead to a leak!
+	t_assert(ArrayTypeTest.GetType() == AnyArrayType);
+	t_assert(ArrayTypeTest[0L].GetType() == AnyCharPtrType);
+	t_assert(ArrayTypeTest[1].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[2].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[3].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[4].GetType() == AnyDoubleType);
+	t_assert(ArrayTypeTest[5].GetType() == AnyDoubleType);
+	t_assert(ArrayTypeTest[6].GetType() == AnyArrayType);
+	t_assert(ArrayTypeTest[6][0L].GetType() == AnyCharPtrType);
+	t_assert(ArrayTypeTest[6][1].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[6][2].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[6][3].GetType() == AnyLongType);
+	t_assert(ArrayTypeTest[6][4].GetType() == AnyDoubleType);
+	t_assert(ArrayTypeTest[6][5].GetType() == AnyDoubleType);
 
 	ArrayTypeTest[0L] = 12L;
-	t_assert( ArrayTypeTest[6][0L].GetType() == AnyLongType );
+	t_assert(ArrayTypeTest[6][0L].GetType() == AnyLongType);
 
-	ArrayTypeTest[6][0L] = (char *) "Ein String";
-	t_assert( ArrayTypeTest[6][0L].GetType() == AnyCharPtrType );
+	ArrayTypeTest[6][0L] = (char *)"Ein String";
+	t_assert(ArrayTypeTest[6][0L].GetType() == AnyCharPtrType);
 
-	ArrayTypeTest[6][0L] = (long) 34;
-	t_assert( ArrayTypeTest[6][0L].GetType() == AnyLongType );
+	ArrayTypeTest[6][0L] = (long)34;
+	t_assert(ArrayTypeTest[6][0L].GetType() == AnyLongType);
 
-	ArrayTypeTest[6][0L] = (double) 300.44;
-	t_assert( ArrayTypeTest[6][0L].GetType() == AnyDoubleType );
+	ArrayTypeTest[6][0L] = (double)300.44;
+	t_assert(ArrayTypeTest[6][0L].GetType() == AnyDoubleType);
 
-	ArrayTypeTest[6][0L] = (long) 56;
-	t_assert( ArrayTypeTest[6][0L].GetType() == AnyLongType );
+	ArrayTypeTest[6][0L] = (long)56;
+	t_assert(ArrayTypeTest[6][0L].GetType() == AnyLongType);
 
 	ArrayTypeTest[6][0L] = MyString;
-	t_assert( ArrayTypeTest[6][0L].GetType() == AnyCharPtrType );
+	t_assert(ArrayTypeTest[6][0L].GetType() == AnyCharPtrType);
 
-	ArrayTypeTest[6][0L] = (float) 1.37;
-	t_assert( ArrayTypeTest[6][0L].GetType() == AnyDoubleType );
+	ArrayTypeTest[6][0L] = (float)1.37;
+	t_assert(ArrayTypeTest[6][0L].GetType() == AnyDoubleType);
 
 	ArrayTypeTest[6][0L] = AnyLong;
-	t_assert( ArrayTypeTest[6][0L].GetType() == AnyLongType );
+	t_assert(ArrayTypeTest[6][0L].GetType() == AnyLongType);
 
-	ArrayTypeTest.Remove(6L); // break circular dependency to avoid leak
+	ArrayTypeTest.Remove(6L);  // break circular dependency to avoid leak
 
 	// Array
 	KeyTypeTest["0"] = "Noch ein String";
-	t_assert( KeyTypeTest.GetType() == AnyArrayType );
-	t_assert( KeyTypeTest["0"].GetType() == AnyCharPtrType );
+	t_assert(KeyTypeTest.GetType() == AnyArrayType);
+	t_assert(KeyTypeTest["0"].GetType() == AnyCharPtrType);
 
 	KeyTypeTest["1"] = (12L);
-	t_assert( KeyTypeTest.GetType() == AnyArrayType );
-	t_assert( KeyTypeTest["0"].GetType() == AnyCharPtrType );
-	t_assert( KeyTypeTest["1"].GetType() == AnyLongType );
+	t_assert(KeyTypeTest.GetType() == AnyArrayType);
+	t_assert(KeyTypeTest["0"].GetType() == AnyCharPtrType);
+	t_assert(KeyTypeTest["1"].GetType() == AnyLongType);
 
-	KeyTypeTest["2"] = ((long) 34);
-	t_assert( KeyTypeTest.GetType() == AnyArrayType );
-	t_assert( KeyTypeTest["0"].GetType() == AnyCharPtrType );
-	t_assert( KeyTypeTest["1"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["2"].GetType() == AnyLongType );
+	KeyTypeTest["2"] = ((long)34);
+	t_assert(KeyTypeTest.GetType() == AnyArrayType);
+	t_assert(KeyTypeTest["0"].GetType() == AnyCharPtrType);
+	t_assert(KeyTypeTest["1"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["2"].GetType() == AnyLongType);
 
-	KeyTypeTest["3"] = ((long) 56);
-	t_assert( KeyTypeTest.GetType() == AnyArrayType );
-	t_assert( KeyTypeTest["0"].GetType() == AnyCharPtrType );
-	t_assert( KeyTypeTest["1"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["2"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["3"].GetType() == AnyLongType );
+	KeyTypeTest["3"] = ((long)56);
+	t_assert(KeyTypeTest.GetType() == AnyArrayType);
+	t_assert(KeyTypeTest["0"].GetType() == AnyCharPtrType);
+	t_assert(KeyTypeTest["1"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["2"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["3"].GetType() == AnyLongType);
 
-	KeyTypeTest["4"] = ((float) 98.765);
-	t_assert( KeyTypeTest.GetType() == AnyArrayType );
-	t_assert( KeyTypeTest["0"].GetType() == AnyCharPtrType );
-	t_assert( KeyTypeTest["1"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["2"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["3"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["4"].GetType() == AnyDoubleType );
+	KeyTypeTest["4"] = ((float)98.765);
+	t_assert(KeyTypeTest.GetType() == AnyArrayType);
+	t_assert(KeyTypeTest["0"].GetType() == AnyCharPtrType);
+	t_assert(KeyTypeTest["1"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["2"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["3"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["4"].GetType() == AnyDoubleType);
 
-	KeyTypeTest["5"] = ((double) 12.345);
-	t_assert( KeyTypeTest.GetType() == AnyArrayType );
-	t_assert( KeyTypeTest["0"].GetType() == AnyCharPtrType );
-	t_assert( KeyTypeTest["1"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["2"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["3"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["4"].GetType() == AnyDoubleType );
-	t_assert( KeyTypeTest["5"].GetType() == AnyDoubleType );
+	KeyTypeTest["5"] = ((double)12.345);
+	t_assert(KeyTypeTest.GetType() == AnyArrayType);
+	t_assert(KeyTypeTest["0"].GetType() == AnyCharPtrType);
+	t_assert(KeyTypeTest["1"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["2"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["3"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["4"].GetType() == AnyDoubleType);
+	t_assert(KeyTypeTest["5"].GetType() == AnyDoubleType);
 
 	KeyTypeTest["0"] = 12L;
-	t_assert( KeyTypeTest["0"].GetType() == AnyLongType );
+	t_assert(KeyTypeTest["0"].GetType() == AnyLongType);
 
-	KeyTypeTest["0"] = (char *) "Ein String";
-	t_assert( KeyTypeTest["0"].GetType() == AnyCharPtrType );
+	KeyTypeTest["0"] = (char *)"Ein String";
+	t_assert(KeyTypeTest["0"].GetType() == AnyCharPtrType);
 
-	KeyTypeTest["0"] = (long) 34;
-	t_assert( KeyTypeTest["0"].GetType() == AnyLongType );
+	KeyTypeTest["0"] = (long)34;
+	t_assert(KeyTypeTest["0"].GetType() == AnyLongType);
 
-	KeyTypeTest["0"] = (double) 300.44;
-	t_assert( KeyTypeTest["0"].GetType() == AnyDoubleType );
+	KeyTypeTest["0"] = (double)300.44;
+	t_assert(KeyTypeTest["0"].GetType() == AnyDoubleType);
 
-	KeyTypeTest["0"] = (long) 56;
-	t_assert( KeyTypeTest["0"].GetType() == AnyLongType );
+	KeyTypeTest["0"] = (long)56;
+	t_assert(KeyTypeTest["0"].GetType() == AnyLongType);
 
-	KeyTypeTest["0"] = (float) 1.37;
-	t_assert( KeyTypeTest["0"].GetType() == AnyDoubleType );
+	KeyTypeTest["0"] = (float)1.37;
+	t_assert(KeyTypeTest["0"].GetType() == AnyDoubleType);
 
 	KeyTypeTest["0"] = AnyLong;
-	t_assert( KeyTypeTest["0"].GetType() == AnyLongType );
+	t_assert(KeyTypeTest["0"].GetType() == AnyLongType);
 
 	KeyTypeTest["0"] = MyString;
-	t_assert( KeyTypeTest["0"].GetType() == AnyCharPtrType );
+	t_assert(KeyTypeTest["0"].GetType() == AnyCharPtrType);
 
 	SubAnything = KeyTypeTest;
 	KeyTypeTest["6"] = (SubAnything);
-	t_assert( KeyTypeTest.GetType() == AnyArrayType );
-	t_assert( KeyTypeTest["0"].GetType() == AnyCharPtrType );
-	t_assert( KeyTypeTest["1"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["2"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["3"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["4"].GetType() == AnyDoubleType );
-	t_assert( KeyTypeTest["5"].GetType() == AnyDoubleType );
-	t_assert( KeyTypeTest["6"].GetType() == AnyArrayType );
-	t_assert( KeyTypeTest["6"]["0"].GetType() == AnyCharPtrType );
-	t_assert( KeyTypeTest["6"]["1"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["6"]["2"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["6"]["3"].GetType() == AnyLongType );
-	t_assert( KeyTypeTest["6"]["4"].GetType() == AnyDoubleType );
-	t_assert( KeyTypeTest["6"]["5"].GetType() == AnyDoubleType );
+	t_assert(KeyTypeTest.GetType() == AnyArrayType);
+	t_assert(KeyTypeTest["0"].GetType() == AnyCharPtrType);
+	t_assert(KeyTypeTest["1"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["2"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["3"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["4"].GetType() == AnyDoubleType);
+	t_assert(KeyTypeTest["5"].GetType() == AnyDoubleType);
+	t_assert(KeyTypeTest["6"].GetType() == AnyArrayType);
+	t_assert(KeyTypeTest["6"]["0"].GetType() == AnyCharPtrType);
+	t_assert(KeyTypeTest["6"]["1"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["6"]["2"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["6"]["3"].GetType() == AnyLongType);
+	t_assert(KeyTypeTest["6"]["4"].GetType() == AnyDoubleType);
+	t_assert(KeyTypeTest["6"]["5"].GetType() == AnyDoubleType);
 
 	KeyTypeTest["6"]["0"] = 12L;
-	t_assert( KeyTypeTest["6"]["0"].GetType() == AnyLongType );
+	t_assert(KeyTypeTest["6"]["0"].GetType() == AnyLongType);
 
-	KeyTypeTest["6"]["0"] = (char *) "Ein String";
-	t_assert( KeyTypeTest["6"]["0"].GetType() == AnyCharPtrType );
+	KeyTypeTest["6"]["0"] = (char *)"Ein String";
+	t_assert(KeyTypeTest["6"]["0"].GetType() == AnyCharPtrType);
 
-	KeyTypeTest["6"]["0"] = (long) 34;
-	t_assert( KeyTypeTest["6"]["0"].GetType() == AnyLongType );
+	KeyTypeTest["6"]["0"] = (long)34;
+	t_assert(KeyTypeTest["6"]["0"].GetType() == AnyLongType);
 
-	KeyTypeTest["6"]["0"] = (double) 300.44;
-	t_assert( KeyTypeTest["6"]["0"].GetType() == AnyDoubleType );
+	KeyTypeTest["6"]["0"] = (double)300.44;
+	t_assert(KeyTypeTest["6"]["0"].GetType() == AnyDoubleType);
 
-	KeyTypeTest["6"]["0"] = (long) 56;
-	t_assert( KeyTypeTest["6"]["0"].GetType() == AnyLongType );
+	KeyTypeTest["6"]["0"] = (long)56;
+	t_assert(KeyTypeTest["6"]["0"].GetType() == AnyLongType);
 
 	KeyTypeTest["6"]["0"] = MyString;
-	t_assert( KeyTypeTest["6"]["0"].GetType() == AnyCharPtrType );
+	t_assert(KeyTypeTest["6"]["0"].GetType() == AnyCharPtrType);
 
-	KeyTypeTest["6"]["0"] = (float) 1.37;
-	t_assert( KeyTypeTest["6"]["0"].GetType() == AnyDoubleType );
+	KeyTypeTest["6"]["0"] = (float)1.37;
+	t_assert(KeyTypeTest["6"]["0"].GetType() == AnyDoubleType);
 
 	KeyTypeTest["6"]["0"] = AnyLong;
-	t_assert( KeyTypeTest["6"]["0"].GetType() == AnyLongType );
+	t_assert(KeyTypeTest["6"]["0"].GetType() == AnyLongType);
 
-	KeyTypeTest.Remove("6"); // break circular dependency to avoid leak
+	KeyTypeTest.Remove("6");  // break circular dependency to avoid leak
 }
 
 void AnythingTest::SuccessiveAssignments()
@@ -323,9 +321,9 @@ void AnythingTest::SuccessiveAssignments()
 	Anything b = "Test";
 	assertEqual("Test", b.AsCharPtr("nothing"));
 	Anything c = b["Test"];
-	t_assert( b.IsDefined("Test") );
-	t_assert( c.IsNull() );
-} // SuccessiveAssignments
+	t_assert(b.IsDefined("Test"));
+	t_assert(c.IsNull());
+}  // SuccessiveAssignments
 
 void AnythingTest::operatorAssignemnt() {
 	boolOperatorAssign();
@@ -348,8 +346,8 @@ void AnythingTest::appendTest() {
 	expected[1L] = sub;
 	assertAnyEqual(expected, a);
 
-	Anything b = "Test"; // AnyStringImpl
-	b.Append(sub); // -> AnyArrayImpl
+	Anything b = "Test";  // AnyStringImpl
+	b.Append(sub);		  // -> AnyArrayImpl
 	expected[0L] = "Test";
 	assertAnyEqual(expected, b);
 
@@ -363,26 +361,26 @@ void AnythingTest::boolOperatorAssign() {
 	bool b = true;
 
 	Anything boolAny = b;
-	assertEqual((long)(b), (long) boolAny.AsBool(false));
+	assertEqual((long)(b), (long)boolAny.AsBool(false));
 
 	b = false;
 	boolAny = b;
-	assertEqual((long)(b), (long) boolAny.AsBool(true));
+	assertEqual((long)(b), (long)boolAny.AsBool(true));
 
 	boolAny = 1;
-	assertEqual((long)(true), (long) boolAny.AsBool(false));
+	assertEqual((long)(true), (long)boolAny.AsBool(false));
 
 	boolAny = 0;
-	assertEqual((long)(false), (long) boolAny.AsBool(false));
+	assertEqual((long)(false), (long)boolAny.AsBool(false));
 
 	// some quirky cases
 	long c = -1;
 	long c1 = 1;
-	boolAny = ((IFAObject *) c);
-	assertEqual((long)(false), (long) boolAny.AsBool(false));
+	boolAny = ((IFAObject *)c);
+	assertEqual((long)(false), (long)boolAny.AsBool(false));
 
-	boolAny = ((IFAObject *) c1);
-	assertEqual((long)(false), (long) boolAny.AsBool(false));
+	boolAny = ((IFAObject *)c1);
+	assertEqual((long)(false), (long)boolAny.AsBool(false));
 }
 
 void AnythingTest::intOperatorAssign() {
@@ -397,18 +395,18 @@ void AnythingTest::intOperatorAssign() {
 	intAny = i;
 
 	assertEqual(i, intAny.AsLong(0));
-	assertEqual(b.AsLong(0), 10L); // still 10
+	assertEqual(b.AsLong(0), 10L);	// still 10
 }
 
 void AnythingTest::ifaObjectOperatorAssign() {
 	DummyIFAObj o("test");
 	Anything objAny = &o;
 
-	assertEqual((long)(&o), (long) objAny.AsIFAObject(0));
-	assertEqual((long)(&o), (long) objAny.AsLong(0));
-	assertEqual((long)0.0, (long) objAny.AsDouble(0.0));
+	assertEqual((long)(&o), (long)objAny.AsIFAObject(0));
+	assertEqual((long)(&o), (long)objAny.AsLong(0));
+	assertEqual((long)0.0, (long)objAny.AsDouble(0.0));
 	assertEqual("IFAObject", objAny.AsCharPtr(""));
-	assertEqual((long)(false), (long) objAny.AsBool(false));
+	assertEqual((long)(false), (long)objAny.AsBool(false));
 }
 
 void AnythingTest::roConversion() {
@@ -423,31 +421,31 @@ void AnythingTest::boolROConversion() {
 
 	Anything boolAny = b;
 	ROAnything roBoolAny(boolAny);
-	assertEqual((long)(b), (long) roBoolAny.AsBool(false));
+	assertEqual((long)(b), (long)roBoolAny.AsBool(false));
 
 	b = false;
 	boolAny = b;
 	roBoolAny = boolAny;
-	assertEqual((long)(b), (long) roBoolAny.AsBool(true));
+	assertEqual((long)(b), (long)roBoolAny.AsBool(true));
 
 	boolAny = 1;
 	roBoolAny = boolAny;
-	assertEqual((long)(true), (long) roBoolAny.AsBool(false));
+	assertEqual((long)(true), (long)roBoolAny.AsBool(false));
 
 	boolAny = 0;
 	roBoolAny = boolAny;
-	assertEqual((long)(false), (long) roBoolAny.AsBool(false));
+	assertEqual((long)(false), (long)roBoolAny.AsBool(false));
 
 	// some quirky cases
 	long c = -1;
 	long c1 = 1;
-	boolAny = ((IFAObject *) c);
+	boolAny = ((IFAObject *)c);
 	roBoolAny = boolAny;
-	assertEqual((long)(false), (long) roBoolAny.AsBool(false));
+	assertEqual((long)(false), (long)roBoolAny.AsBool(false));
 
-	boolAny = ((IFAObject *) c1);
+	boolAny = ((IFAObject *)c1);
 	roBoolAny = boolAny;
-	assertEqual((long)(false), (long) roBoolAny.AsBool(false));
+	assertEqual((long)(false), (long)roBoolAny.AsBool(false));
 }
 
 void AnythingTest::intROConversion() {
@@ -469,22 +467,22 @@ void AnythingTest::ifaObjectROConversion() {
 	Anything objAny = &o;
 	ROAnything roObjAny(objAny);
 
-	assertEqual((long)(&o), (long) roObjAny.AsIFAObject(0));
-	assertEqual((long)(&o), (long) roObjAny.AsLong(0));
-	assertEqual((long)0.0, (long) roObjAny.AsDouble(0.0));
+	assertEqual((long)(&o), (long)roObjAny.AsIFAObject(0));
+	assertEqual((long)(&o), (long)roObjAny.AsLong(0));
+	assertEqual((long)0.0, (long)roObjAny.AsDouble(0.0));
 	assertEqual("IFAObject", roObjAny.AsCharPtr(""));
-	assertEqual((long)(false), (long) roObjAny.AsBool(false));
+	assertEqual((long)(false), (long)roObjAny.AsBool(false));
 }
 
 void AnythingTest::BinaryBufOutput() {
 	Anything testAny;
-	testAny["T1"] = Anything((void *) "1234567890", 10);
+	testAny["T1"] = Anything((void *)"1234567890", 10);
 	String testString;
 	OStringStream os(&testString);
 
 	os << testAny << std::flush;
 
-	assertEqual( "{\n  /T1 [10;1234567890]\n}", testString);
+	assertEqual("{\n  /T1 [10;1234567890]\n}", testString);
 	assertEqual(25, testString.Length());
 }
 
@@ -500,12 +498,12 @@ void AnythingTest::AsCharPtrBufLen() {
 
 	long arraylen;
 	anyArray.AsCharPtr("", arraylen);
-	assertEqual(12, arraylen); // strlen("AnyArrayImpl")
+	assertEqual(12, arraylen);	// strlen("AnyArrayImpl")
 
 	//--- AnyBinaryBufImpl
 	char test[10];
 	memset(test, '\0', 10);
-	Anything anyTest((void *) test, 10);
+	Anything anyTest((void *)test, 10);
 	long buflen;
 	anyTest.AsCharPtr("", buflen);
 	assertEqual(10, buflen);
@@ -514,26 +512,26 @@ void AnythingTest::AsCharPtrBufLen() {
 	Anything anydouble(2.01);
 	long doublelen;
 	anydouble.AsCharPtr("", doublelen);
-	t_assert( 3 <= doublelen );
+	t_assert(3 <= doublelen);
 
 	//--- AnyLongImpl
 	Anything anylong(100);
 	long longlen;
 	anylong.AsCharPtr("", longlen);
-	assertEqual(3, longlen); // strlen("100")
+	assertEqual(3, longlen);  // strlen("100")
 
 	//--- AnyObjectImpl
 	IFAObject *o = 0;
 	Anything anyobject(o);
 	long objectlen;
 	anyobject.AsCharPtr("", objectlen);
-	assertEqual(9, objectlen); // strlen("IFAObject")
+	assertEqual(9, objectlen);	// strlen("IFAObject")
 
 	//--- AnyStringImpl
 	Anything anystring("abc");
 	long stringlen;
 	anystring.AsCharPtr("", stringlen);
-	assertEqual(3, stringlen); // strlen("abc")
+	assertEqual(3, stringlen);	// strlen("abc")
 }
 
 void AnythingTest::RefCount() {
@@ -541,29 +539,29 @@ void AnythingTest::RefCount() {
 	Anything b;
 
 	// empty anything can't have shared impls therefore the refcount is always 0
-	assertCompare( a.RefCount(), equal_to, 0L );
-	assertCompare( b.RefCount(), equal_to, 0L );
+	assertCompare(a.RefCount(), equal_to, 0L);
+	assertCompare(b.RefCount(), equal_to, 0L);
 
 	a = b;
-	assertCompare( a.RefCount(), equal_to, 0L );
-	assertCompare( b.RefCount(), equal_to, 0L );
+	assertCompare(a.RefCount(), equal_to, 0L);
+	assertCompare(b.RefCount(), equal_to, 0L);
 
 	// assign a string -> implicitly create an impl
 	a = "test the ref";
-	assertCompare( a.RefCount(), equal_to, 1L );
-	assertCompare( b.RefCount(), equal_to, 0L );
+	assertCompare(a.RefCount(), equal_to, 1L);
+	assertCompare(b.RefCount(), equal_to, 0L);
 
 	b = a;
-	assertCompare( a.RefCount(), equal_to, 2L );
-	assertCompare( b.RefCount(), equal_to, 2L );
+	assertCompare(a.RefCount(), equal_to, 2L);
+	assertCompare(b.RefCount(), equal_to, 2L);
 
 	a = Anything();
-	assertCompare( a.RefCount(), equal_to, 0L );
-	assertCompare( b.RefCount(), equal_to, 1L );
+	assertCompare(a.RefCount(), equal_to, 0L);
+	assertCompare(b.RefCount(), equal_to, 1L);
 
 	b = Anything();
-	assertCompare( a.RefCount(), equal_to, 0L );
-	assertCompare( b.RefCount(), equal_to, 0L );
+	assertCompare(a.RefCount(), equal_to, 0L);
+	assertCompare(b.RefCount(), equal_to, 0L);
 }
 
 void AnythingTest::SlotCopierTest() {
@@ -575,7 +573,8 @@ void AnythingTest::SlotCopierTest() {
 		Anything source = config["Source"].DeepClone();
 		Anything result;
 
-		SlotCopier::Operate(source, result, copyList, config["Delim"].AsCharPtr(".")[0L], config["IndexDelim"].AsCharPtr(":")[0L]);
+		SlotCopier::Operate(source, result, copyList, config["Delim"].AsCharPtr(".")[0L],
+							config["IndexDelim"].AsCharPtr(":")[0L]);
 
 		ROAnything expectedStore(config["Result"]);
 		assertAnyEqualm(expectedStore, result, TString(name()) << "." << fQuery.SlotName(l));
@@ -688,7 +687,7 @@ void AnythingTest::SlotnameSorterTest() {
 			SlotnameSorter::EMode mode(cConfig["Mode"].AsString() == "asc" ? SlotnameSorter::asc : SlotnameSorter::desc);
 			sorted = cConfig["TestArray"].DeepClone();
 			SlotnameSorter::Sort(sorted, mode);
-			assertAnyEqual( cConfig["ExpectedResult"], sorted);
+			assertAnyEqual(cConfig["ExpectedResult"], sorted);
 		}
 	}
 }

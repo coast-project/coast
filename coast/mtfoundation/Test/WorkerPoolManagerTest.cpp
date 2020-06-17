@@ -7,9 +7,10 @@
  */
 
 #include "WorkerPoolManagerTest.h"
-#include "TestThread.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
+#include "TestSuite.h"
+#include "TestThread.h"
 // builds up a suite of testcases, add a line for each testmethod
 Test *WorkerPoolManagerTest::suite() {
 	StartTrace(WorkerPoolManagerTest.suite);
@@ -27,8 +28,8 @@ void WorkerPoolManagerTest::InitTest() {
 
 	Anything config;
 	config["timeout"] = 1;
-	config["test"] = Anything((IFAObject *) this);
-	t_assert(wpm.Init(0, 0, 0, 0, ROAnything(config)) == 0); // always allocate at least one worker
+	config["test"] = Anything((IFAObject *)this);
+	t_assert(wpm.Init(0, 0, 0, 0, ROAnything(config)) == 0);  // always allocate at least one worker
 	t_assert(wpm.GetPoolSize() == 1);
 	t_assert(wpm.ResourcesUsed() == 0);
 	t_assert(wpm.Init(-1, 0, 0, 0, ROAnything(config)) == 0);
@@ -52,7 +53,7 @@ void WorkerPoolManagerTest::EnterLeaveTests() {
 	SamplePoolManager wpm("EnterLeaveTestsPool");
 	Anything config;
 	config["timeout"] = 1;
-	config["test"] = Anything((IFAObject *) this);
+	config["test"] = Anything((IFAObject *)this);
 	t_assert(wpm.Init(cPoolSz, 0, 0, 0, ROAnything(config)) == 0);
 	t_assert(wpm.GetPoolSize() == cPoolSz);
 	t_assert(wpm.ResourcesUsed() == 0);
@@ -71,9 +72,9 @@ void WorkerPoolManagerTest::EnterLeaveTests() {
 	expected["CurrentParallelRequests"] = 0;
 	expected["MaxParallelRequests"] = 2;
 	expected["TotalRequests"] = 4;
-	statistic.Remove("TotalTime [ms]"); // since varies
-	statistic.Remove("AverageTime [ms]"); // since varies
-	statistic.Remove("TRX/sec"); // since varies
+	statistic.Remove("TotalTime [ms]");	   // since varies
+	statistic.Remove("AverageTime [ms]");  // since varies
+	statistic.Remove("TRX/sec");		   // since varies
 
 	assertAnyEqualm(expected, statistic, "statistic differs");
 }

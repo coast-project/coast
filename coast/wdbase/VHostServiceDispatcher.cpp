@@ -7,55 +7,56 @@
  */
 
 #include "VHostServiceDispatcher.h"
-#include "ServiceHandler.h"
-#include "Renderer.h"
-#include "Tracer.h"
+
 #include "AnyIterators.h"
+#include "Renderer.h"
+#include "ServiceHandler.h"
+#include "Tracer.h"
 
 RegisterServiceDispatcher(VHostServiceDispatcher);
 namespace {
 	Anything buildPathSegmentList(String requestURI) {
 		StartTrace1(VHostServiceDispatcher.buildPathSegmentList, "input URI [" << requestURI << "]");
 		Anything anySegments;
-		long lSlashIdx = requestURI.StrChr('?'), lAppendIdx=-1L;
-		if ( lSlashIdx != -1L ) {
+		long lSlashIdx = requestURI.StrChr('?'), lAppendIdx = -1L;
+		if (lSlashIdx != -1L) {
 			requestURI.Trim(lSlashIdx);
 			lSlashIdx = -1L;
 		}
-		while ( requestURI.Length() ) {
-			if ( lAppendIdx < 0L || !anySegments[lAppendIdx].IsEqual(static_cast<const char*>(requestURI)) ) {
+		while (requestURI.Length()) {
+			if (lAppendIdx < 0L || !anySegments[lAppendIdx].IsEqual(static_cast<const char *>(requestURI))) {
 				Trace("adding URI [" << requestURI << "]");
 				lAppendIdx = anySegments.Append(requestURI);
 			}
-			lSlashIdx=requestURI.StrRChr('/', lSlashIdx);
+			lSlashIdx = requestURI.StrRChr('/', lSlashIdx);
 			// trim to previous slash including trailing slash if any
-			requestURI.Trim(lSlashIdx+1);
+			requestURI.Trim(lSlashIdx + 1);
 			Trace("trimmed URI [" << requestURI << "]");
 		}
 		return anySegments;
 	}
-}
+}  // namespace
 
-ServiceHandler *VHostServiceDispatcher::findServiceBasedOnLongestURIPrefixMatch(Context &ctx, String& requestURI)
-{
+ServiceHandler *VHostServiceDispatcher::findServiceBasedOnLongestURIPrefixMatch(Context &ctx, String &requestURI) {
 	StartTrace(VHostServiceDispatcher.findServiceBasedOnLongestURIPrefixMatch);
 	ServiceHandler *sh = 0;
-	Anything anySegments( buildPathSegmentList(requestURI) );
+	Anything anySegments(buildPathSegmentList(requestURI));
 	TraceAny(anySegments, "path split into single segments");
 	AnyExtensions::Iterator<ROAnything> aSegmentIter(anySegments);
 	ROAnything roaSegment, roaURIPrefixEntry;
-	while ( aSegmentIter.Next(roaSegment) ) {
+	while (aSegmentIter.Next(roaSegment)) {
 		String strLookupSegment("URIPrefix2ServiceMap.");
 		strLookupSegment.Append(roaSegment.AsString());
 		Trace("current path to lookup [" << strLookupSegment << "]");
-		if ( ctx.Lookup(strLookupSegment, roaURIPrefixEntry) || ctx.Lookup(strLookupSegment.Trim(strLookupSegment.Length()-1), roaURIPrefixEntry) ) {
-			strLookupSegment.TrimFront(strLookupSegment.StrChr('.')+1);
+		if (ctx.Lookup(strLookupSegment, roaURIPrefixEntry) ||
+			ctx.Lookup(strLookupSegment.Trim(strLookupSegment.Length() - 1), roaURIPrefixEntry)) {
+			strLookupSegment.TrimFront(strLookupSegment.StrChr('.') + 1);
 			Trace("matched segment and new URIPrefix[" << strLookupSegment << "]");
 			String service;
 			Renderer::RenderOnString(service, ctx, roaURIPrefixEntry);
 			Trace("servicename [" << service << "]");
 			ServiceHandler *pfxService = 0;
-			if ( service.Length() && (pfxService=ServiceHandler::FindServiceHandler(service)) != 0 ) {
+			if (service.Length() && (pfxService = ServiceHandler::FindServiceHandler(service)) != 0) {
 				sh = pfxService;
 				requestURI = strLookupSegment;
 				break;
@@ -65,8 +66,7 @@ ServiceHandler *VHostServiceDispatcher::findServiceBasedOnLongestURIPrefixMatch(
 	return sh;
 }
 
-ServiceHandler *VHostServiceDispatcher::FindServiceHandler(Context &ctx)
-{
+ServiceHandler *VHostServiceDispatcher::FindServiceHandler(Context &ctx) {
 	StartTrace(VHostServiceDispatcher.FindServiceHandler);
 	String requestVhostWithPort(ctx.Lookup("header.HOST", ""));
 	String requestVhost(requestVhostWithPort.SubString(0, requestVhostWithPort.StrChr(':')));
@@ -74,7 +74,7 @@ ServiceHandler *VHostServiceDispatcher::FindServiceHandler(Context &ctx)
 	String requestURI(ctx.Lookup("REQUEST_URI", ""));
 	Trace("request URI [" << requestURI << "]");
 	ServiceHandler *sh = ServiceHandler::FindServiceHandler(requestVhost);
-	if ( sh ) {
+	if (sh) {
 		Anything query(ctx.GetQuery());
 		query["VHost"] = requestVhost;
 		query["EntryPage"] = requestURI;
@@ -82,7 +82,7 @@ ServiceHandler *VHostServiceDispatcher::FindServiceHandler(Context &ctx)
 		ctx.Push("ServiceHandler", sh);
 		ROAnything roaURIPrefixList;
 		ServiceHandler *pfxService = 0;
-		if ( (pfxService=findServiceBasedOnLongestURIPrefixMatch(ctx, requestURI)) != 0 ) {
+		if ((pfxService = findServiceBasedOnLongestURIPrefixMatch(ctx, requestURI)) != 0) {
 			sh = pfxService;
 			query["URIPrefix"] = requestURI;
 		}

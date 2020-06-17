@@ -9,39 +9,38 @@
 #ifndef _ListenerPoolTest_H
 #define _ListenerPoolTest_H
 
-#include "WDBaseTestPolicies.h"
 #include "Socket.h"
+#include "WDBaseTestPolicies.h"
 
 class Connector;
 
 //---- ListenerPoolTest ----------------------------------------------------------
-//!TestCases description
-class ListenerPoolTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+//! TestCases description
+class ListenerPoolTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	ListenerPoolTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~ListenerPoolTest();
 
 	//--- public api
 
-	//!must be implemented by subclasses since this class is abstract
+	//! must be implemented by subclasses since this class is abstract
 	//! static Test *suite ();
 
-	void setUp ();
+	void setUp();
 
-	//!Everything works fine within this testcase
+	//! Everything works fine within this testcase
 	void PoolTest();
-	//!initialization fails
+	//! initialization fails
 	void InitFailureTest();
-	//!illegal constructor parameter
+	//! illegal constructor parameter
 	void NullCallBackFactoryTest();
-	//!acceptor can not be constructed
+	//! acceptor can not be constructed
 	void InitFailureNullAcceptorTest();
 
 protected:
@@ -53,10 +52,9 @@ protected:
 	virtual bool DoSendReceiveWithFailure(Connector *c, Anything toSend, bool iosGoodAfterSend, bool iosGoodBeforeSend);
 };
 
-class TestReceiver
-{
+class TestReceiver {
 public:
-	TestReceiver(): fMutex("MMMM") {}
+	TestReceiver() : fMutex("MMMM") {}
 	void Receive(std::iostream *Ios, Socket *socket);
 	Anything GetResult();
 	Anything GetFailures();
@@ -68,18 +66,14 @@ protected:
 	Mutex fMutex;
 };
 
-class TestCallBackFactory : public CallBackFactory
-{
+class TestCallBackFactory : public CallBackFactory {
 public:
-	TestCallBackFactory() { };
-	virtual ~TestCallBackFactory() {};
+	TestCallBackFactory(){};
+	virtual ~TestCallBackFactory(){};
 	virtual AcceptorCallBack *MakeCallBack();
-	Anything GetResult() {
-		return fReceiver.GetResult();
-	}
-	Anything GetFailures() {
-		return fReceiver.GetFailures();
-	}
+	Anything GetResult() { return fReceiver.GetResult(); }
+	Anything GetFailures() { return fReceiver.GetFailures(); }
+
 protected:
 	TestReceiver fReceiver;
 };

@@ -7,15 +7,16 @@
  */
 
 #include "Page.h"
-#include "Renderer.h"
-#include "Action.h"
-#include "Timers.h"
-#include "HTTPStreamStack.h"
-#include "RequestProcessor.h"
-#include "Policy.h"
 
-const char* Page::gpcCategory = "Page";
-const char* Page::gpcConfigPath = "Pages";
+#include "Action.h"
+#include "HTTPStreamStack.h"
+#include "Policy.h"
+#include "Renderer.h"
+#include "RequestProcessor.h"
+#include "Timers.h"
+
+const char *Page::gpcCategory = "Page";
+const char *Page::gpcConfigPath = "Pages";
 
 RegCacheImpl(Page);
 RegisterModule(PagesModule);
@@ -39,8 +40,7 @@ bool PagesModule::Finis() {
 }
 RegisterPage(Page);
 
-Page::Page(const char *title) :
-	HierarchConfNamed(title) {
+Page::Page(const char *title) : HierarchConfNamed(title) {
 	SetName(title);
 }
 
@@ -112,10 +112,10 @@ void Page::Render(std::ostream &reply, Context &ctx) {
 		RenderProtocolBody(replyInt, ctx);
 		RenderProtocolTail(replyInt, ctx);
 		replyInt << std::flush;
-		SystemLog::WriteToStderr(
-				String("Page::Render\n") << "------------ start -----------\n" << dbg << "------------  end ------------\n");
+		SystemLog::WriteToStderr(String("Page::Render\n") << "------------ start -----------\n"
+														  << dbg << "------------  end ------------\n");
 	}
-	//SOP: try if we can get better responsiveness releasing the session
+	// SOP: try if we can get better responsiveness releasing the session
 	SessionReleaser slr(ctx);
 	slr.Use();
 

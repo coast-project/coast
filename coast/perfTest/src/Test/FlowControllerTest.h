@@ -9,47 +9,45 @@
 #ifndef _FlowControllerTest_H
 #define _FlowControllerTest_H
 
-#include "StressAppTest.h"
 #include "FoundationTestTypes.h"
+#include "StressAppTest.h"
 
-class FlowControllerTest: public StressAppTest {
+class FlowControllerTest : public StressAppTest {
 public:
-	FlowControllerTest(TString tstrName) :
-		StressAppTest(tstrName) {
-	}
-    static Test *suite();
+	FlowControllerTest(TString tstrName) : StressAppTest(tstrName) {}
+	static Test *suite();
 	void setUp();
 
-	//!Test with Full configuration
+	//! Test with Full configuration
 	void FullConfigurationTest();
 
-	//!Test with configuration without NumberOfRuns ( default of one is taken )
+	//! Test with configuration without NumberOfRuns ( default of one is taken )
 	void WithoutNumberOfRunsConfigurationTest();
 
-	//!Test with configuration with NumberOfRuns=0 ( run is not executed )
+	//! Test with configuration with NumberOfRuns=0 ( run is not executed )
 	void NumberOfRuns0ConfigurationTest();
 
-	//!Test with configuration without PreRun (just Run executed )
+	//! Test with configuration without PreRun (just Run executed )
 	void WithoutPreRunConfigurationTest();
 
-	//!Test with configuration without Run ( just PreRun executed )
+	//! Test with configuration without Run ( just PreRun executed )
 	void WithoutRunConfigurationTest();
 
-	//!Test with configuration with only PreRun
+	//! Test with configuration with only PreRun
 	void PreRunOnlyConfigurationTest();
 
-	//!Test with configuration with only Run
+	//! Test with configuration with only Run
 	void RunOnlyConfigurationTest();
 
-	//!Test with configuration with only Run and only one step
+	//! Test with configuration with only Run and only one step
 	void RunOnlyOneStepConfigurationTest();
 
-	//!Test with configuration that does not contain any of the necessary slots
+	//! Test with configuration that does not contain any of the necessary slots
 	void InvalidConfigurationTest();
 
 protected:
 	//! Generic Test run - driven by TestCase Name
-	//!Checks if the tmpStore is prepared according the FlowController's configuration
+	//! Checks if the tmpStore is prepared according the FlowController's configuration
 	void DoTest();
 	Anything fConfig;
 };

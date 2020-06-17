@@ -13,13 +13,11 @@
 
 //---- HTTPProtocolReplyRendererTest ----------------------------------------------------------
 //! TestCases description
-class HTTPProtocolReplyRendererTest: public testframework::TestCase {
+class HTTPProtocolReplyRendererTest : public testframework::TestCase {
 public:
 	//! TestCase constructor
 	//! \param name name of the test
-	HTTPProtocolReplyRendererTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	HTTPProtocolReplyRendererTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//! builds up a suite of testcases for this test
 	static Test *suite();

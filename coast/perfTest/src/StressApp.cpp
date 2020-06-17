@@ -7,26 +7,25 @@
  */
 
 #include "StressApp.h"
-#include "StringStream.h"
-#include "SystemFile.h"
+
 #include "DiffTimer.h"
 #include "Stresser.h"
-#include <iostream>
+#include "StringStream.h"
+#include "SystemFile.h"
+
 #include <iomanip>
+#include <iostream>
 
 RegisterApplication(StressApp);
 
-StressApp::StressApp() :
-		Application("StressApp") {
+StressApp::StressApp() : Application("StressApp") {
 	StartTrace1(StressApp.StressApp, "StressApp");
 }
 
-StressApp::StressApp(const char *AppName) :
-		Application(AppName) {
+StressApp::StressApp(const char *AppName) : Application(AppName) {
 	StartTrace1(StressApp.StressApp, NotNull(AppName));
 }
-StressApp::~StressApp() {
-}
+StressApp::~StressApp() {}
 
 int StressApp::DoRun() {
 	StartTrace(StressApp.DoRun);
@@ -77,11 +76,13 @@ void StressApp::ShowResult(long lTime) {
 			double avgtime = anzTr ? (double(sum) / double(anzTr)) : 0;
 
 			// show summary for this run
-			strCout << "ID: " << setw(3) << setiosflags(ios::right) << i << " Time: " << setw(4) << setiosflags(ios::right | ios::fixed)
-					<< setprecision(1) << (double(sum) / 1000.0) << "s" << " Trx: " << anzTr << " Steps: " << anzSteps << " Trx/sec: "
-					<< setiosflags(ios::fixed) << setprecision(2) << trxpsec;
-			strCout << " AverageTime: " << setiosflags(ios::fixed) << setprecision(1) << avgtime << "ms" << " MaxTime: " << itopia_max
-					<< "ms" << " MinTime: " << itopia_min << "ms";
+			strCout << "ID: " << setw(3) << setiosflags(ios::right) << i << " Time: " << setw(4)
+					<< setiosflags(ios::right | ios::fixed) << setprecision(1) << (double(sum) / 1000.0) << "s"
+					<< " Trx: " << anzTr << " Steps: " << anzSteps << " Trx/sec: " << setiosflags(ios::fixed) << setprecision(2)
+					<< trxpsec;
+			strCout << " AverageTime: " << setiosflags(ios::fixed) << setprecision(1) << avgtime << "ms"
+					<< " MaxTime: " << itopia_max << "ms"
+					<< " MinTime: " << itopia_min << "ms";
 
 			if (err > 0) {
 				strCout << " Errors: " << err;
@@ -99,13 +100,14 @@ void StressApp::ShowResult(long lTime) {
 			Anything printDetails;
 			for (unsigned long lSteps = 0; lSteps < anzSteps; lSteps++) {
 				String strStepNr;
-				strStepNr << (long) (lSteps + 1L);
+				strStepNr << (long)(lSteps + 1L);
 				String strStepLabel = strStepNr;
 				Anything anyTmp;
 				if (boHasDetails && details.LookupPath(anyTmp, strStepNr)) {
 					if (anyTmp.IsDefined("Label") && strStepLabel != anyTmp["Label"].AsCharPtr()) {
 						strStepLabel = anyTmp["Label"].AsCharPtr();
-					}Trace("current step [" << strStepNr << "]");
+					}
+					Trace("current step [" << strStepNr << "]");
 					Trace("steplabel [" << strStepLabel << "]");
 					if (anyTmp.IsDefined("ExecTime")) {
 						String execTime(anyTmp["ExecTime"].AsCharPtr("0"));
@@ -119,7 +121,8 @@ void StressApp::ShowResult(long lTime) {
 				if (boHasErrors && errors.LookupPath(anyTmp, strStepNr)) {
 					printDetails[strStepLabel]["Errors"] = anyTmp;
 				}
-			}TraceAny(printDetails, "printDetails");
+			}
+			TraceAny(printDetails, "printDetails");
 			if (!printDetails.IsNull()) {
 				strCout << printDetails << std::endl;
 			}
@@ -136,9 +139,12 @@ void StressApp::ShowResult(long lTime) {
 		double totTrxpsec = totSum ? (double(totTr) / (double(totSum) / 1000.0)) : 0;
 		double totAvgtime = totTr ? (double(totSum) / double(totTr)) : 0;
 		strCout << "\nTotal:" << std::endl;
-		strCout << " Time: " << setw(5) << setiosflags(ios::right | ios::fixed) << setprecision(1) << (double(totSum) / 1000.0) << "s"
-				<< " Trx: " << totTr << " Steps: " << totSteps << " Trx/sec: " << setiosflags(ios::fixed) << setprecision(2) << totTrxpsec;
-		strCout << " AverageTime: " << setiosflags(ios::fixed) << setprecision(1) << totAvgtime << "ms" << " MaxTime: " << totMax << "ms"
+		strCout << " Time: " << setw(5) << setiosflags(ios::right | ios::fixed) << setprecision(1) << (double(totSum) / 1000.0)
+				<< "s"
+				<< " Trx: " << totTr << " Steps: " << totSteps << " Trx/sec: " << setiosflags(ios::fixed) << setprecision(2)
+				<< totTrxpsec;
+		strCout << " AverageTime: " << setiosflags(ios::fixed) << setprecision(1) << totAvgtime << "ms"
+				<< " MaxTime: " << totMax << "ms"
 				<< " MinTime: " << totMin << "ms";
 		if (totErr > 0) {
 			strCout << " Errors: " << totErr;

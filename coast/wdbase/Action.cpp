@@ -6,16 +6,17 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "Action.h"
-#include "Page.h"
-#include "Timers.h"
+
 #include "AnyIterators.h"
+#include "Page.h"
 #include "Policy.h"
+#include "Timers.h"
 
 RegCacheImpl(Action);
 RegisterModule(ActionsModule);
 
-const char* Action::gpcCategory = "Action";
-const char* Action::gpcConfigPath = "Actions";
+const char *Action::gpcCategory = "Action";
+const char *Action::gpcConfigPath = "Actions";
 
 bool ActionsModule::Init(const ROAnything config) {
 	ROAnything roaActions;
@@ -61,8 +62,7 @@ bool Action::ExecAction(String &transitionToken, Context &c, const ROAnything &c
 					return result;
 				}
 			}
-		}
-			break;
+		} break;
 		case AnyCharPtrType:
 			transitionToken = config.AsString();
 			Trace("action script is simple string, implicitly changing transition to <" << transitionToken << ">");
@@ -94,11 +94,9 @@ bool Action::CallAction(String &actionName, String &transitionToken, Context &c,
 	return false;
 }
 
-class PreprocessAction: public Action {
+class PreprocessAction : public Action {
 public:
-	PreprocessAction(const char *name) :
-		Action(name) {
-	}
+	PreprocessAction(const char *name) : Action(name) {}
 	virtual bool DoAction(String &action, Context &);
 };
 RegisterAction(PreprocessAction);

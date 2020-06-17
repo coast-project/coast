@@ -6,23 +6,19 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "Anything.h"
-#include "StringStream.h"
-#include "SystemFile.h"
-#include "Context.h"
-#include "TestSuite.h"
 #include "AnyToXMLTest.h"
 
-AnyToXMLTest::AnyToXMLTest(TString tname)
-	: TestCaseType(tname)
-	, fAnyToXMLRenderer("TestedRenderer")
-{}
+#include "Anything.h"
+#include "Context.h"
+#include "StringStream.h"
+#include "SystemFile.h"
+#include "TestSuite.h"
 
-AnyToXMLTest::~AnyToXMLTest()
-{}
+AnyToXMLTest::AnyToXMLTest(TString tname) : TestCaseType(tname), fAnyToXMLRenderer("TestedRenderer") {}
 
-void AnyToXMLTest::setUp()
-{
+AnyToXMLTest::~AnyToXMLTest() {}
+
+void AnyToXMLTest::setUp() {
 	String configFilename("AnyToXMLTestConfig");
 
 	std::istream *ifp = coast::system::OpenStream(configFilename, "any");
@@ -34,16 +30,13 @@ void AnyToXMLTest::setUp()
 };
 
 // Produce an XML out of an Anything
-void AnyToXMLTest::AnythingToXMLTest()
-{
+void AnyToXMLTest::AnythingToXMLTest() {
 	DoTest("Test1", "XMLOutput");
 	DoTest("Test2", "XMLOutput");
 }
 
 // Production of XML fails in theses cases
-void AnyToXMLTest::WrongInputTests()
-{
-
+void AnyToXMLTest::WrongInputTests() {
 	DoTest("BadTest1", "EmptyOutput");
 	DoTest("BadTest2", "EmptyOutput");
 	DoTest("BadTest3", "EmptyOutput");
@@ -54,8 +47,7 @@ void AnyToXMLTest::WrongInputTests()
 	DoTest("UnnamedChildWithUnnamedChildsTest", "UnnamedChildWithUnnamedChildsOutput");
 }
 
-void AnyToXMLTest::DoTest(String RendererConfig, String ExpectedOutput)
-{
+void AnyToXMLTest::DoTest(String RendererConfig, String ExpectedOutput) {
 	Anything dummy;
 	Context c(dummy, fConfig, 0, 0, 0, 0);
 	OStringStream reply;
@@ -63,11 +55,9 @@ void AnyToXMLTest::DoTest(String RendererConfig, String ExpectedOutput)
 	assertEqual(fConfig[ExpectedOutput].AsString("X"), reply.str());
 }
 
-Test *AnyToXMLTest::suite ()
-{
+Test *AnyToXMLTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, AnyToXMLTest, AnythingToXMLTest);
 	ADD_CASE(testSuite, AnyToXMLTest, WrongInputTests);
 	return testSuite;
 }
-

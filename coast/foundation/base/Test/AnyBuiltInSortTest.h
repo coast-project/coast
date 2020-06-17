@@ -9,13 +9,11 @@
 #ifndef _AnyBuiltInSortTest_H
 #define _AnyBuiltInSortTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnyBuiltInSortTest: public testframework::TestCase {
+#include "TestCase.h"
+class AnyBuiltInSortTest : public testframework::TestCase {
 public:
-	AnyBuiltInSortTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	AnyBuiltInSortTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 
 	//! empty any can be sorted

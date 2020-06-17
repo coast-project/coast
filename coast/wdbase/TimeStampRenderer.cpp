@@ -7,24 +7,24 @@
  */
 
 #include "TimeStampRenderer.h"
+
 #include "TimeStamp.h"
 
 RegisterRenderer(TimeStampRenderer);
 
-TimeStampRenderer::TimeStampRenderer(const char *name) : Renderer(name) { }
+TimeStampRenderer::TimeStampRenderer(const char *name) : Renderer(name) {}
 
-TimeStampRenderer::~TimeStampRenderer() { }
+TimeStampRenderer::~TimeStampRenderer() {}
 
-void TimeStampRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void TimeStampRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(TimeStampRenderer.RenderAll);
 	ROAnything roaUxTimeSpec;
 	TimeStamp aStamp;
-	if ( !config.LookupPath(roaUxTimeSpec, "UnixTime") && config.GetSize() ) {
+	if (!config.LookupPath(roaUxTimeSpec, "UnixTime") && config.GetSize()) {
 		roaUxTimeSpec = config[0L];
 	}
 	TraceAny(roaUxTimeSpec, "UnixTime-spec");
-	if ( !roaUxTimeSpec.IsNull() ) {
+	if (!roaUxTimeSpec.IsNull()) {
 		time_t tTime = Renderer::RenderToStringWithDefault(ctx, roaUxTimeSpec, 0L).AsLong(0L);
 		aStamp = TimeStamp(tTime);
 	}

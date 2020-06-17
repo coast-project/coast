@@ -7,18 +7,18 @@
  */
 
 #include "OracleCheckCloseOpenedConnectionsAction.h"
-#include "OracleModule.h"
-#include "OracleEnvironment.h"
+
 #include "Context.h"
+#include "OracleEnvironment.h"
+#include "OracleModule.h"
 
 RegisterAction(OracleCheckCloseOpenedConnectionsAction);
 
-bool OracleCheckCloseOpenedConnectionsAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool OracleCheckCloseOpenedConnectionsAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(OracleCheckCloseOpenedConnectionsAction.DoExecAction);
 	OracleModule *pModule = SafeCast(WDModule::FindWDModule("OracleModule"), OracleModule);
 	coast::oracle::ConnectionPool *pConnectionPool(0);
-	if ( pModule && ( pConnectionPool = pModule->GetConnectionPool()) ) {
+	if (pModule && (pConnectionPool = pModule->GetConnectionPool())) {
 		return pConnectionPool->CheckCloseOpenedConnections(ctx.Lookup("PeriodicActionTimeout", 60L));
 	}
 	return false;

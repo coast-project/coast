@@ -7,27 +7,24 @@
  */
 
 #include "LocalizedStrings.h"
-#include "SystemLog.h"
+
 #include "SystemFile.h"
+#include "SystemLog.h"
+
 #include <istream>
 
 LocalizedStrings *LocalizedStrings::fgLocStrings = 0;
 Mutex LocalizedStrings::fgLocMutex("LocalizedStrings");
 
-LocalizedStrings::LocalizedStrings()
-{
-}
+LocalizedStrings::LocalizedStrings() {}
 
-LocalizedStrings::~LocalizedStrings()
-{
-}
+LocalizedStrings::~LocalizedStrings() {}
 
-LocalizedStrings *LocalizedStrings::LocStr()
-{
+LocalizedStrings *LocalizedStrings::LocStr() {
 	StartTrace(LocalizedStrings.LocStr);
-	if (! fgLocStrings ) {
+	if (!fgLocStrings) {
 		LockUnlockEntry me(fgLocMutex);
-		if (! fgLocStrings ) {
+		if (!fgLocStrings) {
 			Trace("creating new instance");
 			fgLocStrings = new LocalizedStrings();
 		}
@@ -35,26 +32,22 @@ LocalizedStrings *LocalizedStrings::LocStr()
 	return fgLocStrings;
 }
 
-bool LocalizedStrings::Lookup(const char *key, ROAnything &result, char delim, char indexdelim) const
-{
+bool LocalizedStrings::Lookup(const char *key, ROAnything &result, char delim, char indexdelim) const {
 	StartTrace1(LocalizedStrings.Lookup, "key [" << NotNull(key) << "]");
 	return fLocalizedStrings.LookupPath(result, key, delim, indexdelim);
 }
 
 RegisterModule(LocalizationModule);
 
-LocalizationModule::LocalizationModule(const char *name) : WDModule(name)
-{
+LocalizationModule::LocalizationModule(const char *name) : WDModule(name) {
 	StartTrace(LocalizationModule.LocalizationModule);
 }
 
-LocalizationModule::~LocalizationModule()
-{
+LocalizationModule::~LocalizationModule() {
 	StartTrace(LocalizationModule.~LocalizationModule);
 }
 
-bool LocalizationModule::Init(const ROAnything config)
-{
+bool LocalizationModule::Init(const ROAnything config) {
 	StartTrace(LocalizationModule.Init);
 	// add localized strings
 	if (config.IsDefined("StringFile")) {
@@ -71,12 +64,11 @@ bool LocalizationModule::Init(const ROAnything config)
 	return 0 != theHandle;
 }
 
-bool LocalizationModule::Finis()
-{
+bool LocalizationModule::Finis() {
 	StartTrace(LocalizationModule.Finis);
 	{
 		LockUnlockEntry me(LocalizedStrings::fgLocMutex);
-		if ( LocalizedStrings::fgLocStrings ) {
+		if (LocalizedStrings::fgLocStrings) {
 			Trace("deleting global instance");
 			delete LocalizedStrings::fgLocStrings;
 			LocalizedStrings::fgLocStrings = 0;
@@ -86,8 +78,7 @@ bool LocalizationModule::Finis()
 	return true;
 }
 
-bool LocalizationModule::ReadFromFile(Anything &config, const char *filename)
-{
+bool LocalizationModule::ReadFromFile(Anything &config, const char *filename) {
 	StartTrace(LocalizationModule.ReadFromFile);
 	std::istream *ifp = coast::system::OpenStream(filename, "any");
 	if (ifp == 0) {

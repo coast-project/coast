@@ -18,8 +18,7 @@ the second argument is looked up. Unlike the LookupInterface's default
 values you can define your own default configuration which is looked up.
 See testcases for samples.
 */
-class ConfiguredLookupAdapterTest : public testframework::TestCaseWithConfig
-{
+class ConfiguredLookupAdapterTest : public testframework::TestCaseWithConfig {
 public:
 	//--- constructors
 
@@ -32,7 +31,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of tests
-	static Test *suite ();
+	static Test *suite();
 
 	TString getConfigFileName();
 

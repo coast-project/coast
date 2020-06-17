@@ -7,38 +7,32 @@
  */
 
 #include "RE.h"
-#include "Tracer.h"
+
 #include "REBitSet.h"
 #include "RECompiler.h"
+#include "Tracer.h"
+
 #include <cstring>
 
-RE::RE(const char *pattern, eMatchFlags matchFlags)
-	: fMatchFlags(matchFlags)
-{
+RE::RE(const char *pattern, eMatchFlags matchFlags) : fMatchFlags(matchFlags) {
 	StartTrace(RE.RE);
 	Trace(pattern);
 	setProgram(RECompiler().compile(pattern));
 }
-RE::RE(const String &pattern, eMatchFlags matchFlags)
-	: fMatchFlags(matchFlags)
-{
+RE::RE(const String &pattern, eMatchFlags matchFlags) : fMatchFlags(matchFlags) {
 	StartTrace(RE.RE);
 	Trace(pattern);
 	setProgram(RECompiler().compile(pattern));
 }
-RE::RE(Anything program, eMatchFlags matchFlags)
-	: fMatchFlags(matchFlags)
-{
+RE::RE(Anything program, eMatchFlags matchFlags) : fMatchFlags(matchFlags) {
 	StartTrace(RE.RE);
 	TraceAny(program, "program");
 	setProgram(program);
 }
-RE::RE()
-{
+RE::RE() {
 	StartTrace(RE.RE);
 }
-String RE::SimplePatternToFullRegularExpression(const String &pattern)
-{
+String RE::SimplePatternToFullRegularExpression(const String &pattern) {
 	StartTrace(RE.SimplePatternToFullRegularExpression);
 	String buf;
 	for (long i = 0; i < pattern.Length(); ++i) {
@@ -69,38 +63,34 @@ String RE::SimplePatternToFullRegularExpression(const String &pattern)
 	}
 	return buf;
 }
-String RE::GetMatch(long const which) const
-{
+String RE::GetMatch(long const which) const {
 	StartTrace1(RE.GetMatch, "match#" << which);
 	long start;
 	if (which < fRegisters.GetSize() && (start = GetStartRegister(which)) >= 0) {
-		return fSearch.SubString(start, GetEndRegister(which)-start);
+		return fSearch.SubString(start, GetEndRegister(which) - start);
 	}
 	return String();
 }
 
-long RE::GetStartRegister(long const which) const
-{
-	StatTrace(RE.GetStartRegister, "match#" << which << " position: " << ROAnything(fRegisters)[which][0L].AsLong(-1), coast::storage::Current());
+long RE::GetStartRegister(long const which) const {
+	StatTrace(RE.GetStartRegister, "match#" << which << " position: " << ROAnything(fRegisters)[which][0L].AsLong(-1),
+			  coast::storage::Current());
 	return ROAnything(fRegisters)[which][0L].AsLong(-1);
 }
-long RE::GetEndRegister(long const which) const
-{
-	StatTrace(RE.GetEndRegister, "match#" << which << " position: " << ROAnything(fRegisters)[which][1L].AsLong(-1), coast::storage::Current());
+long RE::GetEndRegister(long const which) const {
+	StatTrace(RE.GetEndRegister, "match#" << which << " position: " << ROAnything(fRegisters)[which][1L].AsLong(-1),
+			  coast::storage::Current());
 	return ROAnything(fRegisters)[which][1L].AsLong(-1);
 }
-void RE::SetStartRegister(long const which, long const i)
-{
+void RE::SetStartRegister(long const which, long const i) {
 	StatTrace(RE.SetStartRegister, "match#" << which << " pos:" << i, coast::storage::Current());
 	fRegisters[which][0L] = i;
 }
-void RE::SetEndRegister(long const which, long const i)
-{
+void RE::SetEndRegister(long const which, long const i) {
 	StatTrace(RE.SetEndRegister, "match#" << which << " pos:" << i, coast::storage::Current());
 	fRegisters[which][1L] = i;
 }
-long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
-{
+long RE::MatchNodes(long firstNode, long lastNode, long idxStart) {
 	StartTrace(RE.MatchNodes);
 	Trace("firtsNode = " << firstNode);
 	// Our current place in the string
@@ -111,20 +101,20 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
 
 	long idxNew(-1);
 	if (lastNode < 0) {
-		lastNode = fProgram.GetSize(); // go to the end
+		lastNode = fProgram.GetSize();	// go to the end
 	} else {
 		Trace("lastnode: " << lastNode);
 	}
 	long next = lastNode;
 	for (long node = firstNode; node < lastNode; node = next) {
-		next   = node + (short)fProgram[node][offsetNext].AsLong(lastNode);
+		next = node + (short)fProgram[node][offsetNext].AsLong(lastNode);
 
 		long opcode = fProgram[node][offsetOpcode].AsLong(-1);
 		long opdata = fProgram[node][offsetOpdata].AsLong(-1);
 
 		TraceAny(fProgram[node], "match node : " << node);
 		Trace("at: " << idx << " = char:" << fSearch[idx]);
-		Assert(idx >= 0); // SOP: simplyfy conditionals below.
+		Assert(idx >= 0);  // SOP: simplyfy conditionals below.
 
 		switch (opcode) {
 			case OP_RELUCTANTMAYBE: {
@@ -154,7 +144,7 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
 				} while ((idx = MatchNodes(node + nodeSize, next, idx)) != -1);
 				return -1;
 			case OP_OPEN:
-				fBackRefs[opdata][0L].Append(idx); // push idx, might be wrong and doesn't match
+				fBackRefs[opdata][0L].Append(idx);	// push idx, might be wrong and doesn't match
 				if ((idxNew = MatchNodes(next, -1, idx)) != -1) {
 					if (GetStartRegister(opdata) == -1) {
 						SetStartRegister(opdata, idx);
@@ -162,11 +152,11 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
 				} else {
 					long topindex = fBackRefs[opdata][0L].GetSize() - 1;
 					Assert(topindex >= 0);
-					fBackRefs[opdata][0L].Remove(topindex); // pop after fail to match
+					fBackRefs[opdata][0L].Remove(topindex);	 // pop after fail to match
 				}
 				return idxNew;
 			case OP_CLOSE:
-				fBackRefs[opdata][1L].Append(idx); // push idx
+				fBackRefs[opdata][1L].Append(idx);	// push idx
 				if ((idxNew = MatchNodes(next, -1, idx)) != -1) {
 					if (GetEndRegister(opdata) == -1) {
 						SetEndRegister(opdata, idx);
@@ -174,7 +164,7 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
 				} else {
 					long topindex = fBackRefs[opdata][1L].GetSize() - 1;
 					Assert(topindex >= 0);
-					fBackRefs[opdata][1L].Remove(topindex); // pop idx after failed match
+					fBackRefs[opdata][1L].Remove(topindex);	 // pop idx after failed match
 				}
 				return idxNew;
 			case OP_BACKREF: {
@@ -195,7 +185,7 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
 					if (String::CaselessCompare(fSearch.SubString(idx, len), fSearch.SubString(s, len))) {
 						return -1;
 					} else {
-						idx += len; // we matched
+						idx += len;	 // we matched
 					}
 				} else {
 					const char *base = fSearch;
@@ -208,16 +198,13 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
 				break;
 			}
 			case OP_BOL:
-				if ((idx != 0) &&
-					((fMatchFlags & MATCH_MULTILINE) != MATCH_MULTILINE
-					 || '\n' != fSearch.At(idx - 1))) {
+				if ((idx != 0) && ((fMatchFlags & MATCH_MULTILINE) != MATCH_MULTILINE || '\n' != fSearch.At(idx - 1))) {
 					return -1;
 				}
 				break;
 			case OP_EOL:
-				if (fSearch.Length() > 0 && fSearch.Length() > idx
-					&& ((fMatchFlags & MATCH_MULTILINE) != MATCH_MULTILINE
-						|| '\n' != fSearch.At(idx))) {
+				if (fSearch.Length() > 0 && fSearch.Length() > idx &&
+					((fMatchFlags & MATCH_MULTILINE) != MATCH_MULTILINE || '\n' != fSearch.At(idx))) {
 					return -1;
 				}
 				break;
@@ -231,8 +218,7 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
 			}
 			case OP_ANY:
 				if ((fSearch.Length() <= (idx)) ||
-					(fSearch.At(idx) == '\n' &&
-					 (fMatchFlags & DOT_MATCHES_NEWLINE) != DOT_MATCHES_NEWLINE)) {
+					(fSearch.At(idx) == '\n' && (fMatchFlags & DOT_MATCHES_NEWLINE) != DOT_MATCHES_NEWLINE)) {
 					return -1;
 				}
 				++idx;
@@ -265,7 +251,7 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
 				}
 				REBitSet *cset = (REBitSet *)fProgram[node][RE::offsetOpdata].AsCharPtr(0);
 				if (!cset || !cset->IsMember((unsigned char)c)) {
-					Assert(cset); // internal error
+					Assert(cset);  // internal error
 					return -1;
 				}
 				++idx;
@@ -293,9 +279,9 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
 			}
 			case OP_NOTHING:
 			case OP_GOTO:
-//SOP: we should detect endless loops not advancing input i.e. epsilon closures
-// this is what isnullable is used for in the compiler.... otherwise we might need
-// to "optimize" the automaton i.e. make it a DFA before we run it.
+				// SOP: we should detect endless loops not advancing input i.e. epsilon closures
+				// this is what isnullable is used for in the compiler.... otherwise we might need
+				// to "optimize" the automaton i.e. make it a DFA before we run it.
 				// Just advance to the next node without doing anything
 				break;
 			case OP_END:
@@ -312,8 +298,7 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart)
 	return -1;
 }
 
-bool RE::MatchAt(long i)
-{
+bool RE::MatchAt(long i) {
 	StartTrace(RE.MatchAt);
 	Trace("position = " << i);
 	Assert(i >= 0);
@@ -337,8 +322,7 @@ bool RE::MatchAt(long i)
 	return false;
 }
 
-bool RE::ContainedIn(const String &search, long i)
-{
+bool RE::ContainedIn(const String &search, long i) {
 	StartTrace(RE.ContainedIn);
 	TraceAny(fProgram, "program");
 	Trace("prefix : " << fPrefix);
@@ -356,7 +340,7 @@ bool RE::ContainedIn(const String &search, long i)
 	// Can we optimize the search by looking for a prefix string?
 	if (fPrefix.Length() <= 0) {
 		// Unprefixed matching must try for a match at each character
-		for ( ; fSearch.Length() > (i - 1); ++i) {
+		for (; fSearch.Length() > (i - 1); ++i) {
 			// Try a match at index i
 			if (MatchAt(i)) {
 				return true;
@@ -365,7 +349,7 @@ bool RE::ContainedIn(const String &search, long i)
 		return false;
 	} else {
 		bool caseIndependent = (fMatchFlags & MATCH_ICASE) != 0;
-		for ( ; fSearch.Length() > (i + fPrefix.Length() - 1); i++) {
+		for (; fSearch.Length() > (i + fPrefix.Length() - 1); i++) {
 			bool match = false;
 			if (caseIndependent) {
 				match = 0 == String::CaselessCompare(fPrefix, fSearch.SubString(i, fPrefix.Length()));
@@ -383,8 +367,7 @@ bool RE::ContainedIn(const String &search, long i)
 	}
 }
 
-Anything RE::Split(const String &s)
-{
+Anything RE::Split(const String &s) {
 	StartTrace(RE.Split);
 	Trace("input:" << s);
 	Anything res;
@@ -409,7 +392,8 @@ Anything RE::Split(const String &s)
 	return res;
 }
 String RE::Subst(const String &substituteIn, const String &substitution, bool replaceall) {
-	StartTrace1(RE.Subst, "replaceall?" << (replaceall?"true":"false") << " input [" << substituteIn << "] Subst [" << substitution << "]");
+	StartTrace1(RE.Subst, "replaceall?" << (replaceall ? "true" : "false") << " input [" << substituteIn << "] Subst ["
+										<< substitution << "]");
 	long len = substituteIn.Length();
 	String ret(len);
 	int pos = 0;
@@ -432,8 +416,7 @@ String RE::Subst(const String &substituteIn, const String &substitution, bool re
 	Trace("result:" << ret);
 	return ret;
 }
-Anything RE::Grep(Anything search)
-{
+Anything RE::Grep(Anything search) {
 	StartTrace(RE.Grep);
 	TraceAny(search, "input");
 	Anything res;
@@ -441,7 +424,7 @@ Anything RE::Grep(Anything search)
 		String s = search[i].AsString();
 		if (ContainedIn(s)) {
 			const char *sname = search.SlotName(i);
-			if (sname && ! res.IsDefined(sname)) {
+			if (sname && !res.IsDefined(sname)) {
 				res[sname] = search[i];
 			} else {
 				res.Append(search[i]);
@@ -451,8 +434,7 @@ Anything RE::Grep(Anything search)
 	TraceAny(res, "result");
 	return res;
 }
-Anything RE::GrepSlotNames(Anything search)
-{
+Anything RE::GrepSlotNames(Anything search) {
 	StartTrace(RE.GrepSlotNames);
 	TraceAny(search, "input");
 	Anything res;
@@ -460,7 +442,7 @@ Anything RE::GrepSlotNames(Anything search)
 		String s = search.SlotName(i);
 		if (ContainedIn(s)) {
 			if (s.Length() > 0) {
-				res[s] = search[i];    // caution for reference semantics of Anythings
+				res[s] = search[i];	 // caution for reference semantics of Anythings
 			} else {
 				res.Append(search[i]);
 			}
@@ -469,8 +451,7 @@ Anything RE::GrepSlotNames(Anything search)
 	TraceAny(res, "result");
 	return res;
 }
-bool RE::Match(const String &s, long &start, long &len)
-{
+bool RE::Match(const String &s, long &start, long &len) {
 	StartTrace(RE.Match);
 	if (ContainedIn(s, start)) {
 		start = GetStartRegister(0);

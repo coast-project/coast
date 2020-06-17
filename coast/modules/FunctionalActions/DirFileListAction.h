@@ -17,17 +17,16 @@
 \par Configuration
 \code
 {
-	/Path		Rendererspec	mandatory, path to list files of
-	/Filter		String			optional, used to filter the files listed
-	/DirsOnly 	Long			optional, [*0|1], 0 (default): files and directories are listed, 1: only directories
-	/Target 	Rendererspec	optional, default "RetrievedFileList", puts the list into the renderered slotname in context
+  /Path		Rendererspec	mandatory, path to list files of
+  /Filter		String			optional, used to filter the files listed
+  /DirsOnly 	Long			optional, [*0|1], 0 (default): files and directories are listed, 1: only directories
+  /Target 	Rendererspec	optional, default "RetrievedFileList", puts the list into the renderered slotname in context
 
 }
 \endcode
 
 */
-class DirFileListAction : public Action
-{
+class DirFileListAction : public Action {
 public:
 	//--- constructors
 	/*! \param name defines the name of the action */
@@ -35,10 +34,10 @@ public:
 	~DirFileListAction();
 
 	/*! DoSomething method for configured Actions
-		\param transitionToken (in/out) the event passed by the caller, can be modified.
-		\param ctx the context the action runs within.
-		\param config the configuration of the action.
-		\return true if the action run successfully, false if an error occurred.
+	  \param transitionToken (in/out) the event passed by the caller, can be modified.
+	  \param ctx the context the action runs within.
+	  \param config the configuration of the action.
+	  \return true if the action run successfully, false if an error occurred.
 	*/
 	virtual bool DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
 };

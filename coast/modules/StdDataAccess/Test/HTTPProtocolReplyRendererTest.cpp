@@ -7,10 +7,11 @@
  */
 
 #include "HTTPProtocolReplyRendererTest.h"
-#include "HTTPProtocolReplyRenderer.h"
-#include "TestSuite.h"
-#include "StringStream.h"
+
 #include "HTTPConstants.h"
+#include "HTTPProtocolReplyRenderer.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
 void HTTPProtocolReplyRendererTest::ReasonLessErrorReplyLine() {
 	StartTrace(HTTPProtocolReplyRendererTest.ReasonLessErrorReplyLine);

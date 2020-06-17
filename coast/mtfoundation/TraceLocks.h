@@ -33,15 +33,15 @@ cat /tmp/unlocked | awk '{print $2}'  > /tmp/unlocked1
 diff  /tmp/locked1 /tmp/unlocked1
 if [ $? -eq 0 ]
 then
-	echo "Aquiring/releasing lock parity"
+  echo "Aquiring/releasing lock parity"
 else
-	echo "Problem detected. Further analysis is:"
-	cat /tmp/locked   | awk '{print $2 " " $3 " " $4}'  > /tmp/locked1
-	cat /tmp/unlocked | awk '{print $2 " " $3 " " $4}'  > /tmp/unlocked1
-	diff /tmp/locked1 /tmp/unlocked1
-	rm /tmp/$$tmp1
-	#cat /tmp/locked1
-	#cat /tmp/unlocked1
+  echo "Problem detected. Further analysis is:"
+  cat /tmp/locked   | awk '{print $2 " " $3 " " $4}'  > /tmp/locked1
+  cat /tmp/unlocked | awk '{print $2 " " $3 " " $4}'  > /tmp/unlocked1
+  diff /tmp/locked1 /tmp/unlocked1
+  rm /tmp/$$tmp1
+  #cat /tmp/locked1
+  #cat /tmp/unlocked1
 fi
 \endcode
 
@@ -83,12 +83,26 @@ user.emerg					*
 */
 #if defined TRACE_LOCKS
 
-#define TRACE_LOCK_START(methodname) 	String lmsgf; lmsgf << time(0) << " " << Thread::MyId() << " " << (methodname); \
-								  String lname; String lmsgw;	String lmsg
-#define TRACE_LOCK_ACQUIRE(lockname)   lname = " "; lname << (lockname);  lmsgw = "  locked "; lmsg = ""; \
-								  lmsg << lmsgw << lmsgf << lname; SystemLog::Info(lmsg)
-#define TRACE_LOCK_RELEASE(lockname)   lname = " "; lname << (lockname);  lmsgw = "unlocked "; lmsg = ""; \
-								  lmsg << lmsgw << lmsgf << lname; SystemLog::Info(lmsg)
+#define TRACE_LOCK_START(methodname)                                  \
+	String lmsgf;                                                     \
+	lmsgf << time(0) << " " << Thread::MyId() << " " << (methodname); \
+	String lname;                                                     \
+	String lmsgw;                                                     \
+	String lmsg
+#define TRACE_LOCK_ACQUIRE(lockname) \
+	lname = " ";                     \
+	lname << (lockname);             \
+	lmsgw = "  locked ";             \
+	lmsg = "";                       \
+	lmsg << lmsgw << lmsgf << lname; \
+	SystemLog::Info(lmsg)
+#define TRACE_LOCK_RELEASE(lockname) \
+	lname = " ";                     \
+	lname << (lockname);             \
+	lmsgw = "unlocked ";             \
+	lmsg = "";                       \
+	lmsg << lmsgw << lmsgf << lname; \
+	SystemLog::Info(lmsg)
 #else
 #define TRACE_LOCK_START(methodname)
 #define TRACE_LOCK_ACQUIRE(lockname)

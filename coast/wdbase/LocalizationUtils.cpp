@@ -7,17 +7,18 @@
  */
 
 #include "LocalizationUtils.h"
-#include "SystemFile.h"
+
 #include "Context.h"
+#include "SystemFile.h"
+
 #include <istream>
 
 using namespace coast;
 
-Mutex	LocalizationUtils::fgLanguageMapMutex("LocalizationUtils", coast::storage::Global());
-bool	LocalizationUtils::fgLanguageMapIsInit = false;
+Mutex LocalizationUtils::fgLanguageMapMutex("LocalizationUtils", coast::storage::Global());
+bool LocalizationUtils::fgLanguageMapIsInit = false;
 Anything LocalizationUtils::fgLanguageMap(coast::storage::Global());
-const char *LocalizationUtils::Eval(const char *lang, const ROAnything &config)
-{
+const char *LocalizationUtils::Eval(const char *lang, const ROAnything &config) {
 	const char *string = 0;
 
 	ROAnything match;
@@ -42,36 +43,33 @@ const char *LocalizationUtils::Eval(const char *lang, const ROAnything &config)
 	return string;
 }
 
-const ROAnything LocalizationUtils::EvalAny(const char *lang, const ROAnything &config)
-{
+const ROAnything LocalizationUtils::EvalAny(const char *lang, const ROAnything &config) {
 	ROAnything match;
 	if (lang && config.LookupPath(match, lang)) {
 		return match;
 	}
 
 	config.LookupPath(match, "Default");
-	return match;		// return default or NullAny
+	return match;  // return default or NullAny
 }
 
-void LocalizationUtils::BuildLanguageMap(Context &context)
-{
+void LocalizationUtils::BuildLanguageMap(Context &context) {
 	StartTrace(LocalizationUtils.BuildLanguageMap);
 	ROAnything langKeyMap = context.Lookup("LanguageKeyMap");
-	for ( long i = 0, sz = langKeyMap.GetSize(); i < sz; ++i) {
+	for (long i = 0, sz = langKeyMap.GetSize(); i < sz; ++i) {
 		const char *lang = langKeyMap.SlotName(i);
 		ROAnything languages = langKeyMap[i];
-		for ( long j = 0, szl = languages.GetSize(); j < szl; ++j) {
-			fgLanguageMap[ languages[j].AsCharPtr("") ] = lang;
+		for (long j = 0, szl = languages.GetSize(); j < szl; ++j) {
+			fgLanguageMap[languages[j].AsCharPtr("")] = lang;
 		}
 	}
 }
 
-const char *LocalizationUtils::FindLanguageKey(Context &c, const char *dftLang)
-{
+const char *LocalizationUtils::FindLanguageKey(Context &c, const char *dftLang) {
 	StartTrace(LocalizationUtils.FindLanguageKey);
 	// extract the supported language string from
 	// the browsers accept language list
-	bool	useBrowserPrefs = (c.Lookup("UseBrowserLang", 0L) != 0);
+	bool useBrowserPrefs = (c.Lookup("UseBrowserLang", 0L) != 0);
 	Anything env = c.GetEnvStore();
 	ROAnything header = ((ROAnything)env)["header"];
 	TraceAny(header, "header");
@@ -79,20 +77,20 @@ const char *LocalizationUtils::FindLanguageKey(Context &c, const char *dftLang)
 
 	TraceAny(c.Lookup("LanguageKeyMap"), "LanguageKeyMap");
 
-	if ( useBrowserPrefs && header.IsDefined("ACCEPT-LANGUAGE") ) {
+	if (useBrowserPrefs && header.IsDefined("ACCEPT-LANGUAGE")) {
 		// Do not check fgLanguageMap.GetSize() == 0 since there might be no data to intialize it!
-		if ( fgLanguageMapIsInit == false ) {
+		if (fgLanguageMapIsInit == false) {
 			LockUnlockEntry me(fgLanguageMapMutex);
 			// Double checked locking pattern, see Doug Schmidt
-			if ( fgLanguageMapIsInit == false ) {
+			if (fgLanguageMapIsInit == false) {
 				BuildLanguageMap(c);
 				fgLanguageMapIsInit = true;
 			}
 		}
 		// accesses to fgLanguageMap will always encounter the initialized fgLanguageMap
 		ROAnything languages = header["ACCEPT-LANGUAGE"];
-		for ( i = 0, sz = languages.GetSize(); i < sz; ++i) {
-			if ( fgLanguageMap.IsDefined(languages[i].AsCharPtr("") ) ) {
+		for (i = 0, sz = languages.GetSize(); i < sz; ++i) {
+			if (fgLanguageMap.IsDefined(languages[i].AsCharPtr(""))) {
 				Trace("returning language [" << fgLanguageMap[languages[i].AsCharPtr("")].AsCharPtr("") << "]");
 				return fgLanguageMap[languages[i].AsCharPtr("")].AsCharPtr("");
 			}
@@ -105,8 +103,8 @@ const char *LocalizationUtils::FindLanguageKey(Context &c, const char *dftLang)
 // PS: three loops should happen, i think
 // PS: should be able to read gifs etc as well.
 
-static std::istream *tryopen(String &absolutepath, const char *rdir, const char *tdir, const char *langdir, const char *filename, const char *ext = 0)
-{
+static std::istream *tryopen(String &absolutepath, const char *rdir, const char *tdir, const char *langdir,
+							 const char *filename, const char *ext = 0) {
 	absolutepath = rdir;
 	absolutepath << tdir << (system::Sep());
 	if (langdir) {
@@ -116,8 +114,7 @@ static std::istream *tryopen(String &absolutepath, const char *rdir, const char 
 	return system::OpenIStream(absolutepath, ext ? ext : "html");
 }
 
-std::istream *LocalizationUtils::OpenStream(Context &c, const char *filename, String &absoluteFileName)
-{
+std::istream *LocalizationUtils::OpenStream(Context &c, const char *filename, String &absoluteFileName) {
 	StartTrace(LocalizationUtils.OpenStream);
 	std::istream *fp = 0;
 	const char *lang = c.Language();
@@ -136,10 +133,10 @@ std::istream *LocalizationUtils::OpenStream(Context &c, const char *filename, St
 	String rootpath(system::GetRootDir());
 	rootpath << (system::Sep());
 
-	if (lang) { // language is defined try getting a localized template
+	if (lang) {	 // language is defined try getting a localized template
 		localizedPath = languageDirMap[lang].AsCharPtr("Localized_D");
 		Trace("using localized path [" << localizedPath << "]");
-		while ( !fp && st.NextToken(templateDir) ) {
+		while (!fp && st.NextToken(templateDir)) {
 			// get localized template
 			Trace("current template path [" << templateDir << "]");
 			fp = tryopen(absoluteFileName, rootpath, templateDir, localizedPath, filename);
@@ -147,8 +144,8 @@ std::istream *LocalizationUtils::OpenStream(Context &c, const char *filename, St
 	}
 
 	// try non localized template
-	st.Reset(); // try again
-	while ( !fp &&  st.NextToken(templateDir)  ) {
+	st.Reset();	 // try again
+	while (!fp && st.NextToken(templateDir)) {
 		Trace("current template path [" << templateDir << "]");
 		// get master template
 		fp = tryopen(absoluteFileName, rootpath, templateDir, 0, filename);
@@ -157,10 +154,8 @@ std::istream *LocalizationUtils::OpenStream(Context &c, const char *filename, St
 	return fp;
 }
 
-void LocalizationUtils::EmptyLanguageMap()
-{
+void LocalizationUtils::EmptyLanguageMap() {
 	// Only used for test purposes, IS NOT THREAD SAVE!
 	Anything null;
 	fgLanguageMap = null;
-} // EmptyLanguageMap
-
+}  // EmptyLanguageMap

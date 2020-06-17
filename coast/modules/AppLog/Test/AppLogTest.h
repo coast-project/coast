@@ -12,21 +12,19 @@
 #include "WDBaseTestPolicies.h"
 class Context;
 
-class AppLogTest: public testframework::TestCaseWithCaseConfigDllAndModuleLoading {
+class AppLogTest : public testframework::TestCaseWithCaseConfigDllAndModuleLoading {
 public:
-	AppLogTest(TString tstrName) :
-			TestCaseType(tstrName) {
-	}
-	//!builds up a suite of testcases for this test
+	AppLogTest(TString tstrName) : TestCaseType(tstrName) {}
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!log into two channels and checks the files afterwards
+	//! log into two channels and checks the files afterwards
 	void LogOkTest();
-	//!log into severity log channel and test if only levels in bitset are logged
+	//! log into severity log channel and test if only levels in bitset are logged
 	void SeverityMatchTest();
-	//!log into one channel and check the file after AppLog module is terminated
+	//! log into one channel and check the file after AppLog module is terminated
 	void BufferItemsTest();
-	//!log into channels of 'virtual' server without own config but using TestServer config
+	//! log into channels of 'virtual' server without own config but using TestServer config
 	void LogOkToVirtualServerTest();
 	//! test logfile rotation using absolute seconds
 	void LogRotatorLocalTimeTest();
@@ -38,18 +36,18 @@ public:
 	void LogRotationTimeTest();
 	//! Request log rotation for a channel
 	void RotateSpecificLogTest();
-	//!pass null pointer a channel
+	//! pass null pointer a channel
 	void ApplogModuleNotInitializedTest();
-	//!test the logging action
+	//! test the logging action
 	void LoggingActionTest();
-	//!test the time logging action
+	//! test the time logging action
 	void TimeLoggingActionTest();
 
 protected:
 	//! utility method to check the log files
-	void CheckFile(Context& ctx, const char *channelname, String expected, bool bExpectSuccess = true);
-	void CheckFileAfterChannelTermination(Context& ctx, const char *strLogFilename, String expected,
-	        bool bExpectSuccess = true);
+	void CheckFile(Context &ctx, const char *channelname, String expected, bool bExpectSuccess = true);
+	void CheckFileAfterChannelTermination(Context &ctx, const char *strLogFilename, String expected,
+										  bool bExpectSuccess = true);
 	void LogRotatorTestsCommon();
 };
 

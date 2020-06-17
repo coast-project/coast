@@ -7,77 +7,54 @@
  */
 
 #include "AccessManagerModuleTest.h"
+
 #include "AccessManager.h"
 #include "TestSuite.h"
+
 #include <typeinfo>
-#if !defined (WIN32)
+#if !defined(WIN32)
 #include <stdio.h>
 #endif
 
-class TestAccessManager : public AccessManager
-{
+class TestAccessManager : public AccessManager {
 public:
 	TestAccessManager(const char *name) : AccessManager(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) TestAccessManager(fName);
-	}
-	virtual bool Validate(String &uid) {
-		return false;
-	}
-	virtual bool AuthenticateWeak(String uid, String passwd, String &newRole) {
-		return false;
-	}
-	virtual bool AuthenticateStrong(String uid, String passwd, String otp, long window, String &newRole) {
-		return false;
-	}
-	virtual bool ChangePassword(String uid, String newpwd, String oldpwd = "") {
-		return false;
-	}
-	virtual bool ResetPassword(String uid) {
-		return false;
-	}
-	virtual bool IsAllowed(String who, String entity) {
-		return false;
-	}
-	virtual bool GetAllowedEntitiesFor(Anything who, Anything &allowed) {
-		return false;
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) TestAccessManager(fName); }
+	virtual bool Validate(String &uid) { return false; }
+	virtual bool AuthenticateWeak(String uid, String passwd, String &newRole) { return false; }
+	virtual bool AuthenticateStrong(String uid, String passwd, String otp, long window, String &newRole) { return false; }
+	virtual bool ChangePassword(String uid, String newpwd, String oldpwd = "") { return false; }
+	virtual bool ResetPassword(String uid) { return false; }
+	virtual bool IsAllowed(String who, String entity) { return false; }
+	virtual bool GetAllowedEntitiesFor(Anything who, Anything &allowed) { return false; }
 };
 RegisterAccessManager(TestAccessManager);
 
-class MyAccessManager : public TestAccessManager
-{
+class MyAccessManager : public TestAccessManager {
 public:
 	MyAccessManager(const char *name) : TestAccessManager(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) MyAccessManager(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) MyAccessManager(fName); }
 };
 RegisterAccessManager(MyAccessManager);
 
 //---- AccessManagerModuleTest ----------------------------------------------------------------
-AccessManagerModuleTest::AccessManagerModuleTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+AccessManagerModuleTest::AccessManagerModuleTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(AccessManagerModuleTest.AccessManagerModuleTest);
 }
 
-AccessManagerModuleTest::~AccessManagerModuleTest()
-{
+AccessManagerModuleTest::~AccessManagerModuleTest() {
 	StartTrace(AccessManagerModuleTest.Dtor);
 }
 
-String GetName(RegisterableObject *o)
-{
+String GetName(RegisterableObject *o) {
 	String ret;
 	o->GetName(ret);
 	return ret;
 }
 
-void AccessManagerModuleTest::InitTest()
-{
+void AccessManagerModuleTest::InitTest() {
 	StartTrace(AccessManagerModuleTest.InitTest);
 
 	AccessManager *am_alpha = AccessManagerModule::GetAccessManager("alpha");
@@ -106,8 +83,7 @@ void AccessManagerModuleTest::InitTest()
 	t_assertm(typeid(TestAccessManager) == typeid(*am_gamma), typeid(*am_gamma).name());
 }
 
-void AccessManagerModuleTest::FinisTest()
-{
+void AccessManagerModuleTest::FinisTest() {
 	StartTrace(AccessManagerModuleTest.FinisTest);
 
 	AccessManager *am_alpha = AccessManagerModule::GetAccessManager("alpha");
@@ -115,7 +91,7 @@ void AccessManagerModuleTest::FinisTest()
 	assertEqual("alpha", GetName(am_alpha));
 
 	WDModule *pModule = WDModule::FindWDModule("AccessManagerModule");
-	if ( t_assertm(pModule != NULL, "expected AccessManagerModule to be registered") ) {
+	if (t_assertm(pModule != NULL, "expected AccessManagerModule to be registered")) {
 		pModule->Finis();
 		am_alpha = AccessManagerModule::GetAccessManager("alpha");
 		t_assert(0 == am_alpha);
@@ -127,8 +103,7 @@ void AccessManagerModuleTest::FinisTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *AccessManagerModuleTest::suite ()
-{
+Test *AccessManagerModuleTest::suite() {
 	StartTrace(AccessManagerModuleTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, AccessManagerModuleTest, InitTest);

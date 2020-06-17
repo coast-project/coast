@@ -17,20 +17,19 @@
 \par Configuration
 \code
 {
-	/Tag		String			mandatory, defining the HTML-tag without brackets(eg "PRE"), the end tag is constructed by prefixing the Tag with /
-	/Options {	Anything		optional, Key-Value pair list of options rendered within the tag (refer to OptionsPrinter)
-		/Key	Value			optional
-		Value					optional
-		...
-	}
-	/Content	Rendererspec	optional, render the content between start and end tag
-	/NoEndTag	Something		optional, If defined, suppresses the renderering of the end tag
+  /Tag		String			mandatory, defining the HTML-tag without brackets(eg "PRE"), the end tag is constructed by prefixing the Tag with /
+  /Options {	Anything		optional, Key-Value pair list of options rendered within the tag (refer to OptionsPrinter)
+	/Key	Value			optional
+	Value					optional
+	...
+  }
+  /Content	Rendererspec	optional, render the content between start and end tag
+  /NoEndTag	Something		optional, If defined, suppresses the renderering of the end tag
 }
 \endcode
 
 */
-class TagRenderer : public Renderer
-{
+class TagRenderer : public Renderer {
 public:
 	TagRenderer(const char *name);
 	~TagRenderer();
@@ -38,4 +37,4 @@ public:
 	virtual void RenderAll(std::ostream &reply, Context &c, const ROAnything &config);
 };
 
-#endif		//ifndef _TAGRENDERER_H
+#endif	// ifndef _TAGRENDERER_H

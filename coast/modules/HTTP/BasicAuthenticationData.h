@@ -13,19 +13,13 @@
 
 //---- BasicAuthenticationData ----------------------------------------------------------
 //! Decoder for HTTP Basic authentication scheme
-class BasicAuthenticationData
-{
+class BasicAuthenticationData {
 public:
 	BasicAuthenticationData(const String &authorizationHeaderValue);
-	String GetUserName() const	{
-		return fUserName;
-	}
-	String GetPassword() const	{
-		return fPassword;
-	}
-	bool IsSyntaxValid() const	{
-		return fSyntaxValid;
-	}
+	String GetUserName() const { return fUserName; }
+	String GetPassword() const { return fPassword; }
+	bool IsSyntaxValid() const { return fSyntaxValid; }
+
 private:
 	String fUserName;
 	String fPassword;

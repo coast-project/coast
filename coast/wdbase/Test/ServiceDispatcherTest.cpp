@@ -7,19 +7,16 @@
  */
 
 #include "ServiceDispatcherTest.h"
-#include "ServiceDispatcher.h"
-#include "TestSuite.h"
-#include "ServiceHandler.h"
 
-class TestService: public ServiceHandler {
+#include "ServiceDispatcher.h"
+#include "ServiceHandler.h"
+#include "TestSuite.h"
+
+class TestService : public ServiceHandler {
 public:
-	TestService(const char *serviceHandlerName) :
-			ServiceHandler(serviceHandlerName) {
-	}
+	TestService(const char *serviceHandlerName) : ServiceHandler(serviceHandlerName) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) TestService(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) TestService(fName); }
 
 protected:
 	virtual bool DoHandleService(std::ostream &os, Context &ctx) {
@@ -30,8 +27,7 @@ protected:
 
 RegisterServiceHandler(TestService);
 
-ServiceDispatcherTest::ServiceDispatcherTest(TString tname) :
-		TestCaseType(tname) {
+ServiceDispatcherTest::ServiceDispatcherTest(TString tname) : TestCaseType(tname) {
 	StartTrace(ServiceDispatcherTest.ServiceDispatcherTest);
 }
 
@@ -84,7 +80,8 @@ void ServiceDispatcherTest::ServiceDispatcherModuleTest() {
 	if (t_assert(serviceDispatchersModule != NULL)) {
 		if (t_assert((sd = ServiceDispatcher::FindServiceDispatcher("TestDispatcher")) != NULL)) {
 			assertEqual("I am the TestDispatcher", sd->Lookup("MyIdString", "none"));
-		}t_assert(ServiceDispatcher::FindServiceDispatcher("SecondTestDipatcher") != NULL);
+		}
+		t_assert(ServiceDispatcher::FindServiceDispatcher("SecondTestDipatcher") != NULL);
 
 		Anything config;
 		Anything config1;
@@ -95,7 +92,8 @@ void ServiceDispatcherTest::ServiceDispatcherModuleTest() {
 			if (t_assert(serviceDispatchersModule->ResetInit(config1))) {
 				if (t_assert((sd = ServiceDispatcher::FindServiceDispatcher("NewTestDispatcher")) != NULL)) {
 					assertEqual("I am the NewTestDispatcher", sd->Lookup("MyIdString", "none"));
-				}t_assert(ServiceDispatcher::FindServiceDispatcher("NewSecondTestDispatcher") != NULL);
+				}
+				t_assert(ServiceDispatcher::FindServiceDispatcher("NewSecondTestDispatcher") != NULL);
 				t_assert(ServiceDispatcher::FindServiceDispatcher("TestDispatcher") == 0);
 				t_assert(ServiceDispatcher::FindServiceDispatcher("SecondTestDipatcher") == 0);
 			}

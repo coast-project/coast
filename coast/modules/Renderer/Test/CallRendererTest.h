@@ -19,11 +19,9 @@
  throughout a page
  this may contain <B>HTML-Tags</B>
  */
-class CallRendererTest: public RendererTest {
+class CallRendererTest : public RendererTest {
 public:
-	CallRendererTest(TString tstrName) :
-		RendererTest(tstrName) {
-	}
+	CallRendererTest(TString tstrName) : RendererTest(tstrName) {}
 	//! builds up a suite of testcases for this test
 	static Test *suite();
 

@@ -1,15 +1,13 @@
 #ifndef AnythingIteratorTest_H
 #define AnythingIteratorTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnythingIteratorTest: public testframework::TestCase {
+#include "TestCase.h"
+class AnythingIteratorTest : public testframework::TestCase {
 protected:
-	Anything fAny5; // anything with 5 elements set-up in setUp
+	Anything fAny5;	 // anything with 5 elements set-up in setUp
 public:
-	AnythingIteratorTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	AnythingIteratorTest(TString tname) : TestCaseType(tname) {}
 	virtual void setUp();
 	static Test *suite();
 

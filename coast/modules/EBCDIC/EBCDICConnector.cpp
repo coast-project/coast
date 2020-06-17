@@ -6,26 +6,23 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "EBCDICConnector.h"
+
 #include "Anything.h"
 #include "EBCDICSocket.h"
 #include "Tracer.h"
-#include "EBCDICConnector.h"
 
 //--- EBCDICConnector --------------------------------------------
-EBCDICConnector::EBCDICConnector(const char *ipAdr, long port, long connectTimeout, const char
-								 *srcIpAdr, long srcPort) :
-	Connector(ipAdr, port, connectTimeout, srcIpAdr, srcPort)
-{
+EBCDICConnector::EBCDICConnector(const char *ipAdr, long port, long connectTimeout, const char *srcIpAdr, long srcPort)
+	: Connector(ipAdr, port, connectTimeout, srcIpAdr, srcPort) {
 	StartTrace(EBCDICConnector.Ctor);
 }
 
-EBCDICConnector::~EBCDICConnector()
-{
+EBCDICConnector::~EBCDICConnector() {
 	StartTrace(EBCDICConnector.Dtor);
 }
 
-Socket *EBCDICConnector::DoMakeSocket(int socket, Anything &clientInfo, bool doClose)
-{
+Socket *EBCDICConnector::DoMakeSocket(int socket, Anything &clientInfo, bool doClose) {
 	StartTrace(EBCDICConnector.DoMakeSocket);
 	Allocator *a = GetSocketAllocator();
 	return new (a) EBCDICSocket(socket, clientInfo, doClose, a);

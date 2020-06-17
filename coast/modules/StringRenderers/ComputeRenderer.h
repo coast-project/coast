@@ -17,21 +17,20 @@
 \par Configuration
 \code
 {
-	/Number1		Rendererspec	First (left) value to compute with, internally used as long
-	/Number2		Rendererspec	Second (right) value to compute with, internally used as long
-	/Operator		Rendererspec	Operator of {'+','-','*','/','%','<','<=','>','>=','='}
-	/Minimum		RendererSpec	optional, minimum value of result (defines a range)
-	/Maximum		RendererSpec	optional, maximum value of result (defines a range)
+  /Number1		Rendererspec	First (left) value to compute with, internally used as long
+  /Number2		Rendererspec	Second (right) value to compute with, internally used as long
+  /Operator		Rendererspec	Operator of {'+','-','*','/','%','<','<=','>','>=','='}
+  /Minimum		RendererSpec	optional, minimum value of result (defines a range)
+  /Maximum		RendererSpec	optional, maximum value of result (defines a range)
 }
 \endcode
 
 */
-class ComputeRenderer : public Renderer
-{
+class ComputeRenderer : public Renderer {
 public:
 	ComputeRenderer(const char *name);
 
 	void RenderAll(std::ostream &reply, Context &c, const ROAnything &data);
 };
 
-#endif		//not defined _ComputeRenderer_H
+#endif	// not defined _ComputeRenderer_H

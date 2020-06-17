@@ -21,8 +21,7 @@
 \endcode
 
 */
-class NavBarRenderer : public Renderer
-{
+class NavBarRenderer : public Renderer {
 public:
 	NavBarRenderer(const char *name);
 	~NavBarRenderer();
@@ -34,10 +33,10 @@ protected:
 	//! Retrieves the List data and returns them in list
 	//! \return false if the list retrieval fails
 	/*! Maybe overwritten to fetch the list from another store
-	*/
+	 */
 	virtual void RenderLevel(std::ostream &reply, Context &c, const ROAnything &config, Anything &list, String &entryStoreName);
 	//! Searchs the info data and returns True if found
 	bool GetInfo(Context &c, const ROAnything &config, Anything &info);
 };
 
-#endif		// ifndef _NAVBARRENDERER_H
+#endif	// ifndef _NAVBARRENDERER_H

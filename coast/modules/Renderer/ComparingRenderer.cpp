@@ -7,17 +7,17 @@
  */
 
 #include "ComparingRenderer.h"
+
 #include "Tracer.h"
+
 #include <ostream>
 
 //---- ComparingRenderer ---------------------------------------------------------------
-ComparingRenderer::ComparingRenderer(const char *name)
-	: Renderer(name) { }
+ComparingRenderer::ComparingRenderer(const char *name) : Renderer(name) {}
 
-ComparingRenderer::~ComparingRenderer() { }
+ComparingRenderer::~ComparingRenderer() {}
 
-void ComparingRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void ComparingRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(ComparingRenderer.RenderAll);
 	String listDataName;
 	RenderOnString(listDataName, c, config["ListName"]);

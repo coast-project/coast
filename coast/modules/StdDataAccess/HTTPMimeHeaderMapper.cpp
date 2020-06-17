@@ -6,11 +6,13 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "HTTPMimeHeaderMapper.h"
-#include "MIMEHeader.h"
-#include "HTTPProcessor.h"
-#include "RE.h"
+
 #include "AnyIterators.h"
 #include "AnythingUtils.h"
+#include "HTTPProcessor.h"
+#include "MIMEHeader.h"
+#include "RE.h"
+
 #include <istream>
 
 RegisterResultMapper(HTTPMimeHeaderMapper);
@@ -25,7 +27,8 @@ bool HTTPMimeHeaderMapper::DoPutStream(const char *, std::istream &is, Context &
 		result = mh.ParseHeaders(is);
 	} catch (MIMEHeader::StreamNotGoodException &e) {
 	} catch (MIMEHeader::LineSizeExceededException &e) {
-		coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [LineSizeLimit]"), e.fLine, "HTTPMimeHeaderMapper::DoPutStream");
+		coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [LineSizeLimit]"),
+												e.fLine, "HTTPMimeHeaderMapper::DoPutStream");
 	}
 
 	if (result && is.good()) {
@@ -168,14 +171,18 @@ void HTTPMimeHeaderMapper::StoreCookies(ROAnything const header, Context &ctx) {
 				plainCookieString.Append("Cookie:");
 			}
 			structureIter.SlotName(cookieName);
-			//!@FIXME: in future we should decide on attributes to select correct value entry to use, currently we use the last one (roaEntry.GetSize()-1) if multiple entries exist
-			plainCookieString.Append(' ').Append(cookieName).Append('=').Append(roaEntry[roaEntry.GetSize() - 1][valueSlotName].AsString()).Append(
-					cookieEnd);
+			//!@FIXME: in future we should decide on attributes to select correct value entry to use, currently we use the last
+			//! one (roaEntry.GetSize()-1) if multiple entries exist
+			plainCookieString.Append(' ')
+				.Append(cookieName)
+				.Append('=')
+				.Append(roaEntry[roaEntry.GetSize() - 1][valueSlotName].AsString())
+				.Append(cookieEnd);
 		}
 		Anything anyPlainString(plainCookieString);
 		Trace("plain cookie string [" << plainCookieString << "]");
-		StorePutter::Operate(anyPlainString, ctx, "Session", String(destSlotname).Append(cookie_path_sep).Append("Plain"), false,
-				cookie_path_sep);
+		StorePutter::Operate(anyPlainString, ctx, "Session", String(destSlotname).Append(cookie_path_sep).Append("Plain"),
+							 false, cookie_path_sep);
 	}
 	TraceAny(ctx.Lookup("StoredCookies"), "cookies from context");
 }

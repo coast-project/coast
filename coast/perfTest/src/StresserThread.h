@@ -14,13 +14,12 @@
 class Stresser;
 
 //! Wraps a Stresser in a thread.
-class StresserThread: public Thread {
+class StresserThread : public Thread {
 	StresserThread(const StresserThread &);
 	StresserThread &operator=(const StresserThread &);
+
 public:
-	StresserThread() :
-		Thread("StresserThread"), fCond(0), fMutex(0), fMyId(-1), fResult(coast::storage::Global()) {
-	}
+	StresserThread() : Thread("StresserThread"), fCond(0), fMutex(0), fMyId(-1), fResult(coast::storage::Global()) {}
 	//! Initializing routine
 	//! Typical clients want to construct vast arrays of StresserThreads
 	//! so they have to use the default constructor. Then they should loop over

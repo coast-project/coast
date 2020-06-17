@@ -9,10 +9,10 @@
 #ifndef IT_TESTFW_TESTRESULT_H
 #define IT_TESTFW_TESTRESULT_H
 
-#include "TestLocation.h"
-#include "TestLocList.h"
-#include "TestTimer.h"
 #include "Test.h"
+#include "TestLocList.h"
+#include "TestLocation.h"
+#include "TestTimer.h"
 
 //! collect the results of the tests
 /*!
@@ -25,148 +25,131 @@
  *
  * see Test
  */
-class TestResult
-{
+class TestResult {
 public:
-	TestResult  ();
-	virtual						~TestResult () {};
+	TestResult();
+	virtual ~TestResult(){};
 
-	virtual bool				shouldStop	();
-	virtual void				addError	(TestLocation *loc);
-	virtual void				addFailure	(TestLocation *loc);
-	virtual void				addSuccess	(TestLocation *loc);
-	virtual void				startTest	(Test *test);
-	virtual void				endTest		(Test *test);
-	virtual int					runTests	();
-	virtual long				elapsedTime	();
-	virtual int					testErrors  ();
-	virtual int					testFailures ();
-	virtual int					testSuccesses ();
-	virtual bool				wasSuccessful ();
-	virtual void				stop ();
+	virtual bool shouldStop();
+	virtual void addError(TestLocation *loc);
+	virtual void addFailure(TestLocation *loc);
+	virtual void addSuccess(TestLocation *loc);
+	virtual void startTest(Test *test);
+	virtual void endTest(Test *test);
+	virtual int runTests();
+	virtual long elapsedTime();
+	virtual int testErrors();
+	virtual int testFailures();
+	virtual int testSuccesses();
+	virtual bool wasSuccessful();
+	virtual void stop();
 
-	TestLocList		&errors ();
-	TestLocList		&failures ();
-	TestLocList		&successes ();
+	TestLocList &errors();
+	TestLocList &failures();
+	TestLocList &successes();
 
 protected:
-	TestLocList		fErrors;
-	TestLocList		fFailures;
-	TestLocList		fSuccesses;
-	int				fRunTests;
-	TestTimer		fTimer;
-	long			fElapsedTime;
+	TestLocList fErrors;
+	TestLocList fFailures;
+	TestLocList fSuccesses;
+	int fRunTests;
+	TestTimer fTimer;
+	long fElapsedTime;
 
 private:
-	bool						m_stop;
+	bool m_stop;
 };
 
-inline TestResult::TestResult (): fRunTests(0), fElapsedTime(0)
-{
+inline TestResult::TestResult() : fRunTests(0), fElapsedTime(0) {
 	m_stop = false;
 }
 
 // Returns whether the test should stop
-inline bool TestResult::shouldStop ()
-{
+inline bool TestResult::shouldStop() {
 	return m_stop;
 }
 
 // Adds an error to the list of errors. The passed in exception
 // caused the error
-inline void TestResult::addError (TestLocation *loc)
-{
-	fErrors.push_back (loc);
+inline void TestResult::addError(TestLocation *loc) {
+	fErrors.push_back(loc);
 }
 
 // Adds a failure to the list of failures. The passed in exception
 // caused the failure.
-inline void TestResult::addFailure (TestLocation *loc)
-{
-	fFailures.push_back (loc);
+inline void TestResult::addFailure(TestLocation *loc) {
+	fFailures.push_back(loc);
 }
 
 // Adds a success to the list of successes. The passed in exception
 // describes the test.
-inline void TestResult::addSuccess (TestLocation *loc)
-{
-	fSuccesses.push_back (loc);
+inline void TestResult::addSuccess(TestLocation *loc) {
+	fSuccesses.push_back(loc);
 }
 
 // Informs the result that a test will be started.
-inline void TestResult::startTest (Test *test)
-{
+inline void TestResult::startTest(Test *test) {
 	++fRunTests;
 	fTimer.Start();
 }
 
 // Informs the result that a test was completed.
-inline void TestResult::endTest (Test *test)
-{
+inline void TestResult::endTest(Test *test) {
 	fElapsedTime += fTimer.Diff();
 }
 
 // Gets the number of run tests.
-inline int TestResult::runTests ()
-{
+inline int TestResult::runTests() {
 	return fRunTests;
 }
 
 // Gets the number of run tests.
-inline long TestResult::elapsedTime ()
-{
+inline long TestResult::elapsedTime() {
 	return fElapsedTime;
 }
 
 // Gets the number of detected errors.
-inline int TestResult::testErrors ()
-{
-	return fErrors.size ();
+inline int TestResult::testErrors() {
+	return fErrors.size();
 }
 
 // Gets the number of detected failures.
-inline int TestResult::testFailures ()
-{
-	return fFailures.size ();
+inline int TestResult::testFailures() {
+	return fFailures.size();
 }
 
 // Gets the number of successes.
-inline int TestResult::testSuccesses ()
-{
-	return fSuccesses.size ();
+inline int TestResult::testSuccesses() {
+	return fSuccesses.size();
 }
 
 // Returns whether the entire test was successful or not.
-inline bool TestResult::wasSuccessful ()
-{
-	return fFailures.size () == 0 && fErrors.size () == 0;
+inline bool TestResult::wasSuccessful() {
+	return fFailures.size() == 0 && fErrors.size() == 0;
 }
 
 // Marks that the test run should stop.
-inline void TestResult::stop ()
-{
+inline void TestResult::stop() {
 	m_stop = true;
 }
 
 // Returns a vector of the errors.
-//inline vector<TestLocation *>& TestResult::errors ()
-inline TestLocList &TestResult::errors ()
+// inline vector<TestLocation *>& TestResult::errors ()
+inline TestLocList &TestResult::errors()
 // be careful with these, you will get a reference, but I take care of memory
 {
 	return fErrors;
 }
 
 // Returns a vector of the failures.
-//inline vector<TestLocation *>& TestResult::failures ()
-inline TestLocList &TestResult::failures ()
-{
+// inline vector<TestLocation *>& TestResult::failures ()
+inline TestLocList &TestResult::failures() {
 	return fFailures;
 }
 
 // Returns a vector of the successes.
-//inline vector<TestLocation *>& TestResult::successes ()
-inline TestLocList &TestResult::successes ()
-{
+// inline vector<TestLocation *>& TestResult::successes ()
+inline TestLocList &TestResult::successes() {
 	return fSuccesses;
 }
 

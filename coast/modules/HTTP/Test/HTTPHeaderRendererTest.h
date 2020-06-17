@@ -11,11 +11,9 @@
 
 #include "TestCase.h"
 
-class HTTPHeaderRendererTest: public testframework::TestCase {
+class HTTPHeaderRendererTest : public testframework::TestCase {
 public:
-	HTTPHeaderRendererTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	HTTPHeaderRendererTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 	void SingleLine();
 	void SingleLineMultiValue();

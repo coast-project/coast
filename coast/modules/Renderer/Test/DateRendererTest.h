@@ -15,14 +15,13 @@
 
 //---- DateRendererTest -----------------------------------------------------------
 
-class DateRendererTest : public RendererTest
-{
+class DateRendererTest : public RendererTest {
 public:
 	DateRendererTest(TString tstrName);
 	virtual ~DateRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
 
 protected:
 	void simpleFormat();

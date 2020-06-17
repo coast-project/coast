@@ -7,30 +7,36 @@
  */
 
 #include "HTTPRequestReader.h"
-#include "MIMEHeader.h"
+
 #include "AnythingUtils.h"
-#include "HTTPProtocolReplyRenderer.h"
 #include "HTTPConstants.h"
 #include "HTTPProcessor.h"
+#include "HTTPProtocolReplyRenderer.h"
+#include "MIMEHeader.h"
+
 #include <istream>
 
 namespace {
 	struct URISizeExceededException : MIMEHeader::SizeExceededException {
-		URISizeExceededException(String const& msg, String const& line, long lMaxSize, long lActualSize) : MIMEHeader::SizeExceededException(msg, line, lMaxSize, lActualSize) {}
+		URISizeExceededException(String const &msg, String const &line, long lMaxSize, long lActualSize)
+			: MIMEHeader::SizeExceededException(msg, line, lMaxSize, lActualSize) {}
 	};
 	struct InvalidLineWithCodeException : MIMEHeader::InvalidLineException {
 		long fCode;
-		InvalidLineWithCodeException(String const& msg, String const& line, long code) : MIMEHeader::InvalidLineException(msg, line), fCode(code) {}
+		InvalidLineWithCodeException(String const &msg, String const &line, long code)
+			: MIMEHeader::InvalidLineException(msg, line), fCode(code) {}
 	};
 
 	void ParseRequestLine(Context &ctx, Anything &request, String &line) {
-		StartTrace(HTTPRequestReader.ParseRequestLine); Trace("Line:<" << line << ">");
+		StartTrace(HTTPRequestReader.ParseRequestLine);
+		Trace("Line:<" << line << ">");
 		Anything anyRequest;
 		coast::urlutils::Split(line, ' ', anyRequest, ' ');
 		if (anyRequest.GetSize() != 3L)
 			throw MIMEHeader::InvalidLineException("Bad request structure or simple HTTP/0.9 request", line);
 		String tok = anyRequest[0L].AsString().ToUpper();
-		if (tok.IsEqual(coast::http::constants::getMethodSlotname) || tok.IsEqual(coast::http::constants::postMethodSlotname)) { //!@FIXME allow more methods..., make it configurable?
+		if (tok.IsEqual(coast::http::constants::getMethodSlotname) ||
+			tok.IsEqual(coast::http::constants::postMethodSlotname)) {	//!@FIXME allow more methods..., make it configurable?
 			request["REQUEST_METHOD"] = tok;
 		} else {
 			throw InvalidLineWithCodeException("Method Not Allowed", line, 405);
@@ -64,7 +70,7 @@ namespace {
 		}
 		ParseRequestLine(ctx, request, line);
 	}
-}
+}  // namespace
 
 bool HTTPRequestReader::ReadRequest(Context &ctx, std::iostream &Ios) {
 	StartTrace(HTTPRequestReader.ReadRequest);
@@ -83,7 +89,7 @@ bool HTTPRequestReader::DoReadRequest(Context &ctx, std::iostream &Ios) {
 			throw MIMEHeader::RequestSizeExceededException("RequestSizeLimit exceeded", line, maxReqSz, fRequestBufferSize);
 		}
 		HandleFirstLine(ctx, fRequest, line);
-		fHeader.ParseHeaders(Ios, maxLineSz, maxReqSz-fRequestBufferSize);
+		fHeader.ParseHeaders(Ios, maxLineSz, maxReqSz - fRequestBufferSize);
 		fRequestBufferSize += fHeader.GetParsedHeaderLength();
 		if (fRequestBufferSize == 0) {
 			throw InvalidLineWithCodeException("Empty request", line, 400);
@@ -91,11 +97,14 @@ bool HTTPRequestReader::DoReadRequest(Context &ctx, std::iostream &Ios) {
 		TraceAny(fHeader.GetHeaderInfo(), "RequestHeader:");
 		return true;
 	} catch (MIMEHeader::LineSizeExceededException &e) {
-		coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [LineSizeLimit]"), e.fLine, "HTTPRequestReader::DoReadRequest");
+		coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [LineSizeLimit]"),
+												e.fLine, "HTTPRequestReader::DoReadRequest");
 	} catch (MIMEHeader::RequestSizeExceededException &e) {
-		coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [RequestSizeLimit]"), e.fLine, "HTTPRequestReader::DoReadRequest");
+		coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [RequestSizeLimit]"),
+												e.fLine, "HTTPRequestReader::DoReadRequest");
 	} catch (URISizeExceededException &e) {
-		coast::http::PutErrorMessageIntoContext(ctx, 414, String(e.what()).Append(" => check setting of [URISizeLimit]"), e.fLine, "HTTPRequestReader::DoReadRequest");
+		coast::http::PutErrorMessageIntoContext(ctx, 414, String(e.what()).Append(" => check setting of [URISizeLimit]"),
+												e.fLine, "HTTPRequestReader::DoReadRequest");
 	} catch (InvalidLineWithCodeException &e) {
 		coast::http::PutErrorMessageIntoContext(ctx, e.fCode, e.what(), e.fLine, "HTTPRequestReader::DoReadRequest");
 	} catch (MIMEHeader::InvalidLineException &e) {
@@ -106,8 +115,7 @@ bool HTTPRequestReader::DoReadRequest(Context &ctx, std::iostream &Ios) {
 	return false;
 }
 
-Anything const& HTTPRequestReader::GetRequest()
-{
+Anything const &HTTPRequestReader::GetRequest() {
 	fRequest["header"] = fHeader.GetHeaderInfo();
 	return fRequest;
 }

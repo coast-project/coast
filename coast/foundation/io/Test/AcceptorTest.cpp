@@ -7,33 +7,27 @@
  */
 
 #include "AcceptorTest.h"
-#include "TestSuite.h"
+
 #include "Socket.h"
+#include "TestSuite.h"
 
-AcceptorTest::AcceptorTest(TString tname)
-	: TestCaseType(tname)
-{
-}
+AcceptorTest::AcceptorTest(TString tname) : TestCaseType(tname) {}
 
-AcceptorTest::~AcceptorTest()
-{
-}
+AcceptorTest::~AcceptorTest() {}
 
-void AcceptorTest::getPort()
-{
+void AcceptorTest::getPort() {
 	Acceptor acceptor(GetConfig()["Localhost"]["ip"].AsString(), 0, 0, 0);
 
-	assertEqual( 0, acceptor.GetPort() );
+	assertEqual(0, acceptor.GetPort());
 	assertEqual(0, acceptor.PrepareAcceptLoop());
-	assertCompare( 0L, not_equal_to, acceptor.GetPort() );
-	assertCompare( 0L, not_equal_to, acceptor.GetBoundPort() );
+	assertCompare(0L, not_equal_to, acceptor.GetPort());
+	assertCompare(0L, not_equal_to, acceptor.GetBoundPort());
 	assertEqual(acceptor.GetPort(), acceptor.GetBoundPort());
 }
 
-class TestCallBack: public AcceptorCallBack
-{
+class TestCallBack : public AcceptorCallBack {
 public:
-	TestCallBack(AcceptorTest *test): fTest(test) { }
+	TestCallBack(AcceptorTest *test) : fTest(test) {}
 
 	void CallBack(Socket *socket) {
 		if (fTest) {
@@ -54,30 +48,27 @@ protected:
 	AcceptorTest *fTest;
 };
 
-void AcceptorTest::TestSocket(Socket *s)
-{
+void AcceptorTest::TestSocket(Socket *s) {
 	t_assert(s != 0);
 }
 
-void AcceptorTest::acceptOnceTest()
-{
+void AcceptorTest::acceptOnceTest() {
 	// do not change the sequence of statements
 	// the program cannot run otherwise
 	TestCallBack *cb = new TestCallBack(this);
 	Acceptor acceptor(GetConfig()["acceptOnceTest"]["ip"].AsString(), 0, 1, cb);
 
-	assertCompare( 0, equal_to, acceptor.PrepareAcceptLoop() );
-	assertCompare( 0L, not_equal_to, acceptor.GetPort() );
+	assertCompare(0, equal_to, acceptor.PrepareAcceptLoop());
+	assertCompare(0L, not_equal_to, acceptor.GetPort());
 
 	Connector connector(GetConfig()["acceptOnceTest"]["ip"].AsString(), acceptor.GetPort());
-	if (t_assert(connector.Use() != NULL)) { // should try a connect to acceptor; not yet accepting
+	if (t_assert(connector.Use() != NULL)) {  // should try a connect to acceptor; not yet accepting
 		acceptor.RunAcceptLoop(true);
 	}
 	// if we get here we were successful
 }
 
-Test *AcceptorTest::suite ()
-{
+Test *AcceptorTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, AcceptorTest, getPort);

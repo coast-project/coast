@@ -7,21 +7,19 @@
  */
 
 #include "HTMLTemplateRenderer.h"
-#include "Timers.h"
-#include "LocalizationUtils.h"
+
 #include "HTMLTemplateCacheLoader.h"
-#include "TemplateParser.h"
+#include "LocalizationUtils.h"
 #include "StringStream.h"
+#include "TemplateParser.h"
+#include "Timers.h"
 
 RegisterRenderer(HTMLTemplateRenderer);
 ROAnything HTMLTemplateRenderer::fgTemplates;
 ROAnything HTMLTemplateRenderer::fgNameMap;
 
-HTMLTemplateRenderer::HTMLTemplateRenderer(const char *name) : Renderer(name)
-{
-}
-void HTMLTemplateRenderer::BuildCache(const ROAnything config)
-{
+HTMLTemplateRenderer::HTMLTemplateRenderer(const char *name) : Renderer(name) {}
+void HTMLTemplateRenderer::BuildCache(const ROAnything config) {
 	StartTrace(HTMLTemplateRenderer.BuildCache);
 	HTMLTemplateCacheBuilder htcb;
 	htcb.BuildCache(config);
@@ -31,20 +29,18 @@ void HTMLTemplateRenderer::BuildCache(const ROAnything config)
 	TraceAny(fgNameMap, "Cache Map");
 }
 
-TemplateParser *HTMLTemplateRenderer::GetParser()
-{
+TemplateParser *HTMLTemplateRenderer::GetParser() {
 	return new TemplateParser;
 }
 
-void HTMLTemplateRenderer::RenderAll(std::ostream &reply, Context &context, const ROAnything &args)
-{
+void HTMLTemplateRenderer::RenderAll(std::ostream &reply, Context &context, const ROAnything &args) {
 	StartTrace(HTMLTemplateRenderer.RenderAll);
 	TraceAny(args, "args");
 	ROAnything theRendererConfig, roaParserConfig;
 	Anything rendererConfig;
 
 	// check if we have special parser configuration to use
-	if ( !args.LookupPath(roaParserConfig, "ParserConfig") ) {
+	if (!args.LookupPath(roaParserConfig, "ParserConfig")) {
 		context.Lookup("HTMLTemplateConfig.ParserConfig", roaParserConfig);
 	}
 
@@ -54,11 +50,11 @@ void HTMLTemplateRenderer::RenderAll(std::ostream &reply, Context &context, cons
 		if (filename.Length() == 0) {
 			SystemLog::Error("HTMLTemplateRenderer::RenderAll: cannot find template name");
 		} else {
-			const char *lang = context.Language();		// cache language flag for localized strings
+			const char *lang = context.Language();	// cache language flag for localized strings
 			TraceAny(fgNameMap, "current cache map");
 			String pathUsed = fgNameMap[filename][lang].AsCharPtr("");
-			Trace("Template file :" << filename << ";" << pathUsed << ";" << lang );
-			if ( pathUsed.Length() > 0 ) { // we got the filekey
+			Trace("Template file :" << filename << ";" << pathUsed << ";" << lang);
+			if (pathUsed.Length() > 0) {  // we got the filekey
 				theRendererConfig = fgTemplates[pathUsed];
 			} else {
 				std::istream *fp = LocalizationUtils::OpenStream(context, filename, pathUsed);
@@ -89,7 +85,7 @@ void HTMLTemplateRenderer::RenderAll(std::ostream &reply, Context &context, cons
 			// bail out.
 			OStringStream str;
 			str << "HTMLTemplateRenderer::RenderAll: neither Template nor TemplateName is defined :";
-			args.PrintOn(str); // log what we've got
+			args.PrintOn(str);	// log what we've got
 			SystemLog::Error(str.str());
 			return;
 		}
@@ -98,7 +94,7 @@ void HTMLTemplateRenderer::RenderAll(std::ostream &reply, Context &context, cons
 		for (long i = 0, size = templ.GetSize(); i < size; ++i) {
 			// PS: only append anonymous entries to allow for future parameters
 			// PS: this will take care of things like /Options /Method in subclass FormRenderer
-			if ( 0 == templ.SlotName(i) ) {
+			if (0 == templ.SlotName(i)) {
 				buf.Append(templ[i].AsCharPtr());
 			}
 		}
@@ -107,7 +103,6 @@ void HTMLTemplateRenderer::RenderAll(std::ostream &reply, Context &context, cons
 		rendererConfig = tp->Parse(reader, "from config", 1L, rendererConfig.GetAllocator(), roaParserConfig);
 		delete tp;
 		theRendererConfig = rendererConfig;
-
 	}
 	Render(reply, context, theRendererConfig);
 }

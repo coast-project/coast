@@ -7,7 +7,9 @@
  */
 
 #include "StringIterator.h"
+
 #include "ITOString.h"
+
 #include <limits>
 
 bool String_iterator::operator==(const String_iterator &r) const {

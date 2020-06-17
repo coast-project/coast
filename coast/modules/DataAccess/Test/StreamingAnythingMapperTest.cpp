@@ -7,22 +7,18 @@
  */
 
 #include "StreamingAnythingMapperTest.h"
-#include "StreamingAnythingMapper.h"
-#include "TestSuite.h"
-#include "StringStream.h"
+
 #include "Context.h"
+#include "StreamingAnythingMapper.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
 //---- StreamingAnythingMapperTest ----------------------------------------------------------------
-StreamingAnythingMapperTest::StreamingAnythingMapperTest(TString tname) : TestCaseType(tname)
-{
-}
+StreamingAnythingMapperTest::StreamingAnythingMapperTest(TString tname) : TestCaseType(tname) {}
 
-StreamingAnythingMapperTest::~StreamingAnythingMapperTest()
-{
-}
+StreamingAnythingMapperTest::~StreamingAnythingMapperTest() {}
 
-void StreamingAnythingMapperTest::GetTest()
-{
+void StreamingAnythingMapperTest::GetTest() {
 	StartTrace(StreamingAnythingMapperTest.GetTest);
 	Anything clientData;
 	clientData["Input"]["Slot1"] = "Something";
@@ -34,16 +30,18 @@ void StreamingAnythingMapperTest::GetTest()
 	String streamedAny;
 	OStringStream out(&streamedAny);
 	mapper.Get("Input", out, ctx);
+	// clang-format off
 	assertEqual( _QUOTE_({\x0A\x20\x20/Slot1 "Something"\x0A\x20\x20/Slot2 42\x0A}) , streamedAny);
-
+	// clang-format on
 	String streamedAny2;
 	OStringStream out2(&streamedAny2);
 	mapper.Get("Input.Slot1", out2, ctx);
+	// clang-format off
 	assertEqual( _QUOTE_("Something") , streamedAny2);
+	// clang-format on
 }
 
-void StreamingAnythingMapperTest::PutTest()
-{
+void StreamingAnythingMapperTest::PutTest() {
 	StartTrace(StreamingAnythingMapperTest.PutTest);
 
 	Anything dummy;
@@ -61,13 +59,11 @@ void StreamingAnythingMapperTest::PutTest()
 	assertEqual(42, result["Slot2"].AsLong(0));
 }
 
-Test *StreamingAnythingMapperTest::suite ()
-{
+Test *StreamingAnythingMapperTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, StreamingAnythingMapperTest, PutTest);
 	ADD_CASE(testSuite, StreamingAnythingMapperTest, GetTest);
 
 	return testSuite;
-
 }

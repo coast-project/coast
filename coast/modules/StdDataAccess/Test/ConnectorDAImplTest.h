@@ -9,9 +9,9 @@
 #ifndef _ConnectorDAImplTest_H
 #define _ConnectorDAImplTest_H
 
-#include "WDBaseTestPolicies.h"
 #include "Socket.h"
 #include "Threads.h"
+#include "WDBaseTestPolicies.h"
 
 class EchoMsgCallBack;
 class AcceptorThread;
@@ -21,8 +21,7 @@ class AcceptorThread;
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class ConnectorDAImplTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class ConnectorDAImplTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
@@ -34,11 +33,11 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 	//! sets the environment for this test
-	void setUp ();
+	void setUp();
 	//! deletes the environment for this test
-	void tearDown ();
+	void tearDown();
 
 	//! describe this testcase
 	void SendReceiveOnceTest();

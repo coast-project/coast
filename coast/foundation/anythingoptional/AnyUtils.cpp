@@ -7,27 +7,28 @@
  */
 
 #include "AnyUtils.h"
+
 #include "SystemFile.h"
 #include "SystemLog.h"
 #include "Tracer.h"
+
 #include <istream>
 #include <ostream>
 
 using namespace coast;
 
 //---- Any utilities
-void AnyUtils::ShowDifferences( String &masterString, String &inputString, std::ostream *verbose )
-{
+void AnyUtils::ShowDifferences(String &masterString, String &inputString, std::ostream *verbose) {
 	StartTrace(AnyUtils.ShowDifferences);
 	// show first difference
 	if (verbose) {
 		*verbose << "- Show First Difference: -" << std::endl;
 		*verbose << "Size Master:" << masterString.Length() << " Size Input:" << inputString.Length() << std::endl;
 
-		for ( long j = 0, sz = masterString.Length(); j < sz; ++j ) {
-			if ( masterString[j] != inputString[j] ) {
+		for (long j = 0, sz = masterString.Length(); j < sz; ++j) {
+			if (masterString[j] != inputString[j]) {
 				*verbose << masterString[j] << "<-[";
-				if ( inputString[j] != '\0' ) {
+				if (inputString[j] != '\0') {
 					*verbose << inputString[j];
 				}
 				*verbose << "]" << std::endl;
@@ -40,8 +41,8 @@ void AnyUtils::ShowDifferences( String &masterString, String &inputString, std::
 	}
 }
 
-void AnyUtils::Dump(const char *message, const ROAnything &inputAny, const ROAnything &masterAny, const String &masterSlotName, const String &pathSoFar, std::ostream *verbose)
-{
+void AnyUtils::Dump(const char *message, const ROAnything &inputAny, const ROAnything &masterAny, const String &masterSlotName,
+					const String &pathSoFar, std::ostream *verbose) {
 	StartTrace(AnyUtils.Dump);
 	Trace(String(message) << " [" << masterSlotName << "] at [" << pathSoFar << "]");
 	if (verbose) {
@@ -54,41 +55,41 @@ void AnyUtils::Dump(const char *message, const ROAnything &inputAny, const ROAny
 			*verbose << "/" << masterSlotName << " ";
 		}
 		*verbose << masterAny << std::endl;
-		*verbose << "Input: " << std::endl ;
+		*verbose << "Input: " << std::endl;
 		*verbose << inputAny << std::endl;
 	}
 }
 
-bool AnyUtils::AnyCompareEqual( const ROAnything &inputAny, const ROAnything &masterAny, String pathSoFar, std::ostream *verbose, char delimSlot, char delimIdx )
-{
+bool AnyUtils::AnyCompareEqual(const ROAnything &inputAny, const ROAnything &masterAny, String pathSoFar, std::ostream *verbose,
+							   char delimSlot, char delimIdx) {
 	StartTrace1(AnyUtils.AnyCompareEqual, "Delim[" << delimSlot << "] IndexDelim[" << delimIdx << "]");
 	//-------------------------------
 	// author - Mike egoless
 	// only slots actually appearing in the "master" are tested, others are ignored..
 	//-------------------------------
 
-	if ( masterAny.GetType() == AnyArrayType ) {
-		bool result = true; // match is presupposed
+	if (masterAny.GetType() == AnyArrayType) {
+		bool result = true;	 // match is presupposed
 
 		// recursive comparison of anything, on
-		for ( long i = 0, szm = masterAny.GetSize(); i < szm; ++i ) {
+		for (long i = 0, szm = masterAny.GetSize(); i < szm; ++i) {
 			ROAnything anySlotCfg;
 			String mySlotname = masterAny.SlotName(i);
-			if ( !mySlotname.Length() ) {
+			if (!mySlotname.Length()) {
 				String newPath(pathSoFar);
 				newPath.Append(delimIdx);
 				newPath.Append(i);
 				Trace("MasterSlotname [" << newPath << "]");
 				// try to find null as slotname match in input any, must iterate through all "null" slotname members for this
 				bool found = false;
-				for ( long j = 0, szi = inputAny.GetSize(); j < szi; ++j ) {
+				for (long j = 0, szi = inputAny.GetSize(); j < szi; ++j) {
 					String myInSlotname = inputAny.SlotName(j);
-					if ( !myInSlotname.Length() ) {
+					if (!myInSlotname.Length()) {
 						myInSlotname.Append(delimIdx).Append(j);
 						Trace("InputSlotname [" << myInSlotname << "]");
-						found = AnyCompareEqual( inputAny[j], masterAny[i], newPath, NULL, delimSlot, delimIdx );
+						found = AnyCompareEqual(inputAny[j], masterAny[i], newPath, NULL, delimSlot, delimIdx);
 
-						if ( found ) {
+						if (found) {
 							// break out of loop as soon as match found
 							break;
 						}
@@ -97,19 +98,19 @@ bool AnyUtils::AnyCompareEqual( const ROAnything &inputAny, const ROAnything &ma
 					}
 				}
 
-				if ( !found ) {
+				if (!found) {
 					result = false;
 					Dump("Master slot not matched", inputAny, masterAny[i], "", pathSoFar, verbose);
 				}
-			} else if ( inputAny.LookupPath(anySlotCfg, mySlotname, delimSlot, delimIdx) ) {
+			} else if (inputAny.LookupPath(anySlotCfg, mySlotname, delimSlot, delimIdx)) {
 				// ! we do not get here when the slot was a Null-Anything !
 				String newPath(pathSoFar);
-				if ( mySlotname[0L] != delimIdx ) {
+				if (mySlotname[0L] != delimIdx) {
 					newPath.Append(delimSlot);
 				}
 				newPath.Append(mySlotname);
 				Trace("MasterSlotname [" << newPath << "]");
-				if ( !AnyCompareEqual( anySlotCfg, masterAny[i], newPath, verbose, delimSlot, delimIdx ) ) {
+				if (!AnyCompareEqual(anySlotCfg, masterAny[i], newPath, verbose, delimSlot, delimIdx)) {
 					result = false;
 				}
 			} else {
@@ -122,64 +123,67 @@ bool AnyUtils::AnyCompareEqual( const ROAnything &inputAny, const ROAnything &ma
 		// do a direct comparison
 		String masterString = masterAny.AsString();
 		String inputString = inputAny.AsString();
-		if ( ( !masterAny.IsEqual("ignore") ) && ( inputString != masterString ) ) {
-			long lSlotnameIdx = ((pathSoFar.StrRChr(delimSlot)) > (pathSoFar.StrRChr(delimIdx)) ? (pathSoFar.StrRChr(delimSlot)) : (pathSoFar.StrRChr(delimIdx)) );
-			String strSlot = ( (pathSoFar.At(lSlotnameIdx) == delimSlot) ? pathSoFar.SubString(lSlotnameIdx + 1L) : pathSoFar.SubString(lSlotnameIdx) );
+		if ((!masterAny.IsEqual("ignore")) && (inputString != masterString)) {
+			long lSlotnameIdx =
+				((pathSoFar.StrRChr(delimSlot)) > (pathSoFar.StrRChr(delimIdx)) ? (pathSoFar.StrRChr(delimSlot))
+																				: (pathSoFar.StrRChr(delimIdx)));
+			String strSlot = ((pathSoFar.At(lSlotnameIdx) == delimSlot) ? pathSoFar.SubString(lSlotnameIdx + 1L)
+																		: pathSoFar.SubString(lSlotnameIdx));
 			pathSoFar.Trim(lSlotnameIdx);
 			Trace("path so far [" << pathSoFar << "] slot [" << strSlot << "]");
 			Dump("Slots not equal", inputAny, masterAny, pathSoFar, strSlot, verbose);
-			ShowDifferences( masterString, inputString, verbose );
+			ShowDifferences(masterString, inputString, verbose);
 			return false;
 		}
 		return true;
 	}
 }
 
-void AnyUtils::AnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, bool bOverwriteSlots, const char &delimSlot, const char &delimIdx)
-{
+void AnyUtils::AnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, bool bOverwriteSlots, const char &delimSlot,
+						const char &delimIdx) {
 	StartTrace1(AnyUtils.AnyMerge, "Delim[" << delimSlot << "] IndexDelim[" << delimIdx << "]");
 	DoAnyMerge(anyMaster, roaToMerge, bOverwriteSlots, false, delimSlot, delimIdx);
 	SubTraceAny(TraceInputAny, anyMaster, "Result");
 }
 
-long AnyUtils::DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, bool bOverwriteSlots, bool bTest, const char &delimSlot, const char &delimIdx)
-{
+long AnyUtils::DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, bool bOverwriteSlots, bool bTest,
+						  const char &delimSlot, const char &delimIdx) {
 	StartTrace1(AnyUtils.DoAnyMerge, (bTest ? "Test" : ""));
 	SubTraceAny(TraceInputAny, anyMaster, "current master content:");
 	SubTraceAny(TraceInputAny, roaToMerge, "input content:");
 	long lHitCount = 0L;
 	// roaToMerge serves as master defining the slots to add/modify
-	if ( roaToMerge.GetType() == AnyArrayType ) {
-		if ( roaToMerge.GetSize() ) {
+	if (roaToMerge.GetType() == AnyArrayType) {
+		if (roaToMerge.GetSize()) {
 			// prepare temporary index any of master
 			Anything anyMasterIdx;
-			for ( long m = 0, szm = anyMaster.GetSize(); m < szm; ++m ) {
-				if ( ( anyMaster.SlotName(m) == NULL ) && ( anyMaster[m].GetType() == AnyArrayType ) ) {
+			for (long m = 0, szm = anyMaster.GetSize(); m < szm; ++m) {
+				if ((anyMaster.SlotName(m) == NULL) && (anyMaster[m].GetType() == AnyArrayType)) {
 					Trace("is index:" << m);
 					anyMasterIdx[anyMasterIdx.GetSize()] = m;
 				}
 			}
 			TraceAny(anyMasterIdx, "MasterIndexes");
 			// recursive comparison of anything, on
-			for ( long i = 0, sz = roaToMerge.GetSize(); i < sz; ++i ) {
+			for (long i = 0, sz = roaToMerge.GetSize(); i < sz; ++i) {
 				String strInputSlotname = roaToMerge.SlotName(i);
-				Trace("current input slotname [" << strInputSlotname << "], anyType:" << (long)roaToMerge[i].GetType() );
+				Trace("current input slotname [" << strInputSlotname << "], anyType:" << (long)roaToMerge[i].GetType());
 				// first check for leaf
-				if ( roaToMerge[i].GetType() != AnyArrayType ) {
-					if ( strInputSlotname.Length() ) {
+				if (roaToMerge[i].GetType() != AnyArrayType) {
+					if (strInputSlotname.Length()) {
 						Trace("noArray:named: simple entry, value [" << roaToMerge[i].AsString() << "]");
-						if ( !anyMaster.IsDefined(strInputSlotname) || bOverwriteSlots ) {
+						if (!anyMaster.IsDefined(strInputSlotname) || bOverwriteSlots) {
 							Trace("noArray:named: " << (bOverwriteSlots ? "overwriting" : "adding") << " named simple slot");
-							if ( !bTest ) {
+							if (!bTest) {
 								anyMaster[strInputSlotname] = roaToMerge[i].DeepClone();
 							}
 						}
 					} else {
 						Trace("noArray:unnamed: simple leaf check of input [" << roaToMerge[i].AsString() << "]");
 						// just need to check if leaf is already defined in master or not
-						if ( !anyMaster.Contains(roaToMerge[i].AsString()) ) {
+						if (!anyMaster.Contains(roaToMerge[i].AsString())) {
 							Trace("noArray:unnamed: appending non-existing leaf");
-							if ( !bTest ) {
+							if (!bTest) {
 								anyMaster.Append(roaToMerge[i].DeepClone());
 							}
 						} else {
@@ -189,18 +193,19 @@ long AnyUtils::DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, boo
 					}
 				} else {
 					Trace("checking input array at index:" << i);
-					if ( !strInputSlotname.Length() ) {
+					if (!strInputSlotname.Length()) {
 						Trace("Array:unnamed: input slot at:" << i);
 						// work on copy of indexed master because of slot deletion
 						Anything anyMWork = anyMasterIdx.DeepClone();
 						// first try slot with same index
-						if ( anyMWork.GetSize() ) {
+						if (anyMWork.GetSize()) {
 							Anything anyMatches;
-							while ( anyMWork.GetSize() ) {
+							while (anyMWork.GetSize()) {
 								long lMasterIdx = anyMWork[0L].AsLong(-1L);
 								anyMWork.Remove(0L);
 								Trace("Array:unnamed: testing against unnamed master at:" << lMasterIdx);
-								long lMatch = DoAnyMerge(anyMaster[lMasterIdx], roaToMerge[i], bOverwriteSlots, true, delimSlot, delimIdx);
+								long lMatch = DoAnyMerge(anyMaster[lMasterIdx], roaToMerge[i], bOverwriteSlots, true, delimSlot,
+														 delimIdx);
 								Trace("Array:unnamed: match was:" << lMatch);
 								anyMatches[lMasterIdx] = lMatch;
 							}
@@ -209,12 +214,12 @@ long AnyUtils::DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, boo
 							// 2. for equal match counts, check if one of them has the same array-index as the ToMerge-any
 							long lMaxIdx = -1, lMaxVal = -1, lSameCount = 1;
 							for (long lIdx = anyMatches.GetSize() - 1L; lIdx >= 0L; --lIdx) {
-								if ( anyMatches[lIdx].AsLong(-1L) > lMaxVal ) {
+								if (anyMatches[lIdx].AsLong(-1L) > lMaxVal) {
 									lMaxVal = anyMatches[lIdx].AsLong(-1L);
 									lMaxIdx = lIdx;
 									lSameCount = 1;
 									Trace("new maxcount:" << lMaxVal);
-								} else if ( anyMatches[lIdx].AsLong(-1L) == lMaxVal ) {
+								} else if (anyMatches[lIdx].AsLong(-1L) == lMaxVal) {
 									++lSameCount;
 									lMaxIdx = lIdx;
 									Trace("lower equal match found at:" << lIdx);
@@ -224,36 +229,38 @@ long AnyUtils::DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, boo
 								}
 							}
 							// now we have either a winner or the lowest index of multiple equally matched entries
-							if ( lSameCount > 1L ) {
+							if (lSameCount > 1L) {
 								Trace("test for same array index in ToMerge and Master");
-								if ( anyMatches[i].AsLong(-1L) == lMaxVal ) {
+								if (anyMatches[i].AsLong(-1L) == lMaxVal) {
 									Trace("setting index to same as in ToMerge:" << lMaxIdx);
 									lMaxIdx = i;
 								}
 							}
 							Trace("the winner is:" << lMaxIdx);
-							if ( !bTest ) {
+							if (!bTest) {
 								Trace("Array::unnamed: merging data");
-								long lMatch = DoAnyMerge(anyMaster[lMaxIdx], roaToMerge[i], bOverwriteSlots, bTest, delimSlot, delimIdx);
+								long lMatch =
+									DoAnyMerge(anyMaster[lMaxIdx], roaToMerge[i], bOverwriteSlots, bTest, delimSlot, delimIdx);
 								(void)lMatch;
 								Trace("Array:unnamed: match was:" << lMatch);
 							}
 						} else {
 							Trace("Array:unnamed: master has no unnamed array, appending content");
-							if ( !bTest ) {
+							if (!bTest) {
 								anyMaster.Append(roaToMerge[i].DeepClone());
 							}
 						}
 					} else {
 						Trace("Array:named: slot [" << strInputSlotname << "]");
-						if ( anyMaster.IsDefined(strInputSlotname) ) {
+						if (anyMaster.IsDefined(strInputSlotname)) {
 							Trace("Array:named:recurse: check contents of slot [" << strInputSlotname << "]");
-							long lMatch = DoAnyMerge(anyMaster[strInputSlotname], roaToMerge[i], bOverwriteSlots, bTest, delimSlot, delimIdx);
+							long lMatch = DoAnyMerge(anyMaster[strInputSlotname], roaToMerge[i], bOverwriteSlots, bTest,
+													 delimSlot, delimIdx);
 							Trace("match was:" << lMatch);
 							lHitCount += lMatch;
 						} else {
 							Trace("Array:named: slot in master undefined, setting content");
-							if ( !bTest ) {
+							if (!bTest) {
 								anyMaster[strInputSlotname] = roaToMerge[i].DeepClone();
 							}
 						}
@@ -265,12 +272,12 @@ long AnyUtils::DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, boo
 		}
 	} else {
 		// do a direct comparison
-		if ( ( anyMaster.IsNull() && roaToMerge.IsNull() ) || ( anyMaster.AsString().IsEqual(roaToMerge.AsString()) ) ) {
+		if ((anyMaster.IsNull() && roaToMerge.IsNull()) || (anyMaster.AsString().IsEqual(roaToMerge.AsString()))) {
 			Trace("content equal");
 			++lHitCount;
 		} else {
 			Trace("content unequal, overwrite: " << (bOverwriteSlots ? "yes" : "no"));
-			if ( !bTest && bOverwriteSlots ) {
+			if (!bTest && bOverwriteSlots) {
 				anyMaster = roaToMerge.DeepClone();
 			}
 		}
@@ -278,43 +285,41 @@ long AnyUtils::DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, boo
 	return lHitCount;
 }
 
-bool Recording::ReadinRecording( const String &fileName, Anything &recording )
-{
+bool Recording::ReadinRecording(const String &fileName, Anything &recording) {
 	StartTrace(Recording.ReadinRecording);
 	//	hardcoded:
 	String recFilename = system::GetRootDir();
 	recFilename << system::Sep() << "config" << system::Sep();
 	recFilename << fileName;
 
-	std::iostream *ifp = system::OpenStream( recFilename, "any");
+	std::iostream *ifp = system::OpenStream(recFilename, "any");
 
 	if (ifp == 0) {
 		String eMsg = "Can't open recording file ";
 		eMsg << recFilename << ".any";
-		SystemLog::Error( eMsg );
+		SystemLog::Error(eMsg);
 		return false;
 	} else {
 		recording.Import(*ifp);
-	} // if
-	delete ifp; // close file
+	}			 // if
+	delete ifp;	 // close file
 
 	return true;
 }
 
-bool Recording::WriteoutRecording( const String &fileName, Anything &recording )
-{
+bool Recording::WriteoutRecording(const String &fileName, Anything &recording) {
 	StartTrace(Recording.WriteoutRecording);
 
 	String recFilename = system::GetRootDir();
 	recFilename << system::Sep() << "config" << system::Sep();
 	recFilename << fileName;
 
-	std::iostream *ifp = system::OpenStream( recFilename, "any", std::ios::out );
+	std::iostream *ifp = system::OpenStream(recFilename, "any", std::ios::out);
 
 	if (ifp == 0) {
 		String eMsg = "Can't open config file for writing ";
 		eMsg << recFilename << ".any";
-		SystemLog::Error( eMsg );
+		SystemLog::Error(eMsg);
 		return false;
 	} else {
 		// write back new any to file....
@@ -326,18 +331,15 @@ bool Recording::WriteoutRecording( const String &fileName, Anything &recording )
 	return true;
 }
 
-static void DoPrintSimpleXML( std::ostream &os, ROAnything output);
+static void DoPrintSimpleXML(std::ostream &os, ROAnything output);
 
-static void DoPrintEltXML( std::ostream &os, ROAnything output)
-{
-	os << "<any:elt>" ;
+static void DoPrintEltXML(std::ostream &os, ROAnything output) {
+	os << "<any:elt>";
 	DoPrintSimpleXML(os, output);
 	os << "</any:elt>";
 }
 
-static void DoPrintSimpleXML( std::ostream &os, ROAnything output)
-{
-
+static void DoPrintSimpleXML(std::ostream &os, ROAnything output) {
 	if (output.IsNull()) {
 		return;
 	}
@@ -357,17 +359,14 @@ static void DoPrintSimpleXML( std::ostream &os, ROAnything output)
 		os << "</any:seq>";
 
 	} else {
-		os << output.AsCharPtr("") ;
+		os << output.AsCharPtr("");
 	}
-
 }
 
-void AnyUtils::PrintSimpleXML( std::ostream &os, ROAnything output)
-{
-	if (! output.IsNull() && AnyArrayType != output.GetType()) {
+void AnyUtils::PrintSimpleXML(std::ostream &os, ROAnything output) {
+	if (!output.IsNull() && AnyArrayType != output.GetType()) {
 		DoPrintEltXML(os, output);
 	} else {
 		DoPrintSimpleXML(os, output);
 	}
 }
-

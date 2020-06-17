@@ -7,36 +7,33 @@
  */
 
 #include "ConnectorAcceptorTest.h"
+
 #include "EBCDICConnector.h"
-#include "TestSuite.h"
 #include "Socket.h"
-#include "Threads.h"
 #include "StringStream.h"
+#include "TestSuite.h"
+#include "Threads.h"
 #include "Tracer.h"
 #if defined(WIN32)
 #include <io.h>
 #endif
 
-//!Callback for echo or return of a fixed message
+//! Callback for echo or return of a fixed message
 //! echos incoming messages if the length of the return message is 0 or
 //! returns a fixed message if one has been set
-class EBCDICEchoMsgCallBack: public AcceptorCallBack {
+class EBCDICEchoMsgCallBack : public AcceptorCallBack {
 public:
+	//! default constructor is empty since class provides only protocol no implementation
+	EBCDICEchoMsgCallBack() : fLastRequest(), fReplyMessage() {}
 
-	//!default constructor is empty since class provides only protocol no implementation
-	EBCDICEchoMsgCallBack() :
-		fLastRequest(), fReplyMessage() {
-	}
+	//! default destructor is empty since class provides only protocol no implementation
+	virtual ~EBCDICEchoMsgCallBack() {}
 
-	//!default destructor is empty since class provides only protocol no implementation
-	virtual ~EBCDICEchoMsgCallBack() {
-	}
-
-	//!call back functionality provides the socket object
+	//! call back functionality provides the socket object
 	//! \param socket the Socket object resulting from the accepted connection
 	virtual void CallBack(Socket *socket) {
 		StartTrace(EBCDICEchoMsgCallBack.CallBack);
-		if (socket != 0) { // might be 0 if we run out of memory, not likely
+		if (socket != 0) {	// might be 0 if we run out of memory, not likely
 			StringStream is(&fLastRequest);
 			std::iostream *Ios = socket->GetStream();
 
@@ -46,28 +43,28 @@ public:
 					(*Ios) << fReplyMessage << std::flush;
 				} else {
 					(*Ios) << fLastRequest << std::flush;
-				} // if
-			} // if
+				}  // if
+			}	   // if
 			socket->ShutDownWriting();
-		} // if
+		}  // if
 		delete socket;
-	} // CallBack
+	}  // CallBack
 	virtual void Wait() {
 		// dummy wait to force context switch
-		Thread::Wait(0,1000L);
+		Thread::Wait(0, 1000L);
 	}
 	virtual void Signal() {
 		// dummy wait to force context switch
-		Thread::Wait(0,1000L);
+		Thread::Wait(0, 1000L);
 	}
 
-	//!I return the last message I read
+	//! I return the last message I read
 	virtual String &GetLastRequest() {
 		StartTrace(EBCDICEchoMsgCallBack.GetLastRequest);
 		return fLastRequest;
 	}
 
-	//!Set the message that I shall return on subsequent requests
+	//! Set the message that I shall return on subsequent requests
 	void SetReplyMessage(String &reply) {
 		StartTrace(EBCDICEchoMsgCallBack.SetReplyMessage);
 		fReplyMessage = reply;
@@ -80,13 +77,11 @@ protected:
 	String fReplyMessage;
 };
 
-//!a thread to run a specific acceptor
+//! a thread to run a specific acceptor
 //! very simple server thread that allows one connection, useful for testing Sockets
-class AcceptorThread: public Thread {
+class AcceptorThread : public Thread {
 public:
-	AcceptorThread(Acceptor *acceptor) :
-		Thread("AcceptorThread"), fAcceptor(acceptor) {
-	}
+	AcceptorThread(Acceptor *acceptor) : Thread("AcceptorThread"), fAcceptor(acceptor) {}
 	~AcceptorThread() {
 		StartTrace(AcceptorThread.Dtor);
 		if (fAcceptor) {
@@ -99,7 +94,7 @@ public:
 		StartTrace(AcceptorThread.Run);
 		if (fAcceptor) {
 			fAcceptor->RunAcceptLoop();
-		} // if
+		}  // if
 	}
 
 protected:
@@ -117,12 +112,12 @@ protected:
 			fAcceptor->StopAcceptLoop();
 		}
 	}
+
 private:
 	Acceptor *fAcceptor;
 };
 
-ConnectorAcceptorTest::ConnectorAcceptorTest(TString tname) :
-	TestCaseType(tname), fCallBack(0), fAcceptorThread(0) {
+ConnectorAcceptorTest::ConnectorAcceptorTest(TString tname) : TestCaseType(tname), fCallBack(0), fAcceptorThread(0) {
 	StartTrace(ConnectorAcceptorTest.Ctor);
 }
 
@@ -131,7 +126,8 @@ ConnectorAcceptorTest::~ConnectorAcceptorTest() {
 }
 
 void ConnectorAcceptorTest::setUp() {
-	StartTrace(ConnectorAcceptorTest.setUp); TraceAny(GetTestCaseConfig(), "TestCaseConfig");
+	StartTrace(ConnectorAcceptorTest.setUp);
+	TraceAny(GetTestCaseConfig(), "TestCaseConfig");
 	String strHost = GetTestCaseConfig()["Address"].AsString();
 	long lPort = GetTestCaseConfig()["Port"].AsLong();
 
@@ -173,10 +169,10 @@ void ConnectorAcceptorTest::basicOperation() {
 		TraceAny(GetTestCaseConfig(), "TestCaseConfig");
 		EBCDICConnector conn(GetTestCaseConfig()["Address"].AsString(), GetTestCaseConfig()["Port"].AsLong());
 		Socket *socket = conn.MakeSocket();
-		t_assert( socket != 0 );
+		t_assert(socket != 0);
 		if (socket != 0) {
 			std::iostream *Ios = socket->GetStream();
-			t_assert( Ios != 0 );
+			t_assert(Ios != 0);
 			if (Ios != 0) {
 				String input("ABC");
 				(*Ios) << input << std::flush;
@@ -197,12 +193,12 @@ void ConnectorAcceptorTest::basicOperation() {
 				Trace("reply read:<" << reply << ">");
 				assertEqual(input, reply);
 				String inEBCDIC(fCallBack->GetLastRequest());
-				assertEqual( input.Length(), inEBCDIC.Length() );
+				assertEqual(input.Length(), inEBCDIC.Length());
 				StringStream intermediate;
 				inEBCDIC.IntPrintOn(intermediate);
-				assertEqual( _QUOTE_("\xC1\xC2\xC3") , intermediate.str() );
-			} // if
-		} // if
+				assertEqual(_QUOTE_("\xC1\xC2\xC3"), intermediate.str());
+			}  // if
+		}	   // if
 	}
 }
 
@@ -213,10 +209,10 @@ void ConnectorAcceptorTest::basicOperationWithAllocator() {
 		conn.SetThreadLocal(true);
 
 		Socket *socket = conn.MakeSocket();
-		t_assert( socket != 0 );
+		t_assert(socket != 0);
 		if (socket != 0) {
 			std::iostream *Ios = socket->GetStream();
-			t_assert( Ios != 0 );
+			t_assert(Ios != 0);
 			if (Ios != 0) {
 				String input("ABC");
 				(*Ios) << input << std::flush;
@@ -230,12 +226,12 @@ void ConnectorAcceptorTest::basicOperationWithAllocator() {
 				t_assert(!!(*Ios));
 				assertEqual(input, reply.str());
 				String inEBCDIC(fCallBack->GetLastRequest());
-				assertEqual( input.Length(), inEBCDIC.Length() );
+				assertEqual(input.Length(), inEBCDIC.Length());
 				StringStream intermediate;
 				inEBCDIC.IntPrintOn(intermediate);
-				assertEqual( _QUOTE_("\xC1\xC2\xC3") , intermediate.str() );
-			} // if
-		} // if
+				assertEqual(_QUOTE_("\xC1\xC2\xC3"), intermediate.str());
+			}  // if
+		}	   // if
 	}
 }
 
@@ -245,10 +241,10 @@ void ConnectorAcceptorTest::differentReply() {
 		EBCDICConnector conn(GetTestCaseConfig()["Address"].AsString(), GetTestCaseConfig()["Port"].AsLong());
 
 		Socket *socket = conn.MakeSocket();
-		t_assert( socket != 0 );
+		t_assert(socket != 0);
 		if (socket != 0) {
 			std::iostream *Ios = socket->GetStream();
-			t_assert( Ios != 0 );
+			t_assert(Ios != 0);
 			if (Ios != 0) {
 				String EBCDICReply("\xC3\xC4\xC5\xC6");
 				fCallBack->SetReplyMessage(EBCDICReply);
@@ -259,10 +255,10 @@ void ConnectorAcceptorTest::differentReply() {
 				reply << Ios->rdbuf() << std::flush;
 
 				assertEqual("CDEF", reply.str());
-			} // if
-		} // if
+			}  // if
+		}	   // if
 	}
-} // differentReply
+}  // differentReply
 
 Test *ConnectorAcceptorTest::suite() {
 	StartTrace(ConnectorAcceptorTest.suite);

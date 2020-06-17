@@ -6,15 +6,14 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
-#include "LDAPConnectionTest.h"
 #include "ErrorHandlerTest.h"
 #include "LDAPConnectionManagerTest.h"
+#include "LDAPConnectionTest.h"
+#include "TestRunner.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, ConfiguredActionTest);
 	ADD_SUITE(runner, LDAPConnectionTest);
 	ADD_SUITE(runner, ErrorHandlerTest);
 	ADD_SUITE(runner, LDAPConnectionManagerTest);
-} // setupRunner
+}  // setupRunner

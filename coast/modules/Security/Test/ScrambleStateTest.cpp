@@ -7,10 +7,11 @@
  */
 
 #include "ScrambleStateTest.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
 #include "SecurityModule.h"
 #include "SystemFile.h"
+#include "TestSuite.h"
 #include "Tracer.h"
 
 Test *ScrambleStateTest::suite() {
@@ -52,9 +53,10 @@ void ScrambleStateTest::DoScrambleTest(const char *thename) {
 
 	SecurityModule::ScrambleState(scrambled, state);
 	Trace("scrambled state:<" << scrambled << ">");
-	t_assertm(SecurityModule::UnscrambleState(unscrambledState, scrambled), TString("expected unscrambling to be possible for config") << thename);
+	t_assertm(SecurityModule::UnscrambleState(unscrambledState, scrambled),
+			  TString("expected unscrambling to be possible for config") << thename);
 
-	assertAnyEqual(state, unscrambledState );
+	assertAnyEqual(state, unscrambledState);
 	//        secm.ResetFinis(fStdContextAny);
 }
 void ScrambleStateTest::DoReferenceUncsramble(const Anything &config) {
@@ -69,7 +71,8 @@ void ScrambleStateTest::DoReferenceUncsramble(const Anything &config) {
 	if (secm) {
 		{
 			String scrambled;
-			scrambled = "Base64:Qmxvd2Zpc2hTY3JhbWJsZXItD2tpkCGRNDHj8cOapE29gBvuvdeXIO-6ZezbTzjfw3niedqXjJKK31MJSA1oCM"
+			scrambled =
+				"Base64:Qmxvd2Zpc2hTY3JhbWJsZXItD2tpkCGRNDHj8cOapE29gBvuvdeXIO-6ZezbTzjfw3niedqXjJKK31MJSA1oCM"
 				"TwMbSWfmK5mjIX0juyVXmqLpS1qi$H335EkLmzeWVkTsN-JNwM8E4q3Ha71EdGMLnfwFDPXB88PVJksah67Y1ksHavgZoVjuJ7C"
 				"Mwm9GiC9RGXtZ5O-nQcRj14Mih2w0gw";
 			Anything unscrambledState;
@@ -79,7 +82,8 @@ void ScrambleStateTest::DoReferenceUncsramble(const Anything &config) {
 		}
 		{
 			String scrambled;
-			scrambled = "Base64-Qmxvd2Zpc2hTY3JhbWJsZXItD2tpkCGRNDHj8cOapE29gBvuvdeXIO-6ZezbTzjfw3niedqXjJKK31MJSA1oCM"
+			scrambled =
+				"Base64-Qmxvd2Zpc2hTY3JhbWJsZXItD2tpkCGRNDHj8cOapE29gBvuvdeXIO-6ZezbTzjfw3niedqXjJKK31MJSA1oCM"
 				"TwMbSWfmK5mjIX0juyVXmqLpS1qi$H335EkLmzeWVkTsN-JNwM8E4q3Ha71EdGMLnfwFDPXB88PVJksah67Y1ksHavgZoVjuJ7C"
 				"Mwm9GiC9RGXtZ5O-nQcRj14Mih2w0gw";
 			Anything unscrambledState;

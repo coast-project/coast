@@ -6,14 +6,12 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
-
-#include "NTLMCryptTest.h"
 #include "ConfiguredActionTest.h"
+#include "NTLMCryptTest.h"
+#include "TestRunner.h"
 
 void setupRunner(TestRunner &runner) {
 	// add a whole suite with the ADD_SUITE(runner,"Suites's Classname") macro
 	ADD_SUITE(runner, NTLMCryptTest);
 	ADD_SUITE(runner, ConfiguredActionTest);
 }
-

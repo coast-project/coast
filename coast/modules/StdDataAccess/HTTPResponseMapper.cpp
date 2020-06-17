@@ -6,8 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "HTTPResponseMapper.h"
-#include "Tracer.h"
+
 #include "HTTPConstants.h"
+#include "Tracer.h"
+
 #include <istream>
 
 RegisterResultMapper(HTTPResponseMapper);
@@ -19,7 +21,7 @@ namespace {
 			message.Trim(message.Length() - 1L);
 		}
 	}
-}
+}  // namespace
 
 bool HTTPResponseMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, ROAnything conf) {
 	StartTrace1(HTTPResponseMapper.DoPutStream, NotNull(key));

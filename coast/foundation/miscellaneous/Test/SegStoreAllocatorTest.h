@@ -9,14 +9,12 @@
 #define _SegStoreAllocatorTest_H
 
 #include "TestCase.h"
-class SegStoreAllocatorTest: public testframework::TestCase {
+class SegStoreAllocatorTest : public testframework::TestCase {
 public:
-	SegStoreAllocatorTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	SegStoreAllocatorTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 	void CreateSimpleAllocator();
 	void RealAnythingTest();
 };
 
-#endif		//not defined _SegStoreAllocatorTest_H
+#endif	// not defined _SegStoreAllocatorTest_H

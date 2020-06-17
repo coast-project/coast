@@ -7,6 +7,7 @@
  */
 
 #include "HTMLComparer.h"
+
 #include "Tracer.h"
 
 bool HTMLComparer::Compare(String &report) {
@@ -24,10 +25,8 @@ bool HTMLComparer::Compare(String &report) {
 		if (i > 0) {
 			report << ".";
 		}
-
 	}
 	return false;
-
 }
 
 bool HTMLComparer::DoCompareAny(Anything &master, Anything &slave) {
@@ -59,7 +58,6 @@ bool HTMLComparer::DoCompareAny(Anything &master, Anything &slave) {
 				fPathStack.Append("\nDifferent sections:\nSlave :");
 				return false;
 			}
-
 		}
 		return true;
 	}
@@ -76,8 +74,7 @@ bool HTMLComparer::DoCompareAnyArray(Anything &master, Anything &slave) {
 		String slaveSlotName = slave.SlotName(i);
 
 		if (masterSlotName != slaveSlotName) {
-			Trace("Slotnames different :" << masterSlotName
-					<< "/" << slaveSlotName);
+			Trace("Slotnames different :" << masterSlotName << "/" << slaveSlotName);
 			AddToPathStack(masterSlotName, i);
 			return false;
 		}
@@ -102,5 +99,4 @@ void HTMLComparer::AddToPathStack(String path, int index) {
 	} else {
 		fPathStack.Append(index);
 	}
-
 }

@@ -7,33 +7,28 @@
  */
 
 #include "WorkerPoolManagerModulePoolManager.h"
+
 #include "SystemLog.h"
 #include "Tracer.h"
 
 //---- WorkerPoolManagerModuleWorker -----------------------------------------------
-WorkerPoolManagerModuleWorker::WorkerPoolManagerModuleWorker(const char *name)
-	: WorkerThread(name)
-{
+WorkerPoolManagerModuleWorker::WorkerPoolManagerModuleWorker(const char *name) : WorkerThread(name) {
 	StartTrace(WorkerPoolManagerModuleWorker.WorkerPoolManagerModuleWorker);
 }
 
-WorkerPoolManagerModuleWorker::~WorkerPoolManagerModuleWorker()
-{
+WorkerPoolManagerModuleWorker::~WorkerPoolManagerModuleWorker() {
 	StartTrace(WorkerPoolManagerModuleWorker.~WorkerPoolManagerModuleWorker);
-
 }
 
 // one time initialization
-void WorkerPoolManagerModuleWorker::DoInit(ROAnything workerInit)
-{
+void WorkerPoolManagerModuleWorker::DoInit(ROAnything workerInit) {
 	StartTrace(WorkerPoolManagerModuleWorker.DoInit);
 	fWorkerInitCfg = workerInit.DeepClone();
 }
 
-void WorkerPoolManagerModuleWorker::DoProcessWorkload()
-{
+void WorkerPoolManagerModuleWorker::DoProcessWorkload() {
 	StartTrace(WorkerPoolManagerModuleWorker.DoProcessWorkload);
-	if ( CheckRunningState( eWorking ) ) {
+	if (CheckRunningState(eWorking)) {
 		Anything *pMessages;
 		Mutex *pMx;
 		Mutex::ConditionType *pCond;
@@ -58,43 +53,35 @@ void WorkerPoolManagerModuleWorker::DoProcessWorkload()
 }
 
 // passing of the work
-void WorkerPoolManagerModuleWorker::DoWorkingHook(ROAnything workerConfig)
-{
+void WorkerPoolManagerModuleWorker::DoWorkingHook(ROAnything workerConfig) {
 	StartTrace(WorkerPoolManagerModuleWorker.DoWorkingHook);
 	// It is essential to copy the worker's config into a instance variable.
 	// And it is essential to DeepClone that data for thread safety reasons too.
 	fWork = workerConfig.DeepClone();
 }
 
-void WorkerPoolManagerModuleWorker::DoTerminationRequestHook(ROAnything)
-{
+void WorkerPoolManagerModuleWorker::DoTerminationRequestHook(ROAnything) {
 	StartTrace(WorkerPoolManagerModuleWorker.DoTerminationRequestHook);
 }
 
-void WorkerPoolManagerModuleWorker::DoTerminatedHook()
-{
+void WorkerPoolManagerModuleWorker::DoTerminatedHook() {
 	StartTrace(WorkerPoolManagerModuleWorker.DoTerminatedHook);
 }
 
 //---- WorkerPoolManagerModulePoolManager ------------------------------------------------
 
-WorkerPoolManagerModulePoolManager::WorkerPoolManagerModulePoolManager(String name)
-	: WorkerPoolManager(name)
-	, fRequests(0)
-{
+WorkerPoolManagerModulePoolManager::WorkerPoolManagerModulePoolManager(String name) : WorkerPoolManager(name), fRequests(0) {
 	StartTrace(WorkerPoolManagerModulePoolManager.WorkerPoolManagerModulePoolManager);
 }
 
-WorkerPoolManagerModulePoolManager::~WorkerPoolManagerModulePoolManager()
-{
+WorkerPoolManagerModulePoolManager::~WorkerPoolManagerModulePoolManager() {
 	StartTrace(WorkerPoolManagerModulePoolManager.~WorkerPoolManagerModulePoolManager);
 	Terminate(5L);
 	Anything dummy;
 	DoDeletePool(dummy);
 }
 
-bool WorkerPoolManagerModulePoolManager::Init(const ROAnything config)
-{
+bool WorkerPoolManagerModulePoolManager::Init(const ROAnything config) {
 	StartTrace(WorkerPoolManagerModulePoolManager.Init);
 
 	bool bRet = false;
@@ -110,7 +97,7 @@ bool WorkerPoolManagerModulePoolManager::Init(const ROAnything config)
 
 	Anything workerInitCfg;
 	workerInitCfg = config["WorkerInitialConfig"].DeepClone();
-	TraceAny(workerInitCfg, "WorkerInitialConfig for Pool: "  << workerInitCfg.SlotName(0L));
+	TraceAny(workerInitCfg, "WorkerInitialConfig for Pool: " << workerInitCfg.SlotName(0L));
 	// initialize the base class
 	if (WorkerPoolManager::Init(concurrentQueries, usePoolStorage, poolStorageSize, numOfPoolBucketSizes, workerInitCfg) == 0) {
 		Trace("WorkerPoolManager::Init successful");
@@ -119,15 +106,13 @@ bool WorkerPoolManagerModulePoolManager::Init(const ROAnything config)
 	return bRet;
 }
 
-void WorkerPoolManagerModulePoolManager::DoAllocPool(ROAnything args)
-{
+void WorkerPoolManagerModulePoolManager::DoAllocPool(ROAnything args) {
 	StartTrace(WorkerPoolManagerModulePoolManager.DoAllocPool);
 	// create the pool of worker threads
 	fRequests = new WorkerPoolManagerModuleWorker[GetPoolSize()];
 }
 
-WorkerThread *WorkerPoolManagerModulePoolManager::DoGetWorker(long i)
-{
+WorkerThread *WorkerPoolManagerModulePoolManager::DoGetWorker(long i) {
 	StartTrace(WorkerPoolManagerModulePoolManager.DoGetWorker);
 	// accessor for one specific worker
 	if (fRequests) {
@@ -136,20 +121,18 @@ WorkerThread *WorkerPoolManagerModulePoolManager::DoGetWorker(long i)
 	return 0;
 }
 
-void WorkerPoolManagerModulePoolManager::DoDeletePool(ROAnything args)
-{
+void WorkerPoolManagerModulePoolManager::DoDeletePool(ROAnything args) {
 	StartTrace(WorkerPoolManagerModulePoolManager.DoDeletePool);
 	// cleanup of the sub-class specific stuff
 	// CAUTION: this cleanup method may be called repeatedly..
 
 	if (fRequests) {
-		delete [ ] fRequests;
+		delete[] fRequests;
 		fRequests = 0;
 	}
 }
 
-void WorkerPoolManagerModulePoolManager::Enter(Anything &args)
-{
+void WorkerPoolManagerModulePoolManager::Enter(Anything &args) {
 	// make this function block the caller until the worker has finished working
 	// to achieve this we create a Mutex and Condition to wait on
 	Mutex mx(args["server"].AsString());

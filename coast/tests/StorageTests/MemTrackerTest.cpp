@@ -7,14 +7,13 @@
  */
 
 #include "MemTrackerTest.h"
-#include "TestSuite.h"
-#include "ITOStorage.h"
-#include "Tracer.h"
-#include "MemHeader.h"
 
-MemTrackerTest::MemTrackerTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+#include "ITOStorage.h"
+#include "MemHeader.h"
+#include "TestSuite.h"
+#include "Tracer.h"
+
+MemTrackerTest::MemTrackerTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(MemTrackerTest.Ctor);
 }
 
@@ -30,7 +29,8 @@ void MemTrackerTest::TrackAllocFreeTest() {
 	memset(vp48, 0xaa, (alignedSize + 32));
 
 	// use placement new operator to allocate MemoryHeader from
-	MemoryHeader *pMH16 = new (vp32) MemoryHeader(16, MemoryHeader::eUsed), *pMH32 = new (vp48) MemoryHeader(32, MemoryHeader::eUsed);
+	MemoryHeader *pMH16 = new (vp32) MemoryHeader(16, MemoryHeader::eUsed),
+				 *pMH32 = new (vp48) MemoryHeader(32, MemoryHeader::eUsed);
 
 	assertCompare(static_cast<l_long>(0), equal_to, aTracker.fAllocated);
 	assertCompare(static_cast<l_long>(0), equal_to, aTracker.fMaxAllocated);

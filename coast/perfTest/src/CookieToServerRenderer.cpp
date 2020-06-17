@@ -6,16 +6,18 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "CookieToServerRenderer.h"
+
 #include "AnyIterators.h"
+
 #include <ostream>
 
 RegisterRenderer(CookieToServerRenderer);
 
 void CookieToServerRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(CookieToServerRenderer.Render);
-	//TraceAny(config, "config");
+	// TraceAny(config, "config");
 	// config not so interesting - does this renderer even have one??
-	TraceAny( c.GetTmpStore(), "<<- Overall TMP Store" );
+	TraceAny(c.GetTmpStore(), "<<- Overall TMP Store");
 
 	String explicitDomainName = c.Lookup("CurrentServer.ServerName", "");
 	explicitDomainName.ToUpper();
@@ -36,8 +38,8 @@ void CookieToServerRenderer::OutputCookies(const String &explicitDomainName, std
 
 	ROAnything roaAllCookieDomains;
 	if (c.Lookup("Cookies", roaAllCookieDomains)) {
-		Trace( "try to find [" << explicitDomainName << "]");
-		TraceAny( roaAllCookieDomains, "try to find [" << explicitDomainName << "] in here" );
+		Trace("try to find [" << explicitDomainName << "]");
+		TraceAny(roaAllCookieDomains, "try to find [" << explicitDomainName << "] in here");
 		// could be .y.z match cookie to be sent out
 		ROAnything roaCookies;
 		AnyExtensions::Iterator<ROAnything, ROAnything, String> aCookieIter(roaAllCookieDomains);
@@ -46,10 +48,11 @@ void CookieToServerRenderer::OutputCookies(const String &explicitDomainName, std
 			aCookieIter.SlotName(potPartDomain);
 			Trace("PotPartDomain " << potPartDomain << " NewString " << newString);
 			long posn = newString.Contains(potPartDomain);
-			Trace("Posn " << posn << " potPartDomain.Length " << potPartDomain.Length() << " newString.Length " << newString.Length());
+			Trace("Posn " << posn << " potPartDomain.Length " << potPartDomain.Length() << " newString.Length "
+						  << newString.Length());
 			if ((posn + potPartDomain.Length()) == newString.Length()) {
 				// match of domains at end of string...only
-				Trace( "(part) domain found at slot no" << aCookieIter.Index() );
+				Trace("(part) domain found at slot no" << aCookieIter.Index());
 
 				reply << "\r\nCookie: ";
 				// output all cookies in the current cookie container...

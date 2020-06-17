@@ -11,23 +11,22 @@
 
 #include "FoundationTestTypes.h"
 
-class ResolverTest: public testframework::TestCaseWithConfig
-{
+class ResolverTest : public testframework::TestCaseWithConfig {
 public:
-	//!TestCases for the Resolver class
+	//! TestCases for the Resolver class
 	//! \param name name of the test
 	ResolverTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~ResolverTest();
 
-	//!builds up a suite of testcases for this test
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!tests the Socket class with a fd from Connector
+	//! tests the Socket class with a fd from Connector
 	void simpleDNS2IPTest();
 
-	//!tests the Socket class with a invalid fd
+	//! tests the Socket class with a invalid fd
 	void simpleIP2DNSTest();
 };
 

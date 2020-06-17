@@ -16,40 +16,40 @@ class Anything;
 class ROAnything;
 
 //! Policy object to filter URL content and unscramble URL Variables
-class URLFilter : public NotCloned
-{
+class URLFilter : public NotCloned {
 public:
 	//! constructor with filter name
-	URLFilter(const char *filterName)	: NotCloned(filterName)		{ }
+	URLFilter(const char *filterName) : NotCloned(filterName) {}
 
 	//! destructor does nothing
-	virtual ~URLFilter()	{ }
+	virtual ~URLFilter() {}
 
 	//! Copies elements from a cookie into the query
 	/*! \param query the query anything relevant for this request
-	    \param env environment anything containing the cookie, since cookie is a headerfield
-	    \param filterCookieConf configuration anything containing the slotnames to be copied
-	    \param ctx Context to work with */
+		\param env environment anything containing the cookie, since cookie is a headerfield
+		\param filterCookieConf configuration anything containing the slotnames to be copied
+		\param ctx Context to work with */
 	virtual bool HandleCookie(Anything &query, Anything &env, const ROAnything &filterCookieConf, Context &ctx);
 
 	//! Filters public elements and unscrambles scrambled state
 	/*! @section URLFilterHandleQueryConfiguration HandleQuery Configuration
-		@par \c Tags2Suppress
-		Anything defining query tags that have to be removed if they appear unscrambled
-		@par \c Tags2Unscramble
-		Anything defining query tags that have to be unscrambled
-		@subsection URLFilterHandleQueryConfigurationExample filterQueryConf example
-		@code
-		{
-			/Tags2Suppress {
-				sessionId role page
-				/action { rolechangeaction1 rolechangeaction2 }
-			}
-			/Tags2Unscramble { X X1 X2 }
+	  @par \c Tags2Suppress
+	  Anything defining query tags that have to be removed if they appear unscrambled
+	  @par \c Tags2Unscramble
+	  Anything defining query tags that have to be unscrambled
+	  @subsection URLFilterHandleQueryConfigurationExample filterQueryConf example
+	  @code
+	  {
+		/Tags2Suppress {
+		  sessionId role page
+		  /action { rolechangeaction1 rolechangeaction2 }
 		}
-		@endcode
-		@par When Tags2Suppress is an array the meaning is as follows
-		Remove query[slotname] if the value of query[slotname] is contained in the array, eg. supress query[action] if query action is either rolechangeaction1 ore rolechangeaction2
+		/Tags2Unscramble { X X1 X2 }
+	  }
+	  @endcode
+	  @par When Tags2Suppress is an array the meaning is as follows
+	  Remove query[slotname] if the value of query[slotname] is contained in the array, eg. supress query[action] if query
+	 action is either rolechangeaction1 ore rolechangeaction2
 
 	 * @param query Query anything relevant for this request
 	 * @param filterQueryConf a filter specification consisting of the tags "Tags2Suppress" and "Tags2Unscramble"
@@ -57,7 +57,7 @@ public:
 	virtual bool HandleQuery(Anything &query, const ROAnything &filterQueryConf, Context &ctx);
 
 	//---- registry api
-	RegCacheDef(URLFilter);	// FindURLFilter()
+	RegCacheDef(URLFilter);	 // FindURLFilter()
 
 	//! filter the state of the query based on the filter Tags spec
 	//! \param query the query anything to be modified

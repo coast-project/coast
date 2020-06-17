@@ -7,9 +7,10 @@
  */
 
 #include "PipeTest.h"
-#include "TestSuite.h"
+
 #include "Pipe.h"
 #include "Socket.h"
+#include "TestSuite.h"
 #include "Tracer.h"
 
 #if defined(WIN32)
@@ -27,20 +28,20 @@ void PipeTest::simpleBlockingTest() {
 	p[0] = aPipe.GetReadFd();
 	p[1] = aPipe.GetWriteFd();
 	Trace("readfd:" << p[0] << " writefd:" << p[1]);
-	if ( aPipe.GetReadFd() > 0 && aPipe.GetWriteFd() > 0 )
+	if (aPipe.GetReadFd() > 0 && aPipe.GetWriteFd() > 0)
 #else
 	if (pipe(p) >= 0)
 #endif
 	{
-		Pipe pipi(p[0], p[1], true, 100); // timeout 0.1 sec
+		Pipe pipi(p[0], p[1], true, 100);  // timeout 0.1 sec
 		assertEqual((long)p[0], pipi.GetReadFd());
 		assertEqual((long)p[1], pipi.GetWriteFd());
 
 		t_assert(!pipi.IsReadyForReading(10));
-		t_assert(pipi.HadTimeout()); // expect a time out
+		t_assert(pipi.HadTimeout());  // expect a time out
 		t_assert(pipi.IsReadyForWriting(0));
 		// write a lot of stuff
-		const char *buf = "0123456789ABCDEF"; // 16 chars
+		const char *buf = "0123456789ABCDEF";  // 16 chars
 		// enable blocking IO on write side
 		t_assert(Socket::SetToNonBlocking(pipi.GetWriteFd(), false));
 		t_assert(pipi.IsReadyForWriting(0));
@@ -48,7 +49,7 @@ void PipeTest::simpleBlockingTest() {
 		Trace("before while loop");
 		while (pipi.IsReadyForWriting(10) && lMaxCount--) {
 			// happens only once...
-			byteswritten += (long) Socket::write(pipi.GetWriteFd(), buf, 16);
+			byteswritten += (long)Socket::write(pipi.GetWriteFd(), buf, 16);
 			Trace("bytes written so far:" << byteswritten);
 		}
 		//// foo: to be corrected in future
@@ -56,11 +57,11 @@ void PipeTest::simpleBlockingTest() {
 		////		t_assert(!pipi.IsReadyForWriting(0)); // pipe blocked if not completely empty
 		t_assert(pipi.IsReadyForReading(0));
 		String str(17);
-		long bytesread = Socket::read(pipi.GetReadFd(), (char *) (const char *) str, 16);
+		long bytesread = Socket::read(pipi.GetReadFd(), (char *)(const char *)str, 16);
 		assertEqual(16, bytesread);
 		assertCharPtrEqual(buf, str);
 
-		t_assert(pipi.IsReadyForWriting(0)); // now we should be able to write again
+		t_assert(pipi.IsReadyForWriting(0));  // now we should be able to write again
 		// write something
 		assertEqual(5L, (long)Socket::write(pipi.GetWriteFd(), "hallo", 5));
 	} else {
@@ -77,18 +78,18 @@ void PipeTest::simpleConstructorTest() {
 	p[0] = aPipe.GetReadFd();
 	p[1] = aPipe.GetWriteFd();
 	Trace("readfd:" << p[0] << " writefd:" << p[1]);
-	if ( aPipe.GetReadFd() > 0 && aPipe.GetWriteFd() > 0 )
+	if (aPipe.GetReadFd() > 0 && aPipe.GetWriteFd() > 0)
 #else
 	if (pipe(p) >= 0)
 #endif
 	{
-		Pipe pipi(p[0], p[1], true, 100); // timeout 0.1 sec
+		Pipe pipi(p[0], p[1], true, 100);  // timeout 0.1 sec
 
 		assertEqual((long)p[0], pipi.GetReadFd());
 		assertEqual((long)p[1], pipi.GetWriteFd());
 
 		t_assert(!pipi.IsReadyForReading(10));
-		t_assert(pipi.HadTimeout()); // expect a time out
+		t_assert(pipi.HadTimeout());  // expect a time out
 		t_assert(pipi.IsReadyForWriting(0));
 		// write something
 		assertEqual(5L, (long)Socket::write(pipi.GetWriteFd(), "hallo", 5));
@@ -101,13 +102,13 @@ void PipeTest::simpleConstructorTest() {
 		t_assert(Socket::write(pipi.GetWriteFd(), "hallo", 5) < 0);
 		t_assert(pipi.IsReadyForReading(0));
 
-		char hallo[6]; // PS: never do this in real code!!!
+		char hallo[6];	// PS: never do this in real code!!!
 		long bytesread = Socket::read(pipi.GetReadFd(), hallo, 6);
 		assertEqual(5, bytesread);
 		hallo[5] = '\0';
 		assertCharPtrEqual("hallo", hallo);
 
-		assertEqual(0, Socket::read(pipi.GetReadFd(), hallo, 6)); // EOF
+		assertEqual(0, Socket::read(pipi.GetReadFd(), hallo, 6));  // EOF
 
 		pipi.ShutDownReading();
 		assertEqual(-1L, pipi.GetReadFd());
@@ -120,19 +121,19 @@ void PipeTest::simpleConstructorTest() {
 void PipeTest::defaultConstructorTest() {
 	StartTrace(PipeTest.defaultConstructorTest);
 
-	Pipe pipi; // timeout 0.5 sec
+	Pipe pipi;	// timeout 0.5 sec
 
 	t_assert(-1 < pipi.GetReadFd());
 	t_assert(-1 < pipi.GetWriteFd());
 
 	t_assert(!pipi.IsReadyForReading(10));
-	t_assert(pipi.HadTimeout()); // expect a time out
+	t_assert(pipi.HadTimeout());  // expect a time out
 	t_assert(pipi.IsReadyForWriting(0));
 	// write something
 	assertEqual(5L, (long)Socket::write(pipi.GetWriteFd(), "hallo", 5));
 	t_assert(pipi.IsReadyForReading(0));
 
-	char hallo[6]; // PS: never do this in real code!!!
+	char hallo[6];	// PS: never do this in real code!!!
 	long bytesread = Socket::read(pipi.GetReadFd(), hallo, 6);
 	assertEqual(5, bytesread);
 	hallo[5] = '\0';

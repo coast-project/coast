@@ -6,50 +6,48 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
-
-#include "RegistryTest.h"
-#include "ContextTest.h"
-#include "SessionTest.h"
-#include "RoleTest.h"
-#include "PageTest.h"
-#include "MTStorageTest.h"
-#include "URLFilterTest.h"
-#include "ServerTest.h"
-#include "MasterServerTest.h"
-#include "TransitionTests.h"
-#include "WDModuleTest.h"
 #include "ActionCoreTest.h"
-#include "SimpleListenerPoolTest.h"
-#include "InterruptHandlerTest.h"
 #include "AnythingUtilsTest.h"
-#include "RequestProcessorTest.h"
-#include "SessionListManagerTest.h"
-#include "PeriodicActionTest.h"
-#include "ServiceDispatcherTest.h"
-#include "RendererDispatcherTest.h"
 #include "AppBooterTest.h"
-#include "RegistryIteratorTest.h"
-#include "LFListenerPoolTest.h"
-#include "LocalizationUtilsTest.h"
-#include "LogTimerTest.h"
-#include "RequestBlockerTest.h"
-#include "URLEncoderTest.h"
-#include "SecurityModuleTest.h"
-#include "LocalizedStringsTest.h"
 #include "BasicRendererTest.h"
-#include "ROAnyLookupAdapterTest.h"
-#include "ROAnyConfNamedObjectLookupAdapterTest.h"
+#include "ConfiguredLookupAdapterTest.h"
+#include "ContextLookupRendererTest.h"
+#include "ContextTest.h"
 #include "HTTPChunkedOStreamTest.h"
 #include "HTTPStreamStackTest.h"
-#include "ContextLookupRendererTest.h"
+#include "InterruptHandlerTest.h"
+#include "LFListenerPoolTest.h"
+#include "LocalizationUtilsTest.h"
+#include "LocalizedStringsTest.h"
+#include "LogTimerTest.h"
+#include "MTStorageTest.h"
+#include "MasterServerTest.h"
 #include "PageNameRendererTest.h"
-#include "WebAppServiceTest.h"
+#include "PageTest.h"
+#include "PeriodicActionTest.h"
+#include "ROAnyConfNamedObjectLookupAdapterTest.h"
+#include "ROAnyLookupAdapterTest.h"
+#include "RegistryIteratorTest.h"
+#include "RegistryTest.h"
+#include "RendererDispatcherTest.h"
+#include "RequestBlockerTest.h"
+#include "RequestProcessorTest.h"
+#include "RoleTest.h"
+#include "SecurityModuleTest.h"
+#include "ServerTest.h"
+#include "ServiceDispatcherTest.h"
+#include "SessionListManagerTest.h"
+#include "SessionTest.h"
+#include "SimpleListenerPoolTest.h"
+#include "TestRunner.h"
 #include "ThreadedTimeStampTest.h"
-#include "ConfiguredLookupAdapterTest.h"
+#include "TransitionTests.h"
+#include "URLEncoderTest.h"
+#include "URLFilterTest.h"
+#include "WDModuleTest.h"
+#include "WebAppServiceTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, ThreadedTimeStampTest);
 	ADD_SUITE(runner, ActionCoreTest);
 	ADD_SUITE(runner, InterruptHandlerTest);
@@ -89,4 +87,4 @@ void setupRunner(TestRunner &runner)
 	ADD_SUITE(runner, URLEncoderTest);
 	ADD_SUITE(runner, SessionListManagerTest);
 	ADD_SUITE(runner, WDModuleTest);
-} // setupRunner
+}  // setupRunner

@@ -9,14 +9,16 @@
  */
 
 #include "HTTPConstants.h"
+
 #include "AnyIterators.h"
-#include "Renderer.h"
 #include "RE.h"
+#include "Renderer.h"
+
 #include <ostream>
 
 namespace coast {
 	namespace http {
-		void putValuesOnSameLine(std::ostream &os, Context &ctx, String const& slotname, ROAnything const &values) {
+		void putValuesOnSameLine(std::ostream &os, Context &ctx, String const &slotname, ROAnything const &values) {
 			StartTrace(Coast.HTTP.putValuesOnSameLine);
 			TraceAny(values, "Header[" << slotname << "]");
 			AnyExtensions::Iterator<ROAnything> entryIter(values);
@@ -24,10 +26,12 @@ namespace coast {
 			String valueSlotname;
 			bool first = true;
 			bool isCookie = (slotname == constants::cookieSlotname || slotname == constants::contentDispositionSlotname);
-			char const argumentsDelimiter = ( isCookie ? constants::headerCookieArgumentsDelimiter : constants::headerArgumentsDelimiter );
+			char const argumentsDelimiter =
+				(isCookie ? constants::headerCookieArgumentsDelimiter : constants::headerArgumentsDelimiter);
 			os << slotname << constants::headerNameDelimiter << constants::space;
 			while (entryIter.Next(entry)) {
-				if ( not first ) os << argumentsDelimiter << constants::space;
+				if (not first)
+					os << argumentsDelimiter << constants::space;
 				if (isCookie && entryIter.SlotName(valueSlotname)) {
 					os << valueSlotname << constants::headerCookieValueDelimiter;
 				}
@@ -36,7 +40,7 @@ namespace coast {
 			}
 			os << constants::newLine;
 		}
-		void putValuesOnMultipleLines(std::ostream &os, Context &ctx, String const& slotname, ROAnything const &values) {
+		void putValuesOnMultipleLines(std::ostream &os, Context &ctx, String const &slotname, ROAnything const &values) {
 			StartTrace(Coast.HTTP.putValuesOnMultipleLines);
 			TraceAny(values, "Header[" << slotname << "]");
 			AnyExtensions::Iterator<ROAnything> entryIter(values);
@@ -49,11 +53,12 @@ namespace coast {
 		}
 		void putHeaderFieldToStream(std::ostream &os, Context &ctx, String const &slotname, ROAnything const &values) {
 			RE multivalueRE(constants::splitFieldsRegularExpression, RE::MATCH_ICASE);
-			if ( slotname.IsEqual(constants::cookieSlotname) || multivalueRE.ContainedIn(slotname) || slotname.IsEqual(constants::contentDispositionSlotname) ) {
+			if (slotname.IsEqual(constants::cookieSlotname) || multivalueRE.ContainedIn(slotname) ||
+				slotname.IsEqual(constants::contentDispositionSlotname)) {
 				putValuesOnSameLine(os, ctx, slotname, values);
 			} else {
 				putValuesOnMultipleLines(os, ctx, slotname, values);
 			}
 		}
-	}
-}
+	}  // namespace http
+}  // namespace coast

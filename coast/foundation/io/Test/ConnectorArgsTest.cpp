@@ -7,22 +7,18 @@
  */
 
 #include "ConnectorArgsTest.h"
-#include "TestSuite.h"
+
 #include "Socket.h"
+#include "TestSuite.h"
 #include "Tracer.h"
 
-ConnectorArgsTest::ConnectorArgsTest(TString tname)
-	: TestCaseType(tname)
-{
-}
+ConnectorArgsTest::ConnectorArgsTest(TString tname) : TestCaseType(tname) {}
 
-ConnectorArgsTest::~ConnectorArgsTest()
-{
+ConnectorArgsTest::~ConnectorArgsTest() {
 	StartTrace(ConnectorArgsTest.Dtor);
 }
 
-void ConnectorArgsTest::ArgsTest()
-{
+void ConnectorArgsTest::ArgsTest() {
 	StartTrace(ConnectorArgsTest.ArgsTest);
 	ConnectorArgs ca("192.168.1.1", 9999, 40);
 	assertEqual(ca.IPAddress(), "192.168.1.1");
@@ -34,7 +30,7 @@ void ConnectorArgsTest::ArgsTest()
 	assertEqual(ca1.Port(), 9999);
 	assertEqual(ca1.ConnectTimeout(), 40);
 	// Default constructor
-	ConnectorArgs  ca2;
+	ConnectorArgs ca2;
 	assertEqual(ca2.IPAddress(), "127.0.0.1");
 	assertEqual(ca2.Port(), 80);
 	assertEqual(ca2.ConnectTimeout(), 0);
@@ -52,8 +48,7 @@ void ConnectorArgsTest::ArgsTest()
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *ConnectorArgsTest::suite ()
-{
+Test *ConnectorArgsTest::suite() {
 	StartTrace(ConnectorArgsTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, ConnectorArgsTest, ArgsTest);

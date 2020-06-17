@@ -24,11 +24,11 @@
  *
 \code
 {
-	/Name
-	/Params {
-		/<PARAMNAME>
-		...
-	}
+  /Name
+  /Params {
+	/<PARAMNAME>
+	...
+  }
 }
 \endcode
  *
@@ -40,8 +40,7 @@
  * IN or INOUT parameter name and its value. The name must match with the parameter name of the declared stored
  * procedure/function and must be written in all upper case letters!
 */
-class OracleParameterMapper : public ParameterMapper
-{
+class OracleParameterMapper : public ParameterMapper {
 public:
 	/*! Default registering ctor using a unique name to register mapper with
 	 * @param name Mapper gets registered using this name
@@ -63,6 +62,7 @@ protected:
 	 */
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
+
 private:
 	OracleParameterMapper();
 	OracleParameterMapper(const OracleParameterMapper &);
@@ -81,12 +81,12 @@ private:
  *
 \code
 {
-	/key			<== non-prefixed key
+  /key			<== non-prefixed key
+  ...
+  /<PARAMNAME> {
+	/key		<== PARAMNAME prefixed key
 	...
-	/<PARAMNAME> {
-		/key		<== PARAMNAME prefixed key
-		...
-	}
+  }
 }
 \endcode
  *
@@ -98,8 +98,7 @@ private:
  * @par \c PARAMNAME \c .key
  * Optional, specialized MapperSpec for prefixed key
 */
-class OracleResultMapper : public ResultMapper
-{
+class OracleResultMapper : public ResultMapper {
 public:
 	/*! Default registering ctor using a unique name to register mapper with
 	 * @param name Mapper gets registered using this name
@@ -107,7 +106,9 @@ public:
 	OracleResultMapper(const char *name);
 
 protected:
-	/*! Major hook for subclasses that want to do something with their config passed as script. The default is to interpret the script and put a value for every script item used. Recursion will be stopped by DoFinalPutAny which places its value under slot key below given DoGetDestinationSlot()
+	/*! Major hook for subclasses that want to do something with their config passed as script. The default is to interpret the
+	 * script and put a value for every script item used. Recursion will be stopped by DoFinalPutAny which places its value
+	 * under slot key below given DoGetDestinationSlot()
 	 * @param key the key usually defines the associated kind of output-value
 	 * @param value the value to be mapped
 	 * @param ctx The context to put values into
@@ -117,9 +118,9 @@ protected:
 
 	//! Looks up the Anything at key in Context using SlotFinder
 	/*!	\param key the key usually defines the associated kind of output-value
-		\param targetAny Anything reference into TmpStore to finally put values at. It uses DestinationSlot and key to get the correct location in Context.
-		\param ctx the context of the invocation */
-	virtual void DoGetDestinationAny( const char *key, Anything &targetAny, Context &ctx );
+	  \param targetAny Anything reference into TmpStore to finally put values at. It uses DestinationSlot and key to get the correct location in Context.
+	  \param ctx the context of the invocation */
+	virtual void DoGetDestinationAny(const char *key, Anything &targetAny, Context &ctx);
 
 	/*! Clone interface implementation
 	 * @return Pointer to IFAObject base class

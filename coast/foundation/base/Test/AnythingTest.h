@@ -9,17 +9,16 @@
 #ifndef _AnythingTest_H
 #define _AnythingTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnythingTest: public testframework::TestCase {
+#include "TestCase.h"
+class AnythingTest : public testframework::TestCase {
 protected:
 	Anything fQuery;
 	Anything fConfig;
 	virtual void setUp();
+
 public:
-	AnythingTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	AnythingTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 	void TypeTest();
 	void SuccessiveAssignments();
@@ -49,4 +48,4 @@ public:
 	void SlotCleanerTest();
 };
 
-#endif		//ifndef _AnythingTest_H
+#endif	// ifndef _AnythingTest_H

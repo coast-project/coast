@@ -14,17 +14,17 @@
 namespace coast {
 	namespace urlutils {
 		enum NormalizeTag {
-			eUpshift, eDownshift, eUntouched,
+			eUpshift,
+			eDownshift,
+			eUntouched,
 		};
-		enum URLCheckStatus {
-			eOk, eSuspiciousChar
-		};
+		enum URLCheckStatus { eOk, eSuspiciousChar };
 		//! remove \\r\\n or only \\r|\\n at end of line
-		String& TrimENDL(String &line);
-		//!removes blanks from start or end
-		String& TrimBlanks(String &str, bool front = true);
-		//!removes leading chars at front or end
-		String& TrimChars(String &str, bool front = true, char c = ' ');
+		String &TrimENDL(String &line);
+		//! removes blanks from start or end
+		String &TrimBlanks(String &str, bool front = true);
+		//! removes leading chars at front or end
+		String &TrimChars(String &str, bool front = true, char c = ' ');
 
 		//! split key value pair with delimiter "delim" and add to Anything
 		//! sample:
@@ -35,8 +35,8 @@ namespace coast {
 		//! split a list of delimiter separated key value pairs and add them
 		//! to the Anything, the key value pairs are appended using Pair
 		//! PS: use char for delim2
-		void Split(const char *buf, char delim, Anything &out, char delim2 = '=', coast::urlutils::NormalizeTag norm =
-				coast::urlutils::eUntouched);
+		void Split(const char *buf, char delim, Anything &out, char delim2 = '=',
+				   coast::urlutils::NormalizeTag norm = coast::urlutils::eUntouched);
 
 		//! encodes the given string by expanding problematic characters into %XX escapes
 		String MSUrlEncode(const String &str);
@@ -51,7 +51,8 @@ namespace coast {
 		String HTMLDecode(const String &str);
 
 		//! Decode URL until no more escape sequences are left
-		String ExhaustiveUrlDecode(const String &instr, coast::urlutils::URLCheckStatus &eUrlCheckStatus, bool replacePlusByBlank = true);
+		String ExhaustiveUrlDecode(const String &instr, coast::urlutils::URLCheckStatus &eUrlCheckStatus,
+								   bool replacePlusByBlank = true);
 		String ExhaustiveUrlDecode(const String &instr, bool replacePlusByBlank = true);
 
 		//! Decode HTML until no more escape sequences are left
@@ -71,15 +72,16 @@ namespace coast {
 		//! If asciiExtended is enabled, you may define chars which are in the extended set which are ignored
 		//! by this check.
 		//! The default applies to RFC1738
-		bool CheckUrlPathContainsUnsafeChars(const String &str, const String &overrideUnsafe = String(), const String &overrideAscii = String(),
-				bool asciiExtended = true);
+		bool CheckUrlPathContainsUnsafeChars(const String &str, const String &overrideUnsafe = String(),
+											 const String &overrideAscii = String(), bool asciiExtended = true);
 
 		//! takes a full uri and decomposes it into a query anything
 		//! \param query resulting anything structure
 		//! \param uri input string from http server
 		void HandleURI(Anything &query, const String &uri);
 
-		//! takes a full uri and decomposes it into a query anything with known slotnames, certain slots will not be written e.g. "localhost" in domain
+		//! takes a full uri and decomposes it into a query anything with known slotnames, certain slots will not be written
+		//! e.g. "localhost" in domain
 		/*! \param query resulting anything structure
 		 \param uri input string from http server
 		 \param baseURL if specified, will be prepended to uri */
@@ -90,27 +92,27 @@ namespace coast {
 		 \return encoded string composed of key values pairs in kVPairs */
 		String EncodeFormContent(Anything &kVPairs);
 
-		//!remove '\'' and '"' at front and end
+		//! remove '\'' and '"' at front and end
 		void RemoveQuotes(String &myStr);
 
-		//!up or downshift str according to normKey in case of eUntouched it is a no op
+		//! up or downshift str according to normKey in case of eUntouched it is a no op
 		void Normalize(String &str, coast::urlutils::NormalizeTag normKey);
 
-		//!up or downshift str according to normKey in case of eUntouched it is a no op
+		//! up or downshift str according to normKey in case of eUntouched it is a no op
 		String Normalize(String const &str, coast::urlutils::NormalizeTag normKey);
 
-		//!appends value to any under the tag key if key.Length>0; it appends to key if key already has a value
+		//! appends value to any under the tag key if key.Length>0; it appends to key if key already has a value
 		void AppendValueTo(Anything &any, const String &key, const char *value);
 
-		//!escape all not alnum chars in string with "&#<int value>"
+		//! escape all not alnum chars in string with "&#<int value>"
 		String HTMLEscape(const String &toEscape);
 
-		//!remove the characters contained in badOnes from instr
+		//! remove the characters contained in badOnes from instr
 		String RemoveUnwantedChars(const String &instr, const String &badOnes);
 
-		//!cleans up request uri according to RFC 1808
+		//! cleans up request uri according to RFC 1808
 		String CleanUpUriPath(String value);
-	}
-}
+	}  // namespace urlutils
+}  // namespace coast
 
 #endif

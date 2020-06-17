@@ -9,9 +9,10 @@
 #ifndef ORACLESTATEMENT_H_
 #define ORACLESTATEMENT_H_
 
-#include "IFAObject.h"
 #include "Anything.h"
+#include "IFAObject.h"
 #include "OciAutoHandle.h"	// std::max
+
 #include <algorithm>
 
 class OracleResultset;
@@ -55,17 +56,16 @@ class OracleConnection;
  * 		using getValue() or using getCursor() to process the results of a cursor type parameter\n
  * 		Please use OracleResultsetPtr to automatically track destruction of the OracleResultset after use.
  */
-class OracleStatement: public coast::AllocatorNewDelete
-{
+class OracleStatement : public coast::AllocatorNewDelete {
 public:
 	//! Tracking internal state of statement processing
 	enum Status {
-		UNPREPARED, 			//!< UNPREPARED
-		PREPARED, 				//!< PREPARED
-		RESULT_SET_AVAILABLE, 	//!< RESULT_SET_AVAILABLE
-		UPDATE_COUNT_AVAILABLE,	//!< UPDATE_COUNT_AVAILABLE
-		NEEDS_STREAM_DATA, 		//!< NEEDS_STREAM_DATA
-		STREAM_DATA_AVAILABLE,	//!< STREAM_DATA_AVAILABLE
+		UNPREPARED,				 //!< UNPREPARED
+		PREPARED,				 //!< PREPARED
+		RESULT_SET_AVAILABLE,	 //!< RESULT_SET_AVAILABLE
+		UPDATE_COUNT_AVAILABLE,	 //!< UPDATE_COUNT_AVAILABLE
+		NEEDS_STREAM_DATA,		 //!< NEEDS_STREAM_DATA
+		STREAM_DATA_AVAILABLE,	 //!< STREAM_DATA_AVAILABLE
 	};
 
 	//! after statement preparation, the type of statement is known
@@ -74,51 +74,54 @@ public:
 #define OCI_STMT_UNKNOWN 0	//!< define value for oracle ic-libs <11.x
 #endif
 #ifndef OCI_STMT_CALL
-#define OCI_STMT_CALL 10	//!< define value for oracle ic-libs <11.x
+#define OCI_STMT_CALL 10  //!< define value for oracle ic-libs <11.x
 #endif
-		STMT_UNKNOWN = OCI_STMT_UNKNOWN,//!< unknown statement
-		STMT_SELECT = OCI_STMT_SELECT,  //!< select statement
-		STMT_UPDATE = OCI_STMT_UPDATE,  //!< update statement
-		STMT_DELETE = OCI_STMT_DELETE,  //!< delete statement
-		STMT_INSERT = OCI_STMT_INSERT,  //!< insert Statement
-		STMT_CREATE = OCI_STMT_CREATE,  //!< create statement
-		STMT_DROP = OCI_STMT_DROP,      //!< drop statement
-		STMT_ALTER = OCI_STMT_ALTER,    //!< alter statement
-		STMT_BEGIN = OCI_STMT_BEGIN,    //!< begin (pl/sql statement)
-		STMT_DECLARE = OCI_STMT_DECLARE,//!< declare (pl/sql statement )
-		STMT_CALL = OCI_STMT_CALL,      //!< corresponds to kpu call
+		STMT_UNKNOWN = OCI_STMT_UNKNOWN,  //!< unknown statement
+		STMT_SELECT = OCI_STMT_SELECT,	  //!< select statement
+		STMT_UPDATE = OCI_STMT_UPDATE,	  //!< update statement
+		STMT_DELETE = OCI_STMT_DELETE,	  //!< delete statement
+		STMT_INSERT = OCI_STMT_INSERT,	  //!< insert Statement
+		STMT_CREATE = OCI_STMT_CREATE,	  //!< create statement
+		STMT_DROP = OCI_STMT_DROP,		  //!< drop statement
+		STMT_ALTER = OCI_STMT_ALTER,	  //!< alter statement
+		STMT_BEGIN = OCI_STMT_BEGIN,	  //!< begin (pl/sql statement)
+		STMT_DECLARE = OCI_STMT_DECLARE,  //!< declare (pl/sql statement )
+		STMT_CALL = OCI_STMT_CALL,		  //!< corresponds to kpu call
 	};
 
 	//! Defines valid statement execution modes
 	enum ExecMode {
-		EXEC_DEFAULT = OCI_DEFAULT,	//!< Use default execution mode
-		EXEC_COMMIT = OCI_COMMIT_ON_SUCCESS, //!< Commit statement after successful completion
-		EXEC_COMMIT_BATCH_ERRORS = OCI_COMMIT_ON_SUCCESS | OCI_BATCH_ERRORS, //!< Commit statement only if no errors occurred in iterate mode
-		EXEC_BATCH_ERRORS = OCI_BATCH_ERRORS, //!< array DML operation, report errors using specific handle for each iterated call
-		EXEC_SCROLLABLE_RO = OCI_STMT_SCROLLABLE_READONLY, //!< Special cursor processing mode where absolute or relative navigation is possible
+		EXEC_DEFAULT = OCI_DEFAULT,			  //!< Use default execution mode
+		EXEC_COMMIT = OCI_COMMIT_ON_SUCCESS,  //!< Commit statement after successful completion
+		EXEC_COMMIT_BATCH_ERRORS =
+			OCI_COMMIT_ON_SUCCESS | OCI_BATCH_ERRORS,  //!< Commit statement only if no errors occurred in iterate mode
+		EXEC_BATCH_ERRORS =
+			OCI_BATCH_ERRORS,  //!< array DML operation, report errors using specific handle for each iterated call
+		EXEC_SCROLLABLE_RO =
+			OCI_STMT_SCROLLABLE_READONLY,  //!< Special cursor processing mode where absolute or relative navigation is possible
 	};
 
-	class Description
-	{
+	class Description {
 		friend class StatementDescriptionTest;
 		ROAnything fRBuf;
 		Anything fWBuf;
 		Description(const Description &);
 		Description &operator=(const Description &);
+
 	public:
-		class Element
-		{
+		class Element {
 			friend class StatementDescriptionTest;
 			ROAnything fRBuf;
 			Anything fWBuf;
 			//! shorthand for At(const char *slotname) const
 			ROAnything operator[](const char *slotname) const {
-				ROAnything roaValue( fRBuf[slotname] );
-				if ( fWBuf.IsDefined(slotname) ) {
+				ROAnything roaValue(fRBuf[slotname]);
+				if (fWBuf.IsDefined(slotname)) {
 					roaValue = fWBuf[slotname];
 				}
 				return roaValue;
 			}
+
 		public:
 			Element() {}
 			Element(const Element &elt) : fRBuf(elt.fRBuf), fWBuf(elt.fWBuf) {}
@@ -130,7 +133,7 @@ public:
 			Element(ROAnything &roaEntry, Anything &anyEntry) : fRBuf(roaEntry), fWBuf(anyEntry) {}
 			~Element() {}
 			/*! returns a String representation of the implementation if any is set else the default, the string copies memory
-				beware of temporaries */
+			  beware of temporaries */
 			String AsString(const char *slotname, const char *dflt = 0) const {
 				String strValue = operator[](slotname).AsString(dflt);
 				return strValue;
@@ -143,67 +146,61 @@ public:
 			}
 
 			/*! returns a const char * representation of the implementation if any is set else the default
-				this method doesn't copy memory */
+			  this method doesn't copy memory */
 			const char *AsCharPtr(const char *slotname, const char *dflt = 0) const {
 				return operator[](slotname).AsCharPtr(dflt);
 			}
 
 			char *getRawBufferPtr(long lRowIndex = 0) {
 				long len = AsLong("Length");
-				if ( AsLong("Type") == SQLT_STR ) {
+				if (AsLong("Type") == SQLT_STR) {
 					++len;
 				}
 				long lOffset = len * lRowIndex;
-				char *pBuf = const_cast<char *>(AsCharPtr( "RawBuf" ));
+				char *pBuf = const_cast<char *>(AsCharPtr("RawBuf"));
 				return pBuf + lOffset;
 			}
 
 			char *getIndicatorBufferPtr(long lRowIndex = 0) {
 				long lOffset = sizeof(OCIInd) * lRowIndex;
-				char *pBuf = const_cast<char *>(AsCharPtr( "Indicator" ));
+				char *pBuf = const_cast<char *>(AsCharPtr("Indicator"));
 				return pBuf + lOffset;
 			}
 
-			OCIInd getIndicatorValue( long lRowIndex = 0) {
+			OCIInd getIndicatorValue(long lRowIndex = 0) {
 				return *(reinterpret_cast<OCIInd *>(getIndicatorBufferPtr(lRowIndex)));
 			}
 
 			char *getEffectiveLengthBufferPtr(long lRowIndex = 0) {
 				long lOffset = sizeof(ub2) * lRowIndex;
-				char *pBuf = const_cast<char *>(AsCharPtr( "EffectiveLength" ));
+				char *pBuf = const_cast<char *>(AsCharPtr("EffectiveLength"));
 				return pBuf + lOffset;
 			}
 
-			ub2 getEffectiveLengthValue( long lRowIndex = 0) {
+			ub2 getEffectiveLengthValue(long lRowIndex = 0) {
 				return *(reinterpret_cast<ub2 *>(getEffectiveLengthBufferPtr(lRowIndex)));
 			}
 
-			//!shorthand for At(const char *slotname)
-			Anything &operator[](const char *slotname) {
-				return fWBuf[slotname];
-			}
+			//! shorthand for At(const char *slotname)
+			Anything &operator[](const char *slotname) { return fWBuf[slotname]; }
 		};
 		Description() : fWBuf(Anything::ArrayMarker()) {}
 		~Description() {}
 		/*! Retrieve the number of slots in this Anything
-			\return The number of slots in this Anything */
-		long GetSize() const {
-			return std::max(fWBuf.GetSize(), fRBuf.GetSize());
-		}
+		  \return The number of slots in this Anything */
+		long GetSize() const { return std::max(fWBuf.GetSize(), fRBuf.GetSize()); }
 
-		//!assignment operator creates Anything of type a.GetType() returns
-		Description &operator= (const ROAnything &a) {
+		//! assignment operator creates Anything of type a.GetType() returns
+		Description &operator=(const ROAnything &a) {
 			fRBuf = a;
 			return *this;
 		}
 
 		/*! Appends a new slot and stores <I>a</I> in it.
-			\param a the Anything added at the end of this Anything.
-			\return the index of the slot where <I>a</I> is now stored. */
-		long Append(const Anything &a) {
-			return fWBuf.Append(a);
-		}
-		//!returns name of slot (if any)
+		  \param a the Anything added at the end of this Anything.
+		  \return the index of the slot where <I>a</I> is now stored. */
+		long Append(const Anything &a) { return fWBuf.Append(a); }
+		//! returns name of slot (if any)
 		const char *SlotName(long slot) const {
 			static const char *gSlotname = "";
 			return gSlotname;
@@ -211,16 +208,17 @@ public:
 
 		//! shorthand for At(long slot)
 		Element operator[](long slot) {
-			ROAnything roaR( fRBuf[slot] );
+			ROAnything roaR(fRBuf[slot]);
 			Anything anyW;
-			if ( !fWBuf.IsDefined(slot) ) {
-				fWBuf[slot] = Anything(Anything::ArrayMarker(),fWBuf.GetAllocator());
+			if (!fWBuf.IsDefined(slot)) {
+				fWBuf[slot] = Anything(Anything::ArrayMarker(), fWBuf.GetAllocator());
 			}
 			anyW = fWBuf[slot];
 			Element aElt(roaR, anyW);
 			return aElt;
 		}
 	};
+
 private:
 	OracleStatement();
 	OracleConnection *fpConnection;
@@ -234,19 +232,20 @@ private:
 	bool AllocHandle();
 	void Cleanup();
 
-	OracleStatement( OracleConnection *pConn, OCIStmt *phStmt );
+	OracleStatement(OracleConnection *pConn, OCIStmt *phStmt);
 
-	void adjustColumnType( OracleStatement::Description::Element &aDescEl );
-	void prepareAndBindBuffer( OracleStatement::Description::Element &aDescEl, long lBindPos, long lRows);
-	sword bindColumn( long lBindPos, OracleStatement::Description::Element &aDescEl, long len );
-	void fillRowColValue( OracleStatement::Description::Element &aDescEl, long lRowIndex, ROAnything const roaValue );
-	void adjustPrepareAndBindCols( long lRows);
+	void adjustColumnType(OracleStatement::Description::Element &aDescEl);
+	void prepareAndBindBuffer(OracleStatement::Description::Element &aDescEl, long lBindPos, long lRows);
+	sword bindColumn(long lBindPos, OracleStatement::Description::Element &aDescEl, long len);
+	void fillRowColValue(OracleStatement::Description::Element &aDescEl, long lRowIndex, ROAnything const roaValue);
+	void adjustPrepareAndBindCols(long lRows);
+
 public:
 	/*! Create a new statement using the given connection and statement String
 	 * @param pConn Underlying OracleConnection object to use for operation
 	 * @param strStmt String representation of the query, either simple or PL/SQL
 	 */
-	OracleStatement( OracleConnection *pConn, String const &strStmt );
+	OracleStatement(OracleConnection *pConn, String const &strStmt);
 	~OracleStatement();
 
 	/*! Apply syntax checking on statement
@@ -259,59 +258,43 @@ public:
 	 * @return Usually the Status after execution will be either RESULT_SET_AVAILABLE or UPDATE_COUNT_AVAILABLE to
 	 * signal that Fetch can be called
 	 */
-	Status execute( ExecMode mode, long lIterations = 0L);
+	Status execute(ExecMode mode, long lIterations = 0L);
 	/*! Fetch the given number of rows into the internally allocated column buffers
 	 * @param numRows Number of rows to fetch at once
 	 * @return OCI status of executing the OCI fetch command
 	 */
-	sword Fetch( ub4 numRows = 1 );
+	sword Fetch(ub4 numRows = 1);
 
 	/*! Obtain the current statement Status
 	 * @return Current Status of the statement
 	 */
-	Status status() const {
-		return fStatus;
-	}
-	StmtType getStatementType() const {
-		return fStmtType;
-	}
-	String getStatement() const {
-		return fStmt;
-	}
+	Status status() const { return fStatus; }
+	StmtType getStatementType() const { return fStmtType; }
+	String getStatement() const { return fStmt; }
 
-	void setPrefetchRows( long lPrefetchRows );
+	void setPrefetchRows(long lPrefetchRows);
 
 	unsigned long getUpdateCount() const;
 	unsigned long getErrorCount() const;
 
 	OracleResultsetPtr getResultset();
-	OracleResultsetPtr getCursor( long lColumnIndex, long lRowIdx = 0 );
-	Anything getValue( long lColumnIndex, long lRowIdx = 0 );
+	OracleResultsetPtr getCursor(long lColumnIndex, long lRowIdx = 0);
+	Anything getValue(long lColumnIndex, long lRowIdx = 0);
 
-	OCIStmt *getHandle() const {
-		return fStmthp.getHandle();
-	}
-	OracleConnection *getConnection() const {
-		return fpConnection;
-	}
+	OCIStmt *getHandle() const { return fStmthp.getHandle(); }
+	OracleConnection *getConnection() const { return fpConnection; }
 
 	OracleStatement::Description &GetOutputDescription();
 	bool DefineOutputArea();
-	void setSPDescription( ROAnything roaSPDescription, const String &strReturnName );
+	void setSPDescription(ROAnything roaSPDescription, const String &strReturnName);
 
-	void bindAndFillInputValues( ROAnything const roaArrayValues );
+	void bindAndFillInputValues(ROAnything const roaArrayValues);
 
-	const Anything &GetErrorMessages() const {
-		return fErrorMessages;
-	}
-	String GetLastErrorMessage() const {
-		return ROAnything( fErrorMessages )[fErrorMessages.GetSize() - 1L].AsString( "" );
-	}
+	const Anything &GetErrorMessages() const { return fErrorMessages; }
+	String GetLastErrorMessage() const { return ROAnything(fErrorMessages)[fErrorMessages.GetSize() - 1L].AsString(""); }
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return NULL;
-	}
+	IFAObject *Clone(Allocator *a) const { return NULL; }
 };
 
 #endif /* ORACLESTATEMENT_H_ */

@@ -11,8 +11,7 @@
 
 #include "TestCase.h"
 
-class HTTPChunkedOStreamTest : public testframework::TestCase
-{
+class HTTPChunkedOStreamTest : public testframework::TestCase {
 public:
 	//--- constructors
 
@@ -26,7 +25,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//! make a small chunk size and overflow it
 	void OverflowTest();

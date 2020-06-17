@@ -1,9 +1,9 @@
 #ifndef AnythingSTLTest_H
 #define AnythingSTLTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnythingSTLTest: public testframework::TestCase {
+#include "TestCase.h"
+class AnythingSTLTest : public testframework::TestCase {
 	void checkRange(const Anything &, long n, long length);
 	void checkFill(const Anything &);
 	void checkFillSizeType(const Anything &);
@@ -12,9 +12,7 @@ class AnythingSTLTest: public testframework::TestCase {
 	void checkInsertWithKeys(const Anything &a, const long testpos, const char *m, const long n = 1);
 
 public:
-	AnythingSTLTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	AnythingSTLTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 
 	void testSimpleSwap();

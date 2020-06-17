@@ -8,9 +8,9 @@
 
 //--- standard modules used ----------------------------------------------------
 #include "Anything.h"
-#include "HTMLComparer.h"
-#include "DataAccess.h"
 #include "Context.h"
+#include "DataAccess.h"
+#include "HTMLComparer.h"
 #include "Tracer.h"
 
 //--- interface include --------------------------------------------------------
@@ -19,19 +19,15 @@
 //---- ATTFlowController ----------------------------------------------------------------
 RegisterFlowController(ATTFlowController);
 
-ATTFlowController::ATTFlowController(const char *FlowControllerName)
-	: HttpFlowController(FlowControllerName), fError(false)
-{
+ATTFlowController::ATTFlowController(const char *FlowControllerName) : HttpFlowController(FlowControllerName), fError(false) {
 	StartTrace(ATTFlowController.Ctor);
 }
 
-ATTFlowController::~ATTFlowController()
-{
+ATTFlowController::~ATTFlowController() {
 	StartTrace(ATTFlowController.Dtor);
 }
 
-bool ATTFlowController::ExecDataAccess(Context &ctx, long &execTime)
-{
+bool ATTFlowController::ExecDataAccess(Context &ctx, long &execTime) {
 	StartTrace(ATTFlowController.ExecDataAccess);
 
 	bool retVal = HttpFlowController::ExecDataAccess(ctx, execTime);
@@ -49,8 +45,7 @@ bool ATTFlowController::ExecDataAccess(Context &ctx, long &execTime)
 	return retVal;
 }
 
-bool ATTFlowController::GetExpected(Context &ctx)
-{
+bool ATTFlowController::GetExpected(Context &ctx) {
 	StartTrace(ATTFlowController.GetExpected);
 
 	bool boRet = false;
@@ -62,11 +57,9 @@ bool ATTFlowController::GetExpected(Context &ctx)
 	boRet = da.StdExec(ctx);
 	TraceAny(ctx.GetTmpStore(), "TempStore after");
 	return boRet;
-
 }
 
-bool ATTFlowController::AnalyseReply(Context &ctx, Anything &result)
-{
+bool ATTFlowController::AnalyseReply(Context &ctx, Anything &result) {
 	StartTrace(ATTFlowController.AnalyseReply);
 
 	bool boRet = DoCompareHTMLDocs(ctx, result);
@@ -74,8 +67,7 @@ bool ATTFlowController::AnalyseReply(Context &ctx, Anything &result)
 	return boRet & HttpFlowController::AnalyseReply(ctx, result);
 }
 
-bool ATTFlowController::DoCompareHTMLDocs(Context &ctx, Anything &result)
-{
+bool ATTFlowController::DoCompareHTMLDocs(Context &ctx, Anything &result) {
 	StartTrace(ATTFlowController.DoCompareHTMLDocs);
 
 	Anything sample = ctx.GetTmpStore()["Mapper"]["HTTPBody"];
@@ -95,11 +87,9 @@ bool ATTFlowController::DoCompareHTMLDocs(Context &ctx, Anything &result)
 	}
 
 	return boRet;
-
 }
 
-bool ATTFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucceeded)
-{
+bool ATTFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucceeded) {
 	StartTrace(ATTFlowController.PrepareRequest);
 
 	if (fError) {
@@ -109,7 +99,7 @@ bool ATTFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSuccee
 	return HttpFlowController::PrepareRequest(ctx, bPrepareRequestSucceeded);
 }
 
-//bool ATTFlowController::PrepareRequest(Context &ctx) {
+// bool ATTFlowController::PrepareRequest(Context &ctx) {
 //  StartTrace(ATTFlowController.PrepareRequest);
 //
 //  if(fError) {
@@ -117,4 +107,3 @@ bool ATTFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSuccee
 //  }
 //  return HttpFlowController::PrepareRequest(ctx);
 //}
-

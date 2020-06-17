@@ -7,11 +7,12 @@
  */
 
 #include "FileAccessControllerTests.h"
+
+#include "Context.h"
+#include "DataAccess.h"
+#include "FoundationTestTypes.h"
 #include "SimpleAccessControllers.h"
 #include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "DataAccess.h"
-#include "Context.h"
 
 bool FileCreator::CreateFile(String dataAccessName, ROAnything data) {
 	Context c;

@@ -31,75 +31,71 @@
  * @subsection headermapperexampleconfig Configuration (InputMapperMeta.any)
  * \code
 /MyMapperAlias {
-	/Suppress {
-        keep-alive
-        ACCEPT-ENCODING
-        { accept connection }
-	}
+  /Suppress {
+		keep-alive
+		ACCEPT-ENCODING
+		{ accept connection }
+  }
 }
  * \endcode
  * @subsection headermapperexampletmpstore Prepared content of TmpStore
  * Assume the configured DataAccess will issue a ParameterMapper::Get("Header", ...)
  * \code
 /TmpStore {
-	/Header {
-	    /HOST "my.host.dom"
-        /USER-AGENT "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.6) Gecko/20100629 Ubuntu/10.10 (maverick) Firefox/3.6.6 GTB7.0"
-        /ACCEPT {
-          "text/html"
-          "application/xhtml+xml"
-          "application/xml;q=0.9"
-        }
-        /ACCEPT-ENCODING {
-          "gzip"
-          "deflate"
-        }
-        /KEEP-ALIVE "115"
-        /CONNECTION {
-          "keep-alive"
-        }
-	}
+  /Header {
+	  /HOST "my.host.dom"
+		/USER-AGENT "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.6) Gecko/20100629 Ubuntu/10.10 (maverick) Firefox/3.6.6 GTB7.0"
+		/ACCEPT {
+		  "text/html"
+		  "application/xhtml+xml"
+		  "application/xml;q=0.9"
+		}
+		/ACCEPT-ENCODING {
+		  "gzip"
+		  "deflate"
+		}
+		/KEEP-ALIVE "115"
+		/CONNECTION {
+		  "keep-alive"
+		}
+  }
 }
  * \endcode
  * @subsection headermapperexampleoutput Returned content on stream
  * \code
-HOST: my.host.dom\r\nUSER-AGENT: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.6) Gecko/20100629 Ubuntu/10.10 (maverick) Firefox/3.6.6 GTB7.0\r\n
+HOST: my.host.dom\r\nUSER-AGENT: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.6) Gecko/20100629 Ubuntu/10.10 (maverick)
+Firefox/3.6.6 GTB7.0\r\n
  * \endcode
  */
-class HTTPHeaderParameterMapper: public ParameterMapper {
+class HTTPHeaderParameterMapper : public ParameterMapper {
 	HTTPHeaderParameterMapper();
 	HTTPHeaderParameterMapper(const HTTPHeaderParameterMapper &);
 	HTTPHeaderParameterMapper &operator=(const HTTPHeaderParameterMapper &);
 	bool DoInitialize();
 	bool DoLookup(const char *key, ROAnything &result, char delim, char indexdelim) const;
+
 public:
-	HTTPHeaderParameterMapper(const char *name) :
-		ParameterMapper(name) {
-	}
+	HTTPHeaderParameterMapper(const char *name) : ParameterMapper(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) HTTPHeaderParameterMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) HTTPHeaderParameterMapper(fName); }
+
 protected:
 	//! Render http header fields, look'd up in the Context using the given key and render onto os
 	/*! @copydoc ParameterMapper::DoGetStream(const char *, std::ostream &, Context &, ROAnything) */
 	virtual bool DoGetStream(const char *key, std::ostream &os, Context &ctx, ROAnything conf);
 };
 
-class HTTPBodyResultMapper: public ResultMapper {
+class HTTPBodyResultMapper : public ResultMapper {
 	HTTPBodyResultMapper();
 	HTTPBodyResultMapper(const HTTPBodyResultMapper &);
 	HTTPBodyResultMapper &operator=(const HTTPBodyResultMapper &);
+
 public:
-	HTTPBodyResultMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	HTTPBodyResultMapper(const char *name) : ResultMapper(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) HTTPBodyResultMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) HTTPBodyResultMapper(fName); }
 
 	bool DoFinalPutStream(const char *key, std::istream &is, Context &ctx);
 
@@ -107,19 +103,16 @@ protected:
 	virtual void ReadBody(String &body, std::istream &is, Context &ctx);
 };
 
-class HTTPBodyParameterMapper: public ParameterMapper {
+class HTTPBodyParameterMapper : public ParameterMapper {
 	HTTPBodyParameterMapper();
 	HTTPBodyParameterMapper(const HTTPBodyParameterMapper &);
 	HTTPBodyParameterMapper &operator=(const HTTPBodyParameterMapper &);
+
 public:
-	HTTPBodyParameterMapper(const char *name) :
-		ParameterMapper(name) {
-	}
+	HTTPBodyParameterMapper(const char *name) : ParameterMapper(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) HTTPBodyParameterMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) HTTPBodyParameterMapper(fName); }
 
 	bool DoFinalGetStream(const char *key, std::ostream &os, Context &ctx);
 };

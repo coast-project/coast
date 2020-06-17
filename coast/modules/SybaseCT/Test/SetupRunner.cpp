@@ -9,13 +9,12 @@
 #include "TestRunner.h"
 
 //--- test cases ---------------------------------------------------------------
-#include "SybCTnewDATest.h"
-#include "SybCTnewDAImplTest.h"
 #include "ConfiguredActionTest.h"
 #include "SybCTThreadTest.h"
+#include "SybCTnewDAImplTest.h"
+#include "SybCTnewDATest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	// execute tests in test dir with defined structure
 	ADD_SUITE(runner, SybCTnewDATest);
 	ADD_SUITE(runner, SybCTnewDAImplTest);

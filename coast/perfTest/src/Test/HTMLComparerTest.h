@@ -11,11 +11,9 @@
 
 #include "FoundationTestTypes.h"
 
-class HTMLComparerTest: public testframework::TestCaseWithConfig {
+class HTMLComparerTest : public testframework::TestCaseWithConfig {
 public:
-	HTMLComparerTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	HTMLComparerTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	TString getConfigFileName();
 	void NoDifferenceComparison();

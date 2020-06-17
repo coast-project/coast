@@ -7,21 +7,16 @@
  */
 
 #include "AssertionTest.h"
+
 #include "TestSuite.h"
 
 //---- AssertionTest ----------------------------------------------------------------
-AssertionTest::AssertionTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
-}
+AssertionTest::AssertionTest(TString tstrName) : TestCaseType(tstrName) {}
 
-AssertionTest::~AssertionTest()
-{
-}
+AssertionTest::~AssertionTest() {}
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *AssertionTest::suite ()
-{
+Test *AssertionTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, AssertionTest, MyCompareTest);
 	return testSuite;

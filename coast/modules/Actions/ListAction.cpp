@@ -7,9 +7,10 @@
  */
 
 #include "ListAction.h"
+
+#include "AnyIterators.h"
 #include "Renderer.h"
 #include "Tracer.h"
-#include "AnyIterators.h"
 
 namespace {
 	const String ENRTYACTION_STORE_NAME_DEFAULT("EntryData", -1, coast::storage::Global());

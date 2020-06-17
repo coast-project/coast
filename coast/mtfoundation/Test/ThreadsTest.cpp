@@ -7,26 +7,28 @@
  */
 
 #include "ThreadsTest.h"
-#include "TestThread.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
 #include "StringStream.h"
+#include "TestSuite.h"
+#include "TestThread.h"
+
 #include <iostream>
 
-#define MILISEC 1000000 /* 1 million nanoseconds */
-#define MILISECGRANULARITY 50  //100  /* check and measure for 0.1 or 0.05 seconds */
+#define MILISEC 1000000		   /* 1 million nanoseconds */
+#define MILISECGRANULARITY 50  // 100  /* check and measure for 0.1 or 0.05 seconds */
 // SOP: 10 miliseconds seem to be too fine grained on my linux box.
-class ExecCountThread: public Thread {
+class ExecCountThread : public Thread {
 public:
 	ExecCountThread();
 
 	long fCount;
+
 protected:
 	virtual void Run();
 };
 
-ExecCountThread::ExecCountThread() :
-	Thread("ExecCountThread") {
+ExecCountThread::ExecCountThread() : Thread("ExecCountThread") {
 	fCount = 0;
 }
 
@@ -34,12 +36,12 @@ void ExecCountThread::Run() {
 	fCount++;
 }
 
-#define CheckSemaphoreCount(sema, expected) \
-{\
-	int count = -1;\
-	assertCompare(0, equal_to, sema.GetCount(count));\
-	assertCompare(expected, equal_to, count);\
-}
+#define CheckSemaphoreCount(sema, expected)               \
+	{                                                     \
+		int count = -1;                                   \
+		assertCompare(0, equal_to, sema.GetCount(count)); \
+		assertCompare(expected, equal_to, count);         \
+	}
 
 Test *ThreadsTest::suite() {
 	TestSuite *testSuite = new TestSuite;
@@ -61,9 +63,9 @@ void ThreadsTest::ThreadRunningStateTransitionTest() {
 	// "Normal case" goes from Created to Started,Running, toggles between Ready and Working and gets Terminated
 	TerminateMeTestThread t;
 	bool bIsReady(false), bIsWorking(false), bIsRunning(false);
-	t_assertm( !t.IsReady( bIsReady ) && !bIsReady , "Is not Ready yet");
-	t_assertm( !t.IsWorking( bIsWorking ) && !bIsWorking, "It is not working");
-	t_assertm( !t.SetReady(), "Can not set Ready until running");
+	t_assertm(!t.IsReady(bIsReady) && !bIsReady, "Is not Ready yet");
+	t_assertm(!t.IsWorking(bIsWorking) && !bIsWorking, "It is not working");
+	t_assertm(!t.SetReady(), "Can not set Ready until running");
 	t_assertm(!t.CheckRunningState(Thread::eReady, 0, 20 * MILISEC), "State can not be eReady until running");
 	t_assertm(!t.CheckRunningState(Thread::eReady, 0, 20 * MILISEC), "State can not be eReady until running");
 	t_assertm(!t.CheckRunningState(Thread::eWorking, 0, 20 * MILISEC), "State can not be eWorking until running");
@@ -73,30 +75,30 @@ void ThreadsTest::ThreadRunningStateTransitionTest() {
 	t_assertm(t.CheckState(Thread::eRunning), "State should be eRunning");
 	while (!t.IsRunning(bIsRunning) && t.IsAlive())
 		;
-	t_assertm( bIsRunning , "Thread is running");
+	t_assertm(bIsRunning, "Thread is running");
 	t_assertm(t.CheckRunningState(Thread::eReady), "State should be eReady");
-	t_assertm( ( t.IsReady( bIsReady ) && bIsReady ), "is ready by default");
-	t_assertm( ( t.IsWorking( bIsWorking ) && !bIsWorking ), "It is not working (might fail sometimes because we are too fast)");
+	t_assertm((t.IsReady(bIsReady) && bIsReady), "is ready by default");
+	t_assertm((t.IsWorking(bIsWorking) && !bIsWorking), "It is not working (might fail sometimes because we are too fast)");
 	t_assertm(!t.CheckRunningState(Thread::eWorking, 0, 20 * MILISEC), "State can not be eWorking");
 	t_assertm(!t.CheckRunningState(Thread::eWorking, 0, 20 * MILISEC), "State can not be eWorking");
 	t_assertm(t.SetWorking(), "Can be set to working");
 	t_assertm(t.CheckRunningState(Thread::eWorking, 10), "State should be eWorking");
 	t_assertm(!t.CheckRunningState(Thread::eReady, 0, 20 * MILISEC), "State can not be eReady");
 	t_assertm(!t.CheckRunningState(Thread::eReady, 0, 20 * MILISEC), "State can not be eReady");
-	t_assertm( ( t.IsWorking( bIsWorking ) && bIsWorking ), "It is working");
+	t_assertm((t.IsWorking(bIsWorking) && bIsWorking), "It is working");
 
 	while (!t.IsRunning(bIsRunning) && t.IsAlive())
 		;
-	t_assertm( bIsRunning , "Thread is still running");
-	t_assertm( ( t.IsReady( bIsReady ) && !bIsReady ), "It is not ready when working");
+	t_assertm(bIsRunning, "Thread is still running");
+	t_assertm((t.IsReady(bIsReady) && !bIsReady), "It is not ready when working");
 	t_assertm(!t.SetWorking(), "Cannot be set to working again before set to ready");
 
 	t_assertm(t.SetReady(), "Can be set back to ready");
 	t_assertm(t.CheckRunningState(Thread::eReady, 10), "State should be eReady");
 
-	t_assert( t.Terminate(10) );
-	t_assertm( !t.IsReady( bIsReady ), "Is not Ready anymore");
-	t_assertm( !t.IsWorking( bIsWorking ), "It is not working");
+	t_assert(t.Terminate(10));
+	t_assertm(!t.IsReady(bIsReady), "Is not Ready anymore");
+	t_assertm(!t.IsWorking(bIsWorking), "It is not working");
 	t_assertm(!t.SetReady(), "Can not revert state");
 	t_assertm(!t.SetWorking(), "Can not revert state");
 }
@@ -120,7 +122,7 @@ void ThreadsTest::ThreadObjectReuseTest() {
 							// start three times
 							if (t_assert(t.CheckState(Thread::eTerminated, 2))) {
 								Trace("count: " << t.fCount);
-								assertEqual(3L, t.fCount); // did it properly run three times
+								assertEqual(3L, t.fCount);	// did it properly run three times
 							} else {
 								assertEqual(3L, t.fCount);
 								std::cerr << "/";
@@ -148,29 +150,19 @@ void ThreadsTest::ThreadObjectReuseTest() {
 	}
 }
 
-class HookArgsTestThread: public Thread {
+class HookArgsTestThread : public Thread {
 public:
-	HookArgsTestThread() :
-		Thread("HookArgsTestThread") {
-	}
-	;
-	virtual ~HookArgsTestThread() {
-	}
-	;
+	HookArgsTestThread() : Thread("HookArgsTestThread"){};
+	virtual ~HookArgsTestThread(){};
 	virtual void Run() {
 		CheckState(Thread::eRunning, 2);
 		CheckState(Thread::eTerminationRequested, 2);
-	}
-	;
+	};
 	bool DoStartRequestedHook(ROAnything args) {
 		fStartedArgs = args.DeepClone();
 		return true;
-	}
-	;
-	void DoTerminationRequestHook(ROAnything args) {
-		fTerminationArgs = args.DeepClone();
-	}
-	;
+	};
+	void DoTerminationRequestHook(ROAnything args) { fTerminationArgs = args.DeepClone(); };
 
 	Anything fStartedArgs, fTerminationArgs;
 };
@@ -180,51 +172,30 @@ void ThreadsTest::ThreadHookArgsTest() {
 	HookArgsTestThread t;
 	Anything anyStartArgs, anyTerminationArgs;
 	anyStartArgs["Start"] = "Go!";
-	t_assertm( t.Start(coast::storage::Global(), anyStartArgs), "expected thread start to succeed");
+	t_assertm(t.Start(coast::storage::Global(), anyStartArgs), "expected thread start to succeed");
 	anyTerminationArgs["Stop"] = "RIP";
-	t_assertm( t.Terminate(1, anyTerminationArgs), "expected termination request to succeed");
+	t_assertm(t.Terminate(1, anyTerminationArgs), "expected termination request to succeed");
 	assertAnyEqual(anyStartArgs, t.fStartedArgs);
 	assertAnyEqual(anyTerminationArgs, t.fTerminationArgs);
 }
 
-class StateTransitionTestThread: public TerminateMeTestThread {
+class StateTransitionTestThread : public TerminateMeTestThread {
 public:
-	StateTransitionTestThread(bool willStart = true) :
-		TerminateMeTestThread(willStart), fStates(Anything::ArrayMarker()) {
-	}
-	;
-	virtual ~StateTransitionTestThread() {
-	}
-	;
+	StateTransitionTestThread(bool willStart = true) : TerminateMeTestThread(willStart), fStates(Anything::ArrayMarker()){};
+	virtual ~StateTransitionTestThread(){};
 	bool DoStartRequestedHook(ROAnything args) {
 		fStates.Append(eStartRequested);
 		return TerminateMeTestThread::DoStartRequestedHook(args);
-	}
-	;
-	void DoStartedHook(ROAnything args) {
-		fStates.Append(eStarted);
-	}
-	;
+	};
+	void DoStartedHook(ROAnything args) { fStates.Append(eStarted); };
 
-	void DoRunningHook(ROAnything args) {
-		fStates.Append(eRunning);
-	}
-	;
+	void DoRunningHook(ROAnything args) { fStates.Append(eRunning); };
 
-	void DoTerminationRequestHook(ROAnything args) {
-		fStates.Append(eTerminationRequested);
-	}
-	;
+	void DoTerminationRequestHook(ROAnything args) { fStates.Append(eTerminationRequested); };
 
-	void DoTerminatedRunMethodHook() {
-		fStates.Append(eTerminatedRunMethod);
-	}
-	;
+	void DoTerminatedRunMethodHook() { fStates.Append(eTerminatedRunMethod); };
 
-	void DoTerminatedHook() {
-		fStates.Append(eTerminated);
-	}
-	;
+	void DoTerminatedHook() { fStates.Append(eTerminated); };
 
 	Anything fStates;
 };
@@ -246,7 +217,7 @@ void ThreadsTest::ThreadStateTransitionTest() {
 	while (!t.IsRunning(bIsRunning) && t.IsAlive())
 		;
 	t_assertm(bIsRunning, "Thread should be Running");
-	assertEqual(Thread::eRunning, t.GetState()); //Semantically equal to IsRunning()
+	assertEqual(Thread::eRunning, t.GetState());  // Semantically equal to IsRunning()
 
 	t_assert(t.Terminate(10));
 	assertComparem(Thread::eTerminated, equal_to, t.GetState(false, Thread::eRunning), "Thread is not running anymore");
@@ -255,11 +226,11 @@ void ThreadsTest::ThreadStateTransitionTest() {
 	t_assertm(t.CheckState(Thread::eRunning, 10), "State should be eRunning");
 
 	t_assert(t.Terminate(10));
-	assertCompare( Thread::eTerminated, equal_to, t.GetState() );
+	assertCompare(Thread::eTerminated, equal_to, t.GetState());
 	while (!t.IsRunning(bIsRunning) && t.IsAlive())
 		;
-	t_assertm( !bIsRunning , "Thread is not running anymore");
-	t_assertm( t.CheckState(Thread::eTerminated, 10), "State should be eTerminated");
+	t_assertm(!bIsRunning, "Thread is not running anymore");
+	t_assertm(t.CheckState(Thread::eTerminated, 10), "State should be eTerminated");
 
 	str = "{ 1 3 4 5 6 7 1 3 4 5 6 7 }";
 	IStringStream is1(str);
@@ -273,10 +244,10 @@ void ThreadsTest::ThreadStateTransitionTest() {
 	t_assertm(t2.Start(), "should be restartable, since already terminated");
 	t_assertm(t2.CheckState(Thread::eRunning, 10), "State should be eRunning");
 	t_assert(t2.Terminate(10));
-	assertCompare(Thread::eTerminated, equal_to, t2.GetState()); // Can not start again
+	assertCompare(Thread::eTerminated, equal_to, t2.GetState());  // Can not start again
 	while (!t2.IsRunning(bIsRunning) && t2.IsAlive())
 		;
-	t_assertm( !bIsRunning , "Thread is not running anymore");
+	t_assertm(!bIsRunning, "Thread is not running anymore");
 	t_assertm(t2.CheckState(Thread::eTerminated, 10), "State should be eTerminated");
 
 	str = "{ 7 1 3 4 5 6 7 }";
@@ -286,35 +257,31 @@ void ThreadsTest::ThreadStateTransitionTest() {
 
 	TerminateMeTestThread t3(false);
 	t_assertm(!t3.Start(), "start should fail");
-	assertEqual(Thread::eTerminated, t3.GetState()); // Can not start again
-	assertComparem( Thread::eStarted, less_equal, t3.GetState(10), "State should be higher than eStarted");
-	assertComparem( Thread::eRunning, less_equal, t3.GetState(10), "State should be higher than eRunning");
+	assertEqual(Thread::eTerminated, t3.GetState());  // Can not start again
+	assertComparem(Thread::eStarted, less_equal, t3.GetState(10), "State should be higher than eStarted");
+	assertComparem(Thread::eRunning, less_equal, t3.GetState(10), "State should be higher than eRunning");
 	while (!t3.IsRunning(bIsRunning) && t3.IsAlive())
 		;
-	t_assertm( !bIsRunning , "Thread is not running anymore");
+	t_assertm(!bIsRunning, "Thread is not running anymore");
 	t_assertm(t3.CheckState(Thread::eTerminated, 10), "State should be eTerminated");
 }
 
-class ContentionRunner: public Thread {
+class ContentionRunner : public Thread {
 public:
 	ContentionRunner(ThreadsTest *env, long iterations, String name);
 	virtual void Run();
-	virtual void StartRunning() {
-		SetWorking();
-	}
+	virtual void StartRunning() { SetWorking(); }
 
 private:
 	const long cRunSz;
 	ThreadsTest *fTest;
 };
 
-class TimedRunner: public Thread {
+class TimedRunner : public Thread {
 public:
 	TimedRunner(ThreadsTest *env, long lTime, String name);
 	virtual void Run();
-	virtual bool StartRunning() {
-		return SetWorking();
-	}
+	virtual bool StartRunning() { return SetWorking(); }
 
 private:
 	const long cTimeSz;
@@ -322,12 +289,11 @@ private:
 };
 
 //:utility class - simple Thread to play around - Runs until Terminate is called
-class RecursiveSynchTestThread: public TestThread {
+class RecursiveSynchTestThread : public TestThread {
 public:
-	RecursiveSynchTestThread(Mutex & m, Condition & c) :
-		TestThread(), fMutex(m), fCond(c) {
-	}
+	RecursiveSynchTestThread(Mutex &m, Condition &c) : TestThread(), fMutex(m), fCond(c) {}
 	virtual void Run();
+
 protected:
 	Mutex &fMutex;
 	Condition &fCond;
@@ -352,8 +318,8 @@ void RecursiveSynchTestThread::Run() {
 	CheckState(eTerminationRequested);
 }
 
-ContentionRunner::ContentionRunner(ThreadsTest *env, long iterations, String name) :
-	Thread(name), cRunSz(iterations), fTest(env) {
+ContentionRunner::ContentionRunner(ThreadsTest *env, long iterations, String name)
+	: Thread(name), cRunSz(iterations), fTest(env) {
 	StartTrace(ContentionRunner.ContentionRunner);
 }
 
@@ -366,8 +332,7 @@ void ContentionRunner::Run() {
 	}
 }
 
-TimedRunner::TimedRunner(ThreadsTest *env, long lTime, String name) :
-	Thread(name), cTimeSz(lTime), fTest(env) {
+TimedRunner::TimedRunner(ThreadsTest *env, long lTime, String name) : Thread(name), cTimeSz(lTime), fTest(env) {
 	StartTrace(TimedRunner.TimedRunner);
 }
 
@@ -380,7 +345,8 @@ void TimedRunner::Run() {
 
 void ThreadsTest::CheckTime(long lTime) {
 	StartTrace(ThreadsTest.RegisterTime);
-	assertComparem((long)(fDiffTimer.Diff() / MILISECGRANULARITY), equal_to, lTime, "TimeMeasured in Thread should be in same .1 second");
+	assertComparem((long)(fDiffTimer.Diff() / MILISECGRANULARITY), equal_to, lTime,
+				   "TimeMeasured in Thread should be in same .1 second");
 }
 
 void ThreadsTest::SimpleLockedAccess(long i) {
@@ -433,38 +399,38 @@ void ThreadsTest::TimedRunTest() {
 		TimedRunner t1(this, testTime, "TimedRunner1");
 		t1.Start();
 		t_assertm(t1.CheckState(Thread::eRunning), "wait for thread to be started failed");
-		thisTimer.Start(); // start time mesurement to enusure CheckRunning
+		thisTimer.Start();	// start time mesurement to enusure CheckRunning
 		// observes the given wait time
-		fDiffTimer.Start(); // start time measurement to ensure thred  really
+		fDiffTimer.Start();	 // start time measurement to ensure thred  really
 		// works after StartRunning()
 		// the following method is the core to be tested here:
 		t_assertm(!(t1.CheckRunningState(Thread::eWorking, 0, nanoTestTime)), "State should be eReady");
-		long waited = thisTimer.Diff(); // this way of mesurement will never give the same
-		long centiSecWaited = waited / MILISECGRANULARITY; // millisecond results, but it should be within the
+		long waited = thisTimer.Diff();						// this way of mesurement will never give the same
+		long centiSecWaited = waited / MILISECGRANULARITY;	// millisecond results, but it should be within the
 		// same tenth of second. (Timer is stopped after CheckRunningState
 		// returns)
 		assertComparem(waited, greater_equal, miliTestTime, "Exact Time passed should be equal or greater time given to wait");
 		assertComparem(centiSecWaited, equal_to, testTime, "Time passed rounded to .1 seconds should equal time given to wait");
 		// Start them up
-		t_assert(t1.StartRunning()); // we will get out of this test, won't we?
+		t_assert(t1.StartRunning());  // we will get out of this test, won't we?
 		t1.CheckState(Thread::eTerminated);
 	}
 }
 
-class SemaTestThread: public Thread {
+class SemaTestThread : public Thread {
 public:
 	SemaTestThread(Semaphore &i_raSema, bool releaseafter = true);
 
 protected:
 	virtual void Run();
+
 private:
 	Semaphore &fSema;
 	bool fReleaseAfter;
 };
 
-SemaTestThread::SemaTestThread(Semaphore &i_raSema, bool releaseafter) :
-	Thread("SemaTestThread"), fSema(i_raSema), fReleaseAfter(releaseafter) {
-}
+SemaTestThread::SemaTestThread(Semaphore &i_raSema, bool releaseafter)
+	: Thread("SemaTestThread"), fSema(i_raSema), fReleaseAfter(releaseafter) {}
 
 void SemaTestThread::Run() {
 	fSema.Acquire();
@@ -548,7 +514,10 @@ void ThreadsTest::MultiSemaphoreTest() {
 	{
 		int count = -1;
 		assertCompare(0, equal_to, sema.GetCount(count));
-		assertComparem(count, greater_equal, 0, "it can not be guaranteed that the semaphore count currently reflects the correct value - eg. all threads were able to be woken up in time before this call - therefor we can just assume a value greater than 0");
+		assertComparem(
+			count, greater_equal, 0,
+			"it can not be guaranteed that the semaphore count currently reflects the correct value - eg. all threads "
+			"were able to be woken up in time before this call - therefor we can just assume a value greater than 0");
 	}
 
 	// now all threads should have terminated

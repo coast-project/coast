@@ -6,21 +6,20 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "Anything.h"
-#include "StringStream.h"
-#include "Context.h"
-#include "Renderer.h"
-#include "TestSuite.h"
-#include "FormRenderer.h"
 #include "ButtonRendererTest.h"
 
-ButtonRendererTest::ButtonRendererTest (TString tname) : FieldRendererTest(tname)
-{
+#include "Anything.h"
+#include "Context.h"
+#include "FormRenderer.h"
+#include "Renderer.h"
+#include "StringStream.h"
+#include "TestSuite.h"
+
+ButtonRendererTest::ButtonRendererTest(TString tname) : FieldRendererTest(tname) {
 	fFieldRenderer = new (coast::storage::Global()) ButtonRenderer("ButtonRenderer");
 };
 
-ButtonRendererTest::~ButtonRendererTest()
-{
+ButtonRendererTest::~ButtonRendererTest() {
 	if (fFieldRenderer) {
 		delete fFieldRenderer;
 	}
@@ -30,13 +29,11 @@ ButtonRendererTest::~ButtonRendererTest()
 /*===============================================================*/
 /*     Init                                                      */
 /*===============================================================*/
-void ButtonRendererTest::setUp ()
-{
+void ButtonRendererTest::setUp() {
 	FieldRendererTest::setUp();
 }
 
-Test *ButtonRendererTest::suite ()
-{
+Test *ButtonRendererTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, ButtonRendererTest, TestCaseEmptyConf);
@@ -63,130 +60,141 @@ Test *ButtonRendererTest::suite ()
 /*===============================================================*/
 /*     Check where all is correctly defined                      */
 /*===============================================================*/
-void ButtonRendererTest::TestCase0()
-{
+void ButtonRendererTest::TestCase0() {
 	fCurrentTestMethod = "ButtonRendererTest-TestCase0";
 	this->TestField0();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestCase1()
-{
+void ButtonRendererTest::TestCase1() {
 	fCurrentTestMethod = "ButtonRendererTest-TestCase1";
 	this->TestField1();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" 0="the option nr. 0 of field" 1="the option nr. 1 of field" 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestCase2()
-{
+void ButtonRendererTest::TestCase2() {
 	fCurrentTestMethod = "ButtonRendererTest-TestCase2";
 	this->TestField2();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" 0="the option nr. 0 of field" the option nr. 1 of field 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestCase3()
-{
+void ButtonRendererTest::TestCase3() {
 	fCurrentTestMethod = "ButtonRendererTest-TestCase3";
 	this->TestField3();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" 0="the option nr. 0 of field" the option nr. 1 of field 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
 /*===============================================================*/
 /*     Check where not all is correctly defined                  */
 /*===============================================================*/
-void ButtonRendererTest::TestCaseEmptyConf()
-{
+void ButtonRendererTest::TestCaseEmptyConf() {
 	fCurrentTestMethod = "ButtonRendererTest-TestCaseEmptyConf";
 	this->TestEmptyConf();
-	assertCharPtrEqual( "", fReply.str() );
+	assertCharPtrEqual("", fReply.str());
 }
 
-void ButtonRendererTest::TestCaseWithoutName()
-{
+void ButtonRendererTest::TestCaseWithoutName() {
 	fCurrentTestMethod = "ButtonRendererTest-TestCaseWithoutName";
 	this->TestFieldWithoutName();
-	assertCharPtrEqual( "", fReply.str() );
+	assertCharPtrEqual("", fReply.str());
 }
 
-void ButtonRendererTest::TestCaseWithoutLabel()
-{
+void ButtonRendererTest::TestCaseWithoutLabel() {
 	fCurrentTestMethod = "ButtonRendererTest-TestCaseWithoutLabel";
 	this->TestFieldWithoutLabel();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestCaseWithoutValue()
-{
+void ButtonRendererTest::TestCaseWithoutValue() {
 	fCurrentTestMethod = "ButtonRendererTest-TestFieldWithoutValue";
 	this->TestFieldWithoutValue();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestCaseWithoutSource()
-{
+void ButtonRendererTest::TestCaseWithoutSource() {
 	fCurrentTestMethod = "ButtonRendererTest-TestFieldWithoutSource";
 	this->TestFieldWithoutSource();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestCaseWithoutMultiple()
-{
+void ButtonRendererTest::TestCaseWithoutMultiple() {
 	fCurrentTestMethod = "ButtonRendererTest-TestFieldWithoutMultiple";
 	this->TestFieldWithoutMultiple();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestCaseWithoutChecked()
-{
+void ButtonRendererTest::TestCaseWithoutChecked() {
 	fCurrentTestMethod = "ButtonRendererTest-TestFieldWithoutChecked";
 	this->TestFieldWithoutChecked();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestCaseWithoutOptions()
-{
+void ButtonRendererTest::TestCaseWithoutOptions() {
 	fCurrentTestMethod = "ButtonRendererTest-TestFieldWithoutOptions";
 	this->TestFieldWithoutOptions();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field">), fReply.str() );
+	// clang-format on
 }
 
 /*===============================================================*/
 /*     Check where there is a fault fConfig                      */
 /*===============================================================*/
-void ButtonRendererTest::TestCaseWrong()
-{
+void ButtonRendererTest::TestCaseWrong() {
 	fCurrentTestMethod = "ButtonRendererTest-TestFieldWithoutOptions";
 	this->TestFieldWithoutName();
-	assertCharPtrEqual( "", fReply.str() );
+	assertCharPtrEqual("", fReply.str());
 }
 
 /*===============================================================*/
 /*     Check the indirection                                     */
 /*===============================================================*/
-void ButtonRendererTest::TestOptionRendererOld()
-{
+void ButtonRendererTest::TestOptionRendererOld() {
 	fCurrentTestMethod = "ButtonRendererTest-TestOptionRendererOld";
 	this->TestFieldOptionRendererOld();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" 0="the option nr. 0 of field" 1="07.08.97" 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestFaultOptionRendererOld()
-{
+void ButtonRendererTest::TestFaultOptionRendererOld() {
 	fCurrentTestMethod = "ButtonRendererTest-TestFaultOptionRendererOld";
 	this->TestFieldFaultOptionRendererOld();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" 0="the option nr. 0 of field" 1="" 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestOptionRenderer()
-{
+void ButtonRendererTest::TestOptionRenderer() {
 	fCurrentTestMethod = "ButtonRendererTest-TestOptionRenderer";
 	this->TestFieldOptionRenderer();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" 0="the option nr. 0 of field" 1="07.08.97" 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
-void ButtonRendererTest::TestFaultOptionRenderer()
-{
+void ButtonRendererTest::TestFaultOptionRenderer() {
 	fCurrentTestMethod = "ButtonRendererTest-TestFaultOptionRenderer";
 	this->TestFieldFaultOptionRenderer();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="SUBMIT" NAME="b_the name of field" VALUE="the label of field" 0="the option nr. 0 of field" 1="%d.%m.%y870912000" 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }

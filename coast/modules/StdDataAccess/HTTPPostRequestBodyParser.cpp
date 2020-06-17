@@ -7,10 +7,11 @@
  */
 
 #include "HTTPPostRequestBodyParser.h"
-#include "StringStream.h"
-#include "MIMEHeader.h"
-#include "Tracer.h"
+
 #include "HTTPConstants.h"
+#include "MIMEHeader.h"
+#include "StringStream.h"
+#include "Tracer.h"
 
 namespace {
 	void Decode(String str, Anything &result) {
@@ -18,7 +19,7 @@ namespace {
 		coast::urlutils::Split(coast::urlutils::TrimENDL(str), '&', result);
 		coast::urlutils::DecodeAll(result);
 	}
-}
+}  // namespace
 
 bool HTTPPostRequestBodyParser::Parse(std::istream &input) {
 	StartTrace(HTTPPostRequestBodyParser.Parse);
@@ -35,7 +36,8 @@ bool HTTPPostRequestBodyParser::Parse(std::istream &input) {
 bool HTTPPostRequestBodyParser::DoParseBody(std::istream &input) {
 	StartTrace(HTTPPostRequestBodyParser.DoParseBody);
 	ROAnything contenttype;
-	if (fHeader.Lookup(coast::http::constants::contentTypeSlotname, contenttype) && contenttype.AsString().Contains(coast::http::constants::contentTypeAnything) != -1) {
+	if (fHeader.Lookup(coast::http::constants::contentTypeSlotname, contenttype) &&
+		contenttype.AsString().Contains(coast::http::constants::contentTypeAnything) != -1) {
 		// there must be exactly one anything in the body handle our special format more efficient than the standard cases
 		Anything a;
 		//!@FIXME: limit number of bytes to read from stream (memory denial of service)
@@ -108,7 +110,7 @@ bool HTTPPostRequestBodyParser::DoReadToBoundary(std::istream &input, const Stri
 						coast::urlutils::TrimENDL(body);
 
 						Trace("Body in Multipart: <" << body << ">");
-						return ((nextDoubleDash != -1L) && (line[(long) (nextDoubleDash + 1L)] == '-'));
+						return ((nextDoubleDash != -1L) && (line[(long)(nextDoubleDash + 1L)] == '-'));
 					}
 				}
 				if (boundPos <= nextDoubleDash - bound.Length()) {
@@ -120,7 +122,7 @@ bool HTTPPostRequestBodyParser::DoReadToBoundary(std::istream &input, const Stri
 		}
 		if (!boundaryseen) {
 			if (newLineFoundLastLine && body.Length()) {
-				body << coast::streamutils::LF; //!@FIXME could be wrong, if last line > 4k
+				body << coast::streamutils::LF;	 //!@FIXME could be wrong, if last line > 4k
 			}
 			body << line;
 		}
@@ -149,13 +151,14 @@ bool HTTPPostRequestBodyParser::DoParseMultiPart(std::istream &input, const Stri
 				if (hinner.ParseHeaders(innerpart)) {
 					Anything partInfo;
 					if (!hinner.GetHeaderInfo().IsDefined(coast::http::constants::contentTypeSlotname)) {
-						hinner.GetHeaderInfo()[coast::http::constants::contentTypeSlotname] = coast::http::constants::contentTypeMultipart;
+						hinner.GetHeaderInfo()[coast::http::constants::contentTypeSlotname] =
+							coast::http::constants::contentTypeMultipart;
 					}
 					partInfo["header"] = hinner.GetHeaderInfo();
 					TraceAny(hinner.GetHeaderInfo(), "Header: ");
 
 					HTTPPostRequestBodyParser part(hinner);
-					part.Parse(innerpart); // if we found a boundary, could we unget it?
+					part.Parse(innerpart);	// if we found a boundary, could we unget it?
 
 					partInfo["body"] = part.GetContent();
 					fContent.Append(partInfo);

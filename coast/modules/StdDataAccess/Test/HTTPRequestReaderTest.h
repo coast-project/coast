@@ -11,16 +11,12 @@
 
 #include "WDBaseTestPolicies.h"
 
-class HTTPRequestReaderTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class HTTPRequestReaderTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	HTTPRequestReaderTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	HTTPRequestReaderTest(TString tstrName) : TestCaseType(tstrName) {}
 	//! builds up a suite of testcases for this test
 	static Test *suite();
-	TString getConfigFileName() {
-		return "HTTPRequestReaderTestConfig";
-	}
+	TString getConfigFileName() { return "HTTPRequestReaderTestConfig"; }
 	//! describe this testcase
 	void ReadMinimalInputTest();
 };

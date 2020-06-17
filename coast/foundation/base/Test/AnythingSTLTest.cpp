@@ -1,6 +1,7 @@
 #include "AnythingSTLTest.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
+#include "TestSuite.h"
 
 void AnythingSTLTest::testSimpleSwap() {
 	Anything first(1L);
@@ -13,7 +14,7 @@ void AnythingSTLTest::testSwapWithDifferentAllocator() {
 	GlobalAllocator ga;
 	Anything first(1L, &ga);
 	t_assert(&ga == first.GetAllocator());
-	Anything second("two"); // normal allocator
+	Anything second("two");	 // normal allocator
 	t_assert(coast::storage::Current() == second.GetAllocator());
 	t_assert(&ga != coast::storage::Current());
 	first.swap(second);
@@ -41,12 +42,12 @@ void AnythingSTLTest::testFrontBackPushPop() {
 	a.pop_back();
 	t_assert(a.empty());
 }
-static const long rangeinput[] = { 1, 2, 3, 4, 5 };
+static const long rangeinput[] = {1, 2, 3, 4, 5};
 const int rangeSize = (sizeof(rangeinput) / sizeof(rangeinput[0]));
 
 void AnythingSTLTest::checkRange(const Anything &a, long n = 0, long lengthOfCopy = rangeSize) {
 	for (int i = 0; i < lengthOfCopy; ++i) {
-		assertEqual(rangeinput[i], a[i+n].AsLong());
+		assertEqual(rangeinput[i], a[i + n].AsLong());
 	}
 }
 
@@ -125,13 +126,13 @@ void AnythingSTLTest::checkInsertInArray(const Anything &a, long testpos, const 
 	m.Append(testpos);
 	assertEqualm(rangeSize + n, a.size(), m);
 	for (long i = 0L; i < n; ++i) {
-		assertEqualm(42L, a[testpos+i].AsLong(), m);
+		assertEqualm(42L, a[testpos + i].AsLong(), m);
 	}
 	for (long i = 0L; i < testpos; ++i) {
 		assertEqualm(rangeinput[i], a[i].AsLong(), m);
 	}
 	for (long i = testpos; i < rangeSize; ++i) {
-		assertEqualm(rangeinput[i], a[i+n].AsLong(), m);
+		assertEqualm(rangeinput[i], a[i + n].AsLong(), m);
 	}
 }
 void AnythingSTLTest::testSimpleInsertInArray() {
@@ -206,10 +207,10 @@ void AnythingSTLTest::testFillInsertZero() {
 	assertAnyEqual(Anything(), a);
 	a.insert(a.begin(), 1L);
 	assertEqual(1, a.size());
-	a.insert(a.begin(), 0, 42L); // no op!
+	a.insert(a.begin(), 0, 42L);  // no op!
 	assertEqual(1L, a.AsLong());
 	a["two"] = "zwei";
-	a.insert(a.begin() + 1, 0, 42L); // no op
+	a.insert(a.begin() + 1, 0, 42L);  // no op
 	assertEqual(2, a.size());
 	assertEqual("zwei", a[1L].AsCharPtr());
 }
@@ -229,13 +230,13 @@ void AnythingSTLTest::testIterInsertInArray() {
 		assertEqualm(rangeSize + lengthOfInsertion, a.size(), m);
 		checkRange(a, testpos, lengthOfInsertion);
 		for (long i = 0L; i < lengthOfInsertion; ++i) {
-			assertEqualm(rangeinput[i], a[testpos+i].AsLong(), m);
+			assertEqualm(rangeinput[i], a[testpos + i].AsLong(), m);
 		}
 		for (long i = 0L; i < testpos; ++i) {
 			assertEqualm(rangeinput[i], a[i].AsLong(), m);
 		}
 		for (long i = testpos; i < rangeSize; ++i) {
-			assertEqualm(rangeinput[i], a[i+lengthOfInsertion].AsLong(), m);
+			assertEqualm(rangeinput[i], a[i + lengthOfInsertion].AsLong(), m);
 		}
 	}
 }
@@ -250,14 +251,14 @@ void AnythingSTLTest::testIterInsertWithKeys() {
 }
 void AnythingSTLTest::testIterInsertZero() {
 	Anything a;
-	a.insert(a.begin(), rangeinput, rangeinput); // no op!
+	a.insert(a.begin(), rangeinput, rangeinput);  // no op!
 	assertAnyEqual(Anything(), a);
 	a.insert(a.begin(), rangeinput, rangeinput + 1);
 	assertEqual(1, a.size());
-	a.insert(a.begin(), rangeinput, rangeinput); // no op!
+	a.insert(a.begin(), rangeinput, rangeinput);  // no op!
 	assertEqual(1L, a.AsLong());
 	a["two"] = "zwei";
-	a.insert(a.begin() + 1, rangeinput, rangeinput); // no op
+	a.insert(a.begin() + 1, rangeinput, rangeinput);  // no op
 	assertEqual(2, a.size());
 	assertEqual("zwei", a[1L].AsCharPtr());
 }

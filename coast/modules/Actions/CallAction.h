@@ -16,31 +16,30 @@
 \par Configuration
 \code
 {
-	/Action		Action name or script		mandatory, Action script to execute
-	/Parameters {	Anything	optional, slots or parameters to pass to the called Action
-		/Key		Value
-		...
-	}
+  /Action		Action name or script		mandatory, Action script to execute
+  /Parameters {	Anything	optional, slots or parameters to pass to the called Action
+	/Key		Value
+	...
+  }
 }
 \endcode
 or
 \code
 {
-	<Action name>		Name of Action to be rendered
-	<arg 1>				Argument made available as $1
-	<arg 2>				Argument made available as $2
-	....
+  <Action name>		Name of Action to be rendered
+  <arg 1>				Argument made available as $1
+  <arg 2>				Argument made available as $2
+  ....
 }
 \endcode
 
 The CallAction allows to reuse Action specifications with multiple calls
 of a specification on a single page with passing "local" parameters at each call.
 */
-class CallAction: public Action {
+class CallAction : public Action {
 public:
-	CallAction(const char *name) :
-		Action(name) {
-	}
+	CallAction(const char *name) : Action(name) {}
+
 protected:
 	/*! Executes the specified Action, looked up in Context, with the given Parameters
 	 * @copydetails Action::DoExecAction(String &, Context &, const ROAnything &) */

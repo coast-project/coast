@@ -858,8 +858,10 @@ const char *gShortLiteralData[] = {
 	"",
 	"@comment regex.h",
 	"@comment POSIX.2",
-	"@deftypefun int regexec (regex_t *@var{compiled}, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} @t{[]}, int @var{eflags})",
-	"@deftypefunx int regnexec (regex_t *@var{compiled}, int len, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} @t{[]}, int @var{eflags})",
+	"@deftypefun int regexec (regex_t *@var{compiled}, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} "
+	"@t{[]}, int @var{eflags})",
+	"@deftypefunx int regnexec (regex_t *@var{compiled}, int len, char *@var{string}, size_t @var{nmatch}, regmatch_t "
+	"@var{matchptr} @t{[]}, int @var{eflags})",
 	"This function tries to match the compiled regular expression",
 	"@code{*@var{compiled}} against @var{string}.",
 	"",
@@ -2041,8 +2043,10 @@ const char *gShortLiteralData[] = {
 	"",
 	"@comment regex.h",
 	"@comment POSIX.2",
-	"@deftypefun int regexec (regex_t *@var{compiled}, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} @t{[]}, int @var{eflags})",
-	"@deftypefunx int regnexec (regex_t *@var{compiled}, int len, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} @t{[]}, int @var{eflags})",
+	"@deftypefun int regexec (regex_t *@var{compiled}, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} "
+	"@t{[]}, int @var{eflags})",
+	"@deftypefunx int regnexec (regex_t *@var{compiled}, int len, char *@var{string}, size_t @var{nmatch}, regmatch_t "
+	"@var{matchptr} @t{[]}, int @var{eflags})",
 	"This function tries to match the compiled regular expression",
 	"@code{*@var{compiled}} against @var{string}.",
 	"",
@@ -3224,8 +3228,10 @@ const char *gShortLiteralData[] = {
 	"",
 	"@comment regex.h",
 	"@comment POSIX.2",
-	"@deftypefun int regexec (regex_t *@var{compiled}, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} @t{[]}, int @var{eflags})",
-	"@deftypefunx int regnexec (regex_t *@var{compiled}, int len, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} @t{[]}, int @var{eflags})",
+	"@deftypefun int regexec (regex_t *@var{compiled}, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} "
+	"@t{[]}, int @var{eflags})",
+	"@deftypefunx int regnexec (regex_t *@var{compiled}, int len, char *@var{string}, size_t @var{nmatch}, regmatch_t "
+	"@var{matchptr} @t{[]}, int @var{eflags})",
 	"This function tries to match the compiled regular expression",
 	"@code{*@var{compiled}} against @var{string}.",
 	"",
@@ -4407,8 +4413,10 @@ const char *gShortLiteralData[] = {
 	"",
 	"@comment regex.h",
 	"@comment POSIX.2",
-	"@deftypefun int regexec (regex_t *@var{compiled}, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} @t{[]}, int @var{eflags})",
-	"@deftypefunx int regnexec (regex_t *@var{compiled}, int len, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} @t{[]}, int @var{eflags})",
+	"@deftypefun int regexec (regex_t *@var{compiled}, char *@var{string}, size_t @var{nmatch}, regmatch_t @var{matchptr} "
+	"@t{[]}, int @var{eflags})",
+	"@deftypefunx int regnexec (regex_t *@var{compiled}, int len, char *@var{string}, size_t @var{nmatch}, regmatch_t "
+	"@var{matchptr} @t{[]}, int @var{eflags})",
 	"This function tries to match the compiled regular expression",
 	"@code{*@var{compiled}} against @var{string}.",
 	"",
@@ -4748,5 +4756,4 @@ const char *gShortLiteralData[] = {
 	"",
 	"@bye",
 	"",
-	""
-};
+	""};

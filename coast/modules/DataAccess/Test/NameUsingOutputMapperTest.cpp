@@ -7,11 +7,12 @@
  */
 
 #include "NameUsingOutputMapperTest.h"
-#include "NameUsingOutputMapper.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "StringStream.h"
+
 #include "Context.h"
+#include "FoundationTestTypes.h"
+#include "NameUsingOutputMapper.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
 //:tests if the data is put into the tempstore under the name of the Mapper
 void NameUsingOutputMapperTest::NonConfiguredDestinationTest() {
@@ -22,8 +23,8 @@ void NameUsingOutputMapperTest::NonConfiguredDestinationTest() {
 	Context c;
 
 	DoPut(mapper, c);
-	c.GetTmpStore().Remove("NameUsingMapperTemp"); // remove implementation detail ??
-	c.GetTmpStore().Remove("ResultMapper"); // remove implementation detail ??
+	c.GetTmpStore().Remove("NameUsingMapperTemp");	// remove implementation detail ??
+	c.GetTmpStore().Remove("ResultMapper");			// remove implementation detail ??
 	DoCheck(c.GetTmpStore());
 }
 

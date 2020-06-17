@@ -17,21 +17,21 @@
 \par Configuration
 \code
 {
-	/String				Rendererspec	mandatory, Rendered result is the string in which to search and replace
-	/ReplaceConfig {					mandatory, Rendered result defines the index of the array entry whose slotname will be output. Will not output anything in case of an out of bound index.
-		/Search		Replace
-		...
-	}
+  /String				Rendererspec	mandatory, Rendered result is the string in which to search and replace
+  /ReplaceConfig {					mandatory, Rendered result defines the index of the array entry whose slotname will be output. Will not output anything in case of an out of bound index.
+	/Search		Replace
+	...
+  }
 }
 \endcode
 \par Example1:
 \code
 { /StringReplaceRenderer {
-	/String		"fooBar, gagaGugus"
-	/ReplaceConfig {
-		/foo	""
-		/gaga	""
-	}
+  /String		"fooBar, gagaGugus"
+  /ReplaceConfig {
+	/foo	""
+	/gaga	""
+  }
 } }
 \endcode
 
@@ -40,18 +40,17 @@ Renders : "Bar, Gugus"
 \par Example2:
 \code
 { /StringReplaceRenderer {
-	/String		"fooBar, gagaGugus"
-	/ReplaceConfig {
-		/foo	"my"
-		/gaga	"your"
-	}
+  /String		"fooBar, gagaGugus"
+  /ReplaceConfig {
+	/foo	"my"
+	/gaga	"your"
+  }
 } }
 \endcode
 
 Renders : "myBar, yourGugus"
 */
-class StringReplaceRenderer : public Renderer
-{
+class StringReplaceRenderer : public Renderer {
 public:
 	//--- constructors
 	StringReplaceRenderer(const char *name);
@@ -59,8 +58,8 @@ public:
 
 	//! Renders the search/replace string
 	/*! \param reply stream to generate output on
-		\param c Context used for output generation
-		\param config configuration which drives the output generation */
+	  \param c Context used for output generation
+	  \param config configuration which drives the output generation */
 	virtual void RenderAll(std::ostream &reply, Context &c, const ROAnything &config);
 };
 

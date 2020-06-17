@@ -9,16 +9,14 @@
 #ifndef _StringSTLTest_h_
 #define _StringSTLTest_h_
 
-#include "TestCase.h"
 #include "ITOString.h"
+#include "TestCase.h"
 
-//!some special tests for String
-class StringSTLTest: public testframework::TestCase {
-	String fStr5; // string with 5 elements set-up in setUp
+//! some special tests for String
+class StringSTLTest : public testframework::TestCase {
+	String fStr5;  // string with 5 elements set-up in setUp
 public:
-	StringSTLTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	StringSTLTest(TString tstrName) : TestCaseType(tstrName) {}
 	virtual void setUp();
 	static Test *suite();
 

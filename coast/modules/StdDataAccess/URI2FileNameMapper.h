@@ -23,15 +23,12 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class URI2FileNameMapper : public ParameterMapper
-{
+class URI2FileNameMapper : public ParameterMapper {
 public:
 	//--- constructors
-	URI2FileNameMapper(const char *name) : ParameterMapper(name) {};
+	URI2FileNameMapper(const char *name) : ParameterMapper(name){};
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) URI2FileNameMapper(fName);
-	};
+	IFAObject *Clone(Allocator *a) const { return new (a) URI2FileNameMapper(fName); };
 
 	bool DoFinalGetAny(const char *key, Anything &value, Context &ctx);
 

@@ -1,3 +1,4 @@
+// clang-format off
 {0, "((a|b{10,11})|(b))*-\\2", "aaab-a"}, { //SOP fails to match ?
 	0, "(a)*-\\1", "aaa-a"},
 {1, "(a)*-\\1b", "aaa-b"},
@@ -212,3 +213,4 @@
 {0, "M[ou]'?am+[ae]r .*([AEae]l[- ])?[GKQ]h?[aeu]+([dtz][dhz]?)+af[iy]", "Moammar Qudhafi"},
 {0, "M[ou]'?am+[ae]r .*([AEae]l[- ])?[GKQ]h?[aeu]+([dtz][dhz]?)+af[iy]", "Mu'ammar al-Qaddafi"},
 {0, "M[ou]'?am+[ae]r .*([AEae]l[- ])?[GKQ]h?[aeu]+([dtz][dhz]?)+af[iy]", "Mulazim Awwal Mu'ammar Muhammad Abu Minyar al-Qadhafi"},
+	// clang-format on

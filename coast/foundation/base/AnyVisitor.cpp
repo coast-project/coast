@@ -8,8 +8,7 @@
 
 #include "AnyVisitor.h"
 
-void	AnyVisitor::VisitArray(const ROAnything value, const AnyImpl *id, long index, const char *slotname)
-{
+void AnyVisitor::VisitArray(const ROAnything value, const AnyImpl *id, long index, const char *slotname) {
 	// template method for convenient forward iteration when visiting
 	ArrayBefore(value, id, index, slotname);
 	for (long i = 0, sz = value.GetSize(); i < sz; ++i) {

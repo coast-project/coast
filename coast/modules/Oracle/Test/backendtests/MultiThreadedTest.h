@@ -11,11 +11,9 @@
 
 #include "WDBaseTestPolicies.h"
 
-class MultiThreadedTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class MultiThreadedTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	MultiThreadedTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	MultiThreadedTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void DAImplTest();
 	void DoTest(ROAnything roaTestConfig, const char *goodDAName, const char *failDAName);

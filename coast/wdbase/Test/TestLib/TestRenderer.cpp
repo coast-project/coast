@@ -7,16 +7,16 @@
  */
 
 #include "TestRenderer.h"
+
 #include <ostream>
 
 RegisterRenderer(TestRenderer);
 
-TestRenderer::TestRenderer(const char *name) : Renderer(name) { }
+TestRenderer::TestRenderer(const char *name) : Renderer(name) {}
 
-TestRenderer::~TestRenderer() { }
+TestRenderer::~TestRenderer() {}
 
-void TestRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void TestRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(TestRenderer.RenderAll);
 	reply << "output from TestRenderer";
 }

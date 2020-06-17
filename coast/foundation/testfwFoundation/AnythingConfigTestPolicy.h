@@ -10,72 +10,58 @@
 #define _AnythingConfigTestPolicy_H
 
 #include "SystemFile.h"
-#include "Tracer.h"
 #include "TString.h"
+#include "Tracer.h"
 
 namespace coast {
 	namespace testframework {
-		template< class InputType >
+		template <class InputType>
 		void PutInStore(InputType source, Anything &dest) {
 			long sz = source.GetSize();
 			for (long i = 0; i < sz; ++i) {
 				dest[source.SlotName(i)] = source[i].DeepClone();
 			}
 		}
-	}
-}
+	}  // namespace testframework
+}  // namespace coast
 //! <B>really brief class description</B>
 /*!
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
 namespace testframework {
-	template
-	<
-	class dummy
-	>
-	class AnythingConfigTestPolicy
-	{
+	template <class dummy>
+	class AnythingConfigTestPolicy {
 	public:
 		typedef AnythingConfigTestPolicy<dummy> ConfigPolicyType;
 
-		AnythingConfigTestPolicy() {};
-		virtual ~AnythingConfigTestPolicy() {};
+		AnythingConfigTestPolicy(){};
+		virtual ~AnythingConfigTestPolicy(){};
 
-		bool loadConfig(TString strClassName, TString strTestName) {
-			return DoLoadConfig(strClassName, strTestName);
-		}
+		bool loadConfig(TString strClassName, TString strTestName) { return DoLoadConfig(strClassName, strTestName); }
 
-		void unloadConfig() {
-			DoUnloadConfig();
-		}
+		void unloadConfig() { DoUnloadConfig(); }
 
 	protected:
 		Anything fConfig;
 		ROAnything fTestCaseConfig;
 		TString fCfgFileName, fTestCaseName;
 
-		virtual TString getConfigFileName() {
-			return fCfgFileName;
-		}
+		virtual TString getConfigFileName() { return fCfgFileName; }
 
-		ROAnything GetConfig() {
-			return fConfig;
-		}
+		ROAnything GetConfig() { return fConfig; }
 
-		ROAnything GetTestCaseConfig() {
-			return fTestCaseConfig;
-		}
+		ROAnything GetTestCaseConfig() { return fTestCaseConfig; }
 
 		virtual bool DoLoadConfig(TString strClassName, TString strTestName) {
 			StartTrace(AnythingConfigTestPolicy.DoLoadConfig);
 			bool bRetCode = false;
 			fCfgFileName = strClassName;
 			fTestCaseName = strTestName;
-			if ( fCfgFileName != getConfigFileName() ) {
+			if (fCfgFileName != getConfigFileName()) {
 				fCfgFileName = getConfigFileName();
 			}
-			if ( ( bRetCode = coast::system::LoadConfigFile(fConfig, fCfgFileName, "any") ) ) {
+			if ((bRetCode = coast::system::LoadConfigFile(fConfig, fCfgFileName, "any"))) {
 				fTestCaseConfig = fConfig[strTestName];
 			}
 			TraceAny(fConfig, "whole Config of [" << fCfgFileName << "]");
@@ -89,6 +75,6 @@ namespace testframework {
 		}
 	};
 
-} // end namespace testframework
+}  // end namespace testframework
 
 #endif

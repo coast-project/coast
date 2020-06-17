@@ -11,13 +11,12 @@
 
 #include "TestCase.h"
 
-class SysLogTest: public testframework::TestCase {
+class SysLogTest : public testframework::TestCase {
 protected:
 	void setUp();
+
 public:
-	SysLogTest(TString tname) :
-			TestCaseType(tname) {
-	}
+	SysLogTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 	void tearDown();
 	void TestFlags();

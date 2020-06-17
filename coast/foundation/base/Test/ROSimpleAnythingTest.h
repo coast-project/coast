@@ -11,22 +11,21 @@
 
 #include "TestCase.h"
 
-class ROSimpleAnythingTest : public testframework::TestCase
-{
+class ROSimpleAnythingTest : public testframework::TestCase {
 public:
 	//--- constructors
 
-	//!TestCases for the Socket classes
+	//! TestCases for the Socket classes
 	//! \param name name of the test
 	ROSimpleAnythingTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~ROSimpleAnythingTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
 	// Testcases
 	void ConstructorsAndConversions();
@@ -42,4 +41,4 @@ public:
 	void AnyIFAObjConstructor();
 };
 
-#endif		//not defined _ROSimpleAnythingTest_H
+#endif	// not defined _ROSimpleAnythingTest_H

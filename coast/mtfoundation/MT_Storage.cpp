@@ -7,41 +7,42 @@
  */
 
 #include "MT_Storage.h"
+
 #include "InitFinisManager.h"
-#include "Threads.h"
 #include "PoolAllocator.h"
-#include "SystemLog.h"
 #include "SystemBase.h"
+#include "SystemLog.h"
+#include "Threads.h"
+
 #include <cstring>
 
 #if 1
 #define TrackLockerInit(lockvar) , lockvar(0)
-#define TrackLockerDef(lockvar)	volatile long lockvar
+#define TrackLockerDef(lockvar) volatile long lockvar
 
-class CurrLockerEntry
-{
+class CurrLockerEntry {
 	volatile long &frLockerId;
+
 public:
-	CurrLockerEntry(volatile long &rLockerId, const char *pFile, long lLine)
-		: frLockerId(rLockerId) {
+	CurrLockerEntry(volatile long &rLockerId, const char *pFile, long lLine) : frLockerId(rLockerId) {
 		CheckException(pFile, lLine);
 		frLockerId = Thread::MyId();
 	}
-	~CurrLockerEntry() {
-		frLockerId = 0;
-	}
+	~CurrLockerEntry() { frLockerId = 0; }
 	inline void CheckException(const char *pFile, long lLine) {
-		if ( frLockerId != 0 ) {
+		if (frLockerId != 0) {
 			long lOther = frLockerId;
 			const int bufSize = 256;
-			char buf[bufSize] = { 0 };
-			coast::system::SnPrintf(buf, bufSize, "\n%s:%ld Another Locker entered already! otherThreadId:%ld currentThreadId:%ld\n", pFile, lLine, lOther, Thread::MyId());
+			char buf[bufSize] = {0};
+			coast::system::SnPrintf(buf, bufSize,
+									"\n%s:%ld Another Locker entered already! otherThreadId:%ld currentThreadId:%ld\n", pFile,
+									lLine, lOther, Thread::MyId());
 			SystemLog::WriteToStderr(buf, -1);
 		}
 	}
 };
 
-#define TrackLocker(lockvar)	CurrLockerEntry aEntry(lockvar, __FILE__, __LINE__)
+#define TrackLocker(lockvar) CurrLockerEntry aEntry(lockvar, __FILE__, __LINE__)
 
 #else
 
@@ -51,20 +52,17 @@ public:
 
 #endif
 
-class MTPoolAllocator: public PoolAllocator
-{
+class MTPoolAllocator : public PoolAllocator {
 public:
 	//! create and initialize a pool allocator
 	/*! \param poolid use poolid to distinguish more than one pool
-		\param poolSize size of pre-allocated pool in kBytes, default 1MByte
-		\param maxKindOfBucket number of different allocation units within PoolAllocator, starts at 16 bytes and doubles the size for maxKindOfBucket times. So maxKindOfBucket=10 will give a max usable size of 8192 bytes. */
+	  \param poolSize size of pre-allocated pool in kBytes, default 1MByte
+	  \param maxKindOfBucket number of different allocation units within PoolAllocator, starts at 16 bytes and doubles the size for maxKindOfBucket times. So maxKindOfBucket=10 will give a max usable size of 8192 bytes. */
 	MTPoolAllocator(long poolid, u_long poolSize = 1024, u_long maxKindOfBucket = 10)
 		: PoolAllocator(poolid, poolSize, maxKindOfBucket) TrackLockerInit(fCurrLockerId) {}
 	//! destroy a pool only if its empty, i.e. all allocated bytes are freed
-	virtual ~MTPoolAllocator() { }
-	virtual inline void Free(void *vp, size_t sz) {
-		PoolAllocator::Free(vp, sz);
-	}
+	virtual ~MTPoolAllocator() {}
+	virtual inline void Free(void *vp, size_t sz) { PoolAllocator::Free(vp, sz); }
 	//! implement hook for freeing memory
 	virtual inline void Free(void *vp) {
 		TrackLocker(fCurrLockerId);
@@ -73,88 +71,80 @@ public:
 
 protected:
 	TrackLockerDef(fCurrLockerId);
-	//!implement hook for allocating memory using bucketing
+	//! implement hook for allocating memory using bucketing
 	virtual inline void *Alloc(size_t allocSize) {
 		TrackLocker(fCurrLockerId);
 		return PoolAllocator::Alloc(allocSize);
 	}
 };
 
-MT_MemTracker::MT_MemTracker(const char *name, long lId)
-	: MemTracker(name)
-{
+MT_MemTracker::MT_MemTracker(const char *name, long lId) : MemTracker(name) {
 	int iRet = 0;
-	if ( !CREATEMUTEX(fMutex, iRet) ) {
+	if (!CREATEMUTEX(fMutex, iRet)) {
 		SYSERROR("Mutex create failed: " << SystemLog::SysErrorMsg(iRet));
 	}
-	SetId( lId );
+	SetId(lId);
 }
 
-MT_MemTracker::~MT_MemTracker()
-{
+MT_MemTracker::~MT_MemTracker() {
 	int iRet = 0;
-	if ( !DELETEMUTEX(fMutex, iRet) ) {
+	if (!DELETEMUTEX(fMutex, iRet)) {
 		SYSERROR("Mutex delete failed: " << SystemLog::SysErrorMsg(iRet));
 	}
 }
 
-
-void MT_MemTracker::TrackAlloc(MemoryHeader *mh)
-{
+void MT_MemTracker::TrackAlloc(MemoryHeader *mh) {
 	int iRet = 0;
-	if ( !LOCKMUTEX(fMutex, iRet) ) {
+	if (!LOCKMUTEX(fMutex, iRet)) {
 		SYSERROR("Mutex lock failed: " << SystemLog::SysErrorMsg(iRet));
 	}
 	MemTracker::TrackAlloc(mh);
-	if ( !UNLOCKMUTEX(fMutex, iRet) ) {
+	if (!UNLOCKMUTEX(fMutex, iRet)) {
 		SYSERROR("Mutex unlock failed" << SystemLog::SysErrorMsg(iRet));
 	}
 }
 
-void MT_MemTracker::TrackFree(MemoryHeader *mh)
-{
+void MT_MemTracker::TrackFree(MemoryHeader *mh) {
 	int iRet = 0;
-	if ( !LOCKMUTEX(fMutex, iRet) ) {
+	if (!LOCKMUTEX(fMutex, iRet)) {
 		SYSERROR("Mutex lock failed: " << SystemLog::SysErrorMsg(iRet));
 	}
 	MemTracker::TrackFree(mh);
-	if ( !UNLOCKMUTEX(fMutex, iRet) ) {
+	if (!UNLOCKMUTEX(fMutex, iRet)) {
 		SYSERROR("Mutex unlock failed: " << SystemLog::SysErrorMsg(iRet));
 	}
 }
 
-ul_long MT_MemTracker::CurrentlyAllocated()
-{
+ul_long MT_MemTracker::CurrentlyAllocated() {
 	ul_long l;
 	int iRet = 0;
-	if ( !LOCKMUTEX(fMutex, iRet) ) {
+	if (!LOCKMUTEX(fMutex, iRet)) {
 		SYSERROR("Mutex lock failed: " << SystemLog::SysErrorMsg(iRet));
 	}
 	l = fAllocated;
-	if ( !UNLOCKMUTEX(fMutex, iRet) ) {
+	if (!UNLOCKMUTEX(fMutex, iRet)) {
 		SYSERROR("Mutex lock failed: " << SystemLog::SysErrorMsg(iRet));
 	}
-	return  l;
+	return l;
 }
 
-void MT_MemTracker::PrintStatistic(long lLevel)
-{
+void MT_MemTracker::PrintStatistic(long lLevel) {
 	int iRet = 0;
-	if ( !LOCKMUTEX(fMutex, iRet) ) {
+	if (!LOCKMUTEX(fMutex, iRet)) {
 		SYSERROR("Mutex lock failed: " << SystemLog::SysErrorMsg(iRet));
 	}
 	MemTracker::PrintStatistic(lLevel);
-	if ( !UNLOCKMUTEX(fMutex, iRet) ) {
+	if (!UNLOCKMUTEX(fMutex, iRet)) {
 		SYSERROR("Mutex lock failed: " << SystemLog::SysErrorMsg(iRet));
 	}
 }
 
-class MTStorageHooks: public StorageHooks {
+class MTStorageHooks : public StorageHooks {
 	bool fgInitialized;
+
 public:
-	MTStorageHooks() :
-			fgInitialized(false) {
-	}
+	MTStorageHooks() : fgInitialized(false) {}
+
 protected:
 	virtual void DoInitialize() {
 		if (!fgInitialized) {
@@ -167,9 +157,7 @@ protected:
 			fgInitialized = false;
 		}
 	}
-	virtual Allocator *DoGlobal() {
-		return coast::storage::DoGlobal();
-	}
+	virtual Allocator *DoGlobal() { return coast::storage::DoGlobal(); }
 	virtual Allocator *DoCurrent();
 
 	/*! allocate a memory tracker object
@@ -207,19 +195,19 @@ namespace {
 			// switch to thread safe memory tracker if enabled through COAST_TRACE_STORAGE
 			Allocator *a = coast::storage::Global();
 			if (a && coast::storage::GetStatisticLevel() >= 1) {
-				fOldTracker = a->ReplaceMemTracker(Allocator::MemTrackerPtr(coast::storage::MakeMemTracker("MTGlobalAllocator", true)));
+				fOldTracker =
+					a->ReplaceMemTracker(Allocator::MemTrackerPtr(coast::storage::MakeMemTracker("MTGlobalAllocator", true)));
 			}
 			StatTrace(MT_Storage.Initialize, "leaving", coast::storage::Global());
 		}
-		void Finalize()
-		{
+		void Finalize() {
 			StatTrace(MT_Storage.Finalize, "entering", coast::storage::Global());
 			// terminate pool allocators
 			{
 				LockUnlockEntry me(*fAllocatorInit);
 				while (fPoolAllocatorList) {
 					AllocList *elmt = fPoolAllocatorList;
-					if ( elmt->wdallocator && elmt->wdallocator->GetId() != coast::storage::DoGlobal()->GetId() ) {
+					if (elmt->wdallocator && elmt->wdallocator->GetId() != coast::storage::DoGlobal()->GetId()) {
 						SYSERROR("unfreed allocator found id: " << elmt->wdallocator->GetId());
 						delete elmt->wdallocator;
 					}
@@ -228,11 +216,14 @@ namespace {
 				}
 			}
 			Allocator *a = coast::storage::Global();
-			if ( a ) {
-				if ( fOldTracker ) {
+			if (a) {
+				if (fOldTracker) {
 					Allocator::MemTrackerPtr tmpTracker = a->ReplaceMemTracker(fOldTracker);
-					StatTrace(MT_Storage.Finalize, "setting MemTracker back from [" << ( tmpTracker ? tmpTracker->GetName() : "NULL" ) << "] to [" << fOldTracker->GetName() << "]", coast::storage::Global());
-					if ( tmpTracker && coast::storage::GetStatisticLevel() >= 1 ) {
+					StatTrace(MT_Storage.Finalize,
+							  "setting MemTracker back from [" << (tmpTracker ? tmpTracker->GetName() : "NULL") << "] to ["
+															   << fOldTracker->GetName() << "]",
+							  coast::storage::Global());
+					if (tmpTracker && coast::storage::GetStatisticLevel() >= 1) {
 						tmpTracker->PrintStatistic(2);
 						tmpTracker->DumpUsedBlocks();
 					}
@@ -240,13 +231,19 @@ namespace {
 				}
 			}
 			coast::storage::StorageHooksPtr pOldHook = coast::storage::unregisterHook();
-			if ( pOldHook != fMTHooks ) {
+			if (pOldHook != fMTHooks) {
 				SYSERROR("unregistered different hooks, oops");
 			}
 			StatTrace(MT_Storage.Finalize, "leaving", coast::storage::Global());
 		}
+
 	public:
-		MTStorageInitializer() : fAllocatorInit(new SimpleMutex("AllocatorInit", coast::storage::Global())), fAllocatorKey(0), fOldTracker(), fMTHooks(), fPoolAllocatorList(0) {
+		MTStorageInitializer()
+			: fAllocatorInit(new SimpleMutex("AllocatorInit", coast::storage::Global())),
+			  fAllocatorKey(0),
+			  fOldTracker(),
+			  fMTHooks(),
+			  fPoolAllocatorList(0) {
 			if (THRKEYCREATE(fAllocatorKey, 0)) {
 				SystemLog::Error("TlsAlloc of fAllocatorKey failed");
 			}
@@ -256,20 +253,20 @@ namespace {
 		~MTStorageInitializer() {
 			Finalize();
 			if (THRKEYDELETE(fAllocatorKey) != 0) {
-				SystemLog::Error("TlsFree of fAllocatorKey failed" );
+				SystemLog::Error("TlsFree of fAllocatorKey failed");
 			}
 			InitFinisManager::IFMTrace("MTstorage::Finalized\n");
 		}
 		void RefAllocator(Allocator *wdallocator) {
 			StartTrace1(MT_Storage.RefAllocator, "Id:" << (wdallocator ? wdallocator->GetId() : -1L));
-			if ( wdallocator ) {
+			if (wdallocator) {
 				// in mt case we need to control ref counting with mutexes
 				LockUnlockEntry me(*fAllocatorInit);
 				AllocList *elmt = fPoolAllocatorList;
 				while (elmt && (elmt->wdallocator != wdallocator)) {
 					elmt = elmt->next;
 				}
-				if ( not elmt ) {
+				if (not elmt) {
 					elmt = (AllocList *)::calloc(1, sizeof(AllocList));
 					if (!elmt) {
 						static const char crashmsg[] = "FATAL: MT_Storage::RefAllocator calloc failed. I will crash :-(\n";
@@ -287,21 +284,21 @@ namespace {
 		}
 		void UnrefAllocator(Allocator *wdallocator) {
 			const long allocId = wdallocator ? wdallocator->GetId() : -1L;
-			(void)allocId;  // to prevent unused compiler warning occurring when trace is disabled
+			(void)allocId;	// to prevent unused compiler warning occurring when trace is disabled
 			StatTrace(MT_Storage.UnrefAllocator, "Id:" << allocId << " --- entering ---", coast::storage::Global());
 			if (wdallocator) {	// just to be robust wdallocator == 0 should not happen
 				LockUnlockEntry me(*fAllocatorInit);
 				wdallocator->Unref();
 				StatTrace(MT_Storage.UnrefAllocator, "refcount is now:" << wdallocator->RefCnt(), coast::storage::Global());
-				if ( wdallocator->RefCnt() <= 0 ) {
+				if (wdallocator->RefCnt() <= 0) {
 					AllocList *elmt = fPoolAllocatorList;
 					AllocList *prev = fPoolAllocatorList;
 					while (elmt && (elmt->wdallocator != wdallocator)) {
 						prev = elmt;
 						elmt = elmt->next;
 					}
-					if ( elmt ) {
-						if ( elmt == fPoolAllocatorList ) {
+					if (elmt) {
+						if (elmt == fPoolAllocatorList) {
 							fPoolAllocatorList = elmt->next;
 						} else {
 							prev->next = elmt->next;
@@ -320,7 +317,7 @@ namespace {
 			GETTLSDATA(getAllocatorKey(), oldAllocator, Allocator);
 			if (oldAllocator == NULL) {
 				StatTrace(MT_Storage.RegisterThread, "setting Allocator:" << (long)wdallocator << " to ThreadLocalStorage",
-						coast::storage::Global());
+						  coast::storage::Global());
 				return !SETTLSDATA(getAllocatorKey(), wdallocator);
 			}
 			return false;
@@ -331,17 +328,15 @@ namespace {
 			GETTLSDATA(getAllocatorKey(), oldAllocator, Allocator);
 			if (oldAllocator) {
 				StatTrace(MT_Storage.UnregisterThread, "removing Allocator:" << (long)oldAllocator << " of ThreadLocalStorage",
-						coast::storage::Global());
+						  coast::storage::Global());
 				return !SETTLSDATA(getAllocatorKey(), 0);
 			}
 			return false;
 		}
-		THREADKEY getAllocatorKey() const {
-			return fAllocatorKey;
-		}
+		THREADKEY getAllocatorKey() const { return fAllocatorKey; }
 	};
-    typedef coast::utility::singleton_default<MTStorageInitializer> MTStorageInitializerSingleton;
-}
+	typedef coast::utility::singleton_default<MTStorageInitializer> MTStorageInitializerSingleton;
+}  // namespace
 
 Allocator *MTStorageHooks::DoCurrent() {
 	if (fgInitialized) {
@@ -370,8 +365,7 @@ THREADKEY MT_Storage::getAllocatorKey() {
 	return MTStorageInitializerSingleton::instance().getAllocatorKey();
 }
 
-Allocator *MT_Storage::MakePoolAllocator(u_long poolStorageSize, u_long numOfPoolBucketSizes, long lPoolId)
-{
+Allocator *MT_Storage::MakePoolAllocator(u_long poolStorageSize, u_long numOfPoolBucketSizes, long lPoolId) {
 	StartTrace(MT_Storage.MakePoolAllocator);
 	Allocator *newPoolAllocator = new MTPoolAllocator(lPoolId, poolStorageSize, numOfPoolBucketSizes);
 	if (!newPoolAllocator) {

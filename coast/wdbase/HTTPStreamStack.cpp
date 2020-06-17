@@ -6,16 +6,13 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "ZipStream.h"
-#include "HTTPChunkedOStream.h"
 #include "HTTPStreamStack.h"
 
-HTTPStreamStack::HTTPStreamStack(std::ostream &output, bool chunked, bool zipEnc) :
-	fOutput(output),
-	fTopOfStack(&output),
-	fChunker(0),
-	fZipper(0)
-{
+#include "HTTPChunkedOStream.h"
+#include "ZipStream.h"
+
+HTTPStreamStack::HTTPStreamStack(std::ostream &output, bool chunked, bool zipEnc)
+	: fOutput(output), fTopOfStack(&output), fChunker(0), fZipper(0) {
 	if (chunked) {
 		fOutput << "Transfer-Encoding: chunked" << ENDL;
 
@@ -34,13 +31,11 @@ HTTPStreamStack::HTTPStreamStack(std::ostream &output, bool chunked, bool zipEnc
 	fOutput << ENDL;
 };
 
-std::ostream &HTTPStreamStack::GetBodyStream()
-{
+std::ostream &HTTPStreamStack::GetBodyStream() {
 	return *fTopOfStack;
 }
 
-HTTPStreamStack::~HTTPStreamStack()
-{
+HTTPStreamStack::~HTTPStreamStack() {
 	if (fZipper) {
 		delete fZipper;
 	}

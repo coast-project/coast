@@ -7,6 +7,7 @@
  */
 
 #include "DataMapper.h"
+
 #include "Renderer.h"
 #include "StringStream.h"
 
@@ -23,7 +24,7 @@ namespace {
 			}
 		}
 	}
-}
+}  // namespace
 
 bool FixedSizeMapper::DoGetStream(const char *key, std::ostream &os, Context &ctx, ROAnything info) {
 	String value;
@@ -61,7 +62,7 @@ RegisterParameterMapper(RendererMapper);
 
 bool RendererMapper::DoGetStream(const char *key, std::ostream &os, Context &ctx, ROAnything info) {
 	StartTrace1(RendererMapper.DoGetStream, NotNull(key));
-	if ( not info.IsNull() ) {
+	if (not info.IsNull()) {
 		Renderer::Render(os, ctx, info);
 		return true;
 	}
@@ -78,11 +79,11 @@ bool RendererMapper::DoGetAny(const char *key, Anything &value, Context &ctx, RO
 		Anything collectedValue = strBuf;
 		PlaceIntoAnyOrAppendIfNotEmpty(value, collectedValue);
 	}
-	Trace("returning " << (bGetSuccess?"true":"false"));
+	Trace("returning " << (bGetSuccess ? "true" : "false"));
 	return bGetSuccess;
 }
 
-//special case, because we are non-eager in the anything case.
+// special case, because we are non-eager in the anything case.
 bool RendererMapper::Get(const char *key, Anything &value, Context &ctx) {
 	StartTrace1(RendererMapper.Get, "( \"" << NotNull(key) << "\" , Anything &value, Context &ctx)");
 	Anything anyValue;
@@ -105,13 +106,13 @@ bool LookupMapper::DoGetStream(const char *key, std::ostream &os, Context &ctx, 
 	bool isSimpleArray = false;
 
 	ROAnything lookupName;
-	if (!info.LookupPath(lookupName, gcSlotName, '\000')) { // use new slotname
+	if (!info.LookupPath(lookupName, gcSlotName, '\000')) {	 // use new slotname
 		isSimpleArray = true;
 		lookupName = info[0L];
 	}
 
 	// lookup data and use it as a renderer specification
-	if (!lookupName.IsNull()) { // check if lookupName is defined somehow
+	if (!lookupName.IsNull()) {	 // check if lookupName is defined somehow
 		if (isSimpleArray) {
 			ParameterMapper *m = ParameterMapper::FindParameterMapper(lookupName.AsCharPtr(""));
 			if (m) {
@@ -124,7 +125,7 @@ bool LookupMapper::DoGetStream(const char *key, std::ostream &os, Context &ctx, 
 		String error("LookupMapper::Get: invalid lookup name: ");
 		{
 			OStringStream ostr(&error);
-			lookupName.PrintOn(ostr, false); // append Anything to ease debugging
+			lookupName.PrintOn(ostr, false);  // append Anything to ease debugging
 		}
 		SystemLog::Error(error);
 		return false;

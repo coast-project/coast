@@ -7,51 +7,46 @@
  */
 
 #include "WorkerPoolManagerModuleTest.h"
+
+#include "AnyIterators.h"
+#include "TestSuite.h"
 #include "WorkerPoolManagerModule.h"
 #include "WorkerPoolManagerModulePoolManager.h"
-#include "TestSuite.h"
-#include "AnyIterators.h"
 
 //---- WorkerPoolManagerModuleTest ----------------------------------------------------------------
-WorkerPoolManagerModuleTest::WorkerPoolManagerModuleTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+WorkerPoolManagerModuleTest::WorkerPoolManagerModuleTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(WorkerPoolManagerModuleTest.WorkerPoolManagerModuleTest);
 }
 
-WorkerPoolManagerModuleTest::~WorkerPoolManagerModuleTest()
-{
+WorkerPoolManagerModuleTest::~WorkerPoolManagerModuleTest() {
 	StartTrace(WorkerPoolManagerModuleTest.Dtor);
 }
 
-void WorkerPoolManagerModuleTest::TestWorkerOne()
-{
+void WorkerPoolManagerModuleTest::TestWorkerOne() {
 	StartTrace(WorkerPoolManagerModuleTest.TestWorkerOne);
 
 	WorkerPoolManagerModule *pModule = (WorkerPoolManagerModule *)WDModule::FindWDModule("WorkerPoolManagerModule");
 	t_assertm(pModule != NULL, "Module should be found");
 	ROAnything cConfig;
 	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetTestCaseConfig()["Tests"]);
-	while ( aEntryIterator.Next(cConfig) ) {
+	while (aEntryIterator.Next(cConfig)) {
 		Check(cConfig, pModule);
 	}
 }
 
-void WorkerPoolManagerModuleTest::TestWorkerTwo()
-{
+void WorkerPoolManagerModuleTest::TestWorkerTwo() {
 	StartTrace(WorkerPoolManagerModuleTest.TestWorkerTwo);
 
 	WorkerPoolManagerModule *pModule = (WorkerPoolManagerModule *)WDModule::FindWDModule("WorkerPoolManagerModule");
 	t_assertm(pModule != NULL, "Module should be found");
 	ROAnything cConfig;
 	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetTestCaseConfig()["Tests"]);
-	while ( aEntryIterator.Next(cConfig) ) {
+	while (aEntryIterator.Next(cConfig)) {
 		Check(cConfig, pModule);
 	}
 }
 
-void WorkerPoolManagerModuleTest::Check(ROAnything cConfig, WorkerPoolManagerModule *pModule)
-{
+void WorkerPoolManagerModuleTest::Check(ROAnything cConfig, WorkerPoolManagerModule *pModule) {
 	StartTrace(WorkerPoolManagerModuleTest.Check);
 	WorkerPoolManagerModulePoolManager *pPool = pModule->GetPoolManager(cConfig["Pool"].AsString());
 	t_assertm(pPool != NULL, "Pool should be found");
@@ -62,9 +57,7 @@ void WorkerPoolManagerModuleTest::Check(ROAnything cConfig, WorkerPoolManagerMod
 			workerConfig["messages"] = (IFAObject *)&aMsgAny;
 			workerConfig["results"] = (IFAObject *)&results;
 			// this call blocks until the worker has finished working
-			{
-				pPool->Enter(workerConfig);
-			}
+			{ pPool->Enter(workerConfig); }
 
 			// check the result
 			assertEqual(results["Got"].AsString(), cConfig["Message"].AsString());
@@ -76,8 +69,7 @@ void WorkerPoolManagerModuleTest::Check(ROAnything cConfig, WorkerPoolManagerMod
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *WorkerPoolManagerModuleTest::suite ()
-{
+Test *WorkerPoolManagerModuleTest::suite() {
 	StartTrace(WorkerPoolManagerModuleTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, WorkerPoolManagerModuleTest, TestWorkerOne);

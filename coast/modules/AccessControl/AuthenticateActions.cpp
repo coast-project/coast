@@ -7,23 +7,20 @@
  */
 
 #include "AuthenticateActions.h"
+
 #include "AccessManager.h"
-#include "Renderer.h"
 #include "Context.h"
+#include "Renderer.h"
 #include "Tracer.h"
 
 //---- AuthenticateWeakAction -----------------------------------------------
 RegisterAction(AuthenticateWeakAction);
 
-bool AuthenticateWeakAction::GetAccessManager(ROAnything config, Context &ctx, AccessManager *& am)
-{
+bool AuthenticateWeakAction::GetAccessManager(ROAnything config, Context &ctx, AccessManager *&am) {
 	StartTrace(AuthenticateWeakAction.GetAccessManager);
 
 	String amName = Renderer::RenderToString(ctx, config["AccessManager"]);
-	am = ( amName.IsEqual("") ?
-		   AccessManagerModule::GetAccessManager() :
-		   AccessManagerModule::GetAccessManager(amName)
-		 );
+	am = (amName.IsEqual("") ? AccessManagerModule::GetAccessManager() : AccessManagerModule::GetAccessManager(amName));
 
 	if (!am) {
 		Trace("Failure, couldn't find " << (amName.IsEqual("") ? String("default") : amName) << " AccessManager.");
@@ -32,42 +29,33 @@ bool AuthenticateWeakAction::GetAccessManager(ROAnything config, Context &ctx, A
 	return true;
 }
 
-bool AuthenticateWeakAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool AuthenticateWeakAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(AuthenticateWeakAction.DoExecAction);
 
 	AccessManager *am;
-	if ( !GetAccessManager(config, ctx, am) ) {
+	if (!GetAccessManager(config, ctx, am)) {
 		return false;
 	}
-	return am->AuthenticateWeak(
-			   Renderer::RenderToString(ctx, config["UserId"]),
-			   Renderer::RenderToString(ctx, config["Password"]),
-			   transitionToken
-		   );
+	return am->AuthenticateWeak(Renderer::RenderToString(ctx, config["UserId"]),
+								Renderer::RenderToString(ctx, config["Password"]), transitionToken);
 }
 
 //---- AuthenticateStrongAction ---------------------------------------------
 RegisterAction(AuthenticateStrongAction);
 
-bool AuthenticateStrongAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool AuthenticateStrongAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	// this is the new method that also gets a config ( similar to Renderer::RenderAll )
 	// write the action code here - you don't have to override DoAction anymore
 	StartTrace(AuthenticateStrongAction.DoExecAction);
 
 	AccessManager *am;
-	if ( !GetAccessManager(config, ctx, am) ) {
+	if (!GetAccessManager(config, ctx, am)) {
 		return false;
 	}
 
 	Anything window = Renderer::RenderToStringWithDefault(ctx, config["Window"], "1");
 
-	return am->AuthenticateStrong(
-			   Renderer::RenderToString(ctx, config["UserId"]),
-			   Renderer::RenderToString(ctx, config["Password"]),
-			   Renderer::RenderToString(ctx, config["Code"]),
-			   window.AsLong(),
-			   transitionToken
-		   );
+	return am->AuthenticateStrong(Renderer::RenderToString(ctx, config["UserId"]),
+								  Renderer::RenderToString(ctx, config["Password"]),
+								  Renderer::RenderToString(ctx, config["Code"]), window.AsLong(), transitionToken);
 }

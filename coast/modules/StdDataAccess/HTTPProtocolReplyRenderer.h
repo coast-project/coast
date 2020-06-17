@@ -19,18 +19,17 @@
 //!   /ResponseCode 200     defaults to 200
 //!   /ResponseMsg "OK"     might use a lookup from some config to map ResponseMsg to a reason
 //! }
-class HTTPProtocolReplyRenderer: public Renderer {
+class HTTPProtocolReplyRenderer : public Renderer {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	HTTPProtocolReplyRenderer(const char *name) :
-		Renderer(name) {
-	}
+	HTTPProtocolReplyRenderer(const char *name) : Renderer(name) {}
 
 	//! Returns the default reason phrase for a given http status code
 	//! If the status code is unknown, the string "Unknown Error" is returned.
 	//! \param status http status code
 	//! \return default reason phrase for a given http status code
 	static const char *DefaultReasonPhrase(long const status);
+
 protected:
 	/*! @copydoc Renderer::RenderAll(std::ostream &, Context &, const ROAnything &) */
 	virtual void RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config);

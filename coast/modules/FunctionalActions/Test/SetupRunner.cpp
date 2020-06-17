@@ -6,8 +6,8 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
 #include "ConfiguredActionTest.h"
+#include "TestRunner.h"
 
 void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, ConfiguredActionTest);

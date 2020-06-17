@@ -11,41 +11,39 @@
 
 #include "ServiceHandler.h"
 
-//!single line description of the class
+//! single line description of the class
 //! further explanation of the purpose of the class
 //! this may contain <B>HTML-Tags</B>
 //! ...
-class WebAppService: public ServiceHandler {
+class WebAppService : public ServiceHandler {
 	friend class WebAppServiceTest;
+
 public:
-	//!standard named object constructor
-	WebAppService(const char *name) :
-		ServiceHandler(name) {
-	}
+	//! standard named object constructor
+	WebAppService(const char *name) : ServiceHandler(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) WebAppService(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) WebAppService(fName); }
+
 protected:
-	//!handles requested service
+	//! handles requested service
 	virtual bool DoHandleService(std::ostream &os, Context &ctx);
 
-	//!prepares the request before decoding into query and verifying
+	//! prepares the request before decoding into query and verifying
 	virtual void PrepareRequest(Context &ctx);
 
-	//!verifies the request with regard to some basic attributes
+	//! verifies the request with regard to some basic attributes
 	virtual bool VerifyRequest(std::ostream &reply, Context &ctx);
 
-	//!build a query from a path expression and a query string
+	//! build a query from a path expression and a query string
 	virtual Anything BuildQuery(const String &pathString, const String &queryString);
 
-	//!decode a query built by ourselve (normally frontdoor does not decode queries)
+	//! decode a query built by ourselve (normally frontdoor does not decode queries)
 	virtual void DecodeWDQuery(Anything &query, const Anything &request);
 
 	//! split query into path and query arguments
 	virtual void SplitURI2PathAndQuery(Anything &request);
 
-	//!add some items to a query
+	//! add some items to a query
 	void Add2Query(Anything &query, const Anything &queryItems, bool overWrite = false);
 
 	void ExtractPostBodyFields(Anything &query, const Anything &requestBody);

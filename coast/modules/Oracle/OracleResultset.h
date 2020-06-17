@@ -9,8 +9,8 @@
 #ifndef ORACLERESULTSET_H_
 #define ORACLERESULTSET_H_
 
-#include "OracleStatement.h"
 #include "Anything.h"
+#include "OracleStatement.h"
 
 //! Abstraction for a set of results
 /*!
@@ -20,8 +20,7 @@
  * are needed to store the columns of a row. It is possible that some common parts of result row processing will
  * move into this class.
  */
-class OracleResultset : public coast::AllocatorNewDelete
-{
+class OracleResultset : public coast::AllocatorNewDelete {
 public:
 	/*! Status is used for internal state transition */
 	enum Status {
@@ -36,6 +35,7 @@ public:
 		//! same as DATA_AVAILABLE but for data streams (not implemented)
 		STREAM_DATA_AVAILABLE
 	};
+
 private:
 	OracleStatement &frStmt;
 	Status fFetchStatus;
@@ -43,14 +43,13 @@ private:
 	bool DefineOutputArea();
 
 	OracleResultset();
-	OracleResultset( const OracleResultset & );
+	OracleResultset(const OracleResultset &);
+
 public:
 	/*! Initializes this OracleResultset object using the given OracleStatement
 	 * @param rStmt OracleStatement to use for result processing
 	 */
-	OracleResultset( OracleStatement &rStmt ) :
-		frStmt( rStmt ), fFetchStatus( NOT_READY ) {
-	}
+	OracleResultset(OracleStatement &rStmt) : frStmt(rStmt), fFetchStatus(NOT_READY) {}
 	/*! Retrieve column layout of the current result set
 	 * @return Read only copy of the column descriptions
 	 */
@@ -58,9 +57,7 @@ public:
 	/*! Gain access to the underlying OracleStatement
 	 * @return Pointer to the underlying OracleStatement
 	 */
-	OracleStatement *getStatement() const {
-		return &frStmt;
-	}
+	OracleStatement *getStatement() const { return &frStmt; }
 	/*! Move forward - fetch the next row if available
 	 * @return OracleResultset::Status signaling what to do next
 	 */
@@ -70,7 +67,7 @@ public:
 	 * @return Anything representing the columns result, AnyNullType signals a NULL SQL value
 	 * @note lColumnIndex is 1-based, it is not like any normal C++ array index...!
 	 */
-	Anything getValue( long lColumnIndex );
+	Anything getValue(long lColumnIndex);
 };
 
 #endif /* ORACLERESULTSET_H_ */

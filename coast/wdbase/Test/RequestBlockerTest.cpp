@@ -7,20 +7,18 @@
  */
 
 #include "RequestBlockerTest.h"
-#include "Tracer.h"
-#include "TestSuite.h"
+
 #include "RequestBlocker.h"
 #include "SystemBase.h"
+#include "TestSuite.h"
+#include "Tracer.h"
 
-class RBRunner: public Thread
-{
+class RBRunner : public Thread {
 public:
 	RBRunner(RequestBlockerTest *env, long iterations, long checkEvery, bool compare, String name);
-	virtual ~RBRunner() {};
+	virtual ~RBRunner(){};
 	virtual void Run();
-	virtual void StartRunning() {
-		SetWorking();
-	}
+	virtual void StartRunning() { SetWorking(); }
 
 private:
 	const long cRunSz;
@@ -29,53 +27,44 @@ private:
 	const long cCheckEvery;
 };
 
-RBRunner::RBRunner(RequestBlockerTest *env, long iterations, long checkEvery, bool compare , String name)
-	: Thread(name)
-	, cRunSz(iterations)
-	, fTest(env)
-	, fCompare(compare)
-	, cCheckEvery(checkEvery)
-{
+RBRunner::RBRunner(RequestBlockerTest *env, long iterations, long checkEvery, bool compare, String name)
+	: Thread(name), cRunSz(iterations), fTest(env), fCompare(compare), cCheckEvery(checkEvery) {
 	StartTrace(RBRunner.RBRunner);
 }
 
-void RBRunner::Run()
-{
+void RBRunner::Run() {
 	StartTrace(RBRunner.Run);
 	Trace(GetName() << " Id is: " << (long)GetId());
 	bool checkIt;
 	CheckRunningState(eWorking);
-	for (long i = 1; i <= cRunSz; i++) { // avoid 0
+	for (long i = 1; i <= cRunSz; i++) {  // avoid 0
 		checkIt = (!(i % cCheckEvery));
 		fTest->QueryRB(fCompare, checkIt, GetName());
 	}
 }
 
-RequestBlockerTest::RequestBlockerTest(TString tstrName) : TestCaseType(tstrName)
-{
+RequestBlockerTest::RequestBlockerTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(RequestBlockerTest.Ctor);
 }
 
-RequestBlockerTest::~RequestBlockerTest()
-{
+RequestBlockerTest::~RequestBlockerTest() {
 	StartTrace(RequestBlockerTest.Dtor);
 }
 
-void RequestBlockerTest::QueryRB(bool compare, bool checkIt, TString tname)
-{
+void RequestBlockerTest::QueryRB(bool compare, bool checkIt, TString tname) {
 	StartTrace(RequestBlockerTest.QueryRB);
 	// Exercise RB under any conditions but only verify result
 	// if wanted
 	if (checkIt) {
-		t_assertm(RequestBlocker::RB()->IsBlocked() == compare, tname << (compare ? " RB should have been blocked" : " RB should have NOT been blocked" ));
+		t_assertm(RequestBlocker::RB()->IsBlocked() == compare,
+				  tname << (compare ? " RB should have been blocked" : " RB should have NOT been blocked"));
 	} else {
 		RequestBlocker::RB()->IsBlocked();
 	}
-	coast::system::MicroSleep(1); // slow down runner should ensure no false positives for 5,6
+	coast::system::MicroSleep(1);  // slow down runner should ensure no false positives for 5,6
 }
 
-void RequestBlockerTest::RBTest()
-{
+void RequestBlockerTest::RBTest() {
 	StartTrace(RequestBlockerTest.RBTest);
 	bool isblocked = RequestBlocker::RB()->IsBlocked();
 	// Set initial state of RB, must be false
@@ -135,13 +124,11 @@ void RequestBlockerTest::RBTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *RequestBlockerTest::suite ()
-{
+Test *RequestBlockerTest::suite() {
 	StartTrace(RequestBlockerTest.suite);
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, RequestBlockerTest, RBTest);
 
 	return testSuite;
-
 }

@@ -6,6 +6,7 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "CompareValuesMapper.h"
+
 #include "Renderer.h"
 RegisterResultMapper(CompareValuesMapper);
 
@@ -29,11 +30,11 @@ bool CompareValuesMapper::DoPutAny(const char *key, Anything &value, Context &ct
 			bPutResult = (strLeftValue.AsLong(0L) == strRightValue.AsLong(0L));
 		} else if (strOperator.IsEqual("!=")) {
 			bPutResult = (strLeftValue.AsLong(0L) != strRightValue.AsLong(0L));
-		} else if (strOperator.IsEqual(">=")) { // must be before < because of possible partial match
+		} else if (strOperator.IsEqual(">=")) {	 // must be before < because of possible partial match
 			bPutResult = (strLeftValue.AsLong(0L) >= strRightValue.AsLong(0L));
 		} else if (strOperator.IsEqual(">")) {
 			bPutResult = (strLeftValue.AsLong(0L) > strRightValue.AsLong(0L));
-		} else if (strOperator.IsEqual("<=")) { // must be before < because of possible partial match
+		} else if (strOperator.IsEqual("<=")) {	 // must be before < because of possible partial match
 			bPutResult = (strLeftValue.AsLong(0L) <= strRightValue.AsLong(0L));
 		} else if (strOperator.IsEqual("<")) {
 			bPutResult = (strLeftValue.AsLong(0L) < strRightValue.AsLong(0L));

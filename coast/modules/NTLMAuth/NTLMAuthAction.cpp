@@ -6,20 +6,21 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "NTLMAuthAction.h"
-#include "Renderer.h"
+
 #include "AnythingUtils.h"
 #include "NTLMCoder.h"
+#include "Renderer.h"
 
 RegisterAction(NTLMAuthAction);
 
 namespace {
-	char const* _MessageKeyName = "Message";
-	char const* _HostKeyName = "Host";
-	char const* _DomainKeyName = "Domain";
-	char const* _DestinationKeyName = "Destination";
-	char const* _UserKeyName = "User";
-	char const* _PasswordKeyName = "Password";
-}
+	char const *_MessageKeyName = "Message";
+	char const *_HostKeyName = "Host";
+	char const *_DomainKeyName = "Domain";
+	char const *_DestinationKeyName = "Destination";
+	char const *_UserKeyName = "User";
+	char const *_PasswordKeyName = "Password";
+}  // namespace
 
 bool NTLMAuthAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(NTLMAuthAction.DoExecAction);
@@ -37,8 +38,8 @@ bool NTLMAuthAction::DoExecAction(String &transitionToken, Context &ctx, const R
 
 	Anything value;
 	ROAnything userConfig, passwordConfig;
-	if (config.LookupPath(messageConfig, _MessageKeyName, '\000') && config.LookupPath(userConfig, _UserKeyName, '\000')
-			&& config.LookupPath(passwordConfig, _PasswordKeyName, '\000')) {
+	if (config.LookupPath(messageConfig, _MessageKeyName, '\000') && config.LookupPath(userConfig, _UserKeyName, '\000') &&
+		config.LookupPath(passwordConfig, _PasswordKeyName, '\000')) {
 		String user = Renderer::RenderToString(ctx, userConfig);
 		String password = Renderer::RenderToString(ctx, passwordConfig);
 		String type2message = Renderer::RenderToString(ctx, messageConfig);

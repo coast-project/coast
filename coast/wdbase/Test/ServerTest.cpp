@@ -7,10 +7,11 @@
  */
 
 #include "ServerTest.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
 #include "Server.h"
 #include "Socket.h"
+#include "TestSuite.h"
 #define TESTHOST "localhost"
 
 void ServerTest::setUp() {
@@ -31,7 +32,7 @@ void ServerTest::InitRunTerminateAcceptorTest() {
 		TestCaseType::DoLoadConfig("ServerTest", "InitRunTerminateAcceptorTest");
 		Server *server = Server::FindServer("AcceptorWorkerServer");
 		if (t_assertm(server != NULL, "expected AcceptorsWorkersServer to be there")) {
-			server = (Server *) server->ConfiguredClone("Server", "AcceptorWorkerServerMaster", true);
+			server = (Server *)server->ConfiguredClone("Server", "AcceptorWorkerServerMaster", true);
 			if (t_assertm(server != NULL, "expected server-clone to succeed")) {
 				ServerThread mt(server);
 				if (t_assert(mt.Start()) && t_assert(mt.CheckState(Thread::eRunning, 5))) {
@@ -64,7 +65,7 @@ void ServerTest::InitRunTerminateLeaderFollowerTest() {
 		TestCaseType::DoLoadConfig("ServerTest", "InitRunTerminateLeaderFollowerTest");
 		Server *server = Server::FindServer("LeaderFollowerServer");
 		if (t_assertm(server != NULL, "expected LeaderFollowerServer to be there")) {
-			server = (Server *) server->ConfiguredClone("Server", "LeaderFollowerServerMaster", true);
+			server = (Server *)server->ConfiguredClone("Server", "LeaderFollowerServerMaster", true);
 			if (t_assertm(server != NULL, "expected server-clone to succeed")) {
 				ServerThread mt(server);
 				if (t_assert(mt.Start()) && t_assert(mt.CheckState(Thread::eRunning, 5))) {
@@ -97,7 +98,7 @@ void ServerTest::InitRunResetRunTerminateAcceptorTest() {
 		TestCaseType::DoLoadConfig("ServerTest", "InitRunResetRunTerminateAcceptorTest");
 		Server *server = Server::FindServer("AcceptorWorkerServer");
 		if (t_assertm(server != NULL, "expected AcceptorsWorkersServer to be there")) {
-			server = (Server *) server->ConfiguredClone("Server", "AcceptorWorkerServerMaster", true);
+			server = (Server *)server->ConfiguredClone("Server", "AcceptorWorkerServerMaster", true);
 			if (t_assertm(server != NULL, "expected server-clone to succeed")) {
 				ServerThread mt(server);
 				if (t_assert(mt.Start()) && t_assert(mt.CheckState(Thread::eRunning, 5))) {
@@ -133,7 +134,7 @@ void ServerTest::InitRunResetRunTerminateLeaderFollowerTest() {
 		TestCaseType::DoLoadConfig("ServerTest", "InitRunResetRunTerminateLeaderFollowerTest");
 		Server *server = Server::FindServer("LeaderFollowerServer");
 		if (t_assertm(server != NULL, "expected LeaderFollowerServer to be there")) {
-			server = (Server *) server->ConfiguredClone("Server", "LeaderFollowerServerMaster", true);
+			server = (Server *)server->ConfiguredClone("Server", "LeaderFollowerServerMaster", true);
 			if (t_assertm(server != NULL, "expected server-clone to succeed")) {
 				ServerThread mt(server);
 				if (t_assert(mt.Start()) && t_assert(mt.CheckState(Thread::eRunning, 5))) {
@@ -184,7 +185,7 @@ void ServerTest::RunTestSequence() {
 		t_assert(!!(*c1.GetStream()));
 		t_assert(!!(*c2.GetStream()));
 
-		assertAnyEqual(testMessage1, replyMessage1[0L]); // implies LoopbackProcessor
+		assertAnyEqual(testMessage1, replyMessage1[0L]);  // implies LoopbackProcessor
 		assertAnyEqual(testMessage2, replyMessage2[0L]);
 	}
 }

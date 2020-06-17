@@ -19,14 +19,13 @@
 //!		/SearchBase		{ Rendererspec }			# optional, default is query["FieldName"] but can be like "AnySlot.InAStore"
 //! }
 //! </PRE>
-class NotEmptyCheckAction : public Action
-{
+class NotEmptyCheckAction : public Action {
 public:
 	//--- constructors
 	NotEmptyCheckAction(const char *name);
 	~NotEmptyCheckAction();
 
-	//!Checks if a field in the Query contains something else than blanks
+	//! Checks if a field in the Query contains something else than blanks
 	//! \param transitionToken (in/out) the event passed by the caller, can be modified.
 	//! \param ctx the context the action runs within.
 	//! \param config the configuration of the action.
@@ -34,7 +33,7 @@ public:
 	virtual bool DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
 
 protected:
-	//!Checks if the String fieldToCheck contains something else than blanks
+	//! Checks if the String fieldToCheck contains something else than blanks
 	//! \param fieldToCheck the String to be checked
 	//! \param ctx the context the action runs within.
 	//! \param config the configuration of the action.

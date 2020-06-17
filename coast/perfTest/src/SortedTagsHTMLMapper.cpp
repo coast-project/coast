@@ -7,9 +7,10 @@
  */
 
 #include "SortedTagsHTMLMapper.h"
+
+#include "Context.h"
 #include "HTMLParser.h"
 #include "StringStream.h"
-#include "Context.h"
 
 RegisterResultMapper(SortedTagsHTMLMapper);
 

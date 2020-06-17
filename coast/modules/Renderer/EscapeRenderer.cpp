@@ -7,23 +7,24 @@
  */
 
 #include "EscapeRenderer.h"
+
 #include "Tracer.h"
+
 #include <ostream>
 
 //---- EscapeRenderer ---------------------------------------------------------------
 RegisterRenderer(EscapeRenderer);
 
-EscapeRenderer::EscapeRenderer(const char *name) : Renderer(name) { }
+EscapeRenderer::EscapeRenderer(const char *name) : Renderer(name) {}
 
-EscapeRenderer::~EscapeRenderer() { }
+EscapeRenderer::~EscapeRenderer() {}
 
-void EscapeRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void EscapeRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(EscapeRenderer.RenderAll);
 
 	String toEscape = config["ToEscape"].AsString();
 	String escapeChar = config["EscapeChar"].AsString();
-	if ( toEscape != "" ) {
+	if (toEscape != "") {
 		char eChar = '\\';
 		if (escapeChar != "") {
 			eChar = escapeChar[0L];

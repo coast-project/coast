@@ -14,17 +14,12 @@
 class Context;
 
 //! Policy object to read HTTP Requests unscramble URL Variables
-class HTTPProcessorWithChecks : public HTTPProcessor
-{
+class HTTPProcessorWithChecks : public HTTPProcessor {
 public:
-	HTTPProcessorWithChecks(const char *processorName) :
-		HTTPProcessor(processorName) {
-	}
+	HTTPProcessorWithChecks(const char *processorName) : HTTPProcessor(processorName) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) HTTPProcessorWithChecks(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) HTTPProcessorWithChecks(fName); }
 
 protected:
 	virtual bool DoPrepareContextRequest(std::iostream &Ios, Context &ctx, Anything &request, HTTPRequestReader &reader);

@@ -9,8 +9,8 @@
 #ifndef _ErrorHandlerTest_H
 #define _ErrorHandlerTest_H
 
-#include "WDBaseTestPolicies.h"
 #include "Mapper.h"
+#include "WDBaseTestPolicies.h"
 
 //---- ErrorHandlerTest ----------------------------------------------------------
 //! <B>really brief class description</B>
@@ -18,8 +18,7 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class ErrorHandlerTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class ErrorHandlerTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
@@ -32,13 +31,13 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//! sets the environment for this test
-	void setUp ();
+	void setUp();
 
 	//! deletes the environment for this test
-	void tearDown ();
+	void tearDown();
 
 	void HandleErrorTest();
 	void HandleConnectionErrorTest();

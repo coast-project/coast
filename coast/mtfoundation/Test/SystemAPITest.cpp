@@ -6,12 +6,13 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestSuite.h"
 #include "SystemAPI.h"
-#include "SystemAPITest.h"
-#include "SystemLog.h"
-#include "SystemBase.h"
+
 #include "Anything.h"
+#include "SystemAPITest.h"
+#include "SystemBase.h"
+#include "SystemLog.h"
+#include "TestSuite.h"
 #include "Tracer.h"
 #if !defined(WIN32)
 #include <errno.h>
@@ -19,8 +20,7 @@
 #endif
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *SystemAPITest::suite ()
-{
+Test *SystemAPITest::suite() {
 	StartTrace(SystemAPITest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, SystemAPITest, MUTEXTest);
@@ -33,26 +33,19 @@ Test *SystemAPITest::suite ()
 	return testSuite;
 }
 
-class SimpleTestThread
-{
+class SimpleTestThread {
 public:
 	SimpleTestThread(bool bDaemon = false, bool detached = true, bool suspended = false, bool bound = false);
-    bool Start(THREADWRAPPERFUNCPROTO(wrapper), void *ThreadParam);
+	bool Start(THREADWRAPPERFUNCPROTO(wrapper), void *ThreadParam);
 
 	THREAD fThreadId;
 	bool fDaemon, fDetached, fSuspended, fBound;
 };
 
 SimpleTestThread::SimpleTestThread(bool bDaemon, bool detached, bool suspended, bool bound)
-	: fDaemon(bDaemon)
-	, fDetached(detached)
-	, fSuspended(suspended)
-	, fBound(bound)
-{
-}
+	: fDaemon(bDaemon), fDetached(detached), fSuspended(suspended), fBound(bound) {}
 
-bool SimpleTestThread::Start(THREADWRAPPERFUNCPROTO(wrapper), void *ThreadParam)
-{
+bool SimpleTestThread::Start(THREADWRAPPERFUNCPROTO(wrapper), void *ThreadParam) {
 	StartTrace(SimpleTestThread.Start);
 	bool b[4];
 	b[0] = fBound;
@@ -65,48 +58,43 @@ bool SimpleTestThread::Start(THREADWRAPPERFUNCPROTO(wrapper), void *ThreadParam)
 
 struct mutexthreadparam {
 	mutexthreadparam(MUTEX &i_mtx, Anything &i_result) : mtx(i_mtx), result(i_result) {}
-	MUTEX	&mtx;
+	MUTEX &mtx;
 	Anything &result;
 };
 
-static bool AssertMessageIntoAny(Anything &resultany, bool condition, const char *conditionasstring, const char *message, long line, const char *file)
-{
+static bool AssertMessageIntoAny(Anything &resultany, bool condition, const char *conditionasstring, const char *message,
+								 long line, const char *file) {
 	Anything any;
-	\
+
 	any["val"] = (bool)condition;
 	any["cond"] = conditionasstring;
 	any["line"] = line;
 	any["file"] = file;
 	any["msg"] = message;
-	\
+
 	resultany.Append(any);
-	\
+
 	return condition;
 }
 
-#define t_assertm_intoany(condition, message, resultany) AssertMessageIntoAny(resultany,condition,#condition,message,__LINE__,__FILE__)
+#define t_assertm_intoany(condition, message, resultany) \
+	AssertMessageIntoAny(resultany, condition, #condition, message, __LINE__, __FILE__)
 
-void TestSleep( int sleepTimeInMiliseconds )
-{
+void TestSleep(int sleepTimeInMiliseconds) {
 	coast::system::MicroSleep(1000L * sleepTimeInMiliseconds);
 }
 
-void SystemAPITest::PrintResult(Anything result )
-{
+void SystemAPITest::PrintResult(Anything result) {
 	// the following sleep is to decouple late writings from the threadfunc into the result-anything
 	TestSleep(10);
 	// put the messages collected within thread
 	for (int i = 0; i < result.GetSize(); i++) {
-		assertImplementation(	result[i]["val"].AsBool(false),
-								TString(result[i]["cond"].AsCharPtr()),
-								result[i]["line"].AsLong(),
-								TString(result[i]["file"].AsCharPtr()),
-								TString(result[i]["msg"].AsCharPtr()));
+		assertImplementation(result[i]["val"].AsBool(false), TString(result[i]["cond"].AsCharPtr()), result[i]["line"].AsLong(),
+							 TString(result[i]["file"].AsCharPtr()), TString(result[i]["msg"].AsCharPtr()));
 	}
 }
 
-THREADWRAPPERFUNCDECL(MUTEXTestThread, thrdparam)
-{
+THREADWRAPPERFUNCDECL(MUTEXTestThread, thrdparam) {
 	StartTrace(SimpleTestThread.Wrapperfunc);
 	mutexthreadparam &param = *(mutexthreadparam *)thrdparam;
 	int iRet = 0;
@@ -124,15 +112,14 @@ THREADWRAPPERFUNCDECL(MUTEXTestThread, thrdparam)
 	// wakeup joiners etc
 	DELETETHREAD();
 	// cleanup of thread resources
-	THRDETACH( THRID() );
+	THRDETACH(THRID());
 #if !defined(WIN32)
 	// suppress compiler warning
 	return 0;
 #endif
 }
 
-void SystemAPITest::MUTEXTest()
-{
+void SystemAPITest::MUTEXTest() {
 	StartTrace(SystemAPITest.MUTEXTest);
 	// try to create a SimpleMutex, lock it trylock it and unlock it
 	// assume that a SimpleMutex can only be locked once, even on some systems mutexes are already
@@ -161,19 +148,18 @@ void SystemAPITest::MUTEXTest()
 		}
 		t_assertm(UNLOCKMUTEX(mtx, iRet), "mutex release should succeed");
 		t_assertm(DELETEMUTEX(mtx, iRet), "mutex deletion failed");
-		TestSleep(100); // try to really wait for thread to be done...
+		TestSleep(100);	 // try to really wait for thread to be done...
 	}
-	PrintResult( result );
+	PrintResult(result);
 }
 
 struct semathreadparam {
 	semathreadparam(SEMA &i_sema, Anything &i_result) : sema(i_sema), result(i_result) {}
-	SEMA	&sema;
+	SEMA &sema;
 	Anything &result;
 };
 
-THREADWRAPPERFUNCDECL(SEMATestThread, thrdparam)
-{
+THREADWRAPPERFUNCDECL(SEMATestThread, thrdparam) {
 	semathreadparam &param = *(semathreadparam *)thrdparam;
 	// should fail the first time because we are in another thread right here
 	if (!t_assertm_intoany(!TRYSEMALOCK(param.sema), "trylock should have failed", param.result)) {
@@ -189,30 +175,28 @@ THREADWRAPPERFUNCDECL(SEMATestThread, thrdparam)
 	// wakeup joiners etc
 	DELETETHREAD();
 	// cleanup of thread resources
-	THRDETACH( THRID() );
+	THRDETACH(THRID());
 #if !defined(WIN32)
 	// suppress compiler warning
 	return 0;
 #endif
 }
 
-THREADWRAPPERFUNCDECL(SEMATestThreadFunc2, thrdparam)
-{
+THREADWRAPPERFUNCDECL(SEMATestThreadFunc2, thrdparam) {
 	semathreadparam &param = *(semathreadparam *)thrdparam;
 	// should fail the first time because we are in another thread right here
 	t_assertm_intoany(UNLOCKSEMA(param.sema), "sema unlock failed", param.result);
 	// wakeup joiners etc
 	DELETETHREAD();
 	// cleanup of thread resources
-	THRDETACH( THRID() );
+	THRDETACH(THRID());
 #if !defined(WIN32)
 	// suppress compiler warning
 	return 0;
 #endif
 }
 
-void SystemAPITest::SEMATest()
-{
+void SystemAPITest::SEMATest() {
 	StartTrace(SystemAPITest.SEMATest);
 	SEMA sema;
 	// assert some simple API things
@@ -265,22 +249,21 @@ void SystemAPITest::SEMATest()
 		t_assertm(LOCKSEMA(sema), "sema lock failed");
 		t_assertm(!TRYSEMALOCK(sema), "sema trylock should have failed");
 		t_assertm(DELETESEMA(sema), "sema deletion failed");
-		TestSleep(100); // wait for threads to finish
+		TestSleep(100);	 // wait for threads to finish
 	}
-	PrintResult( result );
-	PrintResult( result2 );
+	PrintResult(result);
+	PrintResult(result2);
 }
 
 struct condthreadparam {
 	condthreadparam(COND &i_cond, MUTEX &i_mtx, int &i_count) : cond(i_cond), mtx(i_mtx), count(i_count) {}
-	COND	&cond;
-	MUTEX	&mtx;
+	COND &cond;
+	MUTEX &mtx;
 	Anything result;
-	int	&count;
+	int &count;
 };
 
-THREADWRAPPERFUNCDECL(CONDITIONTestWaitOnSignalFunc, thrdparam)
-{
+THREADWRAPPERFUNCDECL(CONDITIONTestWaitOnSignalFunc, thrdparam) {
 	StartTrace(SystemAPITest.CONDITIONTestWaitOnSignalFunc);
 	condthreadparam &param = *(condthreadparam *)thrdparam;
 	int iRet = 0;
@@ -289,7 +272,8 @@ THREADWRAPPERFUNCDECL(CONDITIONTestWaitOnSignalFunc, thrdparam)
 	// need to lock mutex before we can wait on it
 	t_assertm_intoany(LOCKMUTEX(param.mtx, iRet), "mutex lock failed", param.result);
 	Trace("*** Waiting 1 ms");
-	t_assertm_intoany((CONDTIMEDWAIT(param.cond, GETMUTEXPTR(param.mtx), 0, 1000000) == TIMEOUTCODE), "wait on condition should timeout", param.result);
+	t_assertm_intoany((CONDTIMEDWAIT(param.cond, GETMUTEXPTR(param.mtx), 0, 1000000) == TIMEOUTCODE),
+					  "wait on condition should timeout", param.result);
 	// wait on condition until mainthread signals it
 	Trace("*** Wait because mainthread works");
 	t_assertm_intoany(CONDWAIT(param.cond, GETMUTEXPTR(param.mtx)), "wait on condition should work", param.result);
@@ -305,14 +289,13 @@ THREADWRAPPERFUNCDECL(CONDITIONTestWaitOnSignalFunc, thrdparam)
 	// wakeup joiners etc
 	DELETETHREAD();
 	// cleanup of thread resources
-	THRDETACH( THRID() );
+	THRDETACH(THRID());
 #if !defined(WIN32)
 	// suppress compiler warning
 	return 0;
 #endif
 }
-void SystemAPITest::CONDITIONSTestMain(int nofthreads, bool broadcast)
-{
+void SystemAPITest::CONDITIONSTestMain(int nofthreads, bool broadcast) {
 	StartTrace(SystemAPITest.CONDITIONSTestMain);
 	COND cond;
 	MUTEX mtx;
@@ -323,9 +306,9 @@ void SystemAPITest::CONDITIONSTestMain(int nofthreads, bool broadcast)
 		return;
 	}
 	SimpleTestThread **pthread;
-	pthread = new SimpleTestThread*[nofthreads];
+	pthread = new SimpleTestThread *[nofthreads];
 	condthreadparam **params;
-	params = new condthreadparam*[nofthreads];
+	params = new condthreadparam *[nofthreads];
 	for (int j = 0; j < nofthreads; j++) {
 		pthread[j] = new SimpleTestThread;
 		params[j] = new condthreadparam(cond, mtx, count);
@@ -336,7 +319,7 @@ void SystemAPITest::CONDITIONSTestMain(int nofthreads, bool broadcast)
 	t_assertm(DELETEMUTEX(mtx, iRet), "mutex deletion failed");
 	// put the messages collected within thread
 	for (int i = 0; i < nofthreads; i++) {
-		PrintResult( params[i]->result );
+		PrintResult(params[i]->result);
 		delete params[i];
 		delete pthread[i];
 	}
@@ -344,14 +327,13 @@ void SystemAPITest::CONDITIONSTestMain(int nofthreads, bool broadcast)
 	delete[] pthread;
 }
 
-void SystemAPITest::SleepAndSignal(condthreadparam &p, int expectedcount, bool broadcast)
-{
+void SystemAPITest::SleepAndSignal(condthreadparam &p, int expectedcount, bool broadcast) {
 	StartTrace(SystemAPITest.SleepAndSignal);
-	TestSleep(200); // allow waiting thread to timeout on condition
+	TestSleep(200);	 // allow waiting thread to timeout on condition
 	Trace("    Signaling cond after 0.2 secs sleep");
 	int numberofsignals = broadcast ? 1 : expectedcount;
 #ifdef WIN32
-	numberofsignals = 1; // signaling always broadcasts and awakes all threads
+	numberofsignals = 1;  // signaling always broadcasts and awakes all threads
 #endif
 	int iRet = 0;
 	for (long i = numberofsignals; i > 0; i--) {
@@ -370,31 +352,26 @@ void SystemAPITest::SleepAndSignal(condthreadparam &p, int expectedcount, bool b
 	assertEqual(expectedcount, p.count);
 	Trace("   MutexUnlock ");
 }
-void SystemAPITest::CONDITIONSignalSingleTest()
-{
+void SystemAPITest::CONDITIONSignalSingleTest() {
 	StartTrace(SystemAPITest.CONDITIONSignalSingleTest);
 	CONDITIONSTestMain(1, false);
 }
 
-void SystemAPITest::CONDITIONSignalManyTest()
-{
+void SystemAPITest::CONDITIONSignalManyTest() {
 	StartTrace(SystemAPITest.CONDITIONSignalManyTest);
 	CONDITIONSTestMain(5, false);
 }
 
-void SystemAPITest::CONDITIONBroadcastSingleTest()
-{
+void SystemAPITest::CONDITIONBroadcastSingleTest() {
 	StartTrace(SystemAPITest.CONDITIONBroadcastSingleTest);
 	CONDITIONSTestMain(1, true);
 }
 
-void SystemAPITest::CONDITIONBroadcastManyTest()
-{
+void SystemAPITest::CONDITIONBroadcastManyTest() {
 	StartTrace(SystemAPITest.CONDITIONBroadcastManyTest);
 	CONDITIONSTestMain(5, true);
 }
-void SystemAPITest::CONDITIONTimedWaitTimeoutTest()
-{
+void SystemAPITest::CONDITIONTimedWaitTimeoutTest() {
 	StartTrace(SystemAPITest.CONDITIONTimedWaitTimeoutTest);
 	COND cond;
 	MUTEX mtx;
@@ -408,7 +385,7 @@ void SystemAPITest::CONDITIONTimedWaitTimeoutTest()
 	t_assertm(CREATEMUTEX(mtx, iRet), "mutex creation failed");
 	t_assertm(CREATECOND(cond), "cond creation failed");
 	t_assertm(LOCKMUTEX(mtx, iRet), "mutex lock should succeed");
-	const long WAITUSEC = 100 * 1000; // = 100 ms
+	const long WAITUSEC = 100 * 1000;  // = 100 ms
 #if defined(WIN32)
 	clock_t t_start = clock();
 #else
@@ -426,7 +403,7 @@ void SystemAPITest::CONDITIONTimedWaitTimeoutTest()
 	t_assertm(!gettimeofday(&aftertime, 0), "cannot check time wait accuracy");
 	long difference = (aftertime.tv_sec - beforetime.tv_sec) * 1000000 + (aftertime.tv_usec - beforetime.tv_usec);
 #endif
-	if ( !t_assertm(abs(difference - WAITUSEC) < 20000, "assert 20 milisecond accuracy of condition timed wait") ) {
+	if (!t_assertm(abs(difference - WAITUSEC) < 20000, "assert 20 milisecond accuracy of condition timed wait")) {
 		String strTimes("WAITUSEC:");
 		strTimes << (long)WAITUSEC << " difference:" << difference;
 		SystemLog::WriteToStderr(strTimes);

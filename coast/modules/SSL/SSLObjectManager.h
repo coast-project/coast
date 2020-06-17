@@ -9,10 +9,10 @@
 #ifndef _SSLObjectManager_H
 #define _SSLObjectManager_H
 
-#include "WDModule.h"
-#include "Threads.h"
-#include "SSLModule.h"
 #include "SSLAPI.h"
+#include "SSLModule.h"
+#include "Threads.h"
+#include "WDModule.h"
 
 //---- SSLObjectManager ----------------------------------------------------------
 //! Manages SSL_CTX and SSL_SESSIONS. SSL_CTX creation involves reading cert files,
@@ -25,36 +25,35 @@
 //! that a session stored away in  order to be resumed was checked  once  when it
 //! was stored away. Nevertheless, opennssl will check  if a stored  away sessions
 //! has timed out.
-class SSLObjectManager: public WDModule
-{
+class SSLObjectManager : public WDModule {
 public:
-	//!it exists only one since it is a not cloned
+	//! it exists only one since it is a not cloned
 	SSLObjectManager(const char *name);
 
-	//!does nothing since everything should be done in Finis
+	//! does nothing since everything should be done in Finis
 	~SSLObjectManager();
 
 	static SSLObjectManager *SSLOBJMGR();
 
 	//--- module initialization termination ---
-	//!initialize
+	//! initialize
 	virtual bool Init(const ROAnything config);
-	//!finalize
+	//! finalize
 	virtual bool Finis();
-	//!terminate SSLObjectManager for reset
-	virtual bool ResetFinis(const ROAnything );
-	//!reinitializes
+	//! terminate SSLObjectManager for reset
+	virtual bool ResetFinis(const ROAnything);
+	//! reinitializes
 	virtual bool ResetInit(const ROAnything config);
 
-	//!support reinit
+	//! support reinit
 	virtual void EnterReInit();
-	//!support reinit
+	//! support reinit
 	virtual void LeaveReInit();
 
-	//!Get SSL_CTX, if not registered, create SSL_CTX
+	//! Get SSL_CTX, if not registered, create SSL_CTX
 	SSL_CTX *GetCtx(const String &ip, const String &port, ROAnything sslModuleCfg);
 
-	//!Get the ssl session id
+	//! Get the ssl session id
 	SSL_SESSION *GetSessionId(const String &ip, const String &port);
 	void SetSessionId(const String &ip, const String &port, SSL_SESSION *sslSession);
 	static String SessionIdAsHex(SSL_SESSION *sslSession);
@@ -66,19 +65,19 @@ protected:
 	// Only used by SSLObjectManagerTest
 	void EmptySessionIdStore();
 	bool RemoveCtx(const String &ip, const String &port);
-	//!singleton cache
+	//! singleton cache
 	static SSLObjectManager *fgSSLObjectManager;
 
-	//!The rw lock that protects the ssl context store
+	//! The rw lock that protects the ssl context store
 	Mutex fSSLCtxStoreMutex;
 
-	//!The rw lock that protects the ssl sessionId store
+	//! The rw lock that protects the ssl sessionId store
 	Mutex fSSLSessionIdStoreMutex;
 
-	//!The Anything containing the SSL Context objects
+	//! The Anything containing the SSL Context objects
 	Anything fSSLCtxStore;
 
-	//!The Anything containing the SSL sessionId strigs
+	//! The Anything containing the SSL sessionId strigs
 	Anything fSSLSessionIdStore;
 
 private:
@@ -88,4 +87,3 @@ private:
 };
 
 #endif
-

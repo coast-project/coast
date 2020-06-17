@@ -7,29 +7,23 @@
  */
 
 #include "DateRendererTest.h"
+
 #include "DateRenderer.h"
-#include "TestSuite.h"
 #include "SystemBase.h"
+#include "TestSuite.h"
 
 using namespace coast;
 
-DateRendererTest::DateRendererTest (TString tname)
-	: RendererTest(tname)
-{
-}
+DateRendererTest::DateRendererTest(TString tname) : RendererTest(tname) {}
 
-DateRendererTest::~DateRendererTest()
-{
-}
+DateRendererTest::~DateRendererTest() {}
 
-void DateRendererTest::setUp ()
-{
+void DateRendererTest::setUp() {
 	RendererTest::setUp();
 	fConfig["Format"] = "%C";
 }
 
-void DateRendererTest::CompareHelper(const char *format, long offset)
-{
+void DateRendererTest::CompareHelper(const char *format, long offset) {
 	time_t now;
 	struct tm *tt, res;
 	time(&now);
@@ -103,8 +97,7 @@ void DateRendererTest::DifferentFormats3()
 	CompareHelper(format);
 }
 
-void DateRendererTest::RelativeTimeFormat()
-{
+void DateRendererTest::RelativeTimeFormat() {
 	DateRenderer dateRenderer("");
 	const char *format = "%d.%m.%y";
 
@@ -124,7 +117,7 @@ void DateRendererTest::AbsolutTimeFormat()
 {
 	DateRenderer dateRenderer("");
 	const int maxsize = 100;
-	time_t absolut = 870912000;		// seconds
+	time_t absolut = 870912000;	 // seconds
 	const char *format = "%d.%m.%y";
 
 	// set up the configuration
@@ -158,7 +151,7 @@ void DateRendererTest::GMTTime()
 	dateRenderer.RenderAll(fReply, fContext, roConfig);
 
 	time_t now;
-	time(&now);						// use current time
+	time(&now);	 // use current time
 	struct tm *tt, res;
 	tt = system::GmTime(&now, &res);
 	char date[maxsize];
@@ -175,7 +168,7 @@ void DateRendererTest::emptyConfig1()
 
 	// set up the configuration
 	// render the configuration
-	fConfig.Remove( "Format" );
+	fConfig.Remove("Format");
 
 	ROAnything roConfig = fConfig;
 	// We try try up to 4 times to do the test within the same second.
@@ -185,7 +178,7 @@ void DateRendererTest::emptyConfig1()
 		// assert the result
 		time_t now;
 		struct tm *tt, res;
-		time(&now);						// use current time
+		time(&now);	 // use current time
 		tt = system::LocalTime(&now, &res);
 		char date[maxsize];
 
@@ -219,7 +212,7 @@ void DateRendererTest::emptyConfig2()
 		// assert the result
 		time_t now;
 		struct tm *tt, res;
-		time(&now);						// use current time
+		time(&now);	 // use current time
 		tt = system::LocalTime(&now, &res);
 		char date[maxsize];
 
@@ -240,8 +233,7 @@ void DateRendererTest::emptyConfig2()
 	}
 }
 
-Test *DateRendererTest::suite ()
-{
+Test *DateRendererTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, DateRendererTest, simpleFormat);
 	ADD_CASE(testSuite, DateRendererTest, DifferentFormats1);

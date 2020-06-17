@@ -26,15 +26,15 @@
  Here is an example:
 <PRE>
  class MathTest : public testframework::TestCase {
-     protected: int m_value1;
-     protected: int m_value2;
-     public: MathTest (TString tstrName)
-                 : TestCaseType(tstrName) {
-     }
-     protected: void setUp () {
-         m_value1 = 2;
-         m_value2 = 3;
-     }
+	 protected: int m_value1;
+	 protected: int m_value2;
+	 public: MathTest (TString tstrName)
+				 : TestCaseType(tstrName) {
+	 }
+	 protected: void setUp () {
+		 m_value1 = 2;
+		 m_value2 = 3;
+	 }
  }
 </PRE>
 
@@ -42,10 +42,10 @@
  with the fixture. Verify the expected results with assertions specified
  by calling cu_assert on the expression you want to test:
 <PRE>
-    protected: void AddTest() {
-        int result = value1 + value2;
-        cu_assert (result == 5);
-    }
+	protected: void AddTest() {
+		int result = value1 + value2;
+		cu_assert (result == 5);
+	}
 </PRE>
  *
  The following code creates an instance of MathTest which
@@ -65,10 +65,10 @@
  point to get a test to run.
 <PRE>
  public: static MathTest::suite () {
-      TestSuite *suite = new TestSuite;
-      ADD_CASE(suite,MathTest,testAdd);
-      ADD_CASE(suite,MathTest,testDivideByZero);
-      return suiteOfTests;
+	  TestSuite *suite = new TestSuite;
+	  ADD_CASE(suite,MathTest,testAdd);
+	  ADD_CASE(suite,MathTest,testDivideByZero);
+	  return suiteOfTests;
   }
 </PRE>
  Note that the caller of suite assumes lifetime control
@@ -78,25 +78,20 @@
  *
  */
 
-namespace testframework
-{
+namespace testframework {
 
-	template
-	<
-	class dummy
-	>
-	class NoStatisticPolicy
-	{
+	template <class dummy>
+	class NoStatisticPolicy {
 		NoStatisticPolicy(const NoStatisticPolicy &);
+
 	public:
 		typedef NoStatisticPolicy<dummy> StatisticPolicyType;
 
-		NoStatisticPolicy()	{}
+		NoStatisticPolicy() {}
 
 		~NoStatisticPolicy() {}
 
-		class CatchTime
-		{
+		class CatchTime {
 		public:
 			CatchTime(TString, StatisticPolicyType *) {}
 			~CatchTime() {}
@@ -110,13 +105,10 @@ namespace testframework
 		void StoreData() {}
 	};
 
-	template
-	<
-	class dummy
-	>
-	class NoConfigPolicy
-	{
+	template <class dummy>
+	class NoConfigPolicy {
 		NoConfigPolicy(const NoConfigPolicy &);
+
 	public:
 		typedef NoConfigPolicy<dummy> ConfigPolicyType;
 
@@ -125,28 +117,17 @@ namespace testframework
 		virtual ~NoConfigPolicy() {}
 
 	protected:
-		bool loadConfig(TString, TString) {
-			return true;
-		}
+		bool loadConfig(TString, TString) { return true; }
 		void unloadConfig() {}
-		virtual TString getConfigFileName() {
-			return "";
-		}
+		virtual TString getConfigFileName() { return ""; }
 	};
 
-	template
-	<
-	template <typename> class ConfigPolicy = NoConfigPolicy,
-			 template <typename> class StatisticPolicy = NoStatisticPolicy,
-			 class dummy = int
-			 >
-	class TestCaseT
-		: public Test
-		, public StatisticPolicy<dummy>
-		, public ConfigPolicy<dummy>
-	{
+	template <template <typename> class ConfigPolicy = NoConfigPolicy,
+			  template <typename> class StatisticPolicy = NoStatisticPolicy, class dummy = int>
+	class TestCaseT : public Test, public StatisticPolicy<dummy>, public ConfigPolicy<dummy> {
 		TestCaseT();
 		TestCaseT(const TestCaseT &);
+
 	public:
 		typedef TestCaseT<ConfigPolicy, StatisticPolicy, dummy> TestCaseType;
 		typedef void (TestCaseType::*CaseMemberPtr)();
@@ -155,18 +136,16 @@ namespace testframework
 		typedef ConfigPolicy<dummy> ConfigPolicyType;
 		typedef typename StatisticPolicyType::CatchTime CatchTimeType;
 
-		TestCaseT(TString tname)
-			: fName(tname)
-		{}
-		virtual ~TestCaseT()
-		{}
+		TestCaseT(TString tname) : fName(tname) {}
+		virtual ~TestCaseT() {}
 
 		virtual void run(TestResult *result) {
 			Test::run(result);
-			result->startTest (this);
+			result->startTest(this);
 
 			StatisticPolicyType::LoadData(getClassName(), name());
-			t_assertm( ConfigPolicyType::loadConfig(getClassName(), name()), TString("expected ") << ConfigPolicyType::getConfigFileName() << " to be readable!" );
+			t_assertm(ConfigPolicyType::loadConfig(getClassName(), name()),
+					  TString("expected ") << ConfigPolicyType::getConfigFileName() << " to be readable!");
 
 			setUp();
 			doRunTest();
@@ -180,21 +159,15 @@ namespace testframework
 
 		virtual TestResult *run() {
 			TestResult *result = new TestResult;
-			run (result);
+			run(result);
 			return result;
 		}
 
-		virtual int countTestCases() {
-			return 1;
-		}
+		virtual int countTestCases() { return 1; }
 
-		TString name() {
-			return fName;
-		}
+		TString name() { return fName; }
 
-		TString	toString() {
-			return TString (this->getClassName()) << "." << name();
-		}
+		TString toString() { return TString(this->getClassName()) << "." << name(); }
 
 		TestCaseType *setTheTest(CaseMemberPtr p_TheTest) {
 			fTheTest = p_TheTest;
@@ -206,19 +179,19 @@ namespace testframework
 
 		virtual void tearDown() {}
 
-		virtual void doRunTest() {
-			(this->*fTheTest)();
-		}
+		virtual void doRunTest() { (this->*fTheTest)(); }
 
 	protected:
-		const TString	fName;
-		CaseMemberPtr	fTheTest;
+		const TString fName;
+		CaseMemberPtr fTheTest;
 	};
 
 	typedef TestCaseT<NoConfigPolicy, NoStatisticPolicy, int> TestCase;
 
-#define NEW_CASE(TESTCASE,CASEMEMBER)	(TESTCASE *)(((new TESTCASE(#CASEMEMBER))->setTheTest( (TESTCASE::CaseMemberPtr)&TESTCASE::CASEMEMBER) )->setClassName(#TESTCASE))
+#define NEW_CASE(TESTCASE, CASEMEMBER)                                                                     \
+	(TESTCASE *)(((new TESTCASE(#CASEMEMBER))->setTheTest((TESTCASE::CaseMemberPtr)&TESTCASE::CASEMEMBER)) \
+					 ->setClassName(#TESTCASE))
 
-}	// end namespace testframework
+}  // end namespace testframework
 
 #endif

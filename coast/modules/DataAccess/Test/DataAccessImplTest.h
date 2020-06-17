@@ -9,28 +9,28 @@
 #ifndef _DataAccessImplTest_H
 #define _DataAccessImplTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
+#include "TestCase.h"
 
 //---- DataAccessImplTest ----------------------------------------------------------
-//!single line description of the class
+//! single line description of the class
 //! further explanation of the purpose of the class
 //! this may contain <B>HTML-Tags</B>
 //! ...
-class DataAccessImplTest : public testframework::TestCase
-{
+class DataAccessImplTest : public testframework::TestCase {
 public:
 	//--- constructors
 	DataAccessImplTest(TString tstrName);
 	~DataAccessImplTest();
 
-	static Test *suite ();
+	static Test *suite();
 
 	//--- public api
 	void GetConfigNameTest();
 	void DoLoadConfigTest();
 	void GetInputMapperTest();
 	void GetOutputMapperTest();
+
 protected:
 	Anything fConfig;
 };

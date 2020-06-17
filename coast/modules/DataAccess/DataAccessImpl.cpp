@@ -7,36 +7,32 @@
  */
 
 #include "DataAccessImpl.h"
+
+#include "Policy.h"
 #include "Registry.h"
 #include "StringStream.h"
 #include "Tracer.h"
-#include "Policy.h"
 
 //---- DataAccessImplsModule -----------------------------------------------------------
 RegisterModule(DataAccessImplsModule);
 
-DataAccessImplsModule::DataAccessImplsModule(const char *name) : WDModule(name)
-{
-}
+DataAccessImplsModule::DataAccessImplsModule(const char *name) : WDModule(name) {}
 
-bool DataAccessImplsModule::Init(const ROAnything config)
-{
+bool DataAccessImplsModule::Init(const ROAnything config) {
 	ROAnything roaImpls;
-	if ( config.LookupPath(roaImpls, DataAccessImpl::gpcConfigPath) ) {
+	if (config.LookupPath(roaImpls, DataAccessImpl::gpcConfigPath)) {
 		HierarchyInstaller hi(DataAccessImpl::gpcCategory);
 		return RegisterableObject::Install(roaImpls, DataAccessImpl::gpcCategory, &hi);
 	}
 	return false;
 }
 
-bool DataAccessImplsModule::ResetFinis(const ROAnything config)
-{
+bool DataAccessImplsModule::ResetFinis(const ROAnything config) {
 	AliasTerminator at(DataAccessImpl::gpcCategory);
 	return RegisterableObject::ResetTerminate(DataAccessImpl::gpcCategory, &at);
 }
 
-bool DataAccessImplsModule::Finis()
-{
+bool DataAccessImplsModule::Finis() {
 	return StdFinis(DataAccessImpl::gpcCategory, DataAccessImpl::gpcConfigPath);
 }
 
@@ -44,36 +40,31 @@ bool DataAccessImplsModule::Finis()
 RegisterDataAccessImpl(DataAccessImpl);
 RegCacheImpl(DataAccessImpl);
 
-const char* DataAccessImpl::gpcCategory = "DataAccessImpl";
-const char* DataAccessImpl::gpcConfigPath = "DataAccessImpls";
-const char* DataAccessImpl::gpcConfigFileName = "DataAccessImplMeta";
+const char *DataAccessImpl::gpcCategory = "DataAccessImpl";
+const char *DataAccessImpl::gpcConfigPath = "DataAccessImpls";
+const char *DataAccessImpl::gpcConfigFileName = "DataAccessImplMeta";
 
-DataAccessImpl::DataAccessImpl(const char *name) :
-	HierarchConfNamed(name) {
-}
+DataAccessImpl::DataAccessImpl(const char *name) : HierarchConfNamed(name) {}
 
-IFAObject *DataAccessImpl::Clone(Allocator *a) const
-{
+IFAObject *DataAccessImpl::Clone(Allocator *a) const {
 	Assert(false);
 	return new (a) DataAccessImpl(fName);
 }
 
 //--- Send/Receive
-bool DataAccessImpl::Exec(Context &c, ParameterMapper *input, ResultMapper *output)
-{
-	StartTrace(DataAccessImpl.Exec);	// support for tracing
+bool DataAccessImpl::Exec(Context &c, ParameterMapper *input, ResultMapper *output) {
+	StartTrace(DataAccessImpl.Exec);  // support for tracing
 
-	Assert(false); // should not be called
+	Assert(false);	// should not be called
 	// use input and output mapper to define trx input and output needs
 	// implement this method to do whatever necesary
 	// this implementation never succeeds
 	return false;
 }
 
-bool DataAccessImpl::DoLoadConfig(const char *category)
-{
+bool DataAccessImpl::DoLoadConfig(const char *category) {
 	StartTrace(DataAccessImpl.DoLoadConfig);
-	if ( HierarchConfNamed::DoLoadConfig(category) && fConfig.IsDefined(fName) ) {
+	if (HierarchConfNamed::DoLoadConfig(category) && fConfig.IsDefined(fName)) {
 		// trx impls use only a subset of the whole configuration file
 		fConfig = fConfig[fName];
 		TraceAny(fConfig, "Config for [" << fName << "]");
@@ -85,8 +76,7 @@ bool DataAccessImpl::DoLoadConfig(const char *category)
 	return true;
 }
 
-bool DataAccessImpl::DoGetConfigName(const char *category, const char *objName, String &configFileName) const
-{
+bool DataAccessImpl::DoGetConfigName(const char *category, const char *objName, String &configFileName) const {
 	configFileName = DataAccessImpl::gpcConfigFileName;
 	return true;
 }
@@ -94,13 +84,11 @@ bool DataAccessImpl::DoGetConfigName(const char *category, const char *objName, 
 //---- LoopBackDAImpl ------------------------------------------------------
 RegisterDataAccessImpl(LoopBackDAImpl);
 
-IFAObject *LoopBackDAImpl::Clone(Allocator *a) const
-{
+IFAObject *LoopBackDAImpl::Clone(Allocator *a) const {
 	return new (a) LoopBackDAImpl(fName);
 }
 
-bool LoopBackDAImpl::Exec(Context &c, ParameterMapper *input, ResultMapper *output)
-{
+bool LoopBackDAImpl::Exec(Context &c, ParameterMapper *input, ResultMapper *output) {
 	StartTrace1(LoopBackDAImpl.Exec, "Name: " << fName);
 	ROAnything config;
 	TraceAny(fConfig, "fConfig: ");

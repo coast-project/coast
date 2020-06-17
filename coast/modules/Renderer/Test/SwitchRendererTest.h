@@ -11,21 +11,21 @@
 
 //-*-Mode: C++;-*-
 
-#include "RendererTest.h"
 #include "ConditionalRenderers.h"
+#include "RendererTest.h"
 
 //---- SwitchRendererTest -----------------------------------------------------------
 
-class SwitchRendererTest : public RendererTest
-{
+class SwitchRendererTest : public RendererTest {
 public:
 	SwitchRendererTest(TString tstrName);
 	virtual ~SwitchRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
+
 protected:
-	void ConfigureCases( const String &caseKey, const char *cases );
+	void ConfigureCases(const String &caseKey, const char *cases);
 	void TestCaseA();
 	void TestCaseB();
 	void TestCaseC();

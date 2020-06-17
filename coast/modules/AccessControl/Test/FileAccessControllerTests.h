@@ -17,30 +17,25 @@ class EntityDataAccessController;
 
 //---- FileCreator ----------------------------------------------------------
 //! Writea a given Anything to a file.
-class FileCreator
-{
+class FileCreator {
 public:
 	static bool CreateFile(String dataAccessName, ROAnything data);
 };
 
 //---- FileAccessControllerTests ----------------------------------------------------------
 //! <B>Tests functionality of FileAccessControllers (FileUDAC, FileTDAC, FileEDAC)
-class FileAccessControllerTests : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class FileAccessControllerTests : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
-	FileAccessControllerTests(TString tstrName)
-		: TestCaseType(tstrName) {}
-	~FileAccessControllerTests() {};
+	FileAccessControllerTests(TString tstrName) : TestCaseType(tstrName) {}
+	~FileAccessControllerTests(){};
 
-	TString getConfigFileName() {
-		return "FileAccessControllerTestsConfig";
-	}
+	TString getConfigFileName() { return "FileAccessControllerTestsConfig"; }
 	//--- public api
 	static bool createTestFile(String daName, ROAnything data);
 
 	//! builds up a suite of tests
-	static Test *suite ();
+	static Test *suite();
 
 	// general testing methods
 	void doTestUDAC(UserDataAccessController *udac);

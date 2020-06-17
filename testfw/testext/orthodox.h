@@ -37,47 +37,45 @@
  * see TestSuite
  */
 
-template <class T> class orthodox : public TestCase
-{
+template <class T>
+class orthodox : public TestCase {
 protected:
-	T				call (T t);
-	void			runTest ();
+	T call(T t);
+	void runTest();
 
 public:
-	orthodox () : TestCase ("orthodox") {}
-
+	orthodox() : TestCase("orthodox") {}
 };
 
-template <class T> void orthodox<T>::runTest ()
-{
+template <class T>
+void orthodox<T>::runTest() {
 	// make sure we have a default constructor
-	T	a, b, c;
+	T a, b, c;
 
 	// make sure we have an equality operator
-	assert (a == b);
+	assert(a == b);
 
 	// check the inverse
-	b.operator = (a.operator! ());
-	assert (a != b);
+	b.operator=(a.operator!());
+	assert(a != b);
 
 	// double inversion
 	b = !!a;
-	assert (a == b);
+	assert(a == b);
 
 	// invert again
 	b = !a;
 
 	// check calls
 	c = a;
-	assert (c == call (a));
+	assert(c == call(a));
 
 	c = b;
-	assert (c == call (b));
-
+	assert(c == call(b));
 }
 
-template <class T> T orthodox<T>::call (T t)
-{
+template <class T>
+T orthodox<T>::call(T t) {
 	return t;
 }
 

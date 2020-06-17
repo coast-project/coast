@@ -9,8 +9,8 @@
 #ifndef _ConfiguredLookupAdapter_H
 #define _ConfiguredLookupAdapter_H
 
-#include "LookupInterface.h"
 #include "Anything.h"
+#include "LookupInterface.h"
 
 //! LookupInterface with configured default
 /*!
@@ -21,12 +21,12 @@ If the configuration and the defaults have the same structure
 this helper class is very handy to provide default values not found
 in the configuration (Param1).
 */
-class ConfiguredLookupAdapter: public LookupInterface
-{
+class ConfiguredLookupAdapter : public LookupInterface {
 public:
 	ConfiguredLookupAdapter(ROAnything config, ROAnything DefaultConfig);
 
 	bool DoLookup(const char *key, ROAnything &result, char delim, char indexdelim) const;
+
 private:
 	ROAnything fConfig;
 	ROAnything fDefaultConfig;

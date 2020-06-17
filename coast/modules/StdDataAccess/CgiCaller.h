@@ -14,18 +14,15 @@
 //! DataAccess for calling programs via CGI (common gateway interface)
 //! expects the input mapper to provide the following keys
 //! "program"
-class CgiCaller: public HTTPFileLoader {
+class CgiCaller : public HTTPFileLoader {
 public:
-	CgiCaller(const char *name) :
-		HTTPFileLoader(name) {
-	}
+	CgiCaller(const char *name) : HTTPFileLoader(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) CgiCaller(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) CgiCaller(fName); }
 
 	static void SplitPath(const String &fullPath, String &path, String &file);
+
 protected:
 	//! do not use parents header processing
 	/*! @copydoc HTTPFileLoader::GenReplyHeader() */

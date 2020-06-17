@@ -11,7 +11,7 @@
 
 #include "TestCase.h"
 
-class MemTrackerTest: public testframework::TestCase {
+class MemTrackerTest : public testframework::TestCase {
 public:
 	MemTrackerTest(TString tstrName);
 	static Test *suite();

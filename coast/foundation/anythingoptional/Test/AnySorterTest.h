@@ -11,8 +11,7 @@
 
 #include "FoundationTestTypes.h"
 
-class AnySorterTest : public testframework::TestCaseWithConfig
-{
+class AnySorterTest : public testframework::TestCaseWithConfig {
 public:
 	//! TestCase constructor
 	//! \param name name of the test
@@ -24,7 +23,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	void SorterTest();
 };

@@ -15,14 +15,13 @@
 #include "TestCase.h"
 
 //---- EBCDICTableTest ---------------------------------------------------------
-class EBCDICTableTest : public testframework::TestCase
-{
+class EBCDICTableTest : public testframework::TestCase {
 public:
 	EBCDICTableTest(TString tstrName);
 	virtual ~EBCDICTableTest();
 
-	static Test *suite ();
-	void WholeTable ();
+	static Test *suite();
+	void WholeTable();
 };
 
 #endif

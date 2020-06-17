@@ -7,18 +7,16 @@
  */
 
 #include "EBCDICSocket.h"
-#include "EBCDICSocketStreamBuf.h"
+
 #include "EBCDICSocketStream.h"
+#include "EBCDICSocketStreamBuf.h"
 #include "Tracer.h"
 
 //---- EBCDICSocket ----------------------------------------------------------
 EBCDICSocket::EBCDICSocket(int socket, const Anything &clientInfo, bool doClose, Allocator *a)
-	: Socket(socket, clientInfo, doClose, 300 * 1000, a)
-{
-}
+	: Socket(socket, clientInfo, doClose, 300 * 1000, a) {}
 
-std::iostream *EBCDICSocket::DoMakeStream()
-{
+std::iostream *EBCDICSocket::DoMakeStream() {
 	StartTrace(EBCDICSocket.DoMakeStream);
 	return new EBCDICSocketStream(this);
 }

@@ -6,28 +6,27 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "SetLanguageRenderer.h"
+
 #include "Anything.h"
 #include "Context.h"
 #include "Tracer.h"
-#include "SetLanguageRenderer.h"
 
 //---- SetLanguageRenderer ---------------------------------------------------------------
 RegisterRenderer(SetLanguageRenderer);
 
-SetLanguageRenderer::SetLanguageRenderer(const char *name) : Renderer(name) { }
+SetLanguageRenderer::SetLanguageRenderer(const char *name) : Renderer(name) {}
 
-SetLanguageRenderer::~SetLanguageRenderer() { }
+SetLanguageRenderer::~SetLanguageRenderer() {}
 
-void SetLanguageRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void SetLanguageRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(SetLanguageRenderer.RenderAll);
 	TraceAny(config, "config");
 
 	String oldLang = c.Language();
 	String tempLang;
 	ROAnything LangConfig, ContentConfig;
-	if ( config.LookupPath(LangConfig, "TempLang") &&
-		 config.LookupPath(ContentConfig, "Content") ) {
+	if (config.LookupPath(LangConfig, "TempLang") && config.LookupPath(ContentConfig, "Content")) {
 		RenderOnString(tempLang, c, LangConfig);
 		c.SetLanguage(tempLang);
 		Render(reply, c, ContentConfig);

@@ -7,19 +7,19 @@
  */
 
 #include "ComputeRenderer.h"
+
 #include "Tracer.h"
-#include <stdlib.h>
+
 #include <ostream>
+
+#include <stdlib.h>
 
 //---- ComputeRenderer ----------------------------------------------------------------
 RegisterRenderer(ComputeRenderer);
 
-ComputeRenderer::ComputeRenderer(const char *name) : Renderer(name)
-{
-}
+ComputeRenderer::ComputeRenderer(const char *name) : Renderer(name) {}
 
-void ComputeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void ComputeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(ComputeRenderer.RenderAll);
 	TraceAny(config, "config");
 
@@ -69,65 +69,67 @@ void ComputeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnyth
 	}
 	Trace("Operator: [" << op << "]");
 
-	if ( op.IsEqual("+") ) {
+	if (op.IsEqual("+")) {
 		n = n1.AsLong(0L) + n2.AsLong(0L);
-	} else if ( op.IsEqual("-") ) {
+	} else if (op.IsEqual("-")) {
 		n = n1.AsLong(0L) - n2.AsLong(0L);
-	} else if ( op.IsEqual("*") ) {
+	} else if (op.IsEqual("*")) {
 		n = n1.AsLong(0L) * n2.AsLong(0L);
-	} else if ( op.IsEqual("/") ) {
+	} else if (op.IsEqual("/")) {
 		if (n2.AsLong(0L) == 0) {
 			reply << "Fatal: Division by Zero";
 			return;
 		}
 		n = n1.AsLong(0L) / n2.AsLong(0L);
-	} else if ( op.IsEqual("%") ) {
+	} else if (op.IsEqual("%")) {
 		if (n2.AsLong(0L) == 0) {
 			reply << "Fatal: Modulo by Zero";
 			return;
 		}
 		n = n1.AsLong(0L) % n2.AsLong(0L);
-	} else if ( op.IsEqual(">") ) {
-		if ( n1.AsLong(0L) > n2.AsLong(0L) ) {
+	} else if (op.IsEqual(">")) {
+		if (n1.AsLong(0L) > n2.AsLong(0L)) {
 			n = 1;
 		} else {
 			n = 0;
 		}
-	} else if ( op.IsEqual(">=") ) {
-		if ( n1.AsLong(0L) >= n2.AsLong(0L) ) {
+	} else if (op.IsEqual(">=")) {
+		if (n1.AsLong(0L) >= n2.AsLong(0L)) {
 			n = 1;
 		} else {
 			n = 0;
 		}
-	} else if ( op.IsEqual("<") ) {
-		if ( n1.AsLong(0L) < n2.AsLong(0L) ) {
+	} else if (op.IsEqual("<")) {
+		if (n1.AsLong(0L) < n2.AsLong(0L)) {
 			n = 1;
 		} else {
 			n = 0;
 		}
-	} else if ( op.IsEqual("<=") ) {
-		if ( n1.AsLong(0L) <= n2.AsLong(0L) ) {
+	} else if (op.IsEqual("<=")) {
+		if (n1.AsLong(0L) <= n2.AsLong(0L)) {
 			n = 1;
 		} else {
 			n = 0;
 		}
-	} else if ( op.IsEqual("=") ) {
-		if ( n1.AsLong(0L) == n2.AsLong(0L) ) {
+	} else if (op.IsEqual("=")) {
+		if (n1.AsLong(0L) == n2.AsLong(0L)) {
 			n = 1;
 		} else {
 			n = 0;
 		}
 	}
 
-	if ( min.Length() > 0 && ( n < min.AsLong(0L) ) ) {
-		n = min.AsLong(0L);;
+	if (min.Length() > 0 && (n < min.AsLong(0L))) {
+		n = min.AsLong(0L);
+		;
 	}
 
-	if ( max.Length() > 0 && ( n > max.AsLong(0L) ) ) {
-		n = max.AsLong(0L);;
+	if (max.Length() > 0 && (n > max.AsLong(0L))) {
+		n = max.AsLong(0L);
+		;
 	}
 
-	Trace( String() << "n1 = " << n1 << "   n2 = " << n2 << "   n = " << n);
+	Trace(String() << "n1 = " << n1 << "   n2 = " << n2 << "   n = " << n);
 
 	reply << (String() << n);
 }

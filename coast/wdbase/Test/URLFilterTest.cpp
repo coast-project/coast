@@ -7,29 +7,24 @@
  */
 
 #include "URLFilterTest.h"
-#include "URLFilter.h"
-#include "TestSuite.h"
+
 #include "Context.h"
 #include "SecurityModule.h"
+#include "TestSuite.h"
+#include "URLFilter.h"
 
-URLFilterTest::URLFilterTest(TString tname)
-	: TestCaseType(tname)
-{
+URLFilterTest::URLFilterTest(TString tname) : TestCaseType(tname) {
 	StartTrace(URLFilterTest.URLFilterTest);
 }
 
-URLFilterTest::~URLFilterTest()
-{
-}
+URLFilterTest::~URLFilterTest() {}
 
-void URLFilterTest::setUp ()
-{
+void URLFilterTest::setUp() {
 	t_assert(GetConfig()["Modules"].Contains("SecurityModule"));
 }
 
 // handle simple things first
-void URLFilterTest::DoFilterStateTest()
-{
+void URLFilterTest::DoFilterStateTest() {
 	StartTrace(URLFilterTest.DoFilterStateTest);
 	Anything query;
 	URLFilter urlFilter("Test");
@@ -58,8 +53,7 @@ void URLFilterTest::DoFilterStateTest()
 }
 
 // handle simple things first
-void URLFilterTest::DoUnscrambleStateTest()
-{
+void URLFilterTest::DoUnscrambleStateTest() {
 	StartTrace(URLFilterTest.DoUnscrambleStateTest);
 	// first setup a state and scramble it
 	Anything state;
@@ -84,7 +78,8 @@ void URLFilterTest::DoUnscrambleStateTest()
 	// now try some simple cases
 	// slot is there should be removed
 	querySz = query.GetSize();
-	t_assertm(urlFilter.DoUnscrambleState(query, "scrambledState", ctx) && !query.IsDefined("scrambledState"), "expected scrambledState to be removed");
+	t_assertm(urlFilter.DoUnscrambleState(query, "scrambledState", ctx) && !query.IsDefined("scrambledState"),
+			  "expected scrambledState to be removed");
 	t_assertm(query.IsDefined("first"), "expected first to be there");
 	t_assertm(query.IsDefined("second"), "expected second to be there");
 	t_assertm(query.IsDefined("third"), "expected third to be there");
@@ -113,8 +108,7 @@ void URLFilterTest::DoUnscrambleStateTest()
 	t_assertm(query.GetSize() == querySz, "expected size to be the same");
 }
 
-void URLFilterTest::FilterStateTest()
-{
+void URLFilterTest::FilterStateTest() {
 	StartTrace(URLFilterTest.FilterStateTest);
 
 	Anything query;
@@ -180,11 +174,9 @@ void URLFilterTest::FilterStateTest()
 	t_assert(urlFilter.FilterState(query, filterTags, ctx));
 	t_assertm(!query.IsDefined("slot4"), "expected slot4 to be removed");
 	t_assert(query.GetSize() == querySz - 1);
-
 }
 
-void URLFilterTest::UnscrambleStateTest()
-{
+void URLFilterTest::UnscrambleStateTest() {
 	StartTrace(URLFilterTest.UnscrambleStateTest);
 
 	Anything query;
@@ -219,8 +211,7 @@ void URLFilterTest::UnscrambleStateTest()
 	t_assertm(query.GetSize() == querySz, "expected size to be equal");
 }
 
-void URLFilterTest::HandleCookieTest()
-{
+void URLFilterTest::HandleCookieTest() {
 	StartTrace(URLFilterTest.HandleCookieTest);
 
 	Anything env;
@@ -271,11 +262,9 @@ void URLFilterTest::HandleCookieTest()
 	querySz = query.GetSize();
 	t_assert(urlFilter.HandleCookie(query, env, cookieSpec, ctx));
 	t_assert(query.GetSize() == querySz);
-
 }
 
-void URLFilterTest::HandleMultipleCookiesTest()
-{
+void URLFilterTest::HandleMultipleCookiesTest() {
 	StartTrace(URLFilterTest.HandleMultipleCookiesTest);
 
 	{
@@ -406,8 +395,7 @@ void URLFilterTest::HandleMultipleCookiesTest()
 	}
 }
 
-void URLFilterTest::HandleQueryTest()
-{
+void URLFilterTest::HandleQueryTest() {
 	StartTrace(URLFilterTest.HandleQueryTest);
 
 	Anything query;
@@ -451,8 +439,7 @@ void URLFilterTest::HandleQueryTest()
 	t_assert(query.GetSize() == querySz + 1 - 3);
 }
 
-Test *URLFilterTest::suite ()
-{
+Test *URLFilterTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, URLFilterTest, DoFilterStateTest);
 	ADD_CASE(testSuite, URLFilterTest, DoUnscrambleStateTest);

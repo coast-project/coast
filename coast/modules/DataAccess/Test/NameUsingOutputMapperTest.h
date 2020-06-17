@@ -14,14 +14,13 @@
 class ROAnything;
 class Context;
 class ResultMapper;
-class NameUsingOutputMapperTest: public testframework::TestCase {
+class NameUsingOutputMapperTest : public testframework::TestCase {
 public:
-	NameUsingOutputMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	NameUsingOutputMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void ConfiguredDestinationTest();
 	void NonConfiguredDestinationTest();
+
 protected:
 	void DoPut(ResultMapper &mapper, Context &c);
 	void DoCheck(const ROAnything &result);

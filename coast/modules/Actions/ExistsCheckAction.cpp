@@ -6,6 +6,7 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "ExistsCheckAction.h"
+
 #include "Context.h"
 #include "Renderer.h"
 #include "Tracer.h"
@@ -16,10 +17,8 @@ namespace {
 	const char *gcSlotName = "LookupName";
 	const char *gcDelimName = "Delim";
 	const char *gcIndexDelimName = "IndexDelim";
-	long const lookupNameIndex = 0L,
-			delimIndex = 1L,
-			indexDelimIndex = 2L;
-}
+	long const lookupNameIndex = 0L, delimIndex = 1L, indexDelimIndex = 2L;
+}  // namespace
 
 bool ExistsCheckAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(ExistsCheckAction.DoExecAction);
@@ -34,14 +33,14 @@ bool ExistsCheckAction::DoExecAction(String &transitionToken, Context &ctx, cons
 
 	ROAnything delim;
 	if (!config.LookupPath(delim, gcDelimName, '\000')) {
-		if ( isSimpleArray && config.GetSize() > delimIndex ) {
+		if (isSimpleArray && config.GetSize() > delimIndex) {
 			delim = config[delimIndex];
 		}
 	}
 
 	ROAnything indexdelim;
 	if (!config.LookupPath(indexdelim, gcIndexDelimName, '\000')) {
-		if ( isSimpleArray && config.GetSize() > indexDelimIndex ) {
+		if (isSimpleArray && config.GetSize() > indexDelimIndex) {
 			indexdelim = config[indexDelimIndex];
 		}
 	}

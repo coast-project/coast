@@ -10,14 +10,13 @@
 #define _SSLSocketUtils_H
 
 //---- framework classes -------------------------------------------------
+#include "Anything.h"
 #include "SSLAPI.h"
 #include "Tracer.h"
-#include "Anything.h"
 
 //---- SSLSocketUtils ----------------------------------------------------------
 //! Helper methods for X509 certificates
-class SSLSocketUtils
-{
+class SSLSocketUtils {
 public:
 	//--- constructors
 	SSLSocketUtils();

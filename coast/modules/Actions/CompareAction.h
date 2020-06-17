@@ -17,13 +17,13 @@
 \par Configuration
 \code
 {
-	/RenderVal1		mandatory	RendererSpec
-	/RenderVal2		mandatory	RendererSpec
+  /RenderVal1		mandatory	RendererSpec
+  /RenderVal2		mandatory	RendererSpec
 
-	/LookupPath1	mandatory	RendererSpec
-	/LookupPath2	mandatory	RendererSpec
+  /LookupPath1	mandatory	RendererSpec
+  /LookupPath2	mandatory	RendererSpec
 
-	/CompareAs		optional	one of "Long", "String", "Bool", "Double" or "Anything" (defaults to String)
+  /CompareAs		optional	one of "Long", "String", "Bool", "Double" or "Anything" (defaults to String)
 }
 \endcode
 
@@ -33,8 +33,7 @@ the case, the two values are rendered and compared as strings. If the
 If they are present, their values are rendered and then looked up. The
 results are then compared as defined (by default as string).
 */
-class CompareAction : public Action
-{
+class CompareAction : public Action {
 public:
 	//--- constructors
 	/*! \param name defines the name of the action */
@@ -42,10 +41,10 @@ public:
 	~CompareAction();
 
 	/*! Compare two values, according to config
-		\param transitionToken (in/out) the event passed by the caller, can be modified.
-		\param ctx the context the action runs within.
-		\param config the configuration of the action (see general descr).
-		\return true if the action run successfully, false if an error occurred.
+	  \param transitionToken (in/out) the event passed by the caller, can be modified.
+	  \param ctx the context the action runs within.
+	  \param config the configuration of the action (see general descr).
+	  \return true if the action run successfully, false if an error occurred.
 	*/
 	virtual bool DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
 };

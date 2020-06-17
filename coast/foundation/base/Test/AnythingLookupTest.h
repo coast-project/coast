@@ -9,13 +9,11 @@
 #ifndef _AnythingLookupTest_H
 #define _AnythingLookupTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnythingLookupTest: public testframework::TestCase {
+#include "TestCase.h"
+class AnythingLookupTest : public testframework::TestCase {
 public:
-	AnythingLookupTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	AnythingLookupTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 	void LookUp0Test();
 	void LookUp1Test();
@@ -24,9 +22,10 @@ public:
 	void invPathLookup();
 	void LookUpWithSpecialCharsTest();
 	void LookupCaseSensitiveTest();
+
 protected:
 	Anything init5DimArray(long);
 	void intLookupPathCheck(Anything &test, const char *path);
 };
 
-#endif		//ifndef _AnythingLookupTest_H
+#endif	// ifndef _AnythingLookupTest_H

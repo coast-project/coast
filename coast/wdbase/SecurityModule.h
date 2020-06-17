@@ -9,8 +9,8 @@
 #ifndef _SecurityModule_H
 #define _SecurityModule_H
 
-#include "WDModule.h"
 #include "Threads.h"
+#include "WDModule.h"
 
 class Anything;
 class Context;
@@ -21,24 +21,20 @@ namespace coast {
 		unsigned long nextRandomNumber();
 		//! create a string of length random bytes
 		String generateRandomString(long length);
-	}
-}
+	}  // namespace security
+}  // namespace coast
 
-class SecurityItem: public HierarchConfNamed {
+class SecurityItem : public HierarchConfNamed {
 	SecurityItem();
 	SecurityItem(const SecurityItem &);
 	SecurityItem &operator=(const SecurityItem &);
-public:
-	SecurityItem(const char *name) :
-		HierarchConfNamed(name) {
-	}
 
-	virtual void InitKey(const String &key) {
-	} // deliberately non-const! useful for Scrambler and Signer
-	virtual void DoEncode(String &scrambledText, const String &cleartext) const {
-		scrambledText = cleartext;
-	}
-	//denote failure to decode by returning false
+public:
+	SecurityItem(const char *name) : HierarchConfNamed(name) {}
+
+	virtual void InitKey(const String &key) {}	// deliberately non-const! useful for Scrambler and Signer
+	virtual void DoEncode(String &scrambledText, const String &cleartext) const { scrambledText = cleartext; }
+	// denote failure to decode by returning false
 	virtual bool DoDecode(String &cleartext, const String &scrambledText) const {
 		cleartext = scrambledText;
 		return true;
@@ -50,7 +46,8 @@ public:
 
 	// factor common code to retrieve the name of a security item from the encoded text
 	// returns position in encodedText to continue from. if 0 this means no name was found
-	static long GetNamePrefixFromEncodedText(String &theName, const String &encodedText);RegCacheDef(SecurityItem); // FindSecurityItem()
+	static long GetNamePrefixFromEncodedText(String &theName, const String &encodedText);
+	RegCacheDef(SecurityItem);	// FindSecurityItem()
 
 protected:
 	// generate the config file name (without extension, which is assumed to be any)
@@ -70,80 +67,60 @@ protected:
 	static const char *fgcLegacyMasterKey;
 };
 
-class Scrambler: public SecurityItem {
+class Scrambler : public SecurityItem {
 	Scrambler();
 	Scrambler(const Scrambler &);
 	Scrambler &operator=(const Scrambler &);
+
 public:
-	Scrambler(const char *name) :
-		SecurityItem(name) {
-	}
+	Scrambler(const char *name) : SecurityItem(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) Scrambler(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) Scrambler(fName); }
 
 	static void Scramble(const char *scramblername, String &scrambledText, const String &cleartext);
 	static bool Unscramble(String &cleartext, const String &encodedText);
 
-	static Scrambler *FindScrambler(const char *name) {
-		return SafeCast(FindSecurityItem(name), Scrambler);
-	}
+	static Scrambler *FindScrambler(const char *name) { return SafeCast(FindSecurityItem(name), Scrambler); }
 };
 
-class Signer: public SecurityItem {
+class Signer : public SecurityItem {
 	Signer(const Signer &);
 	Signer &operator=(const Signer &);
+
 public:
-	Signer() :
-		SecurityItem("nos") {
-	}
-	Signer(const char *name) :
-		SecurityItem(name) {
-	}
+	Signer() : SecurityItem("nos") {}
+	Signer(const char *name) : SecurityItem(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) Signer(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) Signer(fName); }
 
 	static void Sign(const char *encodername, String &encodedText, const String &cleartext);
 	static bool Check(String &cleartext, const String &scrambledText);
-	static Signer *FindSigner(const char *name) {
-		return SafeCast(FindSecurityItem(name), Signer);
-	}
+	static Signer *FindSigner(const char *name) { return SafeCast(FindSecurityItem(name), Signer); }
 };
 
-class Encoder: public SecurityItem {
+class Encoder : public SecurityItem {
 	Encoder();
 	Encoder(const Encoder &);
 	Encoder &operator=(const Encoder &);
+
 public:
-	Encoder(const char *name) :
-		SecurityItem(name) {
-	}
+	Encoder(const char *name) : SecurityItem(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) Encoder(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) Encoder(fName); }
 	static bool GetEncoderName(String &encodername, const String &encodedText);
-	static Encoder *FindEncoder(const char *name) {
-		return SafeCast(FindSecurityItem(name), Encoder);
-	}
+	static Encoder *FindEncoder(const char *name) { return SafeCast(FindSecurityItem(name), Encoder); }
 };
 
-class Compressor: public SecurityItem {
+class Compressor : public SecurityItem {
 	Compressor();
 	Compressor(const Compressor &);
 	Compressor &operator=(const Compressor &);
+
 public:
-	Compressor(const char *name) :
-		SecurityItem(name) {
-	}
+	Compressor(const char *name) : SecurityItem(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) Compressor(fName);
-	}
-	//!initialize compressor with config if necessary
+	IFAObject *Clone(Allocator *a) const { return new (a) Compressor(fName); }
+	//! initialize compressor with config if necessary
 	virtual bool Init(ROAnything config);
 
 	virtual void DoCompress(String &encodedText, const Anything &state);
@@ -152,17 +129,13 @@ public:
 	static void Compress(const char *encodername, String &encodedText, const Anything &state);
 	static bool Expand(Anything &state, const String &clearText);
 	static bool GetCompressorName(String &encodername, const String &encodedText);
-	static Compressor *FindCompressor(const char *name) {
-		return SafeCast(FindSecurityItem(name), Compressor);
-	}
+	static Compressor *FindCompressor(const char *name) { return SafeCast(FindSecurityItem(name), Compressor); }
 };
 
-class SecurityModule: public WDModule {
+class SecurityModule : public WDModule {
 public:
 	// Module methods
-	SecurityModule(const char *name) :
-		WDModule(name) {
-	}
+	SecurityModule(const char *name) : WDModule(name) {}
 	/* in: config: Server configuration
 	 ret: true if successful, false otherwise.
 	 what: Only writes a message and installs itself
@@ -190,11 +163,11 @@ public:
 	static bool UnscrambleState(Anything &state, const String &s);
 };
 
-#define RegisterSecurityItem(name)		RegisterObject(name, SecurityItem)
-#define RegisterAliasSecurityItem(name,theClass) RegisterShortName(name,theClass,SecurityItem)
-#define RegisterScrambler(name)		RegisterSecurityItem(name)
-#define RegisterEncoder(name) 		RegisterSecurityItem(name)
-#define RegisterSigner(name) 		RegisterSecurityItem(name)
-#define RegisterCompressor(name) 	RegisterSecurityItem(name)
+#define RegisterSecurityItem(name) RegisterObject(name, SecurityItem)
+#define RegisterAliasSecurityItem(name, theClass) RegisterShortName(name, theClass, SecurityItem)
+#define RegisterScrambler(name) RegisterSecurityItem(name)
+#define RegisterEncoder(name) RegisterSecurityItem(name)
+#define RegisterSigner(name) RegisterSecurityItem(name)
+#define RegisterCompressor(name) RegisterSecurityItem(name)
 
-#endif		//not defined _SecurityModule_H
+#endif	// not defined _SecurityModule_H

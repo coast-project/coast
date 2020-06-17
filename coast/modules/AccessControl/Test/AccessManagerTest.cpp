@@ -7,11 +7,12 @@
  */
 
 #include "AccessManagerTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
+
 #include "AccessManager.h"
 #include "AnyIterators.h"
 #include "FileAccessControllerTests.h"
+#include "FoundationTestTypes.h"
+#include "TestSuite.h"
 
 TString AccessManagerTest::getConfigFileName() {
 	return "AccessManagerTestConfig";
@@ -20,9 +21,10 @@ TString AccessManagerTest::getConfigFileName() {
 void AccessManagerTest::setUp() {
 	StartTrace(AccessManagerTest.setUp);
 	// create test files
-	t_assertm( FileCreator::CreateFile("WriteUserData", GetConfig()["InitData"]["UserFile"]), "Creation of test file failed" );
-	t_assertm( FileCreator::CreateFile("WriteTokenData", GetConfig()["InitData"]["TokenFile"]), "Creation of test file failed" );
-	t_assertm( FileCreator::CreateFile("WriteEntityData", GetConfig()["InitData"]["EntityFile"]), "Creation of test file failed" );
+	t_assertm(FileCreator::CreateFile("WriteUserData", GetConfig()["InitData"]["UserFile"]), "Creation of test file failed");
+	t_assertm(FileCreator::CreateFile("WriteTokenData", GetConfig()["InitData"]["TokenFile"]), "Creation of test file failed");
+	t_assertm(FileCreator::CreateFile("WriteEntityData", GetConfig()["InitData"]["EntityFile"]),
+			  "Creation of test file failed");
 }
 
 void AccessManagerTest::tearDown() {
@@ -66,7 +68,7 @@ void AccessManagerTest::doTestAccessManager(ROAnything config, AccessManager *am
 		Trace("test case name = " << subconf.SlotName(i3));
 		testconf = subconf[i3];
 		res = am->AuthenticateStrong(testconf["uid"].AsString(), testconf["pwd"].AsString(), testconf["otp"].AsString(),
-				testconf["window"].AsLong(0), newRole);
+									 testconf["window"].AsLong(0), newRole);
 		assertEqual(testconf["result"].AsBool(false), res);
 		assertEqual(testconf["resultRole"].AsString(""), newRole);
 	}
@@ -81,11 +83,7 @@ void AccessManagerTest::doTestAccessManager(ROAnything config, AccessManager *am
 		// does login work after change?
 		if (res) {
 			String dummyRole;
-			t_assert( am->AuthenticateWeak(
-							testconf["uid"].AsString(),
-							testconf["newpwd"].AsString(),
-							dummyRole
-					));
+			t_assert(am->AuthenticateWeak(testconf["uid"].AsString(), testconf["newpwd"].AsString(), dummyRole));
 		}
 	}
 
@@ -99,11 +97,7 @@ void AccessManagerTest::doTestAccessManager(ROAnything config, AccessManager *am
 		// does login work after reset?
 		if (res) {
 			String dummyRole;
-			t_assert( am->AuthenticateWeak(
-							testconf["uid"].AsString(),
-							testconf["uid"].AsString(),
-							dummyRole
-					));
+			t_assert(am->AuthenticateWeak(testconf["uid"].AsString(), testconf["uid"].AsString(), dummyRole));
 		}
 	}
 

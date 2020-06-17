@@ -12,21 +12,19 @@
 #include "TestCase.h"
 
 //---- StreamingAnythingMapperTest ----------------------------------------------------------
-//!TestClass for StreamingAnythingMapper functionality
+//! TestClass for StreamingAnythingMapper functionality
 //! this mapper should handle Anythings exported and imported to client streams properly
-class StreamingAnythingMapperTest : public testframework::TestCase
-{
+class StreamingAnythingMapperTest : public testframework::TestCase {
 public:
-
 	//--- constructors
 	StreamingAnythingMapperTest(TString tstrName);
 	~StreamingAnythingMapperTest();
 
 	//--- public api
-	//!generate test suite
+	//! generate test suite
 	//! this method generates the tests for the class
 	//! \return a new test is created by this method
-	static Test *suite ();
+	static Test *suite();
 
 	//! Stream an Anything from context on client's stream
 	void GetTest();

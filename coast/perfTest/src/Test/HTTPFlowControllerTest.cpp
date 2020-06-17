@@ -7,12 +7,12 @@
  */
 
 #include "HTTPFlowControllerTest.h"
-#include "TestSuite.h"
+
 #include "CheckStores.h"
+#include "TestSuite.h"
 
 //---- HTTPFlowControllerTest ----------------------------------------------------------------
-HTTPFlowControllerTest::HTTPFlowControllerTest(TString tstrName) :
-	ConfiguredActionTest(tstrName) {
+HTTPFlowControllerTest::HTTPFlowControllerTest(TString tstrName) : ConfiguredActionTest(tstrName) {
 	StartTrace(HTTPFlowControllerTest.HTTPFlowControllerTest);
 }
 
@@ -26,7 +26,7 @@ void HTTPFlowControllerTest::DoTest(Anything testCase, const char *testCaseName)
 	DoTestWithContext(testCase, testCaseName, fCtx);
 	Anything anyFailureStrings;
 	coast::testframework::CheckStores(anyFailureStrings, testCase["Result"], fCtx, testCaseName, coast::testframework::exists);
-	for ( long sz=anyFailureStrings.GetSize(),i=0; i<sz;++i ) {
+	for (long sz = anyFailureStrings.GetSize(), i = 0; i < sz; ++i) {
 		t_assertm(false, anyFailureStrings[i].AsString().cstr());
 	}
 }

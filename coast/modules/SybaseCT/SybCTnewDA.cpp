@@ -7,12 +7,14 @@
  */
 
 #include "SybCTnewDA.h"
-#include "oserror.h"
-#include "Timers.h"
+
 #include "SystemBase.h"
 #include "TimeStamp.h"
-#include <limits>
+#include "Timers.h"
+#include "oserror.h"
+
 #include <cstring>
+#include <limits>
 
 //---- SybCTnewDA ----------------------------------------------------------------
 SimpleMutex SybCTnewDA::fgSybaseLocker("SybaseLocker", coast::storage::Global());
@@ -21,81 +23,45 @@ CS_RETCODE SybCTnewDA_csmsg_handler(CS_CONTEXT *context, CS_CLIENTMSG *errmsg);
 CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *connection, CS_CLIENTMSG *errmsg);
 CS_RETCODE SybCTnewDA_servermsg_handler(CS_CONTEXT *context, CS_CONNECTION *connection, CS_SERVERMSG *srvmsg);
 
-#define fooVALUE2STRING(typ) { (int)typ, #typ },
+#define fooVALUE2STRING(typ) \
+	{ (int)typ, #typ }
 
 struct tValue2Strings {
-	int   nValue;
+	int nValue;
 	const char *pName;
 };
 
 static tValue2Strings fCsRetCode2String[] = {
-	fooVALUE2STRING(CS_SUCCEED)
-	fooVALUE2STRING(CS_FAIL)
-	fooVALUE2STRING(CS_MEM_ERROR)
-	fooVALUE2STRING(CS_PENDING)
-	fooVALUE2STRING(CS_QUIET)
-	fooVALUE2STRING(CS_BUSY)
-	fooVALUE2STRING(CS_INTERRUPT)
-	fooVALUE2STRING(CS_BLK_HAS_TEXT)
-	fooVALUE2STRING(CS_CONTINUE)
-	fooVALUE2STRING(CS_FATAL)
-	fooVALUE2STRING(CS_RET_HAFAILOVER)
-	fooVALUE2STRING(CS_CONV_ERR)
-	fooVALUE2STRING(CS_EXTERNAL_ERR)
-	fooVALUE2STRING(CS_INTERNAL_ERR)
-	fooVALUE2STRING(CS_COMN_ERR)
-	fooVALUE2STRING(CS_CANCELED)
-	fooVALUE2STRING(CS_ROW_FAIL)
-	fooVALUE2STRING(CS_END_DATA)
-	fooVALUE2STRING(CS_END_RESULTS)
-	fooVALUE2STRING(CS_END_ITEM)
-	fooVALUE2STRING(CS_NOMSG)
-	fooVALUE2STRING(CS_TIMED_OUT)
-	fooVALUE2STRING(CS_PASSTHRU_EOM)
-	fooVALUE2STRING(CS_PASSTHRU_MORE)
-	fooVALUE2STRING(CS_TRYING)
-	fooVALUE2STRING(CS_EBADPARAM)
-	fooVALUE2STRING(CS_EBADLEN)
-	fooVALUE2STRING(CS_ENOCNVRT)
-	fooVALUE2STRING(CS_EOVERFLOW)
-	fooVALUE2STRING(CS_EUNDERFLOW)
-	fooVALUE2STRING(CS_EPRECISION)
-	fooVALUE2STRING(CS_ESCALE)
-	fooVALUE2STRING(CS_ESYNTAX)
-	fooVALUE2STRING(CS_EFORMAT)
-	fooVALUE2STRING(CS_EDOMAIN)
-	fooVALUE2STRING(CS_EDIVZERO)
-	fooVALUE2STRING(CS_ERESOURCE)
-	fooVALUE2STRING(CS_ENULLNOIND)
-	fooVALUE2STRING(CS_ETRUNCNOIND)
-	fooVALUE2STRING(CS_ENOBIND)
-	fooVALUE2STRING(CS_TRUNCATED)
-	fooVALUE2STRING(CS_ESTYLE)
-	fooVALUE2STRING(CS_EBADXLT)
-	fooVALUE2STRING(CS_ENOXLT)
-	fooVALUE2STRING(CS_USEREP)
+	fooVALUE2STRING(CS_SUCCEED),	  fooVALUE2STRING(CS_FAIL),			  fooVALUE2STRING(CS_MEM_ERROR),
+	fooVALUE2STRING(CS_PENDING),	  fooVALUE2STRING(CS_QUIET),		  fooVALUE2STRING(CS_BUSY),
+	fooVALUE2STRING(CS_INTERRUPT),	  fooVALUE2STRING(CS_BLK_HAS_TEXT),	  fooVALUE2STRING(CS_CONTINUE),
+	fooVALUE2STRING(CS_FATAL),		  fooVALUE2STRING(CS_RET_HAFAILOVER), fooVALUE2STRING(CS_CONV_ERR),
+	fooVALUE2STRING(CS_EXTERNAL_ERR), fooVALUE2STRING(CS_INTERNAL_ERR),	  fooVALUE2STRING(CS_COMN_ERR),
+	fooVALUE2STRING(CS_CANCELED),	  fooVALUE2STRING(CS_ROW_FAIL),		  fooVALUE2STRING(CS_END_DATA),
+	fooVALUE2STRING(CS_END_RESULTS),  fooVALUE2STRING(CS_END_ITEM),		  fooVALUE2STRING(CS_NOMSG),
+	fooVALUE2STRING(CS_TIMED_OUT),	  fooVALUE2STRING(CS_PASSTHRU_EOM),	  fooVALUE2STRING(CS_PASSTHRU_MORE),
+	fooVALUE2STRING(CS_TRYING),		  fooVALUE2STRING(CS_EBADPARAM),	  fooVALUE2STRING(CS_EBADLEN),
+	fooVALUE2STRING(CS_ENOCNVRT),	  fooVALUE2STRING(CS_EOVERFLOW),	  fooVALUE2STRING(CS_EUNDERFLOW),
+	fooVALUE2STRING(CS_EPRECISION),	  fooVALUE2STRING(CS_ESCALE),		  fooVALUE2STRING(CS_ESYNTAX),
+	fooVALUE2STRING(CS_EFORMAT),	  fooVALUE2STRING(CS_EDOMAIN),		  fooVALUE2STRING(CS_EDIVZERO),
+	fooVALUE2STRING(CS_ERESOURCE),	  fooVALUE2STRING(CS_ENULLNOIND),	  fooVALUE2STRING(CS_ETRUNCNOIND),
+	fooVALUE2STRING(CS_ENOBIND),	  fooVALUE2STRING(CS_TRUNCATED),	  fooVALUE2STRING(CS_ESTYLE),
+	fooVALUE2STRING(CS_EBADXLT),	  fooVALUE2STRING(CS_ENOXLT),		  fooVALUE2STRING(CS_USEREP),
 };
 
 // calculate the size of the array
 static int nValue2Strings = sizeof(fCsRetCode2String) / sizeof(tValue2Strings);
 
 SybCTnewDA::ColumnData::ColumnData(Allocator *a)
-	: indicator(NULL)
-	, value(NULL)
-	, valuelen(NULL)
-	, fAllocator((a) ? a : coast::storage::Current())
-{
-}
+	: indicator(NULL), value(NULL), valuelen(NULL), fAllocator((a) ? a : coast::storage::Current()) {}
 
-SybCTnewDA::ColumnData::~ColumnData()
-{
+SybCTnewDA::ColumnData::~ColumnData() {
 	fAllocator->Free(value);
 	fAllocator->Free(valuelen);
 	fAllocator->Free(indicator);
 }
 
-CS_RETCODE SybCTnewDA::ColumnData::AllocateValue(size_t lSize)
-{
+CS_RETCODE SybCTnewDA::ColumnData::AllocateValue(size_t lSize) {
 	StartTrace(SybCTnewDA.AllocateValue);
 	value = (CS_CHAR *)fAllocator->Malloc(lSize);
 	if (value == NULL) {
@@ -104,8 +70,7 @@ CS_RETCODE SybCTnewDA::ColumnData::AllocateValue(size_t lSize)
 	return CS_SUCCEED;
 }
 
-CS_RETCODE SybCTnewDA::ColumnData::AllocateValuelen(CS_INT num_rows)
-{
+CS_RETCODE SybCTnewDA::ColumnData::AllocateValuelen(CS_INT num_rows) {
 	StartTrace(SybCTnewDA.AllocateValuelen);
 	valuelen = (CS_INT *)fAllocator->Malloc(sizeof(CS_INT) * num_rows);
 	if (valuelen == NULL) {
@@ -114,8 +79,7 @@ CS_RETCODE SybCTnewDA::ColumnData::AllocateValuelen(CS_INT num_rows)
 	return CS_SUCCEED;
 }
 
-CS_RETCODE SybCTnewDA::ColumnData::AllocateIndicator(CS_INT num_rows)
-{
+CS_RETCODE SybCTnewDA::ColumnData::AllocateIndicator(CS_INT num_rows) {
 	StartTrace(SybCTnewDA.AllocateIndicator);
 	indicator = (CS_SMALLINT *)fAllocator->Malloc(sizeof(CS_SMALLINT) * num_rows);
 	if (indicator == NULL) {
@@ -124,33 +88,28 @@ CS_RETCODE SybCTnewDA::ColumnData::AllocateIndicator(CS_INT num_rows)
 	return CS_SUCCEED;
 }
 
-SybCTnewDA::SybCTnewDA(CS_CONTEXT *context)
-	: fContext(context)
-	, fConnection(NULL)
-{
+SybCTnewDA::SybCTnewDA(CS_CONTEXT *context) : fContext(context), fConnection(NULL) {
 	StartTrace(SybCTnewDA.SybCTnewDA);
 }
 
-SybCTnewDA::~SybCTnewDA()
-{
+SybCTnewDA::~SybCTnewDA() {
 	StartTrace(SybCTnewDA.~SybCTnewDA);
-	if ( fConnection ) {
+	if (fConnection) {
 		Close(true);
 	}
 }
 
-String SybCTnewDA::GetStringFromRetCode(CS_RETCODE retcode)
-{
-	for ( int iIdx = 0; iIdx < nValue2Strings; ++iIdx) {
-		if ( fCsRetCode2String[iIdx].nValue == retcode ) {
+String SybCTnewDA::GetStringFromRetCode(CS_RETCODE retcode) {
+	for (int iIdx = 0; iIdx < nValue2Strings; ++iIdx) {
+		if (fCsRetCode2String[iIdx].nValue == retcode) {
 			return String(fCsRetCode2String[iIdx].pName);
 		}
 	}
 	return String().Append((long)retcode);
 }
 
-CS_RETCODE SybCTnewDA::Init(CS_CONTEXT **context, Anything *pMessages, const String &strInterfacesPathName, CS_INT iNumberOfConns)
-{
+CS_RETCODE SybCTnewDA::Init(CS_CONTEXT **context, Anything *pMessages, const String &strInterfacesPathName,
+							CS_INT iNumberOfConns) {
 	StartTrace(SybCTnewDA.Init);
 	CS_RETCODE retcode = CS_FAIL;
 
@@ -221,15 +180,16 @@ CS_RETCODE SybCTnewDA::Init(CS_CONTEXT **context, Anything *pMessages, const Str
 			SYSERROR("ct_config(netio) failed (" << GetStringFromRetCode(retcode) << ")");
 		}
 	}
-	if ( retcode == CS_SUCCEED && iNumberOfConns > 0 ) {
+	if (retcode == CS_SUCCEED && iNumberOfConns > 0) {
 		Trace("Try set Max Connections to [" << (long)iNumberOfConns << "]");
 		retcode = ct_config(*context, CS_SET, CS_MAX_CONNECT, &iNumberOfConns, CS_UNUSED, NULL);
 		if (retcode != CS_SUCCEED) {
-			SYSWARNING("ct_config(CS_MAX_CONNECT) to " << (long)iNumberOfConns << " failed (" << GetStringFromRetCode(retcode) << ")");
+			SYSWARNING("ct_config(CS_MAX_CONNECT) to " << (long)iNumberOfConns << " failed (" << GetStringFromRetCode(retcode)
+													   << ")");
 			retcode = CS_SUCCEED;
 		}
 	}
-	if ( retcode == CS_SUCCEED ) {
+	if (retcode == CS_SUCCEED) {
 		CS_INT maxCons;
 		retcode = ct_config(*context, CS_GET, CS_MAX_CONNECT, &maxCons, CS_UNUSED, NULL);
 		if (retcode == CS_SUCCEED) {
@@ -240,7 +200,8 @@ CS_RETCODE SybCTnewDA::Init(CS_CONTEXT **context, Anything *pMessages, const Str
 		}
 	}
 	if (retcode == CS_SUCCEED && strInterfacesPathName.Length()) {
-		retcode = ct_config(*context, CS_SET, CS_IFILE, (CS_VOID *)(const char *)strInterfacesPathName, strInterfacesPathName.Length(), NULL);
+		retcode = ct_config(*context, CS_SET, CS_IFILE, (CS_VOID *)(const char *)strInterfacesPathName,
+							strInterfacesPathName.Length(), NULL);
 		if (retcode != CS_SUCCEED) {
 			SYSERROR("ct_config(cs_ifile) failed (" << GetStringFromRetCode(retcode) << ")");
 		}
@@ -255,10 +216,9 @@ CS_RETCODE SybCTnewDA::Init(CS_CONTEXT **context, Anything *pMessages, const Str
 	return retcode;
 }
 
-CS_RETCODE SybCTnewDA::Finis(CS_CONTEXT *context)
-{
+CS_RETCODE SybCTnewDA::Finis(CS_CONTEXT *context) {
 	StartTrace(SybCTnewDA.Finis);
-	CS_RETCODE	retcode;
+	CS_RETCODE retcode;
 
 	retcode = ct_exit(context, CS_UNUSED);
 	if (retcode != CS_SUCCEED) {
@@ -273,18 +233,17 @@ CS_RETCODE SybCTnewDA::Finis(CS_CONTEXT *context)
 	return retcode;
 }
 
-bool SybCTnewDA::Open(DaParams &params, String user, String password, String server, String appl)
-{
+bool SybCTnewDA::Open(DaParams &params, String user, String password, String server, String appl) {
 	StartTrace(SybCTnewDA.Open);
 	DAAccessTimer(SybCTnewDAImpl.Open, *(params.fpDAName), *(params.fpContext));
-	CS_RETCODE	retcode;
+	CS_RETCODE retcode;
 
 	// Allocate a connection structure.
-	if ( (retcode = ct_con_alloc(fContext, &fConnection)) == CS_SUCCEED ) {
+	if ((retcode = ct_con_alloc(fContext, &fConnection)) == CS_SUCCEED) {
 		// set param structure containing Context and Mappers used to return results and messages
-		if ( ( retcode = SetConProps(CS_USERDATA, (CS_VOID *)&params, CS_SIZEOF(DaParams)) ) == CS_SUCCEED ) {
+		if ((retcode = SetConProps(CS_USERDATA, (CS_VOID *)&params, CS_SIZEOF(DaParams))) == CS_SUCCEED) {
 			// If a username is defined, set the CS_USERNAME property.
-			if ( user.Length() ) {
+			if (user.Length()) {
 				if ((retcode = SetConProps(CS_USERNAME, (CS_VOID *)(char *)(const char *)user, CS_NULLTERM)) != CS_SUCCEED) {
 					Error(params, "Open: ct_con_props(username) failed");
 				}
@@ -292,20 +251,22 @@ bool SybCTnewDA::Open(DaParams &params, String user, String password, String ser
 				Warning(params, "Open: Username missing");
 			}
 
-			if ( retcode == CS_SUCCEED ) {
+			if (retcode == CS_SUCCEED) {
 				// If a password is defined, set the CS_PASSWORD property.
-				if ( password.Length() ) {
-					if ((retcode = SetConProps(CS_PASSWORD, (CS_VOID *)(char *)(const char *)password, CS_NULLTERM)) != CS_SUCCEED) {
+				if (password.Length()) {
+					if ((retcode = SetConProps(CS_PASSWORD, (CS_VOID *)(char *)(const char *)password, CS_NULLTERM)) !=
+						CS_SUCCEED) {
 						Error(params, "Open: ct_con_props(password) failed");
 					}
 				} else {
 					Warning(params, "Open: Password missing");
 				}
 
-				if ( retcode == CS_SUCCEED ) {
+				if (retcode == CS_SUCCEED) {
 					// Set the CS_APPNAME property.
-					if ( appl.Length() ) {
-						if ((retcode = SetConProps(CS_APPNAME, (CS_VOID *)(char *)(const char *)appl, CS_NULLTERM)) != CS_SUCCEED) {
+					if (appl.Length()) {
+						if ((retcode = SetConProps(CS_APPNAME, (CS_VOID *)(char *)(const char *)appl, CS_NULLTERM)) !=
+							CS_SUCCEED) {
 							Error(params, "Open: ct_con_props(appname) failed");
 						}
 					} else {
@@ -314,29 +275,32 @@ bool SybCTnewDA::Open(DaParams &params, String user, String password, String ser
 
 					// Set Host-Name
 					String hostName;
-					if ( (retcode == CS_SUCCEED) && coast::system::HostName( hostName ) ) {
+					if ((retcode == CS_SUCCEED) && coast::system::HostName(hostName)) {
 						Trace("setting hostname to [" << hostName << "]");
-						if ( (retcode = ct_con_props(fConnection, CS_SET, CS_HOSTNAME, (char *)(const char *)hostName, CS_NULLTERM, NULL)) != CS_SUCCEED ) {
+						if ((retcode = ct_con_props(fConnection, CS_SET, CS_HOSTNAME, (char *)(const char *)hostName,
+													CS_NULLTERM, NULL)) != CS_SUCCEED) {
 							Warning(params, "Open: setting hostname failed");
 						}
 					}
 
 					// Set LoginTimeout if specified
 					long lLoginTimeout = CS_NO_LIMIT;
-					if ( (retcode == CS_SUCCEED) && (params.fpIn)->Get( "LoginTimeout", lLoginTimeout, *(params.fpContext)) ) {
+					if ((retcode == CS_SUCCEED) && (params.fpIn)->Get("LoginTimeout", lLoginTimeout, *(params.fpContext))) {
 						CS_INT lOldTimeout = CS_NO_LIMIT;
-						if ( ( retcode = ct_config(fContext, CS_GET, CS_LOGIN_TIMEOUT, &lOldTimeout, CS_UNUSED, NULL) ) != CS_SUCCEED ) {
+						if ((retcode = ct_config(fContext, CS_GET, CS_LOGIN_TIMEOUT, &lOldTimeout, CS_UNUSED, NULL)) !=
+							CS_SUCCEED) {
 							Warning(params, "Open: retrieval of CS_LOGIN_TIMEOUT failed");
 						}
-						if ( lOldTimeout == CS_NO_LIMIT ) {
+						if (lOldTimeout == CS_NO_LIMIT) {
 							Trace("old CS_LOGIN_TIMEOUT value: <unlimited>");
 						} else {
 							Trace("old CS_LOGIN_TIMEOUT value: " << (long)lOldTimeout << "s");
 						}
-						if ( ( lLoginTimeout > 0L || lLoginTimeout == CS_NO_LIMIT ) && ( lOldTimeout != (CS_INT)lLoginTimeout ) ) {
+						if ((lLoginTimeout > 0L || lLoginTimeout == CS_NO_LIMIT) && (lOldTimeout != (CS_INT)lLoginTimeout)) {
 							Trace("setting CS_LOGIN_TIMEOUT to " << lLoginTimeout << "s");
 							CS_INT iLoginTimeout = (CS_INT)lLoginTimeout;
-							if ( ( retcode = ct_config(fContext, CS_SET, CS_LOGIN_TIMEOUT, (CS_VOID *)&iLoginTimeout, CS_UNUSED, NULL) ) != CS_SUCCEED ) {
+							if ((retcode = ct_config(fContext, CS_SET, CS_LOGIN_TIMEOUT, (CS_VOID *)&iLoginTimeout, CS_UNUSED,
+													 NULL)) != CS_SUCCEED) {
 								Warning(params, "Open: setting CS_LOGIN_TIMEOUT failed");
 							}
 						}
@@ -344,31 +308,33 @@ bool SybCTnewDA::Open(DaParams &params, String user, String password, String ser
 
 					// Set ResultTimeout if specified
 					long lTimeout = CS_NO_LIMIT;
-					if ( (retcode == CS_SUCCEED) && (params.fpIn)->Get( "ResultTimeout", lTimeout, *(params.fpContext)) ) {
+					if ((retcode == CS_SUCCEED) && (params.fpIn)->Get("ResultTimeout", lTimeout, *(params.fpContext))) {
 						CS_INT lOldTimeout = CS_NO_LIMIT;
-						if ( ( retcode = ct_config(fContext, CS_GET, CS_TIMEOUT, &lOldTimeout, CS_UNUSED, NULL) ) != CS_SUCCEED ) {
+						if ((retcode = ct_config(fContext, CS_GET, CS_TIMEOUT, &lOldTimeout, CS_UNUSED, NULL)) != CS_SUCCEED) {
 							Warning(params, "Open: retrieval of CS_TIMEOUT failed");
 						}
-						if ( lOldTimeout == CS_NO_LIMIT ) {
+						if (lOldTimeout == CS_NO_LIMIT) {
 							Trace("old CS_TIMEOUT value: <unlimited>");
 						} else {
 							Trace("old CS_TIMEOUT value: " << (long)lOldTimeout << "s");
 						}
-						if ( ( lTimeout > 0L || lTimeout == CS_NO_LIMIT ) && ( lOldTimeout != (CS_INT)lTimeout ) ) {
+						if ((lTimeout > 0L || lTimeout == CS_NO_LIMIT) && (lOldTimeout != (CS_INT)lTimeout)) {
 							Trace("setting CS_TIMEOUT to " << lTimeout << "s");
 							CS_INT iTimeout = (CS_INT)lTimeout;
-							if ( ( retcode = ct_config(fContext, CS_SET, CS_TIMEOUT, (CS_VOID *)&iTimeout, CS_UNUSED, NULL) ) != CS_SUCCEED ) {
+							if ((retcode = ct_config(fContext, CS_SET, CS_TIMEOUT, (CS_VOID *)&iTimeout, CS_UNUSED, NULL)) !=
+								CS_SUCCEED) {
 								Warning(params, "Open: setting CS_TIMEOUT failed");
 							}
 						}
 					}
 
 					// Open a Server fConnection.
-					if ( retcode == CS_SUCCEED ) {
-						if ( server.Length() ) {
+					if (retcode == CS_SUCCEED) {
+						if (server.Length()) {
 							{
 								LockUnlockEntry me(fgSybaseLocker);
-								if ( ( retcode = ct_connect(fConnection, (char *)(const char *)server, CS_NULLTERM) ) == CS_SUCCEED ) {
+								if ((retcode = ct_connect(fConnection, (char *)(const char *)server, CS_NULLTERM)) ==
+									CS_SUCCEED) {
 									return true;
 								}
 							}
@@ -390,17 +356,16 @@ bool SybCTnewDA::Open(DaParams &params, String user, String password, String ser
 	return false;
 }
 
-bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, const long lMaxResultSize, const long lMaxRows)
-{
+bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, const long lMaxResultSize, const long lMaxRows) {
 	StartTrace(SybCTnewDA.SqlExec);
 	DAAccessTimer(SybCTnewDAImpl.SqlExec, *(params.fpDAName), *(params.fpContext));
 	Trace("dbcmd: [" << query << "]");
 
-	CS_RETCODE	retcode;
-	CS_COMMAND	*cmd = NULL;
+	CS_RETCODE retcode;
+	CS_COMMAND *cmd = NULL;
 
 	// set param structure containing Context and Mappers used to return results and messages
-	if ( (retcode = SetConProps(CS_USERDATA, (CS_VOID *)&params, CS_SIZEOF(DaParams))) != CS_SUCCEED) {
+	if ((retcode = SetConProps(CS_USERDATA, (CS_VOID *)&params, CS_SIZEOF(DaParams))) != CS_SUCCEED) {
 		Error(params, String("SqlExec: SetConProps(params) failed (") << GetStringFromRetCode(retcode) << ")");
 		return false;
 	}
@@ -416,7 +381,8 @@ bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, co
 	// Initiate the command with the specified query
 	retcode = ct_command(cmd, CS_LANG_CMD, (char *)(const char *)query, CS_NULLTERM, CS_UNUSED);
 	if (retcode != CS_SUCCEED) {
-		Error(params, String("SqlExec: ct_command(CS_LANG_CMD:") << query << ") failed (" << GetStringFromRetCode(retcode) << ")");
+		Error(params, String("SqlExec: ct_command(CS_LANG_CMD:")
+						  << query << ") failed (" << GetStringFromRetCode(retcode) << ")");
 		(void)ct_cmd_drop(cmd);
 		return false;
 	}
@@ -430,11 +396,11 @@ bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, co
 
 	// Process the results. Loop while ct_results() returns CS_SUCCEED.
 	CS_INT res_type;
-	CS_RETCODE	query_code = CS_SUCCEED;
-	long lRowsReceived( 0L );
+	CS_RETCODE query_code = CS_SUCCEED;
+	long lRowsReceived(0L);
 
 	retcode = ct_results(cmd, &res_type);
-	while ( retcode == CS_SUCCEED ) {
+	while (retcode == CS_SUCCEED) {
 		switch ((int)res_type) {
 			case CS_CMD_SUCCEED:
 				// This means no rows were returned.
@@ -448,7 +414,7 @@ bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, co
 				query_code = CS_FAIL;
 				break;
 			case CS_MSG_RESULT: {
-				CS_SMALLINT	msg_id;
+				CS_SMALLINT msg_id;
 				// the result was a message
 				retcode = ct_res_info(cmd, CS_MSGTYPE, (CS_VOID *)&msg_id, CS_UNUSED, NULL);
 				if (retcode != CS_SUCCEED) {
@@ -465,30 +431,36 @@ bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, co
 			case CS_PARAM_RESULT:
 				// write an Info on which result type we got
 				switch ((int)res_type) {
-					case  CS_ROW_RESULT:
+					case CS_ROW_RESULT:
 						Trace("CS_ROW_RESULT");
 						break;
-					case  CS_CURSOR_RESULT:
+					case CS_CURSOR_RESULT:
 						Trace("CS_CURSOR_RESULT");
 						break;
-					case  CS_PARAM_RESULT:
+					case CS_PARAM_RESULT:
 						Trace("CS_PARAM_RESULT");
 						break;
-					case  CS_STATUS_RESULT:
+					case CS_STATUS_RESULT:
 						Trace("CS_STATUS_RESULT");
 						break;
 				}
 				retcode = DoFetchData(params, cmd, res_type, resultformat, lMaxResultSize, lMaxRows, lRowsReceived);
 				// abortion due to reached memory limit or given row count will be signalled using CS_MEM_ERROR
 				// catch this but do not result in failure because it was a programmers wish
-				if ( ( retcode == CS_MEM_ERROR ) && ( ( lMaxResultSize != 0L ) || ( lMaxRows != -1L ) ) ) {
+				if ((retcode == CS_MEM_ERROR) && ((lMaxResultSize != 0L) || (lMaxRows != -1L))) {
 					String strMsg("SqlExec[");
 					strMsg << *(params.fpDAName) << "]:";
-					if ( lMaxResultSize != 0L && lMaxRows != -1L ) {
-						Warning(params, strMsg.Append(" rows limited due to SybDBMaxResultSize(").Append(lMaxResultSize).Append("kB) or SybDBMaxRows(").Append(lMaxRows).Append(")!"));
-					} else if ( lMaxResultSize != 0L ) {
-						Warning(params, strMsg.Append(" rows limited due to SybDBMaxResultSize(").Append(lMaxResultSize).Append("kB)!"));
-					} else if ( lMaxRows != -1L ) {
+					if (lMaxResultSize != 0L && lMaxRows != -1L) {
+						Warning(params, strMsg.Append(" rows limited due to SybDBMaxResultSize(")
+											.Append(lMaxResultSize)
+											.Append("kB) or SybDBMaxRows(")
+											.Append(lMaxRows)
+											.Append(")!"));
+					} else if (lMaxResultSize != 0L) {
+						Warning(
+							params,
+							strMsg.Append(" rows limited due to SybDBMaxResultSize(").Append(lMaxResultSize).Append("kB)!"));
+					} else if (lMaxRows != -1L) {
 						Warning(params, strMsg.Append(" rows limited due to SybDBMaxRows(").Append(lMaxRows).Append(")!"));
 					}
 					// need to pass CS_MEM_ERROR as query_code to force abortion of still running query
@@ -510,7 +482,7 @@ bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, co
 				Error(params, String("SqlExec: ct_cancel() failed (") << GetStringFromRetCode(retcode) << ")");
 			}
 			// must adjust query_code again to force successful termination of method
-			if ( ( query_code == CS_MEM_ERROR ) && ( ( lMaxResultSize != 0L ) || ( lMaxRows != -1L ) ) ) {
+			if ((query_code == CS_MEM_ERROR) && ((lMaxResultSize != 0L) || (lMaxRows != -1L))) {
 				query_code = CS_SUCCEED;
 			}
 			break;
@@ -553,21 +525,21 @@ bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, co
 	return (query_code == CS_SUCCEED);
 }
 
-CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_INT res_type, const String &resultformat, const long lMaxResultSize, const long lParMaxRows, long &lRowsReceived)
-{
+CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_INT res_type, const String &resultformat,
+								   const long lMaxResultSize, const long lParMaxRows, long &lRowsReceived) {
 	StartTrace(SybCTnewDA.DoFetchData);
 	DAAccessTimer(SybCTnewDAImpl.DoFetchData, *(params.fpDAName), *(params.fpContext));
 
-	CS_RETCODE		retcode;
-	CS_INT			num_cols;
-	CS_INT			i;
-	CS_INT			rows_read;
-	CS_DATAFMT		*datafmt;
-	EX_COLUMN_DATA	*coldata;
-	CS_CONNECTION	*connection;
-	CS_INT			rowsize;
-	CS_INT			num_rows;	// number of rows to get in a single fetch
-	long lMaxRows( 0L );
+	CS_RETCODE retcode;
+	CS_INT num_cols;
+	CS_INT i;
+	CS_INT rows_read;
+	CS_DATAFMT *datafmt;
+	EX_COLUMN_DATA *coldata;
+	CS_CONNECTION *connection;
+	CS_INT rowsize;
+	CS_INT num_rows;  // number of rows to get in a single fetch
+	long lMaxRows(0L);
 
 	connection = (CS_CONNECTION *)NULL;
 	rowsize = 0;
@@ -606,7 +578,7 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 		return CS_MEM_ERROR;
 	}
 
-	datafmt = (CS_DATAFMT *)(coast::storage::Current())->Malloc(num_cols * sizeof (CS_DATAFMT));
+	datafmt = (CS_DATAFMT *)(coast::storage::Current())->Malloc(num_cols * sizeof(CS_DATAFMT));
 	if (datafmt == NULL) {
 		Error(params, "DoFetchData: Malloc of datafmt failed");
 		delete[] coldata;
@@ -649,7 +621,7 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 		// Set datatype and format to tell bind we want things
 		// converted to null terminated strings
 		datafmt[i].datatype = CS_CHAR_TYPE;
-		datafmt[i].format   = CS_FMT_NULLTERM;
+		datafmt[i].format = CS_FMT_NULLTERM;
 
 		rowsize += MEM_ALIGN_SIZE(datafmt[i].maxlength);
 	}
@@ -667,7 +639,8 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 	// fetch (Why? - just to limit memory being used).
 	if (MAX_MEM_BLOCK_SIZE < rowsize) {
 		// no row fetchable
-		Error(params, String("DoFetchData: MAX_MEM_BLOCK_SIZE (") << (long)MAX_MEM_BLOCK_SIZE << " bytes) too small for query, needs " << rowsize << " bytes!");
+		Error(params, String("DoFetchData: MAX_MEM_BLOCK_SIZE (")
+						  << (long)MAX_MEM_BLOCK_SIZE << " bytes) too small for query, needs " << rowsize << " bytes!");
 		retcode = CS_CMD_FAIL;
 		delete[] coldata;
 		(coast::storage::Current())->Free(datafmt);
@@ -681,7 +654,7 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 	} else {
 		lMaxRows = (lMaxResultSize * 1024) / rowsize;
 	}
-	if ( lParMaxRows != -1L ) {
+	if (lParMaxRows != -1L) {
 		lMaxRows = std::min(lMaxRows, lParMaxRows);
 	}
 	num_rows = std::min(lMaxRows, num_rows);
@@ -733,13 +706,13 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 	retcode = ct_fetch(cmd, CS_UNUSED, CS_UNUSED, CS_UNUSED, &rows_read);
 
 	Trace("number of rows fetched: " << rows_read);
-	if ( retcode == CS_SUCCEED || retcode == CS_ROW_FAIL ) {
+	if (retcode == CS_SUCCEED || retcode == CS_ROW_FAIL) {
 		bool bTitlesOnce = resultformat.IsEqual("TitlesOnce");
-		if ( ( res_type != CS_STATUS_RESULT ) && bTitlesOnce ) {
+		if ((res_type != CS_STATUS_RESULT) && bTitlesOnce) {
 			// put column name information
 			Anything temp;
 			for (long col = 0; col < num_cols; ++col) {
-				Trace("colname@" << col << " [" << datafmt[col].name << "]" );
+				Trace("colname@" << col << " [" << datafmt[col].name << "]");
 				temp[datafmt[col].name] = (long)col;
 			}
 			params.fpOut->Put("QueryTitles", temp, *(params.fpContext));
@@ -747,27 +720,28 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 
 		bool bGoOn = true;
 		// process each set of rows
-		while ( bGoOn && ( retcode == CS_SUCCEED || retcode == CS_ROW_FAIL ) ) {
+		while (bGoOn && (retcode == CS_SUCCEED || retcode == CS_ROW_FAIL)) {
 			// Check if we hit a recoverable error.
 			if (retcode == CS_ROW_FAIL) {
-				Error(params, String("DoFetchData: Error on row ") << (long)lRowsReceived << " (" << GetStringFromRetCode(retcode) << ")");
+				Error(params, String("DoFetchData: Error on row ")
+								  << (long)lRowsReceived << " (" << GetStringFromRetCode(retcode) << ")");
 			}
 
-			if ( res_type == CS_STATUS_RESULT ) {
+			if (res_type == CS_STATUS_RESULT) {
 				String strRetcode;
 				strRetcode << EX_GET_COLUMN_VALUE(coldata, 0, 0, datafmt);
 				Trace("CS_STATUS_RESULT: SP_Retcode [" << strRetcode << "]");
 				params.fpOut->Put("SP_Retcode", strRetcode, *(params.fpContext));
 			} else {
 				// process all rows retrieved so far
-				bGoOn = DoFillResults(params, lRowsReceived, rows_read, num_cols, datafmt, coldata, bTitlesOnce );
+				bGoOn = DoFillResults(params, lRowsReceived, rows_read, num_cols, datafmt, coldata, bTitlesOnce);
 
 				// Increment our row count by the number of rows fetched and processed
 				lRowsReceived += rows_read;
 			}
 
 			// do we need to fetch more rows yet?
-			if ( ( (lRowsReceived + num_rows) > lMaxRows ) || !bGoOn ) {
+			if (((lRowsReceived + num_rows) > lMaxRows) || !bGoOn) {
 				retcode = CS_MEM_ERROR;
 				break;
 			} else {
@@ -776,10 +750,10 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 			}
 			Trace(String() << (long)lRowsReceived << " rows read so far");
 		}
-		if ( res_type != CS_STATUS_RESULT ) {
-			bool bShowRowCount( true );
+		if (res_type != CS_STATUS_RESULT) {
+			bool bShowRowCount(true);
 			params.fpIn->Get("ShowQueryCount", bShowRowCount, *(params.fpContext));
-			if ( bShowRowCount ) {
+			if (bShowRowCount) {
 				params.fpOut->Put("QueryCount", lRowsReceived, *(params.fpContext));
 			}
 		}
@@ -817,11 +791,10 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 	return retcode;
 }
 
-CS_INT SybCTnewDA::DisplayDlen(CS_DATAFMT *column)
-{
-	CS_INT		len;
+CS_INT SybCTnewDA::DisplayDlen(CS_DATAFMT *column) {
+	CS_INT len;
 
-	switch ((int) column->datatype) {
+	switch ((int)column->datatype) {
 		case CS_CHAR_TYPE:
 		case CS_VARCHAR_TYPE:
 		case CS_TEXT_TYPE:
@@ -875,8 +848,8 @@ CS_INT SybCTnewDA::DisplayDlen(CS_DATAFMT *column)
 	return std::max(strlen(column->name) + 1, static_cast<size_t>(len));
 }
 
-bool SybCTnewDA::DoFillResults(DaParams &params, CS_INT totalrows, CS_INT numrows, CS_INT numcols, CS_DATAFMT *colfmt, EX_COLUMN_DATA *coldata, bool bTitlesOnce )
-{
+bool SybCTnewDA::DoFillResults(DaParams &params, CS_INT totalrows, CS_INT numrows, CS_INT numcols, CS_DATAFMT *colfmt,
+							   EX_COLUMN_DATA *coldata, bool bTitlesOnce) {
 	StartTrace(SybCTnewDA.DoFillResults);
 	ResultMapper *pResultMapper = params.fpOut;
 	Context &aContext = *(params.fpContext);
@@ -888,8 +861,8 @@ bool SybCTnewDA::DoFillResults(DaParams &params, CS_INT totalrows, CS_INT numrow
 		// We have a row.  Loop through the columns displaying the column values.
 		Anything temp;
 		for (CS_INT col = 0; col < numcols; ++col) {
-			if ( bTitlesOnce ) {
-				temp.Append( EX_GET_COLUMN_VALUE(coldata, row, col, colfmt) );
+			if (bTitlesOnce) {
+				temp.Append(EX_GET_COLUMN_VALUE(coldata, row, col, colfmt));
 			} else {
 				temp[colfmt[col].name] = EX_GET_COLUMN_VALUE(coldata, row, col, colfmt);
 			}
@@ -901,21 +874,20 @@ bool SybCTnewDA::DoFillResults(DaParams &params, CS_INT totalrows, CS_INT numrow
 	return bRet;
 }
 
-bool SybCTnewDA::Close(bool bForce)
-{
+bool SybCTnewDA::Close(bool bForce) {
 	StartTrace(SybCTnewDA.Close);
 
 	CS_RETCODE retcode = CS_SUCCEED;
-	if ( fConnection ) {
-		CS_INT	close_option;
+	if (fConnection) {
+		CS_INT close_option;
 
 		close_option = bForce ? CS_FORCE_CLOSE : CS_UNUSED;
 		retcode = ct_close(fConnection, close_option);
-		if ( retcode != CS_SUCCEED ) {
+		if (retcode != CS_SUCCEED) {
 			SYSERROR("SybCTnewDA::Close: ct_close() failed (" << GetStringFromRetCode(retcode) << ")");
-			if ( !bForce ) {
+			if (!bForce) {
 				SYSERROR("SybCTnewDA::Close: force closing now");
-				if ( ( retcode = ct_close(fConnection, CS_FORCE_CLOSE) ) != CS_SUCCEED ) {
+				if ((retcode = ct_close(fConnection, CS_FORCE_CLOSE)) != CS_SUCCEED) {
 					SYSERROR("SybCTnewDA::Close: force closing failed!? (" << GetStringFromRetCode(retcode) << ")");
 				}
 			}
@@ -930,53 +902,48 @@ bool SybCTnewDA::Close(bool bForce)
 	return (retcode == CS_SUCCEED);
 }
 
-void SybCTnewDA::Warning(DaParams &params, String str)
-{
+void SybCTnewDA::Warning(DaParams &params, String str) {
 	StartTrace(SybCTnewDA.Warning);
 	String strErr("SybCTnewDA::");
 	strErr.Append(str);
 	SystemLog::Warning(strErr);
 	ResultMapper *pResultMapper = params.fpOut;
-	Context &aContext( *(params.fpContext) );
-	if ( pResultMapper ) {
+	Context &aContext(*(params.fpContext));
+	if (pResultMapper) {
 		pResultMapper->Put("Messages", strErr, aContext);
 	}
 }
 
-void SybCTnewDA::Error(DaParams &params, String str)
-{
+void SybCTnewDA::Error(DaParams &params, String str) {
 	StartTrace(SybCTnewDA.Error);
 	String strErr("SybCTnewDA::");
 	strErr.Append(str);
 	SystemLog::Error(strErr);
-	ResultMapper *pResultMapper( params.fpOut );
-	Context &aContext( *(params.fpContext) );
-	if ( pResultMapper ) {
+	ResultMapper *pResultMapper(params.fpOut);
+	Context &aContext(*(params.fpContext));
+	if (pResultMapper) {
 		pResultMapper->Put("Messages", strErr, aContext);
 	}
 }
 
-bool SybCTnewDA::GetDaParams(DaParams &params, CS_CONNECTION *connection)
-{
+bool SybCTnewDA::GetDaParams(DaParams &params, CS_CONNECTION *connection) {
 	StartTrace(SybCTnewDA.GetDaParams);
-	return SybCTnewDA::IntGetConProps(connection, CS_USERDATA, (CS_VOID **)&params, CS_SIZEOF(SybCTnewDA::DaParams)) == CS_SUCCEED;
+	return SybCTnewDA::IntGetConProps(connection, CS_USERDATA, (CS_VOID **)&params, CS_SIZEOF(SybCTnewDA::DaParams)) ==
+		   CS_SUCCEED;
 }
 
-CS_RETCODE SybCTnewDA::SetConProps(CS_INT property, CS_VOID *buffer, CS_INT buflen)
-{
+CS_RETCODE SybCTnewDA::SetConProps(CS_INT property, CS_VOID *buffer, CS_INT buflen) {
 	StartTrace(SybCTnewDA.SetConProps);
-//	LockUnlockEntry me(fgSybaseLocker);
+	//	LockUnlockEntry me(fgSybaseLocker);
 	return ct_con_props(fConnection, CS_SET, property, buffer, buflen, NULL);
 }
 
-bool SybCTnewDA::GetConProps(CS_INT property, CS_VOID **propvalue, CS_INT propsize)
-{
+bool SybCTnewDA::GetConProps(CS_INT property, CS_VOID **propvalue, CS_INT propsize) {
 	StartTrace(SybCTnewDA.GetConProps);
 	return IntGetConProps(fConnection, property, propvalue, propsize);
 }
 
-bool SybCTnewDA::IntGetConProps(CS_CONNECTION *connection, CS_INT property, CS_VOID **propvalue, CS_INT propsize)
-{
+bool SybCTnewDA::IntGetConProps(CS_CONNECTION *connection, CS_INT property, CS_VOID **propvalue, CS_INT propsize) {
 	StartTrace(SybCTnewDA.IntGetConProps);
 	CS_RETCODE retcode = CS_FAIL;
 
@@ -989,8 +956,7 @@ bool SybCTnewDA::IntGetConProps(CS_CONNECTION *connection, CS_INT property, CS_V
 	return (retcode == CS_SUCCEED);
 }
 
-bool SybCTnewDA::GetMessageAny(CS_CONTEXT *context, Anything **anyMessage)
-{
+bool SybCTnewDA::GetMessageAny(CS_CONTEXT *context, Anything **anyMessage) {
 	StartTrace(SybCTnewDA.GetMessageAny);
 	CS_RETCODE retcode = cs_config(context, CS_GET, CS_USERDATA, anyMessage, CS_SIZEOF(Anything *), (CS_INT *)NULL);
 	if (retcode != CS_SUCCEED) {
@@ -999,11 +965,10 @@ bool SybCTnewDA::GetMessageAny(CS_CONTEXT *context, Anything **anyMessage)
 	return (retcode == CS_SUCCEED);
 }
 
-bool SybCTnewDA::PutMessages(DaParams &daParams, Anything &anyMessages)
-{
+bool SybCTnewDA::PutMessages(DaParams &daParams, Anything &anyMessages) {
 	StartTrace(SybCTnewDA.PutMessages);
 	bool bRet = false;
-	if ( daParams.fpOut != NULL && daParams.fpContext != NULL ) {
+	if (daParams.fpOut != NULL && daParams.fpContext != NULL) {
 		for (long lIdx = 0; lIdx < anyMessages.GetSize(); ++lIdx) {
 			String strSlotname = anyMessages.SlotName(lIdx);
 			TraceAny(anyMessages[lIdx], "Putting slot [" << strSlotname << "]");
@@ -1014,18 +979,17 @@ bool SybCTnewDA::PutMessages(DaParams &daParams, Anything &anyMessages)
 	return bRet;
 }
 
-CS_RETCODE SybCTnewDA_servermsg_handler(CS_CONTEXT *context, CS_CONNECTION *connection, CS_SERVERMSG *srvmsg)
-{
+CS_RETCODE SybCTnewDA_servermsg_handler(CS_CONTEXT *context, CS_CONNECTION *connection, CS_SERVERMSG *srvmsg) {
 	StartTrace(SybCTnewDA.SybCTnewDA_servermsg_handler);
 
-	if ( (long)srvmsg->severity != 0L ) {
+	if ((long)srvmsg->severity != 0L) {
 		SybCTnewDA::DaParams daParams;
 		bool bFuncCode = false;
 		{
-//			LockUnlockEntry me(SybCTnewDA::fgSybaseLocker);
+			//			LockUnlockEntry me(SybCTnewDA::fgSybaseLocker);
 			bFuncCode = SybCTnewDA::GetDaParams(daParams, connection);
 		}
-		if ( bFuncCode ) {
+		if (bFuncCode) {
 			Anything anyData, anyRef;
 			anyData["Messages"] = Anything(Anything::ArrayMarker());
 			anyRef = anyData["Messages"];
@@ -1034,7 +998,7 @@ CS_RETCODE SybCTnewDA_servermsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 			anyRef["State"] = (long)srvmsg->state;
 			// it only makes sense to decode the msgnumber if the severity is in decodable range
 			// currently, only codes up to 7 are in range
-			if ( CS_SEVERITY(lMsgNumber) <= CS_SV_FATAL ) {
+			if (CS_SEVERITY(lMsgNumber) <= CS_SV_FATAL) {
 				anyRef["Severity"] = CS_SEVERITY(lMsgNumber);
 				anyRef["Number"] = CS_NUMBER(lMsgNumber);
 				anyRef["Origin"] = CS_ORIGIN(lMsgNumber);
@@ -1044,7 +1008,7 @@ CS_RETCODE SybCTnewDA_servermsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 			}
 			String text = NotNull(srvmsg->text);
 			// if a "\n" trails the text, cut it away
-			if (text[text.Length()-1L] == '\n') {
+			if (text[text.Length() - 1L] == '\n') {
 				text.Trim(text.Length() - 1);
 			}
 			anyRef["msgtext"] = text;
@@ -1056,7 +1020,7 @@ CS_RETCODE SybCTnewDA_servermsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 				anyRef["procname"] = NotNull(srvmsg->proc);
 			}
 			// The msgtext of the first severity unequal 0 must saved
-			if ( (long)srvmsg->msgnumber != SQLSRV_ENVDB && (long)srvmsg->msgnumber != 0L ) {
+			if ((long)srvmsg->msgnumber != SQLSRV_ENVDB && (long)srvmsg->msgnumber != 0L) {
 				String help;
 				help << "[" << anyRef["msgtext"].AsString("") << "]";
 				anyData["MainMsgErr"] = help;
@@ -1064,10 +1028,10 @@ CS_RETCODE SybCTnewDA_servermsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 			}
 			TraceAny(anyData, "anyData");
 			{
-//				LockUnlockEntry me(SybCTnewDA::fgSybaseLocker);
+				//				LockUnlockEntry me(SybCTnewDA::fgSybaseLocker);
 				bFuncCode = SybCTnewDA::PutMessages(daParams, anyData);
 			}
-			if ( !bFuncCode ) {
+			if (!bFuncCode) {
 				SystemLog::Error("SybCTnewDA_servermsg_handler: could not put messages using Mapper");
 			}
 		} else {
@@ -1077,19 +1041,18 @@ CS_RETCODE SybCTnewDA_servermsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 	return CS_SUCCEED;
 }
 
-CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *connection, CS_CLIENTMSG *errmsg)
-{
+CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *connection, CS_CLIENTMSG *errmsg) {
 	StartTrace(SybCTnewDA.SybCTnewDA_clientmsg_handler);
 
 	// If there is no error, we can spare to write the error-message
-	if ( (long)CS_SEVERITY(errmsg->msgnumber) != 0L ) {
+	if ((long)CS_SEVERITY(errmsg->msgnumber) != 0L) {
 		SybCTnewDA::DaParams daParams;
 		bool bFuncCode = false;
 		{
-//			LockUnlockEntry me(SybCTnewDA::fgSybaseLocker);
+			//			LockUnlockEntry me(SybCTnewDA::fgSybaseLocker);
 			bFuncCode = SybCTnewDA::GetDaParams(daParams, connection);
 		}
-		if ( bFuncCode ) {
+		if (bFuncCode) {
 			Anything anyData, anyRef;
 			anyData["Messages"] = Anything(Anything::ArrayMarker());
 			anyRef = anyData["Messages"];
@@ -1097,7 +1060,7 @@ CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 			anyRef["MsgNumber"] = (long)lMsgNumber;
 			// it only makes sense to decode the msgnumber if the severity is in decodable range
 			// currently, only codes up to 7 are in range
-			if ( CS_SEVERITY(lMsgNumber) <= CS_SV_FATAL ) {
+			if (CS_SEVERITY(lMsgNumber) <= CS_SV_FATAL) {
 				anyRef["Severity"] = CS_SEVERITY(lMsgNumber);
 				anyRef["Number"] = CS_NUMBER(lMsgNumber);
 				anyRef["Origin"] = CS_ORIGIN(lMsgNumber);
@@ -1108,7 +1071,7 @@ CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 
 			String text = NotNull(errmsg->msgstring);
 			// if a "\n" trails the text, cut it away
-			if (text[text.Length()-1L] == '\n') {
+			if (text[text.Length() - 1L] == '\n') {
 				text.Trim(text.Length() - 1);
 			}
 			anyRef["msgtext"] = text;
@@ -1116,7 +1079,7 @@ CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 				anyRef["osstring"] = NotNull(errmsg->osstring);
 			}
 			// The msgtext of the first severity unequal 0 must saved
-			if ( (long)errmsg->msgnumber != SQLSRV_ENVDB && (long)CS_NUMBER(errmsg->msgnumber) != 0L ) {
+			if ((long)errmsg->msgnumber != SQLSRV_ENVDB && (long)CS_NUMBER(errmsg->msgnumber) != 0L) {
 				String help;
 				help << "[" << anyRef["msgtext"].AsString("") << "]";
 				anyData["MainMsgErr"] = help;
@@ -1124,18 +1087,16 @@ CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 			}
 			TraceAny(anyData, "anyData");
 			{
-//				LockUnlockEntry me(SybCTnewDA::fgSybaseLocker);
+				//				LockUnlockEntry me(SybCTnewDA::fgSybaseLocker);
 				bFuncCode = SybCTnewDA::PutMessages(daParams, anyData);
 			}
-			if ( !bFuncCode ) {
+			if (!bFuncCode) {
 				SystemLog::Error("SybCTnewDA_clientmsg_handler: could not put messages using Mapper");
 			}
 
-#define ERROR_SNOL(e, s, n, o, l) \
-	( (CS_SEVERITY(e) == s) && (CS_NUMBER(e) == n) \
-	&& (CS_ORIGIN(e) == o) && (CS_LAYER(e) == l ) )
+#define ERROR_SNOL(e, s, n, o, l) ((CS_SEVERITY(e) == s) && (CS_NUMBER(e) == n) && (CS_ORIGIN(e) == o) && (CS_LAYER(e) == l))
 
-			if ( ERROR_SNOL(errmsg->msgnumber, CS_SV_RETRY_FAIL, 63, 2, 1) ) {
+			if (ERROR_SNOL(errmsg->msgnumber, CS_SV_RETRY_FAIL, 63, 2, 1)) {
 				Trace("a kind of timeout error occured");
 				// Read from server timed out. Timeouts happen on synchronous
 				// connections only, and you must have set one or both of the
@@ -1151,7 +1112,7 @@ CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 				// cancel for results timeouts. We determine which case we
 				// have via the CS_LOGIN_STATUS property.
 				CS_INT status = 0;
-				if ( ct_con_props(connection, CS_GET, CS_LOGIN_STATUS, (CS_VOID *)&status, CS_UNUSED, NULL) != CS_SUCCEED ) {
+				if (ct_con_props(connection, CS_GET, CS_LOGIN_STATUS, (CS_VOID *)&status, CS_UNUSED, NULL) != CS_SUCCEED) {
 					SystemLog::Error("SybCTnewDA_clientmsg_handler: could not retrieve CS_LOGIN_STATUS");
 					return CS_FAIL;
 				}
@@ -1159,7 +1120,7 @@ CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 				if (status) {
 					// Results timeout
 					SystemLog::Warning("SybCTnewDA_clientmsg_handler: cancelling the query due to a result timeout...");
-					(CS_VOID)ct_cancel(connection, (CS_COMMAND *)NULL, CS_CANCEL_ATTN);
+					(CS_VOID) ct_cancel(connection, (CS_COMMAND *)NULL, CS_CANCEL_ATTN);
 				} else {
 					// Login timeout
 					SystemLog::Warning("SybCTnewDA_clientmsg_handler: aborting connection(login) attempt...");
@@ -1173,25 +1134,24 @@ CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 	return CS_SUCCEED;
 }
 
-CS_RETCODE SybCTnewDA_csmsg_handler(CS_CONTEXT *context, CS_CLIENTMSG *errmsg)
-{
+CS_RETCODE SybCTnewDA_csmsg_handler(CS_CONTEXT *context, CS_CLIENTMSG *errmsg) {
 	StartTrace(SybCTnewDA.SybCTnewDA_csmsg_handler);
 
 	// If there is no error, we can spare to write the error-message
-	if ( (long)CS_SEVERITY(errmsg->msgnumber) != 0L ) {
+	if ((long)CS_SEVERITY(errmsg->msgnumber) != 0L) {
 		Anything *pAny = NULL;
 		bool bFuncCode = false;
 		{
 			LockUnlockEntry me(SybCTnewDA::fgSybaseLocker);
 			bFuncCode = SybCTnewDA::GetMessageAny(context, &pAny);
 		}
-		if ( bFuncCode ) {
+		if (bFuncCode) {
 			Anything anyData;
 			CS_MSGNUM lMsgNumber = errmsg->msgnumber;
 			anyData["MsgNumber"] = (long)lMsgNumber;
 			// it only makes sense to decode the msgnumber if the severity is in decodable range
 			// currently, only codes up to 7 are in range
-			if ( CS_SEVERITY(lMsgNumber) <= CS_SV_FATAL ) {
+			if (CS_SEVERITY(lMsgNumber) <= CS_SV_FATAL) {
 				anyData["Severity"] = CS_SEVERITY(lMsgNumber);
 				anyData["Number"] = CS_NUMBER(lMsgNumber);
 				anyData["Origin"] = CS_ORIGIN(lMsgNumber);
@@ -1202,7 +1162,7 @@ CS_RETCODE SybCTnewDA_csmsg_handler(CS_CONTEXT *context, CS_CLIENTMSG *errmsg)
 
 			String text = NotNull(errmsg->msgstring);
 			// if a "\n" trails the text, cut it away
-			if (text[text.Length()-1L] == '\n') {
+			if (text[text.Length() - 1L] == '\n') {
 				text.Trim(text.Length() - 1);
 			}
 			anyData["msgtext"] = text;
@@ -1215,9 +1175,8 @@ CS_RETCODE SybCTnewDA_csmsg_handler(CS_CONTEXT *context, CS_CLIENTMSG *errmsg)
 				LockUnlockEntry me(SybCTnewDA::fgSybaseLocker);
 				(*pAny)["Messages"].Append(anyData);
 				// The msgtext of the first severity unequal 0 must saved
-				if ( !(*pAny).IsDefined("MainMsgErr")
-					 && (long)errmsg->msgnumber != SQLSRV_ENVDB
-					 && (long)CS_NUMBER(errmsg->msgnumber) != 0L ) {
+				if (!(*pAny).IsDefined("MainMsgErr") && (long)errmsg->msgnumber != SQLSRV_ENVDB &&
+					(long)CS_NUMBER(errmsg->msgnumber) != 0L) {
 					String help;
 					help << "[" << anyData["msgtext"].AsString("") << "]";
 					(*pAny)["MainMsgErr"] = help;

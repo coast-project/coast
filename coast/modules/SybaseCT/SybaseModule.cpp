@@ -7,32 +7,28 @@
  */
 
 #include "SybaseModule.h"
+
 #include "SybCTnewDAImpl.h"
 
 //---- SybaseModule ---------------------------------------------------------------
 RegisterModule(SybaseModule);
 
-SybaseModule::SybaseModule(const char *name)
-	: WDModule(name)
-	, fHasNewDAImpls(false)
-{
+SybaseModule::SybaseModule(const char *name) : WDModule(name), fHasNewDAImpls(false) {
 	StartTrace(SybaseModule.SybaseModule);
 }
 
-SybaseModule::~SybaseModule()
-{
+SybaseModule::~SybaseModule() {
 	StartTrace(SybaseModule.~SybaseModule);
 	Finis();
 }
 
-bool SybaseModule::Init(const ROAnything config)
-{
+bool SybaseModule::Init(const ROAnything config) {
 	StartTrace(SybaseModule.Init);
 	ROAnything myCfg;
 	if (config.LookupPath(myCfg, "SybaseModule")) {
 		TraceAny(myCfg, "SybaseModuleConfig");
 		// initialize WorkerPools for the listed servers
-		if ( myCfg.IsDefined("SybCTnewDAImpl") ) {
+		if (myCfg.IsDefined("SybCTnewDAImpl")) {
 			// initialize SybCTnewDAImpls
 			Trace("initializing SybCTnewDAImpl");
 			fHasNewDAImpls = SybCTnewDAImpl::Init(config);
@@ -41,10 +37,9 @@ bool SybaseModule::Init(const ROAnything config)
 	return true;
 }
 
-bool SybaseModule::Finis()
-{
+bool SybaseModule::Finis() {
 	StartTrace(SybaseModule.Finis);
-	if ( fHasNewDAImpls && SybCTnewDAImpl::fgInitialized ) {
+	if (fHasNewDAImpls && SybCTnewDAImpl::fgInitialized) {
 		// de-initialize SybCTnewDAImpls
 		SybCTnewDAImpl::Finis();
 	}

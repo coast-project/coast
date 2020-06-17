@@ -7,15 +7,17 @@
  */
 
 #include "UTF8RendererTest.h"
+
+#include "StringStream.h"
 #include "TestSuite.h"
 #include "UTF8Renderer.h"
-#include "StringStream.h"
 
 //---- UTF8RendererTest ----------------------------------------------------------------
 void UTF8RendererTest::conversionTest() {
 	StartTrace(UTF8RendererTest.conversionTest);
-	const char in[] = { 'H', static_cast<char>(0xe4), 'l', 'l', static_cast<char>(0xf6), '\0' };
-	const char utf8exp[] = { 'H', static_cast<char>(0xc3), static_cast<char>(0xa4), 'l', 'l', static_cast<char>(0xc3), static_cast<char>(0xb6), '\0' };
+	const char in[] = {'H', static_cast<char>(0xe4), 'l', 'l', static_cast<char>(0xf6), '\0'};
+	const char utf8exp[] = {'H', static_cast<char>(0xc3), static_cast<char>(0xa4), 'l',
+							'l', static_cast<char>(0xc3), static_cast<char>(0xb6), '\0'};
 	String strExpected(utf8exp), strReply;
 	Context ctx;
 	Anything anyConfig;

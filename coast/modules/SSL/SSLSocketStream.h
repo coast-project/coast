@@ -16,13 +16,12 @@ typedef struct ssl_st SSL;
 
 class SSLSocket;
 
-class SSLSocketStreamBuf : public SocketStreamBuf
-{
+class SSLSocketStreamBuf : public SocketStreamBuf {
 public:
 	SSLSocketStreamBuf(SSL *ctx, SSLSocket *ssl, long timeout = 300 * 1000);
 	~SSLSocketStreamBuf();
 
-protected:					  // get area
+protected:	// get area
 	virtual long DoWrite(const char *buf, long len);
 	virtual long DoRead(char *buf, long len) const;
 	virtual void SetStreamState(long bytesProcessed) const;
@@ -33,24 +32,21 @@ private:
 	SSLSocketStreamBuf(const SSLSocketStreamBuf &ssbuf);
 
 	SSL *fContext;
-}; // SocketStreamBuf
+};	// SocketStreamBuf
 
 //
 // adapts ios to a SSL Socket Stream buffer
 //
 
-class iosITOSSLSocket : virtual public std::ios, public coast::AllocatorNewDelete
-{
+class iosITOSSLSocket : virtual public std::ios, public coast::AllocatorNewDelete {
 public:
 	iosITOSSLSocket(SSL *ctx, SSLSocket *ssl, long timeout = 300 * 1000);
-	virtual ~iosITOSSLSocket() { }
+	virtual ~iosITOSSLSocket() {}
 
-	SSLSocketStreamBuf *rdbuf()  {
-		return &fSSLSockBuf;
-	}
+	SSLSocketStreamBuf *rdbuf() { return &fSSLSockBuf; }
 
 protected:
-	SSLSocketStreamBuf fSSLSockBuf;   // the buffer with its underlying string
+	SSLSocketStreamBuf fSSLSockBuf;	 // the buffer with its underlying string
 	Allocator *fAllocator;
 
 	// void autoflush()  { flags(flags() | ios::unitbuf); } don't ever use this sh... with sockets
@@ -59,48 +55,38 @@ private:
 	// init from ios is needed, because
 	// ios() won't do the job;
 	// (see comment in iostream.h)
-}; // iosIFASocket
+};	// iosIFASocket
 
-class ISSLSocketStream : public iosITOSSLSocket, public std::istream
-{
+class ISSLSocketStream : public iosITOSSLSocket, public std::istream {
 public:
 	ISSLSocketStream(SSL *ctx, SSLSocket *ssl, long timeout = 300 * 1000)
-		: iosITOSSLSocket(ctx, ssl, timeout)
-		, std::istream(&fSSLSockBuf)
-	{ } // read from s
+		: iosITOSSLSocket(ctx, ssl, timeout), std::istream(&fSSLSockBuf) {}	 // read from s
 
-	~ISSLSocketStream() { }
-}; // iSSLSocketStream
+	~ISSLSocketStream() {}
+};	// iSSLSocketStream
 
-class OSSLSocketStream : public iosITOSSLSocket, public std::ostream
-{
+class OSSLSocketStream : public iosITOSSLSocket, public std::ostream {
 public:
-
 	OSSLSocketStream(SSL *ctx, SSLSocket *ssl, long timeout = 300 * 1000)
-		: iosITOSSLSocket(ctx, ssl, timeout)
-		, std::ostream(&fSSLSockBuf)
-	{  }
+		: iosITOSSLSocket(ctx, ssl, timeout), std::ostream(&fSSLSockBuf) {}
 
-	~OSSLSocketStream() { }
+	~OSSLSocketStream() {}
 
 private:
-	OSSLSocketStream(); // block usage of default ctor
+	OSSLSocketStream();	 // block usage of default ctor
 
-}; // OSSLSocketStream
+};	// OSSLSocketStream
 
-class SSLSocketStream : public iosITOSSLSocket, public std::iostream
-{
+class SSLSocketStream : public iosITOSSLSocket, public std::iostream {
 public:
 	SSLSocketStream(SSL *ctx, SSLSocket *ssl, long timeout = 300 * 1000)
-		: iosITOSSLSocket(ctx, ssl, timeout)
-		, std::iostream(&fSSLSockBuf)
-	{ }
+		: iosITOSSLSocket(ctx, ssl, timeout), std::iostream(&fSSLSockBuf) {}
 
-	~SSLSocketStream() { }
+	~SSLSocketStream() {}
+
 private:
-	SSLSocketStream(); // block the usage of the default ctor
+	SSLSocketStream();	// block the usage of the default ctor
 
-}; // SSLSocketStream
+};	// SSLSocketStream
 
 #endif
-

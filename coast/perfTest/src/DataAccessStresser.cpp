@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "DataAccessStresser.h"
-#include "Timers.h"
-#include "StringStream.h"
+
 #include "DataAccess.h"
+#include "StringStream.h"
+#include "Timers.h"
 RegisterStresser(DataAccessStresser);
 
 Anything DataAccessStresser::Run(long id) {

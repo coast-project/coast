@@ -7,48 +7,45 @@
  */
 
 #include "TagRenderer.h"
+
 #include "OptionsPrinter.h"
 #include "Tracer.h"
+
 #include <ostream>
 
 //---- TagRenderer ---------------------------------------------------------
 RegisterRenderer(TagRenderer);
 
-TagRenderer::TagRenderer(const char *name) : Renderer(name)
-{
-}
+TagRenderer::TagRenderer(const char *name) : Renderer(name) {}
 
-TagRenderer::~TagRenderer()
-{
-}
+TagRenderer::~TagRenderer() {}
 
-void TagRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void TagRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(TagRenderer.Render);
 	TraceAny(config, "config");
 
 	ROAnything ROtag;
-	if ( config.LookupPath(ROtag, "Tag") ) {
+	if (config.LookupPath(ROtag, "Tag")) {
 		// open start tag
 		String tag = ROtag.AsString();
-		if ( tag.Length() ) {
+		if (tag.Length()) {
 			reply << '<' << tag;
 
 			// render options
 			PrintOptions3(reply, c, config);
 
 			// close start tag
-			reply << ">\n" ;
+			reply << ">\n";
 
 			ROAnything content;
-			if ( config.LookupPath(content, "Content") ) {
+			if (config.LookupPath(content, "Content")) {
 				// render content
 				Render(reply, c, content);
 			}
 
 			// render end tag
 			// suppressed if config contains slot /NoEndTag
-			if ( !config.IsDefined("NoEndTag") ) {
+			if (!config.IsDefined("NoEndTag")) {
 				reply << "</" << tag << ">\n";
 			}
 		}

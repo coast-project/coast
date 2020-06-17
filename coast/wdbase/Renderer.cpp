@@ -7,14 +7,14 @@
  */
 
 #include "Renderer.h"
+
+#include "Policy.h"
 #include "Registry.h"
 #include "StringStream.h"
-#include "Policy.h"
 
 RegisterModule(RenderersModule);
 
-bool RenderersModule::Init(const ROAnything config)
-{
+bool RenderersModule::Init(const ROAnything config) {
 	if (config.IsDefined("Renderers")) {
 		AliasInstaller ai("Renderer");
 		return RegisterableObject::Install(config["Renderers"], "Renderer", &ai);
@@ -22,55 +22,51 @@ bool RenderersModule::Init(const ROAnything config)
 	return false;
 }
 
-bool RenderersModule::ResetFinis(const ROAnything config)
-{
+bool RenderersModule::ResetFinis(const ROAnything config) {
 	AliasTerminator at("Renderer");
 	return RegisterableObject::ResetTerminate("Renderer", &at);
 }
 
-bool RenderersModule::Finis()
-{
+bool RenderersModule::Finis() {
 	return StdFinis("Renderer", "Renderers");
 }
 
 RegisterRenderer(Renderer);
-RegCacheImpl(Renderer);	// FindRenderer()
+RegCacheImpl(Renderer);	 // FindRenderer()
 
-void Renderer::RenderAll(std::ostream &reply, Context &, const ROAnything &)
-{
+void Renderer::RenderAll(std::ostream &reply, Context &, const ROAnything &) {
 	reply << ("Renderer::RenderAll: abstract method!");
 }
 
-void Renderer::Render(std::ostream &reply, Context &c, const ROAnything &info)
-{
+void Renderer::Render(std::ostream &reply, Context &c, const ROAnything &info) {
 	StartTrace(Renderer.Render);
 	SubTraceAny(In, info, "info");
 	//----------------------------------------
 	// if info contains a simple type we render
 	// it directly onto the output reply
 	AnyImplType aImplType = info.GetType();
-	Renderer *r = 0; // this is our marker, makes logic simpler (PS)
-	if ( aImplType == AnyCharPtrType || aImplType == AnyLongType || aImplType == AnyDoubleType ) {
+	Renderer *r = 0;  // this is our marker, makes logic simpler (PS)
+	if (aImplType == AnyCharPtrType || aImplType == AnyLongType || aImplType == AnyDoubleType) {
 		long len;
 		const char *buf = info.AsCharPtr("", len);
-		Trace( "Basic renderable leaf found--> " << NotNull(buf) );
+		Trace("Basic renderable leaf found--> " << NotNull(buf));
 		reply.write(buf, len);
 	}
 	//----------------------------------------
 	// if info is an array we assume it is a
 	// renderer specification
-	else if ( aImplType == AnyArrayType) {
-		Trace( "Array entry found" );
+	else if (aImplType == AnyArrayType) {
+		Trace("Array entry found");
 		// Check for old style configuration
 		if (info.IsDefined("Type")) {
 			//----------------------------------------
 			// info has a structure like { /Type ... /Data { ... } }
 			// or { /Type ... /AnyKey ... /... }
 			// the type defines the renderer to be used
-			Trace( "old Type style renderer" );
+			Trace("old Type style renderer");
 
 			const char *type = info["Type"].AsCharPtr(0);
-			if (type && (r = FindRenderer(type))) { // whe have to check otherwise FindRenderer cores
+			if (type && (r = FindRenderer(type))) {	 // whe have to check otherwise FindRenderer cores
 				// type contains a valid string and it was a valid renderer type
 				if (info.IsDefined("Data")) {
 					// { /Data { .... } }
@@ -90,20 +86,20 @@ void Renderer::Render(std::ostream &reply, Context &c, const ROAnything &info)
 					info.PrintOn(logStream, false) << "] discarding config";
 				}
 				SystemLog::Warning(logMsg);
-			} // if (r)if (type)
-		} else { // new type configuration
+			}	  // if (r)if (type)
+		} else {  // new type configuration
 			// treat as a collection of renderer specifications, Sequence Renderer
 			for (long i = 0, size = info.GetSize(); i < size; ++i) {
 				// Check if slot has a name and if this is a renderer
 				// otherwise interpret the slot content
 				String slotname(info.SlotName(i));
-				if ( slotname.Length() > 0 && (r = FindRenderer(slotname)) ) {
+				if (slotname.Length() > 0 && (r = FindRenderer(slotname))) {
 					// renderer found - let it work
 					TraceAny(info[i], "found [" << slotname << "], calling with config");
 					r->RenderAll(reply, c, info[i]);
-				} // renderer found
+				}  // renderer found
 				else {
-					Trace((slotname.Length()?slotname:"<unnamed slot>") << " not found as renderer");
+					Trace((slotname.Length() ? slotname : "<unnamed slot>") << " not found as renderer");
 					// Not a renderername or no slotname
 					// - ignore it and try to interpret the slots content
 					// PS: we should consider to diversify again
@@ -124,22 +120,19 @@ void Renderer::Render(std::ostream &reply, Context &c, const ROAnything &info)
 	}
 }
 
-void Renderer::RenderOnString(String &s, Context &c, const ROAnything &info)
-{
+void Renderer::RenderOnString(String &s, Context &c, const ROAnything &info) {
 	OStringStream os(s);
 	Render(os, c, info);
 	os.flush();
 }
 
-String Renderer::RenderToString(Context &c, const ROAnything &info)
-{
+String Renderer::RenderToString(Context &c, const ROAnything &info) {
 	String result;
 	RenderOnString(result, c, info);
 	return result;
 }
 
-void Renderer::RenderOnStringWithDefault(String &s, Context &c, const ROAnything &info, Anything def)
-{
+void Renderer::RenderOnStringWithDefault(String &s, Context &c, const ROAnything &info, Anything def) {
 	ROAnything inf = info;
 	if (inf.IsNull()) {
 		inf = def;
@@ -147,15 +140,13 @@ void Renderer::RenderOnStringWithDefault(String &s, Context &c, const ROAnything
 	RenderOnString(s, c, inf);
 }
 
-String Renderer::RenderToStringWithDefault(Context &c, const ROAnything &info, Anything def)
-{
+String Renderer::RenderToStringWithDefault(Context &c, const ROAnything &info, Anything def) {
 	String result;
 	RenderOnStringWithDefault(result, c, info, def);
 	return result;
 }
 
-void Renderer::PrintOptions(std::ostream &reply, const char *tag, const ROAnything &any)
-{
+void Renderer::PrintOptions(std::ostream &reply, const char *tag, const ROAnything &any) {
 	reply << '<' << tag;
 	if (any.IsDefined("Options")) {
 		PrintOptions2(reply, any);
@@ -163,8 +154,7 @@ void Renderer::PrintOptions(std::ostream &reply, const char *tag, const ROAnythi
 	reply << '>';
 }
 
-void Renderer::PrintOptions2(std::ostream &reply, const ROAnything &any)
-{
+void Renderer::PrintOptions2(std::ostream &reply, const ROAnything &any) {
 	if (any.IsDefined("Options")) {
 		ROAnything layout = any["Options"];
 		if (layout.GetType() == AnyArrayType) {
@@ -177,10 +167,9 @@ void Renderer::PrintOptions2(std::ostream &reply, const ROAnything &any)
 	}
 }
 
-void Renderer::PrintOptions3(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void Renderer::PrintOptions3(std::ostream &reply, Context &c, const ROAnything &config) {
 	ROAnything opts;
-	if ( config.LookupPath(opts, "Options") ) {
+	if (config.LookupPath(opts, "Options")) {
 		Renderer *op = FindRenderer("OptionsPrinter");
 		if (op) {
 			op->RenderAll(reply, c, opts);

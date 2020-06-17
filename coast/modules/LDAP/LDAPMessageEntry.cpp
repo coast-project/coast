@@ -9,19 +9,14 @@
 #include "LDAPMessageEntry.h"
 
 //---- LDAPMessageEntry ----------------------------------------------------------------
-LDAPMessageEntry::LDAPMessageEntry(LDAPMessage **LDAPMessagePtrIn)
-	: fLDAPMessagePtr(LDAPMessagePtrIn)
-{
+LDAPMessageEntry::LDAPMessageEntry(LDAPMessage **LDAPMessagePtrIn) : fLDAPMessagePtr(LDAPMessagePtrIn) {
 	*fLDAPMessagePtr = NULL;
 }
 
-LDAPMessageEntry::~LDAPMessageEntry()
-{
+LDAPMessageEntry::~LDAPMessageEntry() {
 	if ((*fLDAPMessagePtr) != NULL) {
 		ldap_msgfree(*fLDAPMessagePtr);
 	}
 }
 
-void LDAPMessageEntry::Use() const
-{
-}
+void LDAPMessageEntry::Use() const {}

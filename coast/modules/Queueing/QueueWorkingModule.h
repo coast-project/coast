@@ -9,13 +9,14 @@
 #ifndef _QueueWorkingModule_H
 #define _QueueWorkingModule_H
 
-#include "Context.h"
-#include "Server.h"
-#include "Queue.h"
 #include "AppLog.h"
+#include "Context.h"
+#include "Queue.h"
+#include "Server.h"
 #include "StringStream.h"
 #include "boost_or_std/memory.h"
-#include <memory>	// for auto_ptr
+
+#include <memory>  // for auto_ptr
 
 //---- QueueWorkingModule ----------------------------------------------------------
 //! Queue based module for message passing systems
@@ -23,32 +24,28 @@
 \par Configuration
 \code
 {
-	/QueueSize				long		mandatory, number of elements to buffer in the Queue
-	/UsePoolStorage			long		optional, [0|1], default 0, use preallocated memory pool for storage of Queue elements
-	/PoolStorageSize		long		optional, [kB], default 10240, pool storage size in kbytes
-	/NumOfPoolBucketSizes	long		optional, default 10, number of different allocation units within PoolStorage, starts at 16 bytes and always doubles the size so 16 << 10 will give a max usable size of 8192 bytes
-	/Logging {
-		/Servername			String		optional, default [Server], name of the Server which is used to access the correct AppLog-Channel configuration
-		/QueueLogChannel	String		optional, default [QueueLog], name of the named AppLogChannel to create
-		/ErrorChannel		String		optional, default [QueueLog], name of the named AppLogChannel to create, where error messages are written
-		/WarningChannel		String		optional, default [QueueLog], name of the named AppLogChannel to create where warning messages are written
-		/InfoChannel		String		optional, default [QueueLog], name of the named AppLogChannel to create, where info messages are written
-	}
+  /QueueSize				long		mandatory, number of elements to buffer in the Queue
+  /UsePoolStorage			long		optional, [0|1], default 0, use preallocated memory pool for storage of Queue elements
+  /PoolStorageSize		long		optional, [kB], default 10240, pool storage size in kbytes
+  /NumOfPoolBucketSizes	long		optional, default 10, number of different allocation units within PoolStorage, starts at 16 bytes and always doubles the size so 16 << 10 will give a max usable size of 8192 bytes
+  /Logging {
+	/Servername			String		optional, default [Server], name of the Server which is used to access the correct AppLog-Channel configuration
+	/QueueLogChannel	String		optional, default [QueueLog], name of the named AppLogChannel to create
+	/ErrorChannel		String		optional, default [QueueLog], name of the named AppLogChannel to create, where error messages are written
+	/WarningChannel		String		optional, default [QueueLog], name of the named AppLogChannel to create where warning messages are written
+	/InfoChannel		String		optional, default [QueueLog], name of the named AppLogChannel to create, where info messages are written
+  }
 }
 \endcode
 
 */
-template
-<
-class ElementType,
-	  class ListStorageType
-	  >
-class QueueWorkingModule : public WDModule
-{
+template <class ElementType, class ListStorageType>
+class QueueWorkingModule : public WDModule {
 	friend class QueueWorkingModuleTest;
+
 public:
 	typedef ElementType &ElementTypeRef;
-	typedef ElementType const& ConstElementTypeRef;
+	typedef ElementType const &ConstElementTypeRef;
 	typedef Queue<ElementType, ListStorageType> QueueType;
 	typedef boost_or_std::auto_ptr<QueueType> QueueTypePtr;
 	typedef boost_or_std::auto_ptr<Context> ContextPtr;
@@ -57,15 +54,14 @@ public:
 
 	//--- constructors
 	QueueWorkingModule(const char *name)
-		: WDModule(name)
-		, fConfig(coast::storage::Global())
-		, fQueue()
-		, fFailedPutbackMessages()
-		, fpQAllocator(0)
-		, fContext()
-		, fContextLock("QueueWorkingModuleContextLock", coast::storage::Global())
-		, fAlive(0UL)
-	{
+		: WDModule(name),
+		  fConfig(coast::storage::Global()),
+		  fQueue(),
+		  fFailedPutbackMessages(),
+		  fpQAllocator(0),
+		  fContext(),
+		  fContextLock("QueueWorkingModuleContextLock", coast::storage::Global()),
+		  fAlive(0UL) {
 		StartTrace(QueueWorkingModule.QueueWorkingModule);
 	}
 
@@ -74,7 +70,7 @@ public:
 		StartTrace(QueueWorkingModule.Init);
 		SubTraceAny(FullConfig, config, "Config: ");
 		ROAnything roaConfig;
-		if ( config.LookupPath(roaConfig, fName) ) {
+		if (config.LookupPath(roaConfig, fName)) {
 			fConfig = roaConfig.DeepClone();
 			TraceAny(fConfig, "Module config");
 			fLogName = GetNamedConfig("Logging")["QueueLogChannel"].AsCharPtr("QueueLog");
@@ -99,7 +95,7 @@ public:
 		SetDead();
 
 		Anything anyStat;
-		if ( GetQueueStatistics(anyStat) ) {
+		if (GetQueueStatistics(anyStat)) {
 			StringStream aStream;
 			aStream << "Statistics for [" << GetName() << "] (" << typeName() << ")\n";
 			anyStat.PrintOn(aStream, true) << "\n" << std::flush;
@@ -131,14 +127,12 @@ public:
 		return WDModule::ResetFinis(config);
 	}
 
-	bool IsAlive() {
-		return fAlive == 0xf007f007;
-	}
+	bool IsAlive() { return fAlive == 0xf007f007; }
 
 	bool IsBlocked(BlockingSide aSide = QueueType::eBothSides) {
 		StartTrace(QueueWorkingModule.IsBlocked);
 		bool bRet = false;
-		if ( fQueue.get() && fQueue->IsAlive() && IsAlive() ) {
+		if (fQueue.get() && fQueue->IsAlive() && IsAlive()) {
 			bRet = fQueue->IsBlocked(aSide);
 		}
 		return bRet;
@@ -146,14 +140,14 @@ public:
 
 	void Block(BlockingSide aSide) {
 		StartTrace(QueueWorkingModule.Block);
-		if ( fQueue.get() && fQueue->IsAlive() && IsAlive() ) {
+		if (fQueue.get() && fQueue->IsAlive() && IsAlive()) {
 			fQueue->Block(aSide);
 		}
 	}
 
 	void UnBlock(BlockingSide aSide) {
 		StartTrace(QueueWorkingModule.UnBlock);
-		if ( fQueue.get() && fQueue->IsAlive() && IsAlive() ) {
+		if (fQueue.get() && fQueue->IsAlive() && IsAlive()) {
 			fQueue->UnBlock(aSide);
 		}
 	}
@@ -200,10 +194,12 @@ public:
 		}
 	}
 
-	/* exclusively consume all Elements from queue, threads which are blocked on the queue to get an element will be woken up because of the released semaphore. But instead of getting an Element it will get nothing back and should be able to handle this correctly.
-		\param anyELements Anything to hold the elements removed from the queue
-		\return number of elements removed from the queue */
-	template < class DestListType >
+	/* exclusively consume all Elements from queue, threads which are blocked on the queue to get an element will be woken up
+	  because of the released semaphore. But instead of getting an Element it will get nothing back and should be able to handle
+	  this correctly.
+	  \param anyELements Anything to hold the elements removed from the queue
+	  \return number of elements removed from the queue */
+	template <class DestListType>
 	long FlushQueue(DestListType &anyElements) {
 		StartTrace(QueueWorkingModule.FlushQueue);
 		long lElements = 0L;
@@ -219,7 +215,7 @@ public:
 
 	virtual bool DoGetQueueStatistics(Anything &anyStat) {
 		StartTrace(QueueWorkingModule.DoGetQueueStatistics);
-		if ( fQueue.get() ) {
+		if (fQueue.get()) {
 			fQueue->GetStatistics(anyStat);
 			return true;
 		}
@@ -266,9 +262,11 @@ public:
 	QueueType *GetQueue() const { return fQueue.get(); };
 
 	String typeName() const {
-		if ( fQueue.get() ) return fQueue->typeName();
+		if (fQueue.get())
+			return fQueue->typeName();
 		return String("<queue not initialized>");
 	}
+
 protected:
 	ROAnything GetNamedConfig(const char *name) {
 		StartTrace(QueueWorkingModule.GetNamedConfig);
@@ -291,9 +289,7 @@ protected:
 		}
 	}
 
-	void SetDead() {
-		fAlive = 0x00dead00;
-	};
+	void SetDead() { fAlive = 0x00dead00; };
 
 	void Log(String strMessage, const char *channel, AppLogModule::eLogLevel iLevel) {
 		StartTrace(QueueWorkingModule.Log);
@@ -327,11 +323,12 @@ private:
 
 		if (roaConfig["UsePoolStorage"].AsLong(0) == 1) {
 			// create unique allocator id based on a pointer value
-			long lAllocatorId = (((long) this) & 0x00007FFF);
-			pAlloc = MT_Storage::MakePoolAllocator(roaConfig["PoolStorageSize"].AsLong(10240), roaConfig["NumOfPoolBucketSizes"].AsLong(10),
-					lAllocatorId);
+			long lAllocatorId = (((long)this) & 0x00007FFF);
+			pAlloc = MT_Storage::MakePoolAllocator(roaConfig["PoolStorageSize"].AsLong(10240),
+												   roaConfig["NumOfPoolBucketSizes"].AsLong(10), lAllocatorId);
 			if (pAlloc == 0) {
-				SYSERROR("was not able to create PoolAllocator with Id:" << lAllocatorId << " for [" << GetName() << "], check config!");
+				SYSERROR("was not able to create PoolAllocator with Id:" << lAllocatorId << " for [" << GetName()
+																		 << "], check config!");
 			} else {
 				// store allocator pointer for later deletion
 				MT_Storage::RefAllocator(pAlloc);
@@ -342,13 +339,13 @@ private:
 		fFailedPutbackMessages = QueueTypePtr(new (pAlloc) QueueType(String(GetName()).Append("PutBack")));
 	}
 
-	Anything	fConfig;
+	Anything fConfig;
 	QueueTypePtr fQueue, fFailedPutbackMessages;
-	Allocator	*fpQAllocator;
+	Allocator *fpQAllocator;
 	ContextPtr fContext;
 	SimpleMutex fContextLock;
-	String		fErrorLogName, fWarningLogName, fInfoLogName, fLogName;
-	u_long		fAlive;
+	String fErrorLogName, fWarningLogName, fInfoLogName, fLogName;
+	u_long fAlive;
 };
 
 typedef QueueWorkingModule<Anything, Anything> AnyQueueWorkingModule;

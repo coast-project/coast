@@ -7,14 +7,16 @@
  */
 
 #include "MailDAImpl.h"
-#include "Socket.h"
+
+#include "Context.h"
 #include "Registry.h"
 #include "SecurityModule.h"
-#include "Context.h"
-#include <ostream>
-#include <istream>
+#include "Socket.h"
 
-class SMTPState: public NotCloned {
+#include <istream>
+#include <ostream>
+
+class SMTPState : public NotCloned {
 	// abstract base class for communication states
 public:
 	// apply the smtp protocol
@@ -25,19 +27,15 @@ public:
 
 	// terminate the module
 	static void Terminate();
+
 protected:
 	// constructors are protected since objects of this type
 	// are only constructed through register macro
-	SMTPState(const char *name) :
-		NotCloned(name) {
-	}
-	virtual ~SMTPState() {
-	}
+	SMTPState(const char *name) : NotCloned(name) {}
+	virtual ~SMTPState() {}
 
 	// is this the final state
-	virtual bool IsEndState() {
-		return false;
-	}
+	virtual bool IsEndState() { return false; }
 
 	// handle this protocol state with the given data
 	virtual SMTPState *HandleState(Anything fMsgData, std::iostream &Ios);
@@ -52,14 +50,10 @@ protected:
 	virtual bool ConsumeReply(Anything &context, std::istream &is);
 
 	// return the expected status number for this state
-	virtual long DoGetStatus() {
-		return 250;
-	}
+	virtual long DoGetStatus() { return 250; }
 
 	// next state if the step produced an error
-	virtual const char *NextErrorState() {
-		return "MailERRORState";
-	}
+	virtual const char *NextErrorState() { return "MailERRORState"; }
 
 	// next state if the step succeeded
 	virtual const char *NextOkState(Anything &result) = 0;
@@ -72,74 +66,55 @@ protected:
 	RegCacheDef(SMTPState);
 };
 
-class MailFROMState: public SMTPState {
+class MailFROMState : public SMTPState {
 public:
-	MailFROMState(const char *name) :
-		SMTPState(name) {
-	}
+	MailFROMState(const char *name) : SMTPState(name) {}
 
 	virtual bool ProduceMsg(Anything &context, std::ostream &os);
 
 	// next state if the step succeeded
-	virtual const char *NextOkState(Anything &result) {
-		return "MailRCPTState";
-	}
+	virtual const char *NextOkState(Anything &result) { return "MailRCPTState"; }
 };
 
-class MailSTARTState: public SMTPState {
+class MailSTARTState : public SMTPState {
 public:
-	MailSTARTState(const char *name) :
-		SMTPState(name) {
-	}
+	MailSTARTState(const char *name) : SMTPState(name) {}
 
 	virtual SMTPState *HandleState(Anything fMsgData, std::iostream &Ios);
 	virtual bool ProduceMsg(Anything &context, std::ostream &os);
 	virtual bool ConsumeReply(Anything &context, std::istream &is);
 
 	// next state if the step succeeded
-	virtual const char *NextOkState(Anything &result) {
-		return "MailFROMState";
-	}
+	virtual const char *NextOkState(Anything &result) { return "MailFROMState"; }
 };
 
-class MailRCPTState: public SMTPState {
+class MailRCPTState : public SMTPState {
 public:
-	MailRCPTState(const char *name) :
-		SMTPState(name) {
-	}
+	MailRCPTState(const char *name) : SMTPState(name) {}
 
 	virtual SMTPState *HandleState(Anything fMsgData, std::iostream &Ios);
 	virtual bool ProduceMsg(Anything &context, std::ostream &os);
 
 	// next state if the step succeeded
 	virtual const char *NextOkState(Anything &result);
-
 };
 
-class MailDATAState: public SMTPState {
+class MailDATAState : public SMTPState {
 public:
-	MailDATAState(const char *name) :
-		SMTPState(name) {
-	}
+	MailDATAState(const char *name) : SMTPState(name) {}
 
 	virtual bool ProduceMsg(Anything &context, std::ostream &os);
 
 	// return the expected status number
-	virtual long DoGetStatus() {
-		return 354;
-	}
+	virtual long DoGetStatus() { return 354; }
 
 	// next state if the step succeeded
-	virtual const char *NextOkState(Anything &result) {
-		return "MailSENDState";
-	}
+	virtual const char *NextOkState(Anything &result) { return "MailSENDState"; }
 };
 
-class MailSENDState: public SMTPState {
+class MailSENDState : public SMTPState {
 public:
-	MailSENDState(const char *name) :
-		SMTPState(name) {
-	}
+	MailSENDState(const char *name) : SMTPState(name) {}
 
 	virtual bool ProduceMsg(Anything &context, std::ostream &os);
 
@@ -148,63 +123,45 @@ public:
 		result["Ok"] = 1;
 		return "MailQUITState";
 	}
+
 protected:
 	void ProduceMultipartMsg(Anything &context, std::ostream &os);
+
 protected:
 	static const String BOUNDARY;
 };
 
-class MailERRORState: public SMTPState {
+class MailERRORState : public SMTPState {
 public:
-	MailERRORState(const char *name) :
-		SMTPState(name) {
-	}
+	MailERRORState(const char *name) : SMTPState(name) {}
 
 	virtual SMTPState *HandleState(Anything context, std::iostream &is);
 
 	virtual bool ProduceMsg(Anything &context, std::ostream &os);
-	virtual const char *NextOkState(Anything &) {
-		return "MailENDState";
-	}
+	virtual const char *NextOkState(Anything &) { return "MailENDState"; }
 };
 
-class MailQUITState: public SMTPState {
+class MailQUITState : public SMTPState {
 public:
-	MailQUITState(const char *name) :
-		SMTPState(name) {
-	}
+	MailQUITState(const char *name) : SMTPState(name) {}
 
 	virtual SMTPState *HandleState(Anything context, std::iostream &is);
 
 	virtual bool ProduceMsg(Anything &context, std::ostream &os);
-	virtual const char *NextOkState(Anything &) {
-		return "MailENDState";
-	}
-	virtual long DoGetStatus() {
-		return 221;
-	}
+	virtual const char *NextOkState(Anything &) { return "MailENDState"; }
+	virtual long DoGetStatus() { return 221; }
 };
 
-class MailENDState: public SMTPState {
+class MailENDState : public SMTPState {
 public:
-	MailENDState(const char *name) :
-		SMTPState(name) {
-	}
+	MailENDState(const char *name) : SMTPState(name) {}
 
-	virtual bool ProduceMsg(Anything &context, std::ostream &os) {
-		return true;
-	}
-	virtual SMTPState *HandleState(Anything context, std::iostream &reply) {
-		return this;
-	}
-	virtual bool IsEndState() {
-		return true;
-	}
+	virtual bool ProduceMsg(Anything &context, std::ostream &os) { return true; }
+	virtual SMTPState *HandleState(Anything context, std::iostream &reply) { return this; }
+	virtual bool IsEndState() { return true; }
 
 	// next state if the step succeeded
-	virtual const char *NextOkState(Anything &) {
-		return "MailENDState";
-	}
+	virtual const char *NextOkState(Anything &) { return "MailENDState"; }
 };
 
 class SMTPStateInstaller {
@@ -239,7 +196,7 @@ bool SMTPState::SendMail(std::iostream &Ios, Context &ctx, ParameterMapper *in, 
 
 	while (!st->IsEndState() && Ios.good()) {
 		st = st->HandleState(fMsgData, Ios);
-	} // end while  ! st.IsEndState()
+	}  // end while  ! st.IsEndState()
 
 	out->Put("MailResult", fMsgData["Result"], ctx);
 	TraceAny(fMsgData, "Mail params");
@@ -251,11 +208,12 @@ SMTPState *SMTPState::HandleState(Anything fMsgData, std::iostream &Ios) {
 	String msg;
 
 	if (DoProduceMsg(fMsgData, Ios)) {
-		if (ConsumeReply(fMsgData, Ios)) { // read right to left
+		if (ConsumeReply(fMsgData, Ios)) {	// read right to left
 			return FindSMTPState(NextOkState(fMsgData["Result"]));
 		}
 	}
-	return FindSMTPState(NextErrorState());;
+	return FindSMTPState(NextErrorState());
+	;
 }
 
 bool SMTPState::DoProduceMsg(Anything &fMsgData, std::ostream &os) {
@@ -269,7 +227,7 @@ bool SMTPState::DoProduceMsg(Anything &fMsgData, std::ostream &os) {
 }
 
 bool SMTPState::ConsumeReply(Anything &context, std::istream &is) {
-	//Check status of reply
+	// Check status of reply
 	String msg;
 	long status(-1);
 	is >> status;
@@ -319,9 +277,10 @@ SMTPState *MailSTARTState::HandleState(Anything fMsgData, std::iostream &Ios) {
 bool MailSTARTState::ProduceMsg(Anything &context, std::ostream &os) {
 	os << "HELO ";
 	os << context["Helo"].AsCharPtr(DEF_UNKNOWN);
-	os << CRLF; //!@FIXME should test whether this always works
+	os << CRLF;	 //!@FIXME should test whether this always works
 
-	StatTrace(MailDAImpl.ProduceMsg, "Produce MailSTARTState " << context["Helo"].AsCharPtr(DEF_UNKNOWN), coast::storage::Current());
+	StatTrace(MailDAImpl.ProduceMsg, "Produce MailSTARTState " << context["Helo"].AsCharPtr(DEF_UNKNOWN),
+			  coast::storage::Current());
 	return (os.good() != 0);
 }
 
@@ -334,10 +293,10 @@ bool MailFROMState::ProduceMsg(Anything &context, std::ostream &os) {
 	if (context.IsDefined("From")) {
 		os << context["From"].AsCharPtr("?");
 	} else {
-		os << "Unknown"; // Should define better default sender
+		os << "Unknown";  // Should define better default sender
 	}
 
-	os << CRLF; //!@FIXME should test whether this always works
+	os << CRLF;	 //!@FIXME should test whether this always works
 	StatTrace(MailDAImpl.ProduceMsg, "Produce MailFROMState " << context["From"].AsCharPtr("?"), coast::storage::Current());
 	return (os.good() != 0);
 }
@@ -373,10 +332,10 @@ bool MailRCPTState::ProduceMsg(Anything &context, std::ostream &os) {
 	if (context.IsDefined("To")) {
 		os << context["To"].AsCharPtr("?");
 	} else {
-		os << "Unknown"; // Should define better default sender
+		os << "Unknown";  // Should define better default sender
 	}
 
-	os << CRLF; //!@FIXME check whether this work always
+	os << CRLF;	 //!@FIXME check whether this work always
 
 	StatTrace(MailDAImpl.ProduceMsg, "Produce MailRCPTState " << context["To"].AsCharPtr("?"), coast::storage::Current());
 	return (!!os);
@@ -419,7 +378,8 @@ bool MailSENDState::ProduceMsg(Anything &context, std::ostream &os) {
 		os << CRLF;
 		os << '.';
 		os << CRLF;
-		StatTrace(MailDAImpl.ProduceMsg, "Produce MailSENDState " << context["Message"].AsCharPtr(""), coast::storage::Current());
+		StatTrace(MailDAImpl.ProduceMsg, "Produce MailSENDState " << context["Message"].AsCharPtr(""),
+				  coast::storage::Current());
 	}
 	return (!!os);
 }
@@ -494,8 +454,8 @@ SMTPState *MailQUITState::HandleState(Anything context, std::iostream &Ios) {
 }
 
 RegCacheImpl(SMTPState)
-//--- MailDAImpl -----------------------------------------------------
-RegisterDataAccessImpl(MailDAImpl);
+	//--- MailDAImpl -----------------------------------------------------
+	RegisterDataAccessImpl(MailDAImpl);
 
 bool MailDAImpl::Exec(Context &ctx, ParameterMapper *in, ResultMapper *out) {
 	StartTrace(MailDAImpl.Exec);

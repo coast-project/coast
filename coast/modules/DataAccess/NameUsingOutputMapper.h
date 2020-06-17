@@ -17,19 +17,18 @@
 \par Configuration
 \code
 {
-	/Destination {							optional
-		/Store			String				mandatory, default TempStore [Role|Session|Request|TempStore], name of the destination store
-		/Slot			String				qualified slot name
-		/Delim   		String				optional, default ".", first char is taken as delimiter for named slots
-		/IndexDelim		String				optional, default ":", first char is taken as delimiter for indexed slots
-	}
+  /Destination {							optional
+	/Store			String				mandatory, default TempStore [Role|Session|Request|TempStore], name of the destination store
+	/Slot			String				qualified slot name
+	/Delim   		String				optional, default ".", first char is taken as delimiter for named slots
+	/IndexDelim		String				optional, default ":", first char is taken as delimiter for indexed slots
+  }
 }
 \endcode
 
 Default configuration is the mappers alias name in TempStore
 */
-class NameUsingOutputMapper : public EagerResultMapper
-{
+class NameUsingOutputMapper : public EagerResultMapper {
 public:
 	NameUsingOutputMapper(const char *name);
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
@@ -40,7 +39,7 @@ public:
 
 protected:
 	virtual Anything GetDestination(Context &ctx, ROAnything config);
-	virtual ROAnything GetDestinationConfig(Context &ctx, ROAnything config );
+	virtual ROAnything GetDestinationConfig(Context &ctx, ROAnything config);
 
 private:
 	NameUsingOutputMapper();

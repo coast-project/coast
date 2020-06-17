@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "ServiceDispatcher.h"
-#include "ServiceHandler.h"
-#include "Renderer.h"
+
 #include "Policy.h"
+#include "Renderer.h"
+#include "ServiceHandler.h"
 
 RegCacheImpl(ServiceDispatcher);
 RegisterModule(ServiceDispatchersModule);
@@ -46,7 +47,7 @@ bool ServiceDispatcher::Dispatch2Service(std::ostream &reply, Context &ctx) {
 	if (sh) {
 		status = sh->HandleService(reply, ctx);
 	}
-	ctx.Pop(strKey); //!@FIXME: use PushPopEntry for LookupInterfaces too
+	ctx.Pop(strKey);  //!@FIXME: use PushPopEntry for LookupInterfaces too
 	return status;
 }
 

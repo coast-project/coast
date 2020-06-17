@@ -7,23 +7,19 @@
  */
 
 #include "RendererMapperTest.h"
-#include "TestSuite.h"
+
+#include "Context.h"
+#include "DataMapper.h"
 #include "StringStream.h"
 #include "SystemFile.h"
-#include "DataMapper.h"
-#include "Context.h"
+#include "TestSuite.h"
 
 //---- RendererMapperTest ----------------------------------------------------------------
-RendererMapperTest::RendererMapperTest(TString tname) : TestCaseType(tname)
-{
-}
+RendererMapperTest::RendererMapperTest(TString tname) : TestCaseType(tname) {}
 
-RendererMapperTest::~RendererMapperTest()
-{
-}
+RendererMapperTest::~RendererMapperTest() {}
 
-Test *RendererMapperTest::suite ()
-{
+Test *RendererMapperTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, RendererMapperTest, StdGetTest);
@@ -32,8 +28,7 @@ Test *RendererMapperTest::suite ()
 	return testSuite;
 }
 
-void RendererMapperTest::StdGetTest()
-{
+void RendererMapperTest::StdGetTest() {
 	Anything dummy;
 	Context ctx(fStdContextAny, dummy, 0, 0, 0, 0);
 
@@ -51,8 +46,7 @@ void RendererMapperTest::StdGetTest()
 	assertEqual("<Get www.muc.de/~kenny http/1.0\r\n\r\n>", iString);
 }
 
-void RendererMapperTest::GetOnAnyTest()
-{
+void RendererMapperTest::GetOnAnyTest() {
 	{
 		Anything dummy;
 		Context ctx(fStdContextAny, dummy, 0, 0, 0, 0);
@@ -75,10 +69,9 @@ void RendererMapperTest::GetOnAnyTest()
 	}
 }
 
-void RendererMapperTest::setUp ()
-{
+void RendererMapperTest::setUp() {
 	std::iostream *Ios = coast::system::OpenStream("StdContext", "any");
-	if ( Ios ) {
+	if (Ios) {
 		fStdContextAny.Import((*Ios));
 		delete Ios;
 	}

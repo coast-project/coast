@@ -7,9 +7,10 @@
  */
 
 #include "MIMEHeaderTest.h"
+
+#include "AnyUtils.h"
 #include "MIMEHeader.h"
 #include "TestSuite.h"
-#include "AnyUtils.h"
 
 void MIMEHeaderTest::SimpleHeaderTest() {
 	StartTrace(MIMEHeaderTest.SimpleHeaderTest);
@@ -28,7 +29,7 @@ void MIMEHeaderTest::SimpleHeaderTest() {
 		} catch (MIMEHeader::StreamNotGoodException &e) {
 			t_assertm(true, "expected stream not good exception to happen");
 		} catch (...) {
-			t_assertm(false,"did not expect other exceptions to be thrown");
+			t_assertm(false, "did not expect other exceptions to be thrown");
 		}
 
 		// sanity checks
@@ -50,8 +51,8 @@ void MIMEHeaderTest::ConfiguredTests() {
 		if (!aEntryIterator.SlotName(caseName)) {
 			caseName << "At index: " << aEntryIterator.Index();
 		}
-		coast::urlutils::NormalizeTag normalizeKey = (coast::urlutils::NormalizeTag) (caseConfig["NormalizeTag"].AsLong(
-				(long) coast::urlutils::eUpshift));
+		coast::urlutils::NormalizeTag normalizeKey =
+			(coast::urlutils::NormalizeTag)(caseConfig["NormalizeTag"].AsLong((long)coast::urlutils::eUpshift));
 		MIMEHeader mh(normalizeKey);
 
 		String testinput = caseConfig["Input"].AsString();
@@ -79,4 +80,3 @@ Test *MIMEHeaderTest::suite() {
 	ADD_CASE(testSuite, MIMEHeaderTest, ConfiguredTests);
 	return testSuite;
 }
-

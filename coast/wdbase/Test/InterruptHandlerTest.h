@@ -11,18 +11,16 @@
 
 #include "WDBaseTestPolicies.h"
 
-class InterruptHandlerTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class InterruptHandlerTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	InterruptHandlerTest(TString tname) :
-		TestCaseType(tname) {
-	}
-	//!builds up a suite of testcases for this test
+	InterruptHandlerTest(TString tname) : TestCaseType(tname) {}
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!sets the environment for this test
+	//! sets the environment for this test
 	void setUp();
 
-	//!describe this testcase
+	//! describe this testcase
 	void PidFileHandlingTest();
 };
 

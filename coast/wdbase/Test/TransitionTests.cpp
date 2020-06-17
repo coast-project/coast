@@ -6,18 +6,18 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestSuite.h"
-#include "Session.h"
 #include "TransitionTests.h"
-#include "Socket.h"
-#include "Server.h"
-#include "Role.h"
-#include "Renderer.h"
-#include "SecurityModule.h"
-#include "StringStream.h"
 
-class SessionInfoRenderer : public Renderer
-{
+#include "Renderer.h"
+#include "Role.h"
+#include "SecurityModule.h"
+#include "Server.h"
+#include "Session.h"
+#include "Socket.h"
+#include "StringStream.h"
+#include "TestSuite.h"
+
+class SessionInfoRenderer : public Renderer {
 public:
 	SessionInfoRenderer(const char *name);
 
@@ -26,12 +26,9 @@ public:
 
 RegisterRenderer(SessionInfoRenderer);
 
-SessionInfoRenderer::SessionInfoRenderer(const char *name) : Renderer(name)
-{
-}
+SessionInfoRenderer::SessionInfoRenderer(const char *name) : Renderer(name) {}
 
-void SessionInfoRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void SessionInfoRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	String roleName;
 	c.GetRole()->GetName(roleName);
 	reply << "/sessionId \"" << c.GetSession()->GetId() << "\"" << std::endl;
@@ -40,26 +37,20 @@ void SessionInfoRenderer::RenderAll(std::ostream &reply, Context &c, const ROAny
 }
 
 //:simple login action
-class LoginAction : public Action
-{
+class LoginAction : public Action {
 public:
 	LoginAction(const char *name);
 
 	virtual bool DoAction(String &action, Context &);
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) LoginAction(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) LoginAction(fName); }
 };
 
 RegisterAction(LoginAction);
 
-LoginAction::LoginAction(const char *name) : Action(name)
-{
-}
+LoginAction::LoginAction(const char *name) : Action(name) {}
 
-bool LoginAction::DoAction(String &action, Context &c)
-{
+bool LoginAction::DoAction(String &action, Context &c) {
 	Anything query = c.GetQuery();
 
 	if (query["LoginName"] == "Coast") {
@@ -71,30 +62,23 @@ bool LoginAction::DoAction(String &action, Context &c)
 	return true;
 }
 
-TransitionTests::TransitionTests(TString tname)
-	: TestCaseType(tname)
-{
+TransitionTests::TransitionTests(TString tname) : TestCaseType(tname) {
 	StartTrace(TransitionTests.TransitionTests);
 }
 
-TString TransitionTests::getConfigFileName()
-{
+TString TransitionTests::getConfigFileName() {
 	return "PBOWTypeConfig";
 }
 
-TransitionTests::~TransitionTests()
-{
-}
+TransitionTests::~TransitionTests() {}
 
-void TransitionTests::setUp ()
-{
+void TransitionTests::setUp() {
 	t_assert(GetConfig().IsDefined("Roles"));
 	t_assert(GetConfig().IsDefined("Modules"));
 	t_assert(GetConfig().IsDefined("Servers"));
 }
 
-bool TransitionTests::EvalRequest(ROAnything request, Anything &returned)
-{
+bool TransitionTests::EvalRequest(ROAnything request, Anything &returned) {
 	StartTrace(TransitionTests.EvalRequest);
 	// connect to the server
 	StringStream reply;
@@ -116,11 +100,11 @@ bool TransitionTests::EvalRequest(ROAnything request, Anything &returned)
 		reply << std::flush;
 		Trace("native reply [" << reply.str() << "]");
 		// extract infos about the received page
-		if ( getline(reply, resultPage) ) {
+		if (getline(reply, resultPage)) {
 			// trim carriage return
-			resultPage.Trim(resultPage.Length() - 1);	// since page is written as the response header
+			resultPage.Trim(resultPage.Length() - 1);  // since page is written as the response header
 			Trace("resultpage [" << resultPage << "]");
-			t_assertm(returned.Import(reply, "stream"),"failed to import anything from server stream");
+			t_assertm(returned.Import(reply, "stream"), "failed to import anything from server stream");
 			TraceAny(returned, "result");
 			assertEqual(resultPage, returned["page"].AsString());
 			return true;
@@ -130,8 +114,7 @@ bool TransitionTests::EvalRequest(ROAnything request, Anything &returned)
 	return false;
 }
 
-Anything TransitionTests::AddSessionInfo(ROAnything request, Anything context)
-{
+Anything TransitionTests::AddSessionInfo(ROAnything request, Anything context) {
 	Anything result = request.DeepClone();
 
 	Anything sessionInfo;
@@ -239,7 +222,7 @@ void TransitionTests::PBOWFailedBookmarkSequence()
 	// re-play a privileged request:
 
 	t_assert(EvalRequest(fBookmarkedRequest, r1));
-	assertEqual("PBOWLoginPage", r1["page"].AsString());	// login must be enforced
+	assertEqual("PBOWLoginPage", r1["page"].AsString());  // login must be enforced
 
 	// -- perform unsuccessful login using existing session id
 	Anything c1 = AddSessionInfo(GetConfig()["BadLoginRequest"], r1);
@@ -261,7 +244,7 @@ void TransitionTests::PBOWBookmarkSequence()
 	// re-play a privileged request:
 
 	t_assert(EvalRequest(fBookmarkedRequest, r1));
-	assertEqual("PBOWLoginPage", r1["page"].AsString());	// login must be enforced
+	assertEqual("PBOWLoginPage", r1["page"].AsString());  // login must be enforced
 
 	// -- perform successful login using existing session id...
 	//    original request should be satisfied...
@@ -278,14 +261,13 @@ void TransitionTests::PBOWBookmarkSequence()
 	assertEqual("PBOWLoginPage", r3["page"].AsString());
 }
 
-void TransitionTests::RunRequestSequence()
-{
+void TransitionTests::RunRequestSequence() {
 	// startup a simple server
 	Server *server = Server::FindServer("PBOWTypeServer");
-	if ( t_assert(server != 0) ) {
+	if (t_assert(server != 0)) {
 		ServerThread mt(server);
-		if ( t_assert(mt.Start()) && t_assert(mt.CheckState(Thread::eRunning, 5)) ) {
-			if ( t_assertm(mt.serverIsInitialized(), "expected initialization to succeed") ) {
+		if (t_assert(mt.Start()) && t_assert(mt.CheckState(Thread::eRunning, 5))) {
+			if (t_assertm(mt.serverIsInitialized(), "expected initialization to succeed")) {
 				mt.SetWorking();
 				if (t_assertm(mt.IsReady(true, 5), "expected server to become ready within 5 seconds")) {
 					// --- run various request sequences
@@ -304,8 +286,7 @@ void TransitionTests::RunRequestSequence()
 	}
 }
 
-Test *TransitionTests::suite ()
-{
+Test *TransitionTests::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, TransitionTests, RunRequestSequence);
 	return testSuite;

@@ -7,6 +7,7 @@
  */
 
 #include "NTLMAuthMessage.h"
+
 #include "NTLMCoder.h"
 #include "Tracer.h"
 
@@ -21,7 +22,7 @@ long NTLMAuthMessage::DecodeLong(long pos) {
 	return DecodeShort(pos) + (DecodeShort(pos + 2) << 16);
 }
 long NTLMAuthMessage::DecodeShort(long pos) {
-	return (unsigned char) fMsg[pos] + ((unsigned char) fMsg[pos + 1L] << 8);
+	return (unsigned char)fMsg[pos] + ((unsigned char)fMsg[pos + 1L] << 8);
 }
 String NTLMAuthMessage::DecodeString(long pos, bool striputf) {
 	long len = DecodeShort(pos);

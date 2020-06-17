@@ -9,17 +9,18 @@
 #ifndef _Threads_IPP
 #define _Threads_IPP
 
-template<class WorkerParamType>
+template <class WorkerParamType>
 bool Thread::SetWorking(WorkerParamType workerArgs) {
 	StatTrace(Thread.SetWorking, "ThrdId: " << GetId() << " CallId: " << MyId(), coast::storage::Current());
 	return SetRunningState(eWorking, workerArgs);
 }
 
-template<class WorkerParamType>
+template <class WorkerParamType>
 bool Thread::SetRunningState(ERunningState state, WorkerParamType args) {
 	LockUnlockEntry me(fStateMutex);
 
-	// allocate things used before and after call to CallRunningStateHooks() on coast::storage::Global() because Allocator could be refreshed during call
+	// allocate things used before and after call to CallRunningStateHooks() on coast::storage::Global() because Allocator could
+	// be refreshed during call
 
 	StatTrace(Thread.SetRunningState, "-- entering -- CallId: " << MyId(), coast::storage::Current());
 
@@ -35,8 +36,8 @@ bool Thread::SetRunningState(ERunningState state, WorkerParamType args) {
 		// scoping to force compiler not to move around automatic variables which could make strange things happen
 		Anything anyEvt;
 		anyEvt["ThreadId"] = GetId();
-		anyEvt["RunningState"]["Old"] = (long) oldState;
-		anyEvt["RunningState"]["New"] = (long) state;
+		anyEvt["RunningState"]["Old"] = (long)oldState;
+		anyEvt["RunningState"]["New"] = (long)state;
 		if (!args.IsNull()) {
 			anyEvt["Args"] = args.DeepClone();
 		}

@@ -13,13 +13,12 @@
 
 class String;
 
-class StringStreamTest : public testframework::TestCase
-{
+class StringStreamTest : public testframework::TestCase {
 public:
 	StringStreamTest(TString tstrName);
 	virtual ~StringStreamTest();
 
-	static Test *suite ();
+	static Test *suite();
 
 	void FormatTests();
 	void SimpleWrite();

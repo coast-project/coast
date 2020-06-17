@@ -7,34 +7,30 @@
  */
 
 #include "Base64WDRendererTest.h"
-#include "TestSuite.h"
+
 #include "Base64WDRenderer.h"
 #include "StringStream.h"
+#include "TestSuite.h"
 
 //---- Base64WDRendererTest ----------------------------------------------------------------
-Base64WDRendererTest::Base64WDRendererTest(TString tname) : TestCaseType(tname)
-{
+Base64WDRendererTest::Base64WDRendererTest(TString tname) : TestCaseType(tname) {
 	StartTrace(Base64WDRendererTest.Ctor);
 }
 
-Base64WDRendererTest::~Base64WDRendererTest()
-{
+Base64WDRendererTest::~Base64WDRendererTest() {
 	StartTrace(Base64WDRendererTest.Dtor);
 }
 
 // setup for this TestCase
-void Base64WDRendererTest::setUp ()
-{
+void Base64WDRendererTest::setUp() {
 	StartTrace(Base64WDRendererTest.setUp);
 }
 
-void Base64WDRendererTest::tearDown ()
-{
+void Base64WDRendererTest::tearDown() {
 	StartTrace(Base64WDRendererTest.tearDown);
 }
 
-void Base64WDRendererTest::RenderAllTest()
-{
+void Base64WDRendererTest::RenderAllTest() {
 	StartTrace(Base64WDRendererTest.RenderAllTest);
 	Base64WDRenderer aRenderer("Base64WDRenderer");
 	Context ctx;
@@ -60,8 +56,7 @@ void Base64WDRendererTest::RenderAllTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *Base64WDRendererTest::suite ()
-{
+Test *Base64WDRendererTest::suite() {
 	StartTrace(Base64WDRendererTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

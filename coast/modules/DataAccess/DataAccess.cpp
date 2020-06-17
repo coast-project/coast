@@ -7,24 +7,20 @@
  */
 
 #include "DataAccess.h"
+
 #include "Timers.h"
 
 //---- DataAccess ----------------------------------------------------------------------
-DataAccess::DataAccess(const char *trxName)
-	: fName(trxName)
-{
+DataAccess::DataAccess(const char *trxName) : fName(trxName) {
 	StartTrace1(DataAccess.DataAccess, "trxName: [" << trxName << "]");
 }
 
-DataAccess::~DataAccess()
-{
-}
+DataAccess::~DataAccess() {}
 
-DataAccessImpl *DataAccess::GetImpl(const char *trxName, Context &context)
-{
+DataAccessImpl *DataAccess::GetImpl(const char *trxName, Context &context) {
 	StartTrace(DataAccess.GetImpl);
 	Trace("Trx name is [" << trxName << "]");
-	Assert(trxName); // precondition
+	Assert(trxName);  // precondition
 	DataAccessImpl *trxImpl = DataAccessImpl::FindDataAccessImpl(trxName);
 	// handling error or misconfiguration, keep on same line for clearness reason of output message
 	Assert(trxImpl);
@@ -34,8 +30,7 @@ DataAccessImpl *DataAccess::GetImpl(const char *trxName, Context &context)
 	return trxImpl;
 }
 
-bool DataAccess::StdExec(Context &trxContext)
-{
+bool DataAccess::StdExec(Context &trxContext) {
 	StartTrace(DataAccess.StdExec);
 	DAAccessTimer(DataAccess.StdExec, fName, trxContext);
 
@@ -65,19 +60,18 @@ bool DataAccess::StdExec(Context &trxContext)
 	return result;
 }
 
-bool DataAccess::Exec(ParameterMapper *params, ResultMapper *results, Context &trxContext)
-{
+bool DataAccess::Exec(ParameterMapper *params, ResultMapper *results, Context &trxContext) {
 	StartTrace(DataAccess.Exec);
 	DAAccessTimer(DataAccess.Exec, fName, trxContext);
 
 	// if we don't have a complete triple, return immediately
 	DataAccessImpl *trx = GetImpl(fName, trxContext);
 	Assert(trx && params && results);
-	if ( !(trx && params && results) ) {
+	if (!(trx && params && results)) {
 		return false;
 	}
 
-	//SOP: check if we can speed up responsiveness by unlocking the session during IO
+	// SOP: check if we can speed up responsiveness by unlocking the session during IO
 	SessionReleaser slr(trxContext);
 	slr.Use();
 
@@ -88,8 +82,7 @@ bool DataAccess::Exec(ParameterMapper *params, ResultMapper *results, Context &t
 	return ret;
 }
 
-bool DataAccess::GetMyParameterMapper(Context &c, ParameterMapper *&pm)
-{
+bool DataAccess::GetMyParameterMapper(Context &c, ParameterMapper *&pm) {
 	StartTrace(DataAccess.GetMyParameterMapper);
 	bool isScriptInterpreter;
 
@@ -124,8 +117,7 @@ bool DataAccess::GetMyParameterMapper(Context &c, ParameterMapper *&pm)
 	return isScriptInterpreter;
 }
 
-bool DataAccess::GetMyResultMapper(Context &c, ResultMapper *&rm)
-{
+bool DataAccess::GetMyResultMapper(Context &c, ResultMapper *&rm) {
 	StartTrace(DataAccess.GetMyResultMapper);
 	bool isScriptInterpreter;
 
@@ -160,14 +152,13 @@ bool DataAccess::GetMyResultMapper(Context &c, ResultMapper *&rm)
 	return isScriptInterpreter;
 }
 
-void DataAccess::HandleError(Context &context, String mapperName, const char *file, long line, String msg)
-{
+void DataAccess::HandleError(Context &context, String mapperName, const char *file, long line, String msg) {
 	StartTrace(DataAccess.HandleError);
 	// cut off path in file string (only output file)
 	String filePath(file);
-	long pos = filePath.StrRChr('\\');			// windows path?
+	long pos = filePath.StrRChr('\\');	// windows path?
 	if (pos < 0) {
-		pos = filePath.StrRChr('/');    // unix path?
+		pos = filePath.StrRChr('/');  // unix path?
 	}
 
 	String logMsg = (pos < 0) ? filePath : filePath.SubString(pos + 1);

@@ -7,22 +7,20 @@
  */
 
 #include "RegistryIteratorTest.h"
-#include "Tracer.h"
-#include "TestSuite.h"
-#include "Registry.h"
 
-RegistryIteratorTest::RegistryIteratorTest(TString tname) : TestCaseType(tname)
-{
+#include "Registry.h"
+#include "TestSuite.h"
+#include "Tracer.h"
+
+RegistryIteratorTest::RegistryIteratorTest(TString tname) : TestCaseType(tname) {
 	StartTrace(RegistryIteratorTest.Ctor);
 }
 
-RegistryIteratorTest::~RegistryIteratorTest()
-{
+RegistryIteratorTest::~RegistryIteratorTest() {
 	StartTrace(RegistryIteratorTest.Dtor);
 }
 
-void RegistryIteratorTest::IterateOverNullRegistry()
-{
+void RegistryIteratorTest::IterateOverNullRegistry() {
 	StartTrace(RegistryIteratorTest.IterateOverNullRegistry);
 	{
 		Registry *r = 0;
@@ -46,11 +44,9 @@ void RegistryIteratorTest::IterateOverNullRegistry()
 		t_assertm(!ri.HasMore(), "expected RegistryIterator to have no elements");
 		assertEqual("undefined", key);
 	}
-
 }
 
-void RegistryIteratorTest::IterateOverEmptyRegistry()
-{
+void RegistryIteratorTest::IterateOverEmptyRegistry() {
 	StartTrace(RegistryIteratorTest.IterateOverEmptyRegistry);
 	{
 		Registry r("emptyforward");
@@ -74,11 +70,9 @@ void RegistryIteratorTest::IterateOverEmptyRegistry()
 		t_assertm(!ri.HasMore(), "expected RegistryIterator to have no elements");
 		assertEqual("undefined", key);
 	}
-
 }
 
-void RegistryIteratorTest::IterateOverOneElementRegistry()
-{
+void RegistryIteratorTest::IterateOverOneElementRegistry() {
 	StartTrace(RegistryIteratorTest.IterateOverOneElementRegistry);
 	{
 		Registry r("oneElementForward");
@@ -102,11 +96,9 @@ void RegistryIteratorTest::IterateOverOneElementRegistry()
 		t_assertm(!ri.HasMore(), "expected RegistryIterator to have no more elements");
 		assertEqual("One", key);
 	}
-
 }
 
-void RegistryIteratorTest::IterateOverNElementRegistry()
-{
+void RegistryIteratorTest::IterateOverNElementRegistry() {
 	StartTrace(RegistryIteratorTest.IterateOverNElementRegistry);
 	{
 		Registry r("oneElementForward");
@@ -142,11 +134,9 @@ void RegistryIteratorTest::IterateOverNElementRegistry()
 		t_assertm(!ri.HasMore(), "expected RegistryIterator to have no more elements");
 		assertEqual("One", key);
 	}
-
 }
 
-void RegistryIteratorTest::IterateWhileRemoving()
-{
+void RegistryIteratorTest::IterateWhileRemoving() {
 	StartTrace(RegistryIteratorTest.IterateWhileRemoving);
 	{
 		Registry r("oneElementForward");
@@ -189,12 +179,10 @@ void RegistryIteratorTest::IterateWhileRemoving()
 		t_assertm(!ri.HasMore(), "expected RegistryIterator to have no more elements");
 		assertEqual("One", key);
 	}
-
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *RegistryIteratorTest::suite ()
-{
+Test *RegistryIteratorTest::suite() {
 	StartTrace(RegistryIteratorTest.suite);
 	TestSuite *testSuite = new TestSuite;
 
@@ -205,5 +193,4 @@ Test *RegistryIteratorTest::suite ()
 	ADD_CASE(testSuite, RegistryIteratorTest, IterateWhileRemoving);
 
 	return testSuite;
-
 }

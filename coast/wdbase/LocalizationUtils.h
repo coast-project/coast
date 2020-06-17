@@ -13,8 +13,7 @@
 
 class Context;
 
-class LocalizationUtils
-{
+class LocalizationUtils {
 public:
 	static const char *Eval(const char *lang, const ROAnything &config);
 	static const ROAnything EvalAny(const char *lang, const ROAnything &config);
@@ -29,7 +28,7 @@ private:
 	static void EmptyLanguageMap();
 
 	static Mutex fgLanguageMapMutex;
-	static bool  fgLanguageMapIsInit;
+	static bool fgLanguageMapIsInit;
 	static Anything fgLanguageMap;
 	friend class LocalizationUtilsTest;
 };

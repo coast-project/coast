@@ -17,16 +17,14 @@
 
 #if defined(WIN32)
 #include "config_bases.h"
-void bases()
-{
+void bases() {
 	RegisterBasesObjs();
 }
 #endif
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, InWorkScenariosTest);
 	ADD_SUITE(runner, DoneScenariosTest);
 	// Use this work suite to debug a failing TestCase
 	ADD_SUITE(runner, RunOnlyScenariosTest);
-} // setupRunner
+}  // setupRunner

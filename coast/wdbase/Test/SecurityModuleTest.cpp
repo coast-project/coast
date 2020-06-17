@@ -7,9 +7,10 @@
  */
 
 #include "SecurityModuleTest.h"
-#include "TestSuite.h"
+
 #include "SecurityModule.h"
 #include "SystemFile.h"
+#include "TestSuite.h"
 
 using namespace coast;
 
@@ -20,29 +21,18 @@ Test *SecurityModuleTest::suite() {
 	return testSuite;
 }
 
-SecurityModuleTest::SecurityModuleTest(TString tname) :
-		TestCaseType(tname) {
-}
+SecurityModuleTest::SecurityModuleTest(TString tname) : TestCaseType(tname) {}
 
-SecurityModuleTest::~SecurityModuleTest() {
-}
+SecurityModuleTest::~SecurityModuleTest() {}
 
-class TestScrambler: public Scrambler {
+class TestScrambler : public Scrambler {
 public:
-	TestScrambler(const char *name) :
-			Scrambler(name), fKey("") {
-	}
-	virtual ~TestScrambler() {
-	}
+	TestScrambler(const char *name) : Scrambler(name), fKey("") {}
+	virtual ~TestScrambler() {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) TestScrambler(fName);
-	}
-	virtual void InitKey(const String &key) {
-		fKey = key;
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) TestScrambler(fName); }
+	virtual void InitKey(const String &key) { fKey = key; }
 	String fKey;
-
 };
 RegisterScrambler(TestScrambler);
 void SecurityModuleTest::InitWithConfigTest() {
@@ -86,7 +76,7 @@ void SecurityModuleTest::EncodeDecodeTest() {
 
 	// setup original
 	for (i = 0; i < 256; i++) {
-		OriginalString.Append((char) i);
+		OriginalString.Append((char)i);
 	}
 
 	// encode decode with standard encoder (cleartext)
@@ -94,11 +84,11 @@ void SecurityModuleTest::EncodeDecodeTest() {
 	encoder.DoDecode(DecodedString, EncodedString);
 
 	// assert strings are equal
-	t_assert( memcmp( (const char *)OriginalString, (const char *)DecodedString, OriginalString.Length() ) == 0);
-	t_assert( OriginalString.Length() == DecodedString.Length());
+	t_assert(memcmp((const char *)OriginalString, (const char *)DecodedString, OriginalString.Length()) == 0);
+	t_assert(OriginalString.Length() == DecodedString.Length());
 
-	assertEqual( OriginalString, DecodedString);
-	assertEqual( OriginalString.Length(), DecodedString.Length());
+	assertEqual(OriginalString, DecodedString);
+	assertEqual(OriginalString.Length(), DecodedString.Length());
 
 	// Test 2
 	// reset strings
@@ -110,8 +100,8 @@ void SecurityModuleTest::EncodeDecodeTest() {
 	encoder.DoDecode(DecodedString, EncodedString);
 
 	// check whether the Strings are identical
-	assertCharPtrEqual( OriginalString, DecodedString);
-	assertEqual(1, (long)( OriginalString == DecodedString ));
+	assertCharPtrEqual(OriginalString, DecodedString);
+	assertEqual(1, (long)(OriginalString == DecodedString));
 
 	// Test 3
 	// reset strings
@@ -124,18 +114,18 @@ void SecurityModuleTest::EncodeDecodeTest() {
 	encoder.DoDecode(DecodedString, EncodedString);
 
 	// check whether the Strings are identical
-	assertCharPtrEqual( OriginalString, DecodedString);
-	t_assert( OriginalString == DecodedString);
-	assertCharPtrEqual( "ABCDEFGHIJKLMNOPQRSTUVWXYZ", EncodedString);
+	assertCharPtrEqual(OriginalString, DecodedString);
+	t_assert(OriginalString == DecodedString);
+	assertCharPtrEqual("ABCDEFGHIJKLMNOPQRSTUVWXYZ", EncodedString);
 
-	//Test 4
+	// Test 4
 	// Only Unprintable Chars, unscrambled
 	OriginalString = EmptySt;
 	EncodedString = EmptySt;
 	DecodedString = EmptySt;
 
 	for (i = 0; i < 10; i++) {
-		OriginalString.Append((char) i);
+		OriginalString.Append((char)i);
 	}
 
 	// encode decode with standard encoder (cleartext)
@@ -143,13 +133,13 @@ void SecurityModuleTest::EncodeDecodeTest() {
 	encoder.DoDecode(DecodedString, EncodedString);
 
 	// check whether the Strings are identical
-	t_assert( (memcmp( (const char *)OriginalString, (const char *)DecodedString, OriginalString.Length() ) == 0));
-	t_assert( OriginalString.Length() == DecodedString.Length());
+	t_assert((memcmp((const char *)OriginalString, (const char *)DecodedString, OriginalString.Length()) == 0));
+	t_assert(OriginalString.Length() == DecodedString.Length());
 
-	assertCharPtrEqual( OriginalString, DecodedString);
-	t_assert( OriginalString == DecodedString);
+	assertCharPtrEqual(OriginalString, DecodedString);
+	t_assert(OriginalString == DecodedString);
 
-	assertCharPtrEqual( "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09", EncodedString);
+	assertCharPtrEqual("\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09", EncodedString);
 
 	// One Printable Char, unscrambled
 	OriginalString = "M";
@@ -160,13 +150,13 @@ void SecurityModuleTest::EncodeDecodeTest() {
 	encoder.DoEncode(EncodedString, OriginalString);
 	encoder.DoDecode(DecodedString, EncodedString);
 
-	assertCharPtrEqual( OriginalString, DecodedString);
-	t_assert( OriginalString == DecodedString);
-	assertCharPtrEqual( "M", EncodedString);
+	assertCharPtrEqual(OriginalString, DecodedString);
+	t_assert(OriginalString == DecodedString);
+	assertCharPtrEqual("M", EncodedString);
 
 	// One Unprintable Char, unscrambled
 	OriginalString = EmptySt;
-	OriginalString.Append((char) 5);
+	OriginalString.Append((char)5);
 
 	OriginalString = OriginalString;
 	EncodedString = EmptySt;
@@ -174,13 +164,13 @@ void SecurityModuleTest::EncodeDecodeTest() {
 	encoder.DoEncode(EncodedString, OriginalString);
 	encoder.DoDecode(DecodedString, EncodedString);
 
-	assertCharPtrEqual( OriginalString, DecodedString);
-	t_assert( OriginalString == DecodedString);
+	assertCharPtrEqual(OriginalString, DecodedString);
+	t_assert(OriginalString == DecodedString);
 
 	// String::IntPrintOn:  05     -> \x05
 	// coast::urlutils::urlEncode: \x05   -> %5Cx05
 	// coast::urlutils::urlEncode: %5Cx05 -> %255Cx05
-	assertCharPtrEqual( "\x05", EncodedString);
+	assertCharPtrEqual("\x05", EncodedString);
 
 	// Only Printable Chars, scrambled
 	OriginalString = "ABC";
@@ -189,10 +179,10 @@ void SecurityModuleTest::EncodeDecodeTest() {
 	encoder.DoEncode(EncodedString, OriginalString);
 	encoder.DoDecode(DecodedString, EncodedString);
 
-	assertCharPtrEqual( OriginalString, DecodedString);
-	t_assert( OriginalString == DecodedString);
+	assertCharPtrEqual(OriginalString, DecodedString);
+	t_assert(OriginalString == DecodedString);
 	// w\"ABC\"
-	assertCharPtrEqual( "ABC", EncodedString);
+	assertCharPtrEqual("ABC", EncodedString);
 
 	// a particularly nasty sequence of non-printables and printables
 	OriginalString = "Anfang%252B+%2BEnde";
@@ -202,23 +192,23 @@ void SecurityModuleTest::EncodeDecodeTest() {
 	encoder.DoEncode(EncodedString, OriginalString);
 	encoder.DoDecode(DecodedString, EncodedString);
 
-	assertEqual( OriginalString, DecodedString);
-	assertEqual( OriginalString, EncodedString);
+	assertEqual(OriginalString, DecodedString);
+	assertEqual(OriginalString, EncodedString);
 
 	// Only Unprintable Chars, scrambled
 	OriginalString = EmptySt;
 	for (i = 0; i < 3; i++) {
-		OriginalString.Append((char) i);
+		OriginalString.Append((char)i);
 	}
 	EncodedString = EmptySt;
 	DecodedString = EmptySt;
 	encoder.DoEncode(EncodedString, OriginalString);
 	encoder.DoDecode(DecodedString, EncodedString);
 
-	assertCharPtrEqual( OriginalString, DecodedString);
-	t_assert( OriginalString == DecodedString);
+	assertCharPtrEqual(OriginalString, DecodedString);
+	t_assert(OriginalString == DecodedString);
 
-	assertCharPtrEqual( "\x00\x01\x02", EncodedString);
+	assertCharPtrEqual("\x00\x01\x02", EncodedString);
 
 	// One Printable Char, scrambled
 	OriginalString = "M";
@@ -228,9 +218,9 @@ void SecurityModuleTest::EncodeDecodeTest() {
 	encoder.DoEncode(EncodedString, OriginalString);
 	encoder.DoDecode(DecodedString, EncodedString);
 
-	assertCharPtrEqual( OriginalString, DecodedString);
-	t_assert( OriginalString == DecodedString);
-	assertCharPtrEqual( "M", EncodedString);
+	assertCharPtrEqual(OriginalString, DecodedString);
+	t_assert(OriginalString == DecodedString);
+	assertCharPtrEqual("M", EncodedString);
 
 	//           1         2         3         4         5         6
 	// 0123456789012345678901234567890123456789012345678901234567890123456789
@@ -238,7 +228,7 @@ void SecurityModuleTest::EncodeDecodeTest() {
 
 	// One Unprintable Char, scrambled
 	OriginalString = EmptySt;
-	OriginalString.Append((char) 5);
+	OriginalString.Append((char)5);
 
 	OriginalString = OriginalString;
 	EncodedString = EmptySt;
@@ -246,8 +236,8 @@ void SecurityModuleTest::EncodeDecodeTest() {
 	encoder.DoEncode(EncodedString, OriginalString);
 	encoder.DoDecode(DecodedString, EncodedString);
 
-	assertCharPtrEqual( OriginalString, DecodedString);
-	t_assert( OriginalString == DecodedString);
+	assertCharPtrEqual(OriginalString, DecodedString);
+	t_assert(OriginalString == DecodedString);
 
-	assertCharPtrEqual( "\x05", EncodedString);
+	assertCharPtrEqual("\x05", EncodedString);
 }

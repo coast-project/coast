@@ -15,14 +15,14 @@
 
 //---- TextAreaRendererTest -----------------------------------------------------------
 
-class TextAreaRendererTest : public FieldRendererTest
-{
+class TextAreaRendererTest : public FieldRendererTest {
 public:
 	TextAreaRendererTest(TString tstrName);
 	virtual ~TextAreaRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
+
 protected:
 	// Generic test cases
 	void TestCaseEmptyConf();
@@ -57,7 +57,6 @@ protected:
 	void OptionsMixedTextArea();
 	void NoOptionsTextArea();
 	void TextTextArea();
-
 };
 
 #endif

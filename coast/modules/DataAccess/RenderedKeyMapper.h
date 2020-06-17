@@ -19,17 +19,18 @@
  * @section rkrm Mapper configuration
 \code
 {
-	/KeySpec		Renderer specification
-	/StoreKeyAt		Renderer specification
-	/Store 			String
-	/<new-key>		ResultMapper specification
-	/"*"			catch all ResultMapper specification
+  /KeySpec		Renderer specification
+  /StoreKeyAt		Renderer specification
+  /Store 			String
+  /<new-key>		ResultMapper specification
+  /"*"			catch all ResultMapper specification
 }
 \endcode
  * @par \c KeySpec
  * Optional, defaults to mapped key\n
  * Renderer specification resulting in a new key to be used when putting the value Anything\n
- * The value Anything will be pushed into the Context prior to rendering. In addition, the current mapping key will also be available as \c MappedKey
+ * The value Anything will be pushed into the Context prior to rendering. In addition, the current mapping key will also be
+available as \c MappedKey
  *
  * @par \c StoreKeyAt
  * Optional, default is to not store the newly rendered key\n
@@ -48,19 +49,16 @@
  * ResultMapper specification used to further map/Put() the current value with the new key
  *
  */
-class RenderedKeyResultMapper: public ResultMapper {
+class RenderedKeyResultMapper : public ResultMapper {
 	RenderedKeyResultMapper();
 	RenderedKeyResultMapper(const RenderedKeyResultMapper &);
 	RenderedKeyResultMapper &operator=(const RenderedKeyResultMapper &);
+
 public:
 	//--- constructors
-	RenderedKeyResultMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	RenderedKeyResultMapper(const char *name) : ResultMapper(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) RenderedKeyResultMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) RenderedKeyResultMapper(fName); }
 
 protected:
 	//! Put value according to newly rendered key
@@ -73,11 +71,13 @@ protected:
 
 	//! Loop breaker, allow on the fly key renaming and call ResultMapper::DoPutAny() with \c slotname
 	/*! @copydoc ResultMapper::DoPutAnyWithSlotname() */
-	virtual bool DoPutAnyWithSlotname(const char *key, Anything &value, Context &ctx, ROAnything roaScript, const char *slotname);
+	virtual bool DoPutAnyWithSlotname(const char *key, Anything &value, Context &ctx, ROAnything roaScript,
+									  const char *slotname);
 
 	//! Loop breaker, allow on the fly key renaming and call ResultMapper::DoPutStream() with \c slotname
 	/*! @copydoc ResultMapper::DoPutStreamWithSlotname() */
-	virtual bool DoPutStreamWithSlotname(const char *key, std::istream &is, Context &ctx, ROAnything roaScript, const char *slotname);
+	virtual bool DoPutStreamWithSlotname(const char *key, std::istream &is, Context &ctx, ROAnything roaScript,
+										 const char *slotname);
 };
 
 //! Dynamically adjust the \c Get key according to Renderer specification
@@ -87,9 +87,9 @@ protected:
  * @section rkpm Mapper configuration
 \code
 {
-	/KeySpec		Renderer specification
-	/StoreKeyAt		Renderer specification
-	/Store 			String
+  /KeySpec		Renderer specification
+  /StoreKeyAt		Renderer specification
+  /Store 			String
 }
 \endcode
  * @par \c KeySpec
@@ -105,20 +105,17 @@ protected:
  * Optional, defaults to TmpStore\n
  * Store the rendered key in a specific store in the context: \c Role -> RoleStore, \c Session -> SessionStore, \c Request
  */
-class RenderedKeyParameterMapper: public ParameterMapper {
+class RenderedKeyParameterMapper : public ParameterMapper {
 	RenderedKeyParameterMapper();
 	RenderedKeyParameterMapper(const RenderedKeyParameterMapper &);
 	RenderedKeyParameterMapper &operator=(const RenderedKeyParameterMapper &);
+
 public:
 	//--- constructors
-	RenderedKeyParameterMapper(const char *name) :
-		ParameterMapper(name) {
-	}
+	RenderedKeyParameterMapper(const char *name) : ParameterMapper(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) RenderedKeyParameterMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) RenderedKeyParameterMapper(fName); }
 
 protected:
 	//! Get value anything according to newly rendered key

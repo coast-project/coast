@@ -7,8 +7,9 @@
  */
 
 #include "SystemFileTest.h"
-#include "TestSuite.h"
+
 #include "SystemLog.h"
+#include "TestSuite.h"
 #include "boost/bind.hpp"
 
 using namespace coast;
@@ -79,18 +80,22 @@ void SystemFileTest::statTests() {
 	t_assertm(system::IsRegularFile("config/Tracer.any"), "expected 'Tracer.any' to be a file");
 	String strLinkToPrjRunTest("aLinkToTestAny");
 #if !defined(WIN32)
-	if (assertComparem( system::eSuccess, equal_to, system::CreateSymbolicLink("config/Test.any", strLinkToPrjRunTest) , "expected creation of symbolic link to file to succeed" )) {
+	if (assertComparem(system::eSuccess, equal_to, system::CreateSymbolicLink("config/Test.any", strLinkToPrjRunTest),
+					   "expected creation of symbolic link to file to succeed")) {
 		t_assertm(system::IsSymbolicLink(strLinkToPrjRunTest), "expected link to be valid");
 		t_assertm(!system::IsDirectory(strLinkToPrjRunTest), "expected link not to be a directory");
 		t_assertm(system::IsRegularFile(strLinkToPrjRunTest), "expected link to point to a regular file");
-		assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(strLinkToPrjRunTest) , "expected removal of symbolic link to succeed" );
+		assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strLinkToPrjRunTest),
+					   "expected removal of symbolic link to succeed");
 	}
 	String strLinkToDirectory("aLinkToDirectory");
-	if (assertComparem( system::eSuccess, equal_to, system::CreateSymbolicLink("config", strLinkToDirectory) , "expected creation of symbolic link to file to succeed" )) {
+	if (assertComparem(system::eSuccess, equal_to, system::CreateSymbolicLink("config", strLinkToDirectory),
+					   "expected creation of symbolic link to file to succeed")) {
 		t_assertm(system::IsSymbolicLink(strLinkToDirectory), "expected link to be valid");
 		t_assertm(system::IsDirectory(strLinkToDirectory), "expected link to point to a directory");
 		t_assertm(!system::IsRegularFile(strLinkToDirectory), "expected link not to be a regular file");
-		assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(strLinkToDirectory) , "expected removal of symbolic link to succeed" );
+		assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strLinkToDirectory),
+					   "expected removal of symbolic link to succeed");
 	}
 #endif
 }
@@ -166,7 +171,7 @@ void SystemFileTest::CWDTests() {
 
 	String invaliddir;
 	invaliddir << system::Sep() << "wuggi" << system::Sep() << "waggi" << system::Sep() << "gugus" << system::Sep() << "this"
-			<< system::Sep() << "directory" << system::Sep() << "doesnt" << system::Sep() << "exist";
+			   << system::Sep() << "directory" << system::Sep() << "doesnt" << system::Sep() << "exist";
 	t_assertm(!system::ChangeDir(invaliddir), "should fail, dir never exists");
 	String r2;
 	system::GetCWD(r2);
@@ -444,14 +449,14 @@ void SystemFileTest::ResolvePathTest() {
 
 void SystemFileTest::OpenStreamTest() {
 	std::iostream *Ios = system::OpenStream("Tracer.any");
-	t_assert( Ios == NULL ); // should not be found!
+	t_assert(Ios == NULL);	// should not be found!
 	if (Ios) {
 		delete Ios;
 	}
 
 	// open file with relative path
 	Ios = system::OpenStream("config/Tracer.any");
-	t_assert( Ios != NULL );
+	t_assert(Ios != NULL);
 	if (Ios) {
 		delete Ios;
 	}
@@ -460,21 +465,21 @@ void SystemFileTest::OpenStreamTest() {
 
 	// search file with path
 	Ios = system::OpenStream("Tracer", "any");
-	t_assert( Ios != NULL ); // should be found
+	t_assert(Ios != NULL);	// should be found
 	if (Ios) {
 		delete Ios;
 	}
 
 	// open file with relative path
 	Ios = system::OpenStream("config/Tracer", "any");
-	t_assert( Ios != NULL );
+	t_assert(Ios != NULL);
 	if (Ios) {
 		delete Ios;
 	}
 
 	// open file with relative path for writing
 	Ios = system::OpenStream("tmp/Test1", "tst", std::ios::out);
-	t_assert( Ios != NULL );
+	t_assert(Ios != NULL);
 	if (Ios) {
 		(*Ios) << "test" << std::endl;
 		t_assert(!!(*Ios));
@@ -484,21 +489,21 @@ void SystemFileTest::OpenStreamTest() {
 
 void SystemFileTest::OpenStreamWithSearchTest() {
 	std::iostream *Ios = system::OpenStreamWithSearch("Tracer.any");
-	t_assert( Ios != NULL );
+	t_assert(Ios != NULL);
 	if (Ios) {
 		delete Ios;
 	}
 
 	// open file with relative path
 	Ios = system::OpenStreamWithSearch("config/Tracer.any");
-	t_assert( Ios != NULL );
+	t_assert(Ios != NULL);
 	if (Ios) {
 		delete Ios;
 	}
 
 	// open file with relative path for writing
 	Ios = system::OpenStreamWithSearch("tmp/Test1.tst", std::ios::out);
-	t_assert( Ios != NULL );
+	t_assert(Ios != NULL);
 	if (Ios) {
 		(*Ios) << "test" << std::endl;
 		t_assert(!!(*Ios));
@@ -510,7 +515,7 @@ void SystemFileTest::OpenIStreamTest() {
 	// open file with relative path
 	std::iostream *Ios = system::OpenIStream("config/Tracer.any");
 
-	t_assert( Ios != NULL );
+	t_assert(Ios != NULL);
 	if (Ios) {
 		Anything dbgTest;
 		(*Ios) >> dbgTest;
@@ -524,7 +529,7 @@ void SystemFileTest::OpenIStreamTest() {
 	// open file with relative path
 	Ios = system::OpenIStream("config/Tracer", "any");
 
-	t_assert( Ios != NULL );
+	t_assert(Ios != NULL);
 	if (Ios) {
 		Anything dbgTest;
 		(*Ios) >> dbgTest;
@@ -538,7 +543,7 @@ void SystemFileTest::OpenOStreamTest() {
 	// open file with relative path for writing
 	std::iostream *Ios = system::OpenOStream("tmp/Test.tst");
 
-	t_assert( Ios != NULL );
+	t_assert(Ios != NULL);
 	if (Ios) {
 		(*Ios) << "test" << std::endl;
 		t_assert(!!(*Ios));
@@ -550,7 +555,7 @@ void SystemFileTest::OpenOStreamTest() {
 	// open file with relative path for writing
 	Ios = system::OpenOStream("tmp/Test", "tst");
 
-	t_assert( Ios != NULL );
+	t_assert(Ios != NULL);
 	if (Ios) {
 		(*Ios) << "test" << std::endl;
 		t_assert(!!(*Ios));
@@ -558,11 +563,11 @@ void SystemFileTest::OpenOStreamTest() {
 	}
 }
 
-void SystemFileTest::testGetFilePath(boost::function<String()> func, const String& notFoundResult) {
+void SystemFileTest::testGetFilePath(boost::function<String()> func, const String &notFoundResult) {
 	StartTrace(SystemFileTest.testGetFilePath);
 	String subPath("./config/Tracer.any");
 
-	system::Chmod(subPath, 0400); // set it read only
+	system::Chmod(subPath, 0400);  // set it read only
 
 	String path(func());
 
@@ -572,16 +577,16 @@ void SystemFileTest::testGetFilePath(boost::function<String()> func, const Strin
 #if defined(WIN32)
 	// because NT lacks easy hiding of files or directories the file is renamed
 	String hiddenSubPath;
-	long filenamePos = subPath.StrRChr( coast::system::Sep() );
+	long filenamePos = subPath.StrRChr(coast::system::Sep());
 	if (filenamePos > -1) {
-		hiddenSubPath = subPath.SubString(0L, filenamePos+1).Append(".").Append(subPath.SubString(filenamePos+2));
+		hiddenSubPath = subPath.SubString(0L, filenamePos + 1).Append(".").Append(subPath.SubString(filenamePos + 2));
 	} else {
 		hiddenSubPath = subPath;
 	}
 
 	int status = system::io::rename(subPath, hiddenSubPath);
 #else
-	system::Chmod(subPath, 0000); // set it to no access
+	system::Chmod(subPath, 0000);  // set it to no access
 #endif
 
 	path = func();
@@ -589,9 +594,9 @@ void SystemFileTest::testGetFilePath(boost::function<String()> func, const Strin
 	assertEqual(notFoundResult, path);
 
 #if defined(WIN32)
-	system::io::rename(hiddenSubPath, subPath); //clean up to make it usable again
+	system::io::rename(hiddenSubPath, subPath);	 // clean up to make it usable again
 #else
-	system::Chmod(subPath, 0640); // clean up to make it usable again
+	system::Chmod(subPath, 0640);  // clean up to make it usable again
 #endif
 
 	path = func();
@@ -601,7 +606,7 @@ void SystemFileTest::testGetFilePath(boost::function<String()> func, const Strin
 }
 
 void SystemFileTest::GetFilePathTest() {
-	testGetFilePath(boost::bind(&coast::system::GetFilePath, "Tracer", "any"), ""); // deprecated
+	testGetFilePath(boost::bind(&coast::system::GetFilePath, "Tracer", "any"), "");	 // deprecated
 	testGetFilePath(boost::bind(&coast::system::GetFilePath, "Tracer.any"), "");
 	testGetFilePath(boost::bind(&coast::system::GetFilePathOrInput, "Tracer.any"), "Tracer.any");
 }
@@ -610,13 +615,13 @@ void SystemFileTest::dirFileListTest() {
 	StartTrace(SystemFileTest.dirFileListTest);
 	Anything dir(system::DirFileList("."));
 
-	assertEqual( 0L, dir.GetSize() );
+	assertEqual(0L, dir.GetSize());
 
 	dir = system::DirFileList("config", "any");
-	t_assert( dir.GetSize() > 0L );
+	t_assert(dir.GetSize() > 0L);
 
 	dir = system::DirFileList("..", "");
-	t_assert( dir.GetSize() > 0L );
+	t_assert(dir.GetSize() > 0L);
 	TraceAny(dir, "entries of [..]");
 }
 
@@ -633,34 +638,34 @@ void SystemFileTest::IStreamTest() {
 	std::istream *is0 = system::OpenStream("len5", "tst");
 	if (is0) {
 		*is0 >> str0;
-		//PS? t_assert ( str0.Capacity() == 66 );
-		t_assert ( str0.Length() == 5 );
-		t_assert ( str0.Capacity() >= str0.Length() );
-		t_assert ( (long)strlen( (const char *)str0 ) == 5 );
-		t_assert ( strcmp( (const char *)str0, "01234" ) == 0 );
+		// PS? t_assert ( str0.Capacity() == 66 );
+		t_assert(str0.Length() == 5);
+		t_assert(str0.Capacity() >= str0.Length());
+		t_assert((long)strlen((const char *)str0) == 5);
+		t_assert(strcmp((const char *)str0, "01234") == 0);
 
 		*is0 >> str0;
-		//PS? t_assert ( str0.Capacity() == 66 );
-		t_assert ( str0.Length() == 0 );
-		t_assert ( str0.Capacity() >= str0.Length() );
-		t_assert ( (long)strlen( (const char *)str0 ) == 0 );
-		t_assert ( strcmp( (const char *)str0, "" ) == 0 );
+		// PS? t_assert ( str0.Capacity() == 66 );
+		t_assert(str0.Length() == 0);
+		t_assert(str0.Capacity() >= str0.Length());
+		t_assert((long)strlen((const char *)str0) == 0);
+		t_assert(strcmp((const char *)str0, "") == 0);
 
 #if !defined(WIN32)
 		// win32 istream hangs if read at file end is attempted! (FIXME?)
 		*is0 >> str0;
-		//PS? t_assert ( str0.Capacity() == 66 );
-		t_assert ( str0.Length() == 0 );
-		t_assert ( str0.Capacity() >= str0.Length() );
-		t_assert ( (long)strlen( (const char *)str0 ) == 0 );
-		t_assert ( strcmp( (const char *)str0, "" ) == 0 );
+		// PS? t_assert ( str0.Capacity() == 66 );
+		t_assert(str0.Length() == 0);
+		t_assert(str0.Capacity() >= str0.Length());
+		t_assert((long)strlen((const char *)str0) == 0);
+		t_assert(strcmp((const char *)str0, "") == 0);
 
 		*is0 >> str0;
-		//PS? t_assert ( str0.Capacity() == 66 );
-		t_assert ( str0.Length() == 0 );
-		t_assert ( str0.Capacity() >= str0.Length() );
-		t_assert ( (long)strlen( (const char *)str0 ) == 0 );
-		t_assert ( strcmp( (const char *)str0, "" ) == 0 );
+		// PS? t_assert ( str0.Capacity() == 66 );
+		t_assert(str0.Length() == 0);
+		t_assert(str0.Capacity() >= str0.Length());
+		t_assert((long)strlen((const char *)str0) == 0);
+		t_assert(strcmp((const char *)str0, "") == 0);
 #endif
 		delete is0;
 	} else {
@@ -673,11 +678,11 @@ void SystemFileTest::IStreamTest() {
 	std::istream *is1 = system::OpenStream("len5", "tst");
 	if (is1) {
 		*is1 >> str1;
-		//PS? t_assert (str1.Capacity() == 66 );
-		t_assert (str1.Length() == 5);
-		t_assert ( str1.Capacity() >= str1.Length() );
-		t_assert ( strlen( (const char *)str1 ) == 5);
-		t_assert( memcmp( (const char *)str1, "01234", (long)strlen((const char *)str1) ) == 0 );
+		// PS? t_assert (str1.Capacity() == 66 );
+		t_assert(str1.Length() == 5);
+		t_assert(str1.Capacity() >= str1.Length());
+		t_assert(strlen((const char *)str1) == 5);
+		t_assert(memcmp((const char *)str1, "01234", (long)strlen((const char *)str1)) == 0);
 
 		delete is1;
 	} else {
@@ -686,11 +691,11 @@ void SystemFileTest::IStreamTest() {
 	std::istream *is2 = system::OpenStream("len5", "tst");
 	if (is2) {
 		*is2 >> str1;
-		//PS? t_assert (str1.Capacity() == 66 );
-		t_assert (str1.Length() == 5);
-		t_assert ( str1.Capacity() >= str1.Length() );
-		t_assert ( strlen( (const char *)str1 ) == 5);
-		t_assert( memcmp( (const char *)str1, "01234", strlen((const char *)str1) ) == 0 );
+		// PS? t_assert (str1.Capacity() == 66 );
+		t_assert(str1.Length() == 5);
+		t_assert(str1.Capacity() >= str1.Length());
+		t_assert(strlen((const char *)str1) == 5);
+		t_assert(memcmp((const char *)str1, "01234", strlen((const char *)str1)) == 0);
 		// und nicht 0123401234.  Ist es gewuenscht ????
 		delete is2;
 	} else {
@@ -701,12 +706,12 @@ void SystemFileTest::IStreamTest() {
 	std::istream *is3 = system::OpenStream("len5", "tst");
 	if (is3) {
 		*is3 >> str3;
-		//PS? t_assert (str3.Capacity() == 54 );
-		t_assert (str3.Length() == 5);
-		t_assert (str3.Capacity() >= str3.Length() );
-		t_assert ( memcmp( (const char *)str3, "01234", strlen((const char *)str3) ) == 0 );
-		t_assert ( strlen( (const char *)str3 ) == 5);
-		t_assert( memcmp( (const char *)str3, "01234", strlen((const char *)str3) ) == 0 );
+		// PS? t_assert (str3.Capacity() == 54 );
+		t_assert(str3.Length() == 5);
+		t_assert(str3.Capacity() >= str3.Length());
+		t_assert(memcmp((const char *)str3, "01234", strlen((const char *)str3)) == 0);
+		t_assert(strlen((const char *)str3) == 5);
+		t_assert(memcmp((const char *)str3, "01234", strlen((const char *)str3)) == 0);
 		// und nicht qwe...bnm91234.  Ist es gewuenscht ????
 		delete is3;
 	} else {
@@ -742,12 +747,12 @@ void SystemFileTest::OStreamTest() {
 	if (is0) {
 		*is0 >> str00;
 		delete is0;
-		t_assert( str0 == str00 );
-		assertCompare( str0.Length(), equal_to, str00.Length() );
+		t_assert(str0 == str00);
+		assertCompare(str0.Length(), equal_to, str00.Length());
 		// t_assert( str0.Capacity() == str00.Capacity() );
-		t_assert( str0.Capacity() >= str0.Length() );
-		t_assert( str00.Capacity() >= str00.Length() );
-		t_assert( memcmp( (const char *)str0, (const char *)str00, str0.Length() ) == 0 );
+		t_assert(str0.Capacity() >= str0.Length());
+		t_assert(str00.Capacity() >= str00.Length());
+		t_assert(memcmp((const char *)str0, (const char *)str00, str0.Length()) == 0);
 	} else {
 		assertEqual("'read file tmp/emptyStr.tst'", "'could not read tmp/emptyStr.tst'");
 	}
@@ -767,12 +772,12 @@ void SystemFileTest::OStreamTest() {
 	if (is1) {
 		*is1 >> str11;
 		delete is1;
-		t_assert( str1 == str11 );
-		assertCompare( str1.Length(), equal_to, str11.Length() );
+		t_assert(str1 == str11);
+		assertCompare(str1.Length(), equal_to, str11.Length());
 		// t_assert( str1.Capacity() == str11.Capacity() );
-		t_assert( str1.Capacity() >= str1.Length() );
-		t_assert( str11.Capacity() >= str11.Length() );
-		t_assert( memcmp( (const char *)str1, (const char *)str11, str1.Length() ) == 0 );
+		t_assert(str1.Capacity() >= str1.Length());
+		t_assert(str11.Capacity() >= str11.Length());
+		t_assert(memcmp((const char *)str1, (const char *)str11, str1.Length()) == 0);
 	} else {
 		assertEqual("'read file tmp/zahlen.tst'", "'could not read tmp/zahlen.tst'");
 	}
@@ -792,12 +797,12 @@ void SystemFileTest::OStreamTest() {
 	if (is2) {
 		*is2 >> str22;
 		delete is2;
-		t_assert( str2 == str22 );
-		assertCompare( str2.Length(), equal_to, str22.Length() );
+		t_assert(str2 == str22);
+		assertCompare(str2.Length(), equal_to, str22.Length());
 		// t_assert( str2.Capacity() == str22.Capacity() );
-		t_assert( str2.Capacity() >= str2.Length() );
-		t_assert( str22.Capacity() >= str22.Length() );
-		t_assert( memcmp( (const char *)str2, (const char *)str22, str2.Length() ) == 0 );
+		t_assert(str2.Capacity() >= str2.Length());
+		t_assert(str22.Capacity() >= str22.Length());
+		t_assert(memcmp((const char *)str2, (const char *)str22, str2.Length()) == 0);
 	} else {
 		assertEqual("'read file tmp/buchst.tst'", "'could not read tmp/buchst.tst'");
 	}
@@ -819,12 +824,12 @@ void SystemFileTest::OStreamTest() {
 	if (is0u) {
 		*is0u >> str00u;
 		delete is0u;
-		t_assert( str0u == str00u );
-		assertCompare( str0u.Length(), equal_to, str00u.Length() );
+		t_assert(str0u == str00u);
+		assertCompare(str0u.Length(), equal_to, str00u.Length());
 		// t_assert( str0u.Capacity() == str00u.Capacity() );
-		t_assert( str0u.Capacity() >= str0u.Length() );
-		t_assert( str00u.Capacity() >= str00u.Length() );
-		t_assert( memcmp( (const char *)str0u, (const char *)str00u, str0u.Length() ) == 0 );
+		t_assert(str0u.Capacity() >= str0u.Length());
+		t_assert(str00u.Capacity() >= str00u.Length());
+		t_assert(memcmp((const char *)str0u, (const char *)str00u, str0u.Length()) == 0);
 	} else {
 		assertEqual("'read file tmp/emptyStrU.tst'", "'could not read tmp/emptyStrU.tst'");
 	}
@@ -845,12 +850,12 @@ void SystemFileTest::OStreamTest() {
 		String str11u;
 		*is1u >> str11u;
 		delete is1u;
-		t_assert( str1u == str11u );
-		assertCompare( str1u.Length(), equal_to, str11u.Length() );
+		t_assert(str1u == str11u);
+		assertCompare(str1u.Length(), equal_to, str11u.Length());
 		// t_assert( str1u.Capacity() == str11u.Capacity() );
-		t_assert( str1u.Capacity() >= str1u.Length() );
-		t_assert( str11u.Capacity() >= str11u.Length() );
-		t_assert( memcmp( (const char *)str1u, (const char *)str11u, str1u.Length() ) == 0 );
+		t_assert(str1u.Capacity() >= str1u.Length());
+		t_assert(str11u.Capacity() >= str11u.Length());
+		t_assert(memcmp((const char *)str1u, (const char *)str11u, str1u.Length()) == 0);
 	} else {
 		assertEqual("'read file tmp/zahlenU.tst'", "'could not read tmp/zahlenU.tst'");
 	}
@@ -872,12 +877,12 @@ void SystemFileTest::OStreamTest() {
 		String str22u;
 		*is2u >> str22u;
 		delete is2u;
-		t_assert( str2u == str22u );
-		assertCompare( str2u.Length(), equal_to, str22u.Length() );
+		t_assert(str2u == str22u);
+		assertCompare(str2u.Length(), equal_to, str22u.Length());
 		// t_assert( str2u.Capacity() == str22u.Capacity() );
-		t_assert( str2u.Capacity() >= str2u.Length() );
-		t_assert( str22u.Capacity() >= str22u.Length() );
-		t_assert( memcmp( (const char *)str2u, (const char *)str22u, str2u.Length() ) == 0 );
+		t_assert(str2u.Capacity() >= str2u.Length());
+		t_assert(str22u.Capacity() >= str22u.Length());
+		t_assert(memcmp((const char *)str2u, (const char *)str22u, str2u.Length()) == 0);
 	} else {
 		assertEqual("'read file tmp/buchstU.tst'", "'could not read tmp/buchstU.tst'");
 	}
@@ -916,10 +921,10 @@ void SystemFileTest::IOStreamTest() {
 
 	if (is0) {
 		*is0 >> str0;
-		t_assert (str0.Capacity() >= str0.Length() );
-		t_assert ( (long)strlen( (const char *)str0 ) == str0.Length() );
-		t_assert ( (long)strlen("0123456789") == str0.Length() );
-		t_assert( memcmp( (const char *)str0, "0123456789", strlen((const char *)str0) ) == 0 );
+		t_assert(str0.Capacity() >= str0.Length());
+		t_assert((long)strlen((const char *)str0) == str0.Length());
+		t_assert((long)strlen("0123456789") == str0.Length());
+		t_assert(memcmp((const char *)str0, "0123456789", strlen((const char *)str0)) == 0);
 		delete is0;
 	} else {
 		assertEqual("'read file tmp/zahlen.tst'", "'could not read tmp/zahlen.tst'");
@@ -930,10 +935,10 @@ void SystemFileTest::IOStreamTest() {
 
 	if (is1) {
 		*is1 >> str1;
-		t_assert (str1.Capacity() >= str1.Length() );
-		t_assert (str1.Length() == (long)strlen( (const char *)str1 ));
-		t_assert (str1.Length() == (long)strlen("qwertzuiopasdfghjklyxcvbnm") );
-		t_assert( memcmp( (const char *)str1, "qwertzuiopasdfghjklyxcvbnm", strlen((const char *)str1) ) == 0 );
+		t_assert(str1.Capacity() >= str1.Length());
+		t_assert(str1.Length() == (long)strlen((const char *)str1));
+		t_assert(str1.Length() == (long)strlen("qwertzuiopasdfghjklyxcvbnm"));
+		t_assert(memcmp((const char *)str1, "qwertzuiopasdfghjklyxcvbnm", strlen((const char *)str1)) == 0);
 		delete is1;
 	} else {
 		assertEqual("'read file tmp/buchst.tst'", "'could not read tmp/buchst.tst'");
@@ -947,10 +952,10 @@ void SystemFileTest::IOStreamTest() {
 
 	if (os2) {
 		*os2 << str2;
-		t_assert (str2.Capacity() >= str2.Length() );
-		t_assert ( (long)strlen( (const char *)str2 ) == str2.Length() );
-		t_assert ( (long)strlen("qwertzuiopasdfghjklyxcvbnm") == str2.Length() );
-		t_assert( memcmp( (const char *)str2, "qwertzuiopasdfghjklyxcvbnm", strlen((const char *)str2) ) == 0 );
+		t_assert(str2.Capacity() >= str2.Length());
+		t_assert((long)strlen((const char *)str2) == str2.Length());
+		t_assert((long)strlen("qwertzuiopasdfghjklyxcvbnm") == str2.Length());
+		t_assert(memcmp((const char *)str2, "qwertzuiopasdfghjklyxcvbnm", strlen((const char *)str2)) == 0);
 		delete os2;
 	} else {
 		assertEqual("'write to file dummy.tst'", "'could not write dummy.tst'");
@@ -960,10 +965,10 @@ void SystemFileTest::IOStreamTest() {
 
 	if (os3) {
 		*os3 << str3;
-		t_assert (str3.Capacity() >= str3.Length() );
-		t_assert (str3.Length() == (long)strlen("0123456789") );
-		t_assert ( (long)strlen( (const char *)str3 ) == str3.Length());
-		t_assert( memcmp( (const char *)str3, "0123456789", strlen((const char *)str3) ) == 0 );
+		t_assert(str3.Capacity() >= str3.Length());
+		t_assert(str3.Length() == (long)strlen("0123456789"));
+		t_assert((long)strlen((const char *)str3) == str3.Length());
+		t_assert(memcmp((const char *)str3, "0123456789", strlen((const char *)str3)) == 0);
 		delete os3;
 	} else {
 		assertEqual("'write to file dummy.tst'", "'could not write dummy.tst'");
@@ -977,7 +982,7 @@ void SystemFileTest::IOStreamTest() {
 		*isHlp >> strHlp;
 		delete isHlp;
 		assertEqual(compare, strHlp);
-		assertEqual(compare.Length(), strHlp.Length() );
+		assertEqual(compare.Length(), strHlp.Length());
 	} else {
 		assertEqual("'read file dummy.tst'", "'could not read dummy.tst'");
 	}
@@ -989,8 +994,9 @@ void SystemFileTest::IOStreamTest() {
 
 	if (os4) {
 		// You must check if the file is OK   ( ???? )
-		*os4 << str4 << std::endl << str5 << 'a' << 'b' << 123456789L << ' ' << -123456789L << ' ' << true << ' ' << false << " qqq" << " "
-				<< 123 << " " << -123.234 << " " << 0.2345e-7 << ' ' << 1.123456789e9;
+		*os4 << str4 << std::endl
+			 << str5 << 'a' << 'b' << 123456789L << ' ' << -123456789L << ' ' << true << ' ' << false << " qqq"
+			 << " " << 123 << " " << -123.234 << " " << 0.2345e-7 << ' ' << 1.123456789e9;
 		delete os4;
 	} else {
 		assertEqual("'write to file tmp/strChain.tst'", "'could not write tmp/strChain.tst'");
@@ -1006,12 +1012,12 @@ void SystemFileTest::IOStreamTest() {
 		// str6 << *is2;  Compilierbar aber falsches Resultat
 		*is2 >> str6;
 		assertEqual("qwertzuiopasdfghjklyxcvbnm", str6);
-		t_assert( str6.Length() == (long)strlen("qwertzuiopasdfghjklyxcvbnm") );
-		t_assert( str6.Capacity() >= str6.Length() );
+		t_assert(str6.Length() == (long)strlen("qwertzuiopasdfghjklyxcvbnm"));
+		t_assert(str6.Capacity() >= str6.Length());
 		*is3 >> str6;
 		assertEqual("0123456789", str6);
-		t_assert( str6.Length() == (long)strlen("0123456789") );
-		t_assert( str6.Capacity() >= str6.Length() );
+		t_assert(str6.Length() == (long)strlen("0123456789"));
+		t_assert(str6.Capacity() >= str6.Length());
 		delete is2;
 		delete is3;
 	} else {
@@ -1025,17 +1031,17 @@ void SystemFileTest::IOStreamTest() {
 
 	// Einfluss von (char)0:  Length() = 5 ABER strlen = 2
 	String str7;
-	char bufHlp[5] = { 'a', 'b', (char) 0, 'c', 'd' };
-	str7.Append((void *) bufHlp, 5);
+	char bufHlp[5] = {'a', 'b', (char)0, 'c', 'd'};
+	str7.Append((void *)bufHlp, 5);
 	std::ostream *os5 = system::OpenOStream("tmp/strMit0", "tst");
 
 	if (os5) {
 		*os5 << str7;
-		t_assert (str7.Capacity() >= str7.Length() );
-		t_assert (str7.Length() == 5);
-		t_assert ( strlen( (const char *)str7 ) == 2);
-		t_assert( memcmp( (const char *)str7, "ab", strlen((const char *)str7) ) == 0 );
-		t_assert( memcmp( (const char *)str7, bufHlp, str7.Length() ) == 0 );
+		t_assert(str7.Capacity() >= str7.Length());
+		t_assert(str7.Length() == 5);
+		t_assert(strlen((const char *)str7) == 2);
+		t_assert(memcmp((const char *)str7, "ab", strlen((const char *)str7)) == 0);
+		t_assert(memcmp((const char *)str7, bufHlp, str7.Length()) == 0);
 		delete os5;
 	} else {
 		assertEqual("'write to file strMit0.tst'", "'could not write strMit0.tst'");
@@ -1045,11 +1051,11 @@ void SystemFileTest::IOStreamTest() {
 
 	if (is4) {
 		*is4 >> str8;
-		t_assert (str8.Capacity() >= str8.Length() );
-		t_assert (str8.Length() == 5);
-		t_assert ( strlen( (const char *)str8 ) == 2);
-		t_assert( memcmp( (const char *)str8, "ab", strlen((const char *)str8) ) == 0 );
-		t_assert( memcmp( (const char *)str8, bufHlp, str8.Length() ) == 0 );
+		t_assert(str8.Capacity() >= str8.Length());
+		t_assert(str8.Length() == 5);
+		t_assert(strlen((const char *)str8) == 2);
+		t_assert(memcmp((const char *)str8, "ab", strlen((const char *)str8)) == 0);
+		t_assert(memcmp((const char *)str8, bufHlp, str8.Length()) == 0);
 		delete is4;
 	} else {
 		assertEqual("'read file strMit0.tst'", "'could not read strMit0.tst'");
@@ -1089,7 +1095,8 @@ void SystemFileTest::IOStreamTest() {
 		if (t_assertm(pStream != NULL, "expected file to be opened")) {
 			// can position in file but content gets still appended at the end
 			pStream->seekp(strOut.Length());
-			//??			assertEqual(strOut.Length(), (long)pStream->tellp()); // foo: should this one work on append-only streams?
+			//??			assertEqual(strOut.Length(), (long)pStream->tellp()); // foo: should this one work on append-only
+			// streams?
 			*pStream << strOut;
 			delete pStream;
 		}
@@ -1103,7 +1110,7 @@ void SystemFileTest::IOStreamTest() {
 			assertCharPtrEqual(strExpected, strReadIn);
 		}
 		pStream = system::OpenStream(strAteFile, NULL, std::ios::ate);
-		if (!t_assertm( pStream == NULL, "expected file not to be opened")) {
+		if (!t_assertm(pStream == NULL, "expected file not to be opened")) {
 			delete pStream;
 		}
 		Trace("before first app");
@@ -1161,14 +1168,14 @@ void SystemFileTest::IOStreamTest() {
 
 void SystemFileTest::LoadConfigFileTest() {
 	Anything dbgany;
-	t_assert(system::LoadConfigFile(dbgany, "Tracer")); // any extension automatic
+	t_assert(system::LoadConfigFile(dbgany, "Tracer"));	 // any extension automatic
 	t_assert(!dbgany.IsNull());
 	t_assert(dbgany.IsDefined("LowerBound"));
 
 	Anything dbg2;
 	String realfilename;
 	t_assert(system::LoadConfigFile(dbg2, "Tracer", "any", realfilename));
-	assertEqual("Tracer.any", realfilename.SubString(realfilename.StrRChr(system::Sep())+1L));
+	assertEqual("Tracer.any", realfilename.SubString(realfilename.StrRChr(system::Sep()) + 1L));
 	assertAnyEqual(dbgany, dbg2);
 
 	Anything dbg3;
@@ -1192,24 +1199,25 @@ void SystemFileTest::MkRmDirTest() {
 	Trace("str1Level [" << str1Level << "]");
 	Trace("str2Level [" << str2Level << "]");
 	// assume that we have a tmp-directory to access and to play with
-	if (t_assertm( system::IsDirectory(strTmpDir), "expected an accessible directory" )) {
-		t_assertm( system::io::mkdir(strTmpDir, 0755) == -1 , "expected creation of directory to fail");
-		if (t_assertm( system::io::mkdir(str1Level, 0755) == 0 , "expected creation of directory to succeed")) {
-			t_assertm( system::IsDirectory(str1Level), "expected an accessible directory" );
-			t_assertm( system::io::mkdir(str1Level, 0755) == -1 , "expected creation of existing directory to fail");
-			t_assertm( system::io::rmdir(str1Level) == 0 , "expected deletion of directory to succeed");
-			t_assertm( system::io::rmdir(str1Level) == -1 , "expected deletion of nonexisting directory to fail");
+	if (t_assertm(system::IsDirectory(strTmpDir), "expected an accessible directory")) {
+		t_assertm(system::io::mkdir(strTmpDir, 0755) == -1, "expected creation of directory to fail");
+		if (t_assertm(system::io::mkdir(str1Level, 0755) == 0, "expected creation of directory to succeed")) {
+			t_assertm(system::IsDirectory(str1Level), "expected an accessible directory");
+			t_assertm(system::io::mkdir(str1Level, 0755) == -1, "expected creation of existing directory to fail");
+			t_assertm(system::io::rmdir(str1Level) == 0, "expected deletion of directory to succeed");
+			t_assertm(system::io::rmdir(str1Level) == -1, "expected deletion of nonexisting directory to fail");
 		}
-		t_assertm( system::io::mkdir(str2Level, 0755) == -1 , "expected creation of multiple directory levels at once to fail");
+		t_assertm(system::io::mkdir(str2Level, 0755) == -1, "expected creation of multiple directory levels at once to fail");
 		// relative tests
 		String wd;
 		system::GetCWD(wd);
-		if (t_assert( system::ChangeDir(strTmpDir) )) {
-			t_assertm( system::io::mkdir(str1LevelRel, 0755) == 0 , "expected creation of relative directory to succeed" );
-			t_assertm( system::io::mkdir(str2LevelRel, 0755) == 0 , "expected creation of two level relative directory to succeed" );
-			t_assertm( system::io::rmdir(str1LevelRel) == -1 , "expected deletion of non-empty relative directory to fail" );
-			t_assertm( system::io::rmdir(str2LevelRel) == 0 , "expected deletion of relative directory to succeed" );
-			t_assertm( system::io::rmdir(str1LevelRel) == 0 , "expected deletion of relative directory to succeed" );
+		if (t_assert(system::ChangeDir(strTmpDir))) {
+			t_assertm(system::io::mkdir(str1LevelRel, 0755) == 0, "expected creation of relative directory to succeed");
+			t_assertm(system::io::mkdir(str2LevelRel, 0755) == 0,
+					  "expected creation of two level relative directory to succeed");
+			t_assertm(system::io::rmdir(str1LevelRel) == -1, "expected deletion of non-empty relative directory to fail");
+			t_assertm(system::io::rmdir(str2LevelRel) == 0, "expected deletion of relative directory to succeed");
+			t_assertm(system::io::rmdir(str1LevelRel) == 0, "expected deletion of relative directory to succeed");
 		}
 		system::ChangeDir(wd);
 	}
@@ -1230,54 +1238,71 @@ void SystemFileTest::MakeRemoveDirectoryTest() {
 	Trace("str1Level [" << str1Level << "]");
 	Trace("str2Level [" << str2Level << "]");
 	// assume that we have a tmp-directory to access and to play with
-	if (t_assertm( system::IsDirectory(strTmpDir), "expected an accessible directory" )) {
+	if (t_assertm(system::IsDirectory(strTmpDir), "expected an accessible directory")) {
 		String strSaveParam(strTmpDir);
 		// one level tests
-		assertComparem( system::eExists, equal_to, system::MakeDirectory(strTmpDir, 0755, false) , "expected creation of directory to fail");
+		assertComparem(system::eExists, equal_to, system::MakeDirectory(strTmpDir, 0755, false),
+					   "expected creation of directory to fail");
 		system::ResolvePath(strSaveParam);
 		assertCharPtrEqual(strSaveParam, strTmpDir);
 		strSaveParam = str1Level;
-		if (assertComparem( system::eSuccess, equal_to, system::MakeDirectory(str1Level, 0755, false) , "expected creation of directory to succeed")) {
+		if (assertComparem(system::eSuccess, equal_to, system::MakeDirectory(str1Level, 0755, false),
+						   "expected creation of directory to succeed")) {
 			system::ResolvePath(strSaveParam);
 			assertCharPtrEqual(strSaveParam, str1Level);
-			t_assertm( system::IsDirectory(str1Level), "expected an accessible directory" );
-			assertComparem( system::eExists, equal_to, system::MakeDirectory(str1Level, 0755, false) , "expected creation of existing directory to fail");
+			t_assertm(system::IsDirectory(str1Level), "expected an accessible directory");
+			assertComparem(system::eExists, equal_to, system::MakeDirectory(str1Level, 0755, false),
+						   "expected creation of existing directory to fail");
 			system::ResolvePath(strSaveParam);
 			assertCharPtrEqual(strSaveParam, str1Level);
-			assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(str1Level, false), "expected deletion of directory to succeed");
-			t_assertm( !system::IsDirectory(str1Level), "expected directory to be deleted" );
+			assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(str1Level, false),
+						   "expected deletion of directory to succeed");
+			t_assertm(!system::IsDirectory(str1Level), "expected directory to be deleted");
 		}
 		// multiple level tests
 		strSaveParam = str2Level;
-		assertComparem( system::eNotExists, equal_to, system::MakeDirectory(str2Level, 0755, false) , "expected creation of multiple directory levels at once to fail");
+		assertComparem(system::eNotExists, equal_to, system::MakeDirectory(str2Level, 0755, false),
+					   "expected creation of multiple directory levels at once to fail");
 		assertCharPtrEqual(str1Level, str2Level);
 		str2Level = strSaveParam;
-		if (assertComparem( system::eSuccess, equal_to, system::MakeDirectory(str2Level, 0755, true) , "expected creation of multiple directory levels at once to succeed")) {
+		if (assertComparem(system::eSuccess, equal_to, system::MakeDirectory(str2Level, 0755, true),
+						   "expected creation of multiple directory levels at once to succeed")) {
 			system::ResolvePath(strSaveParam);
 			assertCharPtrEqual(strSaveParam, str2Level);
-			t_assertm( system::IsDirectory(str2Level), "expected an accessible directory tree" );
-			assertComparem( system::eRecurseDeleteNotAllowed, equal_to, system::RemoveDirectory(str2Level, true), "expected deletion of multiple absolute dir levels to fail" );
-			assertComparem( system::eExists, equal_to, system::RemoveDirectory(str1Level, false), TString("expected deletion of parent dir [") << str1Level << "] to fail" );
-			assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(str2Level, false), "expected deletion of one absolute dir level to succeed" );
-			assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(str1Level, false), "expected deletion of one absolute dir level to succeed" );
-			t_assertm( !system::IsDirectory(str2Level), "expected directory to be deleted" );
-			t_assertm( !system::IsDirectory(str1Level), "expected directory to be deleted" );
+			t_assertm(system::IsDirectory(str2Level), "expected an accessible directory tree");
+			assertComparem(system::eRecurseDeleteNotAllowed, equal_to, system::RemoveDirectory(str2Level, true),
+						   "expected deletion of multiple absolute dir levels to fail");
+			assertComparem(system::eExists, equal_to, system::RemoveDirectory(str1Level, false),
+						   TString("expected deletion of parent dir [") << str1Level << "] to fail");
+			assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(str2Level, false),
+						   "expected deletion of one absolute dir level to succeed");
+			assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(str1Level, false),
+						   "expected deletion of one absolute dir level to succeed");
+			t_assertm(!system::IsDirectory(str2Level), "expected directory to be deleted");
+			t_assertm(!system::IsDirectory(str1Level), "expected directory to be deleted");
 		}
 		// relative tests
 		String wd;
 		system::GetCWD(wd);
-		if (t_assert( system::ChangeDir(strTmpDir) )) {
+		if (t_assert(system::ChangeDir(strTmpDir))) {
 			// one level tests
 			Trace("str1LevelRel [" << str1LevelRel << "] str2LevelRel [" << str2LevelRel << "]");
-			assertComparem( system::eSuccess, equal_to, system::MakeDirectory(str1LevelRel, 0755, false) , "expected creation of relative directory to succeed" );
-			assertComparem( system::eSuccess, equal_to, system::MakeDirectory(str2LevelRel, 0755, false) , "expected creation of second level relative directory to succeed" );
+			assertComparem(system::eSuccess, equal_to, system::MakeDirectory(str1LevelRel, 0755, false),
+						   "expected creation of relative directory to succeed");
+			assertComparem(system::eSuccess, equal_to, system::MakeDirectory(str2LevelRel, 0755, false),
+						   "expected creation of second level relative directory to succeed");
 			Trace("str1LevelRel [" << str1LevelRel << "] str2LevelRel [" << str2LevelRel << "]");
-			assertComparem( system::eExists, equal_to, system::RemoveDirectory(str1LevelRel, false) , "expected deletion of parent relative directory to fail" );
-			assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(str2LevelRel, false) , "expected deletion of relative directory to succeed" );
-			assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(str1LevelRel, false) , "expected deletion of relative directory to succeed" );
+			assertComparem(system::eExists, equal_to, system::RemoveDirectory(str1LevelRel, false),
+						   "expected deletion of parent relative directory to fail");
+			assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(str2LevelRel, false),
+						   "expected deletion of relative directory to succeed");
+			assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(str1LevelRel, false),
+						   "expected deletion of relative directory to succeed");
 			// multiple level tests
-			assertComparem( system::eSuccess, equal_to, system::MakeDirectory(str2LevelRel, 0755, true) , "expected creation of multiple level relative directories to succeed" );
-			assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(str2LevelRel, true) , "expected deletion of multiple relative directories to succeed" );
+			assertComparem(system::eSuccess, equal_to, system::MakeDirectory(str2LevelRel, 0755, true),
+						   "expected creation of multiple level relative directories to succeed");
+			assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(str2LevelRel, true),
+						   "expected deletion of multiple relative directories to succeed");
 		}
 		system::ChangeDir(wd);
 	}
@@ -1292,9 +1317,10 @@ void SystemFileTest::MakeDirectoryTest() {
 
 	// assume that we have a tmp-directory to access and to play with
 	if (!system::IsDirectory(strStartDir)) {
-		assertComparem( system::eSuccess, equal_to, system::MakeDirectory(strStartDir, 0755, true) , "expected creation of directory to succeed");
+		assertComparem(system::eSuccess, equal_to, system::MakeDirectory(strStartDir, 0755, true),
+					   "expected creation of directory to succeed");
 	}
-	if (t_assertm( system::IsDirectory(strStartDir), "expected start directory to be valid")) {
+	if (t_assertm(system::IsDirectory(strStartDir), "expected start directory to be valid")) {
 		for (; lIdx < lNumDirsMax; ++lIdx) {
 			strDirToCreate.Trim(0L);
 			strDirToCreate.Append(strStartDir).Append(system::Sep()).Append(lIdx);
@@ -1311,7 +1337,8 @@ void SystemFileTest::MakeDirectoryTest() {
 			system::RemoveDirectory(strDirToCreate, false);
 		}
 	}
-	assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(strStartDir, false), "expected deletion of directory to succeed");
+	assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strStartDir, false),
+				   "expected deletion of directory to succeed");
 }
 
 void SystemFileTest::MakeDirectoryExtendTest() {
@@ -1356,7 +1383,8 @@ void SystemFileTest::MakeDirectoryExtendTest() {
 			if (lSep > 0L) {
 				strLinkName.Trim(lSep);
 			}
-			Trace("Dir to create [" << strCreateDir << "] ExpectedDir [" << strExpectDir << "] first seg [" << strLinkName << "]");
+			Trace("Dir to create [" << strCreateDir << "] ExpectedDir [" << strExpectDir << "] first seg [" << strLinkName
+									<< "]");
 			Trace("first seg [" << strLinkName << "] of rel path [" << strCreateDirRel << "]");
 			if (strCreateDirRel.Length() > 0L && strCreateDir.Length() > 0L && strExpectDir.Length() > 0L) {
 				bool bDidCreateDir(false);
@@ -1367,28 +1395,35 @@ void SystemFileTest::MakeDirectoryExtendTest() {
 				if (!system::IsDirectory(strCreateDir)) {
 					String strTmpDir(strCreateDir);
 					// test should fail without extend link option
-					if (assertComparem( system::eNoMoreHardlinks, equal_to, system::MakeDirectory(strTmpDir, 0755, true, false) , TString("expected creation of directory to fail due to no more available hardlinks, is the test-directory [") << strTmpDir << "] full of subdirs?" )) {
+					if (assertComparem(system::eNoMoreHardlinks, equal_to, system::MakeDirectory(strTmpDir, 0755, true, false),
+									   TString("expected creation of directory to fail due to no more available hardlinks, is "
+											   "the test-directory [")
+										   << strTmpDir << "] full of subdirs?")) {
 						strTmpDir.Trim(strTmpDir.StrRChr(system::Sep()));
 						Trace("exhausted directory [" << strTmpDir << "]");
-						assertCompare( iNumLinks, equal_to, (long)system::GetNumberOfHardLinks(strTmpDir));
+						assertCompare(iNumLinks, equal_to, (long)system::GetNumberOfHardLinks(strTmpDir));
 						strTmpDir = strCreateDir;
-						if (assertComparem( system::eSuccess, equal_to, system::MakeDirectory(strTmpDir, 0755, true, true) , "expected creation of extended directory to succeed" )) {
+						if (assertComparem(system::eSuccess, equal_to, system::MakeDirectory(strTmpDir, 0755, true, true),
+										   "expected creation of extended directory to succeed")) {
 							String wd;
 							system::GetCWD(wd);
 							t_assertm(system::IsDirectory(strExpectDir), "expected extension directory to be created");
-							if (strLinkName.Length() && t_assert( system::ChangeDir(strBaseDir) )) {
+							if (strLinkName.Length() && t_assert(system::ChangeDir(strBaseDir))) {
 								t_assertm(system::IsSymbolicLink(strLinkName), "expected directory (link) to be created");
-								assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(strLinkName) , "expected removal of symbolic link to succeed" );
+								assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strLinkName),
+											   "expected removal of symbolic link to succeed");
 							}
-							if (t_assert( system::ChangeDir(strExpectBaseDir) )) {
-								assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(strCreateDirRel, true) , "expected removal of directory to succeed" );
+							if (t_assert(system::ChangeDir(strExpectBaseDir))) {
+								assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strCreateDirRel, true),
+											   "expected removal of directory to succeed");
 							}
 							system::ChangeDir(wd);
 						}
 					}
 				}
 				if (bDidCreateDir && system::IsDirectory(strEnsureDir)) {
-					assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(strEnsureDir), "failed to remove directory we created for testing");
+					assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strEnsureDir),
+								   "failed to remove directory we created for testing");
 				}
 			}
 		}
@@ -1425,33 +1460,41 @@ void SystemFileTest::SymbolicLinkTest() {
 		if (strCreateDir.Length() > 0L) {
 			// assume that we have a tmp-directory to access and to play with
 			if (!system::IsDirectory(strCreateDir)) {
-				assertComparem( system::eSuccess, equal_to, system::MakeDirectory(strCreateDir, 0755, false) , "expected creation of relative directory to succeed" );
+				assertComparem(system::eSuccess, equal_to, system::MakeDirectory(strCreateDir, 0755, false),
+							   "expected creation of relative directory to succeed");
 			}
 			if (t_assert(system::IsDirectory(strCreateDir))) {
 				String wd;
 				system::GetCWD(wd);
-				if (t_assert( system::ChangeDir(strTmpDir) )) {
+				if (t_assert(system::ChangeDir(strTmpDir))) {
 					Trace("creating relative link [" << strLinkRel << "] to relative dir [" << strRelDir << "]");
-					assertComparem( system::eSuccess, equal_to, system::CreateSymbolicLink(strRelDir, strLinkRel) , "expected creation of relative symbolic link to succeed" );
+					assertComparem(system::eSuccess, equal_to, system::CreateSymbolicLink(strRelDir, strLinkRel),
+								   "expected creation of relative symbolic link to succeed");
 					t_assertm(system::IsSymbolicLink(strLinkRel), "expected link to be valid");
-					assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(strLinkRel) , "expected removal of relative symbolic link to succeed" );
+					assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strLinkRel),
+								   "expected removal of relative symbolic link to succeed");
 					t_assert(system::IsDirectory(strRelDir));
-					if (t_assert(!system::IsDirectory(strLinkRel) )) {
+					if (t_assert(!system::IsDirectory(strLinkRel))) {
 						Trace("creating relative link [" << strLinkRel << "] to absolute dir [" << strCreateDir << "]");
-						assertComparem( system::eSuccess, equal_to, system::CreateSymbolicLink(strCreateDir, strLinkRel) , "expected creation of relative symbolic link to succeed" );
+						assertComparem(system::eSuccess, equal_to, system::CreateSymbolicLink(strCreateDir, strLinkRel),
+									   "expected creation of relative symbolic link to succeed");
 						t_assertm(system::IsSymbolicLink(strLinkRel), "expected link to be valid");
-						assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(strLinkRel) , "expected removal of relative symbolic link to succeed" );
+						assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strLinkRel),
+									   "expected removal of relative symbolic link to succeed");
 						t_assert(system::IsDirectory(strCreateDir));
 					}
 				}
 				system::ChangeDir(wd);
 				Trace("creating absolute link [" << strLinkAbs << "] to dir [" << strCreateDir << "]");
-				assertComparem( system::eSuccess, equal_to, system::CreateSymbolicLink(strCreateDir, strLinkAbs) , "expected creation of absolute symbolic link to succeed" );
+				assertComparem(system::eSuccess, equal_to, system::CreateSymbolicLink(strCreateDir, strLinkAbs),
+							   "expected creation of absolute symbolic link to succeed");
 				t_assertm(system::IsSymbolicLink(strLinkAbs), "expected link to be valid");
-				assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(strLinkAbs) , "expected removal of absolute symbolic link to succeed" );
+				assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strLinkAbs),
+							   "expected removal of absolute symbolic link to succeed");
 				t_assert(system::IsDirectory(strCreateDir));
 			}
-			assertComparem( system::eSuccess, equal_to, system::RemoveDirectory(strCreateDir) , "expected removal of directory to succeed" );
+			assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strCreateDir),
+						   "expected removal of directory to succeed");
 		}
 	}
 }
@@ -1514,6 +1557,6 @@ Test *SystemFileTest::suite() {
 	ADD_CASE(testSuite, SystemFileTest, MakeDirectoryExtendTest);
 	ADD_CASE(testSuite, SystemFileTest, GetFileSizeTest);
 	ADD_CASE(testSuite, SystemFileTest, BlocksLeftOnFSTest);
-	ADD_CASE(testSuite, SystemFileTest, statTests); // needs to be last
+	ADD_CASE(testSuite, SystemFileTest, statTests);	 // needs to be last
 	return testSuite;
 }

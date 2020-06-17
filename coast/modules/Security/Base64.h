@@ -14,15 +14,12 @@
 //---- Base64 -----------------------------------------------------------
 //! Coasts Base64 encoding with the default URL style using -$ instead
 /*! registered as Base64 and b64 */
-class Base64 :  public Encoder
-{
+class Base64 : public Encoder {
 public:
-	Base64(const char *name): Encoder(name) {}
+	Base64(const char *name) : Encoder(name) {}
 	virtual ~Base64() {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) Base64(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) Base64(fName); }
 
 	//! hook from SecurityItem doing the base 64 encoding
 	virtual void DoEncode(String &encodedText, const String &cleartext) const;
@@ -31,9 +28,7 @@ public:
 
 protected:
 	//! hook for using the two different mappings, this one uses URL style
-	virtual const char *DoGetBasis() const {
-		return Base64::basis_64_wd;
-	}
+	virtual const char *DoGetBasis() const { return Base64::basis_64_wd; }
 	static const char basis_64_wd[];
 	static const char index_64[256];
 
@@ -45,21 +40,16 @@ private:
 
 //! normal Base64 encoding as used everywhere else (except inserting newlines)
 /*! registered as Base64Regular and b64r */
-class Base64Regular :  public Base64
-{
+class Base64Regular : public Base64 {
 public:
-	Base64Regular(const char *name): Base64(name) {}
+	Base64Regular(const char *name) : Base64(name) {}
 	virtual ~Base64Regular() {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) Base64Regular(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) Base64Regular(fName); }
 
 protected:
 	//! hook for using the two different mappings, this one uses default style
-	virtual const char *DoGetBasis() const {
-		return Base64Regular::basis_64_orig;
-	}
+	virtual const char *DoGetBasis() const { return Base64Regular::basis_64_orig; }
 	static const char basis_64_orig[];
 
 private:

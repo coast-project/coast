@@ -6,108 +6,84 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "WorkerPoolManagerTest.h"
 #include "TestThread.h"
 
-void TestThread::Run()
-{
+#include "WorkerPoolManagerTest.h"
+
+void TestThread::Run() {
 	SetWorking();
 	StartTrace(TestThread.Run);
 	SetReady();
 }
 
-TerminateMeTestThread::TerminateMeTestThread(bool willStart)
-	: TestThread("TerminateMeTestThread")
-	, fWillStart(willStart)
-{
-}
+TerminateMeTestThread::TerminateMeTestThread(bool willStart) : TestThread("TerminateMeTestThread"), fWillStart(willStart) {}
 
-void TerminateMeTestThread::Run()
-{
+void TerminateMeTestThread::Run() {
 	StartTrace(TerminateMeTestThread.Run);
 	CheckState(eTerminationRequested);
 }
 
-Thread *TestThreadPool::DoAllocThread(long i, ROAnything args)
-{
+Thread *TestThreadPool::DoAllocThread(long i, ROAnything args) {
 	StartTrace(TestThreadPool.DoAllocThread);
 	return new (coast::storage::Global()) TestThread;
 }
 
-bool TestThreadPool::AllThreadsStarted()
-{
+bool TestThreadPool::AllThreadsStarted() {
 	StartTrace(TestThreadPool.AllThreadsStarted);
 	return (fStartedThreads == GetPoolSize());
 }
 
-bool TestThreadPool::AllThreadsTerminated()
-{
+bool TestThreadPool::AllThreadsTerminated() {
 	StartTrace(TestThreadPool.AllThreadsTerminated);
 	for (long i = 0; i < GetPoolSize(); i++) {
 		Thread *tt = DoGetThread(i);
-		if (! (tt->GetState() == Thread::eTerminated) ) {
+		if (!(tt->GetState() == Thread::eTerminated)) {
 			return false;
 		}
 	}
 	return true;
 }
 
-Thread *TerminateTestThreadPool::DoAllocThread(long i, ROAnything args)
-{
+Thread *TerminateTestThreadPool::DoAllocThread(long i, ROAnything args) {
 	return new (coast::storage::Global()) TerminateMeTestThread;
 }
 
-TestWorker::TestWorker(const char *name)
-	: WorkerThread(name)
-	, fWaitTimeInProcess(2)
-	, fWasPrepared(false)
-{
-}
+TestWorker::TestWorker(const char *name) : WorkerThread(name), fWaitTimeInProcess(2), fWasPrepared(false) {}
 
-void TestWorker::DoInit(ROAnything workerInit)
-{
+void TestWorker::DoInit(ROAnything workerInit) {
 	StartTrace(TestWorker.DoInit);
 	fWaitTimeInProcess = workerInit["timeout"].AsLong(2);
 	fTest = (WorkerPoolManagerTest *)workerInit["test"].AsIFAObject(0);
 }
 
-void TestWorker::DoWorkingHook(ROAnything workloadArgs)
-{
+void TestWorker::DoWorkingHook(ROAnything workloadArgs) {
 	StartTrace(TestWorker.DoWorkingHook);
 	fWasPrepared = true;
 }
 
-void TestWorker::DoProcessWorkload()
-{
+void TestWorker::DoProcessWorkload() {
 	StartTrace(TestWorker.DoProcessWorkload);
 	Thread::Wait(fWaitTimeInProcess);
-	if ( CheckRunningState( eWorking ) ) {
+	if (CheckRunningState(eWorking)) {
 		fTest->CheckProcessWorkload(true, fWasPrepared);
 	}
 	fWasPrepared = false;
 }
 
-SamplePoolManager::SamplePoolManager(const String &name)
-	: WorkerPoolManager(name)
-	, fRequests(0)
-{
-}
+SamplePoolManager::SamplePoolManager(const String &name) : WorkerPoolManager(name), fRequests(0) {}
 
-SamplePoolManager::~SamplePoolManager()
-{
+SamplePoolManager::~SamplePoolManager() {
 	Terminate();
 	Anything dummy;
 	DoDeletePool(dummy);
 }
 
-void SamplePoolManager::DoAllocPool(ROAnything args)
-{
+void SamplePoolManager::DoAllocPool(ROAnything args) {
 	// create the pool of worker threads
 	fRequests = new TestWorker[GetPoolSize()];
 }
 
-WorkerThread *SamplePoolManager::DoGetWorker(long i)
-{
+WorkerThread *SamplePoolManager::DoGetWorker(long i) {
 	// accessor for one specific worker
 	if (fRequests) {
 		return &(fRequests[i]);
@@ -115,12 +91,11 @@ WorkerThread *SamplePoolManager::DoGetWorker(long i)
 	return 0;
 }
 
-void SamplePoolManager::DoDeletePool(ROAnything args)
-{
+void SamplePoolManager::DoDeletePool(ROAnything args) {
 	// cleanup of the sub-class specific stuff
 	// CAUTION: this cleanup method may be called repeatedly..
 	if (fRequests) {
-		delete [ ] fRequests;
+		delete[] fRequests;
 		fRequests = 0;
 	}
 }

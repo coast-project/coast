@@ -17,12 +17,11 @@ typedef struct ssl_ctx_st SSL_CTX;
 typedef struct ssl_st SSL;
 typedef struct x509_st X509;
 
-class SSLModule: public WDModule {
+class SSLModule : public WDModule {
 	friend class SSLModuleTest;
+
 public:
-	enum MakeContextFor {
-		eServer, eClient
-	};
+	enum MakeContextFor { eServer, eClient };
 	SSLModule(const char *name);
 	virtual bool Init(const ROAnything config);
 	virtual bool Finis();
@@ -31,7 +30,8 @@ public:
 	static SSL_CTX *GetSSLClientCtx(ROAnything config);
 
 protected:
-	static SSL_CTX *SetOwnCertificateAndKey(SSL_CTX *ctx, LookupInterface *object, MakeContextFor eContextFor = SSLModule::eServer);
+	static SSL_CTX *SetOwnCertificateAndKey(SSL_CTX *ctx, LookupInterface *object,
+											MakeContextFor eContextFor = SSLModule::eServer);
 	static void SetSSLSetAcceptableClientCAs(SSL_CTX *ctx, LookupInterface *object);
 	static void SetSSLCtxVerifyParameters(SSL_CTX *ctx, LookupInterface *object);
 	static SSL_CTX *PrepareClientContext(LookupInterface *object);
@@ -42,19 +42,16 @@ protected:
 	static SSL_CTX *SetDiffieHellmannKey(SSL_CTX *ctx, LookupInterface *object, String lookupName, long defaultLength);
 };
 
-class SSLAcceptorFactory: public AcceptorFactory {
+class SSLAcceptorFactory : public AcceptorFactory {
 	SSLAcceptorFactory();
 	SSLAcceptorFactory(const SSLAcceptorFactory &);
 	SSLAcceptorFactory &operator=(const SSLAcceptorFactory &);
+
 public:
-	SSLAcceptorFactory(const char *SSLAcceptorFactoryName) :
-		AcceptorFactory(SSLAcceptorFactoryName) {
-	}
+	SSLAcceptorFactory(const char *SSLAcceptorFactoryName) : AcceptorFactory(SSLAcceptorFactoryName) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) SSLAcceptorFactory(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) SSLAcceptorFactory(fName); }
 	Acceptor *MakeAcceptor(AcceptorCallBack *ac);
 };
 
-#endif		//not defined _SSLModule_H
+#endif	// not defined _SSLModule_H

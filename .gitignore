@@ -30,3 +30,4 @@
 
 # log files in root directory
 /*.log
+compile_commands.json

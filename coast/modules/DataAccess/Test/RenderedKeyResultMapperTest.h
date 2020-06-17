@@ -12,13 +12,11 @@
 #include "FoundationTestTypes.h"
 
 //---- RenderedKeyResultMapperTest ----------------------------------------------------------
-class RenderedKeyResultMapperTest: public testframework::TestCaseWithConfig {
+class RenderedKeyResultMapperTest : public testframework::TestCaseWithConfig {
 public:
 	//! ConfiguredTestCase constructor
 	//! \param name name of the test
-	RenderedKeyResultMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	RenderedKeyResultMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//! builds up a suite of tests
 	static Test *suite();

@@ -6,12 +6,12 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "CgiParams.h"
-#include "SystemFile.h"
+
 #include "Renderer.h"
+#include "SystemFile.h"
 RegisterParameterMapper(CgiParams);
 
-CgiParams::CgiParams(const char *name) :
-	URI2FileNameMapper(name) {
+CgiParams::CgiParams(const char *name) : URI2FileNameMapper(name) {
 	StartTrace(CgiParams.Ctor);
 }
 
@@ -27,19 +27,19 @@ void CgiParams::AddToEnvironment(Context &ctx, Anything &env, ROAnything additio
 		if (sn) {
 			env[sn] = Renderer::RenderToString(ctx, additionalenv[sn]);
 			Trace("Added: " << sn << "=" << env[sn].AsString(""));
-		} // we do not transfer anonymous slots
+		}  // we do not transfer anonymous slots
 	}
 }
 
 bool CgiParams::DoGetAny(const char *key, Anything &value, Context &ctx, ROAnything config) {
 	StartTrace1(CgiParams.DoGetAny, "( \"" << NotNull(key) << "\" , Anything &value, Context &ctx, const ROAnything &config)");
-	String k(key); // for easier comparison
+	String k(key);	// for easier comparison
 	if (k == "cgienv") {
 		Trace("key found");
 		SynthesizeMinimalCGIEnvironment(value, ctx);
 		AddToEnvironment(ctx, value, ctx.Lookup("cgienv"));
-		AddToEnvironment(ctx, value, Lookup("cgienv")); //!@FIXME double entry with next one?
-		AddToEnvironment(ctx, value, config["cgienv"]); // already discriminated when scripted
+		AddToEnvironment(ctx, value, Lookup("cgienv"));	 //!@FIXME double entry with next one?
+		AddToEnvironment(ctx, value, config["cgienv"]);	 // already discriminated when scripted
 		return true;
 	}
 	Trace("unknown key [" << key << "] using ParamterMapper::DoGetAny(key, value, ctx, config)");
@@ -48,7 +48,7 @@ bool CgiParams::DoGetAny(const char *key, Anything &value, Context &ctx, ROAnyth
 
 bool CgiParams::DoGetStream(const char *key, std::ostream &os, Context &ctx, ROAnything config) {
 	StartTrace1(CgiParams.DoGetStream, "( \"" << NotNull(key) << "\" , ostream &os, Context &ctx, const ROAnything &config)");
-	String k(key); // for easier comparison
+	String k(key);	// for easier comparison
 	if (k == "stdin") {
 		Trace("key found");
 		//!@FIXME should use Get("WHOLE_REQUEST_BODY",body,ctx);
@@ -85,7 +85,7 @@ void CgiParams::SynthesizeMinimalCGIEnvironment(Anything &env, Context &ctx) {
 	env["SERVER_SOFTWARE"] = "Coast/2.0";
 	env["SERVER_NAME"] = ctx.Lookup("HostName", "localhost");
 	env["GATEWAY_INTERFACE"] = "CGI/1.1";
-	env["SERVER_PROTOCOL"] = "HTTP/1.0"; // should be configured somewhere
+	env["SERVER_PROTOCOL"] = "HTTP/1.0";  // should be configured somewhere
 	env["SERVER_PORT"] = ctx.Lookup("port", 80L);
 	env["REQUEST_METHOD"] = ctx.Lookup("REQUEST_METHOD", "GET");
 

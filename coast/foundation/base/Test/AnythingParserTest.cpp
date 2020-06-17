@@ -7,18 +7,18 @@
  */
 
 #include "AnythingParserTest.h"
-#include "TestSuite.h"
+
+#include "IFAObject.h"
 #include "StringStream.h"
 #include "SystemFile.h"
-#include "IFAObject.h"
+#include "TestSuite.h"
+
 #include <iostream>
 #include <limits>
 
 using namespace coast;
 
-AnythingParserTest::AnythingParserTest(TString tname) :
-		TestCaseType(tname), lineCounter(0) {
-}
+AnythingParserTest::AnythingParserTest(TString tname) : TestCaseType(tname), lineCounter(0) {}
 
 void AnythingParserTest::setUp() {
 	Anything undefAny;
@@ -32,19 +32,19 @@ void AnythingParserTest::setUp() {
 
 Test *AnythingParserTest::suite() {
 	TestSuite *testSuite = new TestSuite;
-	ADD_CASE(testSuite, AnythingParserTest, parseSimpleTypeCharPtr );
+	ADD_CASE(testSuite, AnythingParserTest, parseSimpleTypeCharPtr);
 	ADD_CASE(testSuite, AnythingParserTest, parseSimpleTypeDouble);
 	ADD_CASE(testSuite, AnythingParserTest, parseSimpleTypeLong);
-	ADD_CASE(testSuite, AnythingParserTest, parseSimpleTypeNull );
-	ADD_CASE(testSuite, AnythingParserTest, parseNumber );
-	ADD_CASE(testSuite, AnythingParserTest, parseOctal );
-	ADD_CASE(testSuite, AnythingParserTest, parseBinary );
-	ADD_CASE(testSuite, AnythingParserTest, parseMixedAnything );
-	ADD_CASE(testSuite, AnythingParserTest, importEmptyStream );
-	ADD_CASE(testSuite, AnythingParserTest, readWriteAnything );
-	ADD_CASE(testSuite, AnythingParserTest, parseTestFiles );
-	ADD_CASE(testSuite, AnythingParserTest, testObjectParsing );
-	ADD_CASE(testSuite, AnythingParserTest, testNumberParsing );
+	ADD_CASE(testSuite, AnythingParserTest, parseSimpleTypeNull);
+	ADD_CASE(testSuite, AnythingParserTest, parseNumber);
+	ADD_CASE(testSuite, AnythingParserTest, parseOctal);
+	ADD_CASE(testSuite, AnythingParserTest, parseBinary);
+	ADD_CASE(testSuite, AnythingParserTest, parseMixedAnything);
+	ADD_CASE(testSuite, AnythingParserTest, importEmptyStream);
+	ADD_CASE(testSuite, AnythingParserTest, readWriteAnything);
+	ADD_CASE(testSuite, AnythingParserTest, parseTestFiles);
+	ADD_CASE(testSuite, AnythingParserTest, testObjectParsing);
+	ADD_CASE(testSuite, AnythingParserTest, testNumberParsing);
 	return testSuite;
 }
 
@@ -87,7 +87,7 @@ void AnythingParserTest::writeResult(String *input, long nrOfElt, const char *pa
 		tmp1.Append(path);
 		tmp1.Append(".");
 		tmp1.Append(ext);
-		assertEqual((const char * )tmp0, (const char * )tmp1);
+		assertEqual((const char *)tmp0, (const char *)tmp1);
 	}
 }
 
@@ -106,65 +106,57 @@ void AnythingParserTest::scanAnything(Anything any0) {
 		slotNm.Append(anyTest.GetSize());
 		slotNm.Append("; Type:");
 		switch (anyTest.GetType()) {
-		case AnyLongType: {
-			slotNm.Append( "eLong" );
-			slotNm.Append( "; Value: " );
-			AnythingParserTest::anyOutput[ (const char *)slotNm ] = anyTest.AsLong();
-		}
-		break;
+			case AnyLongType: {
+				slotNm.Append("eLong");
+				slotNm.Append("; Value: ");
+				AnythingParserTest::anyOutput[(const char *)slotNm] = anyTest.AsLong();
+			} break;
 
-		case AnyDoubleType: {
-			slotNm.Append( "eDouble" );
-			slotNm.Append( "; Value: " );
-			AnythingParserTest::anyOutput[ (const char *)slotNm ] = anyTest.AsDouble();
-		}
-		break;
+			case AnyDoubleType: {
+				slotNm.Append("eDouble");
+				slotNm.Append("; Value: ");
+				AnythingParserTest::anyOutput[(const char *)slotNm] = anyTest.AsDouble();
+			} break;
 
-		case AnyNullType: {
-			slotNm.Append( "eNull" );
-			slotNm.Append( "; Value: " );
-			AnythingParserTest::anyOutput[ (const char *)slotNm ] = "NULL";
-		}
-		break;
+			case AnyNullType: {
+				slotNm.Append("eNull");
+				slotNm.Append("; Value: ");
+				AnythingParserTest::anyOutput[(const char *)slotNm] = "NULL";
+			} break;
 
-		case AnyCharPtrType: {
-			slotNm.Append( "eCharPtr" );
-			slotNm.Append( "; Value: " );
-			AnythingParserTest::anyOutput[ (const char *)slotNm ] = anyTest.AsCharPtr();
-		}
-		break;
+			case AnyCharPtrType: {
+				slotNm.Append("eCharPtr");
+				slotNm.Append("; Value: ");
+				AnythingParserTest::anyOutput[(const char *)slotNm] = anyTest.AsCharPtr();
+			} break;
 
-		case AnyArrayType: {
-			slotNm.Append( "eArray" );
-			slotNm.Append( "; Value: " );
-			AnythingParserTest::anyOutput[ (const char *)slotNm ] = "...";
-			AnythingParserTest::scanAnything( anyTest );
-		}
-		break;
+			case AnyArrayType: {
+				slotNm.Append("eArray");
+				slotNm.Append("; Value: ");
+				AnythingParserTest::anyOutput[(const char *)slotNm] = "...";
+				AnythingParserTest::scanAnything(anyTest);
+			} break;
 
-		case AnyVoidBufType: {
-			slotNm.Append( "eVoidBuf" );
-			slotNm.Append( "; Value: " );
-			AnythingParserTest::anyOutput[ (const char *)slotNm ] = anyTest.AsCharPtr();
-		}
-		break;
+			case AnyVoidBufType: {
+				slotNm.Append("eVoidBuf");
+				slotNm.Append("; Value: ");
+				AnythingParserTest::anyOutput[(const char *)slotNm] = anyTest.AsCharPtr();
+			} break;
 
-		case AnyObjectType: {
-			slotNm.Append( "eObject" );
-			slotNm.Append( "; Value: " );
-			AnythingParserTest::anyOutput[ (const char *)slotNm ] = anyTest;
-		}
-		break;
+			case AnyObjectType: {
+				slotNm.Append("eObject");
+				slotNm.Append("; Value: ");
+				AnythingParserTest::anyOutput[(const char *)slotNm] = anyTest;
+			} break;
 
-		default: {
-			String str("???");
-			slotNm.Append( "???" );
-			slotNm.Append( "; Value: " );
-			AnythingParserTest::anyOutput[ (const char *)slotNm ] = str;
+			default: {
+				String str("???");
+				slotNm.Append("???");
+				slotNm.Append("; Value: ");
+				AnythingParserTest::anyOutput[(const char *)slotNm] = str;
+			} break;
 		}
-		break;
 	}
-}
 }
 
 Anything AnythingParserTest::storeAndReload(Anything any) {
@@ -316,14 +308,14 @@ void AnythingParserTest::assertParsedAsDouble(const char *in, double val, int id
 
 	is >> any;
 	assertEqual(AnyDoubleType, any.GetType());
-	if (AnyDoubleType== any.GetType()) {
+	if (AnyDoubleType == any.GetType()) {
 		assertDoublesEqual(any.AsDouble(), val, 1E-8);
 	} else {
 		assertEqual(-1, id);
 		// crutch until we can add some info, identify whats wrong
-	} // if
+	}  // if
 
-} // assertParsedAsDouble
+}  // assertParsedAsDouble
 
 void AnythingParserTest::assertParsedAsLong(const char *in, long val, int id)
 /* in: str: a String which most probably contains a longAny
@@ -338,14 +330,14 @@ void AnythingParserTest::assertParsedAsLong(const char *in, long val, int id)
 
 	is >> any;
 	assertEqual(AnyLongType, any.GetType());
-	if (AnyLongType== any.GetType()) {
+	if (AnyLongType == any.GetType()) {
 		assertEqual(val, any.AsLong());
 	} else {
 		assertEqual(-1, id);
 		// crutch until we can add some info, identify whats wrong
-	} // if
+	}  // if
 
-} // assertParsedAsDouble
+}  // assertParsedAsDouble
 
 void AnythingParserTest::assertParsedAsString(const char *in, int id)
 /* in: str: a String which most probably contains a StringAny
@@ -360,26 +352,24 @@ void AnythingParserTest::assertParsedAsString(const char *in, int id)
 
 	is >> any;
 	assertEqual(AnyCharPtrType, any.GetType());
-	if (AnyCharPtrType== any.GetType()) {
+	if (AnyCharPtrType == any.GetType()) {
 		assertEqual(in, any.AsCharPtr());
 	} else {
 		assertEqual(-1, id);
 		// crutch until we can add some info, identify whats wrong
-	} // if
+	}  // if
 
-} // assertParsedAsString
+}  // assertParsedAsString
 
 // convenient definitions for the following procedure
-#define parseDoubleNum(val, id) \
-	assertParsedAsDouble(_QUOTE_(val), val, id);
+#define parseDoubleNum(val, id) assertParsedAsDouble(_QUOTE_(val), val, id);
 
-#define parseLongNum(val, id) \
-	assertParsedAsLong(_QUOTE_(val), val, id);
+#define parseLongNum(val, id) assertParsedAsLong(_QUOTE_(val), val, id);
 
-#define parseString(val, id) \
-	assertParsedAsString(_QUOTE_(val), id);
+#define parseString(val, id) assertParsedAsString(_QUOTE_(val), id);
 
 void AnythingParserTest::parseNumber() {
+	// clang-format off
 	parseDoubleNum(+23E+23, 1);
 	parseDoubleNum(+432.E+12, 2);
 	parseDoubleNum(+34.01e+12, 3);
@@ -430,6 +420,7 @@ void AnythingParserTest::parseNumber() {
 	parseDoubleNum(0123E4, 50);
 	parseDoubleNum(.0123, 51);
 	parseDoubleNum(.0123E4, 52);
+	// clang-format on
 }
 
 void AnythingParserTest::parseOctal() {
@@ -515,8 +506,12 @@ void AnythingParserTest::parseBinary() {
 	input[27] = "[3]";
 	input[28] = "[[3;123]";
 	input[29] = "[3;   ]";
-	input[30] = "[3;\0" "x10123]";
-	input[31] = "[3;\0" "x13123]";
+	input[30] =
+		"[3;\0"
+		"x10123]";
+	input[31] =
+		"[3;\0"
+		"x13123]";
 	input[32] = "[2364663;3]";
 	input[33] = "[3;]]";
 
@@ -528,12 +523,12 @@ void AnythingParserTest::parseSimpleTypeNull() {
 
 	String input0 = "";
 	IStringStream is0(input0);
-	anyTest.Import(is0);						//ERROR: 0:0:Anything::Import :syntax error
+	anyTest.Import(is0);  // ERROR: 0:0:Anything::Import :syntax error
 	assertEqual(AnyNullType, anyTest.GetType());
 	assertEqual(0, anyTest.GetSize());
 	assertDoublesEqual(0.0, anyTest.AsDouble(), 0.00001);
 	assertEqual(NULL, anyTest.AsCharPtr());
-	//assertCharPtrEqual( anyTest.AsCharPtr(), " " );	// ABORT ????
+	// assertCharPtrEqual( anyTest.AsCharPtr(), " " );	// ABORT ????
 
 	String input1 = "*";
 	IStringStream is1(input1);
@@ -564,7 +559,7 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 	String input0 = "1234567890L";
 	IStringStream is0(input0);
 	anyTest.Import(is0);
-	assertEqual(AnyCharPtrType, anyTest.GetType());		// Because of the L at the end
+	assertEqual(AnyCharPtrType, anyTest.GetType());	 // Because of the L at the end
 	assertEqual(1, anyTest.GetSize());
 	if (anyTest.AsCharPtr()) {
 		assertCharPtrEqual(anyTest.AsCharPtr(), "1234567890L");
@@ -609,7 +604,7 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 	String input4;
 	input4.Append("\"");
 	for (i = 1; i < 256; i++) {
-		input4.Append((char) i);
+		input4.Append((char)i);
 	}
 	input4.Append("\"");
 	IStringStream is4(input4);
@@ -644,7 +639,7 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 	assertEqual(AnyCharPtrType, anyTest.GetType());
 	assertEqual(1, anyTest.GetSize());
 	for (i = 1; i < 256; i++) {
-		assertEqual((char )i, anyTest.AsCharPtr()[i - 1]);
+		assertEqual((char)i, anyTest.AsCharPtr()[i - 1]);
 	}
 
 	// korrekte Syntax (printables: ohne Esc-Seq;  non-printable: mit Esc-Seq)
@@ -663,11 +658,11 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 			}
 
 			if ((i != 0) || (j != 0)) {
-				if (isprint((unsigned char) i * 16 + j)) {
-					if ((char) (i * 16 + j) == '"') {
-						input6.Append('\\');   //   \" sonst wird " als EndOfString interpretiert
+				if (isprint((unsigned char)i * 16 + j)) {
+					if ((char)(i * 16 + j) == '"') {
+						input6.Append('\\');  //   \" sonst wird " als EndOfString interpretiert
 					}
-					input6.Append((char) (i * 16 + j));
+					input6.Append((char)(i * 16 + j));
 				} else {
 					input6.Append('\\');
 					input6.Append('x');
@@ -684,7 +679,7 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 	assertEqual(1, anyTest.GetSize());
 
 	for (i = 1; i < 256; i++) {
-		assertEqual((unsigned char )i, (unsigned char )(anyTest.AsCharPtr()[i - 1]));
+		assertEqual((unsigned char)i, (unsigned char)(anyTest.AsCharPtr()[i - 1]));
 	}
 
 	// Falsche Syntax:  Beginning with a printable char without '\"'
@@ -745,7 +740,7 @@ void AnythingParserTest::parseMixedAnything() {
 	std::istream *isHlp = system::OpenIStream("tmp/AnyTest", "txt");
 	if (!isHlp) {
 		assertEqual("'read tmp/AnyTest.txt'", "'could not read tmp/AnyTest.txt'");
-	} else {	// if ( isHlp )
+	} else {  // if ( isHlp )
 		Anything anyHlp;
 		anyHlp.Import(*isHlp);
 		delete isHlp;
@@ -777,27 +772,27 @@ void AnythingParserTest::parseMixedAnything() {
 			assertCharPtrEqual(anyHlp["A"].At(2L).AsCharPtr(), "String");
 		}
 
-		//anyHlp["A"].At[3].SlotName(0L);
+		// anyHlp["A"].At[3].SlotName(0L);
 		assertEqual(AnyLongType, anyHlp["A"].At(3L).At(0L).GetType());
 		assertEqual(1, anyHlp["A"].At(3L).At(0L).GetSize());
 		assertEqual(0, anyHlp["A"].At(3L).At(0L).AsLong());
 
-		//anyHlp["A"].At[3].SlotName(1L);
+		// anyHlp["A"].At[3].SlotName(1L);
 		assertEqual(AnyLongType, anyHlp["A"].At(3L).At(1L).GetType());
 		assertEqual(1, anyHlp["A"].At(3L).At(1L).GetSize());
 		assertEqual(1, anyHlp["A"].At(3L).At(1L).AsLong());
 
-		//anyHlp["A"].At[3].SlotName(2L);
+		// anyHlp["A"].At[3].SlotName(2L);
 		assertEqual(AnyLongType, anyHlp["A"].At(3L).At(2L).GetType());
 		assertEqual(1, anyHlp["A"].At(3L).At(2L).GetSize());
 		assertEqual(2, anyHlp["A"].At(3L).At(2L).AsLong());
 
-		//anyHlp["A"].At[3].SlotName(3L);
+		// anyHlp["A"].At[3].SlotName(3L);
 		assertEqual(AnyLongType, anyHlp["A"].At(3L).At(3L).GetType());
 		assertEqual(1, anyHlp["A"].At(3L).At(3L).GetSize());
 		assertEqual(3, anyHlp["A"].At(3L).At(3L).AsLong());
 
-		//anyHlp["A"].At[3].SlotName(4L);
+		// anyHlp["A"].At[3].SlotName(4L);
 		assertEqual(AnyLongType, anyHlp["A"].At(3L).At(4L).GetType());
 		assertEqual(1, anyHlp["A"].At(3L).At(4L).GetSize());
 		assertEqual(4, anyHlp["A"].At(3L).At(4L).AsLong());
@@ -899,7 +894,7 @@ void AnythingParserTest::readWriteAnything() {
 	input[40] = "{ /Slot\\\"Name  31 }";
 	input[41] = "{ /\"Slot\"Name\"  32 }";
 	input[42] = "{ /\"Slot\\\"Name\"  33}";
-	input[43] = "{ /Slot\x22Name  34 }";		// x22 = "
+	input[43] = "{ /Slot\x22Name  34 }";  // x22 = "
 	input[44] = "{ /Slot\\\x22Name  35 }";
 	input[45] = "{ /\"Slot\x22Name\"  36 }";
 	input[46] = "{ /\"Slot\\\x22Name\"  37}";
@@ -925,13 +920,13 @@ void AnythingParserTest::readWriteAnything() {
 	input[66] = "{ /\"/ab\"  \"2/7\" }";
 	input[67] = "{ /\"a/b\"  \"2/8\" }";
 	input[68] = "{ /\"ab/\"  \"2/9\" }";
-	//input[69] = "{ /\x   \"a\" }";
+	// input[69] = "{ /\x   \"a\" }";
 	input[69] = "{ /\\x   \"a\" }";
 	input[70] = "{ /\x3   \"b\" }";
 	input[71] = "{ /\\x3   \"c\" }";
 	input[72] = "{ /\x30   \"d\" }";
 	input[73] = "{ /\\x30   \"e\" }";
-	//input[72] = "{ /\"\x\"  \"d\" }";
+	// input[72] = "{ /\"\x\"  \"d\" }";
 	input[74] = "{ /\"\\x\"  \"f\" }";
 	input[75] = "{ /\"\x3\"  \"g\" }";
 	input[76] = "{ /\"\\x3\"  \"h\" }";
@@ -988,16 +983,29 @@ void AnythingParserTest::readWriteAnything() {
 	input[127] = "{	/Test151 12\"abc }";
 	input[128] = "{	/Test150 \"abc\"dfg }";
 	input[129] = "\"";
-	input[130] = "{0{1{2{3{4{5{6{7{8{9{10{11{12{13{14{15{16{17{18{19{20{21{22{23{24{25{26{27{28{29}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}";
-//	input[131] = "{ \"\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x10\x1A\x20\x2A\x70\x77\x7A\x80\x87\x88\x90\x98\x9A\x88\x89\xFF\" }";
+	input[130] =
+		"{0{1{2{3{4{5{6{7{8{9{10{11{12{13{14{15{16{17{18{19{20{21{22{23{24{25{26{27{28{29}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}";
+	//	input[131] = "{
+	//\"\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x10\x1A\x20\x2A\x70\x77\x7A\x80\x87\x88\x90\x98\x9A\x88\x89\xFF\"
+	//}";
 	input[131] = "{ \"This one above causes some trouble\" }";
 	input[132] =
-			"{ \"\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x08\\x09\\x0A\\x0B\\x0C\\x0D\\x0E\\x10\\x1A\\x20\\x2A\\x70\\x77\\x7A\\x80\\x87\\x88\\x90\\x98\" }";
-	input[133] = "{ \"\\01\\02\\03\\04\\05\\06\\07\\08\\09\\0A\\0B\\0C\\0D\\0E\\10\\1A\\20\\2A\\70\\77\\7A\\80\\87\\88\\90\\98\\9A\\88\\89\\FF\" }";
+		"{ "
+		"\"\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x08\\x09\\x0A\\x0B\\x0C\\x0D\\x0E\\x10\\x1A\\x20\\x2A\\x70\\x77\\x7A\\x80\\x87"
+		"\\x"
+		"88\\x90\\x98\" }";
+	input[133] =
+		"{ "
+		"\"\\01\\02\\03\\04\\05\\06\\07\\08\\09\\0A\\0B\\0C\\0D\\0E\\10\\1A\\20\\2A\\70\\77\\7A\\80\\87\\88\\90\\98\\9A\\88\\89"
+		"\\"
+		"FF\" }";
 	input[134] =
-			"{ \\01 \\02 \\07 \\08 \\09 \\0A \\0B \\0C \\0D \\0E \\10 \\1A \\20 \\2A \\70 \\77 \\7A \\80 \\87 \\88 \\90 \\98 \\9A \\88 \\89 \\FF }";
+		"{ \\01 \\02 \\07 \\08 \\09 \\0A \\0B \\0C \\0D \\0E \\10 \\1A \\20 \\2A \\70 \\77 \\7A \\80 \\87 \\88 \\90 \\98 \\9A "
+		"\\88 \\89 \\FF }";
 	input[135] =
-			"{ \"\\01 \\02 \\07 \\08 \\09 \\0A \\0B \\0C \\0D \\0E \\10 \\1A \\20 \\2A \\70 \\77 \\7A \\80 \\87 \\88 \\90 \\98 \\9A \\88 \\89 \\FF\" }";
+		"{ \"\\01 \\02 \\07 \\08 \\09 \\0A \\0B \\0C \\0D \\0E \\10 \\1A \\20 \\2A \\70 \\77 \\7A \\80 \\87 \\88 \\90 \\98 "
+		"\\9A "
+		"\\88 \\89 \\FF\" }";
 	input[136] = "{ \"\01\" }";
 	input[137] = "{ \"\\01\" }";
 	input[138] = "{ \"\\String\" }";
@@ -1014,21 +1022,24 @@ void AnythingParserTest::readWriteAnything() {
 	input[149] = "{/SlotName0 \"abc\" /SlotName1 \"cd\\x00e\"}";
 	input[150] = "{/SlotName0 \"abc\" /SlotName1 \"cde\"}";
 	input[151] = "{/SlotName0 1  /SlotName0 2 }";
-	input[152] = "{	/SlotName0 0 #Kommentar 0\
+	input[152] =
+		"{	/SlotName0 0 #Kommentar 0\
 				/SlotName1 1 #Kommentar 1\
 				}";
-	input[153] = "{	/SlotName0 0 #Kommentar 0\
+	input[153] =
+		"{	/SlotName0 0 #Kommentar 0\
 				/SlotName1 1 #Kommentar 1 }";
 	input[154] = "{	/SlotName0 0 #Kommentar 0   /SlotName1 1 #Kommentar 1 }";
 	input[155] = " # { /SlotName0 0 }";
 	input[156] = "{ #Kommentar /SlotName0 0 }";
 	input[157] = "{ /SlotName0  #Kommentar  0 }";
-	input[158] = "{ /SlotName0 #Kommentar\
+	input[158] =
+		"{ /SlotName0 #Kommentar\
 				0\
 				/SlotName1 1 }";
 	input[159] = "{ /SlotName0 0 #Kommentar }";
 	input[160] =
-			"{ /SlotName0 0 # /A {} ######}\
+		"{ /SlotName0 0 # /A {} ######}\
 				# \"a\" ###########}\
 				## 1.2 ##########}\
 				### [3;123] #########}\
@@ -1038,7 +1049,7 @@ void AnythingParserTest::readWriteAnything() {
 }";
 	input[161] = "{ /SlotName0  \" # Kein Kommentar \" }";
 	input[162] = "{ /SlotName0  Kein\\#Kommentar }";
-	input[163] = "{ /SlotName0  Kein\x23Kommentar }";		// \x23 == #
+	input[163] = "{ /SlotName0  Kein\x23Kommentar }";  // \x23 == #
 	input[164] = "{ /SlotName0  Kein\\x23Kommentar }";
 	input[165] = "{/\"Hex\\xGHI\" \"\\xghi\\xhal\\xfgh\"}";
 	input[166] = "{/\"\\xABG\" \"\\x323\\xFF3\\xFGH\xABG\"}";
@@ -1093,7 +1104,7 @@ void AnythingParserTest::parseTestFiles() {
 	Anything emptyAny1, anyHlp, anyTest, anyTests;
 
 	for (testCnt = 0; testCnt < 21; testCnt++) {
-		std::istream *is = system::OpenStream((const char *) fileNames[testCnt], "txt");
+		std::istream *is = system::OpenStream((const char *)fileNames[testCnt], "txt");
 		if (is) {
 			// Lese die Anything-Datei ein
 			Anything any0;
@@ -1106,14 +1117,14 @@ void AnythingParserTest::parseTestFiles() {
 			// Schreibe das Ergebnis in eine Datei
 			String tmp = "tmp/";
 			tmp.Append(fileNames[testCnt]);
-			std::ostream *os = system::OpenOStream((const char *) tmp, "res", std::ios::trunc);
+			std::ostream *os = system::OpenOStream((const char *)tmp, "res", std::ios::trunc);
 			if (os) {
 				*os << AnythingParserTest::anyOutput;
 				delete os;
 				AnythingParserTest::anyOutput = emptyAny1;
 				AnythingParserTest::lineCounter = 1;
 				// Ueberpruefe, ob Imports+Exports funktionnieren
-				AnythingParserTest::checkImportExport(any0, tmp); //fileNames[testCnt] );
+				AnythingParserTest::checkImportExport(any0, tmp);  // fileNames[testCnt] );
 			} else {
 				String tmp0 = "write ";
 				tmp0.Append(tmp);
@@ -1121,7 +1132,7 @@ void AnythingParserTest::parseTestFiles() {
 				String tmp1 = "could not write ";
 				tmp1.Append(tmp);
 				tmp1.Append(".res");
-				assertEqual((const char * )tmp0, (const char * )tmp1);
+				assertEqual((const char *)tmp0, (const char *)tmp1);
 			}
 		} else {
 			String tmp0 = "read ";
@@ -1130,17 +1141,15 @@ void AnythingParserTest::parseTestFiles() {
 			String tmp1 = "could not read ";
 			tmp1.Append(fileNames[testCnt]);
 			tmp1.Append(".txt");
-			assertEqual((const char * )tmp0, (const char * )tmp1);
+			assertEqual((const char *)tmp0, (const char *)tmp1);
 		}
 	}
 }
 
-class myObject: public IFAObject {
+class myObject : public IFAObject {
 public:
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return (IFAObject*) this;
-	}
+	IFAObject *Clone(Allocator *a) const { return (IFAObject *)this; }
 };
 
 void AnythingParserTest::testObjectParsing() {
@@ -1171,23 +1180,23 @@ void AnythingParserTest::testObjectParsing() {
 	myObject aObj;
 	{
 		String buf("{/myObjectImpl &");
-		buf.Append((long) &aObj);
+		buf.Append((long)&aObj);
 		buf.Append("}");
 		IStringStream is(buf);
 		Anything any;
 		t_assert(any.Import(is));
 		assertEqual("myObjectImpl", any.SlotName(0));
-		assertCompare((IFAObject * )&aObj, equal_to, any["myObjectImpl"].AsIFAObject(0));
+		assertCompare((IFAObject *)&aObj, equal_to, any["myObjectImpl"].AsIFAObject(0));
 	}
 	{
 		String buf("{/myObjectImpl &");
-		buf.Append((long) &aObj);
+		buf.Append((long)&aObj);
 		buf.Append("/some content}");
 		IStringStream is(buf);
 		Anything any;
 		t_assert(any.Import(is));
 		assertCharPtrEqual("myObjectImpl", any.SlotName(0));
-		assertCompare((IFAObject * )&aObj, equal_to, any["myObjectImpl"].AsIFAObject(0));
+		assertCompare((IFAObject *)&aObj, equal_to, any["myObjectImpl"].AsIFAObject(0));
 		assertCharPtrEqual("some", any.SlotName(1));
 		assertEqual("content", any["some"].AsCharPtr());
 	}

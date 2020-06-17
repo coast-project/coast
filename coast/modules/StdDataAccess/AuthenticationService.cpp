@@ -6,11 +6,13 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "AuthenticationService.h"
-#include "HTTPProcessor.h"	// for coast::http
-#include "Renderer.h"
+
 #include "AccessManager.h"
 #include "BasicAuthenticationData.h"
 #include "HTTPConstants.h"
+#include "HTTPProcessor.h"	// for coast::http
+#include "Renderer.h"
+
 #include <ostream>
 
 RegisterServiceHandler(AuthenticationService);
@@ -18,11 +20,11 @@ RegisterServiceHandler(AuthenticationService);
 bool AuthenticationService::DoHandleService(std::ostream &os, Context &ctx) {
 	StartTrace(AuthenticationService.DoHandleService);
 	if (DoCheck(ctx)) {
-		Trace( "DoCheck succeeded --> Calling ForwardToMainHandler" );
+		Trace("DoCheck succeeded --> Calling ForwardToMainHandler");
 		ForwardToMainHandler(os, ctx);
 		return true;
 	} else {
-		Trace( "DoCheck failed --> Calling Produce401Response" );
+		Trace("DoCheck failed --> Calling Produce401Response");
 		Produce401Response(os, ctx);
 	}
 	return false;
@@ -34,7 +36,7 @@ bool AuthenticationService::DoCheck(Context &ctx) {
 	String name, pw;
 	GetUserNameAndPw(ctx, name, pw);
 	ret = AuthenticateUser(ctx, name, pw);
-	Trace( "ret = [" << (long)ret << "]" );
+	Trace("ret = [" << (long)ret << "]");
 	return ret;
 }
 
@@ -43,7 +45,6 @@ void AuthenticationService::GetUserNameAndPw(Context &ctx, String &name, String 
 	BasicAuthenticationData baDat(ctx.Lookup("header.AUTHORIZATION", ""));
 	pw = baDat.GetPassword();
 	name = baDat.GetUserName();
-
 }
 
 bool AuthenticationService::AuthenticateUser(Context &ctx, String &name, String &pw) {
@@ -64,14 +65,14 @@ bool AuthenticationService::AuthenticateUser(Context &ctx, String &name, String 
 			ret = pMgr->Validate(name);
 			if (ret) {
 				ret = pMgr->AuthenticateWeak(name, pw, strNewRole);
-				Trace( "strNewRole = [" << strNewRole << "] ret = [" << (long) ret << "]" );
+				Trace("strNewRole = [" << strNewRole << "] ret = [" << (long)ret << "]");
 			}
 			Trace("new Role [" << strNewRole << "] for [" << name << "]");
 		} else {
 			SYSWARNING(String("requested AccessManager [") << strAccessMgrName << "] not found!");
 		}
 	}
-	Trace( "ret = [" << (long)ret << "]" );
+	Trace("ret = [" << (long)ret << "]");
 	return ret;
 }
 
@@ -79,7 +80,7 @@ void AuthenticationService::ForwardToMainHandler(std::ostream &os, Context &ctx)
 	StartTrace(AuthenticationService.ForwardToMainHandler);
 
 	String service = Lookup("Service", "WebAppService");
-	Trace("Forward to : " << service );
+	Trace("Forward to : " << service);
 	ServiceHandler *sh = ServiceHandler::FindServiceHandler(service);
 	if (sh) {
 		sh->HandleService(os, ctx);
@@ -109,5 +110,5 @@ void AuthenticationService::Produce401Response(std::ostream &os, Context &ctx) {
 	} else {
 		Renderer::Render(os, ctx, bodyConfig);
 	}
-	ctx.GetTmpStore()["BasicAuthRetCode"] = 0; // false
+	ctx.GetTmpStore()["BasicAuthRetCode"] = 0;	// false
 }

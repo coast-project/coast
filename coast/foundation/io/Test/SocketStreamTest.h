@@ -13,14 +13,13 @@
 
 class Connector;
 
-class SocketStreamTest : public testframework::TestCaseWithConfig
-{
+class SocketStreamTest : public testframework::TestCaseWithConfig {
 public:
 	SocketStreamTest(TString tstrName);
 
-	static Test *suite ();
-	void setUp ();
-	void tearDown ();
+	static Test *suite();
+	void setUp();
+	void tearDown();
 
 	// TestCases
 	void simpleRead();
@@ -33,7 +32,7 @@ protected:
 	void parseParams(String &line, Anything &request);
 
 private:
-	Connector	*fConnector;
+	Connector *fConnector;
 };
 
 #endif

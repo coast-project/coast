@@ -12,10 +12,10 @@
 #include "Threads.h"
 #include "WDModule.h"
 
-class LocalizationModule : public WDModule
-{
+class LocalizationModule : public WDModule {
 	Anything fLocalizedStrings;
 	bool ReadFromFile(Anything &config, const char *filename);
+
 public:
 	LocalizationModule(const char *name);
 	virtual ~LocalizationModule();
@@ -24,8 +24,7 @@ public:
 	virtual bool Finis();
 };
 
-class LocalizedStrings
-{
+class LocalizedStrings {
 public:
 	LocalizedStrings();
 	virtual ~LocalizedStrings();
@@ -35,7 +34,7 @@ public:
 	bool Lookup(const char *key, ROAnything &result, char delim = '.', char indexdelim = ':') const;
 
 protected:
-	ROAnything fLocalizedStrings; // initialized by LocalizationModule
+	ROAnything fLocalizedStrings;  // initialized by LocalizationModule
 
 	static LocalizedStrings *fgLocStrings;	// the singleton
 	static Mutex fgLocMutex;				// mutex used for initialization
@@ -48,4 +47,4 @@ private:
 	LocalizedStrings &operator=(const LocalizedStrings &);
 };
 
-#endif		//ifndef _LOCALIZEDSTRINGS_H
+#endif	// ifndef _LOCALIZEDSTRINGS_H

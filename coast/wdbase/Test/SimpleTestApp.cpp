@@ -6,16 +6,17 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "AppBooterTest.h"
 #include "SimpleTestApp.h"
 
-class MethodTracker
-{
+#include "AppBooterTest.h"
+
+class MethodTracker {
 public:
 	MethodTracker(const String &methodName, AppBooterTest *test);
 	~MethodTracker();
 
 	void Use();
+
 protected:
 	String fMethodName;
 	AppBooterTest *fTest;
@@ -23,159 +24,124 @@ protected:
 
 RegisterApplication(SimpleTestApp);
 
-SimpleTestApp::SimpleTestApp()
-	:	Application("SimpleTestApp"),
-		fTest(0)
-{
+SimpleTestApp::SimpleTestApp() : Application("SimpleTestApp"), fTest(0) {
 	StartTrace(SimpleTestApp.Ctor);
 }
 
-SimpleTestApp::SimpleTestApp(const char *AppName)
-	:	Application(AppName),
-		fTest(0)
-{
+SimpleTestApp::SimpleTestApp(const char *AppName) : Application(AppName), fTest(0) {
 	StartTrace(SimpleTestApp.Ctor);
 }
 
-SimpleTestApp::~SimpleTestApp()
-{
+SimpleTestApp::~SimpleTestApp() {
 	StartTrace(SimpleTestApp.Dtor);
 }
 
-int SimpleTestApp::DoGlobalInit(int argc, const char *argv[], const ROAnything config)
-{
+int SimpleTestApp::DoGlobalInit(int argc, const char *argv[], const ROAnything config) {
 	StartTrace(SimpleTestApp.DoGlobalInit);
 	MethodTracker track("DoGlobalInit", fTest);
 	return Application::DoGlobalInit(argc, argv, config);
 }
 
-int SimpleTestApp::DoGlobalRun()
-{
+int SimpleTestApp::DoGlobalRun() {
 	StartTrace(SimpleTestApp.DoGlobalRun);
 	MethodTracker track("DoGlobalRun", fTest);
 	return Application::DoGlobalRun();
 }
 
-int SimpleTestApp::DoGlobalTerminate(int val)
-{
+int SimpleTestApp::DoGlobalTerminate(int val) {
 	StartTrace(SimpleTestApp.DoGlobalTerminate);
 	MethodTracker track("DoGlobalTerminate", fTest);
 	return Application::DoGlobalTerminate(val);
 }
 
-int SimpleTestApp::DoInit()
-{
+int SimpleTestApp::DoInit() {
 	StartTrace(SimpleTestApp.DoInit);
 	MethodTracker track("DoInit", fTest);
 	return Application::DoInit();
 }
 
-int SimpleTestApp::DoRun()
-{
+int SimpleTestApp::DoRun() {
 	StartTrace(SimpleTestApp.DoRun);
 	MethodTracker track("DoRun", fTest);
 	return Application::DoRun();
 }
 
-int SimpleTestApp::DoTerminate(int val)
-{
+int SimpleTestApp::DoTerminate(int val) {
 	StartTrace(SimpleTestApp.DoTerminate);
 	MethodTracker track("DoTerminate", fTest);
 	return Application::DoTerminate(val);
 }
 
-void SimpleTestApp::SetTest(AppBooterTest *test)
-{
+void SimpleTestApp::SetTest(AppBooterTest *test) {
 	StartTrace(Application.SetTest);
 	fTest = test;
 }
 
 RegisterApplication(SimpleTestServer);
 
-SimpleTestServer::SimpleTestServer()
-	:	Server("SimpleTestServer"),
-		fTest(0)
-{
+SimpleTestServer::SimpleTestServer() : Server("SimpleTestServer"), fTest(0) {
 	StartTrace(SimpleTestServer.Ctor);
 }
 
-SimpleTestServer::SimpleTestServer(const char *AppName)
-	:	Server(AppName),
-		fTest(0)
-{
+SimpleTestServer::SimpleTestServer(const char *AppName) : Server(AppName), fTest(0) {
 	StartTrace(SimpleTestServer.Ctor);
 }
 
-SimpleTestServer::~SimpleTestServer()
-{
+SimpleTestServer::~SimpleTestServer() {
 	StartTrace(SimpleTestServer.Dtor);
 }
 
-int SimpleTestServer::DoGlobalInit(int argc, const char *argv[], const ROAnything config)
-{
+int SimpleTestServer::DoGlobalInit(int argc, const char *argv[], const ROAnything config) {
 	StartTrace(SimpleTestServer.DoGlobalInit);
 	MethodTracker track("DoGlobalInit", fTest);
 	return Server::DoGlobalInit(argc, argv, config);
 }
 
-int SimpleTestServer::DoGlobalRun()
-{
+int SimpleTestServer::DoGlobalRun() {
 	StartTrace(SimpleTestServer.DoGlobalRun);
 	MethodTracker track("DoGlobalRun", fTest);
 	return Application::DoGlobalRun();
 }
 
-int SimpleTestServer::DoGlobalTerminate(int val)
-{
+int SimpleTestServer::DoGlobalTerminate(int val) {
 	StartTrace(SimpleTestServer.DoGlobalTerminate);
 	MethodTracker track("DoGlobalTerminate", fTest);
 	return Server::DoGlobalTerminate(val);
 }
 
-int SimpleTestServer::DoInit()
-{
+int SimpleTestServer::DoInit() {
 	StartTrace(SimpleTestServer.DoInit);
 	MethodTracker track("DoInit", fTest);
 	return Server::DoInit();
 }
 
-int SimpleTestServer::DoRun()
-{
+int SimpleTestServer::DoRun() {
 	StartTrace(SimpleTestServer.DoRun);
 	MethodTracker track("DoRun", fTest);
 	return Application::DoRun();
 }
 
-int SimpleTestServer::DoTerminate(int val)
-{
+int SimpleTestServer::DoTerminate(int val) {
 	StartTrace(SimpleTestServer.DoTerminate);
 	MethodTracker track("DoTerminate", fTest);
 	return Server::DoTerminate(val);
 }
 
-void SimpleTestServer::SetTest(AppBooterTest *test)
-{
+void SimpleTestServer::SetTest(AppBooterTest *test) {
 	StartTrace(Application.SetTest);
 	fTest = test;
 }
 
-MethodTracker::MethodTracker(const String &methodName, AppBooterTest *test)
-	:	fMethodName(methodName),
-		fTest(test)
-{
+MethodTracker::MethodTracker(const String &methodName, AppBooterTest *test) : fMethodName(methodName), fTest(test) {
 	String msg(fMethodName);
 	msg << " entered";
 	fTest->Method(msg);
 }
 
-MethodTracker::~MethodTracker()
-{
+MethodTracker::~MethodTracker() {
 	String msg(fMethodName);
 	msg << " left";
 	fTest->Method(msg);
 }
 
-void MethodTracker::Use()
-{
-
-}
+void MethodTracker::Use() {}

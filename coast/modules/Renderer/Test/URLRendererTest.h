@@ -15,14 +15,14 @@
 
 //---- URLRendererTest -----------------------------------------------------------
 
-class URLRendererTest : public RendererTest
-{
+class URLRendererTest : public RendererTest {
 public:
 	URLRendererTest(TString tstrName);
 	virtual ~URLRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
+
 protected:
 	void Standard();
 	void BaseURL();

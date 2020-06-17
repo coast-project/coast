@@ -7,29 +7,27 @@
  */
 
 #include "AppendListAction.h"
+
 #include "AnythingUtils.h"
 #include "Renderer.h"
 #include "Tracer.h"
 
-class ContextSlotAppender
-{
+class ContextSlotAppender {
 public:
-	ContextSlotAppender() {};
-	virtual ~ContextSlotAppender() {};
+	ContextSlotAppender(){};
+	virtual ~ContextSlotAppender(){};
 
 	virtual void Operate(Context &c, Anything &dest, const Anything &config);
 	virtual void Operate(Context &c, Anything &dest, const ROAnything &config);
 };
 
-void ContextSlotAppender::Operate(Context &c, Anything &dest, const Anything &config)
-{
+void ContextSlotAppender::Operate(Context &c, Anything &dest, const Anything &config) {
 	StartTrace(ContextSlotAppender.Operate);
 	ROAnything ROconfig(config);
 	Operate(c, dest, ROconfig);
 }
 
-void ContextSlotAppender::Operate(Context &c, Anything &dest, const ROAnything &config)
-{
+void ContextSlotAppender::Operate(Context &c, Anything &dest, const ROAnything &config) {
 	StartTrace(ContextSlotAppender.Operate);
 	TraceAny(config, "Config");
 
@@ -40,16 +38,16 @@ void ContextSlotAppender::Operate(Context &c, Anything &dest, const ROAnything &
 		Renderer::RenderOnString(destSlot, c, config[i]);
 		Trace("slot to lookup [" << sourceLookupName << "] destslot [" << destSlot << "]");
 		ROAnything roaLookedUp;
-		if ( sourceLookupName && destSlot && c.Lookup(sourceLookupName, roaLookedUp)) {
+		if (sourceLookupName && destSlot && c.Lookup(sourceLookupName, roaLookedUp)) {
 			TraceAny(((ROAnything)dest)[destSlot], "current destination");
 			Anything res;
-			for ( idx = 0, szd = dest[destSlot].GetSize(); idx < szd; ++idx) {
-				res[ String() << idx ] = dest[destSlot][idx];
+			for (idx = 0, szd = dest[destSlot].GetSize(); idx < szd; ++idx) {
+				res[String() << idx] = dest[destSlot][idx];
 			}
 			Anything src = roaLookedUp.DeepClone();
 			TraceAny(src, "anything to append");
-			for ( long newIdx = 0, szs = src.GetSize(); newIdx < szs; ++newIdx ) {
-				res[ String() << idx + newIdx ] = src[newIdx];
+			for (long newIdx = 0, szs = src.GetSize(); newIdx < szs; ++newIdx) {
+				res[String() << idx + newIdx] = src[newIdx];
 			}
 			dest[destSlot] = res;
 			TraceAny(res, "new destination");
@@ -60,15 +58,13 @@ void ContextSlotAppender::Operate(Context &c, Anything &dest, const ROAnything &
 //---- CopyContextAction ----------------------------------------------------------------
 RegisterAction(AppendListAction);
 
-AppendListAction::AppendListAction(const char *name) : CopyAction(name) { }
+AppendListAction::AppendListAction(const char *name) : CopyAction(name) {}
 
-AppendListAction::~AppendListAction() { }
+AppendListAction::~AppendListAction() {}
 
-void AppendListAction::Copy(Anything &dest, const ROAnything &copyList, const ROAnything &config, Context &ctx)
-{
+void AppendListAction::Copy(Anything &dest, const ROAnything &copyList, const ROAnything &config, Context &ctx) {
 	StartTrace(CopyContextAction.Copy);
 
 	ContextSlotAppender appender;
 	appender.Operate(ctx, dest, copyList);
 }
-

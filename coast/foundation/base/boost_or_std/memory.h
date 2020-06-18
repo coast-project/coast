@@ -7,8 +7,7 @@ namespace boost_or_std {
 	using std::auto_ptr;
 	using std::tr1::shared_ptr;
 }  // namespace boost_or_std
-#elif defined(USE_STD0X) || defined(USE_STD11) || defined(USE_STD14) || defined(USE_STD17) || defined(USE_STD1y) || \
-	defined(USE_STD1z)
+#elif __cplusplus >= 201103L
 #include <memory>
 namespace boost_or_std {
 	template <class T, class Deleter = std::default_delete<T> >

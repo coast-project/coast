@@ -88,14 +88,14 @@ namespace stlstorage {
 		 */
 		STLAllocator(Allocator *pAlloc = coast::storage::Current()) throw(fAllocatorNotInitialized) : fAllocator(pAlloc) {
 			_StartTrace(STLAllocator.STLAllocator);
-			if (!fAllocator) {
+			if (fAllocator == 0) {
 				throw fAllocatorNotInitialized();
 			}
 		}
 
 		STLAllocator(const STLAllocator &aAllocator) throw(fAllocatorNotInitialized) : fAllocator(aAllocator.fAllocator) {
 			_StartTrace1(STLAllocator.STLAllocator, "copy");
-			if (!fAllocator) {
+			if (fAllocator == 0) {
 				throw fAllocatorNotInitialized();
 			}
 		}

@@ -124,7 +124,7 @@ namespace stlstorage {
 		}
 
 		// allocate but don't initialize num elements of type T
-		pointer allocate(size_type num, const void * = 0) {
+		pointer allocate(size_type num, const void * /*unused*/ = 0) {
 			// print message and allocate memory with global new
 			_StartTrace1(STLAllocator.allocate,
 						 "num:" << static_cast<long>(num) << " of size:" << sizeof(T) << " but no initialization");

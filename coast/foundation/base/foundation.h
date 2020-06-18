@@ -40,13 +40,13 @@ typedef unsigned long long ul_long;
 // use it instead of endl especially in case of socket streams
 #define ENDL "\r\n"
 
-#define ZAPEOF(x) (x < 0 ? -x : x)
+#define ZAPEOF(x) ((x) < 0 ? -(x) : (x))
 
 // Macro for safer use of typecasts
 #define SafeCast(objname, objtype) (dynamic_cast<objtype *>(objname))
 
 // min and max macros
-#define itoMIN(a, b) (a < b ? a : b)
-#define itoMAX(a, b) (a > b ? a : b)
+#define itoMIN(a, b) ((a) < (b) ? (a) : (b))
+#define itoMAX(a, b) ((a) > (b) ? (a) : (b))
 
 #endif

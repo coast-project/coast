@@ -558,16 +558,14 @@ inline bool String::SetAllocator(Allocator *a) {
 inline long String::Length() const {
 	if (GetImpl()) {
 		return GetImpl()->fLength;
-	} else {
-		return 0;
 	}
+	return 0;
 }
 inline long String::Capacity() const {
 	if (GetImpl()) {
 		return GetImpl()->fCapacity;
-	} else {
-		return 0;
 	}
+	return 0;
 }
 inline String::operator const char *() const {
 	return cstr();
@@ -575,9 +573,8 @@ inline String::operator const char *() const {
 inline char const *String::cstr() const {
 	if (GetImpl()) {
 		return GetContent();
-	} else {
-		return "";
 	}
+	return "";
 }
 
 inline bool String::IsEqual(const char *other) const {

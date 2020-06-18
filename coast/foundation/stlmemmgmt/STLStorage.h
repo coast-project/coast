@@ -254,16 +254,15 @@ namespace stlstorage {
 				if (bFound) {
 					_Trace("found pool for size:" << static_cast<long>(nrequested_size) << " @" << (long)fOtherPools[i].get());
 					return fOtherPools[i];
-				} else {
-					_Trace("creating new pool for size:" << static_cast<long>(nrequested_size)
-														 << " this->size:" << static_cast<long>(fReqSz));
-					void *pMem = (void *)UserAllocator::malloc(sizeof(ThisType));
-					ThisType *pRet = new (pMem) ThisType(nrequested_size, nnext_size);
-					if (iFree >= 0 && iFree < nOthers) {
-						_Trace("storing new pool at idx:" << iFree << " @" << static_cast<long>(pRet));
-						fOtherPools[iFree] = pool_refcount_storer(pRet);
-						return fOtherPools[iFree];
-					}
+				}
+				_Trace("creating new pool for size:" << static_cast<long>(nrequested_size)
+													 << " this->size:" << static_cast<long>(fReqSz));
+				void *pMem = (void *)UserAllocator::malloc(sizeof(ThisType));
+				ThisType *pRet = new (pMem) ThisType(nrequested_size, nnext_size);
+				if (iFree >= 0 && iFree < nOthers) {
+					_Trace("storing new pool at idx:" << iFree << " @" << static_cast<long>(pRet));
+					fOtherPools[iFree] = pool_refcount_storer(pRet);
+					return fOtherPools[iFree];
 				}
 			}
 			return pool_refcount_storer();

@@ -11,9 +11,6 @@
 
 #include "ITOString.h"
 #include "ITOTypeTraits.h"
-
-#define SS_TRACE(msg)
-
 #include "StringStreamBuf.h"
 
 //! istream for Strings, read input from a string

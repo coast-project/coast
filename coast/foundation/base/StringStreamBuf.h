@@ -9,9 +9,14 @@
 #ifndef _StringStreamBuf_H
 #define _StringStreamBuf_H
 
+#include "ITOString.h"
+#include "ITOTypeTraits.h"
+
 #include <cstdio>
 #include <istream>
 #include <ostream>
+
+#define SS_TRACE(msg)
 
 //! StringStreamBuf adapts String objects to the iostream framework
 /*! the underlying string is used directly as the buffer to save copying overhead */

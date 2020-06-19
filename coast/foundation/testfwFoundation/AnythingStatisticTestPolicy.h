@@ -13,6 +13,7 @@
 #include "StringStream.h"
 #include "SystemBase.h"
 #include "SystemFile.h"
+#include "TString.h"
 #include "TestTimer.h"
 
 //! <B>really brief class description</B>

@@ -78,19 +78,18 @@ String Resolver::DNS2IPAddress(const String &dnsName, const String &dflt) {
 	// no need to change Server IP address if localhost (?)
 	if ((dnsName.Length() <= 0) || isdigit(dnsName.At(0))) {
 		return dnsName;
-	} else {
-		String ipAddress;
-		SystemSpecific(Resolver) sysResolver;
-
-		if (sysResolver.DNS2IP(ipAddress, dnsName)) {
-			Trace("resolved ip [" << ipAddress << "]");
-			return ipAddress;
-		}
-
-		String logMsg("Resolving of DNS Name<");
-		logMsg << dnsName << "> failed";
-		SystemLog::Error(logMsg);
 	}
+	String ipAddress;
+	SystemSpecific(Resolver) sysResolver;
+
+	if (sysResolver.DNS2IP(ipAddress, dnsName)) {
+		Trace("resolved ip [" << ipAddress << "]");
+		return ipAddress;
+	}
+
+	String logMsg("Resolving of DNS Name<");
+	logMsg << dnsName << "> failed";
+	SystemLog::Error(logMsg);
 	return dflt;
 }
 

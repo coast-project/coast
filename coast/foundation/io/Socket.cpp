@@ -645,9 +645,8 @@ Anything Connector::ClientInfo() {
 	StartTrace(Connector.ClientInfo);
 	if (fSocket) {
 		return fSocket->ClientInfo();
-	} else {
-		return Anything();
 	}
+	return Anything();
 }
 
 bool Connector::ConnectWouldBlock() {

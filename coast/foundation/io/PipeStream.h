@@ -86,17 +86,15 @@ protected:	// seekxxx are protected in the std..
 	char *startr() {
 		if (fReadBufStorage.Capacity() > 0) {
 			return (char *)(const char *)fReadBufStorage;
-		} else {
-			return 0;
 		}
+		return 0;
 	}
 	char *endr() { return startr() + fReadBufStorage.Capacity(); }
 	char *startw() {
 		if (fWriteBufStorage.Capacity() > 0) {
 			return (char *)(const char *)fWriteBufStorage;
-		} else {
-			return 0;
 		}
+		return 0;
 	}
 	char *endw() { return startw() + fWriteBufStorage.Capacity(); }
 

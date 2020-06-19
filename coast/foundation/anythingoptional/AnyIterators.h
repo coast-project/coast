@@ -144,11 +144,10 @@ namespace AnyExtensions {
 				if (subIter->Next(a)) {
 					// He has found the next
 					return true;
-				} else {
-					// He has done his Job
-					delete subIter;
-					subIter = 0;
 				}
+				// He has done his Job
+				delete subIter;
+				subIter = 0;
 			}
 			// Move to the Next slot that holds something different from an empty Array
 			bool found(false);

@@ -84,11 +84,10 @@ DiffTimer::tTimeType DiffTimer::Diff(tTimeType simulatedValue) {
 	if (simulatedValue > -1) {
 		Trace("Using simulated Value: " << simulatedValue);
 		return simulatedValue;
-	} else {
-		tTimeType lDiff = Scale(RawDiff(), fResolution);
-		Trace("Diff is: " << static_cast<long>(lDiff));
-		return lDiff;
 	}
+	tTimeType lDiff = Scale(RawDiff(), fResolution);
+	Trace("Diff is: " << static_cast<long>(lDiff));
+	return lDiff;
 }
 
 void DiffTimer::Start() {

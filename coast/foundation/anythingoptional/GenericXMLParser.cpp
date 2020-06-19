@@ -45,17 +45,15 @@ void GenericXMLParser::DoParse(String theTag, Anything &tag) {
 						c = Peek();
 						if ('>' == c && tagname == theTag) {
 							Get();
-							return;	 // done
-									 // reply.Append("</").Append(tagname).Append(char(c));
-						} else {
-							// a potential syntax error...
-							reply.Append("</").Append(tagname);
-							String msg("Unexpected character <x");
-							msg.AppendAsHex((unsigned char)c).Append('>');
-							msg.Append(" or mismatched tag: ").Append(tagname);
-							msg.Append(" expected: ").Append(theTag);
-							Error(msg);
+							return;
 						}
+						// a potential syntax error...
+						reply.Append("</").Append(tagname);
+						String msg("Unexpected character <x");
+						msg.AppendAsHex((unsigned char)c).Append('>');
+						msg.Append(" or mismatched tag: ").Append(tagname);
+						msg.Append(" expected: ").Append(theTag);
+						Error(msg);
 						break;
 					}
 					case '?': {
@@ -73,10 +71,6 @@ void GenericXMLParser::DoParse(String theTag, Anything &tag) {
 								DoParse(tagname, subTag);
 							}
 							Store(tagbody, subTag);
-							// if (hasbody)
-							// Store (ProcessTag(tagname,attributes));
-							// else
-							// Store(RenderTagAsLiteral(tagname,attributes));
 						} else {
 							// it cannot be a tag, so just append the '<'
 							reply << (char)c;
@@ -268,11 +262,10 @@ Anything GenericXMLParser::ParseCdata() {
 		//		else if ("![IGNORE" == key)
 		//		{
 		//		}
-		else {
-			String msg("wrong key (not CDATA) in <![:");
-			msg.Append(key);
-			Error(msg);
-		}
+		String msg("wrong key (not CDATA) in <![:");
+		msg.Append(key);
+		Error(msg);
+
 	} else {
 		Error("unexpected characer in <![ (not [)");
 	}
@@ -294,10 +287,9 @@ String GenericXMLParser::SkipToCdataClosing() {
 				if ('>' == c) {
 					// done, found "]]>"
 					return result;
-				} else {
-					// not done, just found "]]"
-					result.Append(']').Append(']');
 				}
+				// not done, just found "]]"
+				result.Append(']').Append(']');
 			}
 		}
 		result.Append(char(c));

@@ -33,9 +33,8 @@ void AnyUtils::ShowDifferences(String &masterString, String &inputString, std::o
 				}
 				*verbose << "]" << std::endl;
 				break;
-			} else {
-				*verbose << masterString[j];
 			}
+			*verbose << masterString[j];
 		}
 		*verbose << "- End Differences: -" << std::endl;
 	}
@@ -119,24 +118,22 @@ bool AnyUtils::AnyCompareEqual(const ROAnything &inputAny, const ROAnything &mas
 			}
 		}
 		return result;
-	} else {
-		// do a direct comparison
-		String masterString = masterAny.AsString();
-		String inputString = inputAny.AsString();
-		if ((!masterAny.IsEqual("ignore")) && (inputString != masterString)) {
-			long lSlotnameIdx =
-				((pathSoFar.StrRChr(delimSlot)) > (pathSoFar.StrRChr(delimIdx)) ? (pathSoFar.StrRChr(delimSlot))
-																				: (pathSoFar.StrRChr(delimIdx)));
-			String strSlot = ((pathSoFar.At(lSlotnameIdx) == delimSlot) ? pathSoFar.SubString(lSlotnameIdx + 1L)
-																		: pathSoFar.SubString(lSlotnameIdx));
-			pathSoFar.Trim(lSlotnameIdx);
-			Trace("path so far [" << pathSoFar << "] slot [" << strSlot << "]");
-			Dump("Slots not equal", inputAny, masterAny, pathSoFar, strSlot, verbose);
-			ShowDifferences(masterString, inputString, verbose);
-			return false;
-		}
-		return true;
 	}
+	// do a direct comparison
+	String masterString = masterAny.AsString();
+	String inputString = inputAny.AsString();
+	if ((!masterAny.IsEqual("ignore")) && (inputString != masterString)) {
+		long lSlotnameIdx = ((pathSoFar.StrRChr(delimSlot)) > (pathSoFar.StrRChr(delimIdx)) ? (pathSoFar.StrRChr(delimSlot))
+																							: (pathSoFar.StrRChr(delimIdx)));
+		String strSlot = ((pathSoFar.At(lSlotnameIdx) == delimSlot) ? pathSoFar.SubString(lSlotnameIdx + 1L)
+																	: pathSoFar.SubString(lSlotnameIdx));
+		pathSoFar.Trim(lSlotnameIdx);
+		Trace("path so far [" << pathSoFar << "] slot [" << strSlot << "]");
+		Dump("Slots not equal", inputAny, masterAny, pathSoFar, strSlot, verbose);
+		ShowDifferences(masterString, inputString, verbose);
+		return false;
+	}
+	return true;
 }
 
 void AnyUtils::AnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, bool bOverwriteSlots, const char &delimSlot,
@@ -299,9 +296,8 @@ bool Recording::ReadinRecording(const String &fileName, Anything &recording) {
 		eMsg << recFilename << ".any";
 		SystemLog::Error(eMsg);
 		return false;
-	} else {
-		recording.Import(*ifp);
-	}			 // if
+	}
+	recording.Import(*ifp);
 	delete ifp;	 // close file
 
 	return true;
@@ -321,10 +317,10 @@ bool Recording::WriteoutRecording(const String &fileName, Anything &recording) {
 		eMsg << recFilename << ".any";
 		SystemLog::Error(eMsg);
 		return false;
-	} else {
-		// write back new any to file....
-		recording.Export(*ifp);
 	}
+	// write back new any to file....
+	recording.Export(*ifp);
+
 	// close file
 	delete ifp;
 

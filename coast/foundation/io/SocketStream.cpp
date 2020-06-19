@@ -125,9 +125,8 @@ int SocketStreamBuf::underflow() {
 
 	if ((count = DoRead(startr(), fReadBufStorage.Capacity())) <= 0) {
 		return EOF;	 // might mean eofbit or failbit or badbit
-	} else {
-		AddReadCount(count);
 	}
+	AddReadCount(count);
 
 	setg(startr(), startr(), startr() + count);
 	return (int)(unsigned char)*gptr();

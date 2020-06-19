@@ -123,7 +123,8 @@ long PipeExecutor::TerminateChild(int termSignal, bool tryhard) {
 		if (wres == fChildPid) {
 			Trace("found child");
 			return WEXITSTATUS(wstat);	// already dead!
-		} else if (wres <= 0 && tryhard) {
+		}
+		if (wres <= 0 && tryhard) {
 			if (kill(fChildPid, termSignal) < 0) {
 				Trace("kill failed, errno =" << static_cast<long>(errno) << " " << SystemLog::SysErrorMsg(errno));
 				if (errno == ESRCH) {
@@ -132,12 +133,11 @@ long PipeExecutor::TerminateChild(int termSignal, bool tryhard) {
 					// something wrong
 				}
 				return -1;
-			} else {
-				// wait again, only try hard if we didn't already send SIGKILL
-				// the bastard isn't dead or not there
-				// shoot at him
-				termSignal = SIGKILL;
 			}
+			// wait again, only try hard if we didn't already send SIGKILL
+			// the bastard isn't dead or not there
+			// shoot at him
+			termSignal = SIGKILL;
 		}
 		// give some time to react, 50ms
 		system::MicroSleep(50000);

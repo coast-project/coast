@@ -1924,7 +1924,8 @@ bool AnythingParser::DoParseSequence(Anything &any, ParserXrefHandler &xrefs) {
 					ImportIncludeAny(element, tok.Text());
 					any[key] = element;
 					break;
-				} else if (AnythingToken::eIndex == tok.Token()) {
+				}
+				if (AnythingToken::eIndex == tok.Token()) {
 					// this is an error
 					Error("missing Anything at index ", key);
 					if (key.Length() > 0) {

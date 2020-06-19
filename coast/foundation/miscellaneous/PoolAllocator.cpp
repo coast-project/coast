@@ -503,9 +503,8 @@ size_t PoolAllocator::SizeHint(size_t size) {
 	// -> otherwise, the caller would finally allocate a larger block than needed
 	if (bucket) {
 		return bucket->fUsableSize;
-	} else {
-		return size;
 	}
+	return size;
 }
 
 void *PoolAllocator::Alloc(size_t allocSize) {
@@ -524,58 +523,53 @@ void *PoolAllocator::Alloc(size_t allocSize) {
 				bucket->fBucketTracker->TrackAlloc(mh);
 			}
 			return ExtMemStart(mh);
-		} else {
-			void *lastFree = fPoolBuckets[fNumOfPoolBucketSizes].fFirstFree;
+		}
+		void *lastFree = fPoolBuckets[fNumOfPoolBucketSizes].fFirstFree;
 
-			if (((char *)lastFree - (char *)fPoolMemory) > (long)bucket->fSize) {  // bucket size fits into long
-				// we have enough free pool memory to satisfy the request
-				MemoryHeader *mh = MakeHeaderFromBucket(bucket, lastFree);
-				fPoolBuckets[fNumOfPoolBucketSizes].fFirstFree = mh;
-				// as detail tracking (level 2) only takes place when total tracking (level 1) is enabled
-				// the bucket tracker gets only checked when total tracking is also enabled
-				fTracker->TrackAlloc(mh);
-				if (bucket->fBucketTracker) {
-					bucket->fBucketTracker->TrackAlloc(mh);
-				}
-				return ExtMemStart(mh);
-			} else {
-				// try to split a larger bucket
-				PoolBucket *requestedBucket = bucket;
-				while (bucket && !bucket->fFirstFree) {
-					++bucket;  // get next larger available bucket
-				}
-
-				if (bucket && bucket->fFirstFree && bucket->fSize > 0) {
-					// split larger bucket
-					MemoryHeader *mh = RemoveHeaderFromBucket(bucket);
-
-					long nbuckets = bucket->fSize / requestedBucket->fSize;
-					char *buketEnd = ((char *)mh) + requestedBucket->fSize * nbuckets;
-					// The following line does not apply anymore because only the payload size gets doubled for
-					// the next larger bucket but not the whole size consisting of payload plus header.
-					// This is why splitting a larger bucket into smaller ones would only fit by chance.
-					// -> As this can be avoided by specifying enough poolmemory, the following will only happen in rare
-					// situations.
-					//					Assert((char*)mh + mh->fUsableSize + coast::memory::AlignedSize<MemoryHeader>::value ==
-					// buketEnd);
-
-					for (long i = 0; i < nbuckets; ++i) {
-						// create new buckets of requested size
-						mh = MakeHeaderFromBucket(requestedBucket, buketEnd);
-						buketEnd -= requestedBucket->fSize;
-						InsertFreeHeaderIntoBucket(mh, requestedBucket);
-					}
-					// we have a bucket to reuse
-					mh = RemoveHeaderFromBucket(requestedBucket);
-					// as detail tracking (level 2) only takes place when total tracking (level 1) is enabled
-					// the bucket tracker gets only checked when total tracking is also enabled
-					fTracker->TrackAlloc(mh);
-					if (requestedBucket->fBucketTracker) {
-						requestedBucket->fBucketTracker->TrackAlloc(mh);
-					}
-					return ExtMemStart(mh);
-				}
+		if (((char *)lastFree - (char *)fPoolMemory) > (long)bucket->fSize) {  // bucket size fits into long
+			// we have enough free pool memory to satisfy the request
+			MemoryHeader *mh = MakeHeaderFromBucket(bucket, lastFree);
+			fPoolBuckets[fNumOfPoolBucketSizes].fFirstFree = mh;
+			// as detail tracking (level 2) only takes place when total tracking (level 1) is enabled
+			// the bucket tracker gets only checked when total tracking is also enabled
+			fTracker->TrackAlloc(mh);
+			if (bucket->fBucketTracker) {
+				bucket->fBucketTracker->TrackAlloc(mh);
 			}
+			return ExtMemStart(mh);
+		}  // try to split a larger bucket
+		PoolBucket *requestedBucket = bucket;
+		while (bucket && !bucket->fFirstFree) {
+			++bucket;  // get next larger available bucket
+		}
+
+		if (bucket && bucket->fFirstFree && bucket->fSize > 0) {
+			// split larger bucket
+			MemoryHeader *mh = RemoveHeaderFromBucket(bucket);
+
+			long nbuckets = bucket->fSize / requestedBucket->fSize;
+			char *buketEnd = ((char *)mh) + requestedBucket->fSize * nbuckets;
+			// The following line does not apply anymore because only the payload size gets doubled for
+			// the next larger bucket but not the whole size consisting of payload plus header.
+			// This is why splitting a larger bucket into smaller ones would only fit by chance.
+			// -> As this can be avoided by specifying enough poolmemory, the following will only happen in rare
+			// situations.
+			// Assert((char*)mh + mh->fUsableSize + coast::memory::AlignedSize<MemoryHeader>::value == bucketEnd);
+			for (long i = 0; i < nbuckets; ++i) {
+				// create new buckets of requested size
+				mh = MakeHeaderFromBucket(requestedBucket, buketEnd);
+				buketEnd -= requestedBucket->fSize;
+				InsertFreeHeaderIntoBucket(mh, requestedBucket);
+			}
+			// we have a bucket to reuse
+			mh = RemoveHeaderFromBucket(requestedBucket);
+			// as detail tracking (level 2) only takes place when total tracking (level 1) is enabled
+			// the bucket tracker gets only checked when total tracking is also enabled
+			fTracker->TrackAlloc(mh);
+			if (requestedBucket->fBucketTracker) {
+				requestedBucket->fBucketTracker->TrackAlloc(mh);
+			}
+			return ExtMemStart(mh);
 		}
 	}
 	// last resort

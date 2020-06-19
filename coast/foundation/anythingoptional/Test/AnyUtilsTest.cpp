@@ -25,9 +25,9 @@ void AnyUtilsTest::CompareTest() {
 		eMsg << myFilename << ".any";
 		SYSERROR(eMsg);
 		return;
-	} else {
-		testConfig2.Import(*ifp);
 	}
+	testConfig2.Import(*ifp);
+
 	// close file
 	delete ifp;
 
@@ -99,9 +99,9 @@ void AnyUtilsTest::MergeTest() {
 		eMsg << myFilename << ".any";
 		SYSERROR(eMsg);
 		return;
-	} else {
-		testConfig.Import(*ifp);
 	}
+	testConfig.Import(*ifp);
+
 	// close file
 	delete ifp;
 

@@ -350,14 +350,12 @@ void *GlobalAllocator::Alloc(size_t allocSize) {
 			new (vp) MemoryHeader(allocSize - coast::memory::AlignedSize<MemoryHeader>::value, MemoryHeader::eUsedNotPooled);
 		fTracker->TrackAlloc(mh);
 		return ExtMemStart(mh);
-	} else {
-		const int bufSize = 256;
-		static char crashmsg[bufSize] = {0};
-		coast::system::SnPrintf(crashmsg, bufSize, "FATAL: GlobalAllocator::Alloc malloc of sz:%zu failed. I will crash :-(\n",
-								allocSize);
-		SystemLog::WriteToStderr(crashmsg, -1);
 	}
-
+	const int bufSize = 256;
+	static char crashmsg[bufSize] = {0};
+	coast::system::SnPrintf(crashmsg, bufSize, "FATAL: GlobalAllocator::Alloc malloc of sz:%zu failed. I will crash :-(\n",
+							allocSize);
+	SystemLog::WriteToStderr(crashmsg, -1);
 	return 0;
 }
 

@@ -58,10 +58,10 @@ bool TimeStamp::IntSet(TimeStamp::intTimeRep aRep) {
 	if (!aRep.IsValidDate()) {
 		SYSWARNING("invalid input format [" << aRep.AsString() << "]");
 		return false;
-	} else {
-		fTimeStruct = aRep;
-		Trace("new time:" << fTimeStruct.AsTimeT());
 	}
+	fTimeStruct = aRep;
+	Trace("new time:" << fTimeStruct.AsTimeT());
+
 	return true;
 }
 
@@ -100,7 +100,8 @@ bool TimeStamp::IntDoInit(const String &externalTimeRep) {
 		SYSWARNING("invalid input format [" << externalTimeRep << "], at least a year (YYYY) must be specified");
 		fTimeStruct.Reset();
 		return false;
-	} else if (!fTimeStruct.IsValidDate()) {
+	}
+	if (!fTimeStruct.IsValidDate()) {
 		SYSWARNING("invalid input format [" << externalTimeRep << "]");
 		return false;
 	}

@@ -544,7 +544,8 @@ bool String::StartsWith(const char *pattern) const {
 				}
 				if (!(*content)) {
 					return false;
-				} else if (*content != *pattern) {
+				}
+				if (*content != *pattern) {
 					return false;
 				}
 			}
@@ -645,11 +646,11 @@ int String::Compare(const char *other) const {
 	}
 	if ((GetImpl() && *GetContent()) && !other) {
 		return 1;
-	} else if (!GetImpl() && (other && *other)) {
-		return -1;
-	} else {
-		return 0;  // both are empty
 	}
+	if (!GetImpl() && (other && *other)) {
+		return -1;
+	}
+	return 0;  // both are empty
 }
 
 int String::Compare(const String &other) const {
@@ -664,15 +665,14 @@ int String::Compare(const String &other) const {
 		}
 		if (Length() == otherLength) {
 			return 0;
-		} else if (Length() < otherLength) {
-			return -1;
-		} else {
-			return 1;
 		}
-
-	} else {
-		return (Length() < other.Length()) ? -1 : 0;
+		if (Length() < otherLength) {
+			return -1;
+		}
+		return 1;
 	}
+	return (Length() < other.Length()) ? -1 : 0;
+
 }  // Compare
 
 int String::CompareN(const char *other, long length, long start) const {
@@ -696,11 +696,11 @@ int String::CompareN(const char *other, long length, long start) const {
 	}
 	if ((contPtr && *contPtr) && !other) {
 		return 1;
-	} else if (!contPtr && (other && *other)) {
-		return -1;	// PS there was an error here!
-	} else {
-		return 0;  // both are empty
 	}
+	if (!contPtr && (other && *other)) {
+		return -1;	// PS there was an error here!
+	}
+	return 0;  // both are empty
 }
 
 void String::PutAt(long pos, char c) {
@@ -740,11 +740,11 @@ long String::CaselessCompare(const char *s1, const char *s2) {
 	}
 	if (s1 != 0) {
 		return 1;  // only s1 is there
-	} else if (s2 != 0) {
-		return -1;	// only s2 is there
-	} else {
-		return 0;  // both are 0
 	}
+	if (s2 != 0) {
+		return -1;	// only s2 is there
+	}
+	return 0;  // both are 0
 }
 
 long String::ContainsCharAbove(unsigned highMark, const String excludeSet) const {

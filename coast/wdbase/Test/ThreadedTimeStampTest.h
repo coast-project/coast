@@ -10,8 +10,7 @@
 #define _ThreadedTimeStampTest_H
 
 #include "FoundationTestTypes.h"
-#include "Threads.h"
-class Mutex;
+#include "Mutex.h"
 
 class ThreadedTimeStampTest : public testframework::TestCaseWithConfigAndStatistics {
 public:

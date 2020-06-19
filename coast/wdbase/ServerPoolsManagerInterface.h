@@ -9,7 +9,10 @@
 #ifndef _ServerPoolsManagerInterface_h_
 #define _ServerPoolsManagerInterface_h_
 
-#include "Threads.h"
+#include "Condition.h"
+#include "LockUnlockEntry.h"
+#include "LockedValueIncrementDecrementEntry.h"
+#include "Mutex.h"
 #include "WDModule.h"
 
 class Server;

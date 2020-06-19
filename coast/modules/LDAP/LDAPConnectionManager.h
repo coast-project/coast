@@ -9,10 +9,11 @@
 #ifndef _LDAPConnectionManager_H
 #define _LDAPConnectionManager_H
 
-#include "Threads.h"
+#include "SimpleMutex.h"
 #include "WDModule.h"
 #include "ldap.h"
 
+class Semaphore;
 //---- LDAPConnectionManager ----------------------------------------------------------
 //! Manages LDAP connections represented by binding handles.
 /*!

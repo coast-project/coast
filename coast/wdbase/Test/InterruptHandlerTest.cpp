@@ -12,6 +12,8 @@
 #include "ServerUtils.h"
 #include "TestSuite.h"
 
+#include <istream>
+
 #include <signal.h>
 
 void InterruptHandlerTest::setUp() {

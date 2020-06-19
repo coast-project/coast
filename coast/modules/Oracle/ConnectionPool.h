@@ -9,6 +9,7 @@
 #ifndef CONNECTIONPOOL_H_
 #define CONNECTIONPOOL_H_
 
+#include "Semaphore.h"
 #include "WPMStatHandler.h"
 #include "boost_or_std/memory.h"
 

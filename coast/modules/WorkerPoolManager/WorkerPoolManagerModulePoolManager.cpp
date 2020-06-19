@@ -8,6 +8,8 @@
 
 #include "WorkerPoolManagerModulePoolManager.h"
 
+#include "Condition.h"
+#include "Mutex.h"
 #include "SystemLog.h"
 #include "Tracer.h"
 

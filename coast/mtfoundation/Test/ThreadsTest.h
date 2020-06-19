@@ -9,9 +9,10 @@
 #ifndef _ThreadsTest_H
 #define _ThreadsTest_H
 
+#include "Anything.h"
 #include "DiffTimer.h"
+#include "Mutex.h"
 #include "TestCase.h"
-#include "Threads.h"
 
 class ThreadsTest : public testframework::TestCase {
 public:

@@ -372,6 +372,21 @@ private:
 	WorkerPoolManager &operator=(const WorkerPoolManager &);
 };
 
-#include "ThreadPools.ipp"
+template <class WorkerParamType>
+bool WorkerPoolManager::Enter(WorkerParamType workload, long lFindWorkerHint) {
+	// guard the entry to request handling
+	// we're doing flow control on the main thread
+	// causing it to wait for a request thread to
+	// be available
+	LockUnlockEntry me(fMutex);
+	StartTrace1(WorkerPoolManager.Enter, "hint: " << lFindWorkerHint);
+	bool bEnterSuccess(false);
+	// find a worker object that can run this request
+	WorkerThread *hr(FindNextRunnable(lFindWorkerHint));
+	if (hr != NULL) {
+		bEnterSuccess = hr->SetWorking(workload);
+	}
+	return bEnterSuccess;
+}
 
 #endif

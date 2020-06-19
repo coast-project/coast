@@ -9,6 +9,7 @@
 #include "ThreadsTest.h"
 
 #include "FoundationTestTypes.h"
+#include "Semaphore.h"
 #include "StringStream.h"
 #include "TestSuite.h"
 #include "TestThread.h"

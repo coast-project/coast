@@ -9,9 +9,9 @@
 #ifndef _SSLObjectManager_H
 #define _SSLObjectManager_H
 
+#include "Mutex.h"
 #include "SSLAPI.h"
 #include "SSLModule.h"
-#include "Threads.h"
 #include "WDModule.h"
 
 //---- SSLObjectManager ----------------------------------------------------------

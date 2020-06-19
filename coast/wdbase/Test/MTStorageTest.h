@@ -9,6 +9,8 @@
 #ifndef _MTStorageTest_H
 #define _MTStorageTest_H
 
+#include "Condition.h"
+#include "Mutex.h"
 #include "TestCase.h"
 #include "Threads.h"
 
@@ -27,8 +29,6 @@ public:
 	virtual void Update(tObservedPtr pObserved, tArgsRef roaUpdateArgs);
 
 protected:
-	//--- subclass api
-
 	//! tests the StorageAllocators
 	void GlobalAllocatorTiming();
 	void PoolAllocatorTiming();

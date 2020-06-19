@@ -8,9 +8,13 @@
 
 #include "LDAPConnectionManager.h"
 
+#include "Mutex.h"
 #include "PersistentLDAPConnection.h"
+#include "Semaphore.h"
 #include "SystemLog.h"
+#include "Threads.h"
 #include "TimeStamp.h"
+#include "Tracer.h"
 
 THREADKEY LDAPConnectionManager::fgErrnoKey = 0;
 
@@ -305,7 +309,7 @@ long LDAPConnectionManager::ReGetLockedSlot(long maxConnections, const String &p
 		// Was mutex locked by the same thread (us)?
 		Mutex *mutex = (Mutex *)NULL;
 		LockUnlockEntry me(fLdapConnectionStoreMutex);
-		{ mutex = (Mutex *)fLdapConnectionStore[poolId]["Mutexes"][l].AsIFAObject(0); }
+		mutex = (Mutex *)fLdapConnectionStore[poolId]["Mutexes"][l].AsIFAObject(0);
 		Assert(mutex != (Mutex *)NULL);
 		Assert(mutex->IsLockedByMe());
 		Trace("Found handle for: [" << poolId << "] at index: [" << l << "]");

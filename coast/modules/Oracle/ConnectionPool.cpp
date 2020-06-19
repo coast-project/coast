@@ -9,7 +9,9 @@
 #include "ConnectionPool.h"
 
 #include "AnyIterators.h"
+#include "CleanupHandler.h"
 #include "InitFinisManager.h"
+#include "LockUnlockEntry.h"
 #include "MT_Storage.h"
 #include "OraclePooledConnection.h"
 #include "PeriodicAction.h"

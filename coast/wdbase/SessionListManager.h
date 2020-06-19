@@ -10,8 +10,8 @@
 #define _SessionListManager_H
 
 #include "DiffTimer.h"
+#include "Mutex.h"
 #include "Registry.h"
-#include "Threads.h"
 #include "WDModule.h"
 
 class Session;

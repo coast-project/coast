@@ -9,6 +9,7 @@
 #ifndef _LeaderFollowerPool_H
 #define _LeaderFollowerPool_H
 
+#include "Mutex.h"
 #include "ThreadPools.h"
 
 class Reactor;

@@ -10,7 +10,7 @@
 #define _Application_H
 
 #include "IFAConfObject.h"
-#include "Threads.h"
+#include "Mutex.h"
 
 //! life-cycle of an application: Init - Run - Terminate
 class Application : public HierarchConfNamed {

@@ -9,6 +9,7 @@
 #ifndef _StresserThread_h_
 #define _StresserThread_h_
 
+#include "Mutex.h"
 #include "Threads.h"
 
 class Stresser;

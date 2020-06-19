@@ -9,6 +9,7 @@
 #include "Timers.h"
 
 #include "AnythingUtils.h"
+#include "CleanupHandler.h"
 
 RegisterModule(TimeLoggingModule);
 

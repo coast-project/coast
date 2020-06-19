@@ -9,7 +9,8 @@
 #ifndef _LocalizationUtils_H
 #define _LocalizationUtils_H
 
-#include "Threads.h"
+#include "Anything.h"
+#include "Mutex.h"
 
 class Context;
 

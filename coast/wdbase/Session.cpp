@@ -10,6 +10,7 @@
 
 #include "AnythingUtils.h"
 #include "LocalizationUtils.h"
+#include "LockUnlockEntry.h"
 #include "Page.h"
 #include "Renderer.h"
 #include "Role.h"

@@ -9,6 +9,7 @@
 #include "Application.h"
 
 #include "AppBooter.h"
+#include "LockUnlockEntry.h"
 #include "Registry.h"
 #include "SystemLog.h"
 #include "Tracer.h"

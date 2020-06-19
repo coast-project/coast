@@ -8,8 +8,10 @@
 
 #include "LocalizedStrings.h"
 
+#include "LockUnlockEntry.h"
 #include "SystemFile.h"
 #include "SystemLog.h"
+#include "Tracer.h"
 
 #include <istream>
 

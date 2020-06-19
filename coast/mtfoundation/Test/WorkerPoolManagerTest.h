@@ -9,8 +9,8 @@
 #ifndef _WorkerPoolManagerTest_H
 #define _WorkerPoolManagerTest_H
 
+#include "Mutex.h"
 #include "TestCase.h"
-#include "Threads.h"
 
 class WorkerPoolManagerTest : public testframework::TestCase {
 public:

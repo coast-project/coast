@@ -9,7 +9,7 @@
 #ifndef _LOCALIZEDSTRINGS_H
 #define _LOCALIZEDSTRINGS_H
 
-#include "Threads.h"
+#include "Mutex.h"
 #include "WDModule.h"
 
 class LocalizationModule : public WDModule {

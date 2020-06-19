@@ -10,6 +10,7 @@
 
 #include "Context.h"
 #include "DataAccess.h"
+#include "LockUnlockEntry.h"
 #include "Tracer.h"
 
 //---- FileUDAC ----------------------------------------------------------------

@@ -8,6 +8,7 @@
 
 #include "MTStorageTest.h"
 
+#include "LockUnlockEntry.h"
 #include "MT_Storage.h"
 #include "TestSuite.h"
 #include "Timers.h"

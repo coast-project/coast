@@ -9,8 +9,9 @@
 #ifndef _PeriodicActionTest_H
 #define _PeriodicActionTest_H
 
+#include "Condition.h"
+#include "Mutex.h"
 #include "TestCase.h"
-#include "Threads.h"
 
 class Context;
 

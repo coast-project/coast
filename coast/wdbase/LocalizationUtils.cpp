@@ -9,6 +9,7 @@
 #include "LocalizationUtils.h"
 
 #include "Context.h"
+#include "LockUnlockEntry.h"
 #include "SystemFile.h"
 
 #include <istream>

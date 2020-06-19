@@ -9,432 +9,15 @@
 #ifndef _THREADS_H
 #define _THREADS_H
 
+#include "AllocatorUnref.h"
 #include "Anything.h"
 #include "IFAObject.h"
-#include "SystemAPI.h"
-#include "Tracer.h"
-#include "boost_or_std/memory.h"
-
-class Thread;
-
-/*! Implementation of Dijkstra semaphore
-This is a simple wrapper for native semaphore implementations
-*/
-class Semaphore {
-public:
-	Semaphore(unsigned i_nCount);
-	~Semaphore();
-
-	/*! Acquires the semaphore, eg. decreases the internal counter if it is greater than 0. This is equivalent to
-	  Dijkstras DOWN method
-	  This is a blocking call, if the the count is already 0, it blocks until someone releases it
-	  \return true if count could be decreased */
-	bool Acquire();
-
-	/*! tries to acquire the semaphore.
-	  Does the same as the Acquire() function except blocking if the count could not be decreased
-	  \return true if count could be decreased, false if we could not or an error occured */
-	bool TryAcquire();
-
-	/*! Releases the semaphore, eg. increases the internal count and signals a waiting thread. This is equivalent to
-	  Dijkstras UP method */
-	void Release();
-
-	/*! Returns the actual value of the semaphore without altering its value. If the seamphore is locked, the return value
-	  is either zero or negative. The absolute value of the methods return code indicates the threads waiting for the
-	  semaphore. */
-	int GetCount(int &svalue);
-
-	//! dummy method to prevent optimizing compilers from optimizing away unused variables
-	void Use() const {}
-
-private:
-	SEMA fSemaphore;
-
-private:
-	// disabled standard functions (move to public section if implemented)
-	Semaphore(const Semaphore &rSemaphore);		  // copy constructor
-	void operator=(const Semaphore &rSemaphore);  // assignment
-};
-
-//! helper class to Acquire and Release Semaphores automatically in scope
-class SemaphoreEntry {
-public:
-	/*! Acquires the semaphore
-	  \param i_aSemaphore the semaphore object to acquire and release */
-	SemaphoreEntry(Semaphore &i_aSemaphore);
-
-	//! Releases the semaphore.
-	~SemaphoreEntry();
-
-private:
-	//! A reference to the related semaphore.
-	Semaphore &fSemaphore;
-};
-
-class SimpleCondition;
-/*! <b>mutual exclusion lock, wrapper for nativ system service</b>
-recursive call from the same thread means deadlock! */
-class SimpleMutex {
-	friend class SimpleCondition;
-
-public:
-	typedef SimpleCondition ConditionType;
-	/*! create mutex with names to ease debugging of locking problems
-	  \param name a name to identify the mutex when tracing locking problems
-	  \param a allocator used to allocate the storage for the name */
-	SimpleMutex(const char *name, Allocator *a);
-	~SimpleMutex();
-
-	/*! tries to acquire the mutex for this thread, blocks the caller if already locked (by another thread)
-	  acquires the mutex for the calling thread; this is NOT recursive, if you call lock twice for the same thread it deadlocks
-	*/
-	void Lock();
-
-	/*! releases the mutex */
-	void Unlock();
-
-	/*! tries to acquire the mutex if possible; bails out without locking if already locked
-	  \return false when already locked */
-	bool TryLock();
-
-	/*! returns native reprentation of mutex hidden by macro MUTEXPTR */
-	MUTEXPTR GetInternal() const { return GETMUTEXPTR(fMutex); }
-
-private:
-	//! internal representation of mutex
-	MUTEX fMutex;
-
-	//! the mutexs name, this is handy for tracing locking problems
-	String fName;
-
-	//! standard constructor prohibited
-	SimpleMutex();
-	//! standard copy constructor prohibited
-	SimpleMutex(const SimpleMutex &);
-	//! standard assignement operator prohibited
-	void operator=(const SimpleMutex &);
-};
-
-class Condition;
-/*! <b>mutual exclusion lock, wrapper for nativ system service adding recursive lock feature</b>
-it is possible to call lock from the same thread without deadlock.
-\note you have to call unlock as many times as you have called lock */
-class Mutex {
-	friend class Condition;
-	friend class MutexInitializer;
-	friend class ThreadsTest;
-	friend class ContextTest;
-
-public:
-	typedef Condition ConditionType;
-	/*! create mutex with names to ease debugging of locking problems
-	  \param name a name to identify the mutex when tracing locking problems
-	  \param a allocator used to allocate the storage for the name */
-	Mutex(const char *name, Allocator *a = coast::storage::Global());
-	~Mutex();
-
-	/*! tries to acquire the mutex for this thread, blocks the caller if already locked (by another thread)
-	  acquires the mutex for the calling thread; this is recursive, if you call lock twice for the same thread
-	  a count is incremented
-	  \note you should call unlock as many times as you called lock */
-	void Lock();
-
-	/*! releases the mutex */
-	void Unlock();
-
-	/*! tries to acquire the mutex if possible; bails out without locking if already locked
-	  \return false when already locked */
-	bool TryLock();
-	/*! return status of lock without locking overhead, useful for
-	  releasing, and reaquiring when lock */
-	bool IsLockedByMe() { return GetCount() > 0; }
-	/*! returns native representation of mutex hidden by macro MUTEXPTR
-	  \return native representation of mutex */
-	MUTEXPTR GetInternal() const { return GETMUTEXPTR(fMutex); }
-
-	//! resets thread id before Wait on a condition is called
-	void ReleaseForWait();
-	//! restores thread id after returning from a wait call
-	void AcquireAfterWait();
-
-protected:
-	//! returns thread specific mutex lock count
-	long GetCount();
-	//! sets thread specific mutex lock count
-	bool SetCount(long);
-
-	//! get mutex 'Id' (name) mainly for Tracing
-	const String &GetId();
-
-	//! this mutex unique id
-	String fMutexId;
-#if defined(WIN32) && defined(TRACE_LOCK_UNLOCK)
-	String fMutexIdTL;
-#endif
-
-private:
-	//! internal representation of mutex
-	MUTEX fMutex;
-	//! thread id of the lock holder
-	long fLocker;
-
-	//! the mutexs name, this is handy for tracing locking problems
-	String fName;
-
-	//! standard constructor prohibited
-	Mutex();
-	//! standard copy constructor prohibited
-	Mutex(const Mutex &);
-	//! standard assignement operator prohibited
-	void operator=(const Mutex &);
-};
-
-//! native condition variable api wrapper implementing the common condition variable operations wait, signal and broadcast
-class SimpleCondition {
-public:
-	typedef SimpleMutex MutexType;
-	//! creates a system dependent condition variable
-	SimpleCondition();
-	//! destroys the system dependent condition variable
-	~SimpleCondition();
-
-	/*! waits for the condition to be signaled atomicly releasing the mutex while waiting and reaquiring it when returning from
-	  the wait
-	  \param m the mutex which is used with the condition; it must be locked, since it will be unlocked
-	  \return system dependent return value; zero if call was ok */
-	int Wait(MutexType &m);
-
-	/*! waits for the condition to be signaled at most secs seconds and nanosecs nanoseconds if available on the plattform.
-	  After this time we block on the SimpleMutex until we can lock it before leaving the function
-	  \param m the mutex which is used with the condition; it must be locked, since it will be unlocked
-	  \param secs timeout to wait in seconds
-	  \param nanosecs timeout to wait in nanoseconds (10e-9)
-	  \return system dependent return value; zero if call was ok */
-	int TimedWait(MutexType &m, long secs, long nanosecs = 0);
-	//! access the system dependent handle to the condition variable
-	CONDPTR GetInternal() { return GETCONDPTR(fSimpleCondition); }
-	//! signal the condition; do it while protected through the associated mutex, then unlock the mutex; zero or one waiting
-	//! thread will be woken up
-	int Signal();
-	//! broadcasts the condition; do it while protected through the associated mutex, then unlock the mutex; all waiting thread
-	//! will eventually be woken up
-	int BroadCast();
-
-private:
-	//! get internal 'Id' mainly for Tracing
-	long GetId();
-
-	//! the system dependent condition variable handle
-	COND fSimpleCondition;
-};
-
-//! native condition variable api wrapper implementing the common condition variable operations wait, signal and broadcast
-class Condition {
-public:
-	typedef Mutex MutexType;
-	//! creates a system dependent condition variable
-	Condition();
-	//! destroys the system dependent condition variable
-	~Condition();
-
-	/*! waits for the condition to be signaled atomicly releasing the mutex while waiting and reaquiring it when returning from
-	  the wait
-	  \param m the mutex which is used with the condition; it must be locked, since it will be unlocked
-	  \return system dependent return value; zero if call was ok */
-	int Wait(MutexType &m);
-	/*! waits for the condition to be signaled at most secs seconds and nanosecs nanoseconds if available on the plattform
-	  \param m the mutex which is used with the condition; it must be locked, since it will be unlocked
-	  \param secs timeout to wait in seconds
-	  \param nanosecs timeout to wait in nanoseconds (10e-9)
-	  \return system dependent return value; zero if call was ok */
-	int TimedWait(MutexType &m, long secs, long nanosecs = 0);
-	//! access the system dependent handle to the condition variable
-	CONDPTR GetInternal() { return GETCONDPTR(fCondition); }
-	//! signal the condition; do it while protected through the associated mutex, then unlock the mutex; zero or one waiting
-	//! thread will be woken up
-	int Signal();
-	//! broadcasts the condition; do it while protected through the associated mutex, then unlock the mutex; all waiting thread
-	//! will eventually be woken up
-	int BroadCast();
-
-private:
-	//! get internal 'Id' mainly for Tracing
-	long GetId();
-
-	//! the system dependent condition variable handle
-	COND fCondition;
-};
-
-//! read/write lock, wrapper for nativ system service
-class RWLock {
-public:
-	enum eLockMode { eReading = 1, eWriting = 2 };
-	/*! creates system dependent read/write lock
-	  \param name a name to identify the mutex when tracing locking problems
-	  \param a allocator used to allocate the storage for the name */
-	RWLock(const char *name, Allocator *a = coast::storage::Global());
-	//! deletes system dependent read/write lock
-	~RWLock();
-	//! locks system dependent lock for reading or writing according to the reading flag
-	void Lock(eLockMode mode = eReading) const;
-	//! releases system dependent lock for reading or writing according to the reading flag
-	void Unlock(eLockMode mode = eReading) const;
-	//! tries to lock system dependent lock for reading or writing according to the reading flag; bails out returning false
-	//! without blocking if not possible
-	bool TryLock(eLockMode mode = eReading) const;
-	//! access the internal system dependent representation of the read/write lock
-	RWLOCKPTR GetInternal() const { return GETRWLOCKPTR(fLock); }
-
-private:
-	//! handle to system dependent read/write lock
-	RWLOCK fLock;
-	//! the name of the read/write lock to ease debugging locking problems
-	String fName;
-
-	//! standard constructor prohibited
-	RWLock();
-	//! standard copy constructor prohibited
-	RWLock(const RWLock &);
-	//! standard assignment operator prohibited
-	void operator=(const RWLock &);
-};
-
-#include <memory>  // for auto_ptr
-
-//! syntactic sugar to ease acquiring and releasing a mutex in one scope
-class LockUnlockEntry {
-	struct WrapperBase : public coast::AllocatorNewDelete {
-		WrapperBase(Allocator *pAlloc) : fAllocator(pAlloc) {
-			StatTrace(LockUnlockEntry.WrapperBase, "", coast::storage::Current());
-		}
-		virtual ~WrapperBase() { StatTrace(LockUnlockEntry.~WrapperBase, "", coast::storage::Current()); }
-		Allocator *fAllocator;
-	};
-
-	template <typename TMutex, typename dummy>
-	struct LockUnlockEntryWrapper : public WrapperBase {
-		typedef TMutex LockType;
-		explicit LockUnlockEntryWrapper(LockType &m, Allocator *pAlloc) : WrapperBase(pAlloc), fLock(m) {
-			StatTrace(LockUnlockEntry.LockUnlockEntryWrapper, "Mutex", coast::storage::Current());
-			this->fLock.Lock();
-		}
-		~LockUnlockEntryWrapper() {
-			StatTrace(LockUnlockEntry.~LockUnlockEntryWrapper, "Mutex", coast::storage::Current());
-			this->fLock.Unlock();
-		}
-		LockType &fLock;
-	};
-
-	template <typename dummy>
-	struct LockUnlockEntryWrapper<RWLock, dummy> : public WrapperBase {
-		typedef RWLock LockType;
-		explicit LockUnlockEntryWrapper(LockType &m, LockType::eLockMode mode, Allocator *pAlloc)
-			: WrapperBase(pAlloc), fLock(m), fMode(mode) {
-			StatTrace(LockUnlockEntry.LockUnlockEntryWrapper, "RWLock", coast::storage::Current());
-			this->fLock.Lock(fMode);
-		}
-		~LockUnlockEntryWrapper() {
-			StatTrace(LockUnlockEntry.~LockUnlockEntryWrapper, "RWLock", coast::storage::Current());
-			this->fLock.Unlock(fMode);
-		}
-		LockType &fLock;
-		LockType::eLockMode fMode;
-	};
-
-	boost_or_std::auto_ptr<WrapperBase> fWrapper;
-	LockUnlockEntry();
-	LockUnlockEntry(LockUnlockEntry &);
-	LockUnlockEntry &operator=(const LockUnlockEntry &);
-
-public:
-	//! acquires the mutex in the constructor
-	template <typename TMutex>
-	explicit LockUnlockEntry(TMutex &m, Allocator *pAlloc = coast::storage::Current())
-		: fWrapper(new (pAlloc) LockUnlockEntryWrapper<TMutex, bool>(m, pAlloc)) {}
-
-	template <typename LockType>
-	explicit LockUnlockEntry(LockType &m, typename LockType::eLockMode mode, Allocator *pAlloc = coast::storage::Current())
-		: fWrapper(new (pAlloc) LockUnlockEntryWrapper<LockType, bool>(m, mode, pAlloc)) {}
-};
-
-class LockedValueIncrementDecrementEntry {
-	struct WrapperBase : public coast::AllocatorNewDelete {
-		WrapperBase(Allocator *pAlloc) : fAllocator(pAlloc) {
-			StatTrace(LockedValueIncrementDecrementEntry.WrapperBase, "", coast::storage::Current());
-		}
-		virtual ~WrapperBase() { StatTrace(LockedValueIncrementDecrementEntry.~WrapperBase, "", coast::storage::Current()); }
-
-		Allocator *fAllocator;
-	};
-
-	template <typename MutexType>
-	struct LockedValueIncrementDecrementEntryWrapper : public WrapperBase {
-		typedef typename MutexType::ConditionType ConditionType;
-		explicit LockedValueIncrementDecrementEntryWrapper(MutexType &aMutex, ConditionType &aCondition, long &lValue,
-														   Allocator *pAlloc)
-			: WrapperBase(pAlloc), fMutex(aMutex), fCondition(aCondition), fValue(lValue) {
-			StartTrace(LockedValueIncrementDecrementEntry.LockedValueIncrementDecrementEntry);
-			LockUnlockEntry sme(fMutex, fAllocator);
-			++fValue;
-			Trace("count:" << fValue);
-		}
-		~LockedValueIncrementDecrementEntryWrapper() {
-			StartTrace(LockedValueIncrementDecrementEntry.~LockedValueIncrementDecrementEntry);
-			LockUnlockEntry sme(fMutex, fAllocator);
-			if (fValue > 0L) {
-				--fValue;
-			}
-			Trace("count:" << fValue);
-			Trace("signalling condition");
-			fCondition.Signal();
-		}
-		MutexType &fMutex;
-		ConditionType &fCondition;
-		long &fValue;
-	};
-
-	boost_or_std::auto_ptr<WrapperBase> fWrapper;
-	LockedValueIncrementDecrementEntry();
-	LockedValueIncrementDecrementEntry(LockedValueIncrementDecrementEntry &);
-	LockedValueIncrementDecrementEntry &operator=(const LockedValueIncrementDecrementEntry &);
-
-public:
-	template <typename MutexType>
-	explicit LockedValueIncrementDecrementEntry(MutexType &aMutex, typename MutexType::ConditionType &aCondition, long &lValue,
-												Allocator *pAlloc = coast::storage::Current())
-		: fWrapper(new (pAlloc) LockedValueIncrementDecrementEntryWrapper<MutexType>(aMutex, aCondition, lValue, pAlloc)) {}
-};
-
-//! subclasses may be defined to perform cleanup in thread specific storage while thread is still alive. CleanupHandlers are
-//! supposed to be singletons..
-class CleanupHandler : public IFAObject {
-public:
-	bool Cleanup() { return DoCleanup(); }
-
-protected:
-	//! subclasses implement cleanup of thread specific storage
-	virtual bool DoCleanup() = 0;
-	virtual IFAObject *Clone(Allocator *) const { return 0; }
-};
-
-//! utility class used for proper destruction of thread local storage
-/*!destruction of thread local store belonging to a thread has to take place at the very
-last moment possible; but it has to be done; it is the only task of this class */
-class AllocatorUnref {
-public:
-	//! stores away the thread the object is working for
-	AllocatorUnref(Thread *t);
-	//! destroys the thread local store of the fThread
-	~AllocatorUnref();
-
-protected:
-	//! the thread which is deleted
-	Thread *fThread;
-};
-
+#include "LockUnlockEntry.h"
 #include "ObserverIf.h"
+#include "SimpleMutex.h"
+#include "Tracer.h"
 
+class CleanupHandler;
 //! thread abstraction implementing its own thread state model using EThreadState and the available native thread api
 /*!
 this class implements the thread abstraction ( its own thread of control ) using the system dependent thread api available.<br>
@@ -743,22 +326,42 @@ private:
 #endif
 };
 
-namespace coast {
-	namespace threading {
-		template <typename ValueType>
-		struct TLSEntry {
-			typedef ValueType *ValueTypePtr;
-			TLSEntry(THREADKEY key, ValueTypePtr value) : fKey(key), fOldValue(ValueTypePtr()) {
-				GETTLSDATA(fKey, fOldValue, ValueType);
-				(void)SETTLSDATA(fKey, value);
-			}
-			~TLSEntry() { (void)SETTLSDATA(fKey, fOldValue); }
-			THREADKEY fKey;
-			ValueTypePtr fOldValue;
-		};
-	}  // namespace threading
-}  // namespace coast
+template <class WorkerParamType>
+bool Thread::SetWorking(WorkerParamType workerArgs) {
+	StatTrace(Thread.SetWorking, "ThrdId: " << GetId() << " CallId: " << MyId(), coast::storage::Current());
+	return SetRunningState(eWorking, workerArgs);
+}
 
-#include "Threads.ipp"
+template <class WorkerParamType>
+bool Thread::SetRunningState(ERunningState state, WorkerParamType args) {
+	LockUnlockEntry me(fStateMutex);
+
+	// allocate things used before and after call to CallRunningStateHooks() on coast::storage::Global() because Allocator could
+	// be refreshed during call
+
+	StatTrace(Thread.SetRunningState, "-- entering -- CallId: " << MyId(), coast::storage::Current());
+
+	if (fState != eRunning || fRunningState == state) {
+		return false;
+	}
+
+	ERunningState oldState = fRunningState;
+	fRunningState = state;
+	// after this call we potentially have refreshed Allocator
+	CallRunningStateHooks(state, args);
+	{
+		// scoping to force compiler not to move around automatic variables which could make strange things happen
+		Anything anyEvt;
+		anyEvt["ThreadId"] = GetId();
+		anyEvt["RunningState"]["Old"] = (long)oldState;
+		anyEvt["RunningState"]["New"] = (long)state;
+		if (!args.IsNull()) {
+			anyEvt["Args"] = args.DeepClone();
+		}
+		BroadCastEvent(anyEvt);
+	}
+	StatTrace(Thread.SetRunningState, "-- leaving --", coast::storage::Current());
+	return true;
+}
 
 #endif

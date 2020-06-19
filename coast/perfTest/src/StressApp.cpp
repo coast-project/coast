@@ -12,6 +12,7 @@
 #include "Stresser.h"
 #include "StringStream.h"
 #include "SystemFile.h"
+#include "Tracer.h"
 
 #include <iomanip>
 #include <iostream>

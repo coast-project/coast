@@ -9,6 +9,10 @@
 #ifndef _ObserverIf_H
 #define _ObserverIf_H
 
+#include "ITOStorage.h"
+#include "LockUnlockEntry.h"
+#include "SimpleMutex.h"
+
 #include <algorithm>
 #include <list>
 

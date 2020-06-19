@@ -10,6 +10,7 @@
 
 #include "AnyIterators.h"
 #include "Context.h"
+#include "LockUnlockEntry.h"
 #include "PeriodicAction.h"
 #include "Policy.h"
 #include "Session.h"

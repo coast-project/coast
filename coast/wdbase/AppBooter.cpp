@@ -13,6 +13,7 @@
 #include "StringStream.h"
 #include "SystemFile.h"
 #include "SystemLog.h"
+#include "Tracer.h"
 #include "URLUtils.h"
 #include "WDModule.h"
 

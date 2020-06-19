@@ -10,10 +10,16 @@
 #define _Queue_H
 
 #include "DiffTimer.h"
+#include "IFAObject.h"
 #include "ITOTypeTraits.h"	// for demangle
+#include "LockUnlockEntry.h"
+#include "LockedValueIncrementDecrementEntry.h"
 #include "MT_Storage.h"
+#include "RWLock.h"
 #include "STLStorage.h"
-#include "Threads.h"
+#include "Semaphore.h"
+#include "SimpleMutex.h"
+#include "TLSEntry.h"
 
 #include <limits>
 

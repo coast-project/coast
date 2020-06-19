@@ -10,6 +10,7 @@
 
 #include "Action.h"
 #include "DiffTimer.h"
+#include "LockUnlockEntry.h"
 #include "PeriodicAction.h"
 #include "TestSuite.h"
 

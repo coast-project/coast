@@ -10,6 +10,7 @@
 #define _SERVER_H
 
 #include "Application.h"
+#include "Threads.h"
 #include "WDModule.h"
 
 #if defined(WIN32)

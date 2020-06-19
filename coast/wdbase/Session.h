@@ -9,9 +9,8 @@
 #ifndef _SESSION_H
 #define _SESSION_H
 
-//--- superclass interface
 #include "Action.h"
-#include "Threads.h"
+#include "Mutex.h"
 
 class Role;
 class Server;

@@ -151,9 +151,8 @@ namespace coast {
 		String EnvGet(const char *variable) {
 			if (variable) {
 				return String(getenv(variable));
-			} else {
-				return String();
 			}
+			return String();
 		}
 
 #if defined(WIN32)

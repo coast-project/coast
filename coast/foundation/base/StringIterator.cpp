@@ -34,9 +34,8 @@ String_iterator::reference String_iterator::operator[](difference_type index) co
 String_iterator::difference_type String_iterator::operator-(const String_iterator &r) const {
 	if (*base() == *(r.base())) {
 		return pos() - r.pos();
-	} else {
-		return std::numeric_limits<String_iterator::difference_type>::max();
 	}
+	return std::numeric_limits<String_iterator::difference_type>::max();
 }
 
 String_const_iterator::reference String_const_iterator::operator*() const {
@@ -61,7 +60,6 @@ bool String_const_iterator::operator<(const String_const_iterator &r) const {
 String_const_iterator::difference_type String_const_iterator::operator-(const String_const_iterator &r) const {
 	if (*base() == *(r.base())) {
 		return pos() - r.pos();
-	} else {
-		return std::numeric_limits<String_const_iterator::difference_type>::max();
 	}
+	return std::numeric_limits<String_const_iterator::difference_type>::max();
 }

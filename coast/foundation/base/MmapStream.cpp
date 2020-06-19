@@ -135,18 +135,18 @@ MmapStreamBuf *MmapStreamBuf::open(const char *path, int mode /*= std::ios::in*/
 bool MmapStreamBuf::isvalid() {
 	if (fAddr) {
 		return true;  // everything OK.
-	} else {
-		// several special cases
-		if (fMapFd >= 0) {	// the file exists
-			// yes there is a file
-			if (fFl.IsIosOut() && fFl.IsWriteable()) {
-				return true;  // we can extend it
-			}
-			if (fFl.IsIosIn() && fFl.IsReadable() && fFileLength == 0 && fLength == 0) {
-				return true;  // the file was empty, so everything is OK until we read
-			}
+	}
+	// several special cases
+	if (fMapFd >= 0) {	// the file exists
+		// yes there is a file
+		if (fFl.IsIosOut() && fFl.IsWriteable()) {
+			return true;  // we can extend it
+		}
+		if (fFl.IsIosIn() && fFl.IsReadable() && fFileLength == 0 && fLength == 0) {
+			return true;  // the file was empty, so everything is OK until we read
 		}
 	}
+
 	return false;
 }
 
@@ -261,9 +261,8 @@ int MmapStreamBuf::syncOutput() {
 		// MS_SYNC is slow but works for log files, therefore the default
 		// adjust filelength to current put-position
 		return 0;  // all OK
-	} else {
-		return EOF;
 	}
+	return EOF;
 }
 
 int MmapStreamBuf::sync() {
@@ -294,9 +293,8 @@ bool MmapStreamBuf::reserve(long newlength) {
 			}
 			// adjust the buffer info
 			return xinit(fMapFd);
-		} else {
-			return false;
 		}
+		return false;
 	}
 	return true;  // space is still available, false alarm
 }

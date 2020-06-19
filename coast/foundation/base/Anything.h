@@ -821,9 +821,8 @@ protected:
 	AnyImpl const *GetImpl() const {
 		if ((bits & 0x01) || !bits) {
 			return 0;
-		} else {
-			return fAnyImp;
 		}
+		return fAnyImp;
 	}
 	union {
 		AnyImpl const *fAnyImp;

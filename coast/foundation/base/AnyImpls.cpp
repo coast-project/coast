@@ -149,10 +149,9 @@ const char *AnyBinaryBufImpl::AsCharPtr(const char *dflt, long &buflen) const {
 	if (fBuf.Capacity() > 0) {
 		buflen = fBuf.Length();
 		return fBuf.cstr();
-	} else {
-		buflen = 0;
-		return dflt;
 	}
+	buflen = 0;
+	return dflt;
 }
 
 void AnyBinaryBufImpl::Accept(AnyVisitor &v, long lIdx, const char *slotname) const {

@@ -144,140 +144,138 @@ AnythingToken::AnythingToken(InputContext &context) : fToken(0) {
 				fToken = AnythingToken::eNullSym;
 			}
 			break;
-		} else {
-			switch (c) {
-					// single character tokens
-				case '{':  // an lbrace,
-				case '}':  // an rbrace,
-				case '*':  // a null Anything indicator
-					fText.Append(c);
-					fToken = c;
-					return;
-				case '&':  // a object indicator a number must follow
-					while (context.Get(c) && isspace(static_cast<unsigned char>(c))) {	// consume spaces
-						// adjust line count!
-						if ('\n' == c || '\r' == c) {
-							++context.LineRef();
-						}
-						c = 0;
-					}
-					c = DoReadNumber(context, c);
-					if (fToken == AnythingToken::eDecimalNumber) {
-						fToken = AnythingToken::eObject;
-						context.Putback(c);
-						return;
-					}
-					// consume invalid characters up to a whitespace
-					do {
-						fText.Append(c);
-					} while (!isspace(static_cast<unsigned char>(c)) && context.Get(c));
+		}
+		switch (c) {
+				// single character tokens
+			case '{':  // an lbrace,
+			case '}':  // an rbrace,
+			case '*':  // a null Anything indicator
+				fText.Append(c);
+				fToken = c;
+				return;
+			case '&':																// a object indicator, a number must follow
+				while (context.Get(c) && isspace(static_cast<unsigned char>(c))) {	// consume spaces
+					// adjust line count!
 					if ('\n' == c || '\r' == c) {
 						++context.LineRef();
 					}
-					fToken = AnythingToken::eError;
-					return;
-				case '/':	 // a key indicator : string or name follows
-				case '%':	 // a Ref indicator : string with reference follows
-				case '!': {	 // a Include indicator : string with url to include follows
-					Tok theToken = ('/' == c) ? eIndex : ('%' == c) ? eRef : eInclude;
 					c = 0;
-					if (context.Get(c)) {
-						if ('"' == c) {
-							DoReadString(context, c);
-						} else if (!isNameDelimiter(c)) {
-							//                      if (isalnum( static_cast<unsigned char>(c)) || '_' == c || '-' == c) {
-							// should we allow more? YES! Note this code corresponts to
-							// DoReadName below
-							c = DoReadName(context, c);
-							if (c) {
-								context.Putback(c);
-							}
-						} else {
-							if (c) {
-								context.Putback(c);	 // re-interpret delimiters
-							}
-						}
-						// ignore string errors here
-						if ((AnythingToken::eStringError == fToken || AnythingToken::eString == fToken) && fText.Length() > 0) {
-							fToken = theToken;
-							return;
-						}
-					}  // anything else  is an error.
-					fToken = AnythingToken::eError;
+				}
+				c = DoReadNumber(context, c);
+				if (fToken == AnythingToken::eDecimalNumber) {
+					fToken = AnythingToken::eObject;
+					context.Putback(c);
 					return;
 				}
-				case '"':  // a string value, read it
-					DoReadString(context, c);
-					return;
-				case '[':  // a binary buff impl, read it
-					DoReadBinBuf(context);
-					// should not occur in config files but might occur in ipc
-					break;
-					// numeric values:
-				case '0':  // need to check octal or hex
-					c = DoReadOctalOrHex(context);
-					// should check if c is a delimiter = ( WS / & { } [ ] " )
-					if (!isNameDelimiter(c)) {
-						// PT: used the same delimiter list as below
-						// if it is no delimiter assume a strangely formatted number
-						// this is treated as a AnyStringimpl.
+				// consume invalid characters up to a whitespace
+				do {
+					fText.Append(c);
+				} while (!isspace(static_cast<unsigned char>(c)) && context.Get(c));
+				if ('\n' == c || '\r' == c) {
+					++context.LineRef();
+				}
+				fToken = AnythingToken::eError;
+				return;
+			case '/':	 // a key indicator : string or name follows
+			case '%':	 // a Ref indicator : string with reference follows
+			case '!': {	 // a Include indicator : string with url to include follows
+				Tok theToken = ('/' == c) ? eIndex : ('%' == c) ? eRef : eInclude;
+				c = 0;
+				if (context.Get(c)) {
+					if ('"' == c) {
+						DoReadString(context, c);
+					} else if (!isNameDelimiter(c)) {
+						// should we allow more? YES! Note this code corresponts to
+						// DoReadName below
 						c = DoReadName(context, c);
-					}
-					if (c) {
-						context.Putback(c);	 // putback a single char should be always supported.
-					}
-					return;
-				case '+':
-				case '-':  // a signed number
-				case '.':  // a decimal number
-				case '1':
-				case '2':
-				case '3':
-				case '4':
-				case '5':
-				case '6':
-				case '7':
-				case '8':
-				case '9':
-					// read a decimal number
-					c = DoReadNumber(context, c);
-					// should check if c is a delimiter = ( WS # / & { } [ ] " ) PT: added # in comment
-					if (!isNameDelimiter(c)
-						// PT: added '/', '&' and '}' to condition to account for packed Anythings
-						|| fToken == AnythingToken::eError) {
-						// if it is no delimiter assume a strangely formatted number
-						// this is treated as a AnyStringimpl.
-						c = DoReadName(context, c);
-					}
-					if (c) {
-						context.Putback(c);
-					}
-					return;
-				case '#':  // start of a comment skip to eol
-					context.SkipToEOL();
-					break;
-				default:
-					if (isalnum(static_cast<unsigned char>(c)) || '_' == c) {  // do we need to allow more?
-						// a name or string read it
-						c = DoReadName(context, c);
-						// should check for delimiter
-						// this character should be ignored safely
 						if (c) {
 							context.Putback(c);
 						}
-					} else if (isspace(static_cast<unsigned char>(c))) {
-						// ignore it but count line changes
-						if ('\n' == c || '\r' == c) {
-							++context.LineRef();
-						}
 					} else {
-						// this is a lexical error
-						fText.Append(c);
-						fToken = AnythingToken::eError;
-						// ignore character
+						if (c) {
+							context.Putback(c);	 // re-interpret delimiters
+						}
 					}
-			}  // switch
-		}	   // if
+					// ignore string errors here
+					if ((AnythingToken::eStringError == fToken || AnythingToken::eString == fToken) && fText.Length() > 0) {
+						fToken = theToken;
+						return;
+					}
+				}  // anything else  is an error.
+				fToken = AnythingToken::eError;
+				return;
+			}
+			case '"':  // a string value, read it
+				DoReadString(context, c);
+				return;
+			case '[':  // a binary buff impl, read it
+				DoReadBinBuf(context);
+				// should not occur in config files but might occur in ipc
+				break;
+				// numeric values:
+			case '0':  // need to check octal or hex
+				c = DoReadOctalOrHex(context);
+				// should check if c is a delimiter = ( WS / & { } [ ] " )
+				if (!isNameDelimiter(c)) {
+					// PT: used the same delimiter list as below
+					// if it is no delimiter assume a strangely formatted number
+					// this is treated as a AnyStringimpl.
+					c = DoReadName(context, c);
+				}
+				if (c) {
+					context.Putback(c);	 // putback a single char should be always supported.
+				}
+				return;
+			case '+':
+			case '-':  // a signed number
+			case '.':  // a decimal number
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				// read a decimal number
+				c = DoReadNumber(context, c);
+				// should check if c is a delimiter = ( WS # / & { } [ ] " ) PT: added # in comment
+				if (!isNameDelimiter(c)
+					// PT: added '/', '&' and '}' to condition to account for packed Anythings
+					|| fToken == AnythingToken::eError) {
+					// if it is no delimiter assume a strangely formatted number
+					// this is treated as a AnyStringimpl.
+					c = DoReadName(context, c);
+				}
+				if (c) {
+					context.Putback(c);
+				}
+				return;
+			case '#':  // start of a comment skip to eol
+				context.SkipToEOL();
+				break;
+			default:
+				if (isalnum(static_cast<unsigned char>(c)) || '_' == c) {  // do we need to allow more?
+					// a name or string read it
+					c = DoReadName(context, c);
+					// should check for delimiter
+					// this character should be ignored safely
+					if (c) {
+						context.Putback(c);
+					}
+				} else if (isspace(static_cast<unsigned char>(c))) {
+					// ignore it but count line changes
+					if ('\n' == c || '\r' == c) {
+						++context.LineRef();
+					}
+				} else {
+					// this is a lexical error
+					fText.Append(c);
+					fToken = AnythingToken::eError;
+					// ignore character
+				}
+		}
 	} while (0 == fToken);
 }
 
@@ -785,17 +783,15 @@ Anything Anything::DeepClone(Allocator *a) const {
 	Anything xref(a);
 	if (GetImpl()) {
 		return GetImpl()->DeepClone(a, xref);
-	} else {
-		return Anything(a);	 // just set the allocator
 	}
+	return Anything(a);	 // just set the allocator
 }
 
 Anything Anything::DeepClone(Allocator *a, Anything &xref) const {
 	if (GetImpl()) {
 		return GetImpl()->DeepClone(a, xref);
-	} else {
-		return Anything(a);	 // just set the allocator
 	}
+	return Anything(a);	 // just set the allocator
 }
 
 long Anything::GetSize() const {
@@ -946,9 +942,8 @@ Anything &Anything::DoAt(const char *k) {
 			Expand();
 			Assert(AnyArrayType == GetImpl()->GetType());
 			return ArrayImpl(GetImpl())->At(k);
-		} else {
-			return DoAt(i);
 		}
+		return DoAt(i);
 	}
 	return DoAt(GetSize());
 }
@@ -973,7 +968,8 @@ bool Anything::Remove(long slot) {
 	if (IsArrayImpl(GetImpl())) {
 		ArrayImpl(GetImpl())->Remove(slot);
 		return true;
-	} else if (slot == 0 && !IsNull()) {
+	}
+	if (slot == 0 && !IsNull()) {
 		clear();
 		return true;
 	}
@@ -1207,10 +1203,9 @@ protected:
 		if (!fXref.IsDefined(reinterpret_cast<long>(ai))) {
 			fXref.DefineBackRef(reinterpret_cast<long>(ai));  // remember symbolic slot name
 			return false;
-		} else {
-			fOs << "%\"" << fXref.GetBackRef(reinterpret_cast<long>(ai)) << "\"";
-			return true;
 		}
+		fOs << "%\"" << fXref.GetBackRef(reinterpret_cast<long>(ai)) << "\"";
+		return true;
 	}
 	void ArrayBeforeElement(long lIdx, const String &key) {
 		PrettyAnyPrinter::ArrayBeforeElement(lIdx, key);
@@ -1404,17 +1399,15 @@ Allocator *Anything::GetImplAllocator() const {
 AnyImpl const *Anything::GetImpl() const {
 	if (bits & 0x01) {
 		return 0;
-	} else {
-		return fAnyImp;
 	}
+	return fAnyImp;
 }
 AnyImpl *Anything::GetImpl() {
 	if (bits & 0x01) {
 		return 0;
-	} else {
-		//! TODO: silently throws away constness!!!!
-		return const_cast<AnyImpl *>(fAnyImp);
 	}
+	//! TODO: silently throws away constness!!!!
+	return const_cast<AnyImpl *>(fAnyImp);
 }
 
 void Anything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const {
@@ -1535,9 +1528,8 @@ Anything ROAnything::DeepClone(Allocator *a) const {
 	Anything xref(a);
 	if (GetImpl()) {
 		return GetImpl()->DeepClone(a, xref);
-	} else {
-		return Anything(a);
 	}
+	return Anything(a);
 }
 
 long ROAnything::GetSize() const {
@@ -1560,9 +1552,8 @@ ROAnything &ROAnything::operator=(const Anything &a) {
 AnyImplType ROAnything::GetType() const {
 	if (GetImpl()) {
 		return GetImpl()->GetType();
-	} else {
-		return AnyNullType;
 	}
+	return AnyNullType;
 }
 
 long ROAnything::AsLong(long dflt) const {
@@ -1928,7 +1919,8 @@ bool AnythingParser::DoParseSequence(Anything &any, ParserXrefHandler &xrefs) {
 					// to keep the order of the inserted slots as requested we need
 					// to add a dummy slot which will be linked in a second step
 					break;
-				} else if (AnythingToken::eInclude == tok.Token()) {
+				}
+				if (AnythingToken::eInclude == tok.Token()) {
 					ImportIncludeAny(element, tok.Text());
 					any[key] = element;
 					break;
@@ -2199,10 +2191,9 @@ bool SlotFinder::IntOperate(Anything &dest, String &destSlotname, long &destIdx,
 			SubTraceAny(TraceAny, dest, "dest so far");
 			Trace("calling IntOperate(" << destSlotname << ")");
 			return IntOperate(dest, destSlotname, destIdx, delim, indexdelim);
-		} else {
-			// we are done, no more slots to resolve
-			return true;
 		}
+		// we are done, no more slots to resolve
+		return true;
 	}
 	StringTokenizer st(destSlotname, delim);
 	bool keepOn = st.NextToken(s);

@@ -621,10 +621,9 @@ namespace coast {
 			if (!getcwd((char *)buf.cstr(), buf.Capacity())) {
 				SystemLog::Alert("puh, cannot obtain current working directory");
 				return;
-			} else {
-				cwd = String((void *)buf.cstr(), strlen(buf.cstr()));
-				ResolvePath(cwd);
 			}
+			cwd = String((void *)buf.cstr(), strlen(buf.cstr()));
+			ResolvePath(cwd);
 		}
 
 		bool ChangeDir(const String &dir) {
@@ -956,11 +955,10 @@ namespace coast {
 				ulBlocks = (ul_long)buf.f_bavail;
 				Trace("blocksize: " << static_cast<long>(lBlkSize) << " bytes free blocks: " << static_cast<long>(ulBlocks));
 				return true;
-			} else
-#endif
-			{
-				SYSWARNING("Failed to get blocks left on FS [" << SystemLog::LastSysError() << "]");
 			}
+#endif
+				SYSWARNING("Failed to get blocks left on FS [" << SystemLog::LastSysError() << "]");
+
 			return false;
 		}
 

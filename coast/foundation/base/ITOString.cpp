@@ -541,7 +541,8 @@ bool String::StartsWith(const char *pattern) const {
 			for (const char *content = GetContent();; ++content, ++pattern) {
 				if (!(*pattern)) {
 					return true;
-				} else if (!(*content)) {
+				}
+				if (!(*content)) {
 					return false;
 				} else if (*content != *pattern) {
 					return false;
@@ -641,7 +642,8 @@ void String::Reserve(long minreserve) {
 int String::Compare(const char *other) const {
 	if (GetImpl() && other) {
 		return strcmp(GetContent(), other);
-	} else if ((GetImpl() && *GetContent()) && !other) {
+	}
+	if ((GetImpl() && *GetContent()) && !other) {
 		return 1;
 	} else if (!GetImpl() && (other && *other)) {
 		return -1;
@@ -659,15 +661,15 @@ int String::Compare(const String &other) const {
 		long res = memcmp(GetContent(), (const char *)other, len);
 		if (res != 0) {
 			return res;
-		} else {
-			if (Length() == otherLength) {
-				return 0;
-			} else if (Length() < otherLength) {
-				return -1;
-			} else {
-				return 1;
-			}
 		}
+		if (Length() == otherLength) {
+			return 0;
+		} else if (Length() < otherLength) {
+			return -1;
+		} else {
+			return 1;
+		}
+
 	} else {
 		return (Length() < other.Length()) ? -1 : 0;
 	}
@@ -691,7 +693,8 @@ int String::CompareN(const char *other, long length, long start) const {
 	const char *contPtr = GetContent() + start;
 	if (contPtr && other) {
 		return strncmp(contPtr, other, length);
-	} else if ((contPtr && *contPtr) && !other) {
+	}
+	if ((contPtr && *contPtr) && !other) {
 		return 1;
 	} else if (!contPtr && (other && *other)) {
 		return -1;	// PS there was an error here!
@@ -734,7 +737,8 @@ void String::ReplaceAt(long pos, const char *s, long len) {
 long String::CaselessCompare(const char *s1, const char *s2) {
 	if ((0 != s1) && (0 != s2)) {
 		return strcasecmp(s1, s2);
-	} else if (s1 != 0) {
+	}
+	if (s1 != 0) {
 		return 1;  // only s1 is there
 	} else if (s2 != 0) {
 		return -1;	// only s2 is there
@@ -754,16 +758,15 @@ long String::ContainsCharAbove(unsigned highMark, const String excludeSet) const
 		if (c > highMark) {
 			if (excludeSetLength == 0L) {
 				return i;
-			} else {
-				bool found = false;
-				for (long ii = 0; ii < excludeSetLength; ++ii) {
-					if ((found = ((unsigned char)excludeSet.At(ii) == c))) {
-						break;
-					}
+			}
+			bool found = false;
+			for (long ii = 0; ii < excludeSetLength; ++ii) {
+				if ((found = ((unsigned char)excludeSet.At(ii) == c))) {
+					break;
 				}
-				if (!found) {
-					return i;
-				}
+			}
+			if (!found) {
+				return i;
 			}
 		}
 	}
@@ -1186,11 +1189,9 @@ bool StringTokenizer::NextToken(String &token) {
 			++fTokEnd;
 		}
 		return true;
-	} else {
-		// the string is empty or the whole string has been tokenized
-		// there are no tokens left
-		return false;
 	}
+	// the string is empty or the whole string has been tokenized there are no tokens left
+	return false;
 }
 
 String StringTokenizer::GetRemainder(bool boIncludeDelim) {
@@ -1200,12 +1201,11 @@ String StringTokenizer::GetRemainder(bool boIncludeDelim) {
 			--tokStart;
 		}
 		return String(tokStart);
-	} else {
-		if (*(fTokEnd) != '\0' && (fTokEnd <= fString + fLength)) {
-			return String(fTokEnd);
-		}
-		return String();
 	}
+	if (*(fTokEnd) != '\0' && (fTokEnd <= fString + fLength)) {
+		return String(fTokEnd);
+	}
+	return String();
 }
 
 StringTokenizer2::StringTokenizer2(const char *s) : fString(s), fDelimiters(" \t\n"), fPos(0) {}
@@ -1230,12 +1230,11 @@ String StringTokenizer2::GetRemainder(bool boIncludeDelim) {
 			--start;
 		}
 		return fString.SubString(start);
-	} else {
-		if (start < fString.Length()) {
-			return fString.SubString(start);
-		}
-		return String();
 	}
+	if (start < fString.Length()) {
+		return fString.SubString(start);
+	}
+	return String();
 }
 
 bool StringTokenizer2::HasMoreTokens(long start, long &end) {

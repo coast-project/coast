@@ -91,7 +91,7 @@ namespace stlstorage {
 		bool operator==(const fast_pool_allocator &) const { return true; }
 		bool operator!=(const fast_pool_allocator &) const { return false; }
 
-		pointer allocate(const size_type n) throw(std::bad_alloc) {
+		pointer allocate(const size_type n) COAST_NOEXCEPT_IF(std::bad_alloc) {
 			const pointer ptr =
 				(n == 1) ? static_cast<pointer>(fpIntPool->malloc()) : static_cast<pointer>(fpIntPool->ordered_malloc(n));
 			_StatTrace(fast_pool_allocator.allocate_n,
@@ -105,13 +105,13 @@ namespace stlstorage {
 			}
 			return ptr;
 		}
-		pointer allocate(const size_type n, const void *const) throw(std::bad_alloc) {
+		pointer allocate(const size_type n, const void *const) COAST_NOEXCEPT_IF(std::bad_alloc) {
 			_StatTrace(fast_pool_allocator.allocate_n_void,
 					   "this:" << static_cast<long>(this) << " size:" << static_cast<long>(n) << '*' << sizeof(T) << " void*",
 					   coast::storage::Current());
 			return allocate(n);
 		}
-		pointer allocate() throw(std::bad_alloc) {
+		pointer allocate() COAST_NOEXCEPT_IF(std::bad_alloc) {
 			const pointer ptr = static_cast<pointer>(fpIntPool->malloc());
 			_StatTrace(fast_pool_allocator.allocate,
 					   "this:" << static_cast<long>(this) << " ptr:" << static_cast<long>(ptr) << " default size:1*"

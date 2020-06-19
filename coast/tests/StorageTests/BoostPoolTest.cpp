@@ -432,21 +432,23 @@ private:
 
 public:
 	/// Throwing single-object new throws bad_alloc when allocation fails.
-	static void *operator new(std::size_t) throw(std::bad_alloc) { return BoostPoolType::malloc(); }
+	static void *operator new(std::size_t) COAST_NOEXCEPT_IF(std::bad_alloc) { return BoostPoolType::malloc(); }
 
 	/// Non-throwing single-object new returns NULL if allocation fails.
-	static void *operator new(std::size_t, const std::nothrow_t &) throw() { return BoostPoolType::malloc(); }
+	static void *operator new(std::size_t, const std::nothrow_t &) COAST_NOEXCEPT_OR_NOTHROW { return BoostPoolType::malloc(); }
 
 	/// Placement single-object new merely calls global placement new.
 	inline static void *operator new(std::size_t size, void *place) { return ::operator new(size, place); }
 
 	/// Single-object delete.
-	static void operator delete(void *p) throw() { BoostPoolType::free(reinterpret_cast<BoostSingletonPool *>(p)); }
+	static void operator delete(void *p)COAST_NOEXCEPT_OR_NOTHROW {
+		BoostPoolType::free(reinterpret_cast<BoostSingletonPool *>(p));
+	}
 
 	/** Non-throwing single-object delete is only called when nothrow
 		new operator is used, and the constructor throws an exception.
 		*/
-	static void operator delete(void *p, const std::nothrow_t &)throw() {
+	static void operator delete(void *p, const std::nothrow_t &)COAST_NOEXCEPT_OR_NOTHROW {
 		BoostPoolType::free(reinterpret_cast<BoostSingletonPool *>(p));
 	}
 

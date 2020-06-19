@@ -299,21 +299,21 @@ namespace coast {
 		}
 
 		template <typename T>
-		T &allocatorFor(void *ptr) throw() {
+		T &allocatorFor(void *ptr) COAST_NOEXCEPT_OR_NOTHROW {
 			return *(reinterpret_cast<T *>(ptr));
 		}
 
 		template <typename T>
-		void *payloadPtrFor(void *ptr) throw() {
+		void *payloadPtrFor(void *ptr) COAST_NOEXCEPT_OR_NOTHROW {
 			return reinterpret_cast<void *>(reinterpret_cast<char *>(ptr) + AlignedSize<T>::alignment);
 		}
 
 		template <typename T>
-		void *realPtrFor(void *ptr) throw() {
+		void *realPtrFor(void *ptr) COAST_NOEXCEPT_OR_NOTHROW {
 			return reinterpret_cast<void *>(reinterpret_cast<char *>(ptr) - AlignedSize<T>::alignment);
 		}
 
-		void safeFree(Allocator *a, void *ptr) throw();
+		void safeFree(Allocator *a, void *ptr) COAST_NOEXCEPT_OR_NOTHROW;
 	}  // namespace memory
 
 	namespace storage {

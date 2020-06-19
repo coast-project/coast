@@ -12,7 +12,7 @@
 #include <cstdlib>
 
 namespace coast {
-	void *AllocatorNewDelete::operator new(std::size_t sz, Allocator *a) throw() {
+	void *AllocatorNewDelete::operator new(std::size_t sz, Allocator *a) COAST_NOEXCEPT_OR_NOTHROW {
 		if (a) {
 			void *ptr = a->Calloc(1, memory::calculateAllocationSize<Allocator *>(sz));
 			memory::allocatorFor<Allocator *>(ptr) = a;	 // remember address of responsible Allocator
@@ -21,18 +21,19 @@ namespace coast {
 		return a;
 	}
 
-	void *AllocatorNewDelete::operator new[](std::size_t sz, Allocator *a) throw() {
+	void *AllocatorNewDelete::operator new[](std::size_t sz, Allocator *a) COAST_NOEXCEPT_OR_NOTHROW {
 		if (a) {
 			return operator new(sz, a);
-		} else {
-			void *ptr = calloc(1, memory::calculateAllocationSize<Allocator *>(sz));
-			return memory::payloadPtrFor<Allocator *>(ptr);
 		}
+		void *ptr = calloc(1, memory::calculateAllocationSize<Allocator *>(sz));
+		return memory::payloadPtrFor<Allocator *>(ptr);
 	}
 
-	void *AllocatorNewDelete::operator new[](std::size_t sz) throw() { return operator new[](sz, static_cast<Allocator *>(0)); }
+	void *AllocatorNewDelete::operator new[](std::size_t sz) COAST_NOEXCEPT_OR_NOTHROW {
+		return operator new[](sz, static_cast<Allocator *>(0));
+	}
 
-	void AllocatorNewDelete::operator delete(void *ptr) throw() {
+	void AllocatorNewDelete::operator delete(void *ptr)COAST_NOEXCEPT_OR_NOTHROW {
 		void *realPtr = memory::realPtrFor<Allocator *>(ptr);
 		Allocator *a = memory::allocatorFor<Allocator *>(realPtr);
 		if (a) {
@@ -42,9 +43,9 @@ namespace coast {
 		}
 	}
 
-	void AllocatorNewDelete::operator delete(void *ptr, Allocator *a) throw() { memory::safeFree(a, ptr); }
+	void AllocatorNewDelete::operator delete(void *ptr, Allocator *a)COAST_NOEXCEPT_OR_NOTHROW { memory::safeFree(a, ptr); }
 
-	void AllocatorNewDelete::operator delete[](void *ptr) throw() { operator delete(ptr); }
+	void AllocatorNewDelete::operator delete[](void *ptr) COAST_NOEXCEPT_OR_NOTHROW { operator delete(ptr); }
 
 	AllocatorNewDelete::~AllocatorNewDelete() {}
 }  // namespace coast

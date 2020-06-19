@@ -49,4 +49,14 @@ typedef unsigned long long ul_long;
 #define itoMIN(a, b) ((a) < (b) ? (a) : (b))
 #define itoMAX(a, b) ((a) > (b) ? (a) : (b))
 
+#if __cplusplus >= 201103L
+#define COAST_NOEXCEPT noexcept
+#define COAST_NOEXCEPT_OR_NOTHROW noexcept
+#define COAST_NOEXCEPT_IF(Predicate) noexcept(false)
+#else
+#define COAST_NOEXCEPT
+#define COAST_NOEXCEPT_OR_NOTHROW throw()
+#define COAST_NOEXCEPT_IF(Predicate) throw(Predicate)
+#endif
+
 #endif

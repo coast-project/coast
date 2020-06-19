@@ -20,6 +20,6 @@ const String &OracleException::getMessage() const {
 	return fMessage;
 }
 
-const char *OracleException::what() const throw() {
+const char *OracleException::what() const COAST_NOEXCEPT_OR_NOTHROW {
 	return fMessage;
 }

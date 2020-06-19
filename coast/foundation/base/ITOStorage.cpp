@@ -248,7 +248,7 @@ namespace coast {
 	}  // namespace storage
 
 	namespace memory {
-		void safeFree(Allocator *a, void *ptr) throw() {
+		void safeFree(Allocator *a, void *ptr) COAST_NOEXCEPT_OR_NOTHROW {
 			if (ptr) {
 				a->Free(ptr);
 			}

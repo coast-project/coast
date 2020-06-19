@@ -65,7 +65,7 @@ namespace stlstorage {
 
 		class fAllocatorNotInitialized : public std::exception {
 		public:
-			virtual const char *what() const throw() {
+			virtual const char *what() const COAST_NOEXCEPT_OR_NOTHROW {
 				static const char pMsg[] = "FATAL: fAllocator passed is NULL!!";
 				SYSERROR(pMsg);
 				return pMsg;
@@ -86,14 +86,16 @@ namespace stlstorage {
 		/* constructors and destructor
 		 * - initialize fAllocator to requested storage
 		 */
-		STLAllocator(Allocator *pAlloc = coast::storage::Current()) throw(fAllocatorNotInitialized) : fAllocator(pAlloc) {
+		STLAllocator(Allocator *pAlloc = coast::storage::Current()) COAST_NOEXCEPT_IF(fAllocatorNotInitialized)
+			: fAllocator(pAlloc) {
 			_StartTrace(STLAllocator.STLAllocator);
 			if (fAllocator == 0) {
 				throw fAllocatorNotInitialized();
 			}
 		}
 
-		STLAllocator(const STLAllocator &aAllocator) throw(fAllocatorNotInitialized) : fAllocator(aAllocator.fAllocator) {
+		STLAllocator(const STLAllocator &aAllocator) COAST_NOEXCEPT_IF(fAllocatorNotInitialized)
+			: fAllocator(aAllocator.fAllocator) {
 			_StartTrace1(STLAllocator.STLAllocator, "copy");
 			if (fAllocator == 0) {
 				throw fAllocatorNotInitialized();
@@ -101,7 +103,8 @@ namespace stlstorage {
 		}
 
 		template <class U>
-		STLAllocator(const STLAllocator<U> &aAllocator) throw(fAllocatorNotInitialized) : fAllocator(aAllocator.fAllocator) {
+		STLAllocator(const STLAllocator<U> &aAllocator) COAST_NOEXCEPT_IF(fAllocatorNotInitialized)
+			: fAllocator(aAllocator.fAllocator) {
 			_StartTrace1(STLAllocator.STLAllocator, "copy other type");
 			if (!fAllocator) {
 				throw fAllocatorNotInitialized();
@@ -116,7 +119,7 @@ namespace stlstorage {
 		}
 
 		// return maximum number of elements that can be allocated
-		size_type max_size() const throw() {
+		size_type max_size() const COAST_NOEXCEPT_OR_NOTHROW {
 			// XXX in case of PoolAllocators, we could determine the max number somewhow
 			size_type tSz = std::numeric_limits<std::size_t>::max() / sizeof(T);
 			_StatTrace(STLAllocator.max_size, "maximal size:" << static_cast<long>(tSz), coast::storage::Current());
@@ -160,13 +163,13 @@ namespace stlstorage {
 
 	// return that all specializations of this allocator are interchangeable
 	template <class T1, class T2>
-	bool operator==(const STLAllocator<T1> &left, const STLAllocator<T2> &right) throw() {
+	bool operator==(const STLAllocator<T1> &left, const STLAllocator<T2> &right) COAST_NOEXCEPT_OR_NOTHROW {
 		_StartTrace1(STLAllocator.operator==, "equal comparing two types");
 		// compare internal fAllocator member
 		return left.fAllocator == right.fAllocator;
 	}
 	template <class T1, class T2>
-	bool operator!=(const STLAllocator<T1> &left, const STLAllocator<T2> &right) throw() {
+	bool operator!=(const STLAllocator<T1> &left, const STLAllocator<T2> &right) COAST_NOEXCEPT_OR_NOTHROW {
 		_StartTrace1(STLAllocator.operator!=, "unequal comparing two types");
 		// compare internal fAllocator member
 		return left.fAllocator != right.fAllocator;

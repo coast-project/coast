@@ -35,7 +35,7 @@ public:
 	 */
 	OracleException(OracleConnection &rConn, sword status);
 	//! do nothing dtor
-	~OracleException() throw(){};
+	~OracleException() COAST_NOEXCEPT_OR_NOTHROW{};
 	/*! Access error message
 	 * @return internally stored error message which lead to the exception
 	 */
@@ -43,7 +43,7 @@ public:
 	/*! Access error message
 	 * @return internally stored error message which lead to the exception
 	 */
-	const char *what() const throw();
+	const char *what() const COAST_NOEXCEPT_OR_NOTHROW;
 };
 
 #endif /* ORACLEEXCEPTION_H_ */

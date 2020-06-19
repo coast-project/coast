@@ -56,27 +56,31 @@ public:
 
 	struct InvalidLineException {
 		String fMessage, fLine;
-		InvalidLineException(const String &msg, const String &line) throw() : fMessage(msg), fLine(line) {}
+		InvalidLineException(const String &msg, const String &line) COAST_NOEXCEPT_OR_NOTHROW : fMessage(msg), fLine(line) {}
 		virtual ~InvalidLineException() {}
-		const virtual char *what() const throw() { return fMessage; }
+		const virtual char *what() const COAST_NOEXCEPT_OR_NOTHROW { return fMessage; }
 	};
 	struct SizeExceededException : InvalidLineException {
 		long fMaxSize, fActualSize;
-		SizeExceededException(const String &msg, const String &line, long lMaxSize, long lActualSize) throw()
-			: InvalidLineException(msg, line), fMaxSize(lMaxSize), fActualSize(lActualSize) {
+		SizeExceededException(const String &msg, const String &line, long lMaxSize, long lActualSize) COAST_NOEXCEPT_OR_NOTHROW
+			: InvalidLineException(msg, line),
+			  fMaxSize(lMaxSize),
+			  fActualSize(lActualSize) {
 			fMessage.Append("; max: ").Append(fMaxSize).Append(" actual: ").Append(fActualSize);
 		}
 	};
 	struct LineSizeExceededException : SizeExceededException {
-		LineSizeExceededException(const String &msg, const String &line, long lMaxSize, long lActualSize) throw()
+		LineSizeExceededException(const String &msg, const String &line, long lMaxSize,
+								  long lActualSize) COAST_NOEXCEPT_OR_NOTHROW
 			: SizeExceededException(msg, line, lMaxSize, lActualSize) {}
 	};
 	struct RequestSizeExceededException : SizeExceededException {
-		RequestSizeExceededException(const String &msg, const String &line, long lMaxSize, long lActualSize) throw()
+		RequestSizeExceededException(const String &msg, const String &line, long lMaxSize,
+									 long lActualSize) COAST_NOEXCEPT_OR_NOTHROW
 			: SizeExceededException(msg, line, lMaxSize, lActualSize) {}
 	};
 	struct StreamNotGoodException {
-		const char *what() const throw() { return "Stream not good"; }
+		const char *what() const COAST_NOEXCEPT_OR_NOTHROW { return "Stream not good"; }
 	};
 
 protected:

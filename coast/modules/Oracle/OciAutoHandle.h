@@ -44,7 +44,7 @@ struct oci_auto_handle {
 	 * @param rhs non const reference to right hand side object
 	 * @note rhs will not contain the internal handle anymore after the call
 	 */
-	oci_auto_handle &operator=(oci_auto_handle &rhs) throw() {
+	oci_auto_handle &operator=(oci_auto_handle &rhs) COAST_NOEXCEPT_OR_NOTHROW {
 		reset(rhs.release());
 		return *this;
 	}
@@ -59,14 +59,14 @@ struct oci_auto_handle {
 	/*! assign a new handle to the current object and free the current one if valid
 	 * @param ptr new handle or 0 if you want to force deletion of the current handle
 	 */
-	void reset(handle_ptr_type ptr = 0) throw() {
+	void reset(handle_ptr_type ptr = 0) COAST_NOEXCEPT_OR_NOTHROW {
 		if (fHandle != ptr) {
 			doDelete();
 			fHandle = ptr;
 		}
 	}
 	/*! call the handle specific free function to deallocate the previously allocated resource */
-	void doDelete() throw() {
+	void doDelete() COAST_NOEXCEPT_OR_NOTHROW {
 		if (fHandle) {
 			OCIHandleFree(reinterpret_cast<dvoid *>(release()), handleType);
 		}

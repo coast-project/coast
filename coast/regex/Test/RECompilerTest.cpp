@@ -25,12 +25,6 @@ RECompilerTest::~RECompilerTest() {
 	StartTrace(RECompilerTest.Dtor);
 }
 
-struct a_test {
-	long expected;
-	const char *pattern;
-	const /*unsigned*/ char *data;
-};
-
 #include "CompilationTestCases.h"
 
 void RECompilerTest::RunACompilationTest(long id, struct a_test &t) {

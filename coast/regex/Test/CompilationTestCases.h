@@ -1,3 +1,9 @@
+struct a_test {
+	long expected;
+	const char *pattern;
+	const /*unsigned*/ char *data;
+};
+
 // clang-format off
 struct a_test compilationTestCases[] = {
 {0, "((a|b{10,11})|(b))*-\\2", "aaab-a"}, { //SOP fails to match ?

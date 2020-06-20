@@ -12,7 +12,7 @@
 #include "SecurityModule.h"
 #include "WDModule.h"
 
-#include <fstream>
+#include <iostream>
 
 #include <unistd.h>
 
@@ -31,9 +31,9 @@ public:
 
 	int GlobalInit(int argc, char *argv[], const Anything &config) {
 		if (argc < 2) {
-			cerr << "Unscramble Coast URL state." << endl;
-			cerr << "To run, use same COAST_ROOT and COAST_PATH as the WD-App which generated the URLs" << endl;
-			cerr << "Usage: " << argv[0] << " [ <url> ]+" << endl;
+			std::cerr << "Unscramble Coast URL state." << std::endl;
+			std::cerr << "To run, use same COAST_ROOT and COAST_PATH as the WD-App which generated the URLs" << std::endl;
+			std::cerr << "Usage: " << argv[0] << " [ <url> ]+" << std::endl;
 			exit(-1);
 		}
 		for (int i = 1; i < argc; i++) {
@@ -45,9 +45,9 @@ public:
 			Anything result;
 			String url(fUrls[i].AsString(""));
 			SecurityModule::UnscrambleState(result, url);
-			cout << "Url State: " << url << endl;
-			cout << result;
-			cout << endl << flush;
+			std::cout << "Url State: " << url << std::endl;
+			std::cout << result;
+			std::cout << std::endl << std::flush;
 		}
 		return 0;
 	}
@@ -57,7 +57,6 @@ private:
 };
 RegisterApplication(UnscrambleUrl);
 
-int main(int argc, char **argv) {
-	int result = MyAppBooter().Run(argc, argv);
-	return result;
+int main(int argc, const char *argv[]) {
+	return MyAppBooter().Run(argc, argv);
 }

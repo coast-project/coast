@@ -13,6 +13,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdlib>
 #include <new>
 
 namespace coast {

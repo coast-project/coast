@@ -9,12 +9,8 @@
 #ifndef IT_TESTFW_TString_H
 #define IT_TESTFW_TString_H
 
-#if __GNUC__ >= 3
-#include <string.h>
-#endif
-
+#include <cstring>
 #include <iosfwd>
-typedef int Unicode;
 
 //---- TString --------------------------------------------------------------
 //! trivial implementation of a string class

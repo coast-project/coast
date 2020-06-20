@@ -1,3 +1,4 @@
+// clang-format off
 const char *gShortLiteralData[] = {
 	"\\input texinfo   @c -*-texinfo-*-",
 	"@c %**start of header",
@@ -4756,4 +4757,6 @@ const char *gShortLiteralData[] = {
 	"",
 	"@bye",
 	"",
-	""};
+	""
+};
+// clang-format on

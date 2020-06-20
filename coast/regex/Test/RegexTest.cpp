@@ -204,7 +204,7 @@ void RegexTest::LargeLiteralTest() {
 	RE literal(gLiteralExpr);
 	long s = 0, l = 0;
 	// should be timed:
-	std::istream *pStream = system::OpenStream("LargeLiteralData", "h");
+	std::istream *pStream = system::OpenStream("LargeLiteralData", "txt");
 	if (t_assert(pStream != NULL)) {
 		String largeData;
 		while (pStream->good()) {
@@ -224,7 +224,7 @@ void RegexTest::LargeDotStarTest() {
 	RE literal(gDotStarExpr);
 	long s = 0, l = 0;
 	// should be timed:
-	std::istream *pStream = system::OpenStream("LargeLiteralData", "h");
+	std::istream *pStream = system::OpenStream("LargeLiteralData", "txt");
 	if (t_assert(pStream != NULL)) {
 		String largeData;
 		while (pStream->good()) {

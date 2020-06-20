@@ -32,7 +32,7 @@ programDepends = [
     'CoastRegex.CoastRegex',
 ]
 sourceFiles = listFiles(['*.cpp'])
-copyFiles = [(listFiles(['*.sh', 'config/*.any', 'config/LargeLiteralData.h']), S_IRUSR | S_IRGRP | S_IROTH)]
+copyFiles = [(listFiles(['*.sh', 'config/*.any', 'config/LargeLiteralData.txt']), S_IRUSR | S_IRGRP | S_IROTH)]
 runConfig = {
     'setUp': setUp,
     'tearDown': tearDown,

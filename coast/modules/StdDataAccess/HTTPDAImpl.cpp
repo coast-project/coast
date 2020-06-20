@@ -44,11 +44,9 @@ bool HTTPDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out) 
 		SSLConnector sslcsc(ca, sa, context.Lookup("SSLModuleCfg"), (SSL_CTX *)context.Lookup("SSLContext").AsIFAObject(0),
 							NULL, 0L, cps.UseThreadLocal());
 		return DoExec(&sslcsc, &cps, context, in, out);
-	} else {
-		Connector csc(cps.IPAddress(), cps.Port(), cps.Timeout(), "", 0, cps.UseThreadLocal());
-		return DoExec(&csc, &cps, context, in, out);
 	}
-	return false;
+	Connector csc(cps.IPAddress(), cps.Port(), cps.Timeout(), "", 0, cps.UseThreadLocal());
+	return DoExec(&csc, &cps, context, in, out);
 }
 
 bool HTTPDAImpl::DoExec(Connector *csc, ConnectorParams *cps, Context &context, ParameterMapper *in, ResultMapper *out) {

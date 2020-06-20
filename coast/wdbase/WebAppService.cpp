@@ -41,16 +41,14 @@ bool WebAppService::DoHandleService(std::ostream &reply, Context &ctx) {
 		ROAnything roaConfig;
 		roaConfig = Lookup("RenderNextPage");
 		return session->RenderNextPage(reply, ctx, roaConfig);
-	} else {
-		Anything anyError;
-		anyError["Component"] = "WebAppService::DoHandleService";
-		anyError["ResponseCode"] = 406L;
-		anyError["ErrorMessage"] =
-			String(isBusy ? "Session is busy" : "No valid Session").Append(", id <").Append(sessionId).Append('>');
-		StorePutter::Operate(anyError, ctx, "Tmp", ctx.Lookup("RequestProcessorErrorSlot", "WebAppService.Error"), true);
-		return false;
 	}
-	return true;
+	Anything anyError;
+	anyError["Component"] = "WebAppService::DoHandleService";
+	anyError["ResponseCode"] = 406L;
+	anyError["ErrorMessage"] =
+		String(isBusy ? "Session is busy" : "No valid Session").Append(", id <").Append(sessionId).Append('>');
+	StorePutter::Operate(anyError, ctx, "Tmp", ctx.Lookup("RequestProcessorErrorSlot", "WebAppService.Error"), true);
+	return false;
 }
 
 namespace {

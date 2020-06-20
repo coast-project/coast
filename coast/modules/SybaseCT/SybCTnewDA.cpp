@@ -645,9 +645,9 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 		delete[] coldata;
 		(coast::storage::Current())->Free(datafmt);
 		return retcode;
-	} else {
-		num_rows = MAX_MEM_BLOCK_SIZE / rowsize;
 	}
+	num_rows = MAX_MEM_BLOCK_SIZE / rowsize;
+
 	// calculate max amount of rows to read without exceeding a given memory limit
 	if (lMaxResultSize == 0) {
 		lMaxRows = std::numeric_limits<long>::max();
@@ -744,10 +744,10 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 			if (((lRowsReceived + num_rows) > lMaxRows) || !bGoOn) {
 				retcode = CS_MEM_ERROR;
 				break;
-			} else {
-				retcode = ct_fetch(cmd, CS_UNUSED, CS_UNUSED, CS_UNUSED, &rows_read);
-				Trace("number of rows fetched again: " << rows_read);
 			}
+			retcode = ct_fetch(cmd, CS_UNUSED, CS_UNUSED, CS_UNUSED, &rows_read);
+			Trace("number of rows fetched again: " << rows_read);
+
 			Trace(String() << (long)lRowsReceived << " rows read so far");
 		}
 		if (res_type != CS_STATUS_RESULT) {

@@ -10,7 +10,8 @@
 #define _SybCTnewDAImpl_H
 
 #include "DataAccessImpl.h"
-#include "Threads.h"
+#include "Semaphore.h"
+#include "SimpleMutex.h"
 
 #include <ctpublic.h>
 

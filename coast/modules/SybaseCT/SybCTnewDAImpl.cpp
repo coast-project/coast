@@ -9,6 +9,7 @@
 #include "SybCTnewDAImpl.h"
 
 #include "Action.h"
+#include "LockUnlockEntry.h"
 #include "PeriodicAction.h"
 #include "StringStream.h"
 #include "SybCTnewDA.h"

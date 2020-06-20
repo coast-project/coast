@@ -9,6 +9,7 @@
 #include "SybaseModule.h"
 
 #include "SybCTnewDAImpl.h"
+#include "Tracer.h"
 
 //---- SybaseModule ---------------------------------------------------------------
 RegisterModule(SybaseModule);

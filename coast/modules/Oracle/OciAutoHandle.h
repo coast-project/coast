@@ -10,6 +10,7 @@
 #define OCIAUTOHANDLE_H_
 
 #include "boost_or_std/memory.h"
+#include "foundation.h"
 #include "oci.h"
 
 //! Template wrapper around OCI handles

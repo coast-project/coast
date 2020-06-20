@@ -11,6 +11,7 @@
 #include "Context.h"
 #include "SybCTnewDAImpl.h"
 #include "TestSuite.h"
+#include "Threads.h"
 #include "TimeStamp.h"
 
 //---- SybCTnewDAImplTest ----------------------------------------------------------------

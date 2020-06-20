@@ -9,6 +9,7 @@
 #ifndef _REBitSetTest_H
 #define _REBitSetTest_H
 
+#include "REBitSet.h"
 #include "TestCase.h"
 
 //---- REBitSetTest ----------------------------------------------------------

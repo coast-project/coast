@@ -6,12 +6,12 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "RECompiler.h"
+#include "RECompilerTest.h"
 
 #include "Anything.h"
 #include "RE.h"
 #include "REBitSet.h"
-#include "RECompilerTest.h"
+#include "RECompiler.h"
 #include "StringStream.h"
 #include "TestSuite.h"
 #include "Tracer.h"
@@ -31,9 +31,7 @@ struct a_test {
 	const /*unsigned*/ char *data;
 };
 
-struct a_test compilationTestCases[] = {
 #include "CompilationTestCases.h"
-	{-1, 0, 0}};
 
 void RECompilerTest::RunACompilationTest(long id, struct a_test &t) {
 	StartTrace(RECompilerTest.RunACompilationTest);

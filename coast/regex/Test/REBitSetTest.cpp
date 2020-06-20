@@ -6,14 +6,13 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "REBitSet.h"
-
 #include "REBitSetTest.h"
+
 #include "SystemFile.h"
 #include "TestSuite.h"
 #include "Tracer.h"
 
-#include <ctype.h>
+#include <cctype>
 
 //---- REBitSetTest ----------------------------------------------------------------
 REBitSetTest::REBitSetTest(TString tstrName) : TestCaseType(tstrName) {

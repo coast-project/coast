@@ -1,6 +1,8 @@
 //(c) copyright ifs 2005, all rights reserved
 // automatically generatest by REBitSetTest::GeneratePosixSets
 
+#include "REBitSet.h"
+
 #include <stdint.h>
 
 const uint32_t _dummy_gcSetIsAlnum[] = {

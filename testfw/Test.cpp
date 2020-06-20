@@ -52,7 +52,8 @@ bool Test::assertEqualsIfNullPtr(const char *expected, const char *actual, long 
 		}
 		return assertImplementation(false, notEqualsMessage("<Null pointer>", actual), lineNumber, fileName, message);
 
-	} else if (actual == 0) {  // this is assertion certainly fails
+	}
+	if (actual == 0) {
 		return assertImplementation(false, notEqualsMessage(expected, "<Null pointer>"), lineNumber, fileName, message);
 	}
 	return false;
@@ -74,11 +75,10 @@ bool Test::assertEquals(const char *expected, long lengthExpected, const char *a
 	if (lengthExpected != lengthActual) {  // this is assertion certainly fails
 		return assertImplementation(false, notEqualsMessage(expected, lengthExpected, actual, lengthActual), lineNumber,
 									fileName, message);
-	} else {  // both strings are not 0
-		return assertImplementation((memcmp(expected, actual, static_cast<size_t>(lengthActual)) == 0),
-									notEqualsMessage(expected, lengthExpected, actual, lengthActual), lineNumber, fileName,
-									message);
-	}  // if
+	}
+	return assertImplementation((memcmp(expected, actual, static_cast<size_t>(lengthActual)) == 0),
+								notEqualsMessage(expected, lengthExpected, actual, lengthActual), lineNumber, fileName,
+								message);
 }
 
 /* check for a failed equality assertion */

@@ -51,7 +51,6 @@ bool Test::assertEqualsIfNullPtr(const char *expected, const char *actual, long 
 										message);
 		}
 		return assertImplementation(false, notEqualsMessage("<Null pointer>", actual), lineNumber, fileName, message);
-
 	}
 	if (actual == 0) {
 		return assertImplementation(false, notEqualsMessage(expected, "<Null pointer>"), lineNumber, fileName, message);

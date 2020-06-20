@@ -201,7 +201,6 @@ bool URLFilter::DoUnscrambleState(Anything &query, const char *slotName, Context
 			errMsg << slotName << ">";
 			SystemLog::Error(errMsg);
 			return false;
-
 		}
 		String errMsg("Empty Slot for unscrambling:<");
 		errMsg << slotName << ">";

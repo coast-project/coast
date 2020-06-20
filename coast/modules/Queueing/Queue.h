@@ -9,6 +9,7 @@
 #ifndef _Queue_H
 #define _Queue_H
 
+#include "Anything.h"
 #include "DiffTimer.h"
 #include "IFAObject.h"
 #include "ITOTypeTraits.h"	// for demangle
@@ -20,7 +21,6 @@
 #include "Semaphore.h"
 #include "SimpleMutex.h"
 #include "TLSEntry.h"
-#include "Anything.h"
 
 #include <limits>
 

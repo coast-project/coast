@@ -91,7 +91,6 @@ bool URI2FileNameMapper::DoFinalGetAny(const char *key, Anything &val, Context &
 				tmpStore["HTTPLocation"] = value;
 				Trace("relocated name is: [" << value << "]");
 				return false;
-
 			}
 			value << ctx.Lookup("DirectoryIndex", "index.html");
 			val = value;

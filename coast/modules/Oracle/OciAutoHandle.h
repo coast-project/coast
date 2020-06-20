@@ -12,8 +12,6 @@
 #include "boost_or_std/memory.h"
 #include "oci.h"
 
-#include <memory>
-
 //! Template wrapper around OCI handles
 /*!
  * Simplifies memory handling on allocated handles, frees the internal handle if allocated. It works almost like a

@@ -57,15 +57,20 @@ bool CompareValuesAction::DoExecAction(String &transitionToken, Context &ctx, co
 
 	if (op.IsEqual(">")) {
 		return (value1.AsLong(0L) > value2.AsLong(0L));
-	} else if (op.IsEqual("<")) {
+	}
+	if (op.IsEqual("<")) {
 		return (value1.AsLong(0L) < value2.AsLong(0L));
-	} else if (op.IsEqual(">=")) {
+	}
+	if (op.IsEqual(">=")) {
 		return (value1.AsLong(0L) >= value2.AsLong(0L));
-	} else if (op.IsEqual("<=")) {
+	}
+	if (op.IsEqual("<=")) {
 		return (value1.AsLong(0L) <= value2.AsLong(0L));
-	} else if (op.IsEqual("==")) {
+	}
+	if (op.IsEqual("==")) {
 		return (value1.AsLong(0L) == value2.AsLong(0L));
-	} else if (op.IsEqual("!=")) {
+	}
+	if (op.IsEqual("!=")) {
 		return (value1.AsLong(0L) != value2.AsLong(0L));
 	}
 

@@ -197,7 +197,8 @@ bool ConfNamedObject::DoGetConfigName(const char *category, const char *objName,
 	if (fConfigName.Length()) {
 		configFileName = fConfigName;
 		return true;
-	} else if (objName != NULL) {
+	}
+	if (objName != NULL) {
 		configFileName = objName;
 		return true;
 	}

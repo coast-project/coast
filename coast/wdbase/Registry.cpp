@@ -182,9 +182,8 @@ bool RegistryIterator::HasMore() {
 	Trace("fStart[" << fStart << "] fEnd[" << fEnd << "]");
 	if (fForward) {
 		return fStart <= fEnd;
-	} else {
-		return fStart >= fEnd;
 	}
+	return fStart >= fEnd;
 }
 
 RegisterableObject *RegistryIterator::Next(String &key) {

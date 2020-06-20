@@ -237,14 +237,14 @@ bool SMTPState::ConsumeReply(Anything &context, std::istream &is) {
 		Trace("Communication Error");
 		context["Result"]["Error"] = "Communication Error";
 		return false;
-	} else {
-		ConsumeTillEol(is, msg);
-		Trace("Msg line " << msg);
-		if (status != DoGetStatus()) {
-			context["Result"]["Error"] = msg;
-			return false;
-		}
 	}
+	ConsumeTillEol(is, msg);
+	Trace("Msg line " << msg);
+	if (status != DoGetStatus()) {
+		context["Result"]["Error"] = msg;
+		return false;
+	}
+
 	return true;
 }
 

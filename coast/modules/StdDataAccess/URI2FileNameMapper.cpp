@@ -81,22 +81,21 @@ bool URI2FileNameMapper::DoFinalGetAny(const char *key, Anything &val, Context &
 					tmpStore["HTTPError"] = 400L;
 					tmpStore["HTTPResponse"] = "Bad Request";
 					return false;
-				} else {
-					// set relocate error
-					tmpStore["HTTPError"] = 301L;
-					tmpStore["HTTPResponse"] = "Permanently moved";
-
-					value << '/';
-					val = value;
-					tmpStore["HTTPLocation"] = value;
-					Trace("relocated name is: [" << value << "]");
-					return false;
 				}
-			} else {
-				// append default file
-				value << ctx.Lookup("DirectoryIndex", "index.html");
+				// set relocate error
+				tmpStore["HTTPError"] = 301L;
+				tmpStore["HTTPResponse"] = "Permanently moved";
+
+				value << '/';
 				val = value;
+				tmpStore["HTTPLocation"] = value;
+				Trace("relocated name is: [" << value << "]");
+				return false;
+
 			}
+			value << ctx.Lookup("DirectoryIndex", "index.html");
+			val = value;
+
 		} else {
 			// no regular file and no directory set the error status
 			// hook for special CGI treatment

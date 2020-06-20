@@ -18,9 +18,8 @@ bool Test::assertImplementation(bool condition, TString conditionExpression, lon
 	if (condition) {
 		fResult->addSuccess(new TestLocation(this, conditionExpression, fileName, lineNumber, message));
 		return true;
-	} else {
-		fResult->addFailure(new TestLocation(this, conditionExpression, fileName, lineNumber, message));
-	}  // if
+	}
+	fResult->addFailure(new TestLocation(this, conditionExpression, fileName, lineNumber, message));
 	return false;
 }
 
@@ -50,10 +49,9 @@ bool Test::assertEqualsIfNullPtr(const char *expected, const char *actual, long 
 		if (actual == 0) {	// assertion is true
 			return assertImplementation(true, notEqualsMessage("<Null pointer>", "<Null pointer>"), lineNumber, fileName,
 										message);
-		} else {  // assertion fails
-			return assertImplementation(false, notEqualsMessage("<Null pointer>", actual), lineNumber, fileName, message);
+		}
+		return assertImplementation(false, notEqualsMessage("<Null pointer>", actual), lineNumber, fileName, message);
 
-		}					   // if
 	} else if (actual == 0) {  // this is assertion certainly fails
 		return assertImplementation(false, notEqualsMessage(expected, "<Null pointer>"), lineNumber, fileName, message);
 	}
@@ -63,17 +61,17 @@ bool Test::assertEqualsIfNullPtr(const char *expected, const char *actual, long 
 bool Test::assertEquals(const char *expected, const char *actual, long lineNumber, TString fileName, TString message) {
 	if (expected == 0 || actual == 0) {
 		return assertEqualsIfNullPtr(expected, actual, lineNumber, fileName, message);
-	} else {  // both strings are not 0
-		return assertImplementation((strcmp(expected, actual) == 0), notEqualsMessage(expected, actual), lineNumber, fileName,
-									message);
-	}
+	}  // both strings are not 0
+	return assertImplementation((strcmp(expected, actual) == 0), notEqualsMessage(expected, actual), lineNumber, fileName,
+								message);
 }
 
 bool Test::assertEquals(const char *expected, long lengthExpected, const char *actual, long lengthActual, long lineNumber,
 						TString fileName, TString message) {
 	if (expected == 0 || actual == 0) {
 		return assertEqualsIfNullPtr(expected, actual, lineNumber, fileName, message);
-	} else if (lengthExpected != lengthActual) {  // this is assertion certainly fails
+	}
+	if (lengthExpected != lengthActual) {  // this is assertion certainly fails
 		return assertImplementation(false, notEqualsMessage(expected, lengthExpected, actual, lengthActual), lineNumber,
 									fileName, message);
 	} else {  // both strings are not 0

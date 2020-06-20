@@ -115,11 +115,10 @@ bool MockAccessManager::GetAllowedEntitiesFor(Anything who, Anything &allowed) {
 		allowed = Lookup("Rights")[whoStr].DeepClone();
 		TraceAny(allowed, "Granted rights:");
 		return true;
-	} else {
-		Trace("User/role/group '" << whoStr << "' not defined in rights list.");
-		allowed = Anything(Anything::ArrayMarker());
-		return false;
 	}
+	Trace("User/role/group '" << whoStr << "' not defined in rights list.");
+	allowed = Anything(Anything::ArrayMarker());
+	return false;
 }
 
 bool MockAccessManager::GetAllowedEntitiesFor(Context &ctx, Anything who, Anything &allowed) {

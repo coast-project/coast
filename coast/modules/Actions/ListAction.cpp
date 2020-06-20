@@ -67,7 +67,8 @@ bool ListAction::DoExecAction(String &transitionToken, Context &ctx, const ROAny
 			SubTraceAny(TraceEntry, roaEntry, "data at index:" << i);
 			if (i < start) {
 				continue;
-			} else if (i > end) {
+			}
+			if (i > end) {
 				break;
 			}
 

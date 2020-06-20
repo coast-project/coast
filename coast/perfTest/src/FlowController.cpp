@@ -37,12 +37,11 @@ bool FlowController::PrepareRequest(Context &ctx) {
 			flowState["RequestNr"] = ++reqNr;
 			TraceAny(tmpStore["FlowState"], "Flow State on exit");
 			return true;
-		} else {
-			// PreRun done , reset for normal run
-			reqNr = 0;
-			flowState["RunNr"] = 0L;
-			flowState["PreRunDone"] = true;
 		}
+		// PreRun done , reset for normal run
+		reqNr = 0;
+		flowState["RunNr"] = 0L;
+		flowState["PreRunDone"] = true;
 	}
 
 	long nrOfRuns = 0;

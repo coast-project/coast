@@ -55,9 +55,8 @@ LDAPConnection *LDAPAbstractDAI::LDAPConnectionFactory(ROAnything cp) {
 	StartTrace(LDAPAbstractDAI.LDAPConnectionFactory);
 	if (cp["PooledConnections"].AsLong(0) == 0L) {
 		return new LDAPConnection(cp);
-	} else {
-		return new PersistentLDAPConnection(cp);
 	}
+	return new PersistentLDAPConnection(cp);
 }
 
 bool LDAPAbstractDAI::DoExec(Context &ctx, ParameterMapper *getter, ResultMapper *putter, LDAPErrorHandler &eh) {

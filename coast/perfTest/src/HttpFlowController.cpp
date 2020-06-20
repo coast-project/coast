@@ -119,9 +119,8 @@ bool HttpFlowController::ResolveLabels(Anything &jmpTable, const ROAnything &run
 				eMsg << "Label name <" << labelName << "> already used";
 				HandleTheError(eMsg, tmpStore);
 				return false;
-			} else {
-				jmpTable[labelName] = i;
 			}
+			jmpTable[labelName] = i;
 		}
 	}
 	return true;

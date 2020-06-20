@@ -91,7 +91,8 @@ String RendererDispatcher::FindServiceName(Context &ctx) {
 		SubTraceAny(query, query, "Query: ");
 		Trace("Service [" << service << "]");
 		return service;
-	} else if (uriPrefixList.GetSize() > 0) {
+	}
+	if (uriPrefixList.GetSize() > 0) {
 		query["Error"] = String("Service[").Append(requestURI.SubString(0, requestURI.StrChr('/', 1))).Append("]NotFound");
 	}
 	String defaultHandler(ServiceDispatcher::FindServiceName(ctx));

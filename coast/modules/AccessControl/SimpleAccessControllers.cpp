@@ -73,10 +73,9 @@ bool FileUDAC::SetPassword(String userid, String newpasswd) {
 			fUserData[userid]["Password"] = oldpasswd;
 		}
 		return saveOk;
-	} else {
-		Trace("user '" << userid << "' doesn't exist - cannot set password");
-		return false;
 	}
+	Trace("user '" << userid << "' doesn't exist - cannot set password");
+	return false;
 }
 
 bool FileUDAC::ResetPassword(String userid) {
@@ -178,10 +177,9 @@ unsigned long FileTDAC::GetCount(String tokenid) {
 		unsigned long count = static_cast<unsigned long>(((ROAnything)fTokenData)[tokenid]["Count"].AsLong(0L));
 		Trace("count = " << (long)count);
 		return count;
-	} else {
-		Trace("unknown token id (" << tokenid << ") or count not defined");
-		return 0L;
 	}
+	Trace("unknown token id (" << tokenid << ") or count not defined");
+	return 0L;
 }
 
 bool FileTDAC::IncCount(String tokenid, long by) {
@@ -206,10 +204,9 @@ bool FileTDAC::IncCount(String tokenid, long by) {
 			fTokenData[tokenid]["Count"] = static_cast<long>(oldCount);
 		}
 		return saveOk;
-	} else {
-		Trace("unknown token id (" << tokenid << ") or count not defined");
-		return false;
 	}
+	Trace("unknown token id (" << tokenid << ") or count not defined");
+	return false;
 }
 
 bool FileTDAC::LoadTokenData() {

@@ -193,27 +193,25 @@ Anything TemplateParser::OldStyleComment() {
 					}
 					Error("Old style macro comment used");
 					return ProcessArgs(key, args);
-				} else {
-					// skip comment
-					for (;;) {
-						if (c == EOF || c == 0) {
-							break;
-						}
+				}  // skip comment
+				for (;;) {
+					if (c == EOF || c == 0) {
+						break;
+					}
+					if (c == '-') {
+						GSR;
 						if (c == '-') {
 							GSR;
-							if (c == '-') {
+							while (c == '-') {
 								GSR;
-								while (c == '-') {
-									GSR;
-								}
-								if (c == '>') {
-									// end of comment
-									break;
-								}
+							}
+							if (c == '>') {
+								// end of comment
+								break;
 							}
 						}
-						GSR;
 					}
+					GSR;
 				}
 			}
 		}
@@ -285,17 +283,15 @@ Anything TemplateParser::Macro() {
 					if (c == ']' && ']' == Peek()) {
 						c = Get();
 						break;
-					} else {
-						args.Append((char)c);
 					}
+					args.Append((char)c);
 				}
 				return ProcessArgs(key, args);
-			} else {
-				String msg("Unknown macro interpreter <");
-				msg.Append(interpreter).Append("> expected [[#wd ");
-				Error(msg);
-				reply << interpreter;
 			}
+			String msg("Unknown macro interpreter <");
+			msg.Append(interpreter).Append("> expected [[#wd ");
+			Error(msg);
+			reply << interpreter;
 		}
 	}
 	return reply;
@@ -531,7 +527,8 @@ Anything TemplateParser::ParseValue() {
 	if ('[' == c) {	 // a wd macro
 		Get();
 		return Macro();
-	} else if ('\'' == c || '\"' == c) {  // a quoted value
+	}
+	if ('\'' == c || '\"' == c) {  // a quoted value
 		int quote = Get();
 		Anything result;
 		while (!IsGood() && (c = Get()) != quote) {
@@ -591,9 +588,8 @@ Anything TemplateParser::ProcessSpecialTag(String &tagName, Anything &tagAttribu
 	tagName.ToLower();
 	if (tagName == "script") {
 		return ProcessScriptTag(tagName, tagAttributes, ParseAsStringUpToEndTag(tagName), startline);
-	} else {
-		return ProcessFormTag(tagName, tagAttributes, ParseAsStringUpToEndTag(tagName), startline);
 	}
+	return ProcessFormTag(tagName, tagAttributes, ParseAsStringUpToEndTag(tagName), startline);
 }
 Anything TemplateParser::RenderTagAsLiteral(String &tagName, Anything &tagAttributes) {
 	StartTrace(TemplateParser.RenderTagAsLiteral);
@@ -665,61 +661,61 @@ bool TemplateParser::IsSpecialTag(String &tagName, Anything &tagAttributes) {
 	StartTrace(TemplateParser.IsSpecialTag);
 	if (String::CaselessCompare(tagName, "script") == 0) {
 		return true;
-	} else {
-		if ((String::CaselessCompare(tagName, "form") == 0) && tagAttributes.IsDefined("action") &&
-			tagAttributes["action"].AsString().Length()) {
-			// several locations to check for a valid 'action'
-			// 1. Real registered Action
-			// 2. Role-Page-Token-Map entry in Role.any
-			// 3. Page specific slot defined -> transitionToken
-			// case 1:
-			const char *pAction = tagAttributes["action"].AsCharPtr(0);
-			Trace("given action [" << pAction << "]");
-			if (Action::FindAction(pAction)) {
-				Trace("found valid real Action");
-				return true;
-			}
-			Trace("Filename of template is [" << fFileName << "]");
-			// returns -1 if no match so the following if should work
-			long lLastSlashIdx = fFileName.StrRChr('/') + 1L;
-			if (lLastSlashIdx > 0L) {
-				String strPageName = fFileName.SubString(lLastSlashIdx);
-				// case 2:
-				// because we do not know the correct Role at the moment of parsing this file (startup)
-				// we need to iterate over all registered roles to find a possible match although this
-				// could lead to misinterpretations
-				Registry *reg = MetaRegistry::instance().GetRegistry("Role");
-				RegistryIterator ri(reg);
-				while (ri.HasMore()) {
-					String roleName("null");
-					Role *pRole = (Role *)ri.Next(roleName);
-					Trace("role found <" << roleName << ">");
-					if (pRole) {
-						String transition(pAction);
-						Trace("checking for entry in [" << roleName << "]");
-						ROAnything roaEntry;
-						if (pRole->GetNextActionConfig(roaEntry, transition, strPageName) ||
-							pRole->IsStayOnSamePageToken(transition)) {
-							Trace("matching action-token found");
-							return true;
-						}
-					}
-				}
-
-				// case 3:
-				Trace("Trying to find page with name [" << strPageName << "]");
-				Page *pPage = Page::FindPage(strPageName);
-				if (pPage) {
-					Trace("Page found, now checking for slot which could match");
-					ROAnything roaConfig;
-					if (pPage->Lookup(pAction, roaConfig)) {
-						TraceAny(roaConfig, "Config of actionscript on page");
+	}
+	if ((String::CaselessCompare(tagName, "form") == 0) && tagAttributes.IsDefined("action") &&
+		tagAttributes["action"].AsString().Length()) {
+		// several locations to check for a valid 'action'
+		// 1. Real registered Action
+		// 2. Role-Page-Token-Map entry in Role.any
+		// 3. Page specific slot defined -> transitionToken
+		// case 1:
+		const char *pAction = tagAttributes["action"].AsCharPtr(0);
+		Trace("given action [" << pAction << "]");
+		if (Action::FindAction(pAction)) {
+			Trace("found valid real Action");
+			return true;
+		}
+		Trace("Filename of template is [" << fFileName << "]");
+		// returns -1 if no match so the following if should work
+		long lLastSlashIdx = fFileName.StrRChr('/') + 1L;
+		if (lLastSlashIdx > 0L) {
+			String strPageName = fFileName.SubString(lLastSlashIdx);
+			// case 2:
+			// because we do not know the correct Role at the moment of parsing this file (startup)
+			// we need to iterate over all registered roles to find a possible match although this
+			// could lead to misinterpretations
+			Registry *reg = MetaRegistry::instance().GetRegistry("Role");
+			RegistryIterator ri(reg);
+			while (ri.HasMore()) {
+				String roleName("null");
+				Role *pRole = (Role *)ri.Next(roleName);
+				Trace("role found <" << roleName << ">");
+				if (pRole) {
+					String transition(pAction);
+					Trace("checking for entry in [" << roleName << "]");
+					ROAnything roaEntry;
+					if (pRole->GetNextActionConfig(roaEntry, transition, strPageName) ||
+						pRole->IsStayOnSamePageToken(transition)) {
+						Trace("matching action-token found");
 						return true;
 					}
 				}
 			}
+
+			// case 3:
+			Trace("Trying to find page with name [" << strPageName << "]");
+			Page *pPage = Page::FindPage(strPageName);
+			if (pPage) {
+				Trace("Page found, now checking for slot which could match");
+				ROAnything roaConfig;
+				if (pPage->Lookup(pAction, roaConfig)) {
+					TraceAny(roaConfig, "Config of actionscript on page");
+					return true;
+				}
+			}
 		}
 	}
+
 	return false;
 }
 
@@ -753,16 +749,16 @@ Anything TemplateParser::ParseAnythingAndReturn(int endChar) {
 			Get();
 			if (0 == bl) {
 				break;
-			} else if (bl > 0) {
+			}
+			if (bl > 0) {
 				String res = ReadHTMLAsString(endChar);
 				OStringStream os;		  // make sub-expr a string
 				res.IntPrintOn(os, '"');  // take care of anything conformant masking
 				collectany.Append(os.str());
 				continue;
-			} else {
-				Error("Too many closing }");
-				break;
 			}
+			Error("Too many closing }");
+			break;
 		}
 		switch (c) {
 			case '{':

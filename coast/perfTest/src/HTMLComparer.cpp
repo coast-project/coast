@@ -40,27 +40,23 @@ bool HTMLComparer::DoCompareAny(Anything &master, Anything &slave) {
 
 	if (masterType == AnyArrayType) {
 		return DoCompareAnyArray(master, slave);
-	} else {
-		String masterString = master.AsString("X");
-		masterString.ToLower();
-		Trace("Masterstring: " << masterString);
-
-		if (masterString != "ignore") {
-			//	   return master.AsString("X")==slave.AsString("U");
-
-			if (master.AsString("X") == slave.AsString("U")) {
-				return true;
-			} else {
-				fPathStack.Append("\n");
-				fPathStack.Append(master);
-				fPathStack.Append("\nMaster:");
-				fPathStack.Append(slave);
-				fPathStack.Append("\nDifferent sections:\nSlave :");
-				return false;
-			}
-		}
-		return true;
 	}
+	String masterString = master.AsString("X");
+	masterString.ToLower();
+	Trace("Masterstring: " << masterString);
+
+	if (masterString != "ignore") {
+		if (master.AsString("X") == slave.AsString("U")) {
+			return true;
+		}
+		fPathStack.Append("\n");
+		fPathStack.Append(master);
+		fPathStack.Append("\nMaster:");
+		fPathStack.Append(slave);
+		fPathStack.Append("\nDifferent sections:\nSlave :");
+		return false;
+	}
+	return true;
 }
 
 bool HTMLComparer::DoCompareAnyArray(Anything &master, Anything &slave) {

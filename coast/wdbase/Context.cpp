@@ -298,9 +298,8 @@ Anything &Context::IntGetStore(const char *key, long &index) {
 			if (fStore["Stack"][index].GetType() != AnyObjectType) {
 				TraceAny(fStore["Stack"][index], "found top element of key [" << key << "] at index:" << index);
 				return fStore["Stack"][index];
-			} else {
-				SYSWARNING("IntGetStore entry at [" << key << "] is not of expected Anything-type!");
 			}
+			SYSWARNING("IntGetStore entry at [" << key << "] is not of expected Anything-type!");
 		}
 		--index;
 	}

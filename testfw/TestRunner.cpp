@@ -85,15 +85,18 @@ void TestRunner::run(int ac, const char **av) {
 		if (testCase == "-H") {
 			usage(av[0]);
 			return;
-		} else if (testCase == "-ALL") {
+		}
+		if (testCase == "-ALL") {
 			runAllTests();
 			continue;
-		} else if (testCase == "-LOG") {
+		}
+		if (testCase == "-LOG") {
 			if (i < ac - 1) {
 				setLogToFileNamed(av[++i]);
 			}  // if
 			continue;
-		} else if (testCase == "-OUT") {
+		}
+		if (testCase == "-OUT") {
 			if (i < ac - 1) {
 				++i;
 				int outfile = open(av[i], O_RDWR | O_CREAT | O_TRUNC, 0660);
@@ -107,7 +110,8 @@ void TestRunner::run(int ac, const char **av) {
 				}  // if
 			}	   // if
 			continue;
-		} else if (testCase == "-ERR") {
+		}
+		if (testCase == "-ERR") {
 			if (i < ac - 1) {
 				++i;
 				int outfile = open(av[i], O_RDWR | O_CREAT | O_TRUNC, 0660);
@@ -121,10 +125,12 @@ void TestRunner::run(int ac, const char **av) {
 				}  // if
 			}	   // if
 			continue;
-		} else if (testCase == "-LIST") {
+		}
+		if (testCase == "-LIST") {
 			listTests();
 			continue;
-		} else if (testCase == "-WAIT") {
+		}
+		if (testCase == "-WAIT") {
 			fWait = true;
 			continue;
 		}  // if

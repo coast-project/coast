@@ -630,10 +630,9 @@ bool Session::AfterPageInsert(Context &context, String &action, String &pagename
 			SetRole(newrole, context);
 			context.SetRole(newrole);
 			return true;
-		} else {
-			// something nasty happened
-			PrepareLogout(context, action, pagename);
 		}
+		// something nasty happened
+		PrepareLogout(context, action, pagename);
 	}
 	return CameFromPageInsert(context, action, pagename);
 }
@@ -822,9 +821,8 @@ bool Session::UnRef() {
 		SYSERROR(msg);
 		Trace(msg);
 		return false;
-	} else {
-		return true;
 	}
+	return true;
 }
 
 long Session::GetRefCount() const {

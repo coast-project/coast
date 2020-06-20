@@ -96,9 +96,8 @@ String Scheduler::convertFromDayHourMinInDecimal(String timeDate) {
 
 	if (statusOk) {
 		return value;
-	} else {
-		return "";
 	}
+	return "";
 }
 
 String Scheduler::CurrTimeDateInDecimal() {
@@ -203,9 +202,8 @@ String Scheduler::CurrTimeDateInDecimal() {
 
 	if (statusOk) {
 		return value;
-	} else {
-		return "";
 	}
+	return "";
 }
 
 String Scheduler::ConvertFromSingleTimeInDecimal(String singleTime) {

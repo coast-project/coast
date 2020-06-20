@@ -252,11 +252,10 @@ bool HTTPDAImpl::SendInput(std::iostream *Ios, Socket *s, long timeout, Context 
 				(*Ios) << std::flush;
 				// don't use ShutDownWriting, since not all HTTP-Agents understand it (e.g. CICS-WebInterface)
 				return true;
-			} else {
-				Trace("socket not ready for writing");
-				out->Put("Error", GenerateErrorMessage("Sending request ", context), context);
-				return false;
 			}
+			Trace("socket not ready for writing");
+			out->Put("Error", GenerateErrorMessage("Sending request ", context), context);
+			return false;
 		}
 	} else {
 		return DoSendInput(Ios, s, timeout, context, in, out);

@@ -184,9 +184,9 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart) {
 				if ((fMatchFlags & MATCH_ICASE) != 0) {
 					if (String::CaselessCompare(fSearch.SubString(idx, len), fSearch.SubString(s, len))) {
 						return -1;
-					} else {
-						idx += len;	 // we matched
 					}
+					idx += len;	 // we matched
+
 				} else {
 					const char *base = fSearch;
 					if (0 == strncmp(base + idx, base + s, len)) {
@@ -347,24 +347,23 @@ bool RE::ContainedIn(const String &search, long i) {
 			}
 		}
 		return false;
-	} else {
-		bool caseIndependent = (fMatchFlags & MATCH_ICASE) != 0;
-		for (; fSearch.Length() > (i + fPrefix.Length() - 1); i++) {
-			bool match = false;
-			if (caseIndependent) {
-				match = 0 == String::CaselessCompare(fPrefix, fSearch.SubString(i, fPrefix.Length()));
-			} else {
-				match = fPrefix == fSearch.SubString(i, fPrefix.Length());
-			}
+	}
+	bool caseIndependent = (fMatchFlags & MATCH_ICASE) != 0;
+	for (; fSearch.Length() > (i + fPrefix.Length() - 1); i++) {
+		bool match = false;
+		if (caseIndependent) {
+			match = 0 == String::CaselessCompare(fPrefix, fSearch.SubString(i, fPrefix.Length()));
+		} else {
+			match = fPrefix == fSearch.SubString(i, fPrefix.Length());
+		}
 
-			if (match) {
-				if (MatchAt(i)) {
-					return true;
-				}
+		if (match) {
+			if (MatchAt(i)) {
+				return true;
 			}
 		}
-		return false;
 	}
+	return false;
 }
 
 Anything RE::Split(const String &s) {

@@ -20,9 +20,9 @@ bool TransitionDispatchAction::DoExecAction(String &transitionToken, Context &ct
 		TraceAny(nextActionConfig, "nextActionConfig");
 		if (!nextActionConfig.IsNull()) {
 			return Action::ExecAction(transitionToken, ctx, nextActionConfig);
-		} else {
-			SYSWARNING("transition config is null, returning false!");
 		}
+		SYSWARNING("transition config is null, returning false!");
+
 	} else {
 		SYSWARNING("transitionToken empty, returning false!");
 	}

@@ -78,9 +78,11 @@ bool SSLSocket::ShouldRetry(SSL *ssl, int res, bool handshake) {
 	Trace("err:" << static_cast<long>(err));
 	if (SSL_ERROR_WANT_READ == err) {
 		return IsReadyForReading();
-	} else if (SSL_ERROR_WANT_WRITE == err) {
+	}
+	if (SSL_ERROR_WANT_WRITE == err) {
 		return IsReadyForWriting();
-	} else if (SSL_ERROR_ZERO_RETURN) {
+	}
+	if (SSL_ERROR_ZERO_RETURN) {
 		// clean  way to handle peer did not send data
 		// according to http://www.mail-archive.com/openssl-users@openssl.org/msg03175.html we shall not use ERR_error_string
 		// method with SSL error codes
@@ -198,10 +200,10 @@ std::iostream *SSLSocket::DoMakeStream() {
 		String logMsg("SSL error: SSLSession not good.");
 		SystemLog::Error(logMsg);
 		return NULL;
-	} else {
-		TraceAny(SSLObjectManager::TraceSSLSession(sslSessionCurrent), "sslSessionCurrent");
-		TraceAny(sslinfo, "SSL  info");
 	}
+	TraceAny(SSLObjectManager::TraceSSLSession(sslSessionCurrent), "sslSessionCurrent");
+	TraceAny(sslinfo, "SSL  info");
+
 	//	SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN|SSL_RECEIVED_SHUTDOWN);
 	return new (GetAllocator()) SSLSocketStream(ssl, this, GetTimeout());
 }

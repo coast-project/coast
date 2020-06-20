@@ -196,18 +196,17 @@ bool URLFilter::DoUnscrambleState(Anything &query, const char *slotName, Context
 				}
 				SubTraceAny(query, query, "---- unscrambled query ---------------");
 				return true;
-			} else {
-				String errMsg("Private state of URL is corrupt:<");
-				errMsg << slotName << ">";
-				SystemLog::Error(errMsg);
-				return false;
 			}
-		} else {
-			String errMsg("Empty Slot for unscrambling:<");
+			String errMsg("Private state of URL is corrupt:<");
 			errMsg << slotName << ">";
 			SystemLog::Error(errMsg);
 			return false;
+
 		}
+		String errMsg("Empty Slot for unscrambling:<");
+		errMsg << slotName << ">";
+		SystemLog::Error(errMsg);
+		return false;
 	}
 	return (slotName) ? true : false;
 }

@@ -23,10 +23,10 @@ bool AuthenticationService::DoHandleService(std::ostream &os, Context &ctx) {
 		Trace("DoCheck succeeded --> Calling ForwardToMainHandler");
 		ForwardToMainHandler(os, ctx);
 		return true;
-	} else {
-		Trace("DoCheck failed --> Calling Produce401Response");
-		Produce401Response(os, ctx);
 	}
+	Trace("DoCheck failed --> Calling Produce401Response");
+	Produce401Response(os, ctx);
+
 	return false;
 }
 

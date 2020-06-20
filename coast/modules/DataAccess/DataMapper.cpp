@@ -120,14 +120,13 @@ bool LookupMapper::DoGetStream(const char *key, std::ostream &os, Context &ctx, 
 			}
 		}
 		return DoGetStream(key, os, ctx, lookupName);
-	} else {
-		// handle error: lookup name is not a string
-		String error("LookupMapper::Get: invalid lookup name: ");
-		{
-			OStringStream ostr(&error);
-			lookupName.PrintOn(ostr, false);  // append Anything to ease debugging
-		}
-		SystemLog::Error(error);
-		return false;
 	}
+	// handle error: lookup name is not a string
+	String error("LookupMapper::Get: invalid lookup name: ");
+	{
+		OStringStream ostr(&error);
+		lookupName.PrintOn(ostr, false);  // append Anything to ease debugging
+	}
+	SystemLog::Error(error);
+	return false;
 }

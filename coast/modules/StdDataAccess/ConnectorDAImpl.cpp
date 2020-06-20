@@ -200,11 +200,11 @@ bool ConnectorDAImpl::DoExec(Socket *pSocket, Context &context, ParameterMapper 
 			aTimeoutModifier.Use();
 			if (out->Put("Output", *pIos, context)) {
 				return true;
-			} else {
-				String strError("put into Output slot took ");
-				strError << (long)aReadTimer.Diff() << "ms from: ";
-				HandleError(pSocket, strError, context, in, out);
 			}
+			String strError("put into Output slot took ");
+			strError << (long)aReadTimer.Diff() << "ms from: ";
+			HandleError(pSocket, strError, context, in, out);
+
 		} else {
 			String strError("not ready for reading");
 			if (lRetCode == 0) {

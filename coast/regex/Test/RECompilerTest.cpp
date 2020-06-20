@@ -50,10 +50,10 @@ void RECompilerTest::RunACompilationTest(long id, struct a_test &t) {
 		t_assertm(!p.IsDefined("program"), TString("expected RE compilation to fail at\nCompilationTestCases.h:")
 											   << id << " of >" << t.pattern << "<");
 		return;
-	} else {
-		t_assertm(p.IsDefined("program"), TString("expected successful compilation at\nCompilationTestCases.h:")
-											  << id << " of >" << t.pattern << "<");
 	}
+	t_assertm(p.IsDefined("program"), TString("expected successful compilation at\nCompilationTestCases.h:")
+										  << id << " of >" << t.pattern << "<");
+
 	if (!p.IsDefined("program")) {
 		return;
 	}

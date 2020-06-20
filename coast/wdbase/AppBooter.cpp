@@ -288,12 +288,11 @@ bool AppBooter::OpenLibs(const Anything &config) {
 					msg << ": " << dllLoader.DLError();
 					SystemLog::Alert(msg);
 					return false;
-				} else {
-					String msg("successfully opened DLL: ");
-					msg << dllName;
-					SystemLog::Info(msg);
-					fLibArray[dllName] = dllLoader.DLHandle();
 				}
+				String msg("successfully opened DLL: ");
+				msg << dllName;
+				SystemLog::Info(msg);
+				fLibArray[dllName] = dllLoader.DLHandle();
 			}
 		}
 	}

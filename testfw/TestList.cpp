@@ -50,10 +50,8 @@ Test *TestList::first() {
 		fIt = fList;
 		// return the result
 		return (fIt->fValue);
-	} else {
-		// return an empty result
-		return 0;
 	}
+	return 0;
 }
 
 Test *TestList::next() {
@@ -62,10 +60,9 @@ Test *TestList::next() {
 		fIt = fIt->fNext;
 		// return the result
 		return (fIt->fValue);
-	} else {
-		// go the the first element
-		fIt = fList;
-		// return an empty result
-		return 0;
 	}
+	// go the the first element
+	fIt = fList;
+	// return an empty result
+	return 0;
 }

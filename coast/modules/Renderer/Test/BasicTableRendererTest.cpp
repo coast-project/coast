@@ -42,12 +42,11 @@ Context *BasicTableRendererTest::CreateContext(const char *demodata) {
 		c->SetLanguage("D");  // set a default language explicitely
 
 		return c;
-	} else {
-		String msg("open file: ");
-		msg << demodata << ".any";
-		assertEqual((const char *)msg, "file not found");
-		return 0L;
 	}
+	String msg("open file: ");
+	msg << demodata << ".any";
+	assertEqual((const char *)msg, "file not found");
+	return 0L;
 }
 
 void BasicTableRendererTest::setUp() {

@@ -478,9 +478,9 @@ bool BlowfishScrambler::DoDecode(String &cleartext, const String &scrambledText)
 			Trace("Unscrambled text is: <" << cleartext << ">");
 			Trace("Length: " << cleartext.Length());
 			return true;
-		} else {
-			Trace("failed to remove padding from: <" << cleartext << ">");
 		}
+		Trace("failed to remove padding from: <" << cleartext << ">");
+
 	} else {
 		Trace("failed to decrypt scramblet text, length wrong?");
 	}

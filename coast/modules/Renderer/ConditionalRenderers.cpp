@@ -65,16 +65,16 @@ void ConditionalRenderer::TestCondition(Context &ctx, const ROAnything &config, 
 				res = "Defined";
 			}
 			return;	 // we are done. anything else is an error.
-		} else {
-			if (TriggerEnabled(ConditionalRenderer.TestCondition)) {
-				String strbuf;
-				StringStream stream(strbuf);
-				stream << "Error: Invalid lookup name: ";
-				lookupNameConfig.PrintOn(stream) << "\n";
-				stream.flush();
-				SystemLog::WriteToStderr(strbuf);
-			}
 		}
+		if (TriggerEnabled(ConditionalRenderer.TestCondition)) {
+			String strbuf;
+			StringStream stream(strbuf);
+			stream << "Error: Invalid lookup name: ";
+			lookupNameConfig.PrintOn(stream) << "\n";
+			stream.flush();
+			SystemLog::WriteToStderr(strbuf);
+		}
+
 	} else {
 		SystemLog::WriteToStderr("Error: ContextCondition not specified!\n");
 	}

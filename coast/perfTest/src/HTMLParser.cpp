@@ -258,9 +258,8 @@ void HTMLParser::ParseComment() {
 				}
 				if (c == '>') {
 					break;
-				} else {
-					endtry.Append(c);
 				}
+				endtry.Append(c);
 			}
 		}
 		if (c == EOF) {

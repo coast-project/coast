@@ -27,10 +27,9 @@ bool HTTPPostRequestBodyParser::Parse(std::istream &input) {
 	if (fHeader.IsMultiPart()) {
 		Trace("Multipart detected");
 		return DoParseMultiPart(input, fHeader.GetBoundary());
-	} else {
-		Trace("Parsing simple body");
-		return DoParseBody(input);
 	}
+	Trace("Parsing simple body");
+	return DoParseBody(input);
 }
 
 bool HTTPPostRequestBodyParser::DoParseBody(std::istream &input) {

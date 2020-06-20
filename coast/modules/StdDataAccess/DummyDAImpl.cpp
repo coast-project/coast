@@ -78,11 +78,10 @@ String DummyDAImpl::GetReplyMatchingRequest(Anything &recording, Context &contex
 			return eMsg;
 		}
 		return recording[index]["Reply"].AsString(eMsg);
-	} else {
-		String eMsg = "Request not found, index:";
-		eMsg << index << " Request:" << request;
-		return eMsg;
 	}
+	String eMsg = "Request not found, index:";
+	eMsg << index << " Request:" << request;
+	return eMsg;
 }
 
 bool DummyDAImpl::DoExec(Context &context, ParameterMapper *in, ResultMapper *out) {

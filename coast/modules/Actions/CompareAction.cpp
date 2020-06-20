@@ -77,7 +77,8 @@ bool CompareAction::DoExecAction(String &transitionToken, Context &ctx, const RO
 
 	if (config.IsDefined("RenderVal1") && config.IsDefined("RenderVal2")) {
 		return CompareLiteralValues(ctx, config);
-	} else if (config.IsDefined("LookupPath1") && config.IsDefined("LookupPath2")) {
+	}
+	if (config.IsDefined("LookupPath1") && config.IsDefined("LookupPath2")) {
 		return CompareStoreValues(ctx, config);
 	}
 

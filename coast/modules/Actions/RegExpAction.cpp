@@ -42,9 +42,9 @@ bool RegExpAction::DoExecAction(String &transitionToken, Context &ctx, const ROA
 			TraceAny(anyToStore, "matched groups");
 			StorePutter::Operate(anyToStore, ctx, roaDest);
 			return true;
-		} else {
-			Trace("No matches found");
 		}
+		Trace("No matches found");
+
 	} else {
 		Trace("Pattern " << sPattern << " is invalid.");
 	}

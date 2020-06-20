@@ -248,10 +248,9 @@ bool LDAPConnection::Bind(String bindName, String bindPW, int &msgId, LDAPErrorH
 			Trace("Bindpassword NOT OK: pwd = [" << bindPW << "]");
 			eh.HandleSessionError(fHandle, errMsg);
 			return false;
-		} else {
-			Trace("Binding with <" << bindName << "><" << bindPW << ">");
-			msgId = ::ldap_simple_bind(fHandle, bindName, bindPW);
 		}
+		Trace("Binding with <" << bindName << "><" << bindPW << ">");
+		msgId = ::ldap_simple_bind(fHandle, bindName, bindPW);
 	}
 
 	// bind request successful?

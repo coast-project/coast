@@ -190,11 +190,10 @@ void DateRendererTest::emptyConfig1()
 		if (date == fReply.str() || i != 4) {
 			assertEqual(date, fReply.str());
 			break;
-		} else {
-			if (i == 4) {
-				// now the test really failed
-				assertEqual(date, fReply.str());
-			}
+		}
+		if (i == 4) {
+			// now the test really failed
+			assertEqual(date, fReply.str());
 		}
 	}
 }
@@ -224,11 +223,10 @@ void DateRendererTest::emptyConfig2()
 		if (date == fReply.str() || i != 4) {
 			assertEqual(date, fReply.str());
 			break;
-		} else {
-			if (i == 4) {
-				// now the test really failed
-				assertEqual(date, fReply.str());
-			}
+		}
+		if (i == 4) {
+			// now the test really failed
+			assertEqual(date, fReply.str());
 		}
 	}
 }

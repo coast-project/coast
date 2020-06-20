@@ -90,7 +90,8 @@ void ListRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything
 			SubTraceAny(TraceEntry, roaEntry, "data at index: " << i);
 			if (i < start) {
 				continue;
-			} else if (i > end) {
+			}
+			if (i > end) {
 				break;
 			}
 			// prepare data for rendering

@@ -216,9 +216,8 @@ String SSLObjectManager::SessionIdAsHex(SSL_SESSION *sslSession) {
 		String out;
 		out.AppendAsHex((const unsigned char *)(void *)sslSession->session_id, sslSession->session_id_length);
 		return out;
-	} else {
-		return String("SESSION ID IS NULL POINTER!!!");
 	}
+	return String("SESSION ID IS NULL POINTER!!!");
 }
 
 Anything SSLObjectManager::TraceSSLSession(SSL_SESSION *sslSession) {

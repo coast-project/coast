@@ -86,7 +86,8 @@ bool Action::CallAction(String &actionName, String &transitionToken, Context &c,
 		if (a) {
 			Trace(actionName << " found, executing it");
 			return a->DoExecAction(transitionToken, c, config);
-		} else if (!config.IsNull()) {
+		}
+		if (!config.IsNull()) {
 			return ExecAction(transitionToken, c, config);
 		}
 		return true;

@@ -103,13 +103,14 @@ inline TString::operator const char *() const {
 inline int TString::Compare(const char *other) const {
 	if (fCont && other) {
 		return strcmp(fCont, other);
-	} else if ((fCont && *fCont) && !other) {
-		return 1;
-	} else if (!fCont && (other && *other)) {
-		return -1;
-	} else {
-		return 0;  // both are empty
 	}
+	if ((fCont && *fCont) && !other) {
+		return 1;
+	}
+	if (!fCont && (other && *other)) {
+		return -1;
+	}
+	return 0;  // both are empty
 }
 
 inline bool TString::IsEqual(const char *other) const {

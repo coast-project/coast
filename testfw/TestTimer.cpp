@@ -48,10 +48,9 @@ TestTimer::tTimeType TestTimer::Scale(tTimeType rawDiff, tTimeType resolution) {
 TestTimer::tTimeType TestTimer::Diff(tTimeType simulatedValue) {
 	if (simulatedValue > -1) {
 		return simulatedValue;
-	} else {
-		tTimeType lDiff = Scale(RawDiff(), fResolution);
-		return lDiff;
 	}
+	tTimeType lDiff = Scale(RawDiff(), fResolution);
+	return lDiff;
 }
 
 void TestTimer::Start() {

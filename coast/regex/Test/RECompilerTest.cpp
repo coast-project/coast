@@ -30,7 +30,7 @@ RECompilerTest::~RECompilerTest() {
 void RECompilerTest::RunACompilationTest(long id, struct a_test &t) {
 	StartTrace(RECompilerTest.RunACompilationTest);
 	t_assert(t.pattern != NULL);
-	if (!t.pattern) {
+	if (t.pattern == 0) {
 		return;
 	}
 
@@ -344,7 +344,7 @@ void RECompilerTest::TestCharClass() {
 	t_assert(p["program"][1L][RE::offsetOpdata].GetType() == AnyVoidBufType);
 	REBitSet *s = (REBitSet *)(p["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(s != NULL);
-	if (s) {
+	if (s != 0) {
 		t_assert(s->IsMember('a'));
 		t_assert(!s->IsMember('b'));
 	}
@@ -353,10 +353,10 @@ void RECompilerTest::TestCharClass() {
 
 	REBitSet *scp = (REBitSet *)(cp["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(scp != NULL);
-	if (scp) {
+	if (scp != 0) {
 		t_assert(!scp->IsMember('a'));
 		t_assert(scp->IsMember('b'));
-		if (s) {
+		if (s != 0) {
 			REBitSet bset(*s);
 			bset &= *scp;
 			t_assert(REBitSet().IsEqual(bset));
@@ -370,7 +370,7 @@ void RECompilerTest::TestCharClass() {
 	t_assert(p["program"][1L][RE::offsetOpdata].GetType() == AnyVoidBufType);
 	s = (REBitSet *)(p["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(s != NULL);
-	if (s) {
+	if (s != 0) {
 		t_assert(s->IsMember('a'));
 		t_assert(s->IsMember('b'));
 		t_assert(s->IsMember('c'));
@@ -380,7 +380,7 @@ void RECompilerTest::TestCharClass() {
 	t_assert(q["program"][1L][RE::offsetOpdata].GetType() == AnyVoidBufType);
 	REBitSet *qs = (REBitSet *)(q["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(qs != NULL);
-	if (qs && s) {
+	if ((qs != 0) && (s != 0)) {
 		t_assert(s->IsEqual(*qs));
 		t_assert(!qs->IsMember('-'));
 	}
@@ -389,7 +389,7 @@ void RECompilerTest::TestCharClass() {
 	t_assert(p["program"][1L][RE::offsetOpdata].GetType() == AnyVoidBufType);
 	s = (REBitSet *)(p["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(s != NULL);
-	if (s) {
+	if (s != 0) {
 		t_assert(s->IsMember('a'));
 		t_assert(s->IsMember('-'));
 		t_assert(!s->IsMember('b'));
@@ -401,7 +401,7 @@ void RECompilerTest::TestCharClass() {
 	t_assert(p["program"][1L][RE::offsetOpdata].GetType() == AnyVoidBufType);
 	s = (REBitSet *)(p["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(s != NULL);
-	if (s) {
+	if (s != 0) {
 		t_assert(s->IsMember('a'));
 		t_assert(!s->IsMember('-'));
 		t_assert(s->IsMember(' '));

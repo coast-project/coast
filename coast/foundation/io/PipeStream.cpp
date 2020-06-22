@@ -34,14 +34,14 @@ PipeTimeoutModifier::~PipeTimeoutModifier() {
 }
 
 PipeStreamBuf::PipeStreamBuf(Pipe *myPipe, long timeout, long sockbufsz, int mode)
-	: fReadBufStorage(mode & std::ios::in ? sockbufsz : 0L),
-	  fWriteBufStorage(mode & std::ios::out ? sockbufsz : 0L),
+	: fReadBufStorage((mode & std::ios::in) != 0 ? sockbufsz : 0L),
+	  fWriteBufStorage((mode & std::ios::out) != 0 ? sockbufsz : 0L),
 	  fPipe(myPipe),
 	  fTimeout(0),
 	  fReadCount(0),
 	  fWriteCount(0) {
 	StartTrace(PipeStreamBuf.PipeStreamBuf);
-	if (fPipe) {
+	if (fPipe != 0) {
 		// set to non-blocking IO
 		Socket::SetToNonBlocking(fPipe->GetReadFd());
 		Socket::SetToNonBlocking(fPipe->GetWriteFd());
@@ -84,7 +84,7 @@ PipeStreamBuf::~PipeStreamBuf() {
 
 int PipeStreamBuf::overflow(int c) {
 	StartTrace1(PipeStreamBuf.overflow, "char [" << (char)c << "] val: " << static_cast<long>(c));
-	if (!pptr()) {
+	if (pptr() == 0) {
 		setp(startw(), endw());	 // reinitialize put area
 	} else {
 		Assert(pptr() - pbase() <= fWriteBufStorage.Capacity());
@@ -130,7 +130,7 @@ int PipeStreamBuf::sync() {
 	if (((count = pptr() - pbase()) > 0) && (DoWrite(pbase(), count)) == EOF) {
 		return (EOF);
 	}
-	if (pptr()) {
+	if (pptr() != 0) {
 		setp(startw(), endw());	 // reinitialize put area
 								 //!@FIXME PS this is not always OK for pipes, is it?
 	}
@@ -153,12 +153,12 @@ PipeStreamBuf::pos_type PipeStreamBuf::seekoff(PipeStreamBuf::off_type of, PipeS
 long PipeStreamBuf::DoWrite(const char *bufPtr, long bytes2Send) {
 	StartTrace1(PipeStreamBuf.DoWrite, "bytes2Send:" << bytes2Send);
 	long bytesSent = 0;
-	std::iostream *Ios = fPipe ? fPipe->GetStream() : 0;  // neeed for errorhandling
-	long wfd = fPipe ? fPipe->GetWriteFd() : -1;
+	std::iostream *Ios = fPipe != 0 ? fPipe->GetStream() : 0;  // neeed for errorhandling
+	long wfd = fPipe != 0 ? fPipe->GetWriteFd() : -1;
 
 	if (wfd >= 0) {
 		// this also ensures wfd is valid
-		while (bytes2Send > bytesSent && Ios && Ios->good()) {
+		while (bytes2Send > bytesSent && (Ios != 0) && Ios->good()) {
 			long nout = 0;
 			do {
 				nout = Socket::write(wfd, (char *)bufPtr + bytesSent, bytes2Send - bytesSent);
@@ -180,17 +180,17 @@ long PipeStreamBuf::DoWrite(const char *bufPtr, long bytes2Send) {
 			SystemLog::Error(logMsg);
 			Ios->clear(std::ios::badbit);
 		}
-	} else if (Ios) {
+	} else if (Ios != 0) {
 		Ios->clear(std::ios::badbit | std::ios::eofbit | std::ios::failbit);
 	}
-	return (Ios && Ios->good()) ? bytesSent : EOF;
+	return ((Ios != 0) && Ios->good()) ? bytesSent : EOF;
 }
 
 long PipeStreamBuf::DoRead(char *buf, long len) const {
 	StartTrace1(PipeStreamBuf.DoRead, "buflen:" << len);
 	long bytesRead = EOF;
 
-	if (fPipe) {
+	if (fPipe != 0) {
 		std::iostream *ioStream = fPipe->GetStream();
 		if (fPipe->IsReadyForReading()) {
 			do {
@@ -216,7 +216,7 @@ long PipeStreamBuf::DoRead(char *buf, long len) const {
 
 std::ostream &operator<<(std::ostream &os, PipeStreamBuf *ssbuf) {
 	StartTrace(PipeStreamBuf.operator<<);
-	if (ssbuf) {
+	if (ssbuf != 0) {
 		const int bufSz = 4096;
 		char buf[bufSz];
 		long totBytesRead = 0;

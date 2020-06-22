@@ -99,16 +99,16 @@ protected:	// seekxxx are protected in the std..
 		if (long(p) >= long(fStore->Capacity())) {
 			// we need to enlarge the string
 			// we can only if we write
-			if (!(mode & std::ios::out) || !reserve(p)) {
+			if (((mode & std::ios::out) == 0) || !reserve(p)) {
 				// OOPS we got a problem
 				return pos_type(EOF);
 			}
 		}
-		if (mode & std::ios::in) {
+		if ((mode & std::ios::in) != 0) {
 			setgetpointer(p);
 		}
-		if (mode & std::ios::out) {
-			if (fOpenMode & std::ios::app) {  // do this on a best try basis
+		if ((mode & std::ios::out) != 0) {
+			if ((fOpenMode & std::ios::app) != 0) {	 // do this on a best try basis
 				if (p < fStore->Length() && fStore->Length() > 0) {
 					p = fStore->Length();  // always go to the end
 				}
@@ -127,7 +127,7 @@ protected:	// seekxxx are protected in the std..
 		// sync(); // will adjust fFileLength if needed
 		AdjustStringLength(IoDirType());  // recognize where we have been with putting
 		long pos = long(of);
-		pos += (dir == std::ios::cur) ? long((mode & std::ios::in ? gptr() : pptr()) - pbase())
+		pos += (dir == std::ios::cur) ? long(((mode & std::ios::in) != 0 ? gptr() : pptr()) - pbase())
 									  : (dir == std::ios::end && fStore->Length() > 0) ? long(fStore->Length()) : 0L;
 		if (pos < 0L) {
 			return pos_type(EOF);
@@ -167,7 +167,7 @@ private:
 	/*! auxiliary StringStreamBuf initialization */
 	void xinit() {
 		// adjust fOpenMode to contain valid combination of flags
-		if (fOpenMode & (std::ios::ate | std::ios::app)) {
+		if ((fOpenMode & (std::ios::ate | std::ios::app)) != 0) {
 			fOpenMode |= std::ios::out;
 		}
 		if (fStore && fDeleteStore) {
@@ -180,10 +180,10 @@ private:
 
 	void xinit(PlainTypePtr s) {
 		// adjust fOpenMode to contain valid combination of flags
-		if (fOpenMode & (std::ios::ate | std::ios::app)) {
+		if ((fOpenMode & (std::ios::ate | std::ios::app)) != 0) {
 			fOpenMode |= std::ios::out;
 		}
-		if (fOpenMode & std::ios::trunc) {
+		if ((fOpenMode & std::ios::trunc) != 0) {
 			SS_TRACE("clear the string, i.e. ignore contents due to std::ios::trunc flag");
 			s = 0;
 		}
@@ -208,10 +208,10 @@ private:
 
 	void xinit(ConstPlainTypePtr contents) {
 		// adjust fOpenMode to contain valid combination of flags
-		if (fOpenMode & (std::ios::ate | std::ios::app)) {
+		if ((fOpenMode & (std::ios::ate | std::ios::app)) != 0) {
 			fOpenMode |= std::ios::out;
 		}
-		if (fOpenMode & std::ios::trunc) {
+		if ((fOpenMode & std::ios::trunc) != 0) {
 			SS_TRACE("clear the string, i.e. ignore contents due to std::ios::trunc flag");
 			contents = 0;
 		}
@@ -244,7 +244,7 @@ private:
 		if (fStore && fStore->GetImpl()) {
 			eg = const_cast<char *>(fStore->GetContent()) + fStore->Length();  // points after get area
 		}
-		setg((fOpenMode & std::ios::in) ? start() : eg, start() + getoffset, eg);
+		setg((fOpenMode & std::ios::in) != 0 ? start() : eg, start() + getoffset, eg);
 	}
 
 	void AdjustStringLength(coast::typetraits::Int2Type<NSStringStream::eOut>) {
@@ -268,7 +268,7 @@ private:
 		}
 		if ((fOpenMode & (std::ios::app | std::ios::ate)) && putoffset < fStore->Length()) {
 			putoffset = fStore->Length();  // adjust it to the end
-			if (fOpenMode & (std::ios::ate)) {
+			if ((fOpenMode & (std::ios::ate)) != 0) {
 				fOpenMode &= ~std::ios::ate;  // adjust it only once to the end
 			}
 		}
@@ -281,7 +281,7 @@ private:
 		if (pbase()) {
 			pbump(putoffset);  // needed because we no longer carry base()
 		}
-		if (!sc) {
+		if (sc == 0) {
 			Assert(!start());
 			Assert(!pbase());
 			Assert(!gptr());

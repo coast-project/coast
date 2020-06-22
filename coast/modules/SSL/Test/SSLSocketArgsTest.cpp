@@ -27,7 +27,7 @@ void SSLSocketArgsTest::ArgsTest() {
 	assertEqual(sslsa.CertVerifyStringIsFilter(), true);
 	assertEqual(sslsa.SessionResumption(), true);
 
-	SSLSocketArgs sslsa1(0, "", 0, 0);
+	SSLSocketArgs sslsa1(false, "", false, false);
 	assertEqual(sslsa1.VerifyCertifiedEntity(), false);
 	assertEqual(sslsa1.CertVerifyString(), "");
 	assertEqual(sslsa1.CertVerifyStringIsFilter(), false);

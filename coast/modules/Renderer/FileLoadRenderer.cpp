@@ -38,7 +38,7 @@ void FileLoadRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnyt
 		return;
 	}
 	std::iostream *is = coast::system::OpenStream(fileName, String(), std::ios::in | std::ios::binary);
-	if (!is) {
+	if (is == 0) {
 		if (!quiet) {
 			reply << "FileLoadRenderer: File " << fileName << " not found.";
 		}

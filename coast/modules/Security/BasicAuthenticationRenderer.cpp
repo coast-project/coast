@@ -34,7 +34,7 @@ void BasicAuthenticationRenderer::RenderAll(std::ostream &reply, Context &ctx, c
 		Trace(msg);
 		reply << msg;
 	}
-	if (proxy.AsLong(0L) == false) {
+	if (proxy.AsLong(0L) == 0) {
 		proxy = "Authorization";
 	} else {
 		proxy = "Proxy-Authorization";

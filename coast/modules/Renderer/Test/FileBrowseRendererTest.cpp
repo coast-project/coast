@@ -15,14 +15,14 @@
 #include "TestSuite.h"
 
 FileBrowseRendererTest::FileBrowseRendererTest(TString tname) : TextFieldRendererTest(tname) {
-	if (fFieldRenderer) {
+	if (fFieldRenderer != 0) {
 		delete fFieldRenderer;	// base class already initialized this !
 	}
 	fFieldRenderer = new (coast::storage::Global()) FileBrowseRenderer("FileBrowseRenderer");
 }
 
 FileBrowseRendererTest::~FileBrowseRendererTest() {
-	if (fFieldRenderer) {
+	if (fFieldRenderer != 0) {
 		delete fFieldRenderer;
 	}
 	fFieldRenderer = 0;

@@ -24,9 +24,9 @@ LocalizedStrings::~LocalizedStrings() {}
 
 LocalizedStrings *LocalizedStrings::LocStr() {
 	StartTrace(LocalizedStrings.LocStr);
-	if (!fgLocStrings) {
+	if (fgLocStrings == 0) {
 		LockUnlockEntry me(fgLocMutex);
-		if (!fgLocStrings) {
+		if (fgLocStrings == 0) {
 			Trace("creating new instance");
 			fgLocStrings = new LocalizedStrings();
 		}
@@ -60,7 +60,7 @@ bool LocalizationModule::Init(const ROAnything config) {
 	}
 	LocalizedStrings *theHandle = LocalizedStrings::LocStr();
 	Assert(theHandle);
-	if (theHandle) {
+	if (theHandle != 0) {
 		theHandle->fLocalizedStrings = fLocalizedStrings;
 	}
 	return 0 != theHandle;
@@ -70,7 +70,7 @@ bool LocalizationModule::Finis() {
 	StartTrace(LocalizationModule.Finis);
 	{
 		LockUnlockEntry me(LocalizedStrings::fgLocMutex);
-		if (LocalizedStrings::fgLocStrings) {
+		if (LocalizedStrings::fgLocStrings != 0) {
 			Trace("deleting global instance");
 			delete LocalizedStrings::fgLocStrings;
 			LocalizedStrings::fgLocStrings = 0;

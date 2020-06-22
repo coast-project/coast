@@ -228,11 +228,11 @@ Unicode HTMLParser::ParseName(char *name, Unicode c) {
 			Error("unexpected EOF in name");
 			break;
 		}
-		if (!(isalnum(c) || c == '.' || c == '-' || c == '_')) {  // XXX added "_"
+		if (!((isalnum(c) != 0) || c == '.' || c == '-' || c == '_')) {	 // XXX added "_"
 			break;
 		}
 	}
-	while (isspace(c)) {
+	while (isspace(c) != 0) {
 		c = Get();
 	}
 	*name = '\0';
@@ -327,7 +327,7 @@ void HTMLParser::ParseScript(int /* type */, Unicode c, char *tag) {
 						goto out2;
 					case '/':
 						c = Get();
-						if (isalpha(c)) {
+						if (isalpha(c) != 0) {
 							c = ParseName(tag, c);
 							Anything dummy;
 							IntTag('/', tag);
@@ -372,12 +372,12 @@ void HTMLParser::ParseCharacterEntity() {
 			// a number format
 		case '#':
 			c = Get();
-			if (isdigit(c)) {
+			if (isdigit(c) != 0) {
 				String num;
 				for (;;) {
 					num.Append((char)c);
 					c = Get();
-					if (!isdigit(c)) {
+					if (isdigit(c) == 0) {
 						if (c != ';') {
 							IntPutBack(c);
 						}
@@ -394,7 +394,7 @@ void HTMLParser::ParseCharacterEntity() {
 			break;
 
 		default:
-			if (isalpha(c)) {
+			if (isalpha(c) != 0) {
 				Unicode cc = ' ';
 				String name;
 
@@ -402,7 +402,7 @@ void HTMLParser::ParseCharacterEntity() {
 					name.Append((char)c);
 
 					c = Get();
-					if (!isalpha(c)) {
+					if (isalpha(c) == 0) {
 						if (c != ';') {
 							IntPutBack(c);
 						} else {
@@ -461,7 +461,7 @@ long HTMLParser::IntParse() {
 						return EOF;
 					case '/':
 						c = Get();
-						if (isalpha(c)) {
+						if (isalpha(c) != 0) {
 							ParseTag('/', c);  // end tag
 							if (fExitParser) {
 								goto out;
@@ -495,7 +495,7 @@ long HTMLParser::IntParse() {
 								IntComment(comment);
 							} break;
 							default:
-								if (isalpha(c)) {
+								if (isalpha(c) != 0) {
 									ParseTag('!', c);
 									if (fExitParser) {
 										goto out;
@@ -512,7 +512,7 @@ long HTMLParser::IntParse() {
 					case '?':
 						break;
 					default:
-						if (isalpha(c)) {
+						if (isalpha(c) != 0) {
 							ParseTag(' ', c);  // start tag
 							if (fExitParser) {
 								goto out;
@@ -552,7 +552,7 @@ Unicode HTMLParser::NextToken(String &token, bool withDelims, bool acceptEqual) 
 
 	do {
 		c = Get();
-	} while (isspace(c));
+	} while (isspace(c) != 0);
 
 	switch (c) {
 		case '\0':
@@ -596,12 +596,12 @@ Unicode HTMLParser::NextToken(String &token, bool withDelims, bool acceptEqual) 
 				bool name = true;
 
 				for (;;) {
-					if (!isalnum(c) && !IsOtherAcceptableChar(c)) {
+					if ((isalnum(c) == 0) && !IsOtherAcceptableChar(c)) {
 						name = false;
 					}
 					token.Append((char)c);
 					c = Get();
-					if (isspace(c) || c == '>' || (!acceptEqual && (c == '='))) {
+					if ((isspace(c) != 0) || c == '>' || (!acceptEqual && (c == '='))) {
 						IntPutBack(c);
 						break;
 					}
@@ -678,7 +678,7 @@ HTMLParser::TagType HTMLParser::LookupTag(const char *name) {
 	Meter(HTMLParser.LookupTag);
 	int position;
 	int last = sizeof(TagTable) / sizeof(TagInfo) - 1, base = 0, result;
-	if (name) {
+	if (name != 0) {
 		while (last >= base) {
 			position = (base + last) >> 1;
 			if ((result = strcmp(TagTable[position].fName, name)) == 0) {
@@ -696,7 +696,7 @@ HTMLParser::TagType HTMLParser::LookupTag(const char *name) {
 
 void HTMLParser::VerifyTagTable() {
 	Meter(HTMLParser.VerifyTagTable);
-	for (int i = 1; TagTable[i].fName; i++) {
+	for (int i = 1; TagTable[i].fName != 0; i++) {
 		if (strcmp(TagTable[i - 1].fName, TagTable[i].fName) >= 0) {
 			String logMsg;
 			logMsg << TagTable[i - 1].fName << " > " << TagTable[i].fName;
@@ -710,7 +710,7 @@ Unicode HTMLParser::LookupSpecial(const char *name) {
 	Meter(HTMLParser.LookupSpecial);
 	int position;
 	int last = sizeof(SpecialCharTable) / sizeof(SpecialCharInfo) - 1, base = 0, result;
-	if (name) {
+	if (name != 0) {
 		while (last >= base) {
 			position = (base + last) >> 1;
 			if ((result = strcmp(SpecialCharTable[position].fName, name)) == 0) {
@@ -728,7 +728,7 @@ Unicode HTMLParser::LookupSpecial(const char *name) {
 
 EAlign HTMLParser::LookupAlign(const char *key) {
 	Meter(HTMLParser.LookupAlign);
-	for (int i = 0; AlignTags[i].tag; i++)
+	for (int i = 0; AlignTags[i].tag != 0; i++)
 		if (String::CaselessCompare(AlignTags[i].tag, key) == 0) {
 			return AlignTags[i].align;
 		}
@@ -776,7 +776,7 @@ void MyHTMLWriter::Put(Unicode c) {
 		StatTrace(MyHTMLWriter.Put, "storing title, unicode:" << c << " ->" << static_cast<char>(c) << "<-",
 				  coast::storage::Current());
 		fTitle.Append(static_cast<char>(c));
-		if (isalnum(c)) {
+		if (isalnum(c) != 0) {
 			fAllStringsInPage.Append(static_cast<char>(c));
 		}
 	} else {
@@ -882,7 +882,7 @@ void MyHTMLWriter::Tag(int t, const char *s) {
 			case HTMLParser::eBLINK:
 				RenderFontTag(t, s, node);
 			default:
-				if (!strcmp(s, "s")) {
+				if (strcmp(s, "s") == 0) {
 					RenderFontTag(t, s, node);	// promote text to containing node
 				} else {
 					if (t == '/') {
@@ -902,7 +902,7 @@ void MyHTMLWriter::Tag(int t, const char *s) {
 								break;
 							}
 							levelOfFailure = thisNodesTag;
-							if (oldLevel.Length()) {
+							if (oldLevel.Length() != 0) {
 								levelOfFailure << ".";
 							}
 							levelOfFailure << oldLevel;
@@ -958,7 +958,7 @@ void MyHTMLWriter::RenderImageTag(int t, const char *s, Anything &node, const ch
 			long i;
 			// check whether this image is already in the list
 			for (i = 0; i < fUrls["Imgs"].GetSize(); i++) {
-				if (!strSrc.Compare(fUrls["Imgs"][i]["src"].AsCharPtr(""))) {
+				if (strSrc.Compare(fUrls["Imgs"][i]["src"].AsCharPtr("")) == 0) {
 					// already in the list
 					break;
 				}
@@ -1192,9 +1192,9 @@ MethodInfoCollector::~MethodInfoCollector() {
 }
 
 int AAT_HTMLReader::Get() {
-	return fFile ? fFile->get() : EOF;
+	return fFile != 0 ? fFile->get() : EOF;
 }
 
 void AAT_HTMLReader::PutBack(char c) {
-	fFile ? fFile->putback(c) : (*fFile);
+	fFile != 0 ? fFile->putback(c) : (*fFile);
 }

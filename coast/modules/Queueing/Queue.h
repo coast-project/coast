@@ -467,10 +467,10 @@ protected:
 	void IntReleaseBlockedPutters() {
 		StartTrace(Queue.IntReleaseBlockedPutters);
 		LockUnlockEntry sme(fBlockingPutLock);
-		if (fBlockingPutCount) {
+		if (fBlockingPutCount != 0) {
 			SYSWARNING("waking up " << fBlockingPutCount << " blocked Put() callers");
 		}
-		while (fBlockingPutCount) {
+		while (fBlockingPutCount != 0) {
 			Trace("releasing one of " << fBlockingPutCount << " blocked Putters");
 			fSemaEmptySlots.Release();
 			// allow signalled thread to decrement the fBlockingPutCount after failed return from Put
@@ -485,10 +485,10 @@ protected:
 	void IntReleaseBlockedGetters() {
 		StartTrace(Queue.IntReleaseBlockedGetters);
 		LockUnlockEntry sme(fBlockingGetLock);
-		if (fBlockingGetCount) {
+		if (fBlockingGetCount != 0) {
 			SYSINFO("waking up " << fBlockingGetCount << " blocked Get() callers");
 		}
-		while (fBlockingGetCount) {
+		while (fBlockingGetCount != 0) {
 			Trace("releasing one of " << fBlockingGetCount << " blocked Getters");
 			fSemaFullSlots.Release();
 			// allow signalled thread to decrement the fBlockingGetCount after failed return from Get

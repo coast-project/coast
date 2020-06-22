@@ -93,7 +93,7 @@ void ContextTest::SocketCtorTests() {
 
 		Socket *s = ctx.GetSocket();
 		t_assert(s != 0);
-		if (s) {
+		if (s != 0) {
 			*(s->GetStream()) >> control;
 		}
 		assertEqualm("Test", control, "expected String from Socket");
@@ -988,7 +988,7 @@ void ContextTest::ObjectAccessTests() {
 	// use with dynamic_cast to be on the safe side
 	Role *r = SafeCast(ctx.Find("Role"), Role);
 	t_assert(r != 0);
-	if (r) {
+	if (r != 0) {
 		String transition("Home");
 		String page("BannerPage");
 		r->GetNewPageName(ctx, transition, page);
@@ -998,7 +998,7 @@ void ContextTest::ObjectAccessTests() {
 	// use with dynamic_cast to be on the safe side
 	Page *p = SafeCast(ctx.Find("Page"), Page);
 	t_assert(p != 0);
-	if (p) {
+	if (p != 0) {
 		String transition("Home");
 		String page("BannerPage");
 		// implicit push
@@ -1078,7 +1078,7 @@ public:
 	//! \param c Context to be used for output generation
 	//! \param config configuration which drives the output generation
 	virtual void RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
-		if (c.GetSession() && c.GetSession()->IsLockedByMe()) {
+		if ((c.GetSession() != 0) && c.GetSession()->IsLockedByMe()) {
 			reply << "Session is LOCKED";
 		} else {
 			reply << "Session unlocked";

@@ -38,7 +38,7 @@ IFAObject *OracleDAImpl::Clone(Allocator *a) const {
 
 String prefixResultSlot(String const &strPrefix, String const &strSlotName) {
 	String strReturn;
-	if (strPrefix.Length()) {
+	if (strPrefix.Length() != 0) {
 		strReturn.Append(strPrefix).Append('.');
 	}
 	return strReturn.Append(strSlotName);
@@ -125,7 +125,7 @@ bool OracleDAImpl::TryExecuteQuery(ParameterMapper *in, Context &ctx, OraclePool
 				try {
 					OracleStatementPtr aStmt(pConnection->createStatement(command, lPrefetchRows, aObjType, strReturnName));
 					Trace("statement status:" << (long)aStmt->status());
-					if (aStmt.get() && aStmt->status() == OracleStatement::PREPARED) {
+					if ((aStmt.get() != 0) && aStmt->status() == OracleStatement::PREPARED) {
 						Trace("statement is prepared");
 						Trace("executing statement [" << aStmt->getStatement() << "]");
 						long lIterations(1L);
@@ -167,7 +167,7 @@ bool OracleDAImpl::TryExecuteQuery(ParameterMapper *in, Context &ctx, OraclePool
 				try {
 					OracleStatementPtr aStmt(pConnection->createStatement(command, lPrefetchRows, aObjType, strReturnName));
 					Trace("statement status:" << (long)aStmt->status());
-					if (aStmt.get() && aStmt->status() == OracleStatement::PREPARED) {
+					if ((aStmt.get() != 0) && aStmt->status() == OracleStatement::PREPARED) {
 						Trace("executing statement [" << aStmt->getStatement() << "]");
 						out->Put("Query", aStmt->getStatement(), ctx);
 						long lIterations(1L);
@@ -226,7 +226,7 @@ bool OracleDAImpl::TryExecuteQuery(ParameterMapper *in, Context &ctx, OraclePool
 					Error(ctx, out, strError);
 				}
 			} else {
-				out->Put("Messages", "Rendered slot SQL resulted in an empty string", ctx);
+				out->Put("Messages", true, ctx);
 				bDoRetry = false;
 			}
 		}
@@ -246,7 +246,7 @@ bool OracleDAImpl::Exec(Context &ctx, ParameterMapper *in, ResultMapper *out) {
 	DAAccessTimer(OracleDAImpl.Exec, fName, ctx);
 	OracleModule *pModule = SafeCast(WDModule::FindWDModule("OracleModule"), OracleModule);
 	coast::oracle::ConnectionPool *pConnectionPool(0);
-	if (pModule && (pConnectionPool = pModule->GetConnectionPool())) {
+	if ((pModule != 0) && ((pConnectionPool = pModule->GetConnectionPool()) != 0)) {
 		// we need the server and user to see if there is an existing and Open OraclePooledConnection
 		String user, server, passwd;
 		bool bUseTLS(false);
@@ -265,12 +265,12 @@ bool OracleDAImpl::Exec(Context &ctx, ParameterMapper *in, ResultMapper *out) {
 			Error(ctx, out, "Exec: unable to get OracleConnection");
 		} else {
 			bRet = TryExecuteQuery(in, ctx, pPooledConnection, server, user, passwd, out, bRet);
-			if (pConnectionPool && pPooledConnection) {
+			if ((pConnectionPool != 0) && (pPooledConnection != 0)) {
 				pConnectionPool->ReleaseConnection(pPooledConnection, bUseTLS);
 			}
 		}
 	} else {
-		if (!pModule) {
+		if (pModule == 0) {
 			SYSERROR("unable to get OracleModule, aborting!");
 		} else {
 			SYSERROR("unable to get ConnectionPool, aborting!");
@@ -300,7 +300,7 @@ void OracleDAImpl::Error(Context &ctx, ResultMapper *pResultMapper, String str) 
 	strErr.Append(str);
 	StartTrace1(OracleDAImpl.Error, strErr);
 	SystemLog::Warning(strErr);
-	if (pResultMapper) {
+	if (pResultMapper != 0) {
 		pResultMapper->Put("Messages", strErr, ctx);
 	}
 }
@@ -314,7 +314,7 @@ Anything OracleDAImpl::getMappedInputValues(ParameterMapper *pmapIn, OracleState
 	pmapIn->Get("ArrayValuesSlotName", strArraySlot, ctx);
 	Anything anyArrayValues;
 	bIsArrayExecute = false;
-	if (strArraySlot.Length() && pmapIn->Get(strArraySlot, anyArrayValues, ctx)) {
+	if ((strArraySlot.Length() != 0) && pmapIn->Get(strArraySlot, anyArrayValues, ctx)) {
 		lIterations = anyArrayValues.GetSize();
 		bIsArrayExecute = true;
 	}

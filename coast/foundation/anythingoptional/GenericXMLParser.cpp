@@ -313,7 +313,7 @@ Anything GenericXMLParser::ParseComment() {
 			// skip whitespace
 			for (;;) {
 				GSR;
-				if (!isspace((unsigned char)c)) {
+				if (isspace((unsigned char)c) == 0) {
 					break;
 				}
 			}
@@ -401,7 +401,7 @@ void GenericXMLParser::SkipWhitespace() {
 	StartTrace(GenericXMLParser.SkipWhitespace);
 	int c;
 	while (!IsEof() && (c = Peek()) != 0 && c != EOF) {
-		if (!isspace(c)) {
+		if (isspace(c) == 0) {
 			return;
 		}
 		c = Get();
@@ -409,7 +409,7 @@ void GenericXMLParser::SkipWhitespace() {
 }
 bool GenericXMLParser::IsValidNameChar(int c) {
 	StartTrace(GenericXMLParser.IsValidNameChar);
-	return (isalpha(c) || '-' == c || '_' == c || '.' == c || ':' == c);
+	return ((isalpha(c) != 0) || '-' == c || '_' == c || '.' == c || ':' == c);
 }
 String GenericXMLParser::ParseToSemicolon() {
 	StartTrace(GenericXMLParser.ParseToSemicolon);
@@ -426,7 +426,7 @@ String GenericXMLParser::ParseName() {
 	String theName;
 	int c;	// Unicode?
 	while (!IsEof() && (c = Peek()) != EOF && c != 0) {
-		if (IsValidNameChar(c) || (isdigit(c) && theName.Length() > 0)) {
+		if (IsValidNameChar(c) || ((isdigit(c) != 0) && theName.Length() > 0)) {
 			theName.Append((char)Get());
 		} else {
 			break;
@@ -438,7 +438,7 @@ String GenericXMLParser::ParseName() {
 int GenericXMLParser::Get() {
 	StartTrace(GenericXMLParser.Get);
 	int c = 0;
-	if (fReader && !fReader->eof()) {
+	if ((fReader != 0) && !fReader->eof()) {
 		c = fReader->get();
 		if ('\n' == c) {
 			++fLine;
@@ -448,14 +448,14 @@ int GenericXMLParser::Get() {
 }
 int GenericXMLParser::Peek() {
 	StartTrace(GenericXMLParser.Peek);
-	if (fReader && !fReader->eof()) {
+	if ((fReader != 0) && !fReader->eof()) {
 		return fReader->peek();
 	}
 	return 0;
 }
 void GenericXMLParser::PutBack(char c) {
 	StartTrace(GenericXMLParser.PutBack);
-	if (fReader) {
+	if (fReader != 0) {
 		fReader->putback(c);
 	}
 	if ('\n' == c) {
@@ -465,7 +465,7 @@ void GenericXMLParser::PutBack(char c) {
 
 bool GenericXMLParser::IsEof() {
 	StartTrace(GenericXMLParser.IsEof);
-	return !fReader || !fReader->good();
+	return (fReader == 0) || !fReader->good();
 }
 
 bool GenericXMLParser::ParseTag(String &tag, Anything &tagAttributes) {
@@ -548,15 +548,15 @@ String GenericXMLParser::ParseValue() {
 		value = ParseQuotedString();
 	} else if (IsValidNameChar(c)) {  // a legacy non-quoted value
 		value = ParseName();
-	} else if (isdigit(c)) {
+	} else if (isdigit(c) != 0) {
 		do {
 			value.Append(char(Get()));
 			c = Peek();
-		} while (isdigit(c) || '%' == c);  // allow for legacy percentage values, without quotes
-	} else if ('#' == c) {				   // allow for legacy color attributes without quotes
+		} while ((isdigit(c) != 0) || '%' == c);  // allow for legacy percentage values, without quotes
+	} else if ('#' == c) {						  // allow for legacy color attributes without quotes
 		do {
 			value.Append(char(Get()));
-		} while (isxdigit(Peek()));
+		} while (isxdigit(Peek()) != 0);
 	}
 	return value;
 }
@@ -597,7 +597,7 @@ void GenericXMLParser::Error(const char *msg) {
 }
 void GenericXMLPrinter::PrintXml(std::ostream &os, ROAnything domany) {
 	for (long i = 0, sz = domany.GetSize(); i < sz; ++i) {
-		if (!domany.SlotName(i)) {
+		if (domany.SlotName(i) == 0) {
 			// do not go down for /Errors slot
 			DoPrintXml(os, domany[i]);
 		}
@@ -606,7 +606,7 @@ void GenericXMLPrinter::PrintXml(std::ostream &os, ROAnything domany) {
 void GenericXMLPrinter::DoPrintXml(std::ostream &os, ROAnything subdomany) {
 	if (subdomany.GetType() == AnyArrayType) {
 		String tag = subdomany.SlotName(0L);
-		if (tag.Length()) {
+		if (tag.Length() != 0) {
 			if ('?' == tag[0L]) {
 				DoPrintXmlPI(os, tag, subdomany);
 			} else if (tag == "!--") {
@@ -679,7 +679,7 @@ void GenericXMLPrinter::DoPrintXmlDtd(std::ostream &os, ROAnything subdomany) {
 void GenericXMLPrinter::DoPrintXmlSubDtd(std::ostream &os, ROAnything subdomany) {
 	if (subdomany.GetType() == AnyArrayType) {
 		String tag = subdomany.SlotName(0L);
-		if (tag.Length()) {
+		if (tag.Length() != 0) {
 			if ('?' == tag[0L]) {
 				DoPrintXmlPI(os, tag, subdomany);
 			} else if (tag == "!--") {

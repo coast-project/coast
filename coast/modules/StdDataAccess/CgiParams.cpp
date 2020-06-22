@@ -24,7 +24,7 @@ void CgiParams::AddToEnvironment(Context &ctx, Anything &env, ROAnything additio
 
 	for (long i = 0, sz = additionalenv.GetSize(); i < sz; ++i) {
 		const char *sn = additionalenv.SlotName(i);
-		if (sn) {
+		if (sn != 0) {
 			env[sn] = Renderer::RenderToString(ctx, additionalenv[sn]);
 			Trace("Added: " << sn << "=" << env[sn].AsString(""));
 		}  // we do not transfer anonymous slots

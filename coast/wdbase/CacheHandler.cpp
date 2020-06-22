@@ -20,7 +20,7 @@ Anything SimpleAnyLoader::Load(const char *key) {
 	Anything toLoad(coast::storage::Global());
 	std::istream *ifp = coast::system::OpenStream(key, "any");
 
-	if (ifp) {
+	if (ifp != 0) {
 		// found
 		toLoad.Import(*ifp, key);
 		Trace("loading of <" << NotNull(key) << "> succeeded");

@@ -121,12 +121,12 @@ OracleConnection::~OracleConnection() {
 void OracleConnection::Close() {
 	StartTrace(OracleConnection.Close);
 	if (fStatus == eSessionValid) {
-		if (OCISessionEnd(fSvchp.getHandle(), fErrhp.getHandle(), fUsrhp.getHandle(), 0)) {
+		if (OCISessionEnd(fSvchp.getHandle(), fErrhp.getHandle(), fUsrhp.getHandle(), 0) != 0) {
 			SystemLog::Error("FAILED: OCISessionEnd() on svchp failed");
 		}
 	}
 	if (fStatus >= eServerAttached) {
-		if (OCIServerDetach(fSrvhp.getHandle(), fErrhp.getHandle(), OCI_DEFAULT)) {
+		if (OCIServerDetach(fSrvhp.getHandle(), fErrhp.getHandle(), OCI_DEFAULT) != 0) {
 			SystemLog::Error("FAILED: OCIServerDetach() on srvhp failed");
 		}
 	}
@@ -174,7 +174,7 @@ String OracleConnection::errorMessage(sword status) {
 			error << "Error - OCI_NEED_DATA";
 			break;
 		case OCI_ERROR:
-			if (fErrhp.getHandle())
+			if (fErrhp.getHandle() != 0)
 				OCIErrorGet((dvoid *)fErrhp.getHandle(), 1, NULL, &errcode, errbuf, (ub4)sizeof(errbuf), OCI_HTYPE_ERROR);
 			error << "Error - " << (char *)errbuf;
 			break;
@@ -210,7 +210,7 @@ OracleStatementPtr OracleConnection::createStatement(String strStatement, long l
 		}
 	}
 	OracleStatementPtr pStmt(new (coast::storage::Current()) OracleStatement(this, strStatement));
-	if (pStmt.get()) {
+	if (pStmt.get() != 0) {
 		pStmt->setPrefetchRows(lPrefetchRows);
 		if (pStmt->Prepare() && pStmt->getStatementType() == OracleStatement::STMT_BEGIN) {
 			pStmt->setSPDescription(desc, strReturnName);
@@ -330,7 +330,7 @@ OracleConnection::ObjectType OracleConnection::ReadSPDescriptionFromDB(const Str
 		if (checkError((attrStat))) {
 			throw OracleException(*this, attrStat);
 		}
-		if (strSchemaName.Length()) {
+		if (strSchemaName.Length() != 0) {
 			strSchemaName.Append('.');
 		}
 		strSchemaName.Append(String((char *)name, namelen));
@@ -429,10 +429,10 @@ String OracleConnection::ConstructSPStr(String const &command, bool pIsFunction,
 	ROAnything roaEntry;
 	if (pIsFunction) {
 		aIter.Next(roaEntry);
-		plsql << ":" << (strReturnName.Length() ? strReturnName : roaEntry["Name"].AsString()) << " := ";
+		plsql << ":" << (strReturnName.Length() != 0 ? strReturnName : roaEntry["Name"].AsString()) << " := ";
 	}
 	while (aIter.Next(roaEntry)) {
-		if (strParams.Length()) {
+		if (strParams.Length() != 0) {
 			strParams.Append(',');
 		}
 		strParams.Append(':').Append(roaEntry["Name"].AsString());

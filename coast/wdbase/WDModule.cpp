@@ -219,7 +219,7 @@ WDModule *ConfiguredWDMIterator::Next() {
 	String moduleName(fModules[fIndex][0L].AsCharPtr("NoModule"));
 	WDModule *wdm = WDModule::FindWDModule(moduleName);
 	(fForward) ? ++fIndex : --fIndex;
-	if (!wdm) {
+	if (wdm == 0) {
 		SystemLog::WriteToStderr(moduleName << " not found.\n");
 	}
 	return wdm;
@@ -240,13 +240,13 @@ WDModule *RegistryWDMIterator::Next() {
 WDModuleCaller::WDModuleCaller(const ROAnything roaConfig) : fConfig(roaConfig) {}
 
 bool WDModuleCaller::Call(WDModule *wdm) {
-	if (wdm && SetModuleName(wdm) && DoCall(wdm)) {
+	if ((wdm != 0) && SetModuleName(wdm) && DoCall(wdm)) {
 		return true;
 	}
 
 	HandleError(wdm);
 
-	if (!wdm || CheckMandatory()) {
+	if ((wdm == 0) || CheckMandatory()) {
 		return false;
 	}
 	return true;
@@ -265,7 +265,7 @@ bool WDModuleCaller::CheckMandatory() {
 
 void WDModuleCaller::HandleError(WDModule *wdm) {
 	// call failed, send a message for the poor config debugger
-	if (wdm) {
+	if (wdm != 0) {
 		SystemLog::WriteToStderr(String(CallName()) << " of " << fModuleName << " failed\n");
 	}
 }

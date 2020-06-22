@@ -41,15 +41,15 @@ Mutex SessionListManager::fgSessionListManagerMutex("SessionListManager");
 void stopcleaner() {
 	SessionListManager::SetFinalize(true);
 	SessionListManager *pSLM = SessionListManager::SLM();
-	if (pSLM) {
+	if (pSLM != 0) {
 		pSLM->Finis();
 	}
 }
 
 SessionListManager *SessionListManager::SLM() {
-	if (!fgSessionListManager && !fgFinalize) {
+	if ((fgSessionListManager == 0) && !fgFinalize) {
 		LockUnlockEntry me(fgSessionListManagerMutex);
-		if (!fgSessionListManager && !fgFinalize) {
+		if ((fgSessionListManager == 0) && !fgFinalize) {
 			fgSessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 #if !defined(WIN32)
 			// atexit on Unix (solaris, linux) is executed before deletion of static objects
@@ -107,14 +107,14 @@ bool SessionListManager::Finis() {
 bool SessionListManager::ResetFinis(const ROAnything) {
 	StartTrace(SessionListManager.ResetFinis);
 	EnterReInit();
-	if (fSessionCleaner) {
+	if (fSessionCleaner != 0) {
 		fSessionCleaner->Terminate();
 		delete fSessionCleaner;
 		fSessionCleaner = 0;
 	}
 	fMaxSessionsAllowed = 0L;
 
-	if (fSessionFactory) {
+	if (fSessionFactory != 0) {
 		fSessionFactory = 0;
 	}
 
@@ -132,7 +132,7 @@ bool SessionListManager::ResetInit(const ROAnything config) {
 	fLogToCerr = moduleConfig["Log2Cerr"].AsLong(0L);
 	fSessionFactory = SessionFactory::FindSessionFactory(moduleConfig["SessionFactory"].AsCharPtr("SessionFactory"));
 
-	if (!fSessionCleaner) {
+	if (fSessionCleaner == 0) {
 		String m;
 		m << "\tLaunching new session cleaner";
 		SystemLog::WriteToStderr(m);
@@ -151,7 +151,7 @@ bool SessionListManager::ResetInit(const ROAnything config) {
 
 Session *SessionListManager::DoMakeSession(Context &ctx) {
 	StartTrace(SessionListManager.DoMakeSession);
-	if (fSessionFactory) {
+	if (fSessionFactory != 0) {
 		return fSessionFactory->DoMakeSession(ctx);
 	}
 	return new (coast::storage::Global()) Session("Session");
@@ -195,7 +195,7 @@ void SessionListManager::DisableSession(const String &sessionId, Context &ctx) {
 		TraceAny(fSessions, "Sessions active");
 		if (fSessions.LookupPath(session, sessionId)) {
 			s = SafeCast(session.AsIFAObject(0), Session);
-			if (s) {
+			if (s != 0) {
 				fDisabledSessions.Append(session);
 				fSessions.Remove(sessionId);
 			}
@@ -205,7 +205,7 @@ void SessionListManager::DisableSession(const String &sessionId, Context &ctx) {
 		Trace("Size:[" << fSessions.GetSize() << "]");
 		TraceAny(fSessions, "Sessions active after");
 	}
-	if (s) {
+	if (s != 0) {
 		s->Notify(Session::eRemoved, ctx);
 	}
 	if (ctx.GetSession() == s) {  // not intended to disable one's own session.
@@ -217,7 +217,7 @@ void SessionListManager::DisableSession(const String &sessionId, Context &ctx) {
 Session *SessionListManager::CreateSession(String &sessionId, Context &ctx) {
 	StartTrace(SessionListManager.CreateSession);
 	Session *session = MakeSession(ctx);
-	if (session) {
+	if (session != 0) {
 		Trace("Adding session");
 		AddSession(InitSession(sessionId, session, ctx), session, ctx);
 		Trace("sessionId added:<" << sessionId << ">");
@@ -274,7 +274,7 @@ Session *SessionListManager::IntLookupSession(const String &id, Context &ctx) {
 
 			// make sure this session won't get deleted
 			// while processing this request
-			if (s) {
+			if (s != 0) {
 				if (!s->IsBusy() && s->IsTerminated()) {
 					s = 0;
 				} else {
@@ -283,7 +283,7 @@ Session *SessionListManager::IntLookupSession(const String &id, Context &ctx) {
 			}
 		}
 	}
-	if (s) {
+	if (s != 0) {
 		ctx.Push(s);
 	}
 	return s;
@@ -351,7 +351,7 @@ Session *SessionListManager::PrepareSession(Session *session, bool &isBusy, Cont
 
 	Trace("Session to prepare:[" << (long)session << "]");
 	String sessionId = ctx.Lookup("SessionId", "");
-	if (session) {
+	if (session != 0) {
 		if (SessionIsBusy(session, isBusy, ctx)) {
 			return session;
 		}
@@ -364,7 +364,7 @@ Session *SessionListManager::PrepareSession(Session *session, bool &isBusy, Cont
 	if (session != 0) {
 		// From now on we have the session available in context
 		ctx.Push(session);
-		if (fSessionFactory) {
+		if (fSessionFactory != 0) {
 			session = fSessionFactory->DoPrepareSession(ctx, session, isBusy);
 		}
 		Trace("Session prepared:[" << (long)session << "]");
@@ -381,7 +381,7 @@ long SessionListManager::CleanupSessions(Context &ctx, bool forceLock) {
 	long szDisabled = 0;
 	Anything sessions2Delete;
 	bool wasLocked = false;
-	if (fLogToCerr) {
+	if (fLogToCerr != 0) {
 		String m("SLM::CleanupSessions entering.\n");
 		SystemLog::WriteToStderr(m);
 	}
@@ -392,7 +392,7 @@ long SessionListManager::CleanupSessions(Context &ctx, bool forceLock) {
 			wasLocked = true;
 		}
 		if (wasLocked) {
-			if (fLogToCerr) {
+			if (fLogToCerr != 0) {
 				String m;
 				m << "SLM::CleanupSessions got mutex (Start cleaning). Time: [" << TimeStamp::Now().AsString() << "]\n";
 				SystemLog::WriteToStderr(m);
@@ -413,7 +413,7 @@ long SessionListManager::CleanupSessions(Context &ctx, bool forceLock) {
 	if (wasLocked) {
 		DoDeleteSessions(sessions2Delete, ctx);
 
-		if (fLogToCerr) {
+		if (fLogToCerr != 0) {
 			// Active:   sessions currently in use, accessible through SLM
 			// Deleted:  These sessions was sent the eRemoved event and then they where destructed
 			// Disabled: Kept under SLM control, but no more accesible (avoid destruction of session
@@ -425,7 +425,7 @@ long SessionListManager::CleanupSessions(Context &ctx, bool forceLock) {
 			SystemLog::WriteToStderr(os.str());
 		}
 	}
-	if (fLogToCerr) {
+	if (fLogToCerr != 0) {
 		String m;
 		m << "SLM::CleanupSessions leave.    (End   cleaning). Time: [" << TimeStamp::Now().AsString() << "]\n";
 		SystemLog::WriteToStderr(m);
@@ -442,7 +442,7 @@ Anything SessionListManager::DoCleanup(Anything &sessionList, Anything &sessions
 	for (long i = szBefore - 1; i >= 0; --i) {
 		Session *s = SafeCast(sessionList[i].AsIFAObject(0), Session);
 
-		if (s && s->IsDeletable(secs, ctx, roleNotRelevant)) {
+		if ((s != 0) && s->IsDeletable(secs, ctx, roleNotRelevant)) {
 			// remove terminated session from sessions list
 			sessions2Delete.Append(sessionList[i]);
 			sessionList.Remove(i);
@@ -463,7 +463,7 @@ void SessionListManager::DoDeleteSessions(const Anything &sessions2Delete, Conte
 	Trace("have to delete " << sz << " sessions");
 	for (long i = 0; i < sz; ++i) {
 		Session *s = SafeCast(sessions2Delete[i].AsIFAObject(0), Session);
-		if (s) {
+		if (s != 0) {
 			Trace("notifying (Session::eRemoved) session &" << (long)s);
 			s->Notify(Session::eRemoved, ctx);
 			delete s;
@@ -510,7 +510,7 @@ URLFilter *SessionListManager::FindURLFilter(Context &ctx) {
 	URLFilter *uf = URLFilter::FindURLFilter(ufName);
 
 	// use default URLFilter if defined filter is not available
-	if (!uf) {
+	if (uf == 0) {
 		String logMsg("URLFilter <");
 		logMsg << ufName << "> not found";
 		SystemLog::Error(logMsg);
@@ -544,7 +544,7 @@ Anything SessionListManager::StdFilterTags(Context &ctx) {
 	}
 
 	long useBaseURL = 0;
-	if (ctx.Lookup("UseBaseURL", useBaseURL)) {
+	if (ctx.Lookup("UseBaseURL", useBaseURL) != 0) {
 		tmpFilter["Tags2Unscramble"].Append("X1");
 		tmpFilter["Tags2Unscramble"].Append("X2");
 	} else {
@@ -562,7 +562,7 @@ bool SessionListManager::FilterQuery(Context &ctx) {
 	Anything query(ctx.GetQuery());
 	URLFilter *uf = FindURLFilter(ctx);
 
-	if (uf) {
+	if (uf != 0) {
 		// handle cookie copying if filter defined
 		ROAnything filterCookieConf(ctx.Lookup("CookieFilterSpec"));
 		if (!filterCookieConf.IsNull()) {
@@ -627,14 +627,14 @@ bool SessionListManager::SessionListInfo(Anything &sessionListInfo, Context &ctx
 
 		for (long i = start; i < start + pageSize; ++i) {
 			Session *s = SafeCast(fSessions[i].AsIFAObject(0), Session);
-			if (s) {
+			if (s != 0) {
 				const char *slotName = fSessions.SlotName(i);
 				Assert(slotName);
 				sessionListInfo["List"][slotName]["id"] = slotName;
 				s->GetSessionInfo(sessionListInfo, ctx, slotName);
 			}
 		}
-		sessionListInfo["Pages"] = szSessionListSize / pageSize + (szSessionListSize % pageSize) ? 1 : 0;
+		sessionListInfo["Pages"] = (szSessionListSize / pageSize + (szSessionListSize % pageSize)) != 0 ? 1 : 0;
 		sessionListInfo["PageSize"] = pageSize;
 		ctx.Push(originalSession);
 		fSessionsMutex.Unlock();
@@ -655,7 +655,7 @@ bool SessionListManager::GetASessionsInfo(Anything &sessionInfo, const String &s
 			s = SafeCast(session.AsIFAObject(0), Session);
 		}
 	}
-	if (!s) {
+	if (s == 0) {
 		return false;
 	}
 	// If we query our own session, Context.InitSession will not decrement refcounts
@@ -718,7 +718,7 @@ RegisterAction(CleanSessions);
 bool CleanSessions::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(CleanSessions.DoExecAction);
 	SessionListManager *slm = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
-	if (slm) {
+	if (slm != 0) {
 		slm->CleanupSessions(ctx);
 		return true;
 	}

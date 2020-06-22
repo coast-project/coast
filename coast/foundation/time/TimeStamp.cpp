@@ -85,7 +85,7 @@ bool TimeStamp::IntDoInit(const String &externalTimeRep) {
 	Trace("extlen:" << lExtLen);
 	for (long i = 0; i < lMaxDateLen && lAddCount < lMaxDateLen; ++i) {
 		if (i < lExtLen) {
-			if (isdigit(externalTimeRep.At(i))) {
+			if (isdigit(externalTimeRep.At(i)) != 0) {
 				fTimeStruct.AddCharacter(externalTimeRep.At(i));
 				++lExtCount;
 				++lAddCount;

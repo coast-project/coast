@@ -194,7 +194,7 @@ namespace {
 			coast::storage::registerHook(fMTHooks);
 			// switch to thread safe memory tracker if enabled through COAST_TRACE_STORAGE
 			Allocator *a = coast::storage::Global();
-			if (a && coast::storage::GetStatisticLevel() >= 1) {
+			if ((a != 0) && coast::storage::GetStatisticLevel() >= 1) {
 				fOldTracker =
 					a->ReplaceMemTracker(Allocator::MemTrackerPtr(coast::storage::MakeMemTracker("MTGlobalAllocator", true)));
 			}
@@ -205,9 +205,9 @@ namespace {
 			// terminate pool allocators
 			{
 				LockUnlockEntry me(*fAllocatorInit);
-				while (fPoolAllocatorList) {
+				while (fPoolAllocatorList != 0) {
 					AllocList *elmt = fPoolAllocatorList;
-					if (elmt->wdallocator && elmt->wdallocator->GetId() != coast::storage::DoGlobal()->GetId()) {
+					if ((elmt->wdallocator != 0) && elmt->wdallocator->GetId() != coast::storage::DoGlobal()->GetId()) {
 						SYSERROR("unfreed allocator found id: " << elmt->wdallocator->GetId());
 						delete elmt->wdallocator;
 					}
@@ -216,14 +216,14 @@ namespace {
 				}
 			}
 			Allocator *a = coast::storage::Global();
-			if (a) {
-				if (fOldTracker) {
+			if (a != 0) {
+				if (fOldTracker != 0) {
 					Allocator::MemTrackerPtr tmpTracker = a->ReplaceMemTracker(fOldTracker);
 					StatTrace(MT_Storage.Finalize,
 							  "setting MemTracker back from [" << (tmpTracker ? tmpTracker->GetName() : "NULL") << "] to ["
 															   << fOldTracker->GetName() << "]",
 							  coast::storage::Global());
-					if (tmpTracker && coast::storage::GetStatisticLevel() >= 1) {
+					if ((tmpTracker != 0) && coast::storage::GetStatisticLevel() >= 1) {
 						tmpTracker->PrintStatistic(2);
 						tmpTracker->DumpUsedBlocks();
 					}
@@ -259,16 +259,16 @@ namespace {
 		}
 		void RefAllocator(Allocator *wdallocator) {
 			StartTrace1(MT_Storage.RefAllocator, "Id:" << (wdallocator ? wdallocator->GetId() : -1L));
-			if (wdallocator) {
+			if (wdallocator != 0) {
 				// in mt case we need to control ref counting with mutexes
 				LockUnlockEntry me(*fAllocatorInit);
 				AllocList *elmt = fPoolAllocatorList;
-				while (elmt && (elmt->wdallocator != wdallocator)) {
+				while ((elmt != 0) && (elmt->wdallocator != wdallocator)) {
 					elmt = elmt->next;
 				}
-				if (not elmt) {
+				if (elmt == 0) {
 					elmt = (AllocList *)::calloc(1, sizeof(AllocList));
-					if (!elmt) {
+					if (elmt == 0) {
 						static const char crashmsg[] = "FATAL: MT_Storage::RefAllocator calloc failed. I will crash :-(\n";
 						SystemLog::WriteToStderr(crashmsg, sizeof(crashmsg));
 						SystemLog::Error("allocation failed for RefAllocator");
@@ -283,21 +283,21 @@ namespace {
 			}
 		}
 		void UnrefAllocator(Allocator *wdallocator) {
-			const long allocId = wdallocator ? wdallocator->GetId() : -1L;
+			const long allocId = wdallocator != 0 ? wdallocator->GetId() : -1L;
 			(void)allocId;	// to prevent unused compiler warning occurring when trace is disabled
 			StatTrace(MT_Storage.UnrefAllocator, "Id:" << allocId << " --- entering ---", coast::storage::Global());
-			if (wdallocator) {	// just to be robust wdallocator == 0 should not happen
+			if (wdallocator != 0) {	 // just to be robust wdallocator == 0 should not happen
 				LockUnlockEntry me(*fAllocatorInit);
 				wdallocator->Unref();
 				StatTrace(MT_Storage.UnrefAllocator, "refcount is now:" << wdallocator->RefCnt(), coast::storage::Global());
 				if (wdallocator->RefCnt() <= 0) {
 					AllocList *elmt = fPoolAllocatorList;
 					AllocList *prev = fPoolAllocatorList;
-					while (elmt && (elmt->wdallocator != wdallocator)) {
+					while ((elmt != 0) && (elmt->wdallocator != wdallocator)) {
 						prev = elmt;
 						elmt = elmt->next;
 					}
-					if (elmt) {
+					if (elmt != 0) {
 						if (elmt == fPoolAllocatorList) {
 							fPoolAllocatorList = elmt->next;
 						} else {
@@ -326,7 +326,7 @@ namespace {
 			Allocator *oldAllocator = 0;
 			// check for old allocator, and if any delete it
 			GETTLSDATA(getAllocatorKey(), oldAllocator, Allocator);
-			if (oldAllocator) {
+			if (oldAllocator != 0) {
 				StatTrace(MT_Storage.UnregisterThread, "removing Allocator:" << (long)oldAllocator << " of ThreadLocalStorage",
 						  coast::storage::Global());
 				return !SETTLSDATA(getAllocatorKey(), 0);
@@ -342,7 +342,8 @@ Allocator *MTStorageHooks::DoCurrent() {
 	if (fgInitialized) {
 		Allocator *wdallocator = 0;
 		// determine which allocator to use
-		if (GETTLSDATA(MTStorageInitializerSingleton::instance().getAllocatorKey(), wdallocator, Allocator) && wdallocator) {
+		if (GETTLSDATA(MTStorageInitializerSingleton::instance().getAllocatorKey(), wdallocator, Allocator) &&
+			(wdallocator != 0)) {
 			return wdallocator;
 		}
 	}
@@ -368,7 +369,7 @@ THREADKEY MT_Storage::getAllocatorKey() {
 Allocator *MT_Storage::MakePoolAllocator(u_long poolStorageSize, u_long numOfPoolBucketSizes, long lPoolId) {
 	StartTrace(MT_Storage.MakePoolAllocator);
 	Allocator *newPoolAllocator = new MTPoolAllocator(lPoolId, poolStorageSize, numOfPoolBucketSizes);
-	if (!newPoolAllocator) {
+	if (newPoolAllocator == 0) {
 		String msg("allocation of PoolStorage: ");
 		msg << (long)poolStorageSize << ", " << (long)numOfPoolBucketSizes << " failed";
 		SystemLog::Error(msg);

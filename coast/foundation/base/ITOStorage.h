@@ -290,7 +290,7 @@ namespace coast {
 				U b;
 			};
 			static size_t const alignment = (sizeof(T) < offsetof(X, b)) ? offsetof(X, b) : sizeof(T);
-			static const size_t value = sizeof(T) + (sizeof(T) % sizeof(U) ? (sizeof(U) - sizeof(T) % sizeof(U)) : 0);
+			static const size_t value = sizeof(T) + ((sizeof(T) % sizeof(U)) != 0u ? (sizeof(U) - sizeof(T) % sizeof(U)) : 0);
 		};
 
 		template <typename T>
@@ -419,7 +419,7 @@ class TestStorageHooks {
 		virtual void DoFinalize() {}
 		virtual Allocator *DoGlobal() { return coast::storage::DoGlobal(); }
 		virtual Allocator *DoCurrent() {
-			if (fAllocator) {
+			if (fAllocator != 0) {
 				return fAllocator;
 			}
 			return coast::storage::DoGlobal();

@@ -67,7 +67,7 @@ void OTPListTest::RunOtpTests(String implName, OTPList *impl, TokenDataAccessCon
 		// validate code
 		assertEqual(tests[i]["ValidResult"].AsLong(), dist);
 
-		if (tdac) {
+		if (tdac != 0) {
 			if (dist >= 0) {
 				// if code was valid, then do another check, this time updating the count
 				impl->Verify(tid, code, win, tdac);

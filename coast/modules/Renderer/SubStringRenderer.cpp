@@ -12,7 +12,7 @@ void SubStringRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAny
 	StartTrace(SubStringRenderer.RenderAll);
 	String str;
 	Renderer::RenderOnString(str, ctx, config["String"]);
-	if (str.Length()) {
+	if (str.Length() != 0) {
 		long start = RenderToString(ctx, config["Start"]).AsLong(0L);
 		long len = RenderToString(ctx, config["Length"]).AsLong(-1L);
 		String ret(str.SubString(start, len));

@@ -88,22 +88,22 @@ void GzipHdr::SetModificationTime(TimeStamp aStamp) {
 std::ostream &operator<<(std::ostream &os, GzipHdr &header) {
 	StartTrace(GzipHdr.operator<<);
 	String strHeader((void *)&header, 10);
-	if (header.Flags & GzipHdr::eFEXTRA) {
+	if ((header.Flags & GzipHdr::eFEXTRA) != 0) {
 		strHeader.Append(char(header.XLEN & 0xff));
 		strHeader.Append(char((header.XLEN >> 8) & 0xff));
 		strHeader.Append(header.ExtraField);
 	}
-	if (header.Flags & GzipHdr::eFNAME) {
+	if ((header.Flags & GzipHdr::eFNAME) != 0) {
 		// write filename including terminating 0
 		strHeader.Append(header.FileName);
 		strHeader.Append('\0');
 	}
-	if (header.Flags & GzipHdr::eFCOMMENT) {
+	if ((header.Flags & GzipHdr::eFCOMMENT) != 0) {
 		// write comment including terminating 0
 		strHeader.Append(header.Comment);
 		strHeader.Append('\0');
 	}
-	if (header.Flags & GzipHdr::eFHCRC) {
+	if ((header.Flags & GzipHdr::eFHCRC) != 0) {
 		header.CRC16 = 0L;
 		header.CRC16 = crc32(header.CRC16, (const Bytef *)(const char *)strHeader, strHeader.Length());
 		Trace("CRC32: " << header.CRC16);
@@ -125,7 +125,7 @@ std::istream &operator>>(std::istream &is, GzipHdr &header) {
 		Trace("10 bytes of header could be read");
 		// check magic numbers
 		bool bCont = header.IsValid();
-		if (bCont && header.Flags & GzipHdr::eFEXTRA) {
+		if (bCont && ((header.Flags & GzipHdr::eFEXTRA) != 0)) {
 			bCont = !ConversionUtils::GetValueFromStream(is, header.XLEN).eof();
 			strHeader.Append(char(header.XLEN & 0xff));
 			strHeader.Append(char((header.XLEN >> 8) & 0xff));
@@ -139,7 +139,7 @@ std::istream &operator>>(std::istream &is, GzipHdr &header) {
 				delete[] pArr;
 			}
 		}
-		if (bCont && header.Flags & GzipHdr::eFNAME) {
+		if (bCont && ((header.Flags & GzipHdr::eFNAME) != 0)) {
 			char aChar;
 			header.FileName.Trim(0);
 			// read filename including terminating 0
@@ -150,7 +150,7 @@ std::istream &operator>>(std::istream &is, GzipHdr &header) {
 			strHeader.Append(header.FileName);
 			strHeader.Append('\0');
 		}
-		if (bCont && header.Flags & GzipHdr::eFCOMMENT) {
+		if (bCont && ((header.Flags & GzipHdr::eFCOMMENT) != 0)) {
 			char aChar;
 			header.Comment.Trim(0);
 			// read comment including terminating 0
@@ -161,7 +161,7 @@ std::istream &operator>>(std::istream &is, GzipHdr &header) {
 			strHeader.Append(header.Comment);
 			strHeader.Append('\0');
 		}
-		if (bCont && header.Flags & GzipHdr::eFHCRC) {
+		if (bCont && ((header.Flags & GzipHdr::eFHCRC) != 0)) {
 			if (!ConversionUtils::GetValueFromStream(is, header.CRC16).eof()) {
 				int32_t locCRC16 = 0;
 				locCRC16 = crc32(locCRC16, (const Bytef *)(const char *)strHeader, strHeader.Length());
@@ -190,7 +190,7 @@ ZipStreamBuf::ZipStreamBuf(ZipStream::eStreamMode aMode, Allocator *alloc)
 
 //---- ZipOStreamBuf ----------------------------------------------------------------
 ZipOStreamBuf::ZipOStreamBuf(std::ostream &os, ZipStream::eStreamMode aMode, Allocator *alloc)
-	: ZipStreamBuf(aMode, (alloc ? alloc : coast::storage::Current())),
+	: ZipStreamBuf(aMode, (alloc != 0 ? alloc : coast::storage::Current())),
 	  fOs(&os),
 	  fCompLevel(Z_BEST_COMPRESSION),
 	  fCompStrategy(Z_DEFAULT_STRATEGY) {
@@ -208,7 +208,7 @@ const GzipHdr &ZipOStreamBuf::Header() {
 void ZipOStreamBuf::close() {
 	StartTrace(ZipOStreamBuf.close);
 
-	if (!fOs) {
+	if (fOs == 0) {
 		return;
 	}
 
@@ -360,7 +360,7 @@ int ZipOStreamBuf::setCompression(int comp_level, int comp_strategy) {
 void ZipOStreamBuf::setExtraField(const String &strBuf) {
 	StartTrace(ZipOStreamBuf.setExtraField);
 	if (!isInitialized) {
-		if (strBuf.Length()) {
+		if (strBuf.Length() != 0) {
 			fHeader.Flags |= GzipHdr::eFEXTRA;
 			fHeader.XLEN = strBuf.Length();
 			fHeader.ExtraField = strBuf;
@@ -377,7 +377,7 @@ void ZipOStreamBuf::setExtraField(const String &strBuf) {
 void ZipOStreamBuf::setFilename(String strFilename) {
 	StartTrace1(ZipOStreamBuf.setFilename, "Given Filename [" << strFilename << "]");
 	if (!isInitialized) {
-		if (strFilename.Length()) {
+		if (strFilename.Length() != 0) {
 			fHeader.Flags |= GzipHdr::eFNAME;
 			fHeader.FileName = strFilename;
 		} else {
@@ -392,7 +392,7 @@ void ZipOStreamBuf::setFilename(String strFilename) {
 void ZipOStreamBuf::setComment(String strComment) {
 	StartTrace1(ZipOStreamBuf.setComment, "Given Comment [" << strComment << "]");
 	if (!isInitialized) {
-		if (strComment.Length()) {
+		if (strComment.Length() != 0) {
 			fHeader.Flags |= GzipHdr::eFCOMMENT;
 			fHeader.Comment = strComment;
 		} else {
@@ -451,7 +451,7 @@ void ZipOStreamBuf::zipinit() {
 }
 
 ZipIStreamBuf::ZipIStreamBuf(std::istream &zis, std::istream &is, ZipStream::eStreamMode aMode, Allocator *alloc)
-	: ZipStreamBuf(aMode, (alloc ? alloc : coast::storage::Current())), fZis(zis), fIs(&is), fZipErr(Z_OK) {
+	: ZipStreamBuf(aMode, (alloc != 0 ? alloc : coast::storage::Current())), fZis(zis), fIs(&is), fZipErr(Z_OK) {
 	xinit();
 }
 
@@ -467,7 +467,7 @@ const GzipHdr &ZipIStreamBuf::Header() {
 }
 
 bool ZipIStreamBuf::getExtraField(String &strBuf) {
-	if (Header().Flags & GzipHdr::eFEXTRA) {
+	if ((Header().Flags & GzipHdr::eFEXTRA) != 0) {
 		strBuf = Header().ExtraField;
 		return true;
 	}
@@ -475,7 +475,7 @@ bool ZipIStreamBuf::getExtraField(String &strBuf) {
 }
 
 bool ZipIStreamBuf::getFilename(String &strFilename) {
-	if (Header().Flags & GzipHdr::eFNAME) {
+	if ((Header().Flags & GzipHdr::eFNAME) != 0) {
 		strFilename = Header().FileName;
 		return true;
 	}
@@ -483,7 +483,7 @@ bool ZipIStreamBuf::getFilename(String &strFilename) {
 }
 
 bool ZipIStreamBuf::getComment(String &strComment) {
-	if (Header().Flags & GzipHdr::eFCOMMENT) {
+	if ((Header().Flags & GzipHdr::eFCOMMENT) != 0) {
 		strComment = Header().Comment;
 		return true;
 	}
@@ -539,7 +539,7 @@ int ZipIStreamBuf::underflow() {
 void ZipIStreamBuf::close() {
 	StartTrace(ZipIStreamBuf.close);
 
-	if (!fIs) {
+	if (fIs == 0) {
 		return;
 	}
 

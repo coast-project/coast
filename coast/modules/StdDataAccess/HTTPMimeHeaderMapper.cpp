@@ -35,7 +35,7 @@ bool HTTPMimeHeaderMapper::DoPutStream(const char *, std::istream &is, Context &
 		Anything header(mh.GetHeaderInfo());
 		TraceAny(header, "header");
 		//!@FIXME: all of the following should go to separate mappers
-		if (config["StoreCookies"].AsLong(0)) {
+		if (config["StoreCookies"].AsLong(0) != 0) {
 			StoreCookies(header, ctx);
 		}
 		if (config.IsDefined("Suppress")) {
@@ -138,13 +138,13 @@ void HTTPMimeHeaderMapper::StoreCookies(ROAnything const header, Context &ctx) {
 			if (valueTokenizer.NextToken(strKey)) {
 				strKey.TrimWhitespace();
 				strValue = valueTokenizer.GetRemainder();
-				if (!cookieName.Length()) {
+				if (cookieName.Length() == 0) {
 					cookieName = strKey;
-					if (strValue.Length()) {
+					if (strValue.Length() != 0) {
 						anyNamedCookie[valueSlotName] = strValue;
 					}
 				} else {
-					if (strValue.Length()) {
+					if (strValue.Length() != 0) {
 						anyNamedCookie[attrSlotName][strKey] = strValue;
 					} else {
 						anyNamedCookie[attrSlotName].Append(strKey);
@@ -152,7 +152,7 @@ void HTTPMimeHeaderMapper::StoreCookies(ROAnything const header, Context &ctx) {
 				}
 			}
 		}
-		if (anyNamedCookie.GetSize() > 0 && cookieName.Length()) {
+		if (anyNamedCookie.GetSize() > 0 && (cookieName.Length() != 0)) {
 			String strStructured(destSlotname);
 			strStructured.Append(cookie_path_sep).Append("Structured").Append(cookie_path_sep).Append(cookieName);
 			TraceAny(anyNamedCookie, "storing named cookie at [" << strStructured << "]");
@@ -167,7 +167,7 @@ void HTTPMimeHeaderMapper::StoreCookies(ROAnything const header, Context &ctx) {
 		AnyExtensions::Iterator<ROAnything> structureIter(anyCookies);
 		ROAnything roaEntry;
 		while (structureIter.Next(roaEntry)) {
-			if (!plainCookieString.Length()) {
+			if (plainCookieString.Length() == 0) {
 				plainCookieString.Append("Cookie:");
 			}
 			structureIter.SlotName(cookieName);

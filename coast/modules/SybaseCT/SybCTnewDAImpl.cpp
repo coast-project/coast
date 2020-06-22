@@ -71,7 +71,7 @@ bool SybCTnewDAImpl::Init(ROAnything config) {
 				SybCTnewDA *pCT = new (coast::storage::Global()) SybCTnewDA(fg_cs_context);
 				IntDoPutbackConnection(pCT, false, server, user);
 			}
-			if (!fgpPeriodicAction) {
+			if (fgpPeriodicAction == 0) {
 				fgpPeriodicAction = new (coast::storage::Global())
 					PeriodicAction("SybCheckCloseOpenedConnectionsAction", lCloseConnectionTimeout);
 				fgpPeriodicAction->Start();
@@ -84,7 +84,7 @@ bool SybCTnewDAImpl::Init(ROAnything config) {
 
 bool SybCTnewDAImpl::Finis() {
 	StartTrace(SybCTnewDAImpl.Finis);
-	if (fgpPeriodicAction) {
+	if (fgpPeriodicAction != 0) {
 		fgpPeriodicAction->Terminate();
 		delete fgpPeriodicAction;
 		fgpPeriodicAction = NULL;
@@ -112,7 +112,7 @@ bool SybCTnewDAImpl::Finis() {
 		fgpResourcesSema = NULL;
 		SybCTnewDA::Finis(fg_cs_context);
 		// trace messages which occurred without a connection
-		while (fgContextMessages.GetSize()) {
+		while (fgContextMessages.GetSize() != 0) {
 			SystemLog::Warning(fgContextMessages[0L].AsString());
 			fgContextMessages.Remove(0L);
 		}
@@ -126,9 +126,9 @@ bool SybCTnewDAImpl::IntGetOpen(SybCTnewDA *&pSyb, bool &bIsOpen, const String &
 	bIsOpen = false;
 	Anything anyTimeStamp(coast::storage::Global()), anyEntry(coast::storage::Global());
 	TraceAny(fgListOfSybCT, "current list of connections");
-	if (fgListOfSybCT.LookupPath(anyTimeStamp, "Open") && anyTimeStamp.GetSize()) {
+	if (fgListOfSybCT.LookupPath(anyTimeStamp, "Open") && (anyTimeStamp.GetSize() != 0)) {
 		String strToLookup(server);
-		if (strToLookup.Length() && user.Length()) {
+		if ((strToLookup.Length() != 0) && (user.Length() != 0)) {
 			strToLookup << '.' << user;
 		}
 		Trace("Lookup name [" << strToLookup << "]");
@@ -168,9 +168,9 @@ bool SybCTnewDAImpl::IntDoGetConnection(SybCTnewDA *&pSyb, bool &bIsOpen, const 
 	StartTrace(SybCTnewDAImpl.IntDoGetConnection);
 	pSyb = NULL;
 	bIsOpen = false;
-	if (!server.Length() || !user.Length() || !IntGetOpen(pSyb, bIsOpen, server, user)) {
+	if ((server.Length() == 0) || (user.Length() == 0) || !IntGetOpen(pSyb, bIsOpen, server, user)) {
 		// favour unused connection against open connection of different server/user
-		if (fgListOfSybCT["Unused"].GetSize()) {
+		if (fgListOfSybCT["Unused"].GetSize() != 0) {
 			Trace("removing first unused element");
 			pSyb = SafeCast(fgListOfSybCT["Unused"][0L].AsIFAObject(), SybCTnewDA);
 			fgListOfSybCT["Unused"].Remove(0L);
@@ -253,7 +253,8 @@ bool SybCTnewDAImpl::Exec(Context &ctx, ParameterMapper *in, ResultMapper *out) 
 				// test if the connection is still valid, eg. we are able to get/set connection params
 				if (bIsOpen) {
 					SybCTnewDA::DaParams outParams;
-					if (pSyb->GetConProps(CS_USERDATA, (CS_VOID **)&outParams, CS_SIZEOF(SybCTnewDA::DaParams)) != CS_SUCCEED) {
+					if (static_cast<long>(pSyb->GetConProps(CS_USERDATA, (CS_VOID **)&outParams,
+															CS_SIZEOF(SybCTnewDA::DaParams))) != CS_SUCCEED) {
 						// try to close and reopen connection
 						pSyb->Close();
 						bIsOpen = false;
@@ -309,7 +310,7 @@ bool SybCTnewDAImpl::Exec(Context &ctx, ParameterMapper *in, ResultMapper *out) 
 							bDoRetry = false;
 						}
 					} else {
-						out->Put("Messages", "Rendered slot SQL resulted in an empty string", ctx);
+						out->Put("Messages", true, ctx);
 						bDoRetry = false;
 					}
 				}
@@ -349,15 +350,15 @@ bool SybCTnewDAImpl::CheckCloseOpenedConnections(long lTimeout) {
 	LockUnlockEntry me(fgStructureMutex);
 	if (fgInitialized) {
 		TraceAny(fgListOfSybCT, "current list of connections");
-		if (fgListOfSybCT.LookupPath(anyTimeStamp, "Open") && anyTimeStamp.GetSize()) {
+		if (fgListOfSybCT.LookupPath(anyTimeStamp, "Open") && (anyTimeStamp.GetSize() != 0)) {
 			SybCTnewDA *pSyb = NULL;
 			long lTS = 0L;
 			// if we still have open connections and the last access is older than lTimeout seconds
-			while (anyTimeStamp.GetSize() && (aStamp > TimeStamp(anyTimeStamp.SlotName(lTS)))) {
+			while ((anyTimeStamp.GetSize() != 0) && (aStamp > TimeStamp(anyTimeStamp.SlotName(lTS)))) {
 				Anything anyTS(coast::storage::Global());
 				anyTS = anyTimeStamp[lTS];
 				TraceAny(anyTS, "stamp of connections to close [" << anyTimeStamp.SlotName(0L) << "]");
-				while (anyTS.GetSize()) {
+				while (anyTS.GetSize() != 0) {
 					pSyb = SafeCast(anyTS[0L][0L].AsIFAObject(), SybCTnewDA);
 					anyTS.Remove(0L);
 					if (pSyb != NULL) {

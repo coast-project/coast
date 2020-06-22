@@ -208,7 +208,7 @@ int doTimedWait(cond_t *c, mutex_t *m, long s, long n) {
 
 THREADWRAPPERFUNCDECL(ThreadWrapper, thread) {
 	Thread *t = (Thread *)thread;  // we should better check this....
-	if (t) {
+	if (t != 0) {
 		t->IntRun();
 		t->CleanupThreadStorage();
 		t->Exit(0);
@@ -393,7 +393,7 @@ int rwl_destroy(rwlock_t *rwl) {
 	 * Check whether any threads own the lock; report "BUSY" if
 	 * so.
 	 */
-	if (rwl->r_active > 0 || rwl->w_active) {
+	if (rwl->r_active > 0 || (rwl->w_active != 0)) {
 		pthread_mutex_unlock(&rwl->mutex);
 		return EBUSY;
 	}
@@ -445,10 +445,10 @@ int rwl_readlock(rwlock_t *rwl) {
 	if (status != 0) {
 		return status;
 	}
-	if (rwl->w_active) {
+	if (rwl->w_active != 0) {
 		rwl->r_wait++;
 		pthread_cleanup_push(rwl_readcleanup, (void *)rwl);
-		while (rwl->w_active) {
+		while (rwl->w_active != 0) {
 			status = pthread_cond_wait(&rwl->read, &rwl->mutex);
 			if (status != 0) {
 				break;
@@ -478,7 +478,7 @@ int rwl_readtrylock(rwlock_t *rwl) {
 	if (status != 0) {
 		return status;
 	}
-	if (rwl->w_active) {
+	if (rwl->w_active != 0) {
 		status = EBUSY;
 	} else {
 		rwl->r_active++;
@@ -535,10 +535,10 @@ int rwl_writelock(rwlock_t *rwl) {
 	if (status != 0) {
 		return status;
 	}
-	if (rwl->w_active || rwl->r_active > 0) {
+	if ((rwl->w_active != 0) || rwl->r_active > 0) {
 		rwl->w_wait++;
 		pthread_cleanup_push(rwl_writecleanup, (void *)rwl);
-		while (rwl->w_active || rwl->r_active > 0) {
+		while ((rwl->w_active != 0) || rwl->r_active > 0) {
 			status = pthread_cond_wait(&rwl->write, &rwl->mutex);
 			if (status != 0) {
 				break;
@@ -568,7 +568,7 @@ int rwl_writetrylock(rwlock_t *rwl) {
 	if (status != 0) {
 		return status;
 	}
-	if (rwl->w_active || rwl->r_active > 0) {
+	if ((rwl->w_active != 0) || rwl->r_active > 0) {
 		status = EBUSY;
 	} else {
 		rwl->w_active = 1;

@@ -24,7 +24,7 @@ DataAccessImpl *DataAccess::GetImpl(const char *trxName, Context &context) {
 	DataAccessImpl *trxImpl = DataAccessImpl::FindDataAccessImpl(trxName);
 	// handling error or misconfiguration, keep on same line for clearness reason of output message
 	Assert(trxImpl);
-	if (!trxImpl) {
+	if (trxImpl == 0) {
 		HandleError(context, trxName, __FILE__, __LINE__, "DataAccess::GetImpl returned 0");
 	}
 	return trxImpl;
@@ -37,7 +37,7 @@ bool DataAccess::StdExec(Context &trxContext) {
 	DataAccessImpl *trx = GetImpl(fName, trxContext);
 	bool result = false;
 
-	if (trx) {
+	if (trx != 0) {
 		trxContext.Push("DataAccess", trx);
 		ParameterMapper *params = 0;
 		bool pIsTemp = GetMyParameterMapper(trxContext, params);
@@ -67,7 +67,7 @@ bool DataAccess::Exec(ParameterMapper *params, ResultMapper *results, Context &t
 	// if we don't have a complete triple, return immediately
 	DataAccessImpl *trx = GetImpl(fName, trxContext);
 	Assert(trx && params && results);
-	if (!(trx && params && results)) {
+	if (!((trx != 0) && (params != 0) && (results != 0))) {
 		return false;
 	}
 
@@ -99,14 +99,14 @@ bool DataAccess::GetMyParameterMapper(Context &c, ParameterMapper *&pm) {
 
 		String name(script.AsString(fName));
 		pm = ParameterMapper::FindParameterMapper(name);
-		if (pm) {
+		if (pm != 0) {
 			Trace("Using specified ParameterMapper: " << name);
 		} else {
 			// is there a fallback mapper defined?
 			String fallback = c.Lookup("FallbackParameterMapper", "");
 
 			pm = ParameterMapper::FindParameterMapper(fallback);
-			if (pm) {
+			if (pm != 0) {
 				Trace("Using fallback ParameterMapper: " << fallback);
 			} else {
 				Trace("ERROR: No mapper with name [" << name << "] found.");
@@ -134,14 +134,14 @@ bool DataAccess::GetMyResultMapper(Context &c, ResultMapper *&rm) {
 
 		String name(script.AsString(fName));
 		rm = ResultMapper::FindResultMapper(name);
-		if (rm) {
+		if (rm != 0) {
 			Trace("Using specified ResultMapper: " << name);
 		} else {
 			// is there a fallback mapper defined?
 			String fallback = c.Lookup("FallbackResultMapper", "");
 
 			rm = ResultMapper::FindResultMapper(fallback);
-			if (rm) {
+			if (rm != 0) {
 				Trace("Using fallback ResultMapper: " << fallback);
 			} else {
 				Trace("ERROR: No mapper with name [" << name << "] found.");

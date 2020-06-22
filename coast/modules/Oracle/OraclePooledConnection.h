@@ -53,7 +53,7 @@ public:
 
 	/*! Check whether the underlying connection is open
 	 * @return true if we are connected to the back end */
-	bool isOpen() const { return (fConnection.get() && fConnection->isOpen()); }
+	bool isOpen() const { return ((fConnection.get() != 0) && fConnection->isOpen()); }
 
 	/*! Check whether the underlying connection is open
 	 *

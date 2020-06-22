@@ -27,7 +27,7 @@ bool RegisterableObject::Install(const ROAnything installerSpec, const char *cat
 	StartTrace1(RegisterableObject.Install, "cat <" << NotNull(category) << ">");
 	Registry *reg = MetaRegistry::instance().GetRegistry(category);
 	TraceAny(installerSpec, "Installing Spec:");
-	if (reg) {
+	if (reg != 0) {
 		return reg->Install(installerSpec, installer);
 	}
 	return false;
@@ -45,7 +45,7 @@ bool RegisterableObject::ResetTerminate(const char *category, TerminationPolicy 
 	StartTrace1(RegisterableObject.ResetTerminate, "category <" << category << ">");
 	Registry *r;
 	r = MetaRegistry::instance().GetRegistry(category);
-	if (r) {
+	if (r != 0) {
 		Trace("found registry, terminating it");
 		//!@FIXME how to delete registered alias without
 		// crashing the shutdown
@@ -70,7 +70,7 @@ void RegisterableObject::Register(const char *name, const char *category) {
 	StartTrace1(RegisterableObject.Register, "cat <" << NotNull(category) << "> name <" << NotNull(name) << ">");
 	fCategory = category;
 	Registry *reg = MetaRegistry::instance().GetRegistry(category);
-	if (reg) {
+	if (reg != 0) {
 		Trace("Registering: <" << name << "> of category <" << category << ">");
 		reg->RegisterRegisterableObject(name, this);
 	}
@@ -79,7 +79,7 @@ void RegisterableObject::Register(const char *name, const char *category) {
 void RegisterableObject::Unregister(const char *name, const char *category) {
 	StartTrace1(RegisterableObject.Unregister, "cat <" << NotNull(category) << "> name <" << NotNull(name) << ">");
 	Registry *reg = MetaRegistry::instance().GetRegistry(category);
-	if (reg) {
+	if (reg != 0) {
 		Trace("Unregistering: <" << name << "> of category <" << category << ">");
 		reg->UnregisterRegisterableObject(name);
 	}
@@ -89,7 +89,7 @@ bool RegisterableObject::Initialize(const char *category) {
 	StatTrace(RegisterableObject.Initialize, "cat <" << NotNull(category) << "> fCat <" << fCategory << ">",
 			  coast::storage::Current());
 	if (category != NULL) {
-		if (!fCategory.Length()) {
+		if (fCategory.Length() == 0) {
 			fCategory = category;
 		}
 	}
@@ -136,7 +136,7 @@ ConfNamedObject *ConfNamedObject::ConfiguredClone(const char *category, const ch
 				"cat <" << NotNull(category) << "> name <" << name << "> clone-base <" << fName << ">");
 	// allow subclasses to do specific cloning stuff
 	ConfNamedObject *cno = DoConfiguredClone(category, name, bInitializeConfig);
-	if (cno && bInitializeConfig) {
+	if ((cno != 0) && bInitializeConfig) {
 		// store cloned objects name for configuration loading in case we re-initialize it
 		cno->SetConfigName(fName);
 		// do a Initialize on demand for the newly created clone to initialize its configuration based on the config name of the
@@ -149,7 +149,7 @@ ConfNamedObject *ConfNamedObject::ConfiguredClone(const char *category, const ch
 ConfNamedObject *ConfNamedObject::DoConfiguredClone(const char *category, const char *name, bool bInitializeConfig) {
 	StartTrace1(ConfNamedObject.DoConfiguredClone, "cat <" << NotNull(category) << "> name <" << fName << ">");
 	ConfNamedObject *cno = (ConfNamedObject *)this->Clone(coast::storage::Global());
-	if (cno) {
+	if (cno != 0) {
 		cno->SetName(name);
 		cno->fCategory = fCategory;
 	}
@@ -160,7 +160,7 @@ bool ConfNamedObject::DoCheckConfig(const char *category, bool bInitializeConfig
 	StartTrace1(ConfNamedObject.DoCheckConfig,
 				"cat <" << NotNull(category) << "> fName <" << fName << "> &" << (long)(IFAObject *)this);
 	bool bRet = false;
-	if (category) {
+	if (category != 0) {
 		bRet = true;
 		if (bInitializeConfig || fConfig.IsNull()) {
 			Trace((bInitializeConfig ? "force-re" : "initial-") << "loading config");
@@ -194,7 +194,7 @@ bool ConfNamedObject::DoGetConfigName(const char *category, const char *objName,
 	StartTrace1(ConfNamedObject.DoGetConfigName,
 				"cat <" << NotNull(category) << "> fName <" << fName << "> objName <" << NotNull(objName) << ">");
 	// generate config file name from object name
-	if (fConfigName.Length()) {
+	if (fConfigName.Length() != 0) {
 		configFileName = fConfigName;
 		return true;
 	}
@@ -240,7 +240,7 @@ bool ConfNamedObject::DoLookup(const char *key, ROAnything &result, char delim, 
 ConfNamedObject *HierarchConfNamed::DoConfiguredClone(const char *category, const char *name, bool bInitializeConfig) {
 	StartTrace1(HierarchConfNamed.DoConfiguredClone, "using [" << fName << "] as clone-base for [" << name << "]");
 	HierarchConfNamed *cno = (HierarchConfNamed *)ConfNamedObject::DoConfiguredClone(category, name, bInitializeConfig);
-	if (cno) {
+	if (cno != 0) {
 		// assign superclass, this is important to retrieve hierarchic configuration through Lookup()
 		Trace("my superclass is [" << (fSuper ? fSuper->GetName() : "<unknown>") << "]");
 		Trace("setting myself [" << GetName() << "] as superclass for [" << name << "]");
@@ -256,7 +256,7 @@ bool HierarchConfNamed::DoLookup(const char *key, class ROAnything &result, char
 		TraceAny(result, "value for key [" << key << "]");
 		return true;
 	}
-	if (fSuper) {
+	if (fSuper != 0) {
 		return fSuper->DoLookup(key, result, delim, indexdelim);
 	}
 	Trace("key [" << key << "] not found");
@@ -265,7 +265,7 @@ bool HierarchConfNamed::DoLookup(const char *key, class ROAnything &result, char
 
 RegisterableObjectInstaller::RegisterableObjectInstaller(const char *name, const char *category, RegisterableObject *r)
 	: fObject(r), fCategory(category) {
-	if (fObject) {
+	if (fObject != 0) {
 		static bool bTrace = (coast::system::EnvGet(coast::wdbase::envnameTraceStaticalloc) == "1");
 		if (bTrace) {
 			SystemLog::WriteToStderr(String("installing <") << name << "> into <" << category << ">\n");
@@ -277,7 +277,7 @@ RegisterableObjectInstaller::RegisterableObjectInstaller(const char *name, const
 
 RegisterableObjectInstaller::~RegisterableObjectInstaller() {
 	StartTrace(RegisterableObjectInstaller.~RegisterableObjectInstaller);
-	if (fObject) {
+	if (fObject != 0) {
 		static bool bTrace = (coast::system::EnvGet(coast::wdbase::envnameTraceStaticalloc) == "1");
 		if (bTrace) {
 			SystemLog::WriteToStderr(String("deleting <") << fObject->GetName() << "> from <" << fCategory << ">\n");

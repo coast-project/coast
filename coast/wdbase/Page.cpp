@@ -77,7 +77,7 @@ void Page::Start(std::ostream &reply, Context &context) {
 
 bool Page::Prepare(String &transitionToken, Context &context) {
 	StartTrace1(Page.Prepare, fName << ": <" << transitionToken << ">");
-	if (!transitionToken.Length()) {
+	if (transitionToken.Length() == 0) {
 		return true;
 	}
 	return ProcessToken(transitionToken, context);

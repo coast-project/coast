@@ -66,7 +66,7 @@ void Renderer::Render(std::ostream &reply, Context &c, const ROAnything &info) {
 			Trace("old Type style renderer");
 
 			const char *type = info["Type"].AsCharPtr(0);
-			if (type && (r = FindRenderer(type))) {	 // whe have to check otherwise FindRenderer cores
+			if ((type != 0) && ((r = FindRenderer(type)) != 0)) {  // whe have to check otherwise FindRenderer cores
 				// type contains a valid string and it was a valid renderer type
 				if (info.IsDefined("Data")) {
 					// { /Data { .... } }
@@ -93,7 +93,7 @@ void Renderer::Render(std::ostream &reply, Context &c, const ROAnything &info) {
 				// Check if slot has a name and if this is a renderer
 				// otherwise interpret the slot content
 				String slotname(info.SlotName(i));
-				if (slotname.Length() > 0 && (r = FindRenderer(slotname))) {
+				if (slotname.Length() > 0 && ((r = FindRenderer(slotname)) != 0)) {
 					// renderer found - let it work
 					TraceAny(info[i], "found [" << slotname << "], calling with config");
 					r->RenderAll(reply, c, info[i]);
@@ -171,7 +171,7 @@ void Renderer::PrintOptions3(std::ostream &reply, Context &c, const ROAnything &
 	ROAnything opts;
 	if (config.LookupPath(opts, "Options")) {
 		Renderer *op = FindRenderer("OptionsPrinter");
-		if (op) {
+		if (op != 0) {
 			op->RenderAll(reply, c, opts);
 		}
 	}

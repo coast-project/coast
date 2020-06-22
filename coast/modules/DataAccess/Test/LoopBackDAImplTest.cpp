@@ -28,7 +28,7 @@ LoopBackDAImplTest::~LoopBackDAImplTest() {}
 
 void LoopBackDAImplTest::setUp() {
 	std::iostream *Ios = coast::system::OpenStream("LoopBackDAImplTest", "any");
-	if (Ios) {
+	if (Ios != 0) {
 		fStdContextAny.Import((*Ios));
 		delete Ios;
 	}

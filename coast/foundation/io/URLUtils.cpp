@@ -35,7 +35,7 @@ namespace coast {
 				while (c == str[at]) {
 					++at;
 				}
-				if (at) {
+				if (at != 0) {
 					str.TrimFront(at);
 				}
 			} else {
@@ -125,8 +125,8 @@ namespace coast {
 
 			if (delta == 7) {
 				// &#xffff;
-				if ((str[lPos + 2] == 'x' || str[lPos + 2] == 'X') && isxdigit(str[lPos + 3]) && isxdigit(str[lPos + 4]) &&
-					isxdigit(str[lPos + 5]) && isxdigit(str[lPos + 6])) {
+				if ((str[lPos + 2] == 'x' || str[lPos + 2] == 'X') && (isxdigit(str[lPos + 3]) != 0) &&
+					(isxdigit(str[lPos + 4]) != 0) && (isxdigit(str[lPos + 5]) != 0) && (isxdigit(str[lPos + 6]) != 0)) {
 					if ((str[lPos + 3] == '0') && (str[lPos + 4] == '0')) {
 						ExtractHex(str, res, lPos, delta);
 					}
@@ -134,41 +134,43 @@ namespace coast {
 			}
 			if (delta == 6) {
 				// &#xfff;
-				if ((str[lPos + 2] == 'x' || str[lPos + 2] == 'X') && isxdigit(str[lPos + 3]) && isxdigit(str[lPos + 4]) &&
-					isxdigit(str[lPos + 5])) {
+				if ((str[lPos + 2] == 'x' || str[lPos + 2] == 'X') && (isxdigit(str[lPos + 3]) != 0) &&
+					(isxdigit(str[lPos + 4]) != 0) && (isxdigit(str[lPos + 5]) != 0)) {
 					if (str[lPos + 3] == '0') {
 						ExtractHex(str, res, lPos, delta);
 					}
 				}
 				// &#dddd;
-				else if (isdigit(str[lPos + 2]) && isdigit(str[lPos + 3]) && isdigit(str[lPos + 4]) && isdigit(str[lPos + 5])) {
+				else if ((isdigit(str[lPos + 2]) != 0) && (isdigit(str[lPos + 3]) != 0) && (isdigit(str[lPos + 4]) != 0) &&
+						 (isdigit(str[lPos + 5]) != 0)) {
 					ExtractDecimal(str, res, lPos, delta);
 				}
 			}
 			if (delta == 5) {
 				// &#xff;
-				if ((str[lPos + 2] == 'x' || str[lPos + 2] == 'X') && isxdigit(str[lPos + 3]) && isxdigit(str[lPos + 4])) {
+				if ((str[lPos + 2] == 'x' || str[lPos + 2] == 'X') && (isxdigit(str[lPos + 3]) != 0) &&
+					(isxdigit(str[lPos + 4]) != 0)) {
 					ExtractHex(str, res, lPos, delta);
 				}
 				// &#ddd;
-				else if (isdigit(str[lPos + 2]) && isdigit(str[lPos + 3]) && isdigit(str[lPos + 4])) {
+				else if ((isdigit(str[lPos + 2]) != 0) && (isdigit(str[lPos + 3]) != 0) && (isdigit(str[lPos + 4]) != 0)) {
 					ExtractDecimal(str, res, lPos, delta);
 				}
 			}
 			if (delta == 4) {
 				// &xf
-				if ((str[lPos + 2] == 'x' || str[lPos + 2] == 'X') && isxdigit(str[lPos + 3])) {
+				if ((str[lPos + 2] == 'x' || str[lPos + 2] == 'X') && (isxdigit(str[lPos + 3]) != 0)) {
 					char tmp[2] = {'0', str[lPos + (delta - 1L)]};
 					res.AppendTwoHexAsChar(tmp);
 				}
 				// &#dd;
-				else if (isdigit(str[lPos + 2]) && isdigit(str[lPos + 3])) {
+				else if ((isdigit(str[lPos + 2]) != 0) && (isdigit(str[lPos + 3]) != 0)) {
 					ExtractDecimal(str, res, lPos, delta);
 				}
 			}
 			if (delta == 3) {
 				// &#d;
-				if (isdigit(str[lPos + 2])) {
+				if (isdigit(str[lPos + 2]) != 0) {
 					ExtractDecimal(str, res, lPos, delta);
 				}
 			}
@@ -270,9 +272,9 @@ namespace coast {
 
 		void Pair(const char *buf, char delim, Anything &any, NormalizeTag normKey) {
 			StartTrace1(URLUtils.Pair, "[" << NotNull(buf) << "]");
-			if (buf) {
+			if (buf != 0) {
 				const char *p = strchr(buf, delim);
-				if (p) {
+				if (p != 0) {
 					String key(buf, p - buf);
 					// will not work if \0 is contained in the string, on purpose
 					++p;
@@ -301,7 +303,7 @@ namespace coast {
 				} else {
 					any[key] = value;
 				}
-			} else if (value && *value) {
+			} else if ((value != 0) && (*value != 0)) {
 				any.Append(value);
 			}
 		}
@@ -461,8 +463,8 @@ namespace coast {
 						// Escape: next 5 chars are %uxxxx representation of the actual character
 						if ((c = str[lPos]) == '%' &&
 							((lPos + 1L < length) && (str[lPos + 1L] == 'u' || str[lPos + 1L] == 'U'))) {
-							if (((lPos + 5L < length) && isxdigit(str[lPos + 2L]) && isxdigit(str[lPos + 3L]) &&
-								 isxdigit(str[lPos + 4L]) && isxdigit(str[lPos + 5L]))) {
+							if (((lPos + 5L < length) && (isxdigit(str[lPos + 2L]) != 0) && (isxdigit(str[lPos + 3L]) != 0) &&
+								 (isxdigit(str[lPos + 4L]) != 0) && (isxdigit(str[lPos + 5L]) != 0))) {
 								if (str[lPos + 2L] == '0' && (str[lPos + 3L]) == '0') {
 									res.AppendTwoHexAsChar(&((const char *)str)[lPos + 4L]);
 								} else {
@@ -475,8 +477,8 @@ namespace coast {
 							c = DecodeSpecialChars(str, c, lPos, 2);
 						} else {
 							// Escape: next 2 chars are hex representation of the actual character
-							if ((lPos + 1L < length) && isxdigit(str[lPos + 1L]) && (lPos + 2L < length) &&
-								isxdigit(str[lPos + 2L])) {
+							if ((lPos + 1L < length) && (isxdigit(str[lPos + 1L]) != 0) && (lPos + 2L < length) &&
+								(isxdigit(str[lPos + 2L]) != 0)) {
 								res.AppendTwoHexAsChar(&((const char *)str)[lPos + 1L]);
 								lPos += 2L;
 								continue;
@@ -608,7 +610,7 @@ namespace coast {
 				DecodeAll(queryInfo);
 				for (long i = 0, sz = queryInfo.GetSize(); i < sz; ++i) {
 					const char *slot = queryInfo.SlotName(i);
-					if (slot) {
+					if (slot != 0) {
 						query[slot] = queryInfo[i];
 					} else {
 						query.Append(queryInfo[i]);
@@ -767,7 +769,7 @@ namespace coast {
 			TraceAny(kVPairs, "input key value pairs");
 			String localString;
 			for (int i = 0, sz = kVPairs.GetSize(); i < sz; ++i) {
-				if (localString.Length())
+				if (localString.Length() != 0)
 					localString.Append('&');
 				localString.Append(kVPairs.SlotName(i)).Append('=').Append(kVPairs[i].AsString());
 			}
@@ -783,7 +785,7 @@ namespace coast {
 			long length(toEscape.Length());
 			for (long i = 0; i < length; ++i) {
 				unsigned int work = (unsigned char)toEscape[i];
-				if (isalnum(work)) {
+				if (isalnum(work) != 0) {
 					escapedString.Append((char)work);
 				} else {
 					escapedString.Append(escPrefix);

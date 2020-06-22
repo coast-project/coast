@@ -91,12 +91,12 @@ namespace coast {
 		}
 
 		void ConnectionPool::DoGetStatistic(Anything &statistics) {
-			if (fpStatEvtHandlerPool.get()) {
+			if (fpStatEvtHandlerPool.get() != 0) {
 				Anything anyStats;
 				fpStatEvtHandlerPool->Statistic(anyStats);
 				statistics["Pool"] = anyStats;
 			}
-			if (OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS()) {
+			if (OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS() != 0) {
 				Anything anyStats;
 				OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS()->Statistic(anyStats);
 				statistics["TLS"] = anyStats;
@@ -150,7 +150,7 @@ namespace coast {
 						IntReleaseConnection(pConnection);
 					}
 					fpStatEvtHandlerPool = StatEvtHandlerPtrType(new WPMStatHandler(nrOfConnections));
-					if (!fpPeriodicAction) {
+					if (fpPeriodicAction == 0) {
 						fpPeriodicAction = new (coast::storage::Global())
 							PeriodicAction("OracleCheckCloseOpenedConnectionsAction", lCloseConnectionTimeout);
 						fpPeriodicAction->Start();
@@ -163,7 +163,7 @@ namespace coast {
 
 		bool ConnectionPool::Finis() {
 			StartTrace(ConnectionPool.Finis);
-			if (fpPeriodicAction) {
+			if (fpPeriodicAction != 0) {
 				fpPeriodicAction->Terminate();
 				delete fpPeriodicAction;
 				fpPeriodicAction = NULL;
@@ -218,16 +218,16 @@ namespace coast {
 					if (pConnection != NULL) {
 						bRet = SETTLSDATA(OracleTlsKeyInitializerSingleton::instance().getConnectionKey(), pConnection);
 						Trace("connection stored in TLS:" << (bRet ? "true" : "false"));
-						if (OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS()) {
+						if (OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS() != 0) {
 							OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS()->incrementPoolSize();
 						}
 					}
 				}
-				if (OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS()) {
+				if (OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS() != 0) {
 					OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS()->HandleStatEvt(WPMStatHandler::eEnter);
 				}
 			} else {
-				if (fpStatEvtHandlerPool.get()) {
+				if (fpStatEvtHandlerPool.get() != 0) {
 					fpStatEvtHandlerPool->HandleStatEvt(WPMStatHandler::eEnter);
 				}
 				fpResourcesSema->Acquire();
@@ -241,7 +241,7 @@ namespace coast {
 			StartTrace(ConnectionPool.ReleaseConnection);
 			if (OracleTlsKeyInitializerSingleton::instance().TLSUsable() && bUseTLS) {
 				Trace("nothing to do, keep connection as long as we (Thread) are alive");
-				if (OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS()) {
+				if (OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS() != 0) {
 					OracleTlsKeyInitializerSingleton::instance().getStatHandlerTLS()->HandleStatEvt(WPMStatHandler::eLeave);
 				}
 			} else {
@@ -250,7 +250,7 @@ namespace coast {
 					IntReleaseConnection(pConnection);
 					fpResourcesSema->Release();
 				}
-				if (fpStatEvtHandlerPool.get()) {
+				if (fpStatEvtHandlerPool.get() != 0) {
 					fpStatEvtHandlerPool->HandleStatEvt(WPMStatHandler::eLeave);
 				}
 			}
@@ -261,9 +261,9 @@ namespace coast {
 			pConnection = NULL;
 			ROAnything roaTimeStamp, roaTSEntry, roaConn;
 			TraceAny(fListOfConnections, "current list of connections");
-			if (ROAnything(fListOfConnections).LookupPath(roaTimeStamp, "Open") && roaTimeStamp.GetSize()) {
+			if (ROAnything(fListOfConnections).LookupPath(roaTimeStamp, "Open") && (roaTimeStamp.GetSize() != 0)) {
 				String strToLookup(server);
-				if (strToLookup.Length() && user.Length()) {
+				if ((strToLookup.Length() != 0) && (user.Length() != 0)) {
 					strToLookup << '.' << user;
 				}
 				Trace("Lookup name [" << strToLookup << "]");
@@ -292,16 +292,16 @@ namespace coast {
 					}
 				}
 			}
-			return pConnection;
+			return pConnection != 0;
 		}
 
 		bool ConnectionPool::IntBorrowConnection(OraclePooledConnection *&pConnection, const String &server,
 												 const String &user) {
 			StartTrace(ConnectionPool.IntBorrowConnection);
 			pConnection = NULL;
-			if (!server.Length() || !user.Length() || !IntGetOpen(pConnection, server, user)) {
+			if ((server.Length() == 0) || (user.Length() == 0) || !IntGetOpen(pConnection, server, user)) {
 				Trace("favour unused connection against open connection of different server/user");
-				if (fListOfConnections["Unused"].GetSize()) {
+				if (fListOfConnections["Unused"].GetSize() != 0) {
 					Trace("removing first unused element");
 					pConnection = SafeCast(fListOfConnections["Unused"][0L].AsIFAObject(), OraclePooledConnection);
 					fListOfConnections["Unused"].Remove(0L);
@@ -353,15 +353,15 @@ namespace coast {
 			if (fInitialized) {
 				Anything anyTimeStamp(fListOfConnections.GetAllocator());
 				TraceAny(fListOfConnections, "current list of connections");
-				if (fListOfConnections.LookupPath(anyTimeStamp, "Open") && anyTimeStamp.GetSize()) {
+				if (fListOfConnections.LookupPath(anyTimeStamp, "Open") && (anyTimeStamp.GetSize() != 0)) {
 					OraclePooledConnection *pConnection = NULL;
 					long lTS = 0L;
 					// if we still have open connections and the last access is older than lTimeout seconds
-					while (anyTimeStamp.GetSize() && (aStamp > TimeStamp(anyTimeStamp.SlotName(lTS)))) {
+					while ((anyTimeStamp.GetSize() != 0) && (aStamp > TimeStamp(anyTimeStamp.SlotName(lTS)))) {
 						Anything anyTS(fListOfConnections.GetAllocator());
 						anyTS = anyTimeStamp[lTS];
 						TraceAny(anyTS, "stamp of connections to close [" << anyTimeStamp.SlotName(0L) << "]");
-						while (anyTS.GetSize()) {
+						while (anyTS.GetSize() != 0) {
 							pConnection = SafeCast(anyTS[0L][0L].AsIFAObject(), OraclePooledConnection);
 							anyTS.Remove(0L);
 							if (pConnection != NULL) {

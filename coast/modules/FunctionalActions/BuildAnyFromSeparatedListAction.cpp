@@ -146,7 +146,7 @@ bool BuildAnyFromSeparatedListAction::DoTokenize(Anything &anyTokens, String &te
 	String strTmp(text);
 	if (strSep.Length() > 1L) {
 		long lIdx = -1L;
-		while (strTmp.Length()) {
+		while (strTmp.Length() != 0) {
 			lIdx = strTmp.Contains(strSep);
 			Trace("found pattern at index:" << lIdx);
 			String strToken = strTmp.SubString(0, lIdx);

@@ -32,7 +32,7 @@ void BlowfishRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnyt
 	String msg;
 	msg << "BlowfishRenderer: BlowfishSecurityItem: " << blowfishSecurityItem << " Base64ArmouredInput: " << base64ArmouredInput
 		<< " DeArmouredInput: " << deArmouredInput;
-	if (scrambler) {
+	if (scrambler != 0) {
 		if (!scrambler->DoDecode(decodedInput, deArmouredInput)) {
 			msg << " Couldn't decode Base64ArmouredInput";
 			Trace(msg);

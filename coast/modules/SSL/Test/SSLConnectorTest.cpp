@@ -141,7 +141,7 @@ void SSLConnectorTest::getStreamTest() {
 		TString markfailuretimeout("timeout = ");
 		markfailuretimeout << timeout;
 		t_assertm(s1 != 0, markfailuretimeout);	 // these fail without HTTPS Server
-		if (!s1) {
+		if (s1 == 0) {
 			continue;
 		}
 		(*s1) << "GET / HTTP/1.0" << ENDL << ENDL << std::flush;
@@ -202,8 +202,8 @@ void SSLConnectorTest::CipherListMismatchTest() {
 		Trace("At: " << GetTestCaseConfig().SlotName(aEntryIterator.Index()));
 		// This is the only SSLConnector using SSLObjectManager because Config param is passed, see ctor SSLConnector
 		// Therefore, the SSLObjectManager must be Finished to be "new" for every test run in the loop
-		ConnectAndAssert(cConfig["Config"], cConfig["Expected"]["UseConnectorSouldFail"].AsBool(0),
-						 cConfig["Expected"]["ConnectShouldFail"].AsBool(0),
+		ConnectAndAssert(cConfig["Config"], cConfig["Expected"]["UseConnectorSouldFail"].AsBool(false),
+						 cConfig["Expected"]["ConnectShouldFail"].AsBool(false),
 						 name().Append('.').Append(GetTestCaseConfig().SlotName(aEntryIterator.Index())));
 		tearDown();
 	}

@@ -29,7 +29,7 @@ void SocketStreamTest::simpleRead() {
 	simpleWrite();	// send request to http server
 	std::iostream *Ios = fConnector->GetStream();
 	t_assert(Ios != NULL);	// http server doesn't run if assert fails
-	if (Ios) {
+	if (Ios != 0) {
 		String str;
 		// make sure Ios is valid str;
 		if (t_assert(!!(*Ios))) {  // make sure Ios is valid
@@ -39,6 +39,7 @@ void SocketStreamTest::simpleRead() {
 			long charcounter = str.Length();
 			while ((*Ios).good()) {
 				char c;
+				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				if (Ios->get(c)) {
 					charcounter++;
 				}

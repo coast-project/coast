@@ -33,7 +33,7 @@ Pipe::Pipe(long timeout) : fReadFd(-1), fWriteFd(-1), fStream(0), fDoClose(false
 
 Pipe::~Pipe() {
 	StartTrace(Pipe.~Pipe);
-	if (fStream) {
+	if (fStream != 0) {
 		Trace("Deleting stream");
 		delete fStream;
 		fStream = 0;
@@ -59,7 +59,7 @@ bool Pipe::ShutDown(long fd) {
 
 PipeStream *Pipe::GetStream() {
 	StartTrace(Pipe.GetStream);
-	if (!fStream) {
+	if (fStream == 0) {
 		Trace("creating new PipeStream");
 		fStream = DoMakeStream();
 	}
@@ -120,7 +120,7 @@ bool Pipe::ShutDownReading() {
 
 bool Pipe::ShutDownWriting() {
 	StartTrace(Pipe.ShutDownWriting);
-	if (fStream) {
+	if (fStream != 0) {
 		fStream->flush();
 	}
 	bool res = ShutDown(GetWriteFd());

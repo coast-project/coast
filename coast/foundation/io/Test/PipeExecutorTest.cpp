@@ -39,7 +39,7 @@ void PipeExecutorTest::EchoEnvTest() {
 	std::istream *is = Execute.GetStream();
 	t_assertm(is != NULL, "Execute env failed");
 
-	if (is && os) {
+	if ((is != 0) && (os != 0)) {
 		t_assertm(!!(*os), "Execute env failed");
 		t_assertm(!!(*is), "Execute env failed");
 		Execute.ShutDownWriting();
@@ -62,7 +62,7 @@ void PipeExecutorTest::FailExecTest() {
 	t_assertm(0 == os, "oops Execute call succeeded");
 	std::istream *is = Execute.GetStream();
 	t_assertm(0 == is, "oops Execute call succeeded");
-	if (res && is && os) {
+	if (res && (is != 0) && (os != 0)) {
 		// show what is wrong, we didn't expect to...
 		t_assertm(!!(*os), "Execute call failed");
 		t_assertm(!!(*is), "Execute call failed");
@@ -86,7 +86,7 @@ void PipeExecutorTest::CatGugusErrTest() {
 	std::istream *err = Execute.GetStderr();
 	t_assertm(err != NULL, "Execute cat stderr failed");
 
-	if (err) {
+	if (err != 0) {
 		t_assertm(!!(*err), "Execute cat failed");
 		// may be we need to close it here...
 		String s1;
@@ -105,7 +105,7 @@ void PipeExecutorTest::CatWorkingDirTest() {
 	filename << system::Sep() << fileName;
 	std::ostream *os = system::OpenOStream(filename, 0);
 	t_assertm(os && !!(*os), "opening test file for writing failed");
-	if (os) {
+	if (os != 0) {
 		(*os) << msg << std::flush;
 		delete os;
 	}
@@ -122,7 +122,7 @@ void PipeExecutorTest::CatWorkingDirTest() {
 	std::istream *is = Execute.GetStream();
 	t_assertm(is != NULL, "Execute cat failed");
 
-	if (is) {
+	if (is != 0) {
 		t_assertm(!!(*is), "Execute cat failed");
 		Execute.ShutDownWriting();
 		String s1;
@@ -148,7 +148,7 @@ void PipeExecutorTest::EchoCatTest() {
 	t_assertm(os != NULL, "Execute cat failed");
 	std::istream *is = Execute.GetStream();
 	t_assertm(is != NULL, "Execute cat failed");
-	if (is && os) {
+	if ((is != 0) && (os != 0)) {
 		t_assertm(!!(*os), "Execute cat failed");
 		t_assertm(!!(*is), "Execute cat failed");
 		String s0("hallo");
@@ -179,7 +179,7 @@ void PipeExecutorTest::KillTest() {
 	std::istream *is = Execute.GetStream();
 	t_assertm(is != NULL, "Execute cat failed");
 
-	if (is && os) {
+	if ((is != 0) && (os != 0)) {
 		t_assertm(!!(*os), "writing to cat failed");
 		String s0("hallo");
 		(*os) << s0 << std::endl << std::flush;
@@ -289,7 +289,7 @@ void PipeExecutorTest::ShellInvocationTest() {
 				isErr = Execute.GetStderr();
 				t_assertm(isErr != NULL, "could not get stderr to read from!");
 			}
-			if (is && os) {
+			if ((is != 0) && (os != 0)) {
 				t_assertm(!!(*os), "expected stdout to be good");
 				t_assertm(!!(*is), "expected stdin to be good");
 				(*os) << roaParams["Command"].AsString("notdefined") << std::endl;
@@ -301,7 +301,7 @@ void PipeExecutorTest::ShellInvocationTest() {
 				t_assert(lRecv > 0);
 				Trace("Stdout [" << aShellOutput.str() << "]");
 				assertCharPtrEqual(roaExpected["Output"].AsString(""), aShellOutput.str());
-				if (bUseStderr && isErr) {
+				if (bUseStderr && (isErr != 0)) {
 					while (NSStringStream::PlainCopyStream2Stream(isErr, aErrOutput, lRecv, lToRecv) && lRecv == lToRecv)
 						;
 					assertEqual(0, lRecv);

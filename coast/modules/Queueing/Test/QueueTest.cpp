@@ -178,7 +178,7 @@ public:
 			aProduct["ProductNumber"] = lProductCount;
 			if (fQueue.Put(aProduct, bTryLock) == QueueType::eSuccess) {
 				TraceAny(aProduct, "produced product");
-				if (fWaitTimeMicroSec)
+				if (fWaitTimeMicroSec != 0)
 					system::MicroSleep(fWaitTimeMicroSec);
 				++lProductCount;
 			}

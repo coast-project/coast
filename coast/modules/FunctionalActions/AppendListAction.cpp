@@ -38,7 +38,7 @@ void ContextSlotAppender::Operate(Context &c, Anything &dest, const ROAnything &
 		Renderer::RenderOnString(destSlot, c, config[i]);
 		Trace("slot to lookup [" << sourceLookupName << "] destslot [" << destSlot << "]");
 		ROAnything roaLookedUp;
-		if (sourceLookupName && destSlot && c.Lookup(sourceLookupName, roaLookedUp)) {
+		if ((sourceLookupName != 0) && (destSlot != 0) && c.Lookup(sourceLookupName, roaLookedUp)) {
 			TraceAny(((ROAnything)dest)[destSlot], "current destination");
 			Anything res;
 			for (idx = 0, szd = dest[destSlot].GetSize(); idx < szd; ++idx) {

@@ -28,7 +28,7 @@ bool ReadXMLFileDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper
 	StartTrace(ReadXMLFileDAImpl.Exec);
 	bool retVal = false;
 	std::istream *Ios = GetFileStream(context, in);
-	if (Ios) {
+	if (Ios != 0) {
 		GenericXMLParser p;
 		Anything result = p.Parse(*Ios);
 		TraceAny(result, "Parsed XML");

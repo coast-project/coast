@@ -59,7 +59,7 @@ namespace testframework {
 			StartTrace(AnythingStatisticTestPolicy.LoadData);
 			fTestName = strTestName;
 			coast::system::LoadConfigFile(fStatistics, strClassName, "stat.any", fFilename);
-			if (!fFilename.Length()) {
+			if (fFilename.Length() == 0) {
 				fFilename = strClassName;
 				fFilename << ".stat.any";
 			}

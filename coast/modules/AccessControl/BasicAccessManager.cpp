@@ -22,7 +22,7 @@ bool BasicAccessManager::Validate(String &uid) {
 
 	UserDataAccessController *udac = GetUdac();
 
-	if (udac && udac->Exists(uid)) {
+	if ((udac != 0) && udac->Exists(uid)) {
 		Trace("User '" << uid << "' exists.");
 		return true;
 	}
@@ -45,7 +45,7 @@ bool BasicAccessManager::AuthenticateWeak(String uid, String passwd, String &new
 	Trace("uid = " << uid);
 	Trace("passwd = " << passwd);
 
-	if (Validate(uid) && udac && (udac->GetPassword(uid)).IsEqual(passwd)) {
+	if (Validate(uid) && (udac != 0) && (udac->GetPassword(uid)).IsEqual(passwd)) {
 		newRole = GetAuthSuccessRole();
 		Trace("weak authentication SUCCEEDED. New role = " << newRole);
 		return true;
@@ -79,7 +79,7 @@ bool BasicAccessManager::AuthenticateStrong(String uid, String passwd, String ot
 		TokenDataAccessController *tdac = GetTdac();
 		OTPList *verifier = GetOTPList();
 
-		if (udac && tdac && verifier) {
+		if ((udac != 0) && (tdac != 0) && (verifier != 0)) {
 			if (verifier->Verify(udac->GetTokenId(uid), otp, window, tdac)) {
 				newRole = GetAuthSuccessRole();
 				Trace("strong authentication SUCCEEDED. new role = " << newRole);
@@ -100,7 +100,7 @@ bool BasicAccessManager::ChangePassword(String uid, String newpwd, String oldpwd
 	StartTrace(BasicAccessManager.ChangePassword);
 
 	UserDataAccessController *udac = GetUdac();
-	if (udac) {
+	if (udac != 0) {
 		Trace("old passwd = " << oldpwd);
 		Trace("new passwd = " << newpwd);
 		Trace("old passwd from db = " << udac->GetPassword(uid));
@@ -133,7 +133,7 @@ bool BasicAccessManager::ResetPassword(String uid) {
 	}
 
 	UserDataAccessController *udac = GetUdac();
-	if (udac) {
+	if (udac != 0) {
 		return udac->SetPassword(uid, uid);
 	}
 	return false;
@@ -167,7 +167,7 @@ bool BasicAccessManager::GetAllowedEntitiesFor(Anything who, Anything &allowed) 
 
 	EntityDataAccessController *edac = GetEdac();
 	UserDataAccessController *udac = GetUdac();
-	if (!(udac && edac)) {
+	if (!((udac != 0) && (edac != 0))) {
 		return false;
 	}
 
@@ -201,7 +201,7 @@ UserDataAccessController *BasicAccessManager::GetUdac() {
 	StartTrace(BasicAccessManager.GetUdac);
 	const char *udacName = Lookup("UserDataAccessController", "");
 	UserDataAccessController *udac = UserDataAccessController::FindUserDataAccessController(udacName);
-	if (!udac) {
+	if (udac == 0) {
 		Trace("UserDataAccessController '" << udacName << "' not found. Specified correctly in AccessManager config?");
 	}
 	return udac;
@@ -211,7 +211,7 @@ EntityDataAccessController *BasicAccessManager::GetEdac() {
 	StartTrace(BasicAccessManager.GetEdac);
 	const char *edacName = Lookup("EntityDataAccessController", "");
 	EntityDataAccessController *edac = EntityDataAccessController::FindEntityDataAccessController(edacName);
-	if (!edac) {
+	if (edac == 0) {
 		Trace("EntityDataAccessController '" << edacName << "' not found. Specified correctly in AccessManager config?");
 	}
 	return edac;
@@ -221,7 +221,7 @@ TokenDataAccessController *BasicAccessManager::GetTdac() {
 	StartTrace(BasicAccessManager.GetTdac);
 	const char *tdacName = Lookup("TokenDataAccessController", "");
 	TokenDataAccessController *tdac = TokenDataAccessController::FindTokenDataAccessController(tdacName);
-	if (!tdac) {
+	if (tdac == 0) {
 		Trace("TokenDataAccessController '" << tdacName << "' not found. Specified correctly in AccessManager config?");
 	}
 	return tdac;
@@ -231,7 +231,7 @@ OTPList *BasicAccessManager::GetOTPList() {
 	StartTrace(BasicAccessManager.GetOTPList);
 	const char *otpListName = Lookup("OTPList", "");
 	OTPList *list = OTPList::FindOTPList(otpListName);
-	if (!list) {
+	if (list == 0) {
 		Trace("OTPList '" << otpListName << "' not found. Specified correctly in AccessManager config?");
 	}
 	return list;

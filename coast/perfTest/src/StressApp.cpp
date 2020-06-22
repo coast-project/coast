@@ -73,8 +73,8 @@ void StressApp::ShowResult(long lTime) {
 			long itopia_max = result["Max"].AsLong(0);
 			long itopia_min = result["Min"].AsLong(0);
 			long err = result["Error"].AsLong(0);
-			double trxpsec = sum ? (double(anzTr) / (double(sum) / 1000.0)) : 0;
-			double avgtime = anzTr ? (double(sum) / double(anzTr)) : 0;
+			double trxpsec = sum != 0u ? (double(anzTr) / (double(sum) / 1000.0)) : 0;
+			double avgtime = anzTr != 0u ? (double(sum) / double(anzTr)) : 0;
 
 			// show summary for this run
 			strCout << "ID: " << setw(3) << setiosflags(ios::right) << i << " Time: " << setw(4)
@@ -95,7 +95,7 @@ void StressApp::ShowResult(long lTime) {
 			bool boHasDetails = result.LookupPath(details, "Details");
 			bool boHasErrors = false;
 			bool boHasInfo = result.LookupPath(infos, "InfoMessageCtr");
-			if (err) {
+			if (err != 0) {
 				boHasErrors = result.LookupPath(errors, "ErrorMessageCtr");
 			}
 			Anything printDetails;
@@ -137,8 +137,8 @@ void StressApp::ShowResult(long lTime) {
 			totErr += err;
 		}
 
-		double totTrxpsec = totSum ? (double(totTr) / (double(totSum) / 1000.0)) : 0;
-		double totAvgtime = totTr ? (double(totSum) / double(totTr)) : 0;
+		double totTrxpsec = totSum != 0u ? (double(totTr) / (double(totSum) / 1000.0)) : 0;
+		double totAvgtime = totTr != 0u ? (double(totSum) / double(totTr)) : 0;
 		strCout << "\nTotal:" << std::endl;
 		strCout << " Time: " << setw(5) << setiosflags(ios::right | ios::fixed) << setprecision(1) << (double(totSum) / 1000.0)
 				<< "s"
@@ -156,7 +156,7 @@ void StressApp::ShowResult(long lTime) {
 	String fn = fConfig["ResultFile"].AsCharPtr("time.txt");
 	ostream *os = coast::system::OpenOStream(fn, 0, ios::out | ios::app);
 
-	if (os) {
+	if (os != 0) {
 		os->write(buf, buf.Length());
 		*os << "-----------------------------------------" << std::endl << std::endl;
 		delete os;

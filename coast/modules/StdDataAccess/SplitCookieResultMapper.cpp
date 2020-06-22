@@ -26,13 +26,13 @@ namespace {
 			if (valueTokenizer.NextToken(strKey)) {
 				strKey.TrimWhitespace();
 				strValue = valueTokenizer.GetRemainder();
-				if (!cookieName.Length()) {
+				if (cookieName.Length() == 0) {
 					cookieName = strKey;
-					if (strValue.Length()) {
+					if (strValue.Length() != 0) {
 						anyNamedCookie[valueSlotName] = strValue;
 					}
 				} else {
-					if (strValue.Length()) {
+					if (strValue.Length() != 0) {
 						anyNamedCookie[attrSlotName][strKey] = strValue;
 					} else {
 						anyNamedCookie[attrSlotName].Append(strKey);

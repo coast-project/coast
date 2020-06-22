@@ -187,7 +187,7 @@ LDAP *LDAPConnection::Init(LDAPErrorHandler &eh) {
 	StartTrace(LDAPConnection.Init);
 
 	LDAP *locLdap = ::ldap_init(fServer, fPort);
-	if (!locLdap) {
+	if (locLdap == 0) {
 		Trace("ldap_init FAILED");
 		String errMsg = "ldap_init(";
 		errMsg << fServer << "," << fPort << ") failed";
@@ -385,7 +385,7 @@ void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, 
 		Anything entries;
 
 		// step through all entries
-		while (entry) {
+		while (entry != 0) {
 			dn.Trim(0L);
 			char *ptrToDn = ldap_get_dn(fHandle, entry);
 			if (ptrToDn != (char *)NULL) {
@@ -439,7 +439,7 @@ void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, 
 			entry = ldap_next_entry(fHandle, entry);
 			++count;
 			// free used memory
-			if (ber) {
+			if (ber != 0) {
 				ber_free(ber, 0);
 			}
 		}
@@ -458,7 +458,7 @@ bool LDAPConnection::Disconnect(LDAP *handle) {
 	StartTrace(LDAPConnection.Disconnect);
 
 	Trace("Disconnecting LDAP...");
-	if (handle) {
+	if (handle != 0) {
 		int errCode = ldap_unbind(handle);
 		if (errCode != LDAP_SUCCESS) {
 			LDAPErrorHandler::HandleUnbindError(handle);

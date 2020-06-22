@@ -76,7 +76,7 @@ std::iostream *FileDAImpl::GetFileStream(Context &context, ParameterMapper *in) 
 	if (GetFileName(filename, ext, context, in)) {
 		system::openmode mode = GetMode(context, in);
 		pStream = system::OpenStream(filename, ext, mode);
-		if (pStream) {
+		if (pStream != 0) {
 			Trace("Stream opened ok");
 		}
 	}

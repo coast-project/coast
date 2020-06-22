@@ -27,7 +27,7 @@ void AnythingContentRenderer::RenderAll(std::ostream &reply, Context &ctx, const
 	String cssTag(config["XmpTags"]["CSSTag"].AsString(""));
 	String preTag(config["XmpTags"]["PreTag"].AsString(""));
 	String postTag(config["XmpTags"]["PostTag"].AsString(""));
-	bool prettyPrint(config["Pretty"].AsBool(1));
+	bool prettyPrint(config["Pretty"].AsBool(true));
 	Renderer::RenderOnString(whatToPrint, ctx, config["Input"]);
 
 	if (addXmpTags) {

@@ -135,9 +135,10 @@ long fgNofCryptoMutexes = 0;
 void sslLockingCallback(int mode, int n, const char *file, int line) {
 	Assert(n < fgNofCryptoMutexes);
 	Assert(fgCryptoMutexes);
-	if (fgCryptoMutexes && n < fgNofCryptoMutexes) {
-		RWLock::eLockMode lockMode = (((mode & CRYPTO_READ) && !(mode & CRYPTO_WRITE)) ? RWLock::eReading : RWLock::eWriting);
-		if (mode & CRYPTO_LOCK) {
+	if ((fgCryptoMutexes != 0) && n < fgNofCryptoMutexes) {
+		RWLock::eLockMode lockMode =
+			((((mode & CRYPTO_READ) != 0) && ((mode & CRYPTO_WRITE) == 0)) ? RWLock::eReading : RWLock::eWriting);
+		if ((mode & CRYPTO_LOCK) != 0) {
 			fgCryptoMutexes[n]->Lock(lockMode);
 		} else {
 			fgCryptoMutexes[n]->Unlock(lockMode);
@@ -151,7 +152,7 @@ static unsigned long sslThreadIdCallback() {
 	return Thread::MyId();
 }
 static void cleanCryptoMutexes(long i) {
-	while (--i >= 0 && fgCryptoMutexes) {
+	while (--i >= 0 && (fgCryptoMutexes != 0)) {
 		delete fgCryptoMutexes[i];
 		fgCryptoMutexes[i] = 0;
 	}
@@ -163,7 +164,7 @@ static void thread_setup() {
 	StartTrace(SSLModule.thread_setup());
 	bool ok = true;
 	fgNofCryptoMutexes = CRYPTO_num_locks();  // assume this is always the same
-	if (fgNofCryptoMutexes > 0 && !fgCryptoMutexes) {
+	if (fgNofCryptoMutexes > 0 && (fgCryptoMutexes == 0)) {
 		Trace("allocating CRYPTO locks: " << fgNofCryptoMutexes);
 		Assert(!fgCryptoMutexes);
 		fgCryptoMutexes = new RWLock *[fgNofCryptoMutexes];
@@ -222,10 +223,10 @@ SSL_CTX *SSLModule::GetSSLCtx(ConfNamedObject *object) {
 	SSL_CTX *ctx = 0;
 
 	Assert(object);
-	if (object && object->GetName(name)) {
+	if ((object != 0) && object->GetName(name)) {
 		Trace("Creating new SSL-Server-Context for " << name);
 		ctx = DoMakeServerContext(object);
-		if (!ctx) {
+		if (ctx == 0) {
 			String logMsg("Could not create SSL Context for: ");
 			logMsg << name;
 			Trace(logMsg);
@@ -309,7 +310,7 @@ SSL_CTX *SSLModule::PrepareServerContext(LookupInterface *object) {
 	SSL_CTX *ctx = SSL_CTX_new(SSLv23_server_method());
 
 	Assert(ctx);  // we expect ssl context to be not null
-	if (ctx) {
+	if (ctx != 0) {
 		int sslSessionCacheSize =
 			(int)object->Lookup("SSLSessionCacheSize",
 								(long)SSL_SESSION_CACHE_MAX_SIZE_DEFAULT);		  // default of openssl is 1024 * 20
@@ -346,7 +347,7 @@ SSL_CTX *SSLModule::PrepareClientContext(LookupInterface *object) {
 	String sslSessionIdContext(object->Lookup("SSLClientSessionIdContext", "coastd"));
 	sslSessionIdContext.Trim(SSL_MAX_SSL_SESSION_ID_LENGTH);
 
-	if (ctx) {
+	if (ctx != 0) {
 		// set some ssl options
 		SSL_CTX_set_options(ctx, SSL_OP_ALL);
 		SSL_CTX_set_quiet_shutdown(ctx, 1);
@@ -355,10 +356,10 @@ SSL_CTX *SSLModule::PrepareClientContext(LookupInterface *object) {
 		SSL_CTX_set_session_id_context(ctx, (const unsigned char *)(const char *)sslSessionIdContext,
 									   (unsigned int)sslSessionIdContext.Length());
 		SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_CLIENT);
-		if (object->Lookup("KeyFileClient", (const char *)0)) {
+		if (object->Lookup("KeyFileClient", (const char *)0) != 0) {
 			ctx = SetOwnCertificateAndKey(ctx, object, SSLModule::eClient);
 		}
-		if (ctx) {
+		if (ctx != 0) {
 			SetSSLCtxVerifyParameters(ctx, object);
 		}
 	}
@@ -423,10 +424,10 @@ SSL_CTX *SSLModule::SetOwnCertificateAndKey(SSL_CTX *ctx, LookupInterface *objec
 
 	SSL *ssl = SSL_new(ctx);
 	Assert(ssl);
-	if (ssl) {
+	if (ssl != 0) {
 		X509 *x509 = SSL_get_certificate(ssl);
 		Assert(x509);
-		if (x509) {
+		if (x509 != 0) {
 			EVP_PKEY_copy_parameters(X509_get_pubkey(x509), SSL_get_privatekey(ssl));
 		}
 		SSL_free(ssl);
@@ -447,10 +448,10 @@ SSL_CTX *SSLModule::SetOwnCertificateAndKey(SSL_CTX *ctx, LookupInterface *objec
 void SSLModule::SetSSLSetAcceptableClientCAs(SSL_CTX *ctx, LookupInterface *object) {
 	StartTrace(SSLModule.SetSSLSetAcceptableClientCAs);
 	String peerCAFileName(object->Lookup("SSLPeerCAFile", ""));	 // used for verify location and client CA list
-	if (peerCAFileName.Length()) {
+	if (peerCAFileName.Length() != 0) {
 		peerCAFileName = system::GetFilePath(peerCAFileName, "");
 	}
-	if (peerCAFileName.Length()) {
+	if (peerCAFileName.Length() != 0) {
 		Trace("using client CA list from \n" << peerCAFileName << "\n");
 		SSL_CTX_set_client_CA_list(ctx, SSL_load_client_CA_file(peerCAFileName));
 	}
@@ -459,14 +460,14 @@ void SSLModule::SetSSLCtxVerifyParameters(SSL_CTX *ctx, LookupInterface *object)
 	StartTrace(SSLModule.SetSSLCtxVerifyParameters);
 	long ret;
 	String peerCAFileName(object->Lookup("SSLPeerCAFile", ""));	 // used for verify location and client CA list
-	if (peerCAFileName.Length()) {
+	if (peerCAFileName.Length() != 0) {
 		peerCAFileName = system::GetFilePath(peerCAFileName, "");
 	}
 	long sslVerifyPeerCert = object->Lookup("SSLVerifyPeerCert", (long)0);	// default client
 
 	long sslVerifyFailIfNoPeerCert = object->Lookup("SSLVerifyFailIfNoPeerCert", (long)0);	// default client
-	int sslVerifyMode = (sslVerifyPeerCert ? SSL_VERIFY_PEER : SSL_VERIFY_NONE) |
-						(sslVerifyFailIfNoPeerCert ? SSL_VERIFY_FAIL_IF_NO_PEER_CERT : 0);
+	int sslVerifyMode = (sslVerifyPeerCert != 0 ? SSL_VERIFY_PEER : SSL_VERIFY_NONE) |
+						(sslVerifyFailIfNoPeerCert != 0 ? SSL_VERIFY_FAIL_IF_NO_PEER_CERT : 0);
 	String sslVerifyPath(object->Lookup("SSLVerifyPath", ""));		 // must be prepared with openssl's c_rehash if defined
 	int sslVerifyDepth = object->Lookup("SSLVerifyDepth", (long)0);	 // default client CA verification depth
 	Trace("SSLVerifyMode = " << (long)sslVerifyMode);
@@ -481,9 +482,9 @@ void SSLModule::SetSSLCtxVerifyParameters(SSL_CTX *ctx, LookupInterface *object)
 		// callback provided in SSLSocket.
 		SSL_CTX_set_verify(ctx, sslVerifyMode, SSLSocket::SSLVerifyCallback);
 	}
-	if (peerCAFileName.Length() || sslVerifyPath.Length()) {
-		const char *pcafn = peerCAFileName.Length() ? (const char *)peerCAFileName : (const char *)0;
-		const char *pcvfy = sslVerifyPath.Length() ? (const char *)sslVerifyPath : (const char *)0;
+	if ((peerCAFileName.Length() != 0) || (sslVerifyPath.Length() != 0)) {
+		const char *pcafn = peerCAFileName.Length() != 0 ? (const char *)peerCAFileName : (const char *)0;
+		const char *pcvfy = sslVerifyPath.Length() != 0 ? (const char *)sslVerifyPath : (const char *)0;
 		Trace("load SSL verify locations from [" << NotNull(pcafn) << "] path [" << NotNull(pcvfy) << "]");
 		if (1 != (ret = SSL_CTX_load_verify_locations(ctx, pcafn, pcvfy))) {
 			SSLSocket::ReportSSLError(SSLSocket::GetSSLError(0, ret));
@@ -497,12 +498,12 @@ SSL_CTX *SSLModule::DoMakeServerContext(LookupInterface *object) {
 	Assert(object);	 // we expect object to be not null
 	SSL_CTX *ctx = 0;
 
-	if (object) {  // we check it nevertheless for robustness
+	if (object != 0) {	// we check it nevertheless for robustness
 		ctx = PrepareServerContext(object);
-		if (ctx) {
+		if (ctx != 0) {
 			SetDiffieHellmannKey(ctx, object, "ServerDHLength", 1024L);
 			ctx = SetOwnCertificateAndKey(ctx, object, SSLModule::eServer);
-			if (ctx) {
+			if (ctx != 0) {
 				SetSSLCtxVerifyParameters(ctx, object);
 				SetSSLSetAcceptableClientCAs(ctx, object);
 				SetCipherList(ctx, object, "ServerCipherList", "HIGH:-SSLv2:+SSLv3");
@@ -518,7 +519,7 @@ Acceptor *SSLAcceptorFactory::MakeAcceptor(AcceptorCallBack *ac) {
 	StartTrace(SSLAcceptorFactory.MakeAcceptor);
 	TraceAny(GetConfig(), "my own config");
 	SSL_CTX *sslCtx = SSLModule::GetSSLCtx(this);
-	if (!sslCtx) {
+	if (sslCtx == 0) {
 		return 0;
 	}
 

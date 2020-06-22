@@ -23,7 +23,7 @@ void AnyToXMLTest::setUp() {
 
 	std::istream *ifp = coast::system::OpenStream(configFilename, "any");
 
-	if (ifp) {
+	if (ifp != 0) {
 		fConfig.Import(*ifp, configFilename);
 		delete ifp;
 	}

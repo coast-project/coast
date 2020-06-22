@@ -23,7 +23,7 @@ namespace {
 			requestURI.Trim(lSlashIdx);
 			lSlashIdx = -1L;
 		}
-		while (requestURI.Length()) {
+		while (requestURI.Length() != 0) {
 			if (lAppendIdx < 0L || !anySegments[lAppendIdx].IsEqual(static_cast<const char *>(requestURI))) {
 				Trace("adding URI [" << requestURI << "]");
 				lAppendIdx = anySegments.Append(requestURI);
@@ -56,7 +56,7 @@ ServiceHandler *VHostServiceDispatcher::findServiceBasedOnLongestURIPrefixMatch(
 			Renderer::RenderOnString(service, ctx, roaURIPrefixEntry);
 			Trace("servicename [" << service << "]");
 			ServiceHandler *pfxService = 0;
-			if (service.Length() && (pfxService = ServiceHandler::FindServiceHandler(service)) != 0) {
+			if ((service.Length() != 0) && (pfxService = ServiceHandler::FindServiceHandler(service)) != 0) {
 				sh = pfxService;
 				requestURI = strLookupSegment;
 				break;
@@ -74,7 +74,7 @@ ServiceHandler *VHostServiceDispatcher::FindServiceHandler(Context &ctx) {
 	String requestURI(ctx.Lookup("REQUEST_URI", ""));
 	Trace("request URI [" << requestURI << "]");
 	ServiceHandler *sh = ServiceHandler::FindServiceHandler(requestVhost);
-	if (sh) {
+	if (sh != 0) {
 		Anything query(ctx.GetQuery());
 		query["VHost"] = requestVhost;
 		query["EntryPage"] = requestURI;

@@ -41,7 +41,7 @@ void FormRendererTest::PrintResult() {
 void FormRendererTest::ConfigureField6() {
 	Anything config;
 	WDModule *wdm = WDModule::FindWDModule("SecurityModule");
-	if (wdm) {
+	if (wdm != 0) {
 		wdm->Init(config);
 	}
 	config["HTMLTemplateConfig"]["TemplateDir"] = "wd_test";
@@ -50,7 +50,7 @@ void FormRendererTest::ConfigureField6() {
 	config["HTMLTemplateConfig"]["LanguageDirMap"] = langMap;
 
 	wdm = WDModule::FindWDModule("TemplatesCacheModule");
-	if (wdm) {
+	if (wdm != 0) {
 		wdm->Init(config);
 	}
 

@@ -98,16 +98,16 @@ void ZipStreamTest::ReadGzipHdrFileTest() {
 			if (roaConfig.IsDefined("Os")) {
 				assertEqualm(roaConfig["Os"].AsLong(255), (long)(aHeader.OperatingSystem), strCase);
 			}
-			if (lFlags & GzipHdr::eFEXTRA) {
+			if ((lFlags & GzipHdr::eFEXTRA) != 0) {
 				assertEqualm(roaConfig["Xlen"].AsLong(0), (long)aHeader.XLEN, strCase);
 				if (roaConfig.IsDefined("ExtraField")) {
 					assertEqualRawm(roaConfig["ExtraField"].AsString(), aHeader.ExtraField, strCase);
 				}
 			}
-			if (lFlags & GzipHdr::eFNAME) {
+			if ((lFlags & GzipHdr::eFNAME) != 0) {
 				assertCharPtrEqualm(roaConfig["FileName"].AsString("undefined"), aHeader.FileName, strCase);
 			}
-			if (lFlags & GzipHdr::eFCOMMENT) {
+			if ((lFlags & GzipHdr::eFCOMMENT) != 0) {
 				assertCharPtrEqualm(roaConfig["Comment"].AsString("undefined"), aHeader.Comment, strCase);
 			}
 		}

@@ -81,10 +81,10 @@ MTStorageTest2::~MTStorageTest2() {
 void MTStorageTest2::setUp() {
 	StartTrace1(MTStorageTest2.setUp, "ThrdId: " << Thread::MyId());
 	// setting up a hardcoded debug context
-	if (!fGlobal) {
+	if (fGlobal == 0) {
 		fGlobal = coast::storage::Global();
 	}
-	if (!fPool) {
+	if (fPool == 0) {
 		fPool = MT_Storage::MakePoolAllocator(2000, 25, 4711);
 		MT_Storage::RefAllocator(fPool);
 	}
@@ -206,7 +206,7 @@ void MTStorageTest2::reusePoolTest() {
 
 	Allocator *pa = MT_Storage::MakePoolAllocator(3);
 	t_assertm(pa != 0, "expected allocation of PoolAllocator to succeed");
-	if (!pa) {
+	if (pa == 0) {
 		return;
 	}
 	MT_Storage::RefAllocator(pa);  // need to refcount poolstorage

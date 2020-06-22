@@ -40,12 +40,13 @@ void SSLObjectManagerTest::UsePassedInCtxTest() {
 														   cConfig["Config"]["Port"].AsString(), cConfig["Config"]);
 			t_assert(sslctx != (SSL_CTX *)NULL);
 			ConnectorArgs ca(cConfig["Config"]["Address"].AsString(), cConfig["Config"]["Port"].AsLong());
-			SSLSocketArgs sa(
-				cConfig["Config"]["VerifyCertifiedEntity"].AsBool(1), cConfig["Config"]["CertVerifyString"].AsString(),
-				cConfig["Config"]["CertVerifyStringIsFilter"].AsBool(1), cConfig["Config"]["SessionResumption"].AsBool(0));
+			SSLSocketArgs sa(cConfig["Config"]["VerifyCertifiedEntity"].AsBool(true),
+							 cConfig["Config"]["CertVerifyString"].AsString(),
+							 cConfig["Config"]["CertVerifyStringIsFilter"].AsBool(true),
+							 cConfig["Config"]["SessionResumption"].AsBool(false));
 
 			SSLConnector sc(ca, sa, Anything(), sslctx, (const char *)NULL, 0L,
-							cConfig["Config"]["UseThreadLocalMemory"].AsLong(0L));
+							cConfig["Config"]["UseThreadLocalMemory"].AsLong(0L) != 0);
 			std::iostream *s1 = sc.GetStream();
 			Socket *s = sc.Use();
 			Anything clientInfo = sc.ClientInfo();
@@ -62,6 +63,7 @@ void SSLObjectManagerTest::UsePassedInCtxTest() {
 				getline(*s1, reply);
 				t_assert(!!(*s1));
 				assertEqual("HTTP", reply.SubString(0, 4));
+				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				while (getline(*s1, reply))
 					;
 			}
@@ -83,12 +85,13 @@ void SSLObjectManagerTest::ReUseCreatedCtxTest() {
 														   cConfig["Config"]["Port"].AsString(), cConfig["Config"]);
 			t_assert(sslctx != (SSL_CTX *)NULL);
 			ConnectorArgs ca(cConfig["Config"]["Address"].AsString(), cConfig["Config"]["Port"].AsLong());
-			SSLSocketArgs sa(
-				cConfig["Config"]["VerifyCertifiedEntity"].AsBool(1), cConfig["Config"]["CertVerifyString"].AsString(),
-				cConfig["Config"]["CertVerifyStringIsFilter"].AsBool(1), cConfig["Config"]["SessionResumption"].AsBool(0));
+			SSLSocketArgs sa(cConfig["Config"]["VerifyCertifiedEntity"].AsBool(true),
+							 cConfig["Config"]["CertVerifyString"].AsString(),
+							 cConfig["Config"]["CertVerifyStringIsFilter"].AsBool(true),
+							 cConfig["Config"]["SessionResumption"].AsBool(false));
 
 			SSLConnector sc(ca, sa, Anything(), NULL, (const char *)NULL, 0L,
-							cConfig["Config"]["UseThreadLocalMemory"].AsLong(0L));
+							cConfig["Config"]["UseThreadLocalMemory"].AsLong(0L) != 0);
 			std::iostream *s1 = sc.GetStream();
 			Socket *s = sc.Use();
 			Anything clientInfo = sc.ClientInfo();
@@ -106,6 +109,7 @@ void SSLObjectManagerTest::ReUseCreatedCtxTest() {
 				getline(*s1, reply);
 				t_assert(!!(*s1));
 				assertEqual("HTTP", reply.SubString(0, 4));
+				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				while (getline(*s1, reply))
 					;
 			}
@@ -147,6 +151,7 @@ void SSLObjectManagerTest::SessionResumptionWithMinimumConfigTest() {
 				getline(*s1, reply);
 				t_assert(!!(*s1));
 				assertEqual("HTTP", reply.SubString(0, 4));
+				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				while (getline(*s1, reply))
 					;
 			}
@@ -170,12 +175,13 @@ void SSLObjectManagerTest::SessionResumptionTest() {
 														   cConfig["Config"]["Port"].AsString(), cConfig["Config"]);
 			t_assert(sslctx != (SSL_CTX *)NULL);
 			ConnectorArgs ca(cConfig["Config"]["Address"].AsString(), cConfig["Config"]["Port"].AsLong());
-			SSLSocketArgs sa(
-				cConfig["Config"]["VerifyCertifiedEntity"].AsBool(1), cConfig["Config"]["CertVerifyString"].AsString(),
-				cConfig["Config"]["CertVerifyStringIsFilter"].AsBool(1), cConfig["Config"]["SessionResumption"].AsBool(0));
+			SSLSocketArgs sa(cConfig["Config"]["VerifyCertifiedEntity"].AsBool(true),
+							 cConfig["Config"]["CertVerifyString"].AsString(),
+							 cConfig["Config"]["CertVerifyStringIsFilter"].AsBool(true),
+							 cConfig["Config"]["SessionResumption"].AsBool(false));
 
 			SSLConnector sc(ca, sa, Anything(), sslctx, (const char *)NULL, 0L,
-							cConfig["Config"]["UseThreadLocalMemory"].AsLong(0L));
+							cConfig["Config"]["UseThreadLocalMemory"].AsLong(0L) != 0);
 			std::iostream *s1 = sc.GetStream();
 			Socket *s = sc.Use();
 			Anything clientInfo(sc.ClientInfo());
@@ -198,6 +204,7 @@ void SSLObjectManagerTest::SessionResumptionTest() {
 				getline(*s1, reply);
 				t_assert(!!(*s1));
 				assertEqual("HTTP", reply.SubString(0, 4));
+				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				while (getline(*s1, reply))
 					;
 			}
@@ -221,12 +228,13 @@ void SSLObjectManagerTest::NoSessionResumptionTest() {
 														   cConfig["Config"]["Port"].AsString(), cConfig["Config"]);
 			t_assert(sslctx != (SSL_CTX *)NULL);
 			ConnectorArgs ca(cConfig["Config"]["Address"].AsString(), cConfig["Config"]["Port"].AsLong());
-			SSLSocketArgs sa(
-				cConfig["Config"]["VerifyCertifiedEntity"].AsBool(1), cConfig["Config"]["CertVerifyString"].AsString(),
-				cConfig["Config"]["CertVerifyStringIsFilter"].AsBool(1), cConfig["Config"]["SessionResumption"].AsBool(0));
+			SSLSocketArgs sa(cConfig["Config"]["VerifyCertifiedEntity"].AsBool(true),
+							 cConfig["Config"]["CertVerifyString"].AsString(),
+							 cConfig["Config"]["CertVerifyStringIsFilter"].AsBool(true),
+							 cConfig["Config"]["SessionResumption"].AsBool(false));
 
 			SSLConnector sc(ca, sa, Anything(), sslctx, (const char *)NULL, 0L,
-							cConfig["Config"]["UseThreadLocalMemory"].AsLong(0L));
+							cConfig["Config"]["UseThreadLocalMemory"].AsLong(0L) != 0);
 			std::iostream *s1 = sc.GetStream();
 			Socket *s = sc.Use();
 			Anything clientInfo(sc.ClientInfo());
@@ -243,6 +251,7 @@ void SSLObjectManagerTest::NoSessionResumptionTest() {
 				getline(*s1, reply);
 				t_assert(!!(*s1));
 				assertEqual("HTTP", reply.SubString(0, 4));
+				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				while (getline(*s1, reply))
 					;
 			}
@@ -276,6 +285,7 @@ void SSLObjectManagerTest::GetDefaultCtxTest() {
 				getline(*s1, reply);
 				t_assert(!!(*s1));
 				assertEqual("HTTP", reply.SubString(0, 4));
+				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				while (getline(*s1, reply))
 					;
 			}

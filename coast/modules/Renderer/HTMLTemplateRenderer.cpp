@@ -58,7 +58,7 @@ void HTMLTemplateRenderer::RenderAll(std::ostream &reply, Context &context, cons
 				theRendererConfig = fgTemplates[pathUsed];
 			} else {
 				std::istream *fp = LocalizationUtils::OpenStream(context, filename, pathUsed);
-				if (fp) {
+				if (fp != 0) {
 					std::istream &reader = *fp;
 					{
 						MethodTimer(HTMLTemplateRenderer.RenderAll, filename, context);

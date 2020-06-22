@@ -65,7 +65,7 @@ bool Role::CheckLevel(const String &queryRoleName) const {
 			// names are not equal, check for their relation
 			long lThisLevel = GetRoleLevel(this);
 			Role *pQRole = Role::FindRole(queryRoleName);
-			if (pQRole) {
+			if (pQRole != 0) {
 				long lQRoleLevel = GetRoleLevel(pQRole);
 				Trace("my role level:" << lThisLevel << " query-role level:" << lQRoleLevel);
 				// if the roles are on the same level, they cannot be related
@@ -74,7 +74,7 @@ bool Role::CheckLevel(const String &queryRoleName) const {
 						// check if current role is a parent of the query-role
 						Role *pRole = pQRole;
 						String strRoleName;
-						while (!bLevelOk && pRole && (pRole = (Role *)pRole->GetSuper()) && pRole) {
+						while (!bLevelOk && (pRole != 0) && ((pRole = (Role *)pRole->GetSuper()) != 0) && (pRole != 0)) {
 							pRole->GetName(strRoleName);
 							bLevelOk = strRoleName.IsEqual(fName);
 							Trace("role [" << strRoleName << "]" << (bLevelOk ? " is parent" : ""));
@@ -93,11 +93,11 @@ long Role::GetRoleLevel(const Role *pRole) {
 	StartTrace(Role.GetRoleLevel);
 	long lLevel = -1;
 	String strRoleName;
-	if (pRole) {
+	if (pRole != 0) {
 		lLevel = 0L;
 		pRole->GetName(strRoleName);
 		try {
-			while (pRole && (pRole = dynamic_cast<const Role *>(pRole->GetSuper()))) {
+			while ((pRole != 0) && ((pRole = dynamic_cast<const Role *>(pRole->GetSuper())) != 0)) {
 				++lLevel;
 			}
 		} catch (std::bad_cast &bc) {
@@ -123,7 +123,7 @@ void Role::PrepareTmpStore(Context &c) {
 		Anything tmpStore = c.GetTmpStore();
 		for (int i = 0, szf = stateFullList.GetSize(); i < szf; ++i) {
 			const char *stateName = stateFullList[i].AsCharPtr(0);
-			if (stateName) {
+			if (stateName != 0) {
 				//--- don't overwrite entries already there
 				bool stateAlreadyDefined = tmpStore.IsDefined(stateName);
 				stateAlreadyDefined = stateAlreadyDefined && (strlen(tmpStore[stateName].AsCharPtr("")) > 0);
@@ -162,7 +162,7 @@ bool Role::GetNewPageName(Context &c, String &transition, String &pagename) cons
 			newpagename = entry[0L].AsCharPtr(0);
 		}
 		Trace("returning newPageName: <" << NotNull(newpagename) << ">");
-		if (newpagename) {
+		if (newpagename != 0) {
 			pagename = newpagename;
 			if (entry.GetSize() > 1) {
 				if (entry.IsDefined("Action")) {
@@ -218,7 +218,7 @@ void Role::CollectLinkState(Anything &stateIn, Context &c) {
 		String strStateName(32L);
 		while (statefulIter.Next(roaStatefulEntry)) {
 			strStateName = roaStatefulEntry.AsString();
-			if (strStateName.Length()) {
+			if (strStateName.Length() != 0) {
 				if (!stateIn.IsDefined(strStateName) && tmpStore.IsDefined(strStateName)) {
 					Trace("copying content of TmpStore[\"" << strStateName << "\"]");
 					stateIn[strStateName] = tmpStore[strStateName];
@@ -228,7 +228,7 @@ void Role::CollectLinkState(Anything &stateIn, Context &c) {
 	}
 	stateIn["role"] = fName;
 	Session *s = c.GetSession();
-	if (s) {
+	if (s != 0) {
 		s->CollectLinkState(stateIn, c);
 	}
 }

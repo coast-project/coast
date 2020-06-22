@@ -44,7 +44,7 @@ namespace coast {
 				.Append(getPid())
 				.Append('_')
 				.Append(coast::security::nextRandomNumber());
-			if (additionalToken.Length()) {
+			if (additionalToken.Length() != 0) {
 				buffer.Append('_').Append(additionalToken);
 			}
 			Trace("id before hashing [" << buffer << "]");

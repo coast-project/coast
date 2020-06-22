@@ -51,7 +51,7 @@ Anything DataAccessStresser::Run(long id) {
 			Trace("AccessTime " << accessTime);
 			sum += accessTime;
 			ROAnything roaInfoMessage;
-			if (Lookup("InfoMessage", roaInfoMessage) && roaInfoMessage.GetSize()) {
+			if (Lookup("InfoMessage", roaInfoMessage) && (roaInfoMessage.GetSize() != 0)) {
 				TraceAny(roaInfoMessage, "slots to Output");
 				Anything metaInfo = Anything(Anything::ArrayMarker());
 				results["InfoMessageCtr"][strStepNr] = metaInfo;

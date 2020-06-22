@@ -18,7 +18,7 @@ bool FlowControllerPrepareRequestAction::DoExecAction(String &transitionToken, C
 	String controllerName = config[0L].AsString("Invalid");
 	FlowController *fc = FlowController::FindFlowController(controllerName);  // build the FC object...
 
-	if (!fc) {
+	if (fc == 0) {
 		return false;
 	}
 

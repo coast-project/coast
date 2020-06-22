@@ -50,7 +50,7 @@ void WorkerPoolManagerModuleTest::Check(ROAnything cConfig, WorkerPoolManagerMod
 	StartTrace(WorkerPoolManagerModuleTest.Check);
 	WorkerPoolManagerModulePoolManager *pPool = pModule->GetPoolManager(cConfig["Pool"].AsString());
 	t_assertm(pPool != NULL, "Pool should be found");
-	if (pPool) {
+	if (pPool != 0) {
 		for (long l = 0; l < 5; l++) {
 			Anything aMsgAny(cConfig["Message"].DeepClone()), workerConfig, results;
 			// create Anything with parameters to pass

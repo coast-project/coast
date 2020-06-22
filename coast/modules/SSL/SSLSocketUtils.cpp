@@ -28,11 +28,11 @@ String SSLSocketUtils::GetNameFromX509Name(X509_NAME *x509_name, unsigned long f
 	char *data = NULL;
 	long data_len = 0, ok;
 
-	if ((ok = X509_NAME_print_ex(mem, x509_name, 0, flags))) {
+	if ((ok = X509_NAME_print_ex(mem, x509_name, 0, flags)) != 0) {
 		data_len = BIO_get_mem_data(mem, &data);
 	}
 
-	if (data) {
+	if (data != 0) {
 		result.Append((void *)data, data_len);
 	}
 	BIO_free(mem);
@@ -79,7 +79,7 @@ bool SSLSocketUtils::VerifyDN(String filter, ROAnything dnParts) {
 String SSLSocketUtils::GetPeerAsString(X509 *cert) {
 	StartTrace(SSLSocketUtils.GetPeerAsString);
 	String result = "";
-	if (cert) {
+	if (cert != 0) {
 		result = GetNameFromX509Name(X509_get_subject_name(cert), XN_FLAG_RFC2253);
 	}
 	return result;
@@ -88,7 +88,7 @@ String SSLSocketUtils::GetPeerAsString(X509 *cert) {
 String SSLSocketUtils::GetPeerIssuerAsString(X509 *cert) {
 	StartTrace(SSLSocketUtils.GetPeerIssuerAsString);
 	String result = "";
-	if (cert) {
+	if (cert != 0) {
 		result = GetNameFromX509Name(X509_get_issuer_name(cert), XN_FLAG_RFC2253);
 	}
 	return result;

@@ -34,7 +34,7 @@ bool DirFileListAction::DoExecAction(String &transitionToken, Context &ctx, cons
 		// Render slot
 		Renderer::RenderOnString(sPath, ctx, config["Path"]);
 		Trace("rendered sPath [" << sPath << "]");
-		if (!sPath.Length()) {
+		if (sPath.Length() == 0) {
 			Trace("mandatory slot Path is empty after rendering !");
 			return false;
 		}
@@ -109,7 +109,7 @@ bool DirFileListAction::DoExecAction(String &transitionToken, Context &ctx, cons
 		}
 	}
 
-	if (sTarget.Length()) {
+	if (sTarget.Length() != 0) {
 		aTmpStore[sTarget] = aFileList;
 	} else {
 		aTmpStore["RetrievedFileList"] = aFileList;

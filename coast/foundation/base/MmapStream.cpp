@@ -34,22 +34,22 @@ static long roundtopagesize(long pos, bool up = true) {
 MmapMagicFlags::MmapMagicFlags(int omode, int syncflag)
 	: fProtection(eRead), fSyncFlag(syncflag), fOpenMode(0), fSyscallOpenMode(0) {
 	// adjust mode to output if append or at-end implies it
-	if (omode & (std::ios::ate | std::ios::app)) {
+	if ((omode & (std::ios::ate | std::ios::app)) != 0) {
 		omode |= std::ios::out;
 	}
 	// set it for read only input
-	if (omode & std::ios::in) {
+	if ((omode & std::ios::in) != 0) {
 		fSyscallOpenMode = O_RDONLY;
 		fProtection = eRead;
 	}
-	if (omode & std::ios::out) {
-		if (!(omode & (std::ios::app | std::ios::ate))) {
+	if ((omode & std::ios::out) != 0) {
+		if ((omode & (std::ios::app | std::ios::ate)) == 0) {
 			// comply with fstream, truncate if not appending
 			omode |= std::ios::trunc;
 		}
 		fSyscallOpenMode = O_RDWR | O_CREAT;
 		fProtection |= eWrite;
-		if (omode & std::ios::trunc) {
+		if ((omode & std::ios::trunc) != 0) {
 			fSyscallOpenMode |= O_TRUNC;
 		}
 	}
@@ -65,7 +65,7 @@ MmapStreamBuf::~MmapStreamBuf() {
 }
 
 inline void MmapStreamBuf::AdjustFileLength() {
-	if (pbase() && fFl.IsIosOut()) {
+	if ((pbase() != 0) && fFl.IsIosOut()) {
 		long newlen = (pptr() - pbase()) + fMapOffset;
 		if (newlen > fFileLength) {
 			fFileLength = newlen;
@@ -75,7 +75,7 @@ inline void MmapStreamBuf::AdjustFileLength() {
 
 void MmapStreamBuf::close() {
 	sync();
-	if (fAddr) {
+	if (fAddr != 0) {
 		munmap((char *)fAddr, fLength - fMapOffset);
 	}
 	if (fMapFd >= 0) {
@@ -102,9 +102,9 @@ void MmapStreamBuf::close() {
 
 MmapStreamBuf *MmapStreamBuf::open(const char *path, int mode /*= std::ios::in*/, int prot /*=0666*/) {
 	// do the nasty work of setting up the stuff.
-	if (path) {
+	if (path != 0) {
 		fFl = MmapMagicFlags(mode, fFl.GetSyncFlag());
-		if (fFl.GetIOSMode() & std::ios::trunc) {
+		if ((fFl.GetIOSMode() & std::ios::trunc) != 0) {
 			fLength = 0;
 			fMapOffset = 0;
 		}
@@ -117,7 +117,7 @@ MmapStreamBuf *MmapStreamBuf::open(const char *path, int mode /*= std::ios::in*/
 				// this overhead only occurs for the first time write
 				if (xinit(fd)) {
 					// fix for _M_mode initialisation problem of gcc 3.2
-					if ((fFileLength == 0) && (mode & std::ios::out)) {
+					if ((fFileLength == 0) && ((mode & std::ios::out) != 0)) {
 						reserve(16L);
 					}
 					return this;
@@ -133,7 +133,7 @@ MmapStreamBuf *MmapStreamBuf::open(const char *path, int mode /*= std::ios::in*/
 }
 
 bool MmapStreamBuf::isvalid() {
-	if (fAddr) {
+	if (fAddr != 0) {
 		return true;  // everything OK.
 	}
 	// several special cases
@@ -243,7 +243,7 @@ int MmapStreamBuf::overflow(int c) {
 
 int MmapStreamBuf::underflow() {
 	AdjustFileLength();	 // look if we wrote something, we can now read.
-	if (gptr() && gptr() - eback() < fFileLength) {
+	if ((gptr() != 0) && gptr() - eback() < fFileLength) {
 		// re-adjust egptr, because we have something still available
 		setg(eback(), gptr(), (char *)fAddr + fFileLength - fMapOffset);
 	}
@@ -308,16 +308,16 @@ MmapStreamBuf::pos_type MmapStreamBuf::seekpos(MmapStreamBuf::pos_type p, MmapSt
 	if (long(p) > long(fLength)) {
 		// we need to enlarge the file
 		// we can only if we write
-		if (!(mode & std::ios::out) || !reserve(static_cast<long>(p))) {
+		if (((mode & std::ios::out) == 0) || !reserve(static_cast<long>(p))) {
 			// OOPS we got a problem
 			return pos_type(EOF);
 		}
 	}
-	if (mode & std::ios::in) {
+	if ((mode & std::ios::in) != 0) {
 		setg(fFl.IsReadable() ? (char *)fAddr : (char *)fAddr + fFileLength - fMapOffset, fAddr + p,
 			 (char *)fAddr + fFileLength - fMapOffset);
 	}
-	if (mode & std::ios::out) {
+	if ((mode & std::ios::out) != 0) {
 		if (fFl.IsIosApp()) {
 			// do this on a best try basis
 			if (p < fFileLength && fFileLength > 0) {
@@ -344,7 +344,7 @@ int MmapStreamBuf::pbackfail(int c) {
 		// sanity check
 		if (fFl.IsIosOut()) {
 			// we also can write
-			if (eback() && eback() < gptr()) {
+			if ((eback() != 0) && eback() < gptr()) {
 				// adjust get pointer
 				gbump(-1);
 				*(gptr()) = char(c);  // store the characte
@@ -353,7 +353,7 @@ int MmapStreamBuf::pbackfail(int c) {
 			}
 		} else {
 			// we got a readonly streambuf
-			if (gptr() && gptr() > eback() && c == *(gptr() - 1)) {
+			if ((gptr() != 0) && gptr() > eback() && c == *(gptr() - 1)) {
 				// sanity check
 				// setg(eback(),gptr()-1,egptr()); // just adjust gptr()
 				gbump(-1);
@@ -373,7 +373,7 @@ MmapStreamBuf::pos_type MmapStreamBuf::seekoff(MmapStreamBuf::off_type of, MmapS
 	// sync(); // will adjust fFileLength if needed
 	long pos = long(of);
 	if (dir == std::ios::cur) {
-		pos += long((mode & std::ios::in ? gptr() : pptr()) - (char *)fAddr + fMapOffset);
+		pos += long(((mode & std::ios::in) != 0 ? gptr() : pptr()) - (char *)fAddr + fMapOffset);
 	} else if (dir == std::ios::end && fFileLength > 0) {
 		pos += long(fFileLength);
 	}

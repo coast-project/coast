@@ -57,9 +57,9 @@ bool ServerLFThreadPoolsManager::SetupLFPool(Server *server) {
 }
 
 RequestProcessor *ServerLFThreadPoolsManager::DoGetRequestProcessor() {
-	if (fLFPool && fLFPool->GetReactor()) {
+	if ((fLFPool != 0) && (fLFPool->GetReactor() != 0)) {
 		RequestReactor *pReactor = dynamic_cast<RequestReactor *>(fLFPool->GetReactor());
-		if (pReactor) {
+		if (pReactor != 0) {
 			return pReactor->GetRequestProcessor();
 		}
 	}
@@ -118,7 +118,7 @@ void ServerLFThreadPoolsManager::UnblockRequests() {
 
 int ServerLFThreadPoolsManager::RequestTermination() {
 	StartTrace(ServerLFThreadPoolsManager.RequestTermination);
-	if (fLFPool) {
+	if (fLFPool != 0) {
 		fLFPool->RequestTermination();
 	}
 	return 0;
@@ -126,7 +126,7 @@ int ServerLFThreadPoolsManager::RequestTermination() {
 
 void ServerLFThreadPoolsManager::Terminate() {
 	StartTrace(ServerLFThreadPoolsManager.Terminate);
-	if (fLFPool) {
+	if (fLFPool != 0) {
 		fLFPool->RequestTermination();
 		fLFPool->Join(20);
 	}

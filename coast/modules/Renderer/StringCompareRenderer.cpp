@@ -20,7 +20,7 @@ void StringCompareRenderer::RenderAll(std::ostream &reply, Context &c, const ROA
 		RenderOnString(s1, c, S1Config);
 		String s2;
 		RenderOnString(s2, c, S2Config);
-		bool ignoreCase(config["IgnoreCase"].AsBool(0));
+		bool ignoreCase(config["IgnoreCase"].AsBool(false));
 		if (ignoreCase) {
 			s1.ToLower();
 			s2.ToLower();

@@ -79,7 +79,7 @@ OracleEnvironment::OracleEnvironment(Mode eMode, u_long ulPoolId, u_long ulPoolS
 OracleConnectionPtr OracleEnvironment::createConnection(String const &strSrv, String const &strUsr, String const &strPwd) {
 	StartTrace(OracleEnvironment.createConnection);
 	OracleConnectionPtr pConnection(new OracleConnection(*this));
-	if (pConnection.get()) {
+	if (pConnection.get() != 0) {
 		if (!pConnection->Open(strSrv, strUsr, strPwd)) {
 			pConnection.reset();
 		}

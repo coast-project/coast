@@ -85,7 +85,7 @@ void SamplePoolManager::DoAllocPool(ROAnything args) {
 
 WorkerThread *SamplePoolManager::DoGetWorker(long i) {
 	// accessor for one specific worker
-	if (fRequests) {
+	if (fRequests != 0) {
 		return &(fRequests[i]);
 	}
 	return 0;
@@ -94,7 +94,7 @@ WorkerThread *SamplePoolManager::DoGetWorker(long i) {
 void SamplePoolManager::DoDeletePool(ROAnything args) {
 	// cleanup of the sub-class specific stuff
 	// CAUTION: this cleanup method may be called repeatedly..
-	if (fRequests) {
+	if (fRequests != 0) {
 		delete[] fRequests;
 		fRequests = 0;
 	}

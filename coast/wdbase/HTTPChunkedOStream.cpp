@@ -13,7 +13,10 @@
 #include <ctype.h>
 
 HTTPChunkedStreamBuf::HTTPChunkedStreamBuf(std::ostream &os, long chunklength, Allocator *alloc)
-	: fAllocator(alloc ? alloc : coast::storage::Current()), fStore(chunklength, fAllocator), fOs(&os), fBufSize(chunklength) {
+	: fAllocator(alloc != 0 ? alloc : coast::storage::Current()),
+	  fStore(chunklength, fAllocator),
+	  fOs(&os),
+	  fBufSize(chunklength) {
 	xinit();
 }
 
@@ -23,7 +26,7 @@ HTTPChunkedStreamBuf::~HTTPChunkedStreamBuf() {
 
 void HTTPChunkedStreamBuf::close() {
 	StartTrace(HTTPChunkedStreamBuf.close);
-	if (!fOs) {
+	if (fOs == 0) {
 		return;
 	}
 	sync();
@@ -35,7 +38,7 @@ void HTTPChunkedStreamBuf::close() {
 int HTTPChunkedStreamBuf::sync() {
 	StartTrace(HTTPChunkedStreamBuf.sync);
 
-	if (!fOs) {
+	if (fOs == 0) {
 		return EOF;
 	}
 	long len = pptr() - pbase();

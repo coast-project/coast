@@ -13,7 +13,7 @@
 #include "TestSuite.h"
 
 RemoteStresserTest::~RemoteStresserTest() {
-	if (fServerRunner) {
+	if (fServerRunner != 0) {
 		fServerRunner->PrepareShutdown(0);
 		fServerRunner->CheckState(Thread::eTerminated, 10);
 		fServerRunner->Terminate(0);
@@ -24,13 +24,13 @@ RemoteStresserTest::~RemoteStresserTest() {
 
 void RemoteStresserTest::setUp() {
 	StressAppTest::setUp();
-	if (!fStressServer) {
+	if (fStressServer == 0) {
 		fStressServer = new (coast::storage::Global()) Server("StressServer");
 		fStressServer->GetConfig();
 		fStressServer->Initialize("Server");
 
 		fServerRunner = new (coast::storage::Global()) ServerThread(fStressServer);
-		if (fStressServer && fServerRunner) {
+		if ((fStressServer != 0) && (fServerRunner != 0)) {
 			bool bSuccess = fServerRunner->Start();
 			fServerRunner->CheckState(Thread::eStarted);
 			bSuccess = bSuccess && fServerRunner->serverIsInitialized();
@@ -55,7 +55,7 @@ void RemoteStresserTest::tearDown() {
 void RemoteStresserTest::TestRemoteStresser() {
 	Anything result;
 	t_assert(fStressServer != NULL);
-	if (fStressServer) {
+	if (fStressServer != 0) {
 		// Uses ten DummyStressers
 		result = Stresser::RunStresser("RemoteStresser1");
 	}
@@ -73,7 +73,7 @@ void RemoteStresserTest::TestMultiRemoteStresser() {
 	StartTrace(RemoteStresserTest.TestMultiRemoteStresser);
 	Anything result;
 	t_assert(fStressServer != NULL);
-	if (fStressServer) {
+	if (fStressServer != 0) {
 		// Uses ten DummyStressers
 		result = Stresser::RunStresser("MultiRemote");
 	}

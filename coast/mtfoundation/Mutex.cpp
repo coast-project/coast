@@ -119,7 +119,7 @@ long Mutex::GetCount() {
 	Anything *countarray = 0;
 	long lCount = 0L;
 	GETTLSDATA(MutexInitializerSingleton::instance().getCountTableKey(), countarray, Anything);
-	if (countarray) {
+	if (countarray != 0) {
 		StatTraceAny(Mutex.GetCount, (*countarray), "countarray", coast::storage::Current());
 		lCount = ((ROAnything)(*countarray))[fMutexId].AsLong(0L);
 	}
@@ -132,7 +132,7 @@ bool Mutex::SetCount(long newCount) {
 	Anything *countarray = 0;
 	GETTLSDATA(MutexInitializerSingleton::instance().getCountTableKey(), countarray, Anything);
 
-	if (!countarray && newCount > 0) {
+	if ((countarray == 0) && newCount > 0) {
 		countarray = new Anything(Anything::ArrayMarker(), coast::storage::Global());
 		Thread::RegisterCleaner(&fgCleaner);
 		if (!SETTLSDATA(MutexInitializerSingleton::instance().getCountTableKey(), countarray)) {
@@ -140,7 +140,7 @@ bool Mutex::SetCount(long newCount) {
 			return false;
 		}
 	}
-	if (countarray) {
+	if (countarray != 0) {
 		StatTraceAny(Mutex.SetCount, (*countarray), "countarray", coast::storage::Current());
 		if (newCount <= 0) {
 			(*countarray).Remove(fMutexId);

@@ -43,7 +43,7 @@ void LDAPConnectionManagerTest::ConnectionManagerTest() {
 					String server = set["Data"]["LDAPServer"].AsString();
 					long port = set["Data"]["LDAPServer"].AsLong(389);
 					LDAP *handle;
-					if (set["Data"]["NullHandle"].AsLong(0L)) {
+					if (set["Data"]["NullHandle"].AsLong(0L) != 0) {
 						Trace("Setting NULL handle");
 						handle = (LDAP *)NULL;
 						t_assert(handle == (LDAP *)NULL);

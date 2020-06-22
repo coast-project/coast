@@ -33,7 +33,7 @@ SSLSocketStreamBuf::~SSLSocketStreamBuf() {
 	setp(0, 0);
 	setg(0, 0, 0);
 
-	if (fContext) {
+	if (fContext != 0) {
 		Trace("SSLCtx SSL_get_quiet_shutdown(): " << SSL_get_quiet_shutdown(fContext));
 		TraceAny(SSLObjectManager::TraceSSLSession(SSL_get_session(fContext)), "sslSessionCurrent");
 		SSL_shutdown(fContext);

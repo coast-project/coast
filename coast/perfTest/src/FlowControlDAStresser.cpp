@@ -31,7 +31,7 @@ Anything FlowControlDAStresser::Run(long id) {
 
 	if (flowCntrlName != "") {
 		FlowController *flowCntrl = FlowController::FindFlowController(flowCntrlName);
-		if (!flowCntrl) {
+		if (flowCntrl == 0) {
 			Trace("ERROR: flowcontrolname " << flowCntrlName << " not found");
 			String errorMsg = "FlowController ";
 			errorMsg << flowCntrlName << " not found";
@@ -76,7 +76,7 @@ Anything FlowControlDAStresser::Run(long id) {
 		String appName;
 		Application *application = Application::GetGlobalApplication(appName);
 		long idAndCurrentOffset = 0;
-		if (application) {
+		if (application != 0) {
 			currentOffset = application->Lookup("OFFSET", 0L);
 			idAndCurrentOffset = currentOffset + id - 1;
 			env["IdAndCurrentOffset"] = idAndCurrentOffset;
@@ -109,7 +109,7 @@ Anything FlowControlDAStresser::Run(long id) {
 					nError++;
 					Trace("Errorcount1:" << nError);
 				}
-				if (flowCntrl) {
+				if (flowCntrl != 0) {
 					flowCntrl->Finalize();
 					delete flowCntrl;
 				}

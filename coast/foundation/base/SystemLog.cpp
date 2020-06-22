@@ -89,7 +89,7 @@ namespace {
 		}
 		void Init(const char *appId) {
 			// beware this is not thread safe since logging takes place before the server object exists we have to take care
-			if (appId) {
+			if (appId != 0) {
 				Terminate();
 			} else {
 				appId = "Coast";
@@ -105,7 +105,7 @@ namespace {
 				fDoLogOnCerr = static_cast<SystemLog::eLogLevel>(iValue);
 			}
 			strValue = coast::system::EnvGet(coast::system::log::envnameLogonCerrWithTimestamp);
-			if (strValue.AsLong(0L)) {
+			if (strValue.AsLong(0L) != 0) {
 				currentMessageFormatter = &coast::system::log::formatMessageTimeStamp;
 			} else {
 				currentMessageFormatter = &coast::system::log::formatMessage;
@@ -120,7 +120,7 @@ namespace {
 		}
 		void Terminate() { fSysLog.reset(); }
 		SystemLog *getSysLog() {
-			if (not fSysLog.get()) {
+			if (fSysLog.get() == 0) {
 				Init(0);
 			}
 			return fSysLog.get();
@@ -254,7 +254,7 @@ void SystemLog::WriteToStderr(const String &msg) {
 }
 
 void SystemLog::WriteToStderr(const char *msg, long length) {
-	if (msg) {
+	if (msg != 0) {
 		long sLen = length;
 		if (sLen < 0) {
 			sLen = strlen(msg);
@@ -273,7 +273,7 @@ void SystemLog::WriteToStdout(const String &msg) {
 }
 
 void SystemLog::WriteToStdout(const char *msg, long length) {
-	if (msg) {
+	if (msg != 0) {
 		long sLen = length;
 		if (sLen < 0) {
 			sLen = strlen(msg);

@@ -97,17 +97,17 @@ void REBitSetTest::GeneratePosixSet(std::ostream &cppfile, const char *pcName, R
 
 // auxiliary predicates for posix and special escape handling
 static int myIsBlank(int c) {
-	return (' ' == c || '\t' == c);
+	return static_cast<int>(' ' == c || '\t' == c);
 }
 
 static int myIsNoDigit(int c) {
-	return !isdigit(c);
+	return static_cast<int>(isdigit(c)) == 0;
 }
 static int myIsNoSpace(int c) {
-	return !isspace(c);
+	return static_cast<int>(isspace(c)) == 0;
 }
 static int myIsNoAlnum(int c) {
-	return !isalnum(c);
+	return static_cast<int>(isalnum(c)) == 0;
 }
 
 // may insert special cases for Swiss lowercase/uppercase letters as well

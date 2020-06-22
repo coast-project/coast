@@ -37,8 +37,9 @@ bool HTTPDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out) 
 	if (cps.UseSSL()) {
 		TraceAny(context.Lookup("SSLModuleCfg"), "SSLModuleCfg");
 		ConnectorArgs ca(cps.IPAddress(), cps.Port(), cps.Timeout());
-		SSLSocketArgs sa(context.Lookup("VerifyCertifiedEntity").AsBool(0), context.Lookup("CertVerifyString").AsString(),
-						 context.Lookup("CertVerifyStringIsFilter").AsBool(0), context.Lookup("SessionResumption").AsBool(0));
+		SSLSocketArgs sa(context.Lookup("VerifyCertifiedEntity").AsBool(false), context.Lookup("CertVerifyString").AsString(),
+						 context.Lookup("CertVerifyStringIsFilter").AsBool(false),
+						 context.Lookup("SessionResumption").AsBool(false));
 
 		Trace(sa.ShowState());
 		SSLConnector sslcsc(ca, sa, context.Lookup("SSLModuleCfg"), (SSL_CTX *)context.Lookup("SSLContext").AsIFAObject(0),
@@ -61,7 +62,7 @@ bool HTTPDAImpl::DoExec(Connector *csc, ConnectorParams *cps, Context &context, 
 		s = csc->Use();
 		// Store client info
 		context.GetTmpStore()["ClientInfoBackends"] = csc->ClientInfo();
-		if (s) {
+		if (s != 0) {
 			Ios = csc->GetStream();
 			if (cps->UseSSL()) {
 				if (s->IsCertCheckPassed(context.Lookup("SSLModuleCfg")) == false) {
@@ -69,7 +70,7 @@ bool HTTPDAImpl::DoExec(Connector *csc, ConnectorParams *cps, Context &context, 
 				}
 			}
 		}
-		if (!Ios) {
+		if (Ios == 0) {
 			out->Put("Error", GenerateErrorMessage("Connection to ", context), context);
 			return false;
 		}
@@ -242,7 +243,7 @@ bool HTTPDAImpl::SendInput(std::iostream *Ios, Socket *s, long timeout, Context 
 		Trace("Request:" << request);
 		Anything tmpStore(context.GetTmpStore());
 		tmpStore["Mapper"]["RequestMade"] = request;
-		if (Ios) {
+		if (Ios != 0) {
 			if (s->IsReadyForWriting()) {
 				Trace("sending input");
 				s->SetNoDelay();
@@ -264,7 +265,7 @@ bool HTTPDAImpl::SendInput(std::iostream *Ios, Socket *s, long timeout, Context 
 bool HTTPDAImpl::DoSendInput(std::iostream *Ios, Socket *s, long timeout, Context &context, ParameterMapper *in,
 							 ResultMapper *out) {
 	StartTrace(HTTPDAImpl.DoSendInput);
-	if (Ios) {
+	if (Ios != 0) {
 		if (s->IsReadyForWriting()) {
 			s->SetNoDelay();
 			bool retCode = in->Get("Input", *Ios, context);

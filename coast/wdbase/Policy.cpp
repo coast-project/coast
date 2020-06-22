@@ -31,7 +31,7 @@ bool InstallerPolicy::IntInitialize(Registry *r) {
 	RegisterableObject *ro;
 	while (ri.HasMore()) {
 		ro = ri.Next(name);
-		if (ro && !ro->IsInitialized()) {
+		if ((ro != 0) && !ro->IsInitialized()) {
 			bool bSucc = ro->Initialize(GetCategory());
 			Trace("initializing <" << name << "> was " << (bSucc ? "" : "not ") << "successful");
 			if (!bSucc) {
@@ -102,9 +102,9 @@ bool AliasInstaller::DoInstall(const ROAnything installerSpec, Registry *r) {
 					// if there is a slotname given, or the type is an anything, we dont process it
 					if ((a.SlotName(j) == NULL) && (k.GetType() != AnyArrayType)) {
 						RegisterableObject *t = (RegisterableObject *)r->Find(pcRegObjectName);
-						if (t) {
+						if (t != 0) {
 							String alias = k.AsString();
-							if (alias.Length()) {
+							if (alias.Length() != 0) {
 								// clone the object with the correct name
 								String origName;
 								t->GetName(origName);
@@ -157,7 +157,7 @@ bool AliasTerminator::DoTerminate(Registry *r) {
 	String name;
 	while (ri.HasMore()) {
 		RegisterableObject *ro = ri.Next(name);
-		if (ro) {
+		if (ro != 0) {
 			Trace("Terminating <" << name << ">");
 			ro->Finalize();
 			if (not ro->IsStatic()) {
@@ -183,7 +183,7 @@ bool HierarchyInstaller::DoInstall(const ROAnything installerSpec, Registry *r) 
 
 bool HierarchyInstaller::HasSuper(const HierarchConfNamed *super, const char *name) const {
 	StartTrace1(HierarchyInstaller.HasSuper, "name [" << NotNull(name) << "] addr:" << (long)super);
-	if (!name) {
+	if (name == 0) {
 		return false;
 	}
 
@@ -191,7 +191,7 @@ bool HierarchyInstaller::HasSuper(const HierarchConfNamed *super, const char *na
 	String superName;
 
 	// check for equal names in the parent relationship
-	while (super) {
+	while (super != 0) {
 		super->GetName(superName);
 		Trace("current class is [" << superName << "] addr:" << (long)super);
 		if (superName == name) {
@@ -210,7 +210,7 @@ HierarchConfNamed *HierarchyInstaller::Find(const char *name, Registry *r) {
 
 bool HierarchyInstaller::InstallRoot(HierarchConfNamed *root, const char *name) {
 	StartTrace1(HierarchyInstaller.InstallRoot, "root [" << NotNull(name) << "]" << (root ? "" : " is null!"));
-	if (root) {
+	if (root != 0) {
 		// AB: don't create cycles in inheritance tree
 		if (HasSuper(root->GetSuper(), name)) {
 			Trace("");
@@ -229,13 +229,13 @@ bool HierarchyInstaller::InstallTree(HierarchConfNamed *root, const char *rootNa
 	for (int i = 0; i < subTreeSz; ++i) {
 		bool subtree = true;
 		const char *leafName = tree.SlotName(i);
-		if (!leafName) {
+		if (leafName == 0) {
 			leafName = tree[i].AsCharPtr(0);
 			subtree = false;  // no more hierarchy
 		}
-		if (leafName) {	 // there is something to install
+		if (leafName != 0) {  // there is something to install
 			HierarchConfNamed *leaf = GetLeaf(leafName, root, r);
-			if (leaf) {
+			if (leaf != 0) {
 				leaf->SetSuper(root);
 				if (subtree) {
 					installSuccess = InstallTree(leaf, leafName, tree[i], r) && installSuccess;
@@ -255,19 +255,19 @@ HierarchConfNamed *HierarchyInstaller::GetLeaf(const char *leafName, HierarchCon
 	Trace("leaf [" << leafName << "] " << (leaf ? "" : "not ") << "found in registry");
 	String rootName("//");
 
-	if (!leaf) {
-		if (root) {
+	if (leaf == 0) {
+		if (root != 0) {
 			root->GetName(rootName);
 			Trace("cloning [" << rootName << "]");
 			// configured cloning but without config loading yet, done below
 			leaf = (HierarchConfNamed *)root->ConfiguredClone(GetCategory(), leafName, false);
 		}
-		if (leaf && (rootName != leafName)) {
+		if ((leaf != 0) && (rootName != leafName)) {
 			Trace("registering [" << leafName << "] in registry");
 			r->RegisterRegisterableObject(leafName, leaf);
 		}
 	}
-	if (leaf) {
+	if (leaf != 0) {
 		DoInitializeLeaf(leafName, leaf);
 	}
 	SystemLog::WriteToStderr(".", 1);

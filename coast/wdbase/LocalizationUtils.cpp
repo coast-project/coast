@@ -46,7 +46,7 @@ const char *LocalizationUtils::Eval(const char *lang, const ROAnything &config) 
 
 const ROAnything LocalizationUtils::EvalAny(const char *lang, const ROAnything &config) {
 	ROAnything match;
-	if (lang && config.LookupPath(match, lang)) {
+	if ((lang != 0) && config.LookupPath(match, lang)) {
 		return match;
 	}
 
@@ -108,11 +108,11 @@ static std::istream *tryopen(String &absolutepath, const char *rdir, const char 
 							 const char *filename, const char *ext = 0) {
 	absolutepath = rdir;
 	absolutepath << tdir << (system::Sep());
-	if (langdir) {
+	if (langdir != 0) {
 		absolutepath << langdir << (system::Sep());
 	}
 	absolutepath << filename;
-	return system::OpenIStream(absolutepath, ext ? ext : "html");
+	return system::OpenIStream(absolutepath, ext != 0 ? ext : "html");
 }
 
 std::istream *LocalizationUtils::OpenStream(Context &c, const char *filename, String &absoluteFileName) {
@@ -134,10 +134,10 @@ std::istream *LocalizationUtils::OpenStream(Context &c, const char *filename, St
 	String rootpath(system::GetRootDir());
 	rootpath << (system::Sep());
 
-	if (lang) {	 // language is defined try getting a localized template
+	if (lang != 0) {  // language is defined try getting a localized template
 		localizedPath = languageDirMap[lang].AsCharPtr("Localized_D");
 		Trace("using localized path [" << localizedPath << "]");
-		while (!fp && st.NextToken(templateDir)) {
+		while ((fp == 0) && st.NextToken(templateDir)) {
 			// get localized template
 			Trace("current template path [" << templateDir << "]");
 			fp = tryopen(absoluteFileName, rootpath, templateDir, localizedPath, filename);
@@ -146,7 +146,7 @@ std::istream *LocalizationUtils::OpenStream(Context &c, const char *filename, St
 
 	// try non localized template
 	st.Reset();	 // try again
-	while (!fp && st.NextToken(templateDir)) {
+	while ((fp == 0) && st.NextToken(templateDir)) {
 		Trace("current template path [" << templateDir << "]");
 		// get master template
 		fp = tryopen(absoluteFileName, rootpath, templateDir, 0, filename);

@@ -98,7 +98,7 @@ REBitSet &REBitSet::Set(unsigned char from, unsigned char to) {
 
 REBitSet &REBitSet::Set(Predicate p) {
 	for (unsigned c = 0; c < fgcNofBits; ++c) {
-		if ((*p)((unsigned char)c)) {
+		if ((*p)((unsigned char)c) != 0) {
 			this->Set((unsigned char)c);
 		} else {
 			this->Unset((unsigned char)c);

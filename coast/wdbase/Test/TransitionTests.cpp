@@ -86,7 +86,7 @@ bool TransitionTests::EvalRequest(ROAnything request, Anything &returned) {
 	std::iostream *Ios = connector.Use()->GetStream();
 	t_assert(Ios != 0);
 
-	if (Ios) {
+	if (Ios != 0) {
 		String resultRole, resultPage, resultPage2, sessionId, delayed;
 		TraceAny(request, "evalrequest");
 		// post request
@@ -100,6 +100,7 @@ bool TransitionTests::EvalRequest(ROAnything request, Anything &returned) {
 		reply << std::flush;
 		Trace("native reply [" << reply.str() << "]");
 		// extract infos about the received page
+		// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 		if (getline(reply, resultPage)) {
 			// trim carriage return
 			resultPage.Trim(resultPage.Length() - 1);  // since page is written as the response header

@@ -30,31 +30,31 @@ SocketStream::SocketStream(Socket *s, long timeout, long sockbufsz)
 	: iosITOSocket(s, timeout, sockbufsz, std::ios::in | std::ios::out), std::iostream(&fSocketBuf) {}
 
 void SocketStreamBuf::SetTimeout(long t) {
-	if (fSocket) {
+	if (fSocket != 0) {
 		fSocket->SetTimeout(t);
 	}
 }
 
 long SocketStreamBuf::GetTimeout() {
-	return fSocket ? fSocket->GetTimeout() : 0L;
+	return fSocket != 0 ? fSocket->GetTimeout() : 0L;
 }
 
 TimeoutModifier::TimeoutModifier(SocketStream *Ios, long timeout) : fOriginalTimeout(0), fStream(Ios) {
-	if (fStream) {
+	if (fStream != 0) {
 		fOriginalTimeout = fStream->rdbuf()->GetTimeout();
 		fStream->rdbuf()->SetTimeout(timeout);
 	}
 }
 
 TimeoutModifier::~TimeoutModifier() {
-	if (fStream) {
+	if (fStream != 0) {
 		fStream->rdbuf()->SetTimeout(fOriginalTimeout);
 	}
 }
 
 SocketStreamBuf::SocketStreamBuf(Socket *psocket, long timeout, long sockbufsz, int mode)
-	: fReadBufStorage(mode & std::ios::in ? sockbufsz : 0L),
-	  fWriteBufStorage(mode & std::ios::out ? sockbufsz : 0L),
+	: fReadBufStorage((mode & std::ios::in) != 0 ? sockbufsz : 0L),
+	  fWriteBufStorage((mode & std::ios::out) != 0 ? sockbufsz : 0L),
 	  fSocket(psocket),
 	  fReadCount(0),
 	  fWriteCount(0) {
@@ -91,7 +91,7 @@ SocketStreamBuf::~SocketStreamBuf() {
 }
 
 int SocketStreamBuf::overflow(int c) {
-	if (!pptr()) {
+	if (pptr() == 0) {
 		setp(startw(), endw());	 // reinitialize put area
 	} else {
 		Assert(pptr() - pbase() <= fWriteBufStorage.Capacity());
@@ -138,7 +138,7 @@ int SocketStreamBuf::sync() {
 	if (((count = pptr() - pbase()) > 0) && (DoWrite(pbase(), count) == EOF)) {
 		return (EOF);
 	}
-	if (pptr()) {
+	if (pptr() != 0) {
 		setp(startw(), endw());	 // reinitialize put area
 	}
 	return 0;  // no error
@@ -167,9 +167,9 @@ void SocketStreamBuf::AddWriteCount(long bytes) {
 
 long SocketStreamBuf::DoWrite(const char *buf, long len) {
 	long bytesSent = 0;
-	std::iostream *Ios = fSocket ? fSocket->GetStream() : 0;  // neeed for errorhandling
+	std::iostream *Ios = fSocket != 0 ? fSocket->GetStream() : 0;  // neeed for errorhandling
 
-	while (len > bytesSent && Ios && Ios->good()) {
+	while (len > bytesSent && (Ios != 0) && Ios->good()) {
 		long nout = 0;
 		if (fSocket->IsReadyForWriting()) {
 			do {
@@ -199,13 +199,13 @@ long SocketStreamBuf::DoWrite(const char *buf, long len) {
 #endif
 	}
 
-	return (Ios && Ios->good()) ? bytesSent : EOF;
+	return ((Ios != 0) && Ios->good()) ? bytesSent : EOF;
 }
 
 long SocketStreamBuf::DoRead(char *buf, long len) const {
 	long bytesRead = EOF;  // assume EOF is negative
 
-	if (fSocket) {
+	if (fSocket != 0) {
 		std::iostream *Ios = fSocket->GetStream();
 		if (fSocket->IsReadyForReading()) {
 			do {
@@ -240,7 +240,7 @@ long SocketStreamBuf::DoRead(char *buf, long len) const {
 
 std::ostream &operator<<(std::ostream &os, SocketStreamBuf *ssbuf) {
 	StartTrace(ostream.socketstreambuf);
-	if (ssbuf) {
+	if (ssbuf != 0) {
 		const int bufSz = 4096;
 		char buf[bufSz];
 		long totBytesRead = 0;

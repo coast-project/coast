@@ -35,7 +35,7 @@ namespace NSStringStream {
 				}
 			} else {
 				// test if we reached eof of streamSrc
-				bRet = (streamSrc->eof() != 0);
+				bRet = (static_cast<int>(streamSrc->eof()) != 0);
 				Trace("Source stream is not good anymore" << (bRet ? " (eof)" : "") << ", finishing copy!");
 				break;
 			}

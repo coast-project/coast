@@ -149,7 +149,7 @@ namespace coast {
 		}
 
 		String EnvGet(const char *variable) {
-			if (variable) {
+			if (variable != 0) {
 				return String(getenv(variable));
 			}
 			return String();
@@ -434,7 +434,7 @@ void coast::system::GetProcessEnvironment(Anything &anyEnv) {
 		environ
 #endif
 		;
-	for (long i = 0; envp && envp[i]; ++i) {
+	for (long i = 0; (envp != 0) && (envp[i] != 0); ++i) {
 		String entry(envp[i]);
 		Trace("entry = <" << entry << ">");
 		long equalsign = entry.StrChr('=');

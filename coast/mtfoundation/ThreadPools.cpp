@@ -31,7 +31,7 @@ ThreadPoolManager::~ThreadPoolManager() {
 }
 
 void ThreadPoolManager::DoGetStatistic(Anything &statistics) {
-	if (fpStatEvtHandler.get()) {
+	if (fpStatEvtHandler.get() != 0) {
 		fpStatEvtHandler->Statistic(statistics);
 	}
 }
@@ -68,7 +68,7 @@ int ThreadPoolManager::Start(bool usePoolStorage, int poolStorageSize, int numOf
 		long lStartSuccess = 0L;
 		for (long i = 0, sz = GetPoolSize(); i < sz; ++i) {
 			Thread *t = DoGetThread(i);
-			if (t) {
+			if (t != 0) {
 				Allocator *pAlloc = coast::storage::Global();
 				if (usePoolStorage) {
 					// use different memory manager for each thread
@@ -129,7 +129,7 @@ int ThreadPoolManager::Start(bool usePoolStorage, int poolStorageSize, int numOf
 		// here we signal that they should begin working;
 		for (long j = 0; j < lStartSuccess; ++j) {
 			Thread *t = DoGetThread(j);
-			if (t) {
+			if (t != 0) {
 				t->CheckState(Thread::eRunning, 0, 1000);
 				SYSDEBUG("Thread# " << j << " checked to run");
 			}
@@ -146,7 +146,7 @@ int ThreadPoolManager::Join(long lMaxSecsToWait) {
 		LockUnlockEntry me(fMutex);
 		DiffTimer dt;
 		long lWaited((lMaxSecsToWait > 0) ? 0L : -1L), lIncr((lMaxSecsToWait > 0) ? 1L : 0L);
-		if (lIncr) {
+		if (lIncr != 0) {
 			Trace("waiting on Thread Join for at most " << lMaxSecsToWait << "s");
 		} else {
 			Trace("waiting on Thread Join forever!");
@@ -171,7 +171,7 @@ bool ThreadPoolManager::AwaitReady(long secs) {
 	int msgCount = 0;
 	long lCurrRequests(fpStatEvtHandler->GetCurrentParallelRequests());
 	// check for active requests
-	while (fpStatEvtHandler.get() && (lCurrRequests > 0) && (aTimer.Diff() < secs)) {
+	while ((fpStatEvtHandler.get() != 0) && (lCurrRequests > 0) && (aTimer.Diff() < secs)) {
 		Thread::Wait(1);  // wait for 1 second
 		lCurrRequests = fpStatEvtHandler->GetCurrentParallelRequests();
 		++msgCount;
@@ -206,7 +206,7 @@ int ThreadPoolManager::DoTerminate(long lWaitToTerminate) {
 	int result = 0, iSign = 1;
 	for (long i = 0, sz = GetPoolSize(); i < sz; ++i) {
 		Thread *lt = (Thread *)DoGetThread(i);
-		if (!lt) {
+		if (lt == 0) {
 			SYSERROR("could not get Thread at position " << i);
 			iSign = -1;
 		} else {
@@ -261,13 +261,13 @@ void ThreadPoolManager::Update(tObservedPtr pObserved, tArgsRef roaUpdateArgs) {
 		if (!roaRunStateNew.IsNull()) {
 			switch (roaRunStateNew.AsLong(-1)) {
 				case Thread::eReady:
-					if (fpStatEvtHandler.get()) {
+					if (fpStatEvtHandler.get() != 0) {
 						fpStatEvtHandler->HandleStatEvt(WPMStatHandler::eLeave);
 					}
 					break;
 
 				case Thread::eWorking:
-					if (fpStatEvtHandler.get()) {
+					if (fpStatEvtHandler.get() != 0) {
 						fpStatEvtHandler->HandleStatEvt(WPMStatHandler::eEnter);
 					}
 					break;
@@ -294,7 +294,7 @@ bool ThreadPoolManager::DoAllocPool(long poolSize, ROAnything roaThreadArgs) {
 
 	for (long i = 0; i < poolSize; ++i) {
 		Thread *t = DoAllocThread(i, DoGetInitConfig(i, roaThreadArgs));
-		if (!t) {
+		if (t == 0) {
 			Trace("Alloc of thread[" << i << "] failed");
 			return false;
 		}
@@ -308,7 +308,7 @@ bool ThreadPoolManager::InitPool(ROAnything roaThreadArgs) {
 	TraceAny(roaThreadArgs, "roaThreadArgs");
 	for (long i = 0, sz = GetPoolSize(); i < sz; ++i) {
 		Thread *t = DoGetThread(i);
-		if (!t) {
+		if (t == 0) {
 			SYSWARNING("could not allocate thread[" << i << "]");
 			return false;
 		}
@@ -376,7 +376,7 @@ void WorkerThread::DoReadyHook(ROAnything) {
 		StatTrace(WorkerThread.DoReadyHook, "WorkerThread [" << GetName() << "] fAllocator->Refresh",
 				  coast::storage::Current());
 		// reorganize allocator memory and hope that no more memory is allocated anymore
-		if (fAllocator) {
+		if (fAllocator != 0) {
 			fAllocator->Refresh();
 		}
 	}
@@ -508,13 +508,13 @@ void WorkerPoolManager::Update(tObservedPtr pObserved, tArgsRef roaUpdateArgs) {
 		TraceAny(roaUpdateArgs, "state event received");
 		switch (roaRunStateNew.AsLong(-1)) {
 			case Thread::eReady:
-				if (fpStatEvtHandler.get()) {
+				if (fpStatEvtHandler.get() != 0) {
 					fpStatEvtHandler->HandleStatEvt(WPMStatHandler::eLeave);
 				}
 				break;
 
 			case Thread::eWorking:
-				if (fpStatEvtHandler.get()) {
+				if (fpStatEvtHandler.get() != 0) {
 					fpStatEvtHandler->HandleStatEvt(WPMStatHandler::eEnter);
 				}
 				break;
@@ -528,7 +528,7 @@ void WorkerPoolManager::Update(tObservedPtr pObserved, tArgsRef roaUpdateArgs) {
 
 long WorkerPoolManager::ResourcesUsed() {
 	// accessor to current active requests
-	if (fpStatEvtHandler.get()) {
+	if (fpStatEvtHandler.get() != 0) {
 		return fpStatEvtHandler->GetCurrentParallelRequests();
 	}
 	return 0L;
@@ -566,9 +566,9 @@ bool WorkerPoolManager::AwaitEmpty(long sec) {
 	// but wait at most sec seconds
 	DiffTimer aTimer(DiffTimer::eSeconds);
 	int msgCount = 0;
-	long lCurrRequests = fpStatEvtHandler.get() ? fpStatEvtHandler->GetCurrentParallelRequests() : 0L;
+	long lCurrRequests = fpStatEvtHandler.get() != 0 ? fpStatEvtHandler->GetCurrentParallelRequests() : 0L;
 	// check for active requests
-	while (fpStatEvtHandler.get() && (lCurrRequests > 0) && (aTimer.Diff() < sec)) {
+	while ((fpStatEvtHandler.get() != 0) && (lCurrRequests > 0) && (aTimer.Diff() < sec)) {
 		Thread::Wait(1);  // wait for 1 second
 		lCurrRequests = fpStatEvtHandler->GetCurrentParallelRequests();
 		++msgCount;
@@ -579,7 +579,7 @@ bool WorkerPoolManager::AwaitEmpty(long sec) {
 			SystemLog::Info(os.str());
 		}
 	}
-	lCurrRequests = fpStatEvtHandler.get() ? fpStatEvtHandler->GetCurrentParallelRequests() : 0L;
+	lCurrRequests = fpStatEvtHandler.get() != 0 ? fpStatEvtHandler->GetCurrentParallelRequests() : 0L;
 	if (lCurrRequests > 0) {
 		SYSWARNING("Still " << lCurrRequests << " working threads after waiting for " << msgCount << "s");
 	}
@@ -592,11 +592,11 @@ WorkerThread *WorkerPoolManager::FindNextRunnable(long lFindWorkerHint) {
 	// this code when no slot is empty;
 	WorkerThread *hs(NULL);
 	bool bIsReady(false);
-	long lCurrRequests = fpStatEvtHandler.get() ? fpStatEvtHandler->GetCurrentParallelRequests() : 0L;
+	long lCurrRequests = fpStatEvtHandler.get() != 0 ? fpStatEvtHandler->GetCurrentParallelRequests() : 0L;
 	while ((GetPoolSize() <= lCurrRequests) || fBlockRequestHandling) {
 		// release mutex and wait for condition
 		fCond.TimedWait(fMutex, 0, 100000);
-		lCurrRequests = fpStatEvtHandler.get() ? fpStatEvtHandler->GetCurrentParallelRequests() : 0L;
+		lCurrRequests = fpStatEvtHandler.get() != 0 ? fpStatEvtHandler->GetCurrentParallelRequests() : 0L;
 	}
 	Assert(GetPoolSize() > lCurrRequests);
 	Trace("I slipped past the Critical Region and there are " << lCurrRequests << " requests in work and "
@@ -610,7 +610,7 @@ WorkerThread *WorkerPoolManager::FindNextRunnable(long lFindWorkerHint) {
 									<< " which results in worker at index: " << (lFindWorkerHint % fPoolSize));
 		lFindWorkerHint = lFindWorkerHint % GetPoolSize();
 	}
-	while ((hs = DoGetWorker(lFindWorkerHint))) {
+	while ((hs = DoGetWorker(lFindWorkerHint)) != 0) {
 		if (hs->IsReady(bIsReady) && bIsReady) {
 			StatTrace(WorkerPoolManager.FindNextRunnable, "ready worker[" << lFindWorkerHint << "] found",
 					  coast::storage::Current());
@@ -623,7 +623,7 @@ WorkerThread *WorkerPoolManager::FindNextRunnable(long lFindWorkerHint) {
 }
 
 void WorkerPoolManager::DoGetStatistic(Anything &statistics) {
-	if (fpStatEvtHandler.get()) {
+	if (fpStatEvtHandler.get() != 0) {
 		fpStatEvtHandler->Statistic(statistics);
 	}
 }

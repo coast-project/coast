@@ -23,7 +23,7 @@ void TestContextFlagRenderer::RenderAll(std::ostream &reply, Context &ctx, const
 	String flagName;
 	Renderer::RenderOnString(flagName, ctx, config["FlagName"]);
 
-	if (ctx.Lookup(flagName, 0L)) {
+	if (ctx.Lookup(flagName, 0L) != 0) {
 		Renderer::Render(reply, ctx, config["WhenSet"]);
 	} else {
 		Renderer::Render(reply, ctx, config["WhenNotSet"]);

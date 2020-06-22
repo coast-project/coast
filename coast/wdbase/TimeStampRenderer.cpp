@@ -20,7 +20,7 @@ void TimeStampRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAny
 	StartTrace(TimeStampRenderer.RenderAll);
 	ROAnything roaUxTimeSpec;
 	TimeStamp aStamp;
-	if (!config.LookupPath(roaUxTimeSpec, "UnixTime") && config.GetSize()) {
+	if (!config.LookupPath(roaUxTimeSpec, "UnixTime") && (config.GetSize() != 0)) {
 		roaUxTimeSpec = config[0L];
 	}
 	TraceAny(roaUxTimeSpec, "UnixTime-spec");

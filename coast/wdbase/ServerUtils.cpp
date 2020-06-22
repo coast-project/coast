@@ -141,7 +141,7 @@ InterruptHandler::~InterruptHandler() {
 	}
 	Terminate();
 	CheckState(Thread::eTerminated);
-	if (fServer) {
+	if (fServer != 0) {
 		fServer->RemovePIDFile();
 	}
 }
@@ -154,7 +154,7 @@ void InterruptHandler::Run() {
 	Trace("Pid: " << (long)coast::system::getpid());
 	Trace("Server [" << (fServer ? (const char *)(fServer->fName) : "no-name") << "]");
 
-	if (fServer) {
+	if (fServer != 0) {
 		fServer->WritePIDFile(coast::system::getpid());
 	}
 
@@ -173,7 +173,7 @@ handlesignal:
 	SetReady();
 
 	Trace("got signal: " << (long)isignal);
-	if (fServer) {
+	if (fServer != 0) {
 		String sigName;
 		sigName << (long)isignal;
 		if (isignal == SIGHUP) {
@@ -223,7 +223,7 @@ void HandleRequest::DoWorkingHook(ROAnything workloadArgs) {
 
 void HandleRequest::DoProcessWorkload() {
 	StartTrace(HandleRequest.DoProcessWorkload);
-	if (fClientSocket) {
+	if (fClientSocket != 0) {
 		{
 			// **the** one and only context for this request
 			Context ctx(fClientSocket);
@@ -231,7 +231,7 @@ void HandleRequest::DoProcessWorkload() {
 				// set the request timer to time
 				// the duration of this request
 				RequestTimer(Cycle, "Nr: " << fRequestNumber, ctx);
-				if (fProcessor) {
+				if (fProcessor != 0) {
 					fProcessor->ProcessRequest(ctx);
 				}
 			}
@@ -248,11 +248,11 @@ void HandleRequest::DoProcessWorkload() {
 void HandleRequest::DoTerminationRequestHook(ROAnything workloadArgs) {
 	StartTrace(HandleRequest.DoTerminationRequestHook);
 	// terminate running request by setting bad bit on stream
-	if (fClientSocket) {
+	if (fClientSocket != 0) {
 		Trace("client socket still active");
 		std::iostream *Ios = fClientSocket->GetStream();
 		Trace("");
-		if (Ios && !!(*Ios)) {
+		if ((Ios != 0) && !!(*Ios)) {
 			Trace("setting badbit on stream to terminate me");
 			Ios->clear(std::ios::badbit | Ios->rdstate());
 		}
@@ -271,7 +271,7 @@ RequestThreadsManager::~RequestThreadsManager() {
 	Anything dummy;
 	DoDeletePool(dummy);
 
-	if (fProcessor) {
+	if (fProcessor != 0) {
 		delete fProcessor;
 		fProcessor = 0;
 	}
@@ -282,7 +282,7 @@ void RequestThreadsManager::DoAllocPool(ROAnything args) {
 	TraceAny(args, "args");
 	RequestProcessor *processor = SafeCast(args["processor"].AsIFAObject(0), RequestProcessor);
 
-	if (processor) {
+	if (processor != 0) {
 		fProcessor = processor;
 	} else {
 		const char *msg = "OOPS, couldn't find a RequestProcessor in args";
@@ -295,7 +295,7 @@ void RequestThreadsManager::DoAllocPool(ROAnything args) {
 WorkerThread *RequestThreadsManager::DoGetWorker(long i) {
 	StartTrace(RequestThreadsManager.DoGetWorker);
 	// concrete subclass needs to determine the object ptr
-	if (fRequests) {
+	if (fRequests != 0) {
 		return &(fRequests[i]);
 	}
 	return 0;
@@ -303,7 +303,7 @@ WorkerThread *RequestThreadsManager::DoGetWorker(long i) {
 
 void RequestThreadsManager::DoDeletePool(ROAnything args) {
 	StartTrace(RequestThreadsManager.DoDeletePool);
-	if (fRequests) {
+	if (fRequests != 0) {
 		// SOP, should check if threads are really done.
 		// for (int i = 0; i < GetPoolSize(); i ++){
 		//	Assert(fRequests[i].Terminate(1));
@@ -311,12 +311,12 @@ void RequestThreadsManager::DoDeletePool(ROAnything args) {
 		delete[] fRequests;	 // cast to correct type
 		fRequests = 0;		 // reset so that base class will not try to delete it again
 	}
-	if (fProcessor) {
+	if (fProcessor != 0) {
 		delete fProcessor;
 		fProcessor = 0;
 	}
 }
 
 bool RequestThreadsManager::CanReInitPool() {
-	return fProcessor ? true : false;
+	return fProcessor != 0 ? true : false;
 }

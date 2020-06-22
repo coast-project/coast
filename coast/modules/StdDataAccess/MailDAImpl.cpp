@@ -281,7 +281,7 @@ bool MailSTARTState::ProduceMsg(Anything &context, std::ostream &os) {
 
 	StatTrace(MailDAImpl.ProduceMsg, "Produce MailSTARTState " << context["Helo"].AsCharPtr(DEF_UNKNOWN),
 			  coast::storage::Current());
-	return (os.good() != 0);
+	return (static_cast<int>(os.good()) != 0);
 }
 
 bool MailSTARTState::ConsumeReply(Anything &context, std::istream &is) {
@@ -298,7 +298,7 @@ bool MailFROMState::ProduceMsg(Anything &context, std::ostream &os) {
 
 	os << CRLF;	 //!@FIXME should test whether this always works
 	StatTrace(MailDAImpl.ProduceMsg, "Produce MailFROMState " << context["From"].AsCharPtr("?"), coast::storage::Current());
-	return (os.good() != 0);
+	return (static_cast<int>(os.good()) != 0);
 }
 
 // returns next valid state
@@ -418,7 +418,7 @@ void MailSENDState::ProduceMultipartMsg(Anything &context, std::ostream &os) {
 		os << "\nContent-Disposition: attachment; filename=\"" << name << "\"";
 		os << "\n";
 
-		if (encodeddata.Length()) {
+		if (encodeddata.Length() != 0) {
 			os << "\n" << encodeddata;
 		}
 	}
@@ -470,7 +470,7 @@ bool MailDAImpl::Exec(Context &ctx, ParameterMapper *in, ResultMapper *out) {
 
 	Connector csc(address, port, timeout);
 	std::iostream *Ios = csc.GetStream();
-	if (Ios) {
+	if (Ios != 0) {
 		result = SMTPState::SendMail(*Ios, ctx, in, out);
 	} else {
 		// Could not open Connection

@@ -39,10 +39,10 @@ void PersistentLDAPConnection::tsd_destruct(void *tsd) {
 		SystemLog::Info(String("PersistentLDAPConnection::tsd_destruct() Releasing thread specific data. Thread [")
 						<< Thread::MyId() << "]");
 		PersistentLDAPConnection::ldap_error *le = static_cast<PersistentLDAPConnection::ldap_error *>(tsd);
-		if (le && le->le_matched != NULL) {
+		if ((le != 0) && le->le_matched != NULL) {
 			ldap_memfree(le->le_matched);
 		}
-		if (le && le->le_errmsg != NULL) {
+		if ((le != 0) && le->le_errmsg != NULL) {
 			ldap_memfree(le->le_errmsg);
 		}
 		free(tsd);
@@ -54,7 +54,7 @@ void PersistentLDAPConnection::set_ld_error(int err, char *matched, char *errmsg
 	StartTrace(PersistentLDAPConnection.set_ld_error);
 
 	PersistentLDAPConnection::ldap_error *le = NULL;
-	if (not GETTLSDATA(LDAPConnectionManager::fgErrnoKey, le, ldap_error) || not le) {
+	if (not GETTLSDATA(LDAPConnectionManager::fgErrnoKey, le, ldap_error) || (le == 0)) {
 		return;
 	}
 	le->le_errno = err;
@@ -73,7 +73,7 @@ int PersistentLDAPConnection::get_ld_error(char **matched, char **errmsg, void *
 	StartTrace(PersistentLDAPConnection.get_ld_error);
 
 	PersistentLDAPConnection::ldap_error *le = NULL;
-	if (not GETTLSDATA(LDAPConnectionManager::fgErrnoKey, le, ldap_error) || not le) {
+	if (not GETTLSDATA(LDAPConnectionManager::fgErrnoKey, le, ldap_error) || (le == 0)) {
 		return LDAP_OTHER;	// this return code should not interfere with usual ldap error codes
 	}
 	if (matched != NULL) {
@@ -145,7 +145,7 @@ PersistentLDAPConnection::EConnectState PersistentLDAPConnection::DoConnectHook(
 	fPoolId = GetLdapPoolId(bindParams);
 	Anything returned =
 		LDAPConnectionManager::LDAPCONNMGR()->GetLdapConnection(eh.IsRetry(), GetMaxConnections(), fPoolId, fRebindTimeout);
-	PersistentLDAPConnection::EConnectState eConnectState = returned["MustRebind"].AsBool(1) == false
+	PersistentLDAPConnection::EConnectState eConnectState = returned["MustRebind"].AsBool(true) == false
 																? PersistentLDAPConnection::eMustNotRebind
 																: PersistentLDAPConnection::eMustRebind;
 	fHandle = (LDAP *)returned["Handle"].AsIFAObject(0);
@@ -182,7 +182,7 @@ LDAPConnection::EConnectState PersistentLDAPConnection::DoConnect(ROAnything bin
 		return eConnectState;
 	}
 	// get connection handle
-	if (!(fHandle = Init(eh))) {
+	if ((fHandle = Init(eh)) == 0) {
 		return eInitNok;
 	}
 

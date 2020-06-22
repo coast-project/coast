@@ -65,12 +65,12 @@ void OracleResultMapper::DoGetDestinationAny(const char *key, Anything &targetAn
 	StartTrace1(OracleResultMapper.DoGetDestinationAny, NotNull(key));
 	String path = GetDestinationSlot(ctx), kPrefix(key), strIdxValue = ctx.Lookup("_OracleArrayResultIndex_", "");
 	String strArrayValuesSlot = Lookup("ArrayValuesSlotName", "ArrayResults");
-	if (strIdxValue.Length()) {
+	if (strIdxValue.Length() != 0) {
 		Trace("index value is:" << strIdxValue);
 		path.Append(getDelim()).Append(strArrayValuesSlot);
 		path.Append(getIndexDelim()).Append(strIdxValue);
 	}
-	if (path.Length() > 0 && kPrefix.Length()) {
+	if (path.Length() > 0 && (kPrefix.Length() != 0)) {
 		path.Append(getDelim());
 	}
 	path.Append(kPrefix);

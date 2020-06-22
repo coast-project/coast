@@ -69,11 +69,11 @@ bool TitlesOnceColsAction::DoExecAction(String &transitionToken, Context &ctx, c
 		if (listNameAny[idx].IsDefined("Hide")) {
 			String strHide;
 			Renderer::RenderOnString(strHide, ctx, listNameAny[idx]["Hide"]);
-			boHide = strHide.AsLong(0L);
+			boHide = (strHide.AsLong(0L) != 0);
 			Trace("Column is " << (boHide ? "hidden" : "visible"));
 		}
 
-		if (!listNameAny[idx].IsDefined("Hide") || (listNameAny[idx].IsDefined("Hide") && (boHide != 1))) {
+		if (!listNameAny[idx].IsDefined("Hide") || (listNameAny[idx].IsDefined("Hide") && (static_cast<int>(boHide) != 1))) {
 			tempStore["TempSlot"][0L] = listNameAny[idx].DeepClone();
 			tempStore["TempSlot"][0L].Remove("Value");
 			tempStore["TempSlot"][0L]["Value"]["Lookup"] = (String("SelectBoxOption:") << titlesListAny[intName].AsString());

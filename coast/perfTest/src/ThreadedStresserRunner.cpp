@@ -62,7 +62,7 @@ Anything ThreadedStresserRunner::Run(long /* id */) {
 
 	String appName;
 	Application *application = Application::GetGlobalApplication(appName);
-	if (application) {
+	if (application != 0) {
 		Trace(appName << " application found");
 		hasScriptConfig = (application->Lookup("NumberOfThreads", 0L) != 0);
 		numStressers = ConfigStressers(application->Lookup("NumberOfThreads", 0L), sz, stresser);
@@ -158,7 +158,7 @@ Anything ThreadedStresserRunner::Run(long /* id */) {
 				}
 			}
 		}
-		if (anyResults.GetSize()) {
+		if (anyResults.GetSize() != 0) {
 			result = anyResults[0L];
 			anyResults.Remove(0L);
 		}
@@ -180,7 +180,7 @@ Anything ThreadedStresserRunner::Run(long /* id */) {
 			totErr += roaResult["Error"].AsLong(0);
 			results["Results"].Append(result);
 			result = Anything();
-			if (anyResults.GetSize()) {
+			if (anyResults.GetSize() != 0) {
 				result = anyResults[0L];
 				anyResults.Remove(0L);
 			}

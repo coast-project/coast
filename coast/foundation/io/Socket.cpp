@@ -102,14 +102,14 @@ Socket::Socket(int socketfd, const Anything &clientInfo, bool doClose, long time
 	  fClientInfo(clientInfo),
 	  fTimeout(timeout),
 	  fHadTimeout(false),
-	  fAllocator((a) ? a : coast::storage::Global()) {
+	  fAllocator((a) != 0 ? a : coast::storage::Global()) {
 	StartTrace1(Socket.Ctor, "fd:" << GetFd() << " using allocator: [" << reinterpret_cast<long>(fAllocator) << "]");
 	TraceAny(fClientInfo, "clientInfo");
 }
 
 Socket::~Socket() {
 	StartTrace1(Socket.Dtor, "fd:" << GetFd());
-	if (fStream) {
+	if (fStream != 0) {
 		Trace("Deleting stream");
 		delete fStream;
 		fStream = 0;
@@ -126,7 +126,7 @@ Socket::~Socket() {
 void Socket::AppendToClientInfo(const char *slot, const ROAnything &info) {
 	StartTrace(Socket.AppendToClientInfo);
 	TraceAny(info, "info to append at slot:" << slot);
-	if (slot) {
+	if (slot != 0) {
 		fClientInfo[slot] = info.DeepClone(fClientInfo.GetAllocator());
 	} else {
 		fClientInfo.Append(info.DeepClone(fClientInfo.GetAllocator()));
@@ -137,7 +137,7 @@ void Socket::AppendToClientInfo(const char *slot, const ROAnything &info) {
 std::iostream *Socket::GetStream() {
 	StartTrace1(Socket.GetStream, "fd:" << GetFd());
 
-	if (!fStream) {
+	if (fStream == 0) {
 		fStream = DoMakeStream();
 	}
 	return fStream;
@@ -236,7 +236,7 @@ bool Socket::ShutDownReading() {
 }
 
 bool Socket::ShutDownWriting() {
-	if (fStream) {
+	if (fStream != 0) {
 		fStream->flush();
 	}
 	return ShutDown(GetFd(), SHUT_WR);
@@ -248,9 +248,9 @@ bool Socket::ShutDown() {
 
 long Socket::GetReadCount() const {
 	StartTrace1(Socket.GetReadCount, "fd:" << GetFd());
-	if (fStream) {
+	if (fStream != 0) {
 		SocketStreamBuf *sbuf = ((SocketStream *)fStream)->rdbuf();
-		if (sbuf) {
+		if (sbuf != 0) {
 			return sbuf->GetReadCount();
 		}
 	}
@@ -259,9 +259,9 @@ long Socket::GetReadCount() const {
 
 long Socket::GetWriteCount() const {
 	StartTrace1(Socket.GetWriteCount, "fd:" << GetFd());
-	if (fStream) {
+	if (fStream != 0) {
 		SocketStreamBuf *sbuf = ((SocketStream *)fStream)->rdbuf();
-		if (sbuf) {
+		if (sbuf != 0) {
 			return sbuf->GetWriteCount();
 		}
 	}
@@ -600,7 +600,7 @@ Connector::Connector(ConnectorArgs &connectorArgs, String srcIPAdr, long srcPort
 }
 
 Connector::~Connector() {
-	if (fSocket) {
+	if (fSocket != 0) {
 		delete fSocket;
 	}
 }
@@ -608,7 +608,7 @@ Connector::~Connector() {
 Socket *Connector::MakeSocket(bool doClose) {
 	StartTrace(Connector.MakeSocket);
 	Socket *s = 0;
-	if ((fSrcPort == 0) || (!fSocket)) {
+	if ((fSrcPort == 0) || (fSocket == 0)) {
 		if (DoConnect()) {
 			Anything clientInfo;
 			clientInfo["REMOTE_ADDR"] = fIPAddress;
@@ -616,7 +616,7 @@ Socket *Connector::MakeSocket(bool doClose) {
 			coast::system::SetCloseOnExec(GetFd());
 			s = DoMakeSocket(GetFd(), clientInfo, doClose);
 		}
-		if (GetFd() >= 0 && !s) {
+		if (GetFd() >= 0 && (s == 0)) {
 			closeSocket(GetFd());
 			fSockFd = -1;
 		}
@@ -626,7 +626,7 @@ Socket *Connector::MakeSocket(bool doClose) {
 
 Socket *Connector::Use() {
 	StartTrace(Connector.Use);
-	if (!fSocket) {
+	if (fSocket == 0) {
 		fSocket = MakeSocket();
 	}
 	return fSocket;
@@ -635,7 +635,7 @@ Socket *Connector::Use() {
 std::iostream *Connector::GetStream() {
 	StartTrace(Connector.GetStream);
 	Socket *psocket = Use();
-	if (psocket) {
+	if (psocket != 0) {
 		return psocket->GetStream();
 	}
 	return 0;
@@ -643,7 +643,7 @@ std::iostream *Connector::GetStream() {
 
 Anything Connector::ClientInfo() {
 	StartTrace(Connector.ClientInfo);
-	if (fSocket) {
+	if (fSocket != 0) {
 		return fSocket->ClientInfo();
 	}
 	return Anything();
@@ -703,12 +703,12 @@ ConnectStat::~ConnectStat() {
 class CallBackLocker {
 public:
 	CallBackLocker(AcceptorCallBack *ac) : fCallBack(ac) {
-		if (fCallBack) {
+		if (fCallBack != 0) {
 			fCallBack->Lock();
 		}
 	}
 	~CallBackLocker() {
-		if (fCallBack) {
+		if (fCallBack != 0) {
 			fCallBack->Unlock();
 		}
 	}
@@ -722,12 +722,12 @@ protected:
 class RevCallBackLocker {
 public:
 	RevCallBackLocker(AcceptorCallBack *ac) : fCallBack(ac) {
-		if (fCallBack) {
+		if (fCallBack != 0) {
 			fCallBack->Unlock();
 		}
 	}
 	~RevCallBackLocker() {
-		if (fCallBack) {
+		if (fCallBack != 0) {
 			fCallBack->Lock();
 		}
 	}
@@ -743,12 +743,12 @@ public:
 	CallBackSynchronizer(AcceptorCallBack *ac) : fCallBack(ac) {}
 
 	void Wait() {
-		if (fCallBack) {
+		if (fCallBack != 0) {
 			fCallBack->Wait();
 		}
 	}
 	void Signal() {
-		if (fCallBack) {
+		if (fCallBack != 0) {
 			fCallBack->Signal();
 		}
 	}
@@ -767,7 +767,7 @@ Acceptor::Acceptor(const char *ipadress, long port, long backlog, AcceptorCallBa
 Acceptor::~Acceptor() {
 	StartTrace(Acceptor.Dtor);
 	Acceptor::StopAcceptLoop();
-	if (fCallBack) {
+	if (fCallBack != 0) {
 		delete fCallBack;
 		fCallBack = 0;
 	}
@@ -845,7 +845,7 @@ int Acceptor::RunAcceptLoop(bool once) {
 
 		while (fAlive) {
 			Socket *psocket = DoAccept();
-			if (psocket) {
+			if (psocket != 0) {
 				DoCallBack(psocket);
 			}
 			if (once) {
@@ -860,7 +860,7 @@ int Acceptor::RunAcceptLoop(bool once) {
 
 void Acceptor::DoCallBack(Socket *psocket) {
 	StartTrace(Acceptor.DoCallBack);
-	if (fCallBack) {
+	if (fCallBack != 0) {
 		fCallBack->CallBack(psocket);
 	}
 }

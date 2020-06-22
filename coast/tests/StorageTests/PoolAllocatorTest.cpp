@@ -238,7 +238,7 @@ void PoolAllocatorTest::XxxTest() {
 	while (aEntryIterator.Next(roaCaseConfig)) {
 		TString strName;
 		aEntryIterator.SlotName(strName);
-		if (!strName.Length()) {
+		if (strName.Length() == 0) {
 			strName << ":" << aEntryIterator.Index();
 		}
 		TraceAny(roaCaseConfig, "Running " << strName << " tests with config:");

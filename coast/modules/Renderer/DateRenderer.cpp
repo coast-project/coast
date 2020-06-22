@@ -67,14 +67,14 @@ void DateRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything
 		String strOffset = Renderer::RenderToString(ctx, roaOffset);
 		offset = strOffset.AsLong(0);
 		// optional trailing 'd' stands for day offsets instead of seconds
-		if (strOffset.Length() && strOffset[strOffset.Length() - 1] == 'd') {
+		if ((strOffset.Length() != 0) && strOffset[strOffset.Length() - 1] == 'd') {
 			offset *= 86400;
 		}
 		now += offset;
 	}
 
 	struct tm res;
-	bool gmt(config["RFC2616Date"].AsBool(0));
+	bool gmt(config["RFC2616Date"].AsBool(false));
 	// NOTICE: array is limited to gcMaxDateArraySize chars
 	char date[gcMaxDateArraySize];
 	if (gmt) {

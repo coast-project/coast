@@ -109,7 +109,7 @@ void ListRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything
 			// needed
 			anyRenderState["ListIndex"] = i;
 			anyRenderState["RenderIndex"] = (i - start);
-			if (strSlotName.Length()) {
+			if (strSlotName.Length() != 0) {
 				anyRenderState["Slotname"] = strSlotName;
 			} else {
 				anyRenderState.Remove("Slotname");
@@ -172,7 +172,7 @@ bool ListRenderer::GetList(Context &ctx, const ROAnything &config, ROAnything &r
 	StartTrace(ListRenderer.GetList);
 	String strListDataName;
 	RenderOnString(strListDataName, ctx, config["ListName"]);
-	return (strListDataName.Length() && ctx.Lookup(strListDataName, roaList));
+	return ((strListDataName.Length() != 0) && ctx.Lookup(strListDataName, roaList));
 }
 
 long ListRenderer::EntryHeaderNrToBeRendered(Context &ctx, const ROAnything &config, Anything &anyRenderState) {

@@ -67,7 +67,7 @@ String Scheduler::convertFromDayHourMinInDecimal(String timeDate) {
 	// Analyze the hour
 	if (statusOk) {
 		char td4 = timeDate.At(4), td5 = timeDate.At(5);
-		if (isdigit(td4) && isdigit(td5)) {
+		if ((isdigit(td4) != 0) && (isdigit(td5) != 0)) {
 			long val = (td4 - '0') * 10 + (td5 - '0');
 			if (val < 24) {
 				value.Append(timeDate.SubString(4, 2));
@@ -82,7 +82,7 @@ String Scheduler::convertFromDayHourMinInDecimal(String timeDate) {
 	// Analyze the minutes
 	if (statusOk) {
 		char td7 = timeDate.At(7), td8 = timeDate.At(8);
-		if (isdigit(td7) && isdigit(td8)) {
+		if ((isdigit(td7) != 0) && (isdigit(td8) != 0)) {
 			long val = (td7 - '0') * 10 + (td8 - '0');
 			if (val < 60) {
 				value.Append(timeDate.SubString(7, 2));
@@ -116,7 +116,7 @@ String Scheduler::CurrTimeDateInDecimal() {
 	// Analyze the year
 	char td20 = cTimeDate.At(20), td21 = cTimeDate.At(21), td22 = cTimeDate.At(22), td23 = cTimeDate.At(23);
 
-	if (isdigit(td20) && isdigit(td21) && isdigit(td22) && isdigit(td23)) {
+	if ((isdigit(td20) != 0) && (isdigit(td21) != 0) && (isdigit(td22) != 0) && (isdigit(td23) != 0)) {
 		value.Append(cTimeDate.SubString(20, 4));
 	} else {
 		statusOk = false;
@@ -158,7 +158,7 @@ String Scheduler::CurrTimeDateInDecimal() {
 	// Analyze the day
 	if (statusOk) {
 		char td8 = cTimeDate.At(8), td9 = cTimeDate.At(9);
-		if (isdigit(td8) && isdigit(td9)) {
+		if ((isdigit(td8) != 0) && (isdigit(td9) != 0)) {
 			long val = (td8 - '0') * 10 + (td9 - '0');
 			if (val <= 31) {
 				value.Append(cTimeDate.SubString(8, 2));
@@ -173,7 +173,7 @@ String Scheduler::CurrTimeDateInDecimal() {
 	// Analyze the hour
 	if (statusOk) {
 		char td11 = cTimeDate.At(11), td12 = cTimeDate.At(12);
-		if (isdigit(td11) && isdigit(td12)) {
+		if ((isdigit(td11) != 0) && (isdigit(td12) != 0)) {
 			long val = (td11 - '0') * 10 + (td12 - '0');
 			if (val < 24) {
 				value.Append(cTimeDate.SubString(11, 2));
@@ -188,7 +188,7 @@ String Scheduler::CurrTimeDateInDecimal() {
 	// Analyze the min
 	if (statusOk) {
 		char td14 = cTimeDate.At(14), td15 = cTimeDate.At(15);
-		if (isdigit(td14) && isdigit(td15)) {
+		if ((isdigit(td14) != 0) && (isdigit(td15) != 0)) {
 			long val = (td14 - '0') * 10 + (td15 - '0');
 			if (val < 60) {
 				value.Append(cTimeDate.SubString(14, 2));
@@ -218,7 +218,7 @@ String Scheduler::ConvertFromSingleTimeInDecimal(String singleTime) {
 	// Check if the result contains only digits
 	long len = result.Length();
 	for (long i = 0; i < len; i++) {
-		if (!isdigit(result[i])) {
+		if (isdigit(result[i]) == 0) {
 			result = "";
 			break;
 		}

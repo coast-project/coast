@@ -19,7 +19,7 @@
 #include <sstream>
 
 MemChecker::MemChecker(const char *scope, Allocator *a)
-	: fAllocator(a), fSizeAllocated((a ? fAllocator->CurrentlyAllocated() : 0LL)), fScope(scope) {}
+	: fAllocator(a), fSizeAllocated((a != 0 ? fAllocator->CurrentlyAllocated() : 0LL)), fScope(scope) {}
 
 MemChecker::~MemChecker() {
 	TraceDelta("MemChecker.~MemChecker: ");
@@ -28,20 +28,20 @@ MemChecker::~MemChecker() {
 void MemChecker::TraceDelta(const char *message) {
 	l_long delta = CheckDelta();
 	if (delta != 0) {
-		if (message) {
+		if (message != 0) {
 			SystemLog::WriteToStderr(message, -1);
 		}
 		const int bufSize = 1024;
 		char msgbuf[bufSize] = {0};
 		int charsStoredOrRequired =
 			coast::system::SnPrintf(msgbuf, bufSize, "\nMem Usage change by %.0f bytes in %s\nAllocator [%02ld]\n",
-									(double)delta, fScope, (fAllocator ? fAllocator->GetId() : 0L));
+									(double)delta, fScope, (fAllocator != 0 ? fAllocator->GetId() : 0L));
 		SystemLog::WriteToStderr(msgbuf, charsStoredOrRequired >= bufSize ? -1 : charsStoredOrRequired);
 	}
 }
 
 l_long MemChecker::CheckDelta() {
-	return (fAllocator ? (fAllocator->CurrentlyAllocated() - fSizeAllocated) : 0LL);
+	return (fAllocator != 0 ? (fAllocator->CurrentlyAllocated() - fSizeAllocated) : 0LL);
 }
 
 MemTracker::MemTracker(const char *name)
@@ -60,7 +60,7 @@ MemTracker::MemTracker(const char *name)
 }
 
 MemTracker::~MemTracker() {
-	if (fpUsedList) {
+	if (fpUsedList != 0) {
 		delete fpUsedList;
 		fpUsedList = 0;
 	}
@@ -77,7 +77,7 @@ void MemTracker::TrackAlloc(MemoryHeader *mh) {
 	fSizeAllocated += mh->fUsableSize;
 	fMaxAllocated = std::max(fMaxAllocated, fAllocated);
 	// only track used pool memory buckets
-	if (fpUsedList && !(mh->fState & MemoryHeader::eNotPooled)) {
+	if ((fpUsedList != 0) && ((mh->fState & MemoryHeader::eNotPooled) == 0)) {
 		fpUsedList->push_back(mh);
 	}
 }
@@ -87,7 +87,7 @@ void MemTracker::TrackFree(MemoryHeader *mh) {
 	++fNumFrees;
 	fSizeFreed += mh->fUsableSize;
 	// only track used pool memory buckets
-	if (fpUsedList && !(mh->fState & MemoryHeader::eNotPooled)) {
+	if ((fpUsedList != 0) && ((mh->fState & MemoryHeader::eNotPooled) == 0)) {
 		UsedListType::iterator aUsedIterator;
 		for (aUsedIterator = fpUsedList->begin(); aUsedIterator != fpUsedList->end(); ++aUsedIterator) {
 			if (*aUsedIterator == mh) {
@@ -99,7 +99,7 @@ void MemTracker::TrackFree(MemoryHeader *mh) {
 }
 
 void MemTracker::DumpUsedBlocks() {
-	if (fpUsedList && fpUsedList->size()) {
+	if ((fpUsedList != 0) && (fpUsedList->size() != 0u)) {
 		const size_t alignedSize = coast::memory::AlignedSize<MemoryHeader>::value;
 		std::ostringstream ostream;
 		ostream << "memory blocks still in use for " << fpName << ":\n";
@@ -140,8 +140,8 @@ void MemTracker::PrintStatistic(long lLevel) {
 								"Difference      %20lld bytes\n",
 #endif
 								fId, fpName, fMaxAllocated, fSizeAllocated, fNumAllocs,
-								(fSizeAllocated / ((fNumAllocs) ? fNumAllocs : 1)), fSizeFreed, fNumFrees,
-								(fSizeFreed / ((fNumFrees) ? fNumFrees : 1)), fAllocated);
+								(fSizeAllocated / ((fNumAllocs) != 0u ? fNumAllocs : 1)), fSizeFreed, fNumFrees,
+								(fSizeFreed / ((fNumFrees) != 0u ? fNumFrees : 1)), fAllocated);
 		SystemLog::WriteToStderr(buf, -1);
 	}
 }
@@ -173,7 +173,7 @@ namespace {
 		}
 		coast::storage::StorageHooksPtr unregisterHook() {
 			coast::storage::StorageHooksPtr pOldHook = fgTopHook;
-			if (pOldHook.get()) {
+			if (pOldHook.get() != 0) {
 				fgTopHook = pOldHook->GetOldHook();
 				pOldHook->Finalize();
 			}
@@ -195,21 +195,21 @@ namespace coast {
 		}  // namespace
 
 		Allocator *DoGlobal() {
-			if (!globalPool) {
+			if (globalPool == 0) {
 				globalPool = new GlobalAllocator();
 			}
 			return globalPool;
 		}
 
 		Allocator *Current() {
-			if (StorageInitializerSingleton::instance().fgTopHook.get() && !forceGlobal) {
+			if ((StorageInitializerSingleton::instance().fgTopHook.get() != 0) && !forceGlobal) {
 				return StorageInitializerSingleton::instance().fgTopHook->Current();
 			}
 			return DoGlobal();
 		}
 
 		Allocator *Global() {
-			if (StorageInitializerSingleton::instance().fgTopHook.get() && !forceGlobal) {
+			if ((StorageInitializerSingleton::instance().fgTopHook.get() != 0) && !forceGlobal) {
 				return StorageInitializerSingleton::instance().fgTopHook->Global();
 			}
 			return DoGlobal();
@@ -220,7 +220,7 @@ namespace coast {
 			if (GetStatisticLevel() >= 1) {
 				DoGlobal()->PrintStatistic(2);
 			}
-			if (globalPool) {
+			if (globalPool != 0) {
 				delete globalPool;
 				globalPool = 0;
 			}
@@ -240,7 +240,7 @@ namespace coast {
 		Allocator::MemTrackerPtr DoMakeMemTracker(const char *name) { return Allocator::MemTrackerPtr(new MemTracker(name)); }
 
 		Allocator::MemTrackerPtr MakeMemTracker(const char *name, bool bThreadSafe) {
-			if (StorageInitializerSingleton::instance().fgTopHook.get()) {
+			if (StorageInitializerSingleton::instance().fgTopHook.get() != 0) {
 				return StorageInitializerSingleton::instance().fgTopHook->MakeMemTracker(name, bThreadSafe);
 			}
 			return DoMakeMemTracker(name);
@@ -249,7 +249,7 @@ namespace coast {
 
 	namespace memory {
 		void safeFree(Allocator *a, void *ptr) COAST_NOEXCEPT_OR_NOTHROW {
-			if (ptr) {
+			if (ptr != 0) {
 				a->Free(ptr);
 			}
 		}
@@ -276,7 +276,7 @@ Allocator::Allocator(long allocatorid)
 
 Allocator::~Allocator() {
 	Assert(0 == fRefCnt);
-	if (fTracker) {
+	if (fTracker != 0) {
 		fTracker->PrintStatistic(coast::storage::GetStatisticLevel());
 		fTracker->DumpUsedBlocks();
 	}
@@ -284,7 +284,7 @@ Allocator::~Allocator() {
 
 void *Allocator::Calloc(int n, size_t size) {
 	void *ret = Alloc(AllocSize(n, size));
-	if (ret && n * size > 0) {
+	if ((ret != 0) && n * size > 0) {
 		memset(ret, 0, n * size);
 	}
 	return ret;
@@ -303,7 +303,7 @@ size_t Allocator::AllocSize(size_t n, size_t size) {
 }
 
 void *Allocator::ExtMemStart(void *vp) {
-	if (vp) {
+	if (vp != 0) {
 		Assert(((MemoryHeader *)vp)->fMagic == MemoryHeader::gcMagic);
 		void *s = (((char *)(vp)) + coast::memory::AlignedSize<MemoryHeader>::value);  // fUsableSize does *not* include header
 		// superfluous, Calloc takes care: memset(s, '\0', mh->fUsableSize);
@@ -313,7 +313,7 @@ void *Allocator::ExtMemStart(void *vp) {
 }
 
 MemoryHeader *Allocator::RealMemStart(void *vp) {
-	if (vp) {
+	if (vp != 0) {
 		MemoryHeader *mh = (MemoryHeader *)(((char *)(vp)) - coast::memory::AlignedSize<MemoryHeader>::value);
 		if (mh->fMagic == MemoryHeader::gcMagic) {
 			return mh;
@@ -345,7 +345,7 @@ void GlobalAllocator::PrintStatistic(long lLevel) {
 void *GlobalAllocator::Alloc(size_t allocSize) {
 	void *vp = ::malloc(allocSize);
 
-	if (vp) {
+	if (vp != 0) {
 		MemoryHeader *mh =
 			new (vp) MemoryHeader(allocSize - coast::memory::AlignedSize<MemoryHeader>::value, MemoryHeader::eUsedNotPooled);
 		fTracker->TrackAlloc(mh);
@@ -365,9 +365,9 @@ void GlobalAllocator::Free(void *p, size_t sz) {
 }
 
 void GlobalAllocator::Free(void *vp) {
-	if (vp) {
+	if (vp != 0) {
 		MemoryHeader *header = RealMemStart(vp);
-		if (header && header->fMagic == MemoryHeader::gcMagic) {
+		if ((header != 0) && header->fMagic == MemoryHeader::gcMagic) {
 			Assert(header->fMagic == MemoryHeader::gcMagic);  // should combine magic with state
 			Assert(header->fState & MemoryHeader::eUsed);
 			fTracker->TrackFree(header);

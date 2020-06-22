@@ -146,7 +146,7 @@ void RequestLineRenderer::RenderAll(std::ostream &reply, Context &c, const ROAny
 			Trace("Authorization header field name:[" << authorizationHeaderFieldName << "]");
 			Encoder *base64 = Encoder::FindEncoder("Base64Regular");
 			String encodeddata(strUserPass.Length() * 4 / 3);
-			if (base64) {
+			if (base64 != 0) {
 				base64->DoEncode(encodeddata, strUserPass);
 				replyDebugBuffer << "\r\n" << authorizationHeaderFieldName << ": Basic " << encodeddata;
 				Trace("string [" << strUserPass << "] encoded [" << encodeddata << "]");

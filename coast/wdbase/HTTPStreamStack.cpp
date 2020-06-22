@@ -36,11 +36,11 @@ std::ostream &HTTPStreamStack::GetBodyStream() {
 }
 
 HTTPStreamStack::~HTTPStreamStack() {
-	if (fZipper) {
+	if (fZipper != 0) {
 		delete fZipper;
 	}
 
-	if (fChunker) {
+	if (fChunker != 0) {
 		delete fChunker;
 	}
 

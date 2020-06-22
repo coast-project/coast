@@ -177,7 +177,7 @@ void AnyBuiltInSortTest::SortIsStable() {
 	t_assertm(checksorted(a, true), "should be unsorted");
 	a.SortByKey();
 	for (i = 0; i < a.GetSize() - 1; i++)
-		if (!a.SlotName(i) && !a.SlotName(i + 1)) {
+		if ((a.SlotName(i) == 0) && (a.SlotName(i + 1) == 0)) {
 			t_assertm(a[i].AsLong() < a[i + 1].AsLong(),
 					  TString("unstable at: ") << i << ":" << a[i].AsLong() << " not less than " << a[i + 1].AsLong());
 		}

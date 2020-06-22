@@ -101,7 +101,7 @@ void AnythingImportExportTest::WriteRead1Test() {
 	Anything any0 = AnythingImportExportTest::init5DimArray(5);
 
 	std::ostream *os = system::OpenOStream("tmp/anything0", "tst", std::ios::out);
-	if (os) {
+	if (os != 0) {
 		any0.PrintOn(*os, true);
 		delete os;
 	} else {
@@ -110,7 +110,7 @@ void AnythingImportExportTest::WriteRead1Test() {
 
 	Anything any1;
 	std::istream *is = system::OpenIStream("tmp/anything0", "tst");
-	if (is) {
+	if (is != 0) {
 		any1.Import(*is);
 		delete is;
 	} else {
@@ -124,7 +124,7 @@ void AnythingImportExportTest::WriteRead5Test() {
 	Anything any0("Anything: test");
 
 	std::ostream *os = system::OpenOStream("tmp/anything6", "tst", std::ios::out);
-	if (os) {
+	if (os != 0) {
 		int i;
 		for (i = 0; i < 5; i++) {
 			*os << any0;
@@ -135,7 +135,7 @@ void AnythingImportExportTest::WriteRead5Test() {
 	}
 
 	std::istream *is = system::OpenIStream("tmp/anything6", "tst");
-	if (is) {
+	if (is != 0) {
 		Anything any1;
 		*is >> any1;
 		delete is;
@@ -178,7 +178,7 @@ void AnythingImportExportTest::WriteRead8Test() {
 	any0 = AnythingImportExportTest::init5DimArray(5);
 
 	std::ostream *os0 = system::OpenOStream("tmp/anything9", "tst", std::ios::out);
-	if (os0) {
+	if (os0 != 0) {
 		any0.Export(*os0, 0);
 		delete os0;
 	} else {
@@ -186,7 +186,7 @@ void AnythingImportExportTest::WriteRead8Test() {
 	}
 
 	std::istream *is0 = system::OpenIStream("tmp/anything9", "tst");
-	if (is0) {
+	if (is0 != 0) {
 		any1.Import(*is0);
 		delete is0;
 	} else {
@@ -432,7 +432,7 @@ void AnythingImportExportTest::AnyIncludeTest() {
 			IStringStream is(strIncl);
 			anyIncl.Import(is);
 			std::iostream *pStream = system::OpenOStream("include", "any");
-			if (pStream) {
+			if (pStream != 0) {
 				anyIncl.Export(*pStream);
 				delete pStream;
 			}
@@ -461,7 +461,7 @@ void AnythingImportExportTest::AnyIncludeTest() {
 			IStringStream is(strIncl);
 			anyIncl.Import(is);
 			std::iostream *pStream = system::OpenOStream("include", "any");
-			if (pStream) {
+			if (pStream != 0) {
 				anyIncl.Export(*pStream);
 				delete pStream;
 			}
@@ -546,7 +546,7 @@ void AnythingImportExportTest::AnyIncludeTest() {
 			IStringStream is(strIncl);
 			anyIncl.Import(is);
 			std::iostream *pStream = system::OpenOStream("include", "any");
-			if (pStream) {
+			if (pStream != 0) {
 				anyIncl.Export(*pStream);
 				delete pStream;
 			}
@@ -573,7 +573,7 @@ void AnythingImportExportTest::AnyIncludeTest() {
 			IStringStream is(strIncl);
 			anyIncl.Import(is);
 			std::iostream *pStream = system::OpenOStream("include", "any");
-			if (pStream) {
+			if (pStream != 0) {
 				anyIncl.Export(*pStream);
 				delete pStream;
 			}
@@ -600,7 +600,7 @@ void AnythingImportExportTest::AnyIncludeTest() {
 			IStringStream is(strIncl);
 			anyIncl.Import(is);
 			std::iostream *pStream = system::OpenOStream("include", "any");
-			if (pStream) {
+			if (pStream != 0) {
 				anyIncl.Export(*pStream);
 				delete pStream;
 			}

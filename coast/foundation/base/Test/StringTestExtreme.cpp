@@ -11,7 +11,7 @@
 #include "SystemFile.h"
 #include "TestSuite.h"
 
-#include <iostream>
+#include <istream>
 
 using namespace coast;
 
@@ -20,9 +20,9 @@ void StringTestExtreme::setUp() {
 	extremelyLongString = "";
 	trueString = "";
 
-	std::iostream *is = system::OpenStream("longString", "txt", std::ios::in);
-	while (is && !is->eof()) {
-		if (is->read(&s, 1)) {
+	std::istream *is = system::OpenStream("longString", "txt", std::ios::in);
+	while ((is != 0) && !is->eof()) {
+		if (is->read(&s, 1)) {	// NOLINT(readability-implicit-bool-conversion)
 			extremelyLongString.Append(s);
 			trueString.append(1, s);
 		}

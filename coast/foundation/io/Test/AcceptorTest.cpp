@@ -30,7 +30,7 @@ public:
 	TestCallBack(AcceptorTest *test) : fTest(test) {}
 
 	void CallBack(Socket *socket) {
-		if (fTest) {
+		if (fTest != 0) {
 			fTest->TestSocket(socket);
 		}
 		delete socket;

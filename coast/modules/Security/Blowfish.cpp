@@ -390,7 +390,7 @@ void BlowfishScrambler::InitKey(const String &keyin) {
 
 void BlowfishScrambler::DoECB_multipleBlockEncrypt(unsigned char *blockPtr, unsigned int length) const {
 	unsigned int i;
-	if (length % BF_BLOCK) {
+	if ((length % BF_BLOCK) != 0u) {
 		SystemLog::WriteToStderr("Blowfish requires the input to be a multiple of 8 bytes (64 bits) to work.\n");
 		return;
 	}
@@ -406,7 +406,7 @@ void BlowfishScrambler::DoECB_multipleBlockEncrypt(unsigned char *blockPtr, unsi
 
 bool BlowfishScrambler::DoECB_multipleBlockDecrypt(unsigned char *blockPtr, unsigned int length) const {
 	unsigned int i;
-	if (length % BF_BLOCK) {
+	if ((length % BF_BLOCK) != 0u) {
 		SystemLog::WriteToStderr("Blowfish requires the input to be a multiple of 8 bytes (64bits) to work.\n");
 		return false;
 	}
@@ -468,7 +468,7 @@ void BlowfishScrambler::DoEncode(String &scrambledText, const String &cleartext)
 bool BlowfishScrambler::DoDecode(String &cleartext, const String &scrambledText) const {
 	StartTrace1(BlowfishScrambler.DoDecode, fName);
 
-	if (scrambledText.Length() % BF_BLOCK) {
+	if ((scrambledText.Length() % BF_BLOCK) != 0) {
 		Trace("scrambletText is not BF_BLOCK aligned, length : " << scrambledText.Length());
 		//		return false;
 	}
@@ -561,7 +561,7 @@ void BlowfishCBCScrambler::DoBlowfishEncrypt(String &padded) const {
 
 bool BlowfishCBCScrambler::DoBlowfishDecrypt(String &padded) const {
 	StartTrace(BlowfishScrambler.DoBlowfishDecrypt);
-	if (padded.Length() % BF_BLOCK) {
+	if ((padded.Length() % BF_BLOCK) != 0) {
 		return false;
 	}
 

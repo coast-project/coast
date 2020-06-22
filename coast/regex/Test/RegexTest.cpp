@@ -271,7 +271,7 @@ void RegexTest::MatchAnything(long id, Anything aCase) {
 	long s = 0, l = 0;
 	const char *search = aCase[2L].AsCharPtr(0);
 	t_assertm(search != NULL, TString("missing search at ") << lineId);
-	if (!search) {
+	if (search == 0) {
 		return;
 	}
 	bool match = r.Match(search, s, l);
@@ -287,7 +287,7 @@ void RegexTest::MatchConfig() {
 
 	std::istream *is = system::OpenStream("RegexTest", "any");
 	t_assert(is && is->good());
-	if (!is || !is->good()) {
+	if ((is == 0) || !is->good()) {
 		return;
 	}
 	Anything alltests;
@@ -355,7 +355,7 @@ void RegexTest::GrepTest() {
 
 	std::istream *is = system::OpenStream("Tracer", "any");
 	t_assert(is && is->good());
-	if (!is || !is->good()) {
+	if ((is == 0) || !is->good()) {
 		return;
 	}
 	Anything a;
@@ -375,7 +375,7 @@ void RegexTest::GrepSlotNamesTest() {
 
 	std::istream *is = system::OpenStream("Tracer", "any");
 	t_assert(is && is->good());
-	if (!is || !is->good()) {
+	if ((is == 0) || !is->good()) {
 		return;
 	}
 	Anything a;

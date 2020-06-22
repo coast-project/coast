@@ -125,7 +125,7 @@ int ListenerThread::Init(ROAnything args) {
 	Trace("Acceptor: " << fAcceptorName);
 
 	AcceptorFactory *acf = AcceptorFactory::FindAcceptorFactory(fAcceptorName);
-	if (!acf) {
+	if (acf == 0) {
 		String msg("AcceptorFactory: ");
 		msg << fAcceptorName << " not found!";
 		Trace(msg);
@@ -134,7 +134,7 @@ int ListenerThread::Init(ROAnything args) {
 	}
 
 	fAcceptor = acf->MakeAcceptor(fCallBack);
-	if (!fAcceptor) {
+	if (fAcceptor == 0) {
 		String logMsg;
 		SystemLog::Error(logMsg << "no acceptor created");
 		Trace(logMsg);
@@ -157,7 +157,7 @@ int ListenerThread::Init(ROAnything args) {
 //:this method gets called from the threads callback function
 void ListenerThread::Run() {
 	StartTrace(ListenerThread.Run);
-	if (fAcceptor) {
+	if (fAcceptor != 0) {
 		fAcceptor->RunAcceptLoop();
 	}
 }
@@ -168,7 +168,7 @@ bool ListenerThread::DoStartRequestedHook(ROAnything args) {
 
 void ListenerThread::DoTerminationRequestHook(ROAnything args) {
 	StartTrace(ListenerThread.DoTerminationRequestHook);
-	if (fAcceptor && fAcceptor->StopAcceptLoop()) {
+	if ((fAcceptor != 0) && fAcceptor->StopAcceptLoop()) {
 		String m;
 		m << "\tQuitting Server::Run loop <" << fAcceptorName << ">"
 		  << "\n";
@@ -191,7 +191,7 @@ ListenerPool::~ListenerPool() {
 Thread *ListenerPool::DoAllocThread(long i, ROAnything args) {
 	StartTrace(ListenerPool.DoAllocThread);
 	TraceAny(args, "threads arguments");
-	if (!fCallBackFactory) {
+	if (fCallBackFactory == 0) {
 		return 0;
 	}
 	return new (coast::storage::Global()) ListenerThread(fCallBackFactory->MakeCallBack());

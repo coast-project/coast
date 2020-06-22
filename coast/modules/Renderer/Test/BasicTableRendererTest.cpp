@@ -25,7 +25,7 @@ BasicTableRendererTest::~BasicTableRendererTest() {}
 Context *BasicTableRendererTest::CreateContext(const char *demodata) {
 	std::iostream *is = system::OpenStream(demodata, "any");
 
-	if (is) {
+	if (is != 0) {
 		Anything testData;
 		testData.Import(*is);
 		delete is;
@@ -70,7 +70,7 @@ void BasicTableRendererTest::CanUseInvertedHeaders() {
 	// not a netscape v2 browser
 	BasicTableRenderer r("BasicTableRenderer");
 	Context *c = CreateContext("BasicTableRendererTestData");
-	if (c) {
+	if (c != 0) {
 		t_assert(r.CanUseInvertedHeaders(*c) == 1);
 		delete c;
 	} else {
@@ -79,7 +79,7 @@ void BasicTableRendererTest::CanUseInvertedHeaders() {
 	// netscape v2 browser
 	c = CreateContext("BasicTableRendererTestDataNetscape2");
 
-	if (c) {
+	if (c != 0) {
 		t_assert(r.CanUseInvertedHeaders(*c) == 0);
 		delete c;
 	} else {
@@ -93,11 +93,11 @@ void BasicTableRendererTest::FullFledged() {
 
 	Context *c = CreateContext("BasicTableRendererTestData");
 
-	if (c) {
+	if (c != 0) {
 		OStringStream reply;
 		// create Renderer output
 		std::iostream *is1 = system::OpenStream("BasicTableRendererConfig", "any");
-		if (is1) {
+		if (is1 != 0) {
 			Anything config;
 			config.Import(*is1);
 			delete (is1);
@@ -117,7 +117,7 @@ void BasicTableRendererTest::FullFledged() {
 		// get reference output
 		std::iostream *is2 = system::OpenStream("ReferenceTableOutput", "html");
 		String ref;
-		if (is2) {
+		if (is2 != 0) {
 			int ch;
 			while ((ch = is2->get()) != EOF) {
 				ref << (char)ch;

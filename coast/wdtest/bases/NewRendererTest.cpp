@@ -45,7 +45,7 @@ void NewRendererTest::TestCases() {
 				std::cerr << ".";
 				TString message;
 				message << getConfigFileName() << ".any:0 at " << name();
-				if (slotToCheck.Length()) {
+				if (slotToCheck.Length() != 0) {
 					message << "." << slotToCheck;
 				} else {
 					message << ":" << aEntryIterator.Index();

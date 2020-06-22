@@ -99,12 +99,12 @@ long RECompiler::ReadNumber(long def) {
 	StartTrace(RECompilerReadNumber);
 	String number;
 	// Next char must be a digit
-	if (!isdigit(fPattern.At(fPatternIdx))) {
+	if (isdigit(fPattern.At(fPatternIdx)) == 0) {
 		syntaxError("Expected digit");
 		return def;
 	}
 
-	while (isdigit(fPattern.At(fPatternIdx))) {
+	while (isdigit(fPattern.At(fPatternIdx)) != 0) {
 		number.Append(fPattern.At(fPatternIdx++));
 	}
 	return number.AsLong(def);
@@ -273,7 +273,7 @@ long RECompiler::PosixCharacterClass() {
 	StartTrace(RECompiler.PosixCharacterClass);
 	// POSIX character classes are denoted with lowercase ASCII strings
 	int idxStart = fPatternIdx;
-	while (islower(fPattern.At(fPatternIdx))) {
+	while (islower(fPattern.At(fPatternIdx)) != 0) {
 		++fPatternIdx;
 	}
 
@@ -644,7 +644,7 @@ long RECompiler::terminal(bool &isnullable) {
 				}
 				case ESC_COMPLEX:
 					isnullable = true;
-					return AppendNode(RE::OP_BOW, RE::E_BOUND == fPattern.At(fPatternIdx - 1));
+					return AppendNode(RE::OP_BOW, static_cast<long>(RE::E_BOUND == fPattern.At(fPatternIdx - 1)));
 
 				case ESC_BACKREF: {
 					long backreference = (fPattern.At(fPatternIdx - 1) - '0');

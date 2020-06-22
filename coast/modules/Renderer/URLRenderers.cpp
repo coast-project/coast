@@ -28,7 +28,7 @@ void LinkRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &
 
 	// generate URL string
 	Renderer *r = Renderer::FindRenderer("URLRenderer");
-	if (r) {
+	if (r != 0) {
 		r->RenderAll(reply, c, config);
 	}
 
@@ -92,7 +92,7 @@ void URLPrinter::RenderScriptName(std::ostream &reply, Context &context)
 
 	String s;
 	RenderOnString(s, context, scriptName);
-	if (!s.Length()) {
+	if (s.Length() == 0) {
 		s = "wdgateway";
 	}
 
@@ -110,15 +110,15 @@ void URLPrinter::RenderPublicPartOfURL(std::ostream &reply, Context &c, const RO
 
 	if (state.IsDefined("adr")) {
 		adr = state["adr"].AsCharPtr(0);
-		if (adr) {
+		if (adr != 0) {
 			reply << "adr=" << adr;
 			state.Remove("adr");
 		}
 	}
 	if (state.IsDefined("port")) {
 		port = state["port"].AsCharPtr(0);
-		if (port) {
-			if (adr) {
+		if (port != 0) {
+			if (adr != 0) {
 				reply << ArgSep();
 			}
 			reply << "port=" << port;
@@ -129,7 +129,7 @@ void URLPrinter::RenderPublicPartOfURL(std::ostream &reply, Context &c, const RO
 	// 	if no port and adr are present, there is an argument separator too much
 	//	but insert the argument separator here if there is either because otherwise
 	//	there is always a the CmdSep
-	if (port || adr) {
+	if ((port != 0) || (adr != 0)) {
 		reply << ArgSep();
 	}
 }
@@ -269,12 +269,12 @@ void BaseURLPrinter::RenderPublicState(std::ostream &reply, Context &c, const RO
 		RenderOnString(baseAddr, c, bAddr);
 		Trace("BaseAddr :" << baseAddr);
 
-		if (baseAddr.Length()) {  // use base address defined in Config.any
+		if (baseAddr.Length() != 0) {  // use base address defined in Config.any
 			reply << baseAddr;
 		} else {
 			// generate an absolute address from environment info
 			ROAnything env(c.GetEnvStore());
-			reply << "http" << ((c.Lookup("header.HTTPS", 0L)) ? "s" : "") << "://" << env["header"]["HOST"].AsCharPtr("");
+			reply << "http" << ((c.Lookup("header.HTTPS", 0L)) != 0 ? "s" : "") << "://" << env["header"]["HOST"].AsCharPtr("");
 		}
 	}
 	RenderPublicPartOfURL(reply, c, config, state);
@@ -362,7 +362,7 @@ String URLRenderer::CreateIntraPageLink(Context &c, String id) {
 
 		if (env.IsDefined("QUERY_STRING")) {
 			String queryString = env["QUERY_STRING"].AsString();
-			if (queryString.Length()) {
+			if (queryString.Length() != 0) {
 				path << "?" << queryString;
 			}
 		}

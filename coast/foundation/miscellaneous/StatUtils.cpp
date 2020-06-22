@@ -46,7 +46,7 @@ void StatGatherer::PrintStatisticsOnStderr(const String &strName) {
 	String strbuf;
 	{
 		StringStream stream(strbuf);
-		if (strName.Length()) {
+		if (strName.Length() != 0) {
 			stream << "Statistics for [" << strName << "] ";
 		}
 		statistic.PrintOn(stream) << "\n";

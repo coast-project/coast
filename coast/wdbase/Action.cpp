@@ -83,7 +83,7 @@ bool Action::CallAction(String &actionName, String &transitionToken, Context &c,
 	if (actionName.Length() > 0) {
 		TraceAny(config, "config given");
 		Action *a(FindAction(actionName));
-		if (a) {
+		if (a != 0) {
 			Trace(actionName << " found, executing it");
 			return a->DoExecAction(transitionToken, c, config);
 		}
@@ -105,7 +105,7 @@ RegisterAction(PreprocessAction);
 bool PreprocessAction::DoAction(String &action, Context &c) {
 	StatTrace(PreprocessAction.DoAction, "<" << action << ">", coast::storage::Current());
 	Page *s(c.GetPage());
-	if (s) {
+	if (s != 0) {
 		s->Preprocess(c);
 	}
 	return true;

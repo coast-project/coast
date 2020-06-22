@@ -47,7 +47,7 @@ void AnyToXMLRenderer::RenderXML(std::ostream &reply, ROAnything &input) {
 	TraceAny(input, "Input");
 
 	// Check pre condition
-	if (input.GetSize() < 1 || !input.SlotName(0) || HasUnnamedChilds(ROAnything(input[0L]))) {
+	if (input.GetSize() < 1 || (input.SlotName(0) == 0) || HasUnnamedChilds(ROAnything(input[0L]))) {
 		Trace("Input not wellformed");
 		return;
 	}
@@ -61,7 +61,7 @@ void AnyToXMLRenderer::RenderNamedChilds(std::ostream &reply, ROAnything &list) 
 	long sz = list.GetSize();
 	for (long i = 0; i < sz; ++i) {
 		String slotname = list.SlotName(i);
-		if (!slotname.Length()) {
+		if (slotname.Length() == 0) {
 			SystemLog::Error("Unnamed child in RenderNamedChilds found");
 			continue;
 		}
@@ -106,5 +106,5 @@ void AnyToXMLRenderer::RenderUnnamedChilds(std::ostream &reply, String &tagname,
 }
 
 bool AnyToXMLRenderer::HasUnnamedChilds(ROAnything element) {
-	return (element.GetType() == AnyArrayType && !element.SlotName(0));
+	return (element.GetType() == AnyArrayType && (element.SlotName(0) == 0));
 }

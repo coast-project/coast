@@ -135,7 +135,7 @@ Anything TemplateParser::OldStyleComment() {
 				// skip whitespace
 				for (;;) {
 					GSR;
-					if (!isspace((unsigned char)c)) {
+					if (isspace((unsigned char)c) == 0) {
 						break;
 					}
 				}
@@ -144,7 +144,7 @@ Anything TemplateParser::OldStyleComment() {
 				if (c == '#') {
 					for (;;) {
 						GSR;
-						if (!isalnum((unsigned char)c)) {
+						if (isalnum((unsigned char)c) == 0) {
 							break;
 						}
 						macro.Append((char)c);
@@ -156,14 +156,14 @@ Anything TemplateParser::OldStyleComment() {
 
 					for (;;) {
 						GSR;
-						if (!isalnum((unsigned char)c)) {
+						if (isalnum((unsigned char)c) == 0) {
 							break;
 						}
 						key.Append((char)c);
 					}
 
 					// skip whitespace
-					while (isspace((unsigned char)c)) {
+					while (isspace((unsigned char)c) != 0) {
 						GSR;
 					}
 
@@ -239,7 +239,7 @@ Anything TemplateParser::ProcessArgs(const String &renderer, const String &args)
 	// might be too strict, if we intend to use [[#wd foo bar]] to create an anything within a tag further interpreted
 	// but, in the moment keep it as simple as possible
 	Renderer *r = Renderer::FindRenderer(renderer);
-	if (r) {  // all is OK
+	if (r != 0) {  // all is OK
 		result[renderer] = aargs;
 	} else {
 		if (renderer.Length() == 0) {  // allow for anonymous anythings to be rendered later on by Renderer
@@ -345,7 +345,7 @@ void TemplateParser::SkipWhitespace() {
 	StartTrace(TemplateParser.SkipWhitespace);
 	int c;
 	while (!IsGood() && (c = Peek()) != 0 && c != EOF) {
-		if (!isspace(c)) {
+		if (isspace(c) == 0) {
 			return;
 		}
 		c = Get();
@@ -353,7 +353,7 @@ void TemplateParser::SkipWhitespace() {
 }
 
 bool TemplateParser::IsValidNameChar(int c) {
-	bool bIsValid = (isalpha(c) || '-' == c || '_' == c || '.' == c || ':' == c);
+	bool bIsValid = ((isalpha(c) != 0) || '-' == c || '_' == c || '.' == c || ':' == c);
 	StatTrace(TemplateParser.IsValidNameChar, "is " << (bIsValid ? "" : "not ") << "valid", coast::storage::Current());
 	return bIsValid;
 }
@@ -363,7 +363,7 @@ String TemplateParser::ParseName() {
 	String theName;
 	int c;	// Unicode?
 	while (!IsGood() && (c = Peek()) != EOF && c != 0) {
-		if (IsValidNameChar(c) || (isdigit(c) && theName.Length() > 0)) {
+		if (IsValidNameChar(c) || ((isdigit(c) != 0) && theName.Length() > 0)) {
 			theName.Append((char)Get());
 		} else {
 			break;
@@ -375,7 +375,7 @@ String TemplateParser::ParseUpToWhitespaceOrMacroEnd() {
 	StartTrace(TemplateParser.ParseUpToWhitespaceOrMacroEnd);
 	String theName;
 	int c;
-	while (!IsGood() && (c = Peek()) != EOF && c != 0 && !isspace(c)) {
+	while (!IsGood() && (c = Peek()) != EOF && c != 0 && (isspace(c) == 0)) {
 		if (']' == c) {
 			c = Get();
 			if (']' == Peek()) {
@@ -391,7 +391,7 @@ String TemplateParser::ParseUpToWhitespaceOrMacroEnd() {
 
 int TemplateParser::Get() {
 	int c = 0;
-	if (fReader && fReader->good()) {
+	if ((fReader != 0) && fReader->good()) {
 		c = fReader->get();
 		if ('\n' == c) {
 			++fLine;
@@ -403,7 +403,7 @@ int TemplateParser::Get() {
 
 int TemplateParser::Peek() {
 	int c = 0;
-	if (fReader && fReader->good()) {
+	if ((fReader != 0) && fReader->good()) {
 		c = fReader->peek();
 	}
 	StatTrace(TemplateParser.Peek, "char [" << (c ? (char)c : ' ') << "]", coast::storage::Current());
@@ -412,7 +412,7 @@ int TemplateParser::Peek() {
 
 void TemplateParser::PutBack(char c) {
 	StatTrace(TemplateParser.PutBack, "char [" << (char)c << "]", coast::storage::Current());
-	if (fReader) {
+	if (fReader != 0) {
 		fReader->putback(c);
 	}
 	if ('\n' == c) {
@@ -421,7 +421,7 @@ void TemplateParser::PutBack(char c) {
 }
 
 bool TemplateParser::IsGood() {
-	return !(fReader && fReader->good());
+	return !((fReader != 0) && fReader->good());
 }
 
 bool TemplateParser::ParseTag(String &tagName, Anything &tagAttributes) {
@@ -500,7 +500,7 @@ bool TemplateParser::ParseAttribute(const String &tagName, String &name, Anythin
 	}
 	// found specific tag settings
 	String strCase = roaTagsConfig["AttrNameCase"].AsString("lower").ToLower();
-	if (!strCase.Length() || strCase.IsEqual("lower")) {
+	if ((strCase.Length() == 0) || strCase.IsEqual("lower")) {
 		// default, XHTML conformance all attribute names are lower case
 		name.ToLower();
 	} else if (strCase.IsEqual("upper")) {
@@ -556,15 +556,15 @@ Anything TemplateParser::ParseValue() {
 		}
 	} else if (IsValidNameChar(c)) {  // a legacy non-quoted value
 		value = ParseName();
-	} else if (isdigit(c)) {
+	} else if (isdigit(c) != 0) {
 		do {
 			value.Append(char(Get()));
 			c = Peek();
-		} while (isdigit(c) || '%' == c);  // allow for legacy percentage values, without quotes
-	} else if ('#' == c) {				   // allow for legacy color attributes without quotes
+		} while ((isdigit(c) != 0) || '%' == c);  // allow for legacy percentage values, without quotes
+	} else if ('#' == c) {						  // allow for legacy color attributes without quotes
 		do {
 			value.Append(char(Get()));
-		} while (isxdigit(Peek()));
+		} while (isxdigit(Peek()) != 0);
 	}
 	return value;
 }
@@ -598,7 +598,7 @@ Anything TemplateParser::RenderTagAsLiteral(String &tagName, Anything &tagAttrib
 	tag.Append(tagName);
 	for (long i = 0, sz = tagAttributes.GetSize(); i < sz; ++i) {
 		tag.Append(' ');
-		if (tagAttributes.SlotName(i)) {
+		if (tagAttributes.SlotName(i) != 0) {
 			tag.Append(tagAttributes.SlotName(i));
 			if (AnyCharPtrType == tagAttributes[i].GetType()) {
 				tag.Append("=\"");
@@ -663,7 +663,7 @@ bool TemplateParser::IsSpecialTag(String &tagName, Anything &tagAttributes) {
 		return true;
 	}
 	if ((String::CaselessCompare(tagName, "form") == 0) && tagAttributes.IsDefined("action") &&
-		tagAttributes["action"].AsString().Length()) {
+		(tagAttributes["action"].AsString().Length() != 0)) {
 		// several locations to check for a valid 'action'
 		// 1. Real registered Action
 		// 2. Role-Page-Token-Map entry in Role.any
@@ -671,7 +671,7 @@ bool TemplateParser::IsSpecialTag(String &tagName, Anything &tagAttributes) {
 		// case 1:
 		const char *pAction = tagAttributes["action"].AsCharPtr(0);
 		Trace("given action [" << pAction << "]");
-		if (Action::FindAction(pAction)) {
+		if (Action::FindAction(pAction) != 0) {
 			Trace("found valid real Action");
 			return true;
 		}
@@ -690,7 +690,7 @@ bool TemplateParser::IsSpecialTag(String &tagName, Anything &tagAttributes) {
 				String roleName("null");
 				Role *pRole = (Role *)ri.Next(roleName);
 				Trace("role found <" << roleName << ">");
-				if (pRole) {
+				if (pRole != 0) {
 					String transition(pAction);
 					Trace("checking for entry in [" << roleName << "]");
 					ROAnything roaEntry;
@@ -705,7 +705,7 @@ bool TemplateParser::IsSpecialTag(String &tagName, Anything &tagAttributes) {
 			// case 3:
 			Trace("Trying to find page with name [" << strPageName << "]");
 			Page *pPage = Page::FindPage(strPageName);
-			if (pPage) {
+			if (pPage != 0) {
 				Trace("Page found, now checking for slot which could match");
 				ROAnything roaConfig;
 				if (pPage->Lookup(pAction, roaConfig)) {
@@ -722,12 +722,12 @@ bool TemplateParser::IsSpecialTag(String &tagName, Anything &tagAttributes) {
 bool TemplateParser::IsEmptyOrWd() {
 	int c = Peek();
 	StatTrace(TemplateParser.IsEmptyOrWd, "char [" << (char)c << "]", coast::storage::Current());
-	if (!isspace(c)) {
+	if (isspace(c) == 0) {
 		if (tolower(c) == 'w') {
 			Get();
 			if (tolower(Peek()) == 'd') {
 				Get();
-				if (isspace(Peek())) {
+				if (isspace(Peek()) != 0) {
 					return true;
 				}
 				PutBack('d');

@@ -23,7 +23,7 @@ void TString::alloc(long capacity) {
 	fCapacity = (capacity <= 0) ? 1 : capacity;
 
 	fCont = (char *)calloc(fCapacity, sizeof(char));
-	if (!fCont) {
+	if (fCont == 0) {
 		//--- allocation failed
 		std::cerr << "FATAL: TString::alloc calloc failed. I will crash :-(" << std::endl << std::flush;
 	}
@@ -36,19 +36,19 @@ TString::TString(long capacity) : fCont(0), fCapacity(capacity), fLength(0) {
 }
 
 TString::TString(const char *s, long l) : fCont(0), fCapacity(0), fLength(0) {
-	if (s) {
+	if (s != 0) {
 		Set(0L, s, l);
 	}
 }
 
 TString::TString(const TString &s) : fCont(0), fCapacity(0), fLength(0) {
-	if (s.fCont) {
+	if (s.fCont != 0) {
 		Set(0L, s.fCont, s.Length());
 	}
 }
 
 TString::~TString() {
-	if (fCont) {
+	if (fCont != 0) {
 		free(fCont);
 		fCont = 0;
 		fLength = fCapacity = 0;
@@ -79,7 +79,7 @@ void TString::Set(long start, const char *s, long len) {
 	// calculate length to add from s
 	// if length is not provided
 	if (len < 0) {
-		len = s ? strlen(s) : 0;
+		len = s != 0 ? strlen(s) : 0;
 	}
 
 	// calculate new TString length
@@ -97,8 +97,8 @@ void TString::Set(long start, const char *s, long len) {
 
 		char *oldBuf = fCont;
 		alloc(newCapacity);
-		if (fCont) {
-			if (oldBuf) {
+		if (fCont != 0) {
+			if (oldBuf != 0) {
 				memcpy(fCont, oldBuf, oldLength);
 				free(oldBuf);
 			}
@@ -112,11 +112,11 @@ void TString::Set(long start, const char *s, long len) {
 		}
 	}
 	// add TString to fCont
-	if (s && fCont) {
+	if ((s != 0) && (fCont != 0)) {
 		memcpy(&fCont[start], s, len);
 	}
 
-	if (fCont) {
+	if (fCont != 0) {
 		// terminate TString properly
 		fCont[fLength] = 0;
 	}
@@ -180,10 +180,10 @@ TString &TString::AppendAsHex(unsigned char cc) {
 
 TString &TString::AppendTwoHexAsChar(const char *p) {
 	char high = 0, low = 0;
-	if (p && isxdigit(p[0]) && isxdigit(p[1])) {
+	if ((p != 0) && (isxdigit(p[0]) != 0) && (isxdigit(p[1]) != 0)) {
 		high = p[0];
 		// PS: streamline comparison post CR
-		if (isdigit(high)) {  // if ('0' <= high && high <= '9')
+		if (isdigit(high) != 0) {  // if ('0' <= high && high <= '9')
 			high -= '0';
 		} else if ('a' <= high) {  // if ('a' <= high&& high <= 'f')  // assume 'A' < 'a'
 			high -= ('a' - 10);
@@ -191,7 +191,7 @@ TString &TString::AppendTwoHexAsChar(const char *p) {
 			high -= ('A' - 10);
 		}
 		low = p[1];
-		if (isdigit(low)) {	 // if ('0' <= low && low <= '9')
+		if (isdigit(low) != 0) {  // if ('0' <= low && low <= '9')
 			low -= '0';
 		} else if ('a' <= low) {  // if ('a' <= low&& low <= 'f')  // assume 'A' < 'a'
 			low -= ('a' - 10);
@@ -226,7 +226,7 @@ void TString::DumpAsHex(TString &outbuf, long dumpwidth) const {
 			// first fill hexnumber of character
 			tmpBuf.fCont[x * 3L] = hexcode[(c >> 4) & 0x0f];
 			tmpBuf.fCont[x * 3L + 1L] = hexcode[c & 0x0f];
-			if (!isprint((unsigned char)c)) {
+			if (isprint((unsigned char)c) == 0) {
 				// print a dot for unprintable characters
 				c = '.';
 			}
@@ -310,7 +310,7 @@ long TString::DiffDumpAsHex(TString &outbuf, const TString &strRight) const {
 					tmpBuf.fCont[x * 3L + rightOffset] = hexcode[(cRight >> 4) & 0x0f];
 					tmpBuf.fCont[x * 3L + rightOffset + 1L] = hexcode[cRight & 0x0f];
 				}
-				if (!isprint((unsigned char)cRight)) {
+				if (isprint((unsigned char)cRight) == 0) {
 					// print a dot for right unprintable characters
 					cRight = '.';
 				}
@@ -322,7 +322,7 @@ long TString::DiffDumpAsHex(TString &outbuf, const TString &strRight) const {
 				// fill hexnumber of left character
 				tmpBuf.fCont[x * 3L] = hexcode[(cLeft >> 4) & 0x0f];
 				tmpBuf.fCont[x * 3L + 1L] = hexcode[cLeft & 0x0f];
-				if (!isprint((unsigned char)cLeft)) {
+				if (isprint((unsigned char)cLeft) == 0) {
 					// print a dot for left unprintable characters
 					cLeft = '.';
 				}
@@ -337,13 +337,13 @@ long TString::DiffDumpAsHex(TString &outbuf, const TString &strRight) const {
 std::ostream &operator<<(std::ostream &os, const TString &s) {
 	size_t len = s.Length();
 	size_t width = os.width();
-	int left = ((os.flags() & std::ios::left) != 0);
+	int left = static_cast<int>((os.flags() & std::ios::left) != 0);
 
-	if (left) {
+	if (left != 0) {
 		os.write((const char *)s, len);	 // AB: use cast to apply operator const char *
 	}
 
-	if (width && width > len) {
+	if ((width != 0u) && width > len) {
 		size_t padlen = width - len;
 		char c = os.fill();
 
@@ -352,7 +352,7 @@ std::ostream &operator<<(std::ostream &os, const TString &s) {
 		}
 		os.width(0);  // the iostream documentation states this behaviour
 	}
-	if (!left) {
+	if (left == 0) {
 		os.write((const char *)s, len);	 // AB: use cast to apply operator const char *
 	}
 

@@ -61,14 +61,14 @@ namespace {
 		return coast::urlutils::CheckUrlPathContainsUnsafeChars(
 			urlPath, ctx.Lookup("CheckUrlPathContainsUnsafeCharsOverride", ""),
 			ctx.Lookup("CheckUrlPathContainsUnsafeCharsAsciiOverride", ""),
-			!(ctx.Lookup("CheckUrlPathContainsUnsafeCharsDoNotCheckExtendedAscii", 0L)));
+			(ctx.Lookup("CheckUrlPathContainsUnsafeCharsDoNotCheckExtendedAscii", 0L)) == 0);
 	}
 	bool DecodedUrlContainedSuspiciousCharacters(Context &ctx, String &urlPath) {
 		StartTrace(HTTPProcessorWithChecks.DecodedUrlContainedSuspiciousCharacters);
 		// Are all chars which must be URL-encoded really encoded?
 		coast::urlutils::URLCheckStatus eUrlCheckStatus = coast::urlutils::eOk;
 		String normalizedUrl;
-		if (ctx.Lookup("URLExhaustiveDecode", 0L)) {
+		if (ctx.Lookup("URLExhaustiveDecode", 0L) != 0) {
 			normalizedUrl = coast::urlutils::ExhaustiveUrlDecode(urlPath, eUrlCheckStatus, false);
 		} else {
 			normalizedUrl = coast::urlutils::urlDecode(urlPath, eUrlCheckStatus, false);
@@ -135,7 +135,7 @@ bool HTTPProcessorWithChecks::DoPrepareContextRequest(std::iostream &Ios, Contex
 		return false;
 	}
 	if (UriChangedDuringPathCleanup(ctx, splitHelper.fPath)) {
-		if (ctx.Lookup("FixDirectoryTraversial", 0L)) {
+		if (ctx.Lookup("FixDirectoryTraversial", 0L) != 0) {
 			coast::http::PutErrorMessageIntoContext(ctx, 200,
 													"Directory traversal attack detected and normalized. "
 													"Request not rejected because of FixDirectoryTraversial setting",
@@ -153,9 +153,9 @@ bool HTTPProcessorWithChecks::DoPrepareContextRequest(std::iostream &Ios, Contex
 
 bool HTTPProcessorWithChecks::DoVerifyRequest(Context &ctx) {
 	StartTrace(HTTPProcessorWithChecks.DoVerifyRequest);
-	bool const rejectOnFailure = ctx.Lookup("RejectRequestsWithInvalidHeaders", 0L);
+	bool const rejectOnFailure = ctx.Lookup("RejectRequestsWithInvalidHeaders", 0L) != 0;
 	ROAnything roaHeaders = ctx.Lookup("header");
-	if (ctx.Lookup("CheckHeaderFields", 1L)) {
+	if (ctx.Lookup("CheckHeaderFields", 1L) != 0) {
 		if (PostOrGetValuePresent(ctx, roaHeaders, "Possible SSL Renegotiation attack. A header contains a GET/POST request") &&
 			rejectOnFailure) {
 			return false;

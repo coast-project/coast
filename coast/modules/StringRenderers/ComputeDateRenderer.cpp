@@ -52,7 +52,7 @@ void ComputeDateRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROA
 			String strOffset = Renderer::RenderToString(ctx, roaOffset);
 			offset = strOffset.AsLong(0);
 			// optional trailing 'd' stands for day offsets instead of seconds
-			if (strOffset.Length() && strOffset[strOffset.Length() - 1] == 'd') {
+			if ((strOffset.Length() != 0) && strOffset[strOffset.Length() - 1] == 'd') {
 				offset *= 86400;
 			}
 		}
@@ -89,7 +89,7 @@ TimeStamp ComputeDateRenderer::ConvertToTimeStamp(const String &strFromDate, con
 	long lDtIdx = 0;
 	char iCent = 19, iYear = 70, iMonth = 1, iDay = 1, iHour = 0, iMin = 0, iSec = 0;
 	String strInFmt = strInputFormat;
-	while (strInFmt.Length()) {
+	while (strInFmt.Length() != 0) {
 		Trace("current FmtString [" << strInFmt << "]");
 		Trace("");
 		if (strInFmt.StartsWith("dd")) {

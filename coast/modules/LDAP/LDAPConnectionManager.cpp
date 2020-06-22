@@ -360,7 +360,7 @@ bool LDAPConnectionManager::Finis() {
 											<< "At index: [" << items << "] "
 											<< "LDAPConnectionManager: Freeing LDAP "
 											<< PersistentLDAPConnection::DumpConnectionHandle(handle) << "\n");
-							if (handle) {
+							if (handle != 0) {
 								PersistentLDAPConnection::Disconnect(handle);
 							}
 							mutex->Unlock();
@@ -426,7 +426,7 @@ bool LDAPConnectionManager::ReplaceHandlesForConnectionPool(const String &poolId
 				if (mutex != (Mutex *)NULL) {
 					if (mutex->TryLock()) {
 						LDAP *oldHandle = (LDAP *)fLdapConnectionStore[poolId]["HandleInfo"][items]["Handle"].AsIFAObject(0);
-						if (oldHandle) {
+						if (oldHandle != 0) {
 							PersistentLDAPConnection::Disconnect(oldHandle);
 						}
 						Trace("Replaced " << LDAPConnection::DumpConnectionHandle(oldHandle) << " New "

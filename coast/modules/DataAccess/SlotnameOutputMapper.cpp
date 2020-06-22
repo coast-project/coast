@@ -29,8 +29,8 @@ bool SlotnameOutputMapper::DoPutAny(const char *key, Anything &value, Context &c
 		ROAnything roaSNEntry;
 		while (aSlotnameIter(roaSNEntry)) {
 			String strKey = ((ROAnything)anyRow)[roaSNEntry.AsCharPtr()].AsString();
-			if (strKey.Length()) {
-				if (strDestPath.Length()) {
+			if (strKey.Length() != 0) {
+				if (strDestPath.Length() != 0) {
 					strDestPath << '.';
 				}
 				strDestPath << strKey;

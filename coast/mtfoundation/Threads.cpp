@@ -106,7 +106,7 @@ Thread::Thread(const char *name, bool daemon, bool detached, bool suspended, boo
 	  fanyArgTmp(coast::storage::Global()) {
 	StartTrace1(Thread.Constructor, "IntId: " << GetId() << " ParId: " << fParentThreadId << " CallId: " << MyId() << " Name ["
 											  << GetName() << "]");
-	if (fAllocator) {
+	if (fAllocator != 0) {
 		fAllocator->Ref();
 	}
 	fParentThreadId = MyId();
@@ -183,8 +183,8 @@ bool Thread::Start(Allocator *pAllocator, ROAnything args) {
 		}
 		if (GetState() < eStartRequested) {
 			Trace("pAllocator: " << (long)pAllocator << " fAllocator: " << (long)fAllocator);
-			if (pAllocator || fAllocator) {
-				if (pAllocator && fAllocator != pAllocator) {
+			if ((pAllocator != 0) || (fAllocator != 0)) {
+				if ((pAllocator != 0) && fAllocator != pAllocator) {
 					Allocator *oldAlloc = fAllocator;
 					fAllocator = pAllocator;
 					// CAUTION: Thread *MUST NOT* have any instance variables
@@ -276,7 +276,7 @@ bool Thread::IntCheckState(EThreadState state, long timeout, long nanotimeout) {
 				  coast::storage::Current());
 		return false;
 	}
-	if (timeout || nanotimeout) {
+	if ((timeout != 0) || (nanotimeout != 0)) {
 		DiffTimer dt;
 		long militimeout = timeout * 1000L + nanotimeout / 1000000;
 		while ((fState < state) && (dt.Diff() < (militimeout))) {
@@ -348,7 +348,7 @@ bool Thread::IntCheckRunningState(ERunningState state, long timeout, long nanoti
 		return true;
 	}
 
-	if (timeout || nanotimeout) {
+	if ((timeout != 0) || (nanotimeout != 0)) {
 		// In below code we have to consider the fact that TimedWait(t) may return
 		// earlier then the specified t value. This may be caused by signalling the
 		// condition (and then we still want to wait our timeout amount of time)
@@ -750,10 +750,10 @@ bool Thread::CleanupThreadStorage() {
 	StatTrace(Thread.CleanupThreadStorage, "CallId: " << MyId() << " entering", coast::storage::Global());
 	bool bRet = true;
 	Anything *handlerList = 0;
-	if (GETTLSDATA(ThreadInitializerSingleton::instance().getCleanerKey(), handlerList, Anything) && handlerList) {
+	if (GETTLSDATA(ThreadInitializerSingleton::instance().getCleanerKey(), handlerList, Anything) && (handlerList != 0)) {
 		for (long i = (handlerList->GetSize() - 1); i >= 0; --i) {
 			CleanupHandler *handler = dynamic_cast<CleanupHandler *>((*handlerList)[i].AsIFAObject(0));
-			if (handler) {
+			if (handler != 0) {
 				handler->Cleanup();
 			}
 		}

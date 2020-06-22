@@ -46,13 +46,13 @@ bool WriteFileDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *
 		if (ifp != NULL) {
 			delete ifp;
 			String strErr("File exists! [");
-			strErr << filename << (extension.Length() ? "." : "") << extension << "]";
+			strErr << filename << (extension.Length() != 0 ? "." : "") << extension << "]";
 			SYSWARNING(strErr);
 			return false;
 		}
 	}
 	std::ostream *fp = GetFileStream(context, in);
-	if (!fp) {
+	if (fp == 0) {
 		String strErr("Open for writing of [");
 		SYSERROR(strErr << filename << (extension.Length() ? "." : "") << extension << "] failed!");
 		return false;

@@ -42,7 +42,7 @@ void TableRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything 
 
 	if (any.IsDefined("DataSource")) {
 		const char *name = any["DataSource"].AsCharPtr(0);
-		if (name) {
+		if (name != 0) {
 			// assumption: data of DataSource is always in the TmpStore
 			// and never directly built into the config files!
 			appTmpStore.LookupPath(eData, name);
@@ -51,7 +51,7 @@ void TableRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything 
 
 	for (long i = startRow, sz = eData.GetSize(); (i < sz) && (i < startRow + rowsPerPage); ++i) {
 		const char *rowColor = GetColor(i, rowColors);
-		if (rowColor) {
+		if (rowColor != 0) {
 			reply << "<TR BGCOLOR=\"#" << rowColor << "\">";
 		} else {
 			reply << ("<TR>");
@@ -116,7 +116,7 @@ void TableRenderer::PrintHeader(std::ostream &reply, Context &c, const ROAnythin
 	const char *titleBGColor = c.Lookup("TitleBGColor", (char *)0);
 	const char *titleFGColor = c.Lookup("TitleFGColor", (char *)0);
 
-	if (titleBGColor) {
+	if (titleBGColor != 0) {
 		reply << "<TR BGCOLOR=\"#" << titleBGColor << "\">";
 	} else {
 		reply << ("<TR>");
@@ -124,7 +124,7 @@ void TableRenderer::PrintHeader(std::ostream &reply, Context &c, const ROAnythin
 	for (long r = 0, sz = tbColHeader.GetSize(); r < sz; ++r) {
 		ROAnything header = tbColHeader[r]["Title"];
 		PrintOptions(reply, "TH", header);
-		if (titleFGColor) {
+		if (titleFGColor != 0) {
 			reply << "<FONT COLOR=\"#" << titleFGColor << "\">";
 		}
 		Render(reply, c, header["Render"]);
@@ -162,7 +162,7 @@ void ItemRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &
 
 	if (config.IsDefined("Attr")) {
 		const char *attr = config["Attr"].AsCharPtr(0);
-		if (attr) {
+		if (attr != 0) {
 			if (strcmp("@Index", attr) == 0) {
 				Anything tmpStore(c.GetTmpStore());
 				long ix(tmpStore["RowIndex"].AsLong(-1));

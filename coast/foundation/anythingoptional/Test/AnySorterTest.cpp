@@ -25,7 +25,7 @@ void AnySorterTest::SorterTest() {
 		TraceAny(cConfig, "the config");
 		Anything sorted;
 		AnySorter::EMode mode(cConfig["Mode"].AsString() == "asc" ? AnySorter::asc : AnySorter::desc);
-		bool sortCritIsNumber(cConfig["SortCritIsNumber"].AsBool(0));
+		bool sortCritIsNumber(cConfig["SortCritIsNumber"].AsBool(false));
 		sorted = cConfig["TestArray"].DeepClone();
 		AnySorter::SortByKeyInArray(cConfig["SortKey"].AsString(), sorted, mode, sortCritIsNumber);
 		assertAnyEqual(cConfig["ExpectedResult"], sorted);

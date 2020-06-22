@@ -64,7 +64,7 @@ void Session::Init(const char *id, Context &ctx) {
 	fId = id;
 	PutInStore("SessionId", fId);
 	Role *pRole = GetRole(ctx);
-	if (pRole) {
+	if (pRole != 0) {
 		PutInStore("RoleName", pRole->GetName());
 	}
 	// extract some information from environment
@@ -138,7 +138,7 @@ bool Session::GetSessionInfo(Anything &sessionListInfo, Context &ctx, const char
 long Session::GetTimeout(Context &ctx) const {
 	Role *role = GetRole(ctx);
 	// assumption fMutex is already set by caller
-	if (role) {
+	if (role != 0) {
 		return role->GetTimeout();
 	}
 	return 60;	// one minute
@@ -151,10 +151,10 @@ void Session::SetRole(Role *newRole, Context &ctx) {
 	if (newRole != oldRole || !fStore.IsDefined("RoleName")) {
 		String oldRoleName("none");
 		String newRoleName("none");
-		if (newRole) {
+		if (newRole != 0) {
 			newRole->GetName(newRoleName);
 		}
-		if (oldRole) {
+		if (oldRole != 0) {
 			oldRole->GetName(oldRoleName);
 			oldRole->Finis(*this, newRole);	 // clean up rolestore if required, here we know the new newRole
 		}
@@ -323,7 +323,7 @@ namespace {
 		reason.Trim(0);
 		String currValue = ctx.Lookup(hdrSlot).AsString();
 		Trace("expected [" << expValue << "] current [" << currValue << "]");
-		if (!currValue.IsEqual(expValue) && !(ctx.Lookup(turnOffSlot, 0L))) {
+		if (!currValue.IsEqual(expValue) && ((ctx.Lookup(turnOffSlot, 0L)) == 0)) {
 			if (currValue.Length() == 0) {
 				reason << " Requests " << hdrSlot << " info is null";
 			} else {
@@ -376,7 +376,7 @@ bool Session::DoRenderNextPage(std::ostream &reply, Context &ctx) {
 	DoFindNextPage(ctx, transition, currentpage);
 	Page *newPage = Page::FindPage(currentpage);
 	// lets hope we got a new page
-	if (newPage) {
+	if (newPage != 0) {
 		// Now Start a new page...
 		newPage->Start(reply, ctx);
 		return true;
@@ -396,7 +396,7 @@ bool Session::DoRenderNextPage(std::ostream &reply, Context &ctx) {
 bool Session::DoRenderBusyPage(std::ostream &reply, Context &ctx) {
 	StartTrace(Session.RenderBusyPage);
 	Page *p = Page::FindPage("BusyPage");
-	if (p) {
+	if (p != 0) {
 		p->Start(reply, ctx);
 		return true;
 	}
@@ -506,7 +506,7 @@ void Session::SetInReauthenticate(Context &context) {
 	Anything tmpStore(context.GetTmpStore());
 	Role *r = context.GetRole();
 	String roleName("Role");
-	if (r) {
+	if (r != 0) {
 		r->GetName(roleName);
 	}
 	StatTrace(Session.SetInReauthenticate, "Role [" << roleName << "]", coast::storage::Current());
@@ -564,7 +564,7 @@ void Session::SaveToDelayed(Context &context, String &transition, String &pagena
 		Anything tmpStore(context.GetTmpStore());
 		TraceAny(delayed, "Session: <" << fId << "> original query content");
 		if (context.GetEnvStore()["header"].IsDefined("HTTPS")) {
-			delayed["HTTPS"] = context.GetEnvStore()["header"]["HTTPS"].AsBool(0L);
+			delayed["HTTPS"] = context.GetEnvStore()["header"]["HTTPS"].AsBool(false);
 		}
 		if (delayed.IsDefined("SessionIsNew")) {
 			delayed.Remove("SessionIsNew");
@@ -608,7 +608,7 @@ bool Session::FinishPage(Context &context, String &action, String &pagename) {
 	// is a role change necessary?
 	if (pagename.Length() > 0) {
 		Page *oldPage = Page::FindPage(pagename);
-		if (oldPage && !oldPage->Finish(action, context)) {
+		if ((oldPage != 0) && !oldPage->Finish(action, context)) {
 			// stay on page because we failed to successfully postprocess it
 			String msg;
 			msg << "Finalizing page <" << pagename << "> failed";
@@ -622,7 +622,7 @@ bool Session::FinishPage(Context &context, String &action, String &pagename) {
 bool Session::AfterPageInsert(Context &context, String &action, String &pagename) {
 	StartTrace(Session.AfterPageInsert);
 	Role *newrole = CheckRoleExchange(action, context);
-	if (newrole) {
+	if (newrole != 0) {
 		if (newrole->Init(context)) {
 			String roleName;
 			newrole->GetName(roleName);
@@ -705,7 +705,7 @@ bool Session::RetrieveFromDelayed(Context &context, String &action, String &curr
 bool Session::PreparePage(Context &ctx, String &transition, String &currentpage) {
 	StartTrace1(Session.PreparePage, "Transition: <" << transition << ">, Page: <" << currentpage << ">");
 	Page *p = Page::FindPage(currentpage);
-	if (p) {
+	if (p != 0) {
 		bool ret = p->Prepare(transition, ctx);
 		Trace(currentpage << ".Prepare() " << (ret ? "successful" : "failed") << " -> transition [" << transition << "]");
 		return ret;
@@ -731,7 +731,7 @@ bool Session::InReAuthenticate(Role *r, Context &context) {
 	// of roles because of wrong configuration
 	// or malicious implementation of Role::Verify
 	Anything tmpStore(context.GetTmpStore());
-	if (r && tmpStore.IsDefined("InReauthenticate")) {
+	if ((r != 0) && tmpStore.IsDefined("InReauthenticate")) {
 		String rolename;
 		if (r->GetName(rolename) && rolename == tmpStore["InReauthenticate"].AsCharPtr(0)) {
 			return true;  // yes we are trying to reauthenticate
@@ -747,7 +747,7 @@ Role *Session::CheckRoleExchange(const char *action, Context &ctx) const {
 	strActionToRoleEntry.Append(action);
 	ROAnything roaActionToRoleEntry = ctx.Lookup(strActionToRoleEntry);
 	Role *contextRole = GetRole(ctx);
-	if (contextRole) {
+	if (contextRole != 0) {
 		String strEntrynameToOldRole(strActionToRoleEntry);
 		strEntrynameToOldRole.Append('.').Append(contextRole->GetName());
 		Trace("role lookup string appended with current rolename [" << strEntrynameToOldRole << "]");
@@ -776,7 +776,7 @@ void Session::CollectLinkState(Anything &a, Context &ctx) const {
 	}
 	a["sessionId"] = fId;
 	Page *page = ctx.GetPage();
-	if (page) {
+	if (page != 0) {
 		String pName;
 		page->GetName(pName);
 		a["page"] = pName;
@@ -879,7 +879,7 @@ RegisterAction(SessionInfo);
 bool SessionInfo::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(SessionInfo.DoExecAction);
 	Session *s = ctx.GetSession();
-	if (s) {
+	if (s != 0) {
 		Anything sessionInfo(ctx.GetTmpStore()["SessionInfo"]);
 		s->Info(sessionInfo[s->GetId()], ctx);
 		DoGetInfo(s, sessionInfo[s->GetId()], ctx);

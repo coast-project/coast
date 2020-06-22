@@ -548,7 +548,7 @@ protected:
 #define NotNullStr(s) (((s).Length() > 0) ? (s).cstr() : "null")
 
 inline bool String::SetAllocator(Allocator *a) {
-	if (!fAllocator || !fStringImpl) {
+	if ((fAllocator == 0) || (fStringImpl == 0)) {
 		fAllocator = a;
 		return true;
 	}
@@ -556,13 +556,13 @@ inline bool String::SetAllocator(Allocator *a) {
 }
 
 inline long String::Length() const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->fLength;
 	}
 	return 0;
 }
 inline long String::Capacity() const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->fCapacity;
 	}
 	return 0;
@@ -571,18 +571,18 @@ inline String::operator const char *() const {
 	return cstr();
 }
 inline char const *String::cstr() const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetContent();
 	}
 	return "";
 }
 
 inline bool String::IsEqual(const char *other) const {
-	return !Compare(other);
+	return Compare(other) == 0;
 }
 
 inline bool String::IsEqual(const String &other) const {
-	return ((Length() == other.Length()) && !Compare(other));
+	return ((Length() == other.Length()) && (Compare(other) == 0));
 }
 // this is just a performance shortcut
 

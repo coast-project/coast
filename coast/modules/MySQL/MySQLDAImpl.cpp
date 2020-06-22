@@ -50,7 +50,7 @@ bool MySQLDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out)
 
 	Trace("trying connect to DB:[" << dataBase << "], with user@host:port [" << user << "@" << host << ":" << port
 								   << "], and pass:[" << pw << "]");
-	if (!(sock = mysql_real_connect(&mysql, host, user, pw, dataBase, port, NULL, 0))) {
+	if ((sock = mysql_real_connect(&mysql, host, user, pw, dataBase, port, NULL, 0)) == 0) {
 		SetErrorMsg("Couldn't connect to mySQL engine!", &mysql, context, out);
 		return false;
 	}
@@ -63,11 +63,11 @@ bool MySQLDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out)
 	SubTrace(Query, "QUERY IS:" << theQuery);
 
 	bool result = true;
-	if (mysql_query(sock, theQuery)) {
+	if (mysql_query(sock, theQuery) != 0) {
 		SetErrorMsg("Query failed", sock, context, out);
 		result = false;
 	} else {
-		if (!(res = mysql_store_result(sock))) {
+		if ((res = mysql_store_result(sock)) == 0) {
 			// No results -- was INSERT or UPDATE etc
 			Anything queryResults;
 			out->Put("QueryResult", queryResults, context);
@@ -81,7 +81,7 @@ bool MySQLDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out)
 			Anything theSet;
 			MYSQL_ROW myRow;
 			long rowNum = 0;
-			while ((myRow = mysql_fetch_row(res))) {
+			while ((myRow = mysql_fetch_row(res)) != 0) {
 				Anything newRow;
 
 				for (long i = 0; i < num_fields; i++) {
@@ -94,7 +94,7 @@ bool MySQLDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out)
 			}
 			TraceAny(theSet, "The Set");
 
-			if (!Lookup("NoQueryCount", 0L)) {
+			if (Lookup("NoQueryCount", 0L) == 0) {
 				out->Put("QueryCount", rowNum, context);
 			}
 			out->Put("QueryResult", theSet, context);
@@ -103,7 +103,7 @@ bool MySQLDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out)
 	}
 
 	mysql_close(sock);
-	if (mysql_errno(sock)) {
+	if (mysql_errno(sock) != 0u) {
 		SetErrorMsg("close failed !", sock, context, out);
 		result = false;
 	}

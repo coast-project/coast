@@ -98,7 +98,7 @@ bool LoopBackDAImpl::Exec(Context &c, ParameterMapper *input, ResultMapper *outp
 		TraceAny(config, "Config: ");
 		for (long i = 0, sz = config.GetSize(); i < sz; ++i) {
 			const char *slotname = config.SlotName(i);
-			if (slotname) {
+			if (slotname != 0) {
 				String inputStr;
 				bool bGetCode, bPutCode = false;
 				if (streaming == 1) {

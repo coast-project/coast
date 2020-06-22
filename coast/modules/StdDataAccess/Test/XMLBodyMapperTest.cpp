@@ -18,7 +18,7 @@ void XMLBodyMapperTest::setUp() {
 	String configFilename("XMLBodyMapperTestConfig");
 	std::istream *ifp = coast::system::OpenStream(configFilename, "any");
 
-	if (ifp) {	// found
+	if (ifp != 0) {	 // found
 		fConfig.Import(*ifp, configFilename);
 		delete ifp;
 	}

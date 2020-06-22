@@ -53,7 +53,7 @@ void ConnectorTest::ConnectAndAssert(const char *host, long port, long timeout, 
 	String assertMsg(host);
 	assertMsg << ":" << port << " with timeout: " << timeout;
 	String realMsg(assertMsg);
-	realMsg << ((connector.Use()) ? " has not failed" : " has failed");
+	realMsg << ((connector.Use()) != 0 ? " has not failed" : " has failed");
 	if (shouldFail) {
 		assertMsg << " has failed";
 		assertEqual(assertMsg, realMsg);
@@ -235,7 +235,7 @@ void ConnectorTest::allocatorConstructorTest() {
 		TestStorageHooks tsh(coast::storage::Global());
 
 		Connector connector(GetConfig()["SocketConnectSuccessHost"]["ip"].AsString(),
-							GetConfig()["SocketConnectSuccessHost"]["port"].AsLong(), false);
+							GetConfig()["SocketConnectSuccessHost"]["port"].AsLong(), 0);
 		Socket *socket = connector.MakeSocket();
 
 		if (t_assert(socket != NULL) && t_assertm(coast::storage::Global() == socket->fAllocator, "allocator should match")) {

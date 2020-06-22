@@ -34,7 +34,7 @@ bool AccessManagerModule::Init(const ROAnything config) {
 	fgMainAccessManager = AccessManager::FindAccessManager(dflt);
 	Trace("default access manager '" << dflt << "' = " << (fgMainAccessManager ? "ok" : "not found"));
 
-	return ok && fgMainAccessManager;
+	return ok && (fgMainAccessManager != 0);
 }
 
 bool AccessManagerModule::Finis() {
@@ -44,7 +44,7 @@ bool AccessManagerModule::Finis() {
 }
 
 AccessManager *AccessManagerModule::GetAccessManager(const char *name) {
-	if (name) {
+	if (name != 0) {
 		return AccessManager::FindAccessManager(name);
 	}
 	return fgMainAccessManager;

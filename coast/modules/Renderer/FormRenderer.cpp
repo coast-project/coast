@@ -217,7 +217,7 @@ void SelectBoxRenderer::RenderAll(std::ostream &reply, Context &context, const R
 			RenderOnString(strAppendListName, context, config["AppendListName"]);
 
 			ROAnything roaTempList;
-			if (strPrependListName.Length()) {
+			if (strPrependListName.Length() != 0) {
 				RenderOptionList(reply, context, config, strPrependListName);
 			} else if (context.Lookup("PrependListData", roaTempList)) {
 				strPrependListName = "SelectBoxData";
@@ -225,7 +225,7 @@ void SelectBoxRenderer::RenderAll(std::ostream &reply, Context &context, const R
 				RenderOptionList(reply, context, config, strPrependListName);
 			}
 
-			if (strListName.Length()) {
+			if (strListName.Length() != 0) {
 				RenderOptionList(reply, context, config, strListName);
 			} else {
 				strListName = "SelectBoxData";
@@ -233,7 +233,7 @@ void SelectBoxRenderer::RenderAll(std::ostream &reply, Context &context, const R
 				RenderOptionList(reply, context, config, strListName);
 			}
 
-			if (strAppendListName.Length()) {
+			if (strAppendListName.Length() != 0) {
 				RenderOptionList(reply, context, config, strAppendListName);
 			} else if (context.Lookup("AppendListData", roaTempList)) {
 				strAppendListName = "SelectBoxData";
@@ -258,7 +258,7 @@ void SelectBoxRenderer::RenderOptionList(std::ostream &reply, Context &context, 
 	}
 	Trace("OptionListRenderer used:[" << strOptionRenderer << "]");
 	Renderer *pRenderer = Renderer::FindRenderer(strOptionRenderer);
-	if (pRenderer) {
+	if (pRenderer != 0) {
 		Anything rendererConfig;
 		rendererConfig["ListName"] = listname;
 		rendererConfig["EntryStore"] = RenderToStringWithDefault(context, config["EntryStore"], "SelectBoxOption");
@@ -364,7 +364,7 @@ void OptionListRenderer::RenderEntryHeader(std::ostream &reply, Context &ctx, co
 		Trace("group key of entry [" << strEntryKey << "]");
 
 		// check if the key changed and render end tag if so
-		if (strCurGroupKey.Length() && strEntryKey.Length() && !strCurGroupKey.IsEqual(strEntryKey)) {
+		if ((strCurGroupKey.Length() != 0) && (strEntryKey.Length() != 0) && !strCurGroupKey.IsEqual(strEntryKey)) {
 			Trace("key changed, rendering end tag");
 			// render end tag
 			reply << "</optgroup>\n";
@@ -373,7 +373,7 @@ void OptionListRenderer::RenderEntryHeader(std::ostream &reply, Context &ctx, co
 		}
 
 		// key changed
-		if (!strCurGroupKey.Length() && strEntryKey.Length()) {
+		if ((strCurGroupKey.Length() == 0) && (strEntryKey.Length() != 0)) {
 			String strLabel;
 			RenderOnString(strLabel, ctx, entryHeader["LabelRenderer"]);
 			// render start tag
@@ -419,7 +419,7 @@ void OptionListRenderer::RenderSelected(std::ostream &reply, Context &c, const R
 	StartTrace(OptionListRenderer.RenderSelected);
 	String strSel;
 	RenderOnString(strSel, c, selectedConfig);
-	if (strSel.Length()) {
+	if (strSel.Length() != 0) {
 		ROAnything result = c.Lookup(strSel);
 		if (result.GetType() == AnyLongType && result.AsBool()) {
 			reply << " selected";
@@ -482,7 +482,7 @@ void RadioButtonRenderer::RenderOptions(std::ostream &reply, Context &context, c
 	} else if (config.IsDefined("EvaluateChecked")) {
 		String checkedValue;
 		RenderOnString(checkedValue, context, config["EvaluateChecked"]);
-		if (Anything(checkedValue).AsLong(0)) {
+		if (Anything(checkedValue).AsLong(0) != 0) {
 			reply << (" CHECKED");
 		}
 	}
@@ -612,7 +612,7 @@ void FieldNameRenderer::RenderAll(std::ostream &reply, Context &context, const R
 
 	if (config.IsDefined("LookupName")) {
 		const char *lookupname = config["LookupName"].AsCharPtr(0);
-		if (lookupname) {
+		if (lookupname != 0) {
 			name = context.Lookup(lookupname, name);
 		}
 	}

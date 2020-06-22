@@ -214,7 +214,7 @@ void AppBooterTest::OpenLibsTest() {
 	// write pid to file to make it usable by scripts
 	std::ostream *os = system::OpenOStream("config/wdbasetest", "pid");
 
-	if (os) {
+	if (os != 0) {
 		Trace("PID File<config/wdbasetest> opened");
 		long pid = system::getpid();
 		(*os) << pid;

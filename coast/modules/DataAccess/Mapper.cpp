@@ -260,7 +260,7 @@ bool ParameterMapper::interpretMapperScriptEntry(const char *key, Anything &valu
 		Trace("Anonymous slot, call myself again with script");
 		return doGetValue(key, value, ctx, script);
 	}
-	if ((m = ParameterMapper::FindParameterMapper(slotname))) {
+	if ((m = ParameterMapper::FindParameterMapper(slotname)) != 0) {
 		Trace("Slotname equals mapper: " << slotname);
 		ROAnything newConfig = m->selectNewScript(key, ctx, script);
 		TraceAny(newConfig, "Calling " << slotname << " with script");
@@ -314,7 +314,7 @@ bool ParameterMapper::interpretMapperScriptEntry(const char *key, std::ostream &
 		Trace("Anonymous slot, call myself again with script");
 		return doGetValue(key, os, ctx, script);
 	}
-	if ((m = ParameterMapper::FindParameterMapper(slotname))) {
+	if ((m = ParameterMapper::FindParameterMapper(slotname)) != 0) {
 		Trace("Slotname equals mapper: " << slotname);
 		ROAnything newConfig = m->selectNewScript(key, ctx, script);
 		TraceAny(newConfig, "Calling " << slotname << " with script");
@@ -534,7 +534,7 @@ bool ResultMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAn
 			if (slotname.Length() <= 0) {
 				Trace("Anonymous slot, call myself again with script[" << i << "]");
 				retval = DoPutAny(key, value, ctx, roaScript);
-			} else if ((m = ResultMapper::FindResultMapper(slotname))) {
+			} else if ((m = ResultMapper::FindResultMapper(slotname)) != 0) {
 				Trace("Slotname equals mapper: " << slotname);
 				if (roaScript.IsNull()) {
 					// fallback to mappers original config
@@ -585,7 +585,7 @@ bool ResultMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, 
 			if (slotname.Length() <= 0) {
 				Trace("Anonymous slot, call myself again with script[" << i << "]");
 				retval = DoPutStream(key, is, ctx, roaScript);
-			} else if ((m = ResultMapper::FindResultMapper(slotname))) {
+			} else if ((m = ResultMapper::FindResultMapper(slotname)) != 0) {
 				Trace("Slotname equals mapper: " << slotname);
 				if (roaScript.IsNull()) {
 					// fallback to mappers original config
@@ -622,7 +622,7 @@ bool ResultMapper::DoPutStreamWithSlotname(const char *key, std::istream &is, Co
 void ResultMapper::DoGetDestinationAny(const char *key, Anything &targetAny, Context &ctx) {
 	StartTrace1(ResultMapper.DoGetDestinationAny, NotNull(key));
 	String path = GetDestinationSlot(ctx), kPrefix(key);
-	if (path.Length() > 0 && kPrefix.Length()) {
+	if (path.Length() > 0 && (kPrefix.Length() != 0)) {
 		path.Append(getDelim());
 	}
 	path.Append(kPrefix);
@@ -733,7 +733,7 @@ RegisterParameterMapper(ConfigMapper);
 bool ConfigMapper::DoGetAny(const char *key, Anything &value, Context &ctx, ROAnything config) {
 	StartTrace(ConfigMapper.DoGetAny);
 	// step recursively through config and check, if we need to restart scripting
-	if (ctx.Lookup("DoDefaultDoGetAny", 0L)) {
+	if (ctx.Lookup("DoDefaultDoGetAny", 0L) != 0) {
 		ParameterMapper::DoGetAny(key, value, ctx, config);
 	} else {
 		EvaluateConfig(config, value, ctx);

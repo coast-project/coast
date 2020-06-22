@@ -34,7 +34,7 @@ bool CreateAnythingFromStringAction::DoExecAction(String &transitionToken, Conte
 	Trace("resulting string before creating the any:[" << string << "]");
 
 	Anything newAny;
-	if (string.Length()) {
+	if (string.Length() != 0) {
 		IStringStream is(string);
 		newAny.Import(is);
 	}

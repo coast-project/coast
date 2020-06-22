@@ -85,11 +85,11 @@ bool ServersModule::ResetFinis(const ROAnything) {
 	// if not, we need to re-initialize its config manually because only registered objects will have their config reloaded
 	// automatically
 	Server *serverToReInit = GetServerForReInit();
-	if (serverToReInit) {
+	if (serverToReInit != 0) {
 		String serverName;
 		serverToReInit->GetName(serverName);
 		Trace("Servername for re-init (master) [" << serverName << "]");
-		if (!Server::FindServer(serverName)) {
+		if (Server::FindServer(serverName) == 0) {
 			Trace("manually finalizing server config of [" << serverName << "]");
 			bRet = serverToReInit->Finalize() && bRet;
 		}
@@ -102,7 +102,7 @@ bool ServersModule::ResetInit(const ROAnything config) {
 	String serverName;
 	Server *serverToReInit = 0;
 	serverToReInit = GetServerForReInit();
-	if (serverToReInit) {
+	if (serverToReInit != 0) {
 		serverToReInit->GetName(serverName);
 		Trace("Servername for re-init (master) [" << serverName << "]");
 	}
@@ -112,11 +112,11 @@ bool ServersModule::ResetInit(const ROAnything config) {
 	// install anyways, Null-config should not fail the Installer
 	bool bReInitOk = RegisterableObject::Install(config["Servers"], "Application", &hi);
 
-	if (bReInitOk && serverToReInit) {
+	if (bReInitOk && (serverToReInit != 0)) {
 		// we need to check if the serverToReInit is registered in the registry
 		// if not, we need to re-initialize its config manually because only registered objects will have their config reloaded
 		// automatically
-		if (!Server::FindServer(serverName)) {
+		if (Server::FindServer(serverName) == 0) {
 			Trace("manually finalizing server config of [" << serverName << "]");
 			bReInitOk = serverToReInit->Initialize("Application") && bReInitOk;
 		}
@@ -142,7 +142,7 @@ bool Server::fgInReInit = false;
 // implement FindServer by hand since it uses Application's registry entries
 // guard against misuse by SafeCast
 Server *Server::FindServer(const char *name) {
-	if (not name) {
+	if (name == 0) {
 		String DefaultAppOrServerName;
 		return SafeCast(Application::GetGlobalApplication(DefaultAppOrServerName), Server);
 	}
@@ -166,7 +166,7 @@ Server::Server(const char *name)
 Server::~Server() {
 	StartTrace1(Server.~Server, "<" << GetName() << ">");
 	Assert(this != ServersModule::GetServerForReInit());
-	if (fPoolManager) {
+	if (fPoolManager != 0) {
 		delete fPoolManager;
 	}
 }
@@ -263,12 +263,12 @@ int Server::DoInit() {
 		String poolManagerName(Lookup("PoolManager", "ServerThreadPoolsManager"));
 		fPoolManager = ServerPoolsManagerInterface::FindServerPoolsManagerInterface(poolManagerName);
 		Trace("PoolManager <" << poolManagerName << "> " << (long)fPoolManager << ((fPoolManager) ? " found" : " not found"));
-		if (fPoolManager) {
+		if (fPoolManager != 0) {
 			// make unique name different of clone-base name to avoid problems
 			poolManagerName << "_of_" << strServerName;
 			fPoolManager = (ServerPoolsManagerInterface *)fPoolManager->ConfiguredClone("ServerPoolsManagerInterface",
 																						poolManagerName, true);
-			if (fPoolManager) {
+			if (fPoolManager != 0) {
 				if ((fPoolManager->Init(this) == 0) && (SetupDispatcher() == 0)) {
 					SystemLog::Info(String("Server init of [") << strServerName << "] OK.");
 					return 0;
@@ -290,7 +290,7 @@ int Server::SetupDispatcher() {
 	StartTrace(Server.SetupDispatcher);
 
 	fDispatcher = ServiceDispatcher::FindServiceDispatcher(Lookup("Dispatcher", "ServiceDispatcher"));
-	if (!fDispatcher) {
+	if (fDispatcher == 0) {
 		String msg;
 		msg << "ServiceDispatcher not found";
 		SYSERROR(msg);
@@ -304,10 +304,10 @@ int Server::ReInit(const ROAnything) {
 	StartTrace(Server.ReInit);
 	// hidden dependency in module init/termination sequence!
 	long ret = 0L;
-	if (fDispatcher) {
+	if (fDispatcher != 0) {
 		ret = SetupDispatcher();
 	}
-	if (ret == 0 && fPoolManager) {
+	if (ret == 0 && (fPoolManager != 0)) {
 		// re-initialize configuration of pool
 		fPoolManager->Finalize();
 		fPoolManager->Initialize("ServerPoolsManagerInterface");
@@ -319,7 +319,7 @@ int Server::ReInit(const ROAnything) {
 // termination of the Server modules
 int Server::DoTerminate(int val) {
 	StartTrace(Server.DoTerminate);
-	if (fPoolManager) {
+	if (fPoolManager != 0) {
 		SystemLog::WriteToStderr("\t\tTerminating running requests");
 		if (fPoolManager->IsReady(false, 10)) {
 			fPoolManager->Terminate();
@@ -360,7 +360,7 @@ bool Server::DoLookup(const char *key, ROAnything &result, char delim, char inde
 int Server::DoRun() {
 	StartTrace(Server.DoRun);
 	int iRet = -1;
-	if (fPoolManager) {
+	if (fPoolManager != 0) {
 		Trace("<" << GetName() << "> running PoolManager...");
 		iRet = fPoolManager->Run(this);
 		Trace("PoolManager::Run of <" << GetName() << "> returned with code " << (long)iRet);
@@ -370,7 +370,7 @@ int Server::DoRun() {
 
 bool Server::IsReady(bool ready, long timeout) {
 	StartTrace1(Server.IsReady, "ready: [" << ready << "] timeout: [" << timeout << "]");
-	if (fPoolManager) {
+	if (fPoolManager != 0) {
 		return fPoolManager->IsReady(ready, timeout);
 	}
 	return false;
@@ -378,7 +378,7 @@ bool Server::IsReady(bool ready, long timeout) {
 
 bool Server::ProcessRequest(std::ostream &reply, Context &ctx) {
 	StartTrace(Server.ProcessRequest);
-	if (fDispatcher) {
+	if (fDispatcher != 0) {
 		return fDispatcher->Dispatch2Service(reply, ctx);
 	}
 	return false;
@@ -404,7 +404,7 @@ RequestProcessor *Server::MakeProcessor() {
 }
 
 RequestProcessor *Server::GetRequestProcessor() {
-	if (fPoolManager) {
+	if (fPoolManager != 0) {
 		return fPoolManager->GetRequestProcessor();
 	}
 	return 0;
@@ -426,7 +426,7 @@ int Server::QuitRunLoop() {
 	StartTrace(Server.QuitRunLoop);
 	int iRetCode = 0L;
 	// shutdown the listening socket and terminate the server threads
-	if (fPoolManager) {
+	if (fPoolManager != 0) {
 		iRetCode = fPoolManager->RequestTermination();
 	}
 	return iRetCode;
@@ -436,7 +436,7 @@ int Server::BlockRequests() {
 	StartTrace1(Server.BlockRequests, "Server [" << fName << "]");
 	Trace("Blocking requests");
 	RequestBlocker::RB()->Block();
-	if (fPoolManager) {
+	if (fPoolManager != 0) {
 		return (fPoolManager->BlockRequests(this) ? 0 : -1);
 	}
 	return 0;
@@ -449,7 +449,7 @@ int Server::UnblockRequests() {
 	// copy requests in chunks and ask for RB()->IsBlocked
 	RequestBlocker::RB()->UnBlock();
 
-	if (fPoolManager) {
+	if (fPoolManager != 0) {
 		fPoolManager->UnblockRequests();
 	}
 	return 0;
@@ -470,7 +470,7 @@ bool Server::MustTerminate() {
 
 // pidfile handling
 int Server::WritePIDFile(pid_t lPid) {
-	if (Lookup("UsePIDFile", 0L)) {
+	if (Lookup("UsePIDFile", 0L) != 0) {
 		LockUnlockEntry me(fPidFileNameMutex);
 
 		PIDFileName(fPidFileName);
@@ -482,7 +482,7 @@ int Server::WritePIDFile(pid_t lPid) {
 }
 
 int Server::RemovePIDFile() {
-	if (Lookup("UsePIDFile", 0L)) {
+	if (Lookup("UsePIDFile", 0L) != 0) {
 		LockUnlockEntry me(fPidFileNameMutex);
 		return DoDeletePIDFile(fPidFileName);  // ignore retCode
 	}
@@ -507,7 +507,7 @@ int Server::DoWritePIDFile(const String &pidFilePath, pid_t lPid) {
 
 	std::ostream *os = system::OpenOStream(pidFilePath, 0);
 
-	if (os) {
+	if (os != 0) {
 		Trace("PID File<" << pidFilePath << "> opened");
 		if (lPid != (pid_t)-1) {
 			fPid = lPid;
@@ -554,7 +554,7 @@ int Server::SetUid() {
 		const char *username = lookupedUser;
 		/* Only try to switch if we're running as root */
 		// get real id
-		if (!(ent = getpwnam(username))) {
+		if ((ent = getpwnam(username)) == 0) {
 			m << "bad user name %s\n" << username << "\n";
 			SystemLog::WriteToStderr(m);
 		}
@@ -569,7 +569,7 @@ int Server::SetUid() {
 
 	ent = getpwuid(geteuid());
 	m = "";
-	m << (Server::Lookup("ServerModules", serverModules) == 0 ? "Server" : "MasterServer")
+	m << (static_cast<int>(Server::Lookup("ServerModules", serverModules)) == 0 ? "Server" : "MasterServer")
 	  << " handling requests as: " << ent->pw_name << "(";
 #if defined(__linux__) || defined(__APPLE__)
 	m << long(geteuid());
@@ -587,7 +587,7 @@ void Server::RegisterServerStatObserver(StatObserver *observer) {
 }
 
 void Server::AddStatGatherer2Observe(StatGatherer *sg) {
-	if (fStatisticObserver) {
+	if (fStatisticObserver != 0) {
 		String myServerName;
 		GetName(myServerName);
 		fStatisticObserver->Register(myServerName, sg);
@@ -783,7 +783,7 @@ ServerThread::ServerThread(Server *aServer)
 void ServerThread::DoStartedHook(ROAnything config) {
 	StartTrace(ServerThread.DoStartedHook);
 	const char *serverName = "Server";
-	if (not fServer) {
+	if (fServer == 0) {
 		if (config.IsDefined("ServerName")) {
 			serverName = config["ServerName"].AsCharPtr(serverName);
 		}
@@ -796,7 +796,7 @@ void ServerThread::DoStartedHook(ROAnything config) {
 	String strName("ServerThread: ", coast::storage::Global());
 	strName.Append(serverName);
 	SetName(strName);
-	if (fServer) {
+	if (fServer != 0) {
 		fbServerIsInitialized = (fServer->Init() == 0);
 	}
 	Trace("Server <" << GetName() << "> started");
@@ -805,7 +805,7 @@ void ServerThread::DoStartedHook(ROAnything config) {
 int ServerThread::ReInit(const ROAnything config) {
 	StartTrace1(ServerThread.ReInit, "<" << GetName() << ">");
 	int iRet = -1;
-	if (fServer && fbServerIsInitialized) {
+	if ((fServer != 0) && fbServerIsInitialized) {
 		fbServerIsInitialized = ((iRet = fServer->ReInit(config)) == 0);
 	}
 	return iRet;
@@ -814,7 +814,7 @@ int ServerThread::ReInit(const ROAnything config) {
 void ServerThread::Run() {
 	StartTrace1(ServerThread.Run, "<" << GetName() << ">");
 	if (fbServerIsInitialized && CheckRunningState(eWorking)) {
-		if (fServer) {
+		if (fServer != 0) {
 			fServer->Run();
 		}
 		// synchronize with PrepareShutdown call
@@ -826,7 +826,7 @@ void ServerThread::Run() {
 
 void ServerThread::DoTerminatedRunMethodHook() {
 	StartTrace1(ServerThread.DoTerminatedRunMethodHook, "<" << GetName() << ">");
-	if (fServer && fbServerIsInitialized) {
+	if ((fServer != 0) && fbServerIsInitialized) {
 		fServer->Terminate(0L);
 		fbServerIsInitialized = false;
 	}
@@ -834,21 +834,21 @@ void ServerThread::DoTerminatedRunMethodHook() {
 
 void ServerThread::PrepareShutdown(long retCode) {
 	StartTrace1(ServerThread.PrepareShutdown, "<" << GetName() << ">");
-	if (fServer && fbServerIsInitialized) {
+	if ((fServer != 0) && fbServerIsInitialized) {
 		LockUnlockEntry me(fTerminationMutex);
 		fServer->PrepareShutdown(retCode);
 	}
 }
 
 int ServerThread::BlockRequests() {
-	if (fServer && fbServerIsInitialized) {
+	if ((fServer != 0) && fbServerIsInitialized) {
 		return fServer->BlockRequests();
 	}
 	return 0;
 }
 
 int ServerThread::UnblockRequests() {
-	if (fServer && fbServerIsInitialized) {
+	if ((fServer != 0) && fbServerIsInitialized) {
 		return fServer->UnblockRequests();
 	}
 	return 0;
@@ -856,7 +856,7 @@ int ServerThread::UnblockRequests() {
 
 bool ServerThread::IsReady(bool ready, long timeout) {
 	StartTrace1(ServerThread.IsReady, "ready: [" << ready << "] timeout: [" << timeout << "]");
-	if (fServer && fbServerIsInitialized) {
+	if ((fServer != 0) && fbServerIsInitialized) {
 		return fServer->IsReady(ready, timeout);
 	}
 	return (ready == false);

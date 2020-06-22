@@ -12,7 +12,7 @@
 #include "TestLocation.h"
 
 TestLocElt::~TestLocElt() {
-	if (fValue) {
+	if (fValue != 0) {
 		delete fValue;
 	}
 	fValue = 0;
@@ -21,7 +21,7 @@ TestLocElt::~TestLocElt() {
 //---- TestLocList ------------------------------------------------------
 
 TestLocList::~TestLocList(void) {
-	while (fList) {
+	while (fList != 0) {
 		TestLocElt *tmp = fList;
 		fList = fList->fNext;
 		delete tmp;
@@ -32,7 +32,7 @@ void TestLocList::push_back(TestLocation *aValue) {
 	// create a new element of the list
 	TestLocElt *tmp = new TestLocElt(aValue);
 	// if the list already exists, bind the new element at the end of it
-	if (fList) {
+	if (fList != 0) {
 		fIn->fNext = tmp;
 	} else
 	// if the list does not yet exist, the new element is the start point of the list
@@ -46,7 +46,7 @@ void TestLocList::push_back(TestLocation *aValue) {
 }
 
 TestLocation *TestLocList::first() {
-	if (fList) {
+	if (fList != 0) {
 		// go the the first element
 		fIt = fList;
 		// return the result
@@ -57,7 +57,7 @@ TestLocation *TestLocList::first() {
 }
 
 TestLocation *TestLocList::next() {
-	if ((fIt) && (fIt->fNext)) {
+	if (((fIt) != 0) && ((fIt->fNext) != 0)) {
 		// go the the next element
 		fIt = fIt->fNext;
 		// return the result

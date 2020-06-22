@@ -110,7 +110,7 @@ void TruncateStringRenderer::RenderAll(std::ostream &reply, Context &c, const RO
 		temp = strR;
 	}
 
-	if (!temp.Length()) {
+	if (temp.Length() == 0) {
 		ROAnything roaDefaultConfig;
 		String strDefault;
 		if (config.LookupPath(roaDefaultConfig, "Default")) {

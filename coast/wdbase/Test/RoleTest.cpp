@@ -38,7 +38,7 @@ void RoleTest::GetNewPageName() {
 	t_assertm(r != 0, "Role RTGuest not found");
 	Anything dummy;
 	Context ctx(dummy, dummy, 0, 0, 0, 0);
-	if (r) {
+	if (r != 0) {
 		ctx.SetRole(r);
 		pagename = "";	// look for Default Map
 		String transition = "Home";
@@ -120,12 +120,12 @@ void RoleTest::Synchronize() {
 	t_assertm(r != 0, "Role RTCustomer not found");
 	Anything dummy;
 	Context ctx(dummy, dummy, 0, 0, 0, 0);
-	if (r) {
+	if (r != 0) {
 		t_assert(r->Synchronize(ctx));
 	}
 	r = Role::FindRole("RTGuest");
 	t_assertm(r != 0, "Role RTGuest not found");
-	if (r) {
+	if (r != 0) {
 		t_assert(r->Synchronize(ctx));
 	}
 }
@@ -145,7 +145,7 @@ void RoleTest::CollectLinkState() {
 	assertEqual("ifs", ctx.GetQuery()["fields"]["namefield"].AsCharPtr(0));
 	ctx.GetQuery()["dummyfield"] = "hallo";
 	ctx.GetTmpStore()["pwfield"] = "Geheim";  // should stay there
-	if (r) {
+	if (r != 0) {
 		ROAnything rodummy;
 		t_assert(r->Lookup("StateFull", rodummy));
 		r->PrepareTmpStore(ctx);
@@ -179,7 +179,7 @@ void RoleTest::PrepareTmpStore() {
 	assertEqual("ifs", ctx.GetQuery()["fields"]["namefield"].AsCharPtr(0));
 	ctx.GetQuery()["dummyfield"] = "hallo";
 	ctx.GetTmpStore()["pwfield"] = "Geheim";  // should stay there
-	if (r) {
+	if (r != 0) {
 		ROAnything rodummy;
 		t_assert(r->Lookup("StateFull", rodummy));
 		r->PrepareTmpStore(ctx);
@@ -202,7 +202,7 @@ void RoleTest::VerifyLevel() {
 	Context ctx(dummy, dummy, 0, 0, 0, 0);
 	ctx.GetQuery()["action"] = "Home";
 	ctx.GetQuery()["role"] = "RTGuest";
-	if (r) {
+	if (r != 0) {
 		String transition = ctx.GetQuery()["action"].AsString();
 		String spagename = ctx.GetQuery()["page"].AsString();
 		// currently this test does not succeed anymore because the role must be of the same name to be valid
@@ -212,7 +212,7 @@ void RoleTest::VerifyLevel() {
 	t_assertm(r != 0, "Role RTGuest not found");
 	ctx.GetQuery()["action"] = "Login";	 // should not succeed
 	ctx.GetQuery()["role"] = "RTCustomer";
-	if (r) {
+	if (r != 0) {
 		String transition = ctx.GetQuery()["action"].AsString();
 		String spagename = ctx.GetQuery()["page"].AsString();
 		t_assert(!r->Verify(ctx, transition, spagename));
@@ -229,7 +229,7 @@ void RoleTest::VerifyLogout() {
 	Anything dummy;
 	Context ctx(dummy, dummy, 0, 0, 0, 0);
 	ctx.GetQuery()["action"] = "Logout";  // should always succeed
-	if (r) {
+	if (r != 0) {
 		String transition = ctx.GetQuery()["action"].AsString();
 		String spagename = ctx.GetQuery()["page"].AsString();
 		t_assert(r->Verify(ctx, transition, spagename));
@@ -237,7 +237,7 @@ void RoleTest::VerifyLogout() {
 
 	ctx.GetQuery()["action"] = "GoBanner";	// should not succeed
 	ctx.GetQuery()["role"] = "RTCustomer";	// checklevel should fail for Role RTGuest
-	if (r) {
+	if (r != 0) {
 		String transition = ctx.GetQuery()["action"].AsString();
 		String spagename = ctx.GetQuery()["page"].AsString();
 		t_assert(!r->Verify(ctx, transition, spagename));
@@ -254,12 +254,12 @@ void RoleTest::CheckInstalled() {
 		String roleName("null");
 		Role *r = (Role *)ri.Next(roleName);
 		Trace("role found <" << roleName << ">");
-		if (r) {
+		if (r != 0) {
 			String sname("null");
 			t_assert(r->GetName(sname));
 			Trace(" r says: <" << sname << ">");
 			t_assert(r->IsInitialized());  // ensure config is available
-			if (r->GetSuper()) {
+			if (r->GetSuper() != 0) {
 				String supername("null");
 				r->GetSuper()->GetName(supername);
 				Trace(" super <" << supername << ">");

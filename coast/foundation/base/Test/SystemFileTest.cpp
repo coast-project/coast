@@ -450,14 +450,14 @@ void SystemFileTest::ResolvePathTest() {
 void SystemFileTest::OpenStreamTest() {
 	std::iostream *Ios = system::OpenStream("Tracer.any");
 	t_assert(Ios == NULL);	// should not be found!
-	if (Ios) {
+	if (Ios != 0) {
 		delete Ios;
 	}
 
 	// open file with relative path
 	Ios = system::OpenStream("config/Tracer.any");
 	t_assert(Ios != NULL);
-	if (Ios) {
+	if (Ios != 0) {
 		delete Ios;
 	}
 
@@ -466,21 +466,21 @@ void SystemFileTest::OpenStreamTest() {
 	// search file with path
 	Ios = system::OpenStream("Tracer", "any");
 	t_assert(Ios != NULL);	// should be found
-	if (Ios) {
+	if (Ios != 0) {
 		delete Ios;
 	}
 
 	// open file with relative path
 	Ios = system::OpenStream("config/Tracer", "any");
 	t_assert(Ios != NULL);
-	if (Ios) {
+	if (Ios != 0) {
 		delete Ios;
 	}
 
 	// open file with relative path for writing
 	Ios = system::OpenStream("tmp/Test1", "tst", std::ios::out);
 	t_assert(Ios != NULL);
-	if (Ios) {
+	if (Ios != 0) {
 		(*Ios) << "test" << std::endl;
 		t_assert(!!(*Ios));
 		delete Ios;
@@ -490,21 +490,21 @@ void SystemFileTest::OpenStreamTest() {
 void SystemFileTest::OpenStreamWithSearchTest() {
 	std::iostream *Ios = system::OpenStreamWithSearch("Tracer.any");
 	t_assert(Ios != NULL);
-	if (Ios) {
+	if (Ios != 0) {
 		delete Ios;
 	}
 
 	// open file with relative path
 	Ios = system::OpenStreamWithSearch("config/Tracer.any");
 	t_assert(Ios != NULL);
-	if (Ios) {
+	if (Ios != 0) {
 		delete Ios;
 	}
 
 	// open file with relative path for writing
 	Ios = system::OpenStreamWithSearch("tmp/Test1.tst", std::ios::out);
 	t_assert(Ios != NULL);
-	if (Ios) {
+	if (Ios != 0) {
 		(*Ios) << "test" << std::endl;
 		t_assert(!!(*Ios));
 		delete Ios;
@@ -516,7 +516,7 @@ void SystemFileTest::OpenIStreamTest() {
 	std::iostream *Ios = system::OpenIStream("config/Tracer.any");
 
 	t_assert(Ios != NULL);
-	if (Ios) {
+	if (Ios != 0) {
 		Anything dbgTest;
 		(*Ios) >> dbgTest;
 		t_assert(!!(*Ios));
@@ -530,7 +530,7 @@ void SystemFileTest::OpenIStreamTest() {
 	Ios = system::OpenIStream("config/Tracer", "any");
 
 	t_assert(Ios != NULL);
-	if (Ios) {
+	if (Ios != 0) {
 		Anything dbgTest;
 		(*Ios) >> dbgTest;
 		t_assert(!!(*Ios));
@@ -544,7 +544,7 @@ void SystemFileTest::OpenOStreamTest() {
 	std::iostream *Ios = system::OpenOStream("tmp/Test.tst");
 
 	t_assert(Ios != NULL);
-	if (Ios) {
+	if (Ios != 0) {
 		(*Ios) << "test" << std::endl;
 		t_assert(!!(*Ios));
 		delete Ios;
@@ -556,7 +556,7 @@ void SystemFileTest::OpenOStreamTest() {
 	Ios = system::OpenOStream("tmp/Test", "tst");
 
 	t_assert(Ios != NULL);
-	if (Ios) {
+	if (Ios != 0) {
 		(*Ios) << "test" << std::endl;
 		t_assert(!!(*Ios));
 		delete Ios;
@@ -636,7 +636,7 @@ void SystemFileTest::IStreamTest() {
 
 	String str0;
 	std::istream *is0 = system::OpenStream("len5", "tst");
-	if (is0) {
+	if (is0 != 0) {
 		*is0 >> str0;
 		// PS? t_assert ( str0.Capacity() == 66 );
 		t_assert(str0.Length() == 5);
@@ -676,7 +676,7 @@ void SystemFileTest::IStreamTest() {
 	//---------------------------------------------------------------------------------------------------------
 	String str1;
 	std::istream *is1 = system::OpenStream("len5", "tst");
-	if (is1) {
+	if (is1 != 0) {
 		*is1 >> str1;
 		// PS? t_assert (str1.Capacity() == 66 );
 		t_assert(str1.Length() == 5);
@@ -689,7 +689,7 @@ void SystemFileTest::IStreamTest() {
 		assertEqual("'read file len5.tst'", "'could not read len5.tst'");
 	}
 	std::istream *is2 = system::OpenStream("len5", "tst");
-	if (is2) {
+	if (is2 != 0) {
 		*is2 >> str1;
 		// PS? t_assert (str1.Capacity() == 66 );
 		t_assert(str1.Length() == 5);
@@ -704,7 +704,7 @@ void SystemFileTest::IStreamTest() {
 
 	String str3 = "qwertzuiopasdfghjklyxcvbnm";
 	std::istream *is3 = system::OpenStream("len5", "tst");
-	if (is3) {
+	if (is3 != 0) {
 		*is3 >> str3;
 		// PS? t_assert (str3.Capacity() == 54 );
 		t_assert(str3.Length() == 5);
@@ -735,7 +735,7 @@ void SystemFileTest::OStreamTest() {
 	msg << system::GetFilePath(sname, "tst");
 
 	t_assertm(os0 != 0, msg);
-	if (os0) {
+	if (os0 != 0) {
 		*os0 << str0;
 		delete os0;
 	} else {
@@ -744,7 +744,7 @@ void SystemFileTest::OStreamTest() {
 
 	std::istream *is0 = system::OpenStream("tmp/emptyStr", "tst");
 
-	if (is0) {
+	if (is0 != 0) {
 		*is0 >> str00;
 		delete is0;
 		t_assert(str0 == str00);
@@ -761,7 +761,7 @@ void SystemFileTest::OStreamTest() {
 	str1.Append("0123456789");
 	std::ostream *os1 = system::OpenOStream("tmp/zahlen", "tst");
 
-	if (os1) {
+	if (os1 != 0) {
 		*os1 << str1;
 		delete os1;
 	} else {
@@ -769,7 +769,7 @@ void SystemFileTest::OStreamTest() {
 	}
 	std::istream *is1 = system::OpenStream("tmp/zahlen", "tst");
 
-	if (is1) {
+	if (is1 != 0) {
 		*is1 >> str11;
 		delete is1;
 		t_assert(str1 == str11);
@@ -786,7 +786,7 @@ void SystemFileTest::OStreamTest() {
 	str2.Append("qwertzuiopasdfghjklyxcvbnm");
 	std::ostream *os2 = system::OpenOStream("tmp/buchst", "tst");
 
-	if (os2) {
+	if (os2 != 0) {
 		*os2 << str2;
 		delete os2;
 	} else {
@@ -794,7 +794,7 @@ void SystemFileTest::OStreamTest() {
 	}
 	std::istream *is2 = system::OpenStream("tmp/buchst", "tst");
 
-	if (is2) {
+	if (is2 != 0) {
 		*is2 >> str22;
 		delete is2;
 		t_assert(str2 == str22);
@@ -812,7 +812,7 @@ void SystemFileTest::OStreamTest() {
 	String str0u = "", str00u;
 	std::ostream *os0u = system::OpenOStream("tmp/emptyStrU", "tst");
 
-	if (os0u) {
+	if (os0u != 0) {
 		*os0u << str0u;
 		delete os0u;
 	} else {
@@ -821,7 +821,7 @@ void SystemFileTest::OStreamTest() {
 
 	std::istream *is0u = system::OpenStream("tmp/emptyStrU", "tst");
 
-	if (is0u) {
+	if (is0u != 0) {
 		*is0u >> str00u;
 		delete is0u;
 		t_assert(str0u == str00u);
@@ -838,7 +838,7 @@ void SystemFileTest::OStreamTest() {
 	str1u.Append("0123456789");
 	std::ostream *os1u = system::OpenOStream("tmp/zahlenU", "tst");
 
-	if (os1u) {
+	if (os1u != 0) {
 		*os1u << str1u;
 		delete os1u;
 	} else {
@@ -846,7 +846,7 @@ void SystemFileTest::OStreamTest() {
 	}
 	std::istream *is1u = system::OpenStream("tmp/zahlenU", "tst");
 
-	if (is1u) {
+	if (is1u != 0) {
 		String str11u;
 		*is1u >> str11u;
 		delete is1u;
@@ -864,7 +864,7 @@ void SystemFileTest::OStreamTest() {
 	str2u.Append("qwertzuiopasdfghjklyxcvbnm");
 	std::ostream *os2u = system::OpenOStream("tmp/buchstU", "tst");
 
-	if (os2u) {
+	if (os2u != 0) {
 		*os2u << str2u;
 		delete os2u;
 	} else {
@@ -873,7 +873,7 @@ void SystemFileTest::OStreamTest() {
 
 	std::istream *is2u = system::OpenStream("tmp/buchstU", "tst");
 
-	if (is2u) {
+	if (is2u != 0) {
 		String str22u;
 		*is2u >> str22u;
 		delete is2u;
@@ -919,7 +919,7 @@ void SystemFileTest::IOStreamTest() {
 	String str0;
 	std::istream *is0 = system::OpenStream("tmp/zahlen", "tst");
 
-	if (is0) {
+	if (is0 != 0) {
 		*is0 >> str0;
 		t_assert(str0.Capacity() >= str0.Length());
 		t_assert((long)strlen((const char *)str0) == str0.Length());
@@ -933,7 +933,7 @@ void SystemFileTest::IOStreamTest() {
 	String str1;
 	std::istream *is1 = system::OpenStream("tmp/buchst", "tst");
 
-	if (is1) {
+	if (is1 != 0) {
 		*is1 >> str1;
 		t_assert(str1.Capacity() >= str1.Length());
 		t_assert(str1.Length() == (long)strlen((const char *)str1));
@@ -950,7 +950,7 @@ void SystemFileTest::IOStreamTest() {
 	String str2 = "qwertzuiopasdfghjklyxcvbnm";
 	std::ostream *os2 = system::OpenOStream("tmp/dummy", "tst", std::ios::trunc);
 
-	if (os2) {
+	if (os2 != 0) {
 		*os2 << str2;
 		t_assert(str2.Capacity() >= str2.Length());
 		t_assert((long)strlen((const char *)str2) == str2.Length());
@@ -963,7 +963,7 @@ void SystemFileTest::IOStreamTest() {
 	String str3 = "0123456789";
 	std::ostream *os3 = system::OpenOStream("tmp/dummy", "tst", std::ios::app);
 
-	if (os3) {
+	if (os3 != 0) {
 		*os3 << str3;
 		t_assert(str3.Capacity() >= str3.Length());
 		t_assert(str3.Length() == (long)strlen("0123456789"));
@@ -975,7 +975,7 @@ void SystemFileTest::IOStreamTest() {
 	}
 	std::istream *isHlp = system::OpenStream("tmp/dummy", "tst");
 
-	if (isHlp) {
+	if (isHlp != 0) {
 		String strHlp;
 		String compare;
 		compare << str2 << str3;
@@ -992,7 +992,7 @@ void SystemFileTest::IOStreamTest() {
 	String str4 = "StringA", str5 = "StringB";
 	std::ostream *os4 = system::OpenOStream("tmp/strChain", "tst");
 
-	if (os4) {
+	if (os4 != 0) {
 		// You must check if the file is OK   ( ???? )
 		*os4 << str4 << std::endl
 			 << str5 << 'a' << 'b' << 123456789L << ' ' << -123456789L << ' ' << true << ' ' << false << " qqq"
@@ -1007,7 +1007,7 @@ void SystemFileTest::IOStreamTest() {
 	std::istream *is2 = system::OpenStream("tmp/buchst", "tst");
 	std::istream *is3 = system::OpenStream("tmp/zahlen", "tst");
 
-	if (is2 && is3) {
+	if ((is2 != 0) && (is3 != 0)) {
 		// Resultat ist wie erwartet oder falsch  ????
 		// str6 << *is2;  Compilierbar aber falsches Resultat
 		*is2 >> str6;
@@ -1021,10 +1021,10 @@ void SystemFileTest::IOStreamTest() {
 		delete is2;
 		delete is3;
 	} else {
-		if (!is2) {
+		if (is2 == 0) {
 			assertEqual("'read file tmp/buchst.tst'", "'could not read tmp/buchst.tst'");
 		}
-		if (!is3) {
+		if (is3 == 0) {
 			assertEqual("'read file tmp/zahlen.tst'", "'could not read tmp/zahlen.tst'");
 		}
 	}
@@ -1035,7 +1035,7 @@ void SystemFileTest::IOStreamTest() {
 	str7.Append((void *)bufHlp, 5);
 	std::ostream *os5 = system::OpenOStream("tmp/strMit0", "tst");
 
-	if (os5) {
+	if (os5 != 0) {
 		*os5 << str7;
 		t_assert(str7.Capacity() >= str7.Length());
 		t_assert(str7.Length() == 5);
@@ -1049,7 +1049,7 @@ void SystemFileTest::IOStreamTest() {
 	String str8;
 	std::istream *is4 = system::OpenStream("tmp/strMit0", "tst");
 
-	if (is4) {
+	if (is4 != 0) {
 		*is4 >> str8;
 		t_assert(str8.Capacity() >= str8.Length());
 		t_assert(str8.Length() == 5);
@@ -1388,7 +1388,7 @@ void SystemFileTest::MakeDirectoryExtendTest() {
 			Trace("first seg [" << strLinkName << "] of rel path [" << strCreateDirRel << "]");
 			if (strCreateDirRel.Length() > 0L && strCreateDir.Length() > 0L && strExpectDir.Length() > 0L) {
 				bool bDidCreateDir(false);
-				if (strEnsureDir.Length()) {
+				if (strEnsureDir.Length() != 0) {
 					system::DirStatusCode aCode(system::MakeDirectory(strEnsureDir, 0755, true, false));
 					bDidCreateDir = (aCode == system::eSuccess);
 				}
@@ -1408,7 +1408,7 @@ void SystemFileTest::MakeDirectoryExtendTest() {
 							String wd;
 							system::GetCWD(wd);
 							t_assertm(system::IsDirectory(strExpectDir), "expected extension directory to be created");
-							if (strLinkName.Length() && t_assert(system::ChangeDir(strBaseDir))) {
+							if ((strLinkName.Length() != 0) && t_assert(system::ChangeDir(strBaseDir))) {
 								t_assertm(system::IsSymbolicLink(strLinkName), "expected directory (link) to be created");
 								assertComparem(system::eSuccess, equal_to, system::RemoveDirectory(strLinkName),
 											   "expected removal of symbolic link to succeed");
@@ -1431,7 +1431,7 @@ void SystemFileTest::MakeDirectoryExtendTest() {
 			Trace("deleting created directories");
 			strFillerDir.Trim(lTrimLen);
 			strFillerDir.Append(lIdx);
-			while (system::IsDirectory(strFillerDir) && system::RemoveDirectory(strFillerDir)) {
+			while (system::IsDirectory(strFillerDir) && (system::RemoveDirectory(strFillerDir) != 0u)) {
 				strFillerDir.Trim(lTrimLen);
 				strFillerDir.Append(--lIdx);
 				if ((lIdx % 1000) == 0) {

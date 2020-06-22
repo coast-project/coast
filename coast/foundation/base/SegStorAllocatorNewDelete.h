@@ -46,7 +46,7 @@ namespace coast {
 		 * @param a Allocator used for allocating memory
 		 */
 		static void *operator new[](std::size_t sz, Allocator *a) COAST_NOEXCEPT_OR_NOTHROW {
-			if (a) {
+			if (a != 0) {
 				void *ptr = a->Malloc(memory::calculateAllocationSize<Allocator *>(sz));
 				memory::allocatorFor<Allocator *>(ptr) = a;	 // remember address of responsible Allocator
 				return memory::payloadPtrFor<Allocator *>(ptr);
@@ -79,7 +79,7 @@ namespace coast {
 		static void operator delete[](void *ptr) COAST_NOEXCEPT_OR_NOTHROW {
 			void *realPtr = memory::realPtrFor<Allocator *>(ptr);
 			Allocator *a = memory::allocatorFor<Allocator *>(realPtr);
-			if (a) {
+			if (a != 0) {
 				memory::safeFree(a, realPtr);
 			} else {
 				free(realPtr);

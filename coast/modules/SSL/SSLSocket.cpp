@@ -34,12 +34,12 @@ SSLSocket::~SSLSocket() {
 }
 
 unsigned long SSLSocket::GetSSLError(SSL *ssl, int res) {
-	return (ssl ? SSL_get_error(ssl, res) : ERR_get_error());
+	return (ssl != 0 ? SSL_get_error(ssl, res) : ERR_get_error());
 }
 
 void SSLSocket::ReportSSLError(unsigned long err) {
 	StartTrace(SSLSocket.ReportSSLError);
-	while (err) {
+	while (err != 0u) {
 		// need to empty per thread error queue of SSL
 		const int buflen = 256;
 		char buf[buflen];
@@ -54,7 +54,7 @@ void SSLSocket::ReportSSLError(unsigned long err) {
 
 Anything SSLSocket::ReportSSLError(Anything &errAny, unsigned long err) {
 	StartTrace(SSLSocket.ReportSSLError);
-	while (err) {
+	while (err != 0u) {
 		// need to empty per thread error queue of SSL
 		const int buflen = 256;
 		char buf[buflen];
@@ -100,7 +100,7 @@ String SSLSocket::GetSessionID(SSL *ssl) {
 
 	String result;
 	SSL_SESSION *session = SSL_get_session(ssl);
-	if (!session) {
+	if (session == 0) {
 		return String();
 	}
 	return String((void *)session->session_id, session->session_id_length);
@@ -139,7 +139,7 @@ std::iostream *SSLSocket::DoMakeStream() {
 		appData.Append(sslinfo);
 
 		int thread_id = (unsigned)Thread::MyId() % 1000000;
-		if (SSL_set_ex_data(ssl, thread_id, &appData) == false) {
+		if (SSL_set_ex_data(ssl, thread_id, &appData) == 0) {
 			String logMsg("SSL error: Setting application specific data failed.");
 			SystemLog::Error(logMsg);
 			return NULL;
@@ -160,7 +160,7 @@ std::iostream *SSLSocket::DoMakeStream() {
 	} while (ShouldRetry(ssl, res, true));
 	if (res <= 0) {
 		// 0 = Handshake failure, SSL layer shut down connection properly, -1 = error, 1 = ok
-		if (ssl) {
+		if (ssl != 0) {
 			SSL_free(ssl);
 		}
 		ssl = 0;
@@ -219,7 +219,7 @@ void SSLSocket::DoCheckPeerCertificate(Anything &sslinfo, SSL *ssl) {
 	Trace("CertVerifyString: " << fSSLSocketArgs.CertVerifyString());
 	Trace("CertVerifyStringIsFilter: " << fSSLSocketArgs.CertVerifyStringIsFilter());
 	if (CheckPeerCertificate(ssl, sslinfo) == true) {
-		if (fSSLSocketArgs.VerifyCertifiedEntity() == 1) {
+		if (static_cast<int>(fSSLSocketArgs.VerifyCertifiedEntity()) == 1) {
 			sslinfo["Peer"]["Whole"] = SSLSocketUtils::GetPeerAsString(fPeerCert);
 			sslinfo["Peer"]["ParsedDn"] = SSLSocketUtils::ParseDN(sslinfo["Peer"]["Whole"].AsString());
 			sslinfo["Peer"]["Issuer"] = SSLSocketUtils::GetPeerIssuerAsString(fPeerCert);
@@ -235,7 +235,7 @@ void SSLSocket::DoCheckPeerCertificate(Anything &sslinfo, SSL *ssl) {
 	} else {
 		sslinfo["Peer"]["AppLevelCertVerifyStatus"] = false;
 	}
-	if (fPeerCert) {
+	if (fPeerCert != 0) {
 		X509_free(fPeerCert);
 	}
 	// A not legal, but effective way to terminate the ssl handshake.
@@ -276,7 +276,7 @@ int SSLSocket::SSLVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx) {
 	(*pAppData)["Chain"]["Issuers"].Append(SSLSocketUtils::GetPeerIssuerAsString(cert));
 	(*pAppData)["Chain"]["Depth"] = depth;
 	(*pAppData)["Chain"]["Alloweddepth"] = allowedDepth;
-	if (!preverify_ok) {
+	if (preverify_ok == 0) {
 		(*pAppData)["Chain"]["Error"] = String(X509_verify_cert_error_string(err));
 	}
 	return preverify_ok;
@@ -284,9 +284,9 @@ int SSLSocket::SSLVerifyCallback(int preverify_ok, X509_STORE_CTX *ctx) {
 
 long SSLSocket::GetReadCount() const {
 	StartTrace(SSLSocket.GetReadCount);
-	if (fStream) {
+	if (fStream != 0) {
 		SSLSocketStreamBuf *sbuf = ((SSLSocketStream *)fStream)->rdbuf();
-		if (sbuf) {
+		if (sbuf != 0) {
 			return sbuf->GetReadCount();
 		}
 	}
@@ -295,9 +295,9 @@ long SSLSocket::GetReadCount() const {
 
 long SSLSocket::GetWriteCount() const {
 	StartTrace(SSLSocket.GetWriteCount);
-	if (fStream) {
+	if (fStream != 0) {
 		SSLSocketStreamBuf *sbuf = ((SSLSocketStream *)fStream)->rdbuf();
-		if (sbuf) {
+		if (sbuf != 0) {
 			return sbuf->GetWriteCount();
 		}
 	}
@@ -328,7 +328,7 @@ bool SSLSocket::IsCertCheckPassed(ROAnything config) {
 
 	// No peer verification requested, no callback installed, no application layer check specified...
 	if ((config["SSLVerifyPeerCert"].AsLong(0) == 0) && (config["SSLVerifyFailIfNoPeerCert"].AsLong(0) == 0) &&
-		(config["SSLUseAppCallback"].AsLong(0) == 0) && (fSSLSocketArgs.VerifyCertifiedEntity() == 0)) {
+		(config["SSLUseAppCallback"].AsLong(0) == 0) && (static_cast<int>(fSSLSocketArgs.VerifyCertifiedEntity()) == 0)) {
 		Trace("Returning true");
 		return true;
 	}
@@ -488,14 +488,14 @@ String SSLSocketArgs::ShowState() {
 SSLConnector::SSLConnector(const char *ipAdr, long port, long connectTimeout, SSL_CTX *ctx, const char *srcIpAdr, long srcPort,
 						   bool threadLocal)
 	: Connector(ipAdr, port, connectTimeout, srcIpAdr, srcPort, threadLocal),
-	  fContext((ctx) ? ctx : SSL_CTX_new(SSLv23_client_method())),
+	  fContext((ctx) != 0 ? ctx : SSL_CTX_new(SSLv23_client_method())),
 	  fSSLSocketArgs() {
 	fDeleteCtx = (ctx == 0);
 }
 
 SSLConnector::SSLConnector(ConnectorArgs &connectorArgs, SSL_CTX *ctx, const char *srcIpAdr, long srcPort, bool threadLocal)
 	: Connector(connectorArgs, srcIpAdr, srcPort, threadLocal),
-	  fContext((ctx) ? ctx : SSL_CTX_new(SSLv23_client_method())),
+	  fContext((ctx) != 0 ? ctx : SSL_CTX_new(SSLv23_client_method())),
 	  fSSLSocketArgs() {
 	fDeleteCtx = (ctx == 0);
 }
@@ -503,9 +503,9 @@ SSLConnector::SSLConnector(ConnectorArgs &connectorArgs, SSL_CTX *ctx, const cha
 SSLConnector::SSLConnector(ConnectorArgs &connectorArgs, SSLSocketArgs sslSocketArgs, ROAnything sslModuleCfg, SSL_CTX *ctx,
 						   const char *srcIpAdr, long srcPort, bool threadLocal)
 	: Connector(connectorArgs, srcIpAdr, srcPort, threadLocal),
-	  fContext(
-		  (ctx) ? ctx
-				: SSLObjectManager::SSLOBJMGR()->GetCtx(connectorArgs.IPAddress(), connectorArgs.PortAsString(), sslModuleCfg)),
+	  fContext((ctx) != 0 ? ctx
+						  : SSLObjectManager::SSLOBJMGR()->GetCtx(connectorArgs.IPAddress(), connectorArgs.PortAsString(),
+																  sslModuleCfg)),
 	  fSSLSocketArgs(sslSocketArgs) {
 	// If caller provides SSL_CTX, we do not delete it.
 	// If SSLOBJMGR creates the SSL_CTX it will delete it too!
@@ -518,8 +518,8 @@ SSLConnector::SSLConnector(ROAnything config)
 				config["UseThreadLocalMemory"].AsLong(0L) != 0L),
 	  fContext(SSLObjectManager::SSLOBJMGR()->GetCtx(config["Address"].AsCharPtr("127.0.0.1"), config["Port"].AsCharPtr("443"),
 													 config)),
-	  fSSLSocketArgs(config["VerifyCertifiedEntity"].AsBool(0), config["CertVerifyString"].AsString(),
-					 config["CertVerifyStringIsFilter"].AsBool(0), config["SessionResumption"].AsBool(0)) {
+	  fSSLSocketArgs(config["VerifyCertifiedEntity"].AsBool(false), config["CertVerifyString"].AsString(),
+					 config["CertVerifyStringIsFilter"].AsBool(false), config["SessionResumption"].AsBool(false)) {
 	StartTrace(SSLConnector.SSLConnector);
 	TraceAny(config, "config used");
 	fDeleteCtx = false;
@@ -529,21 +529,21 @@ SSLConnector::SSLConnector(ROAnything config, SSL_CTX *ctx, bool deleteCtx)
 	: Connector(config["Address"].AsCharPtr("127.0.0.1"), config["Port"].AsLong(443L), config["Timeout"].AsLong(0L),
 				config["SrcAddress"].AsCharPtr(0), config["SrcPort"].AsLong(0L),
 				config["UseThreadLocalMemory"].AsLong(0L) != 0L),
-	  fContext((ctx) ? ctx : SSLModule::GetSSLClientCtx(config)),
-	  fSSLSocketArgs(config["VerifyCertifiedEntity"].AsBool(0), config["CertVerifyString"].AsString(),
-					 config["CertVerifyStringIsFilter"].AsBool(0), config["SessionResumption"].AsBool(0)) {
+	  fContext((ctx) != 0 ? ctx : SSLModule::GetSSLClientCtx(config)),
+	  fSSLSocketArgs(config["VerifyCertifiedEntity"].AsBool(false), config["CertVerifyString"].AsString(),
+					 config["CertVerifyStringIsFilter"].AsBool(false), config["SessionResumption"].AsBool(false)) {
 	StartTrace(SSLConnector.SSLConnector);
 	TraceAny(config, "config used");
 	fDeleteCtx = deleteCtx;
 }
 
 SSLConnector::~SSLConnector() {
-	if (fSocket) {
+	if (fSocket != 0) {
 		delete fSocket;
 	}
 	fSocket = 0;
 
-	if (fDeleteCtx && fContext) {
+	if (fDeleteCtx && (fContext != 0)) {
 		SSL_CTX_free(fContext);
 		fContext = 0;
 	}
@@ -552,7 +552,7 @@ SSLConnector::~SSLConnector() {
 Socket *SSLConnector::MakeSocket(bool doClose) {
 	StartTrace(SSLConnector.MakeSocket);
 	Socket *s = 0;
-	if ((fSrcPort == 0) || (!fSocket)) {
+	if ((fSrcPort == 0) || (fSocket == 0)) {
 		if (DoConnect()) {
 			Anything clientInfo;
 			clientInfo["REMOTE_ADDR"] = fIPAddress;
@@ -560,7 +560,7 @@ Socket *SSLConnector::MakeSocket(bool doClose) {
 			coast::system::SetCloseOnExec(GetFd());
 			s = DoMakeSocket(fSSLSocketArgs, GetFd(), clientInfo, doClose);
 		}
-		if (GetFd() >= 0 && !s) {
+		if (GetFd() >= 0 && (s == 0)) {
 			closeSocket(GetFd());
 			fSockFd = -1;
 		}
@@ -589,7 +589,7 @@ SSLAcceptor::SSLAcceptor(SSL_CTX *ctx, const char *ipadress, long port, long bac
 	: Acceptor(ipadress, port, backlog, cb), fContext(ctx), fSSLSocketArgs(sslSocketArgs) {}
 
 SSLAcceptor::~SSLAcceptor() {
-	if (fContext) {
+	if (fContext != 0) {
 		SSL_CTX_free(fContext);
 	}
 }

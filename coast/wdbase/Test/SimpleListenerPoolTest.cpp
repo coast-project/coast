@@ -50,7 +50,7 @@ void SimpleListenerPoolTest::PoolTest() {
 	}
 	Anything failures = tcbf->GetFailures();
 	t_assertm(failures.GetSize() == 0, "Receivers encountered a least one error");
-	if (failures.GetSize()) {
+	if (failures.GetSize() != 0) {
 		TraceAny(failures, "EYECATCHER Receivers encountered the following errors");
 	}
 }
@@ -67,9 +67,9 @@ void SimpleListenerPoolTest::DoTestConnect() {
 		}
 		TraceAny(cConfig, "cConfig");
 		Connector c("localhost", cConfig["PortToUse"].AsLong(0L), cConfig["TimeoutToUse"].AsLong(0L), String(), 0L,
-					cConfig["UseThreadLocalMemory"].AsBool(0));
+					cConfig["UseThreadLocalMemory"].AsBool(false));
 
-		if (cConfig["DoSendReceiveWithFailure"].AsLong(0)) {
+		if (cConfig["DoSendReceiveWithFailure"].AsLong(0) != 0) {
 			t_assertm(DoSendReceiveWithFailure(&c, cConfig["Data"].DeepClone(), cConfig["IOSGoodAfterSend"].AsLong(0),
 											   cConfig["IOSGoodBeforeSend"].AsLong(1)),
 					  caseName);

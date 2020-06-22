@@ -658,7 +658,7 @@ bool HttpFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucce
 		}
 	}
 
-	if (lDelay) {
+	if (lDelay != 0) {
 		{
 			String strbuf;
 			StringStream stream(strbuf);
@@ -800,7 +800,7 @@ bool HttpFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucce
 	tmpStore["CurrentServer"].Remove("formContents");
 
 	TraceAny(tmpStore, "<----tmp store is");
-	if (ctx.Lookup("IsAbsPath", 0L) && !fDoRelocate) {
+	if ((ctx.Lookup("IsAbsPath", 0L) != 0) && !fDoRelocate) {
 		ROAnything rendererSpec;
 		ctx.Lookup("AbsPath", rendererSpec);
 		String absPath = Renderer::RenderToString(ctx, rendererSpec);
@@ -1249,7 +1249,7 @@ void HttpFlowController::GenerateMultipartContent(String &fieldName, ROAnything 
 	if (fieldConfig.IsDefined(slotForFile)) {
 		// Get File content with given Filename for this body:
 		std::iostream *pS = coast::system::OpenIStream(fieldFilename, "", std::ios::in, true);	// path will be resolved..
-		if (pS) {
+		if (pS != 0) {
 			int c;
 			while ((c = pS->get()) != EOF) {
 				fieldPartContent.Append((char)c);
@@ -1282,7 +1282,7 @@ void HttpFlowController::DoCleanupAfterStep(Context &ctx, ROAnything roaStepConf
 		long sz = roaStepConfig.GetSize();
 		for (long i = 0; i < sz; i++) {
 			String slotName = roaStepConfig.SlotName(i);
-			if (slotName && slotName != "CurrentServer") {
+			if ((slotName != 0) && slotName != "CurrentServer") {
 				Trace("Slotname to remove : " << slotName);
 				tmpStore.Remove(slotName);
 			}

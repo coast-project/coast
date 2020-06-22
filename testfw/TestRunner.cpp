@@ -146,7 +146,7 @@ void TestRunner::run(int ac, const char **av) {
 			}  // if
 		}	   // for
 
-		if (!test) {
+		if (test == 0) {
 			std::cout << "Test " << testCase << " not found." << std::endl;
 			return;
 		}

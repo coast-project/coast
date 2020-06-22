@@ -38,7 +38,7 @@ void MemTrackerTest::TrackAllocFreeTest() {
 	assertCompare(static_cast<ul_long>(0), equal_to, aTracker.fNumFrees);
 	assertCompare(static_cast<ul_long>(0), equal_to, aTracker.fSizeAllocated);
 	assertCompare(static_cast<ul_long>(0), equal_to, aTracker.fSizeFreed);
-	if (aTracker.fpUsedList) {
+	if (aTracker.fpUsedList != 0) {
 		assertCompare(static_cast<size_t>(0), equal_to, aTracker.fpUsedList->size());
 	}
 	aTracker.TrackAlloc(pMH16);
@@ -48,7 +48,7 @@ void MemTrackerTest::TrackAllocFreeTest() {
 	assertCompare(static_cast<ul_long>(0), equal_to, aTracker.fNumFrees);
 	assertCompare(static_cast<ul_long>(16), equal_to, aTracker.fSizeAllocated);
 	assertCompare(static_cast<ul_long>(0), equal_to, aTracker.fSizeFreed);
-	if (aTracker.fpUsedList) {
+	if (aTracker.fpUsedList != 0) {
 		assertCompare(static_cast<size_t>(1), equal_to, aTracker.fpUsedList->size());
 	}
 	aTracker.TrackAlloc(pMH32);
@@ -58,7 +58,7 @@ void MemTrackerTest::TrackAllocFreeTest() {
 	assertCompare(static_cast<ul_long>(0), equal_to, aTracker.fNumFrees);
 	assertCompare(static_cast<ul_long>(48), equal_to, aTracker.fSizeAllocated);
 	assertCompare(static_cast<ul_long>(0), equal_to, aTracker.fSizeFreed);
-	if (aTracker.fpUsedList) {
+	if (aTracker.fpUsedList != 0) {
 		assertCompare(static_cast<size_t>(2), equal_to, aTracker.fpUsedList->size());
 	}
 	aTracker.TrackFree(pMH16);
@@ -68,7 +68,7 @@ void MemTrackerTest::TrackAllocFreeTest() {
 	assertCompare(static_cast<ul_long>(1), equal_to, aTracker.fNumFrees);
 	assertCompare(static_cast<ul_long>(48), equal_to, aTracker.fSizeAllocated);
 	assertCompare(static_cast<ul_long>(16), equal_to, aTracker.fSizeFreed);
-	if (aTracker.fpUsedList) {
+	if (aTracker.fpUsedList != 0) {
 		assertCompare(static_cast<size_t>(1), equal_to, aTracker.fpUsedList->size());
 	}
 
@@ -79,7 +79,7 @@ void MemTrackerTest::TrackAllocFreeTest() {
 	assertCompare(static_cast<ul_long>(2), equal_to, aTracker.fNumFrees);
 	assertCompare(static_cast<ul_long>(48), equal_to, aTracker.fSizeAllocated);
 	assertCompare(static_cast<ul_long>(48), equal_to, aTracker.fSizeFreed);
-	if (aTracker.fpUsedList) {
+	if (aTracker.fpUsedList != 0) {
 		assertCompare(static_cast<size_t>(0), equal_to, aTracker.fpUsedList->size());
 	}
 	::free(vp32);

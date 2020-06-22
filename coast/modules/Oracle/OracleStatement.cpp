@@ -45,7 +45,7 @@ void OracleStatement::Cleanup() {
 	ROAnything roaObject;
 	while (aAnyIter.Next(roaObject)) {
 		OracleStatement *pStmt = SafeCast(roaObject.AsIFAObject(0), OracleStatement);
-		if (pStmt) {
+		if (pStmt != 0) {
 			delete pStmt;
 		}
 	}
@@ -183,9 +183,9 @@ OracleResultsetPtr OracleStatement::getCursor(long lColumnIndex, long lRowIdx) {
 				Trace("SQLT_RSET/SQLT_CUR");
 				OCIStmt *phStmt = *((OCIStmt **)aDescEl.getRawBufferPtr(lRowIdx));
 				Trace("retrieved statement handle pointer &" << (long)phStmt);
-				if (phStmt) {
+				if (phStmt != 0) {
 					OracleStatement *pStmt = new (coast::storage::Current()) OracleStatement(fpConnection, phStmt);
-					fSubStatements.Append(pStmt);
+					fSubStatements.Append(pStmt != 0);
 					pResult = OracleResultsetPtr(new (coast::storage::Current()) OracleResultset(*pStmt));
 				}
 				break;

@@ -28,7 +28,7 @@ LFListenerPool::~LFListenerPool() {
 
 bool LFListenerPool::InitReactor(ROAnything args) {
 	StartTrace(LFListenerPool.InitReactor);
-	if (fReactor && ((RequestReactor *)fReactor)->ValidInit()) {
+	if ((fReactor != 0) && ((RequestReactor *)fReactor)->ValidInit()) {
 		return LeaderFollowerPool::InitReactor(args);
 	}
 	return false;
@@ -44,7 +44,7 @@ bool LFListenerPool::Init(int maxParallelRequests, ROAnything args, bool useThre
 		Trace("AcceptorFactory: " << acceptorName);
 
 		AcceptorFactory *acf = AcceptorFactory::FindAcceptorFactory(acceptorName);
-		if (!acf) {
+		if (acf == 0) {
 			String msg("AcceptorFactory: ");
 			msg << acceptorName << " not found!";
 			Trace(msg);
@@ -53,7 +53,7 @@ bool LFListenerPool::Init(int maxParallelRequests, ROAnything args, bool useThre
 		}
 
 		Acceptor *acceptor = acf->MakeAcceptor(0);
-		if (!acceptor) {
+		if (acceptor == 0) {
 			const char *logMsg = "no acceptor created";
 			SYSERROR(logMsg);
 			Trace(logMsg);
@@ -93,7 +93,7 @@ RequestReactor::RequestReactor(RequestProcessor *rp, WPMStatHandler *stat) : Rea
 
 bool RequestReactor::ValidInit() {
 	StartTrace(RequestReactor.ValidInit);
-	return (fProcessor && fStatHandler);
+	return ((fProcessor != 0) && (fStatHandler != 0));
 }
 
 RequestReactor::~RequestReactor() {
@@ -101,7 +101,7 @@ RequestReactor::~RequestReactor() {
 	// must be done before dll's get unloaded
 	delete fProcessor;
 
-	if (fStatHandler) {
+	if (fStatHandler != 0) {
 		Anything statistic;
 		fStatHandler->Statistic(statistic);
 		String strbuf;
@@ -115,14 +115,14 @@ RequestReactor::~RequestReactor() {
 
 void RequestReactor::DoGetStatistic(Anything &item) {
 	StartTrace(RequestReactor.Statistic);
-	if (fStatHandler) {
+	if (fStatHandler != 0) {
 		fStatHandler->Statistic(item);
 	}
 }
 
 void RequestReactor::RegisterHandle(Acceptor *acceptor) {
 	StartTrace(RequestReactor.RegisterHandle);
-	if (acceptor) {
+	if (acceptor != 0) {
 		Reactor::RegisterHandle(acceptor);
 	}
 }
@@ -138,7 +138,7 @@ protected:
 
 void RequestReactor::DoProcessEvent(Socket *sock) {
 	StartTrace(RequestReactor.DoProcessEvent);
-	if (fProcessor && sock) {
+	if ((fProcessor != 0) && (sock != 0)) {
 		bool keepConnection;
 		do {
 			StatEntry se(fStatHandler);
@@ -166,7 +166,7 @@ void RequestReactor::DoProcessEvent(Socket *sock) {
 
 bool RequestReactor::AwaitEmpty(long sec) {
 	StartTrace1(RequestReactor.AwaitEmpty, "sec:[" << sec << "]");
-	if (fStatHandler) {
+	if (fStatHandler != 0) {
 		// check for active requests running
 		// but wait at most sec seconds
 		long tstart = time(0);
@@ -193,13 +193,13 @@ bool RequestReactor::AwaitEmpty(long sec) {
 }
 
 StatEntry::StatEntry(WPMStatHandler *stat) : fStat(stat) {
-	if (fStat) {
+	if (fStat != 0) {
 		fStat->HandleStatEvt(WPMStatHandler::eEnter);
 	}
 }
 
 StatEntry::~StatEntry() {
-	if (fStat) {
+	if (fStat != 0) {
 		fStat->HandleStatEvt(WPMStatHandler::eLeave);
 	}
 }

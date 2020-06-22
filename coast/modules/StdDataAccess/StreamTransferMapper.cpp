@@ -50,7 +50,7 @@ bool StreamTransferMapper::DoPutStream(const char *key, std::istream &is, Contex
 	String cmp("HTTPBody");
 	if (cmp == key) {
 		std::iostream *os = ctx.GetStream();
-		if (os) {
+		if (os != 0) {
 			PutResponseLineAndHeader(*os, ctx);
 			(*os) << is.rdbuf();
 			return true;

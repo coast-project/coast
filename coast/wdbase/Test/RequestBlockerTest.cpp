@@ -38,7 +38,7 @@ void RBRunner::Run() {
 	bool checkIt;
 	CheckRunningState(eWorking);
 	for (long i = 1; i <= cRunSz; i++) {  // avoid 0
-		checkIt = (!(i % cCheckEvery));
+		checkIt = ((i % cCheckEvery) == 0);
 		fTest->QueryRB(fCompare, checkIt, GetName());
 	}
 }

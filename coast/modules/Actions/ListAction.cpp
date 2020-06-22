@@ -99,5 +99,5 @@ bool ListAction::GetList(Context &ctx, const ROAnything &config, ROAnything &roa
 	StartTrace(ListAction.GetList);
 	String strListDataName;
 	Renderer::RenderOnString(strListDataName, ctx, config["ListName"]);
-	return (strListDataName.Length() && ctx.Lookup(strListDataName, roaList));
+	return ((strListDataName.Length() != 0) && ctx.Lookup(strListDataName, roaList));
 }

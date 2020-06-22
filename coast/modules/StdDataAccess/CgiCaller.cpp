@@ -69,7 +69,7 @@ bool CgiCaller::ProcessFile(const String &filename, Context &context, ParameterM
 		Trace("calling in path [" << path << "] program [" << file << "]");
 		PipeExecutor cgi(filename, cgienviron, path, timeout);
 		std::iostream *ioStream = 0;
-		if (cgi.Start() && (ioStream = cgi.GetStream())) {
+		if (cgi.Start() && ((ioStream = cgi.GetStream()) != 0)) {
 			// the following is tricky, because of potential pipe blocking
 			// if something large is passed, we do not check for now.
 			in->Get("stdin", *(std::ostream *)ioStream, context);  // provide cgi's stdin

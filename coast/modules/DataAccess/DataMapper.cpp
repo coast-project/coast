@@ -115,7 +115,7 @@ bool LookupMapper::DoGetStream(const char *key, std::ostream &os, Context &ctx, 
 	if (!lookupName.IsNull()) {	 // check if lookupName is defined somehow
 		if (isSimpleArray) {
 			ParameterMapper *m = ParameterMapper::FindParameterMapper(lookupName.AsCharPtr(""));
-			if (m) {
+			if (m != 0) {
 				return m->Get(key, os, ctx);
 			}
 		}

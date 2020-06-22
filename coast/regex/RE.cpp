@@ -182,7 +182,7 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart) {
 				}
 				// SOP: might be optimized by a substring compare method of String
 				if ((fMatchFlags & MATCH_ICASE) != 0) {
-					if (String::CaselessCompare(fSearch.SubString(idx, len), fSearch.SubString(s, len))) {
+					if (String::CaselessCompare(fSearch.SubString(idx, len), fSearch.SubString(s, len)) != 0) {
 						return -1;
 					}
 					idx += len;	 // we matched
@@ -246,11 +246,11 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart) {
 					return -1;
 				}
 				char c = fSearch.At(idx);
-				if (fMatchFlags & MATCH_ICASE) {
+				if ((fMatchFlags & MATCH_ICASE) != 0) {
 					c = tolower(c);
 				}
 				REBitSet *cset = (REBitSet *)fProgram[node][RE::offsetOpdata].AsCharPtr(0);
-				if (!cset || !cset->IsMember((unsigned char)c)) {
+				if ((cset == 0) || !cset->IsMember((unsigned char)c)) {
 					Assert(cset);  // internal error
 					return -1;
 				}
@@ -423,7 +423,7 @@ Anything RE::Grep(Anything search) {
 		String s = search[i].AsString();
 		if (ContainedIn(s)) {
 			const char *sname = search.SlotName(i);
-			if (sname && !res.IsDefined(sname)) {
+			if ((sname != 0) && !res.IsDefined(sname)) {
 				res[sname] = search[i];
 			} else {
 				res.Append(search[i]);

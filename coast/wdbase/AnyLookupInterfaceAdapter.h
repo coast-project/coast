@@ -36,7 +36,7 @@ protected:
 		StartTrace(AnyLookupInterfaceAdapter.DoLookup);
 		String strKey(key);
 		// check if we need to adjust the key
-		if (fstrBaseKey.Length()) {
+		if (fstrBaseKey.Length() != 0) {
 			if (strKey.StartsWith(fstrBaseKey)) {
 				Trace("given key [" << strKey << "] starts with [" << fstrBaseKey << "]");
 				long lKeyLength = fstrBaseKey.Length();
@@ -46,7 +46,7 @@ protected:
 				}
 				strKey.TrimFront(lKeyLength);
 				Trace("key after trimming [" << strKey << "]");
-				if (!strKey.Length()) {
+				if (strKey.Length() == 0) {
 					// here we return the whole internal store when fstrBaseKey was the only key
 					result = fContainer;
 					return true;

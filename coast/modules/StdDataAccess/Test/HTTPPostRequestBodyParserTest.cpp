@@ -43,7 +43,7 @@ void HTTPPostRequestBodyParserTest::ReadMultiPartPost() {
 	std::iostream *is = coast::system::OpenStream("MultiPartBody.txt", 0);
 
 	t_assertm(is != 0, "expected 'MultiPartBody.txt' to be there");
-	if (is) {
+	if (is != 0) {
 		MIMEHeader mh;
 		t_assertm(mh.ParseHeaders(*is, 4096, 4096), "expected global header parsing to succeed");
 		assertEqual(586L, mh.GetParsedHeaderLength());
@@ -64,7 +64,7 @@ void HTTPPostRequestBodyParserTest::ReadMultiPartPost() {
 	// which we would use to verify the results.
 
 	is = coast::system::OpenStream("MultiPartBody.txt", 0);
-	if (is) {
+	if (is != 0) {
 		MIMEHeader mh;
 		t_assertm(mh.ParseHeaders(*is, 4096, 4096), "expected global header parsing to succeed");
 		assertEqual(586L, mh.GetParsedHeaderLength());
@@ -74,7 +74,7 @@ void HTTPPostRequestBodyParserTest::ReadMultiPartPost() {
 		delete is;
 
 		is = coast::system::OpenStream("MultiPartBody.txt", 0);
-		if (is) {
+		if (is != 0) {
 			char c;
 			String tmp;
 			while ((!!(*is).get(c))) {
@@ -313,7 +313,7 @@ void HTTPPostRequestBodyParserTest::ReadMultiPartPostBody() {
 		String strIn(Renderer::RenderToString(ctx, cConfig["Filename"]));
 		std::iostream *is = coast::system::OpenStream(strIn, 0);
 		t_assertm(is != 0, "expected 'MultiPartBody.txt' to be there");
-		if (is) {
+		if (is != 0) {
 			MIMEHeader mh;
 			t_assertm(mh.ParseHeaders(*is, 4096, 4096), "expected global header parsing to succeed");
 			long parsedHeaderLength = cConfig["ParsedHeaderLength"].AsLong(-1);

@@ -17,7 +17,7 @@ bool LoggingAction::DoExecAction(String &transitionToken, Context &ctx, const RO
 	StartTrace(LoggingAction.DoExecAction);
 	bool bRet = false;
 	String channel = config["Channel"].AsString("");
-	if (channel.Length()) {
+	if (channel.Length() != 0) {
 		Trace("Channel: <" << channel << ">");
 		ROAnything roaFormat;
 		if (config.LookupPath(roaFormat, "Format")) {
@@ -38,7 +38,7 @@ bool TimeLoggingAction::DoExecAction(String &transitionToken, Context &ctx, cons
 	StartTrace(TimeLoggingAction.DoExecAction);
 	bool bRet(false);
 	String channel(config["Channel"].AsString());
-	if (channel.Length()) {
+	if (channel.Length() != 0) {
 		Trace("Channel: <" << channel << ">");
 		ROAnything roaEntryBase;
 		if (ctx.Lookup(TimeLoggingModule::fgpLogEntryBasePath, roaEntryBase)) {

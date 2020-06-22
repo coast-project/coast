@@ -29,7 +29,7 @@ void DecimalFormatRenderer::RenderAll(std::ostream &reply, Context &ctx, const R
 		return;
 	}
 
-	if (sString.Length()) {
+	if (sString.Length() != 0) {
 		if (!FormatNumber(sString, sScale, sDecSeparator)) {
 			return;
 		}

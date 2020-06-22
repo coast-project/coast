@@ -43,7 +43,7 @@ void LDAPErrorHandler::HandleSessionError(LDAP *handle, String msg) {
 	Anything error;
 	error["Msg"] = msg;
 	bool logToSyslog = true;
-	if (handle) {
+	if (handle != 0) {
 		int rc = 0;
 		ldap_get_option(handle, LDAP_OPT_ERROR_NUMBER, &rc);
 		error["LdapCode"] = rc;
@@ -71,7 +71,7 @@ void LDAPErrorHandler::HandleUnbindError(LDAP *handle) {
 	StartTrace(LDAPErrorHandler.HandleUnbindError);
 	int rc;
 	String msg;
-	if (handle) {
+	if (handle != 0) {
 		ldap_get_option(handle, LDAP_OPT_ERROR_NUMBER, &rc);
 		msg << "LdapCode: [" << rc << "] LdapMsg: [" << ldap_err2string(rc) << "] ldap_unbind";
 	} else {

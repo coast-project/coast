@@ -38,7 +38,7 @@ void SSLCertificateTest::ClientCertificateTest() {
 					 clientInfo["SSL"]["Peer"]["SSLCertVerifyStatus"]["SSL"]["Ok"].AsBool(0), TString("Failed at ") << strCase);
 		assertEqualm(cConfig["Results"]["AppLevelCertVerifyStatus"].AsBool(1),
 					 clientInfo["SSL"]["Peer"]["AppLevelCertVerifyStatus"].AsBool(0), TString("Failed at ") << strCase);
-		if (cConfig["Results"]["GetRequestOk"].AsBool(1)) {
+		if (cConfig["Results"]["GetRequestOk"].AsBool(true)) {
 			if (t_assert(s1 != NULL) && t_assert(s != NULL)) {
 				assertEqualm(cConfig["Results"]["IsCertCheckPassed"].AsBool(1), s->IsCertCheckPassed(cConfig["Config"]),
 							 TString("Failed at ") << strCase);
@@ -48,6 +48,7 @@ void SSLCertificateTest::ClientCertificateTest() {
 				getline(*s1, reply);
 				assertEqualm(cConfig["Results"]["GetRequestOk"].AsBool(1), !!(*s1), TString("Failed at ") << strCase);
 				assertEqualm("HTTP", reply.SubString(0, 4), TString("Failed at ") << strCase);
+				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				while (getline(*s1, reply))
 					;
 			}
@@ -67,6 +68,7 @@ void SSLCertificateTest::CheckServerCertificateTest() {
 		getline(*s1, reply);
 		t_assert(!!(*s1));
 		assertEqual("HTTP", reply.SubString(0, 4));
+		// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 		while (getline(*s1, reply))
 			;
 	}

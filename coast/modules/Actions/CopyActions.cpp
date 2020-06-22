@@ -112,7 +112,8 @@ bool CopyQueryIfNotEmptyAction::DoExecAction(String &transitionToken, Context &c
 	for (long i = 0; i < sz; ++i) {
 		String sourceSlot = copyList.SlotName(i);
 		Anything content;
-		if (sourceSlot && query.LookupPath(content, sourceSlot, delim, indexdelim) && content.AsString().Length()) {
+		if ((sourceSlot != 0) && query.LookupPath(content, sourceSlot, delim, indexdelim) &&
+			(content.AsString().Length() != 0)) {
 			Trace("Not empty slot: " << sourceSlot << " contains >" << content.AsCharPtr("") << "<");
 			return CopyQueryAction::DoExecAction(transitionToken, ctx, config);
 		}

@@ -120,7 +120,7 @@ bool URLFilter::FilterState(Anything &query, const ROAnything &filterTags, Conte
 				slotName = filter.AsString();
 			}
 			Trace("rendered slotname to remove (if) [" << slotName << "]");
-			if (!slotName.Length()) {
+			if (slotName.Length() == 0) {
 				retCode = false;
 			} else {
 				// simple filter just remove it from query
@@ -162,7 +162,7 @@ bool URLFilter::DoFilterState(Anything &query, const char *slotName, Context &ct
 	// filter out some sensitive keywords
 	// that shouldn't appear in the public part
 	// of an URL
-	if (slotName) {
+	if (slotName != 0) {
 		if (query.IsDefined(slotName)) {
 			Trace("removing <" << slotName << ">");
 			query.Remove(slotName);
@@ -176,7 +176,7 @@ bool URLFilter::DoUnscrambleState(Anything &query, const char *slotName, Context
 	// Scrambled private information in slotName
 	StartTrace1(URLFilter.DoUnscrambleState, "Slot: " << NotNull(slotName));
 
-	if (slotName && query.IsDefined(slotName)) {
+	if ((slotName != 0) && query.IsDefined(slotName)) {
 		// we need to decrypt some state
 
 		Anything a;
@@ -189,7 +189,7 @@ bool URLFilter::DoUnscrambleState(Anything &query, const char *slotName, Context
 				long sz = a.GetSize();
 				for (long i = 0; i < sz; ++i) {
 					const char *slot = a.SlotName(i);
-					if (slot && !query.IsDefined(slot)) {
+					if ((slot != 0) && !query.IsDefined(slot)) {
 						// get the private state
 						query[slot] = a[i];
 					}
@@ -207,7 +207,7 @@ bool URLFilter::DoUnscrambleState(Anything &query, const char *slotName, Context
 		SystemLog::Error(errMsg);
 		return false;
 	}
-	return (slotName) ? true : false;
+	return (slotName) != 0 ? true : false;
 }
 
 //---- registry api

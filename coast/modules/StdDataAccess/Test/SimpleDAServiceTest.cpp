@@ -28,7 +28,7 @@ void SimpleDAServiceTest::SimpleDispatch() {
 		ServiceHandler *sh = sd.FindServiceHandler(ctx);
 		t_assertm(sh != 0, "expected to find SimpleDataAccessService handler");
 		assertEqualm("SimpleDataAccessService", sd.FindServiceName(ctx), "expected to find test TestSimpleDAService name");
-		if (sh) {
+		if (sh != 0) {
 			String servicename;
 			sh->GetName(servicename);
 			assertEqualm("SimpleDataAccessService", servicename, "expected to find test TestSimpleDAService name");

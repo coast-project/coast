@@ -206,12 +206,12 @@ void SessionTest::CheckInstalled() {
 		String roleName("null");
 		Role *r = (Role *)ri.Next(roleName);
 		Trace("role found <" << roleName << ">");
-		if (r) {
+		if (r != 0) {
 			String sname("null");
 			t_assert(r->GetName(sname));
 			Trace("r says: <" << sname << ">");
 			t_assert(r->IsInitialized());  // ensure config is available
-			if (r->GetSuper()) {
+			if (r->GetSuper() != 0) {
 				String supername("null");
 				r->GetSuper()->GetName(supername);
 				Trace("super <" << supername << ">");

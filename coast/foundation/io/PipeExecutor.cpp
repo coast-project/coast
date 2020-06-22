@@ -55,23 +55,23 @@ PipeExecutor::~PipeExecutor() {
 		waitpid(fChildPid, 0, 0);  // clean up zombies
 	}
 #endif
-	if (fPipe) {
+	if (fPipe != 0) {
 		delete fPipe;  // this ultimatively closes stream and pipe
 	}
 
-	if (fStderr) {
+	if (fStderr != 0) {
 		delete fStderr;
 	}
 }
 
 std::iostream *PipeExecutor::GetStream() {
 	StartTrace(PipeExecutor.GetStream);
-	return fPipe ? fPipe->GetStream() : 0;
+	return fPipe != 0 ? fPipe->GetStream() : 0;
 }
 
 std::istream *PipeExecutor::GetStderr() {
 	StartTrace(PipeExecutor.GetStderr);
-	return fStderr ? fStderr->GetStream() : 0;
+	return fStderr != 0 ? fStderr->GetStream() : 0;
 }
 
 bool PipeExecutor::Start() {
@@ -147,7 +147,7 @@ long PipeExecutor::TerminateChild(int termSignal, bool tryhard) {
 #endif
 bool PipeExecutor::ShutDownWriting() {
 	StartTrace(PipeExecutor.ShutDownWriting);
-	if (fPipe) {
+	if (fPipe != 0) {
 		return fPipe->ShutDownWriting();
 	}
 	return false;
@@ -183,7 +183,7 @@ PipeExecutor::CgiEnv::CgiEnv(const Anything &env, Allocator *a)
 #else
 	// tracing not fork-safe
 	fEnvPtrs = static_cast<char **>(fAlloc->Calloc(env.GetSize() + 1, sizeof(char *)));
-	if (fEnvPtrs) {
+	if (fEnvPtrs != 0) {
 		long i = 0;
 		for (long sz = env.GetSize(); i < sz; ++i) {
 			String s = env.SlotName(i);
@@ -216,7 +216,7 @@ char **PipeExecutor::CgiEnv::GetEnv() {
 PipeExecutor::CgiParam::CgiParam(Anything param, Allocator *a) : fAlloc(a), fParams(0) {
 	// tracing not fork-safe
 	fParams = static_cast<char **>(fAlloc->Calloc(param.GetSize() + 1, sizeof(char *)));
-	if (fParams) {
+	if (fParams != 0) {
 		long i = 0;
 		for (long sz = param.GetSize(); i < sz; ++i) {
 			fParams[i] = (char *)param[i].AsCharPtr(0);
@@ -242,7 +242,7 @@ bool PipeExecutor::SetupChildPipes(Pipe &stdChildPipeIn, Pipe &stdChildPipeOut) 
 
 	ok = (0 == dup2(stdChildPipeIn.GetReadFd(), 0)) && ok;
 	ok = (1 == dup2(stdChildPipeOut.GetWriteFd(), 1)) && ok;
-	if (fStderr) {
+	if (fStderr != 0) {
 		fStderr->ShutDownReading();
 		ok = (2 == dup2(fStderr->GetWriteFd(), 2)) && ok;
 	}
@@ -256,7 +256,7 @@ bool PipeExecutor::SetupChildPipes(Pipe &stdChildPipeIn, Pipe &stdChildPipeOut) 
 
 bool PipeExecutor::ForkAndRun(Anything parm, Anything env) {
 	StartTrace(PipeExecutor.ForkAndRun);
-	if (fPipe) {
+	if (fPipe != 0) {
 		return false;  // we can do it only once
 	}
 	// check if executable can be found and is accessible
@@ -307,7 +307,7 @@ bool PipeExecutor::ForkAndRun(Anything parm, Anything env) {
 				Trace("forked pipe-exec-child with pid:" << fChildPid);
 				inp.ShutDownReading();	 // we write to it
 				outp.ShutDownWriting();	 // we read from it
-				if (fStderr) {
+				if (fStderr != 0) {
 					fStderr->ShutDownWriting();
 					fStderr->CloseOnDelete();
 				}
@@ -380,7 +380,7 @@ bool PipeExecutor::ForkAndRun(Anything parm, Anything env) {
 			inp.ShutDownWriting();
 			outp.ShutDownReading();
 			outp.ShutDownWriting();
-			if (fStderr) {
+			if (fStderr != 0) {
 				fStderr->CloseOnDelete();
 				delete fStderr;
 				fStderr = 0;

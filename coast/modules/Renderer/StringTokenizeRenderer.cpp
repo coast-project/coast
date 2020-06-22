@@ -49,6 +49,7 @@ void StringTokenizeRenderer::BuildTokenList(Context &ctx, const ROAnything &conf
 		char c = '\0';
 		stream >> lStart;
 		if (stream.good()) {
+			// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 			if (stream.get(c) && c == '-') {
 				stream >> lEnd;
 				if (lEnd == 0L) {
@@ -165,7 +166,7 @@ void StringTokenizeRenderer::BuildOutputString(Context &ctx, const ROAnything &c
 		Trace("abs of lTokIdx: " << (long)abs(lTokIdx));
 		if (abs(lTokIdx) < anyTokens.GetSize()) {
 			bFoundToken = true;
-			if (lIdx > 0L && filler.Length()) {
+			if (lIdx > 0L && (filler.Length() != 0)) {
 				Trace("inserting output filler [" << filler << "]");
 				strOut << filler;
 			}

@@ -21,7 +21,7 @@ using namespace coast;
 void AnyUtils::ShowDifferences(String &masterString, String &inputString, std::ostream *verbose) {
 	StartTrace(AnyUtils.ShowDifferences);
 	// show first difference
-	if (verbose) {
+	if (verbose != 0) {
 		*verbose << "- Show First Difference: -" << std::endl;
 		*verbose << "Size Master:" << masterString.Length() << " Size Input:" << inputString.Length() << std::endl;
 
@@ -44,13 +44,13 @@ void AnyUtils::Dump(const char *message, const ROAnything &inputAny, const ROAny
 					const String &pathSoFar, std::ostream *verbose) {
 	StartTrace(AnyUtils.Dump);
 	Trace(String(message) << " [" << masterSlotName << "] at [" << pathSoFar << "]");
-	if (verbose) {
+	if (verbose != 0) {
 		TraceAny(inputAny, "Input");
 		TraceAny(masterAny, "Master");
 		*verbose << "_________________________________________________" << std::endl;
 		*verbose << message << " at [" << pathSoFar << "]" << std::endl;
 		*verbose << "Master Slot: " << std::endl;
-		if (masterSlotName.Length()) {
+		if (masterSlotName.Length() != 0) {
 			*verbose << "/" << masterSlotName << " ";
 		}
 		*verbose << masterAny << std::endl;
@@ -74,7 +74,7 @@ bool AnyUtils::AnyCompareEqual(const ROAnything &inputAny, const ROAnything &mas
 		for (long i = 0, szm = masterAny.GetSize(); i < szm; ++i) {
 			ROAnything anySlotCfg;
 			String mySlotname = masterAny.SlotName(i);
-			if (!mySlotname.Length()) {
+			if (mySlotname.Length() == 0) {
 				String newPath(pathSoFar);
 				newPath.Append(delimIdx);
 				newPath.Append(i);
@@ -83,7 +83,7 @@ bool AnyUtils::AnyCompareEqual(const ROAnything &inputAny, const ROAnything &mas
 				bool found = false;
 				for (long j = 0, szi = inputAny.GetSize(); j < szi; ++j) {
 					String myInSlotname = inputAny.SlotName(j);
-					if (!myInSlotname.Length()) {
+					if (myInSlotname.Length() == 0) {
 						myInSlotname.Append(delimIdx).Append(j);
 						Trace("InputSlotname [" << myInSlotname << "]");
 						found = AnyCompareEqual(inputAny[j], masterAny[i], newPath, NULL, delimSlot, delimIdx);
@@ -151,7 +151,7 @@ long AnyUtils::DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, boo
 	long lHitCount = 0L;
 	// roaToMerge serves as master defining the slots to add/modify
 	if (roaToMerge.GetType() == AnyArrayType) {
-		if (roaToMerge.GetSize()) {
+		if (roaToMerge.GetSize() != 0) {
 			// prepare temporary index any of master
 			Anything anyMasterIdx;
 			for (long m = 0, szm = anyMaster.GetSize(); m < szm; ++m) {
@@ -167,7 +167,7 @@ long AnyUtils::DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, boo
 				Trace("current input slotname [" << strInputSlotname << "], anyType:" << (long)roaToMerge[i].GetType());
 				// first check for leaf
 				if (roaToMerge[i].GetType() != AnyArrayType) {
-					if (strInputSlotname.Length()) {
+					if (strInputSlotname.Length() != 0) {
 						Trace("noArray:named: simple entry, value [" << roaToMerge[i].AsString() << "]");
 						if (!anyMaster.IsDefined(strInputSlotname) || bOverwriteSlots) {
 							Trace("noArray:named: " << (bOverwriteSlots ? "overwriting" : "adding") << " named simple slot");
@@ -190,14 +190,14 @@ long AnyUtils::DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, boo
 					}
 				} else {
 					Trace("checking input array at index:" << i);
-					if (!strInputSlotname.Length()) {
+					if (strInputSlotname.Length() == 0) {
 						Trace("Array:unnamed: input slot at:" << i);
 						// work on copy of indexed master because of slot deletion
 						Anything anyMWork = anyMasterIdx.DeepClone();
 						// first try slot with same index
-						if (anyMWork.GetSize()) {
+						if (anyMWork.GetSize() != 0) {
 							Anything anyMatches;
-							while (anyMWork.GetSize()) {
+							while (anyMWork.GetSize() != 0) {
 								long lMasterIdx = anyMWork[0L].AsLong(-1L);
 								anyMWork.Remove(0L);
 								Trace("Array:unnamed: testing against unnamed master at:" << lMasterIdx);
@@ -344,7 +344,7 @@ static void DoPrintSimpleXML(std::ostream &os, ROAnything output) {
 		os << "<any:seq>";
 		for (long i = 0, sz = output.GetSize(); i < sz; ++i) {
 			const char *slotname = output.SlotName(i);
-			if (slotname) {
+			if (slotname != 0) {
 				os << '<' << slotname << '>';
 				DoPrintSimpleXML(os, output[i]);
 				os << "</" << slotname << '>';

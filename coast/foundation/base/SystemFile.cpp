@@ -54,8 +54,8 @@ namespace {
 		}
 		~PathInitializer() { InitFinisManager::IFMTrace("PathInitializer::Finalized\n"); }
 		void initialize(const char *root, const char *path) {
-			String tmpRoot((root) ? String(root) : coast::system::EnvGet("COAST_ROOT"));
-			String tmpPath((path) ? String(path) : coast::system::EnvGet("COAST_PATH"));
+			String tmpRoot((root) != 0 ? String(root) : coast::system::EnvGet("COAST_ROOT"));
+			String tmpPath((path) != 0 ? String(path) : coast::system::EnvGet("COAST_PATH"));
 			static bool once = false;
 			if (!once || tmpRoot.Length() > 0 || tmpPath.Length() > 0) {
 				once = true;
@@ -72,7 +72,7 @@ namespace {
 			}
 		}
 		void SetRootDir(const char *root, bool print) {
-			if (root) {
+			if (root != 0) {
 				String rPath(root);
 				// when a dot is supplied as root, ResolvePath would remove it and leave the path blank
 				if (rPath != ".") {
@@ -89,7 +89,7 @@ namespace {
 			}
 		}
 		void SetPathList(const char *pathlist, bool print) {
-			if (pathlist) {
+			if (pathlist != 0) {
 				if (print) {
 					SystemLog::WriteToStderr(String("Pathlist: <") << pathlist << ">"
 																   << "\n");
@@ -148,7 +148,7 @@ namespace {
 	std::iostream *DoOpenStream(const char *path, coast::system::openmode mode, bool log = false) {
 		StartTrace1(System.DoOpenStream, "file [" << NotNull(path) << "]");
 		// adjust mode to output, append implies it
-		if (mode & std::ios::app) {
+		if ((mode & std::ios::app) != 0) {
 			mode |= std::ios::out;
 		}
 
@@ -159,10 +159,10 @@ namespace {
 		}
 #endif
 
-		if (coast::system::IsRegularFile(path) || (mode & std::ios::out)) {
+		if (coast::system::IsRegularFile(path) || ((mode & std::ios::out) != 0)) {
 			// ios::ate is special, it should only work on existing files according to standard
 			// so must set the out flag here and not earlier
-			if (mode & std::ios::ate) {
+			if ((mode & std::ios::ate) != 0) {
 				mode |= std::ios::out;
 			}
 #if !defined(WIN32)
@@ -217,7 +217,7 @@ namespace {
 
 		std::iostream *Ios = DoOpenStream(filepath, mode);
 
-		if (Ios) {
+		if (Ios != 0) {
 			Trace(filepath << " found");
 		} else {
 			Trace("can't open " << filepath);
@@ -260,7 +260,7 @@ namespace {
 
 	String buildFilename(const char *name, const char *extension) {
 		String filename = name;
-		if (extension && strlen(extension) > 0) {
+		if ((extension != 0) && strlen(extension) > 0) {
 			filename.Append('.').Append(extension);
 		}
 		return filename;
@@ -338,7 +338,7 @@ namespace {
 		Trace("parent path [" << strParentDir << "]");
 
 		coast::system::DirStatusCode aDirStatus = coast::system::ePathIncomplete;
-		if (strParentDir.Length()) {
+		if (strParentDir.Length() != 0) {
 			if (coast::system::IsDirectory(strParentDir)) {
 				aDirStatus = coast::system::eSuccess;
 			} else {
@@ -541,7 +541,7 @@ namespace coast {
 					}
 				} else if (token.empty()) {
 					// skip empty token
-					if (!boTok && not newPath.empty() > 0L && newPath[newPath.Length() - 1L] != '/') {
+					if (!boTok && static_cast<long>(not newPath.empty()) > 0L && newPath[newPath.Length() - 1L] != '/') {
 						newPath.Append('/');
 					}
 				} else {
@@ -591,7 +591,7 @@ namespace coast {
 		}
 
 		bool IsAbsolutePath(const char *name) {
-			if (name) {
+			if (name != 0) {
 				// check for absolute path names
 #if defined(WIN32)
 				// following absolute paths could be possible on WIN32
@@ -618,7 +618,7 @@ namespace coast {
 		void GetCWD(String &cwd) {
 			String buf(4096L);
 			cwd = ".";
-			if (!getcwd((char *)buf.cstr(), buf.Capacity())) {
+			if (getcwd((char *)buf.cstr(), buf.Capacity()) == 0) {
 				SystemLog::Alert("puh, cannot obtain current working directory");
 				return;
 			}
@@ -676,7 +676,7 @@ namespace coast {
 			}
 
 			String relpath(name);
-			if (extension && strlen(extension) > 0) {
+			if ((extension != 0) && strlen(extension) > 0) {
 				relpath.Append('.').Append(extension);
 			}
 
@@ -871,7 +871,7 @@ namespace coast {
 			//		extension= "html";
 			// PS: I require more than that....
 			String strExtension;
-			if (extension && strlen(extension) >= 1) {	// allow one to specify "" for getting all files
+			if ((extension != 0) && strlen(extension) >= 1) {  // allow one to specify "" for getting all files
 				strExtension.Append('.').Append(extension);
 			}
 			long truncext = strExtension.Length();
@@ -908,11 +908,11 @@ namespace coast {
 			// searches directory dir and
 			DIR *fp;
 
-			if ((fp = opendir(dir))) {
+			if ((fp = opendir(dir)) != 0) {
 				// do not use Storage module to allocate memory here, since readdir_r wreaks havoc with our storage management
 				struct dirent *direntp = (dirent *)calloc(1, sizeof(dirent) + cPATH_MAX);
 				struct dirent *direntpSave = direntp;
-				while ((readdir_r(fp, direntp, &direntp) == 0) && (direntp)) {
+				while ((readdir_r(fp, direntp, &direntp) == 0) && ((direntp) != 0)) {
 					String name = direntp->d_name;
 					Trace("current entry [" << name << "]");
 					long start = name.Length() - truncext;
@@ -923,7 +923,7 @@ namespace coast {
 						list.Append(Anything(name, start));
 					}
 				}
-				if (direntp) {
+				if (direntp != 0) {
 					Trace("last entry [" << NotNull(direntp->d_name) << "]");
 				}
 				::free(direntpSave);
@@ -969,7 +969,7 @@ namespace coast {
 			ResolvePath(path);
 
 			// check for empty input parameter
-			if (!path.Length()) {
+			if (path.Length() == 0) {
 				SYSWARNING("empty path given, bailing out!");
 				return ePathEmpty;
 			}
@@ -990,7 +990,7 @@ namespace coast {
 			StartTrace1(System.RemoveDirectory, "dir to remove [" << path << "]");
 
 			// check for empty input parameter
-			if (!path.Length()) {
+			if (path.Length() == 0) {
 				SYSWARNING("empty path given, bailing out!");
 				return ePathEmpty;
 			}
@@ -1041,7 +1041,7 @@ namespace coast {
 			realfilename = GetFilePath(buildFilename(name, ext));
 			std::istream *is = OpenStream(realfilename, (std::ios::in));
 			bool result = false;
-			if (!is || !(result = config.Import(*is, realfilename))) {
+			if ((is == 0) || !(result = config.Import(*is, realfilename))) {
 				String logMsg("cannot import config file ");
 				logMsg.Append(realfilename).Append(" from ").Append(name).Append('.').Append(ext);
 				SYSERROR(logMsg);

@@ -113,7 +113,7 @@ bool MSAjaxFixFieldLengthResultMapper::DoPutAny(const char *key, Anything &value
 		Trace("length of input: " << sText.Length() << " 10 last chars [" << sText.SubString(sText.Length() - 10) << "]");
 		char const delim = Lookup(_FieldSeparator, "|")[0];
 		String strOut;
-		while (sText.Length()) {
+		while (sText.Length() != 0) {
 			Anything anyEntry = getEntryFromString(sText, delim, nFields, roaFieldList);
 			if (anyEntry.GetSize() == nFields) {
 				long valueEntryIndex = anyEntry.GetSize() - 1;	// or nFields-1

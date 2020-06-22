@@ -76,7 +76,7 @@ public:
 String Resolver::DNS2IPAddress(const String &dnsName, const String &dflt) {
 	StartTrace1(Resolver.DNS2IPAddress, "dns [" << dnsName << "]");
 	// no need to change Server IP address if localhost (?)
-	if ((dnsName.Length() <= 0) || isdigit(dnsName.At(0))) {
+	if ((dnsName.Length() <= 0) || (isdigit(dnsName.At(0)) != 0)) {
 		return dnsName;
 	}
 	String ipAddress;

@@ -26,7 +26,7 @@ void StoreCopier::Operate(Context &c, Anything &dest, const ROAnything &config, 
 		String sourceLookupName = config.SlotName(i);
 		String destSlot(32);
 		Renderer::RenderOnString(destSlot, c, config[i]);
-		if (sourceLookupName && destSlot) {
+		if ((sourceLookupName != 0) && (destSlot != 0)) {
 			dest[destSlot] = c.Lookup(sourceLookupName, delim, indexdelim).DeepClone(dest.GetAllocator());
 		}
 	}

@@ -1115,7 +1115,7 @@ void StringTest::appendsFile() {
 
 	std::istream *is3 = system::OpenStream("len5", "tst");
 	t_assert(is3 != NULL);
-	if (is3) {
+	if (is3 != 0) {
 		String str3;
 		str3.Append(*is3, 0);
 		assertEqual("", str3);
@@ -1129,7 +1129,7 @@ void StringTest::appendsFile() {
 
 	std::istream *is4 = system::OpenStream("len5", "tst");
 	t_assert(is4 != NULL);
-	if (is4) {
+	if (is4 != 0) {
 		String str4;
 		str4.Append(*is4, 'a');	 // 'a' = 97
 		assertEqual("01234", str4);
@@ -1901,18 +1901,18 @@ void StringTest::intPrintOn0() {
 	String str, strHlp;
 
 	for (i = 0; i <= 256; i++) {
-		if (isprint((unsigned char)i)) {
+		if (isprint((unsigned char)i) != 0) {
 			str.Append((char)i);
 		}
 	}
 
 	// With proper Read/Write-Methods
 	std::ostream *os = system::OpenOStream("tmp/fileprnt1", "tst");
-	if (os) {
+	if (os != 0) {
 		str.IntPrintOn(*os, '\"');
 		delete os;
 		std::istream *is = system::OpenIStream("tmp/fileprnt1", "tst");
-		if (is) {
+		if (is != 0) {
 			String str1;
 			str1.IntReadFrom(*is, '\"');
 			assertCompare(str.Length(), equal_to, str1.Length());
@@ -1921,11 +1921,11 @@ void StringTest::intPrintOn0() {
 
 			// With normal Read/Write-Methods
 			std::ostream *os1 = system::OpenOStream("tmp/fileprnt", "tst");
-			if (os1) {
+			if (os1 != 0) {
 				*os1 << str;
 				delete os1;
 				std::istream *is1 = system::OpenIStream("tmp/fileprnt", "tst");
-				if (is1) {
+				if (is1 != 0) {
 					*is1 >> str1;
 					delete is1;
 					assertCompare(str.Length(), equal_to, str1.Length() + 1L);
@@ -1974,17 +1974,17 @@ void StringTest::intPrintOn1() {
 	String str, strHlp;
 
 	for (i = 0; i <= 256; i++) {
-		if (!isprint((unsigned char)i)) {
+		if (isprint((unsigned char)i) == 0) {
 			str.Append((char)i);
 		}
 	}
 
 	std::ostream *os = system::OpenOStream("tmp/filenoprnt", "tst");
-	if (os) {
+	if (os != 0) {
 		str.IntPrintOn(*os, '\"');
 		delete os;
 		std::istream *is = system::OpenIStream("tmp/filenoprnt", "tst");
-		if (is) {
+		if (is != 0) {
 			String str1;
 			str1.IntReadFrom(*is, '\"');
 			delete is;

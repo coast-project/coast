@@ -40,7 +40,7 @@ void TestCallBack::CallBack(Socket *socket) {
 
 	std::iostream *Ios = socket->GetStream();
 
-	if (Ios) {
+	if (Ios != 0) {
 		fReceiver->Receive(Ios, socket);
 	}
 
@@ -137,7 +137,7 @@ void ListenerPoolTest::DoSendReceive(Connector *c, String msg) {
 	String errorMsg = msg;
 	errorMsg << msg << " connect failed";
 	t_assertm(Ios != 0, (const char *)errorMsg);
-	if (Ios) {
+	if (Ios != 0) {
 		*Ios << msg << std::endl;
 		t_assert(!!(*Ios));
 		String reply;
@@ -153,7 +153,7 @@ void ListenerPoolTest::DoSendReceive(Connector *c, Anything toSend) {
 	std::iostream *Ios = c->GetStream();
 	t_assertm(Ios != 0, "connect failed.");
 	TraceAny(toSend, "toSend:");
-	if (Ios) {
+	if (Ios != 0) {
 		toSend.Export(*Ios);
 		t_assert(!!(*Ios));
 		String reply;
@@ -172,7 +172,7 @@ bool ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, String msg, bool i
 	} else {
 		testsWereSuccessful = t_assertm(Ios == (std::iostream *)NULL, "Expected iostream to be 0");
 	}
-	if (Ios) {
+	if (Ios != 0) {
 		*Ios << msg << std::endl;
 		if (iosGoodAfterSend) {
 			testsWereSuccessful = t_assertm(!!(*Ios), "Expected iostream state to be good after send") && testsWereSuccessful;
@@ -195,7 +195,7 @@ bool ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, Anything toSend, b
 	} else {
 		testsWereSuccessful = t_assertm(Ios == (std::iostream *)NULL, "Expected iostream to be 0");
 	}
-	if (Ios) {
+	if (Ios != 0) {
 		toSend.Export(*Ios);
 		if (iosGoodAfterSend) {
 			testsWereSuccessful = t_assertm(!!(*Ios), "Expected iostream state to be good after send") && testsWereSuccessful;

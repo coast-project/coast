@@ -24,7 +24,7 @@ bool LoggingMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROA
 	StartTrace1(LoggingMapper.DoPutAny, NotNull(key));
 	String channel(Lookup("Channel", ""));
 	Trace("Channel: <" << channel << ">");
-	if (channel.Length()) {
+	if (channel.Length() != 0) {
 		TraceAny(value, "value for key <" << key << ">");
 		Context::PushPopEntry<ROAnything> aEntry(ctx, "LoggingMapperData", value, key);
 		ROAnything roaKey;

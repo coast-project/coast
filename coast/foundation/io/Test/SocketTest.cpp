@@ -85,7 +85,7 @@ void SocketTest::httpClientTest() {
 		socket->SetTimeout(GetConfig()["GetStreamTimeout"].AsLong(5000L));
 		std::iostream *Ios = socket->GetStream();
 		t_assert(Ios != NULL);
-		if (Ios) {
+		if (Ios != 0) {
 			String query("GET / HTTP/1.0");
 			String reply;
 			long lRetCode;

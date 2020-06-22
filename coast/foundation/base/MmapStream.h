@@ -24,7 +24,7 @@ public:
 	int GetMmapProtection() { return fProtection; }
 	int GetSyncFlag() { return fSyncFlag; }
 
-	bool TestIos(int mode) { return fOpenMode & mode; }
+	bool TestIos(int mode) { return (fOpenMode & mode) != 0; }
 
 	bool IsIosOut() { return TestIos(std::ios::out); }
 	bool IsIosIn() { return TestIos(std::ios::in); }
@@ -37,8 +37,8 @@ public:
 	}
 	enum { eRead = PROT_READ, eWrite = PROT_WRITE };
 
-	bool IsReadable() { return (fProtection & eRead); }
-	bool IsWriteable() { return (fProtection & eWrite); }
+	bool IsReadable() { return (fProtection & eRead) != 0; }
+	bool IsWriteable() { return (fProtection & eWrite) != 0; }
 
 private:
 	int fProtection;	   // PROT_READ or PROT_WRITE

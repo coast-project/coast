@@ -109,7 +109,7 @@ void AnyUtilsTest::MergeTest() {
 		Trace("Executing " << testConfig.SlotName(i));
 		ROAnything testee = testConfig[i];
 		Anything anyMaster = testee["Master"].DeepClone();
-		AnyUtils::AnyMerge(anyMaster, testee["ToMerge"], testee["OverwriteSlots"].AsBool(0L),
+		AnyUtils::AnyMerge(anyMaster, testee["ToMerge"], testee["OverwriteSlots"].AsBool(false),
 						   testee["Delim"].AsCharPtr(".")[0L], testee["IndexDelim"].AsCharPtr(":")[0L]);
 		assertAnyCompareEqual(testee["Expected"], anyMaster, testConfig.SlotName(i), testee["Delim"].AsCharPtr(".")[0L],
 							  testee["IndexDelim"].AsCharPtr(":")[0L]);

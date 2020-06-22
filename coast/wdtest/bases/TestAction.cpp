@@ -52,5 +52,5 @@ bool ConfiguredTestAction::DoExecAction(String &name, Context &ctx, const ROAnyt
 	if (config.IsDefined("ActionToken")) {
 		name = config["ActionToken"].AsString("x");
 	}
-	return config["RetValue"].AsBool(0);
+	return config["RetValue"].AsBool(false);
 }

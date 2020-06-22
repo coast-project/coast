@@ -27,7 +27,7 @@ void HTTPRequestReaderTest::ReadMinimalInputTest() {
 		AnyLookupInterfaceAdapter<Anything> lia(anyParams);
 		TString caseName;
 		aEntryIterator.SlotName(caseName);
-		if (not caseName.Length())
+		if (caseName.Length() == 0)
 			caseName.Append("failed at idx:").Append(aEntryIterator.Index());
 
 		MIMEHeader header;

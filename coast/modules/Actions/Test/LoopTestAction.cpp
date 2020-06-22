@@ -39,5 +39,5 @@ bool FailLoopTestAction::DoExecAction(String &transitionToken, Context &ctx, con
 	Anything tmpStore = ctx.GetTmpStore();
 	long loopIndex(ctx.Lookup("LoopIndex", 999L));
 	tmpStore["LoopResult"].Append(loopIndex);
-	return loopIndex % 4;
+	return (loopIndex % 4) != 0;
 }

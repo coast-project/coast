@@ -160,7 +160,7 @@ bool SSLObjectManager::Finis() {
 				Trace("Freeing ssl context for address: " << fSSLCtxStore.SlotName(ip)
 														  << " port: " << fSSLCtxStore[ip].SlotName(port));
 				SSL_CTX *sslctx = (SSL_CTX *)fSSLCtxStore[ip][port].AsIFAObject(0);
-				if (sslctx) {
+				if (sslctx != 0) {
 					SSL_CTX_free(sslctx);
 				}
 			}

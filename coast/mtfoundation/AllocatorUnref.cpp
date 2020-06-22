@@ -17,10 +17,10 @@ AllocatorUnref::AllocatorUnref(Thread *t) : fThread(t) {}
 AllocatorUnref::~AllocatorUnref() {
 	StatTrace(AllocatorUnref.~AllocatorUnref, "ThreadId: " << (fThread ? fThread->GetId() : 0) << " CallId: " << Thread::MyId(),
 			  coast::storage::Global());
-	if (fThread) {
+	if (fThread != 0) {
 		Allocator *a = fThread->fAllocator;
 		StatTrace(AllocatorUnref.~AllocatorUnref, "Allocator: " << (long)a, coast::storage::Global());
-		if (a) {
+		if (a != 0) {
 			if (a != coast::storage::Global() && (a->CurrentlyAllocated() > 0L)) {
 				StatTrace(AllocatorUnref.~AllocatorUnref,
 						  "currently allocated on " << (long)a << " " << (long)a->CurrentlyAllocated(),

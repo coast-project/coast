@@ -21,7 +21,7 @@ void PageNameRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnythi
 
 	String pageName;
 	Page *p = c.GetPage();
-	if (p && p->GetName(pageName)) {
+	if ((p != 0) && p->GetName(pageName)) {
 		reply << pageName;
 	} else {
 		Trace("Context / Page korrupt: " << ((p == 0) ? (const char *)pageName : "No Page in Context"));

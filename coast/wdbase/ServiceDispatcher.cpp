@@ -38,13 +38,13 @@ bool ServiceDispatcher::Dispatch2Service(std::ostream &reply, Context &ctx) {
 	ctx.Push(strKey, this);
 	ServiceHandler *sh = FindServiceHandler(ctx);
 	// if no service handler is found, use DefaultHandler instead
-	if (!sh) {
+	if (sh == 0) {
 		String def = ServiceDispatcher::FindServiceName(ctx);
 		Trace("using DefaultHandler [" << def << "]");
 		sh = ServiceHandler::FindServiceHandler(def);
 	}
 	bool status = false;
-	if (sh) {
+	if (sh != 0) {
 		status = sh->HandleService(reply, ctx);
 	}
 	ctx.Pop(strKey);  //!@FIXME: use PushPopEntry for LookupInterfaces too
@@ -69,7 +69,7 @@ long RendererDispatcher::FindURIPrefixInList(const String &requestURI, const ROA
 	long apSz = uriPrefixList.GetSize();
 	for (long i = 0; i < apSz; ++i) {
 		const char *uriPrefix = uriPrefixList.SlotName(i);
-		if (uriPrefix && requestURI.StartsWith(uriPrefix)) {
+		if ((uriPrefix != 0) && requestURI.StartsWith(uriPrefix)) {
 			return i;
 		}
 	}

@@ -44,5 +44,5 @@ bool HTTPResponseMapper::DoPutStream(const char *key, std::istream &is, Context 
 	}
 	TraceAny(response, "Parsed response is: ");
 	ResultMapper::DoPutAny("HTTPResponse", response, ctx, conf);
-	return (is.good() != 0);
+	return (static_cast<int>(is.good()) != 0);
 }

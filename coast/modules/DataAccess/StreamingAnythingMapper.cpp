@@ -17,7 +17,7 @@ RegisterParameterMapper(AnythingToStreamMapper);
 
 bool AnythingToStreamMapper::DoFinalGetStream(const char *key, std::ostream &os, Context &ctx) {
 	StartTrace1(AnythingToStreamMapper.DoFinalGetStream, NotNull(key));
-	if (key) {
+	if (key != 0) {
 		// use the superclass mapper to get the anything
 		Anything anyValue;
 		DoFinalGetAny(key, anyValue, ctx);

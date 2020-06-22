@@ -55,7 +55,7 @@ void TableCompressor::DoCompress(String &scrambledText, const Anything &dataIn) 
 	long dataSz = dataIn.GetSize();
 	for (long i = 0; i < dataSz; ++i) {
 		const char *slotname = dataIn.SlotName(i);
-		if (slotname) {
+		if (slotname != 0) {
 			if (keyTable.IsDefined(slotname)) {
 				Trace("compressing defined slot [" << slotname << "]");
 				const char *extSlotname = keyTable[slotname].AsCharPtr();
@@ -104,7 +104,7 @@ bool TableCompressor::DoExpand(Anything &dataOut, const String &scrambledText) {
 		long dataSz = dataIn.GetSize();
 		for (long i = 0; i < dataSz; ++i) {
 			const char *slotname = dataIn.SlotName(i);
-			if (slotname) {
+			if (slotname != 0) {
 				if (keyTable.IsDefined(slotname)) {
 					const char *intSlotname = keyTable[slotname].AsCharPtr();
 					const char *compVal = dataIn[i].AsCharPtr();
@@ -135,7 +135,7 @@ void TableCompressor::MakeTable(ROAnything baseState, const char *tag, ROAnythin
 	StartTrace1(TableCompressor.MakeTable, "tag: " << tag);
 	Anything state = baseState.DeepClone();
 	TraceAny(state, "State: ");
-	if (tag) {
+	if (tag != 0) {
 		long sz = state.GetSize(), i;
 		Anything map;
 		Anything aSlot;
@@ -153,7 +153,7 @@ void TableCompressor::MakeTable(ROAnything baseState, const char *tag, ROAnythin
 			if (aSlot.GetType() == AnyCharPtrType) {
 				slotname = aSlot.AsCharPtr("");
 			}
-			if (slotname) {
+			if (slotname != 0) {
 				map[slotname] = CalcKey(i);
 			}
 			slotname = 0;
@@ -166,7 +166,7 @@ void TableCompressor::MakeReverseTable(ROAnything state, const char *tag, const 
 	StartTrace1(TableCompressor.MakeTable, "tag: <" << tag << "> reverseTag: <" << reverseTag << ">");
 	TraceAny(state, "State: ");
 
-	if (tag && reverseTag) {
+	if ((tag != 0) && (reverseTag != 0)) {
 		long sz = state.GetSize();
 		Anything revKeyTable;
 		const char *slotname;
@@ -205,7 +205,7 @@ void TableCompressor::InstallConfig(long index, Anything &state, ROAnything part
 	const char *slotname = 0;
 	for (long i = 0; i < sz; ++i) {
 		slotname = part.SlotName(i);
-		if (slotname) {
+		if (slotname != 0) {
 			state[index] = slotname;
 			++index;
 			InstallConfig(index, state, part[i]);

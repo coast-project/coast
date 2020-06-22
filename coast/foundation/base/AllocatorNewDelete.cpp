@@ -13,7 +13,7 @@
 
 namespace coast {
 	void *AllocatorNewDelete::operator new(std::size_t sz, Allocator *a) COAST_NOEXCEPT_OR_NOTHROW {
-		if (a) {
+		if (a != 0) {
 			void *ptr = a->Calloc(1, memory::calculateAllocationSize<Allocator *>(sz));
 			memory::allocatorFor<Allocator *>(ptr) = a;	 // remember address of responsible Allocator
 			return memory::payloadPtrFor<Allocator *>(ptr);
@@ -22,7 +22,7 @@ namespace coast {
 	}
 
 	void *AllocatorNewDelete::operator new[](std::size_t sz, Allocator *a) COAST_NOEXCEPT_OR_NOTHROW {
-		if (a) {
+		if (a != 0) {
 			return operator new(sz, a);
 		}
 		void *ptr = calloc(1, memory::calculateAllocationSize<Allocator *>(sz));
@@ -36,7 +36,7 @@ namespace coast {
 	void AllocatorNewDelete::operator delete(void *ptr)COAST_NOEXCEPT_OR_NOTHROW {
 		void *realPtr = memory::realPtrFor<Allocator *>(ptr);
 		Allocator *a = memory::allocatorFor<Allocator *>(realPtr);
-		if (a) {
+		if (a != 0) {
 			memory::safeFree(a, realPtr);
 		} else {
 			free(realPtr);

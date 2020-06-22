@@ -242,7 +242,7 @@ bool HTTPProcessor::IsZipEncodingAcceptedByClient(Context &ctx) {
 	StartTrace(HTTPProcessor.IsZipEncodingAcceptedByClient);
 	TraceAny(ctx.GetRequest(), "Request");
 	ROAnything roaEncoding;
-	if (!ctx.Lookup("DisableZipEncoding", 0L) && ctx.Lookup("header.ACCEPT-ENCODING", roaEncoding)) {
+	if ((ctx.Lookup("DisableZipEncoding", 0L) == 0) && ctx.Lookup("header.ACCEPT-ENCODING", roaEncoding)) {
 		TraceAny(roaEncoding, "accepted encodings");
 		return containsLowercaseValue(roaEncoding, "gzip");
 	}

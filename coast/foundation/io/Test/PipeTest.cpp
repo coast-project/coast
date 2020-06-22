@@ -47,7 +47,7 @@ void PipeTest::simpleBlockingTest() {
 		t_assert(pipi.IsReadyForWriting(0));
 		long byteswritten = 0, lMaxCount = 2;
 		Trace("before while loop");
-		while (pipi.IsReadyForWriting(10) && lMaxCount--) {
+		while (pipi.IsReadyForWriting(10) && ((lMaxCount--) != 0)) {
 			// happens only once...
 			byteswritten += (long)Socket::write(pipi.GetWriteFd(), buf, 16);
 			Trace("bytes written so far:" << byteswritten);

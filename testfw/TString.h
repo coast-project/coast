@@ -93,24 +93,24 @@ protected:
 
 // inlines
 inline TString::operator const char *() const {
-	return (fCont) ? fCont : "";
+	return (fCont) != 0 ? fCont : "";
 }
 
 inline int TString::Compare(const char *other) const {
-	if (fCont && other) {
+	if ((fCont != 0) && (other != 0)) {
 		return strcmp(fCont, other);
 	}
-	if ((fCont && *fCont) && !other) {
+	if (((fCont != 0) && (*fCont != 0)) && (other == 0)) {
 		return 1;
 	}
-	if (!fCont && (other && *other)) {
+	if ((fCont == 0) && ((other != 0) && (*other != 0))) {
 		return -1;
 	}
 	return 0;  // both are empty
 }
 
 inline bool TString::IsEqual(const char *other) const {
-	return !this->Compare(other);
+	return this->Compare(other) == 0;
 }
 
 bool operator==(const TString &s1, const TString &s2) {

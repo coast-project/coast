@@ -60,7 +60,7 @@ Context::Context(Socket *socket)
 	  fSocket(socket),
 	  fCopySessionStore(false) {
 	// the arguments we get for this request
-	if (fSocket) {
+	if (fSocket != 0) {
 		fRequest["ClientInfo"] = fSocket->ClientInfo();
 	}
 	InitTmpStore();
@@ -89,7 +89,7 @@ Context::Context(const Anything &env, const Anything &query, Server *server, Ses
 }
 
 Context::~Context() {
-	if (fSession) {
+	if (fSession != 0) {
 		LockSession();
 		// SOP: should we resynch store again, or should PutInStore take care?
 		fSession->UnRef();
@@ -115,7 +115,7 @@ void Context::InitSession(Session *s) {
 	if (sessionIsDifferent || fCopySessionStore) {
 		// first handle pushed session because it might get deleted underway
 		fSession = s;
-		if (fSession) {
+		if (fSession != 0) {
 			Trace("new s: About to   lock <" << fSession->GetId() << ">");
 			fSession->fMutex.Lock();
 			if (sessionIsDifferent) {
@@ -136,7 +136,7 @@ void Context::InitSession(Session *s) {
 				fSessionStoreGlobal = Anything(Anything::ArrayMarker(), fSessionStoreGlobal.GetAllocator());
 			}
 		}
-		if (saveSession) {
+		if (saveSession != 0) {
 			if (sessionIsDifferent) {
 				// in case the session was used in UnlockSession 'mode', we need to protect the call to UnRef
 				if (fCopySessionStore) {
@@ -166,7 +166,7 @@ Session *Context::GetSession() const {
 }
 
 const char *Context::GetSessionId() const {
-	return (fSession) ? fSession->GetId() : 0;
+	return (fSession) != 0 ? fSession->GetId() : 0;
 }
 
 void Context::SetServer(Server *server) {
@@ -224,31 +224,31 @@ Anything &Context::GetTmpStore() {
 
 void Context::CollectLinkState(Anything &a) {
 	Role *r = GetRole();
-	if (r) {
+	if (r != 0) {
 		r->CollectLinkState(a, *this);
 	}
 }
 
 void Context::DebugStores(const char *msg, std::ostream &reply, bool printAny) {
-	if (msg) {
+	if (msg != 0) {
 		reply << "+++++++++++++++++++" << NotNull(msg) << "+++++++++++++++++++++++++\n";
 	}
 	Session *s = fSession;
-	if (s) {
+	if (s != 0) {
 		reply << "Session-Nummer: " << s->GetId() << '\n';
 		reply << "Access-Counter: " << s->GetAccessCounter() << '\n';
 		reply << "Access-Time:    " << s->GetAccessTime() << '\n';
 		reply << "Ref-Count:      " << s->GetRefCount() << '\n';
 	}
 	Page *page = GetPage();
-	if (page) {
+	if (page != 0) {
 		String pName;
 		page->GetName(pName);
 		reply << "Page:           " << pName << '\n';
 	}
 	String rName("None");
 	Role *r = GetRole();
-	if (r) {
+	if (r != 0) {
 		r->GetName(rName);
 	}
 	reply << "Role:           " << rName << "\n\n";
@@ -264,7 +264,7 @@ void Context::DebugStores(const char *msg, std::ostream &reply, bool printAny) {
 	}
 
 	// show session store on html page
-	if (fSession) {
+	if (fSession != 0) {
 		fSession->HTMLDebugStore(reply);
 	}
 
@@ -272,7 +272,7 @@ void Context::DebugStores(const char *msg, std::ostream &reply, bool printAny) {
 	if (TriggerEnabled(Context.HTMLWDDebug.EnvStore) || printAny) {
 		reply << "Request #refs:" << fRequest.RefCount() << '\n' << fRequest << '\n';
 	}
-	if (msg) {
+	if (msg != 0) {
 		reply << "-------------------" << NotNull(msg) << "-------------------------\n";
 	}
 	reply.flush();
@@ -309,7 +309,7 @@ Anything &Context::IntGetStore(const char *key, long &index) {
 bool Context::GetStore(const char *key, Anything &result) {
 	StartTrace1(Context.GetStore, "key:<" << NotNull(key) << ">");
 
-	if (key) {
+	if (key != 0) {
 		long index = -1;
 		result = IntGetStore(key, index);
 		if (index >= 0) {
@@ -330,7 +330,7 @@ bool Context::GetStore(const char *key, Anything &result) {
 
 bool Context::Push(const char *key, LookupInterface *li) {
 	StartTrace1(Context.Push, "key:<" << NotNull(key) << "> li:&" << (long)li);
-	if (key && li) {
+	if ((key != 0) && (li != 0)) {
 		Trace("TypeId of given LookupInterface:" << typeid(*li).name());
 		bool bIsLookupAdapter = ((typeid(*li) == typeid(AnyLookupInterfaceAdapter<Anything>)) ||
 								 (typeid(*li) == typeid(AnyLookupInterfaceAdapter<ROAnything>)));
@@ -367,7 +367,7 @@ bool Context::Push(const char *key, Anything &store) {
 	StartTrace1(Context.Push, "key:<" << NotNull(key) << ">");
 	TraceAny(store, "Store to put:");
 
-	if (key && (store.GetType() != AnyNullType)) {
+	if ((key != 0) && (store.GetType() != AnyNullType)) {
 		// EnsureArrayImpl is needed to be able to extend existing stack entries by reference
 		// without this conversion, a problem would arise when a simple value was pushed which got extended by other values
 		//  -> only the simple value would persist
@@ -426,7 +426,7 @@ long Context::FindIndex(const Anything &anyStack, const char *key, long lStartId
 
 	long result = -1;
 
-	if (key) {
+	if (key != 0) {
 		long sz = anyStack["Keys"].GetSize();
 		if (lStartIdx < 0 || lStartIdx > sz) {
 			lStartIdx = sz;
@@ -445,7 +445,7 @@ long Context::FindIndex(const Anything &anyStack, const char *key, long lStartId
 
 long Context::Remove(const char *key) {
 	StartTrace(Context.Remove);
-	if (!key) {
+	if (key == 0) {
 		return -1;
 	}
 	TraceAny(fLookupStack, "fLookupStack and size before:" << fStackSz);
@@ -462,7 +462,7 @@ long Context::Remove(const char *key) {
 
 void Context::Replace(const char *key, LookupInterface *li) {
 	StartTrace(Context.Replace);
-	if (!key || !li) {
+	if ((key == 0) || (li == 0)) {
 		return;
 	}
 	TraceAny(fLookupStack, "fLookupStack and size before:" << fStackSz);
@@ -496,7 +496,7 @@ bool Context::LookupStack(const char *key, ROAnything &result, char delim, char 
 	for (long i = ((ROAnything)fStore)["Stack"].GetSize(); --i >= 0;) {
 		if (fStore["Stack"][i].GetType() == AnyObjectType) {
 			LookupInterface *li = (LookupInterface *)fStore["Stack"][i].AsIFAObject(0);
-			if (li && li->Lookup(key, result, delim, indexdelim)) {
+			if ((li != 0) && li->Lookup(key, result, delim, indexdelim)) {
 				TraceAny(result, "found through LookupInterface at " << fStore["Keys"][i].AsString() << ':' << i << '.' << key);
 				return true;
 			}
@@ -568,7 +568,7 @@ bool Context::LookupRequest(const char *key, ROAnything &result, char delim, cha
 bool Context::LookupLocalized(const char *key, ROAnything &result, char delim, char indexdelim) const {
 	StartTrace1(Context.LookupLocalized, "key:<" << NotNull(key) << ">");
 	LocalizedStrings *ls = LocalizedStrings::LocStr();
-	if (ls && ls->Lookup(key, result, delim, indexdelim)) {
+	if ((ls != 0) && ls->Lookup(key, result, delim, indexdelim)) {
 		Trace(key << " found in LocalizedStrings");
 		return true;
 	}
@@ -585,15 +585,15 @@ Socket *Context::GetSocket() {
 }
 
 std::iostream *Context::GetStream() {
-	return fSocket ? fSocket->GetStream() : 0;
+	return fSocket != 0 ? fSocket->GetStream() : 0;
 }
 
 long Context::GetReadCount() {
-	return (fSocket) ? fSocket->GetReadCount() : 0;
+	return (fSocket) != 0 ? fSocket->GetReadCount() : 0;
 }
 
 long Context::GetWriteCount() {
-	return (fSocket) ? fSocket->GetWriteCount() : 0;
+	return (fSocket) != 0 ? fSocket->GetWriteCount() : 0;
 }
 
 bool Context::Process(String &token) {
@@ -601,7 +601,7 @@ bool Context::Process(String &token) {
 }
 
 bool Context::UnlockSession() {
-	if (fSession && fCopySessionStore && fSession->IsLockedByMe()) {
+	if ((fSession != 0) && fCopySessionStore && fSession->IsLockedByMe()) {
 		fSession->fMutex.Unlock();
 		return true;
 	}
@@ -609,7 +609,7 @@ bool Context::UnlockSession() {
 }
 
 void Context::LockSession() {
-	if (fSession && fCopySessionStore) {
+	if ((fSession != 0) && fCopySessionStore) {
 		fSession->fMutex.Lock();
 	}
 }

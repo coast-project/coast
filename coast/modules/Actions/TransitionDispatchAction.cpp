@@ -15,7 +15,7 @@ RegisterAction(TransitionDispatchAction);
 
 bool TransitionDispatchAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(TransitionDispatchAction.DoExecAction);
-	if (transitionToken.Length()) {
+	if (transitionToken.Length() != 0) {
 		ROAnything nextActionConfig = ctx.Lookup(transitionToken);
 		TraceAny(nextActionConfig, "nextActionConfig");
 		if (!nextActionConfig.IsNull()) {

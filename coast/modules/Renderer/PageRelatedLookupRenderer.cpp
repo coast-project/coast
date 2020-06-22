@@ -20,7 +20,7 @@ PageRelatedLookupRenderer::PageRelatedLookupRenderer(const char *name) : LookupR
 ROAnything PageRelatedLookupRenderer::DoLookup(Context &context, const char *name, char delim, char indexdelim) {
 	ROAnything a;
 	Page *page = context.GetPage();
-	if (page) {
+	if (page != 0) {
 		// lookup in page specific array
 		ROAnything config;
 		String pName;

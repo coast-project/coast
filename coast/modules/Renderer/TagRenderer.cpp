@@ -28,7 +28,7 @@ void TagRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &c
 	if (config.LookupPath(ROtag, "Tag")) {
 		// open start tag
 		String tag = ROtag.AsString();
-		if (tag.Length()) {
+		if (tag.Length() != 0) {
 			reply << '<' << tag;
 
 			// render options

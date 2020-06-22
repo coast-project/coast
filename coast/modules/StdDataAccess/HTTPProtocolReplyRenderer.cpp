@@ -91,7 +91,7 @@ void HTTPProtocolReplyRenderer::RenderAll(std::ostream &reply, Context &ctx, con
 	}
 	TraceAny(realConfig, "HTTPStatus config");
 	String httpVersion = Renderer::RenderToString(ctx, realConfig[coast::http::constants::protocolVersionSlotname]);
-	if (not httpVersion.Length()) {
+	if (httpVersion.Length() == 0) {
 		httpVersion = "HTTP/1.1";
 	}
 	String strFirstLine(128L);

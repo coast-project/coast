@@ -27,7 +27,7 @@ RegCacheImpl(Stresser);	 // FindStresser()
 Anything Stresser::RunStresser(const String &StresserName, long id) {
 	StartTrace1(Stresser.RunStresser, "StresserName [" << StresserName << "]");
 	Stresser *stresserPrototyp = Stresser::FindStresser(StresserName);
-	if (stresserPrototyp) {
+	if (stresserPrototyp != 0) {
 		return stresserPrototyp->Run(id);
 	}
 	Trace("Stresser not found " << StresserName);

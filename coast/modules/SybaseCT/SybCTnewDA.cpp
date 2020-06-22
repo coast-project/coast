@@ -53,7 +53,7 @@ static tValue2Strings fCsRetCode2String[] = {
 static int nValue2Strings = sizeof(fCsRetCode2String) / sizeof(tValue2Strings);
 
 SybCTnewDA::ColumnData::ColumnData(Allocator *a)
-	: indicator(NULL), value(NULL), valuelen(NULL), fAllocator((a) ? a : coast::storage::Current()) {}
+	: indicator(NULL), value(NULL), valuelen(NULL), fAllocator((a) != 0 ? a : coast::storage::Current()) {}
 
 SybCTnewDA::ColumnData::~ColumnData() {
 	fAllocator->Free(value);
@@ -94,7 +94,7 @@ SybCTnewDA::SybCTnewDA(CS_CONTEXT *context) : fContext(context), fConnection(NUL
 
 SybCTnewDA::~SybCTnewDA() {
 	StartTrace(SybCTnewDA.~SybCTnewDA);
-	if (fConnection) {
+	if (fConnection != 0) {
 		Close(true);
 	}
 }
@@ -199,7 +199,7 @@ CS_RETCODE SybCTnewDA::Init(CS_CONTEXT **context, Anything *pMessages, const Str
 			SystemLog::Info(strMsg);
 		}
 	}
-	if (retcode == CS_SUCCEED && strInterfacesPathName.Length()) {
+	if (retcode == CS_SUCCEED && (strInterfacesPathName.Length() != 0)) {
 		retcode = ct_config(*context, CS_SET, CS_IFILE, (CS_VOID *)(const char *)strInterfacesPathName,
 							strInterfacesPathName.Length(), NULL);
 		if (retcode != CS_SUCCEED) {
@@ -243,7 +243,7 @@ bool SybCTnewDA::Open(DaParams &params, String user, String password, String ser
 		// set param structure containing Context and Mappers used to return results and messages
 		if ((retcode = SetConProps(CS_USERDATA, (CS_VOID *)&params, CS_SIZEOF(DaParams))) == CS_SUCCEED) {
 			// If a username is defined, set the CS_USERNAME property.
-			if (user.Length()) {
+			if (user.Length() != 0) {
 				if ((retcode = SetConProps(CS_USERNAME, (CS_VOID *)(char *)(const char *)user, CS_NULLTERM)) != CS_SUCCEED) {
 					Error(params, "Open: ct_con_props(username) failed");
 				}
@@ -253,7 +253,7 @@ bool SybCTnewDA::Open(DaParams &params, String user, String password, String ser
 
 			if (retcode == CS_SUCCEED) {
 				// If a password is defined, set the CS_PASSWORD property.
-				if (password.Length()) {
+				if (password.Length() != 0) {
 					if ((retcode = SetConProps(CS_PASSWORD, (CS_VOID *)(char *)(const char *)password, CS_NULLTERM)) !=
 						CS_SUCCEED) {
 						Error(params, "Open: ct_con_props(password) failed");
@@ -264,7 +264,7 @@ bool SybCTnewDA::Open(DaParams &params, String user, String password, String ser
 
 				if (retcode == CS_SUCCEED) {
 					// Set the CS_APPNAME property.
-					if (appl.Length()) {
+					if (appl.Length() != 0) {
 						if ((retcode = SetConProps(CS_APPNAME, (CS_VOID *)(char *)(const char *)appl, CS_NULLTERM)) !=
 							CS_SUCCEED) {
 							Error(params, "Open: ct_con_props(appname) failed");
@@ -330,7 +330,7 @@ bool SybCTnewDA::Open(DaParams &params, String user, String password, String ser
 
 					// Open a Server fConnection.
 					if (retcode == CS_SUCCEED) {
-						if (server.Length()) {
+						if (server.Length() != 0) {
 							{
 								LockUnlockEntry me(fgSybaseLocker);
 								if ((retcode = ct_connect(fConnection, (char *)(const char *)server, CS_NULLTERM)) ==
@@ -878,7 +878,7 @@ bool SybCTnewDA::Close(bool bForce) {
 	StartTrace(SybCTnewDA.Close);
 
 	CS_RETCODE retcode = CS_SUCCEED;
-	if (fConnection) {
+	if (fConnection != 0) {
 		CS_INT close_option;
 
 		close_option = bForce ? CS_FORCE_CLOSE : CS_UNUSED;
@@ -909,7 +909,7 @@ void SybCTnewDA::Warning(DaParams &params, String str) {
 	SystemLog::Warning(strErr);
 	ResultMapper *pResultMapper = params.fpOut;
 	Context &aContext(*(params.fpContext));
-	if (pResultMapper) {
+	if (pResultMapper != 0) {
 		pResultMapper->Put("Messages", strErr, aContext);
 	}
 }
@@ -921,15 +921,15 @@ void SybCTnewDA::Error(DaParams &params, String str) {
 	SystemLog::Error(strErr);
 	ResultMapper *pResultMapper(params.fpOut);
 	Context &aContext(*(params.fpContext));
-	if (pResultMapper) {
+	if (pResultMapper != 0) {
 		pResultMapper->Put("Messages", strErr, aContext);
 	}
 }
 
 bool SybCTnewDA::GetDaParams(DaParams &params, CS_CONNECTION *connection) {
 	StartTrace(SybCTnewDA.GetDaParams);
-	return SybCTnewDA::IntGetConProps(connection, CS_USERDATA, (CS_VOID **)&params, CS_SIZEOF(SybCTnewDA::DaParams)) ==
-		   CS_SUCCEED;
+	return static_cast<long>(SybCTnewDA::IntGetConProps(connection, CS_USERDATA, (CS_VOID **)&params,
+														CS_SIZEOF(SybCTnewDA::DaParams))) == CS_SUCCEED;
 }
 
 CS_RETCODE SybCTnewDA::SetConProps(CS_INT property, CS_VOID *buffer, CS_INT buflen) {
@@ -1118,7 +1118,7 @@ CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 					return CS_FAIL;
 				}
 
-				if (status) {
+				if (status != 0) {
 					// Results timeout
 					SystemLog::Warning("SybCTnewDA_clientmsg_handler: cancelling the query due to a result timeout...");
 					(CS_VOID) ct_cancel(connection, (CS_COMMAND *)NULL, CS_CANCEL_ATTN);

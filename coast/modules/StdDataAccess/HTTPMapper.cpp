@@ -149,10 +149,10 @@ bool HTTPBodyParameterMapper::DoFinalGetStream(const char *key, std::ostream &os
 		String value;
 		for (long i = 0; i < bPSz; ++i) {
 			const char *lookupVal = params.SlotName(i);
-			if (!lookupVal) {
+			if (lookupVal == 0) {
 				lookupVal = params[i].AsCharPtr("");
 			}
-			if (lookupVal && (mapSuccess = Get(lookupVal, value, ctx))) {
+			if ((lookupVal != 0) && (mapSuccess = Get(lookupVal, value, ctx))) {
 				Trace("Param[" << lookupVal << "]=<" << value << ">");
 				os << lookupVal << "=" << value;
 				if (i < (bPSz - 1)) {

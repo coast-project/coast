@@ -517,7 +517,7 @@ void LocalizationUtilsTest::OpenStreamLangDAbsolut()
 	// this will fail if daily build did not check out correctly
 
 	Anything any;
-	if (is) {
+	if (is != 0) {
 		*is >> any;
 		assertEqual(any[0L].AsCharPtr(), "TestDir1Localized_D");
 		delete is;
@@ -535,7 +535,7 @@ void LocalizationUtilsTest::OpenStreamLangF()
 	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
 	t_assert(is != 0);
 	Anything any;
-	if (is) {
+	if (is != 0) {
 		*is >> any;
 		assertEqual("TestDir1Localized_F", any[0L].AsCharPtr());
 		delete is;
@@ -554,7 +554,7 @@ void LocalizationUtilsTest::OpenStreamLangF1stTemplateDirWrong()
 	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
 	t_assert(is != 0);
 	Anything any;
-	if (is) {
+	if (is != 0) {
 		*is >> any;
 		assertEqual("TestDir1Localized_F", any[0L].AsCharPtr());
 		delete is;
@@ -570,7 +570,7 @@ void LocalizationUtilsTest::OpenStreamLangDDefault()
 	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
 	t_assert(is != 0);
 	Anything any;
-	if (is) {
+	if (is != 0) {
 		*is >> any;
 		assertEqual("TestDir1NonLocalized", any[0L].AsCharPtr());
 		delete is;
@@ -596,7 +596,7 @@ void LocalizationUtilsTest::OpenStreamLangDDefaultAbsolut()
 	t_assert(is != 0);
 	// these will fail if daily build did not check out correctly
 	Anything any;
-	if (is) {
+	if (is != 0) {
 		*is >> any;
 		assertEqual("TestDir1NonLocalized", any[0L].AsCharPtr());
 		delete is;
@@ -616,7 +616,7 @@ void LocalizationUtilsTest::OpenStreamLangDDefaultAbsolut1stTemplateDirWrong()
 	t_assert(is != 0);
 	// this will fail if daily build did not check out correctly
 	Anything any;
-	if (is) {
+	if (is != 0) {
 		*is >> any;
 		assertEqual("TestDir1NonLocalized", any[0L].AsCharPtr());
 		delete is;
@@ -632,7 +632,7 @@ void LocalizationUtilsTest::OpenStreamDefaultTemplateDir()
 	std::istream *is = LocalizationUtils::OpenStream(fContext, "Test", absoluteFileName);
 	t_assert(is != 0);
 	Anything any;
-	if (is) {
+	if (is != 0) {
 		*is >> any;
 		assertEqual("TestDir1NonLocalized", any[0L].AsCharPtr());
 		delete is;

@@ -24,7 +24,7 @@ Test *ScrambleStateTest::suite() {
 
 void ScrambleStateTest::setUp() {
 	std::iostream *Ios = coast::system::OpenStream("ScrambleStateTest", "any");
-	if (Ios) {
+	if (Ios != 0) {
 		fStdContextAny.Import((*Ios));
 		delete Ios;
 	}
@@ -68,7 +68,7 @@ void ScrambleStateTest::DoReferenceUncsramble(const Anything &config) {
 	expectedClearText["action"] = "GoReloadConfig";
 
 	t_assert(secm != NULL);
-	if (secm) {
+	if (secm != 0) {
 		{
 			String scrambled;
 			scrambled =

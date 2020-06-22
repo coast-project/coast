@@ -33,7 +33,7 @@ bool XMLMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnyth
 	bool bFound = false;
 	fDelim = fConfig["Delim"].AsCharPtr(".")[0L];
 	fIndexDelim = fConfig["IndexDelim"].AsCharPtr(":")[0L];
-	fIndexedPathOnly = fConfig["IndexedPathOnly"].AsBool(0);
+	fIndexedPathOnly = fConfig["IndexedPathOnly"].AsBool(false);
 	if (!fConfig.IsDefined("Elements") || String().IsEqual(key)) {
 		return false;
 	}

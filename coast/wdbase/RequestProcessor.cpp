@@ -43,7 +43,7 @@ void RequestProcessor::ProcessRequest(Context &ctx) {
 		Ios = socket->GetStream();
 	}
 
-	if (Ios && socket->IsReadyForReading()) {
+	if ((Ios != 0) && socket->IsReadyForReading()) {
 		// disable nagle algorithm
 		socket->SetNoDelay();
 		if (ReadInput(*Ios, ctx) && !!(*Ios)) {
@@ -61,8 +61,8 @@ void RequestProcessor::ProcessRequest(Context &ctx) {
 	} else {
 		String logMsg("Cannot read from client socket");
 		SystemLog::eLogLevel level(SystemLog::eWARNING);
-		if (socket) {
-			logMsg << ", fd:" << ((socket) ? socket->GetFd() : -1L);
+		if (socket != 0) {
+			logMsg << ", fd:" << ((socket) != 0 ? socket->GetFd() : -1L);
 			logMsg << ", from " << socket->ClientInfo()["REMOTE_ADDR"].AsString() << ':'
 				   << socket->ClientInfo()["REMOTE_PORT"].AsString();
 			if (socket->HadTimeout()) {
@@ -77,9 +77,9 @@ void RequestProcessor::ProcessRequest(Context &ctx) {
 namespace {
 	RequestProcessor *GetCurrentRequestProcessor(Context &ctx) {
 		RequestProcessor *pProc = 0;
-		((ctx.GetServer() && (pProc = ctx.GetServer()->GetRequestProcessor())) ||
-		 (pProc = RequestProcessor::FindRequestProcessor(ctx.Lookup("RequestProcessor", "RequestProcessor"))) ||
-		 (pProc = RequestProcessor::FindRequestProcessor("RequestProcessor")));
+		(((ctx.GetServer() != 0) && ((pProc = ctx.GetServer()->GetRequestProcessor()) != 0)) ||
+		 ((pProc = RequestProcessor::FindRequestProcessor(ctx.Lookup("RequestProcessor", "RequestProcessor"))) != 0) ||
+		 ((pProc = RequestProcessor::FindRequestProcessor("RequestProcessor")) != 0));
 		return pProc;
 	}
 }  // namespace
@@ -190,7 +190,7 @@ bool RequestProcessor::DoReadInput(std::iostream &Ios, Context &ctx) {
 bool RequestProcessor::DoProcessRequest(std::ostream &reply, Context &ctx) {
 	StartTrace(RequestProcessor.DoProcessRequest);
 	Server *pServer = 0;
-	if ((pServer = GetServer()) || (pServer = ctx.GetServer())) {
+	if (((pServer = GetServer()) != 0) || ((pServer = ctx.GetServer()) != 0)) {
 		return pServer->ProcessRequest(reply, ctx);
 	}
 	return false;

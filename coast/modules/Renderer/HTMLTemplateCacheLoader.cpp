@@ -36,7 +36,7 @@ Anything HTMLTemplateCacheLoader::Load(const char *key) {
 	StartTrace1(HTMLTemplateCacheLoader.Load, "key: " << key);
 	Anything cache(coast::storage::Global());
 	std::istream *fp = system::OpenIStream(key, (const char *)"html");
-	if (fp) {
+	if (fp != 0) {
 		std::istream &reader = *fp;
 		BuildCache(cache, reader, key);
 		delete fp;
@@ -51,7 +51,7 @@ Anything HTMLTemplateCacheLoader::Load(const char *key) {
 
 void HTMLTemplateCacheLoader::BuildCache(Anything &cache, std::istream &reader, const char *filename) {
 	StartTrace(HTMLTemplateCacheLoader.BuildCache);
-	if (fParser) {
+	if (fParser != 0) {
 		TraceAny(froaConfig["ParserConfig"], "parser config to use");
 		cache = fParser->Parse(reader, filename, 1L, cache.GetAllocator(), froaConfig["ParserConfig"]);
 	} else {

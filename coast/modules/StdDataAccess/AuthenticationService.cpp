@@ -50,12 +50,12 @@ void AuthenticationService::GetUserNameAndPw(Context &ctx, String &name, String 
 bool AuthenticationService::AuthenticateUser(Context &ctx, String &name, String &pw) {
 	StartTrace(AuthenticationService.AuthenticateUser);
 	bool ret = false;
-	if (name.Length()) {
+	if (name.Length() != 0) {
 		Trace("name given [" << name << "] pw [" << pw << "]");
 		String strAccessMgrName = Lookup("AccessManager", "AccessManager");
 		AccessManager *pMgr = AccessManagerModule::GetAccessManager(strAccessMgrName);
 		Trace("requested AccessManager [" << strAccessMgrName << "]");
-		if (pMgr) {
+		if (pMgr != 0) {
 			//			Anything anyUserName;
 			//			String strContextNameSlot = Lookup("AuthUserNameSlot", "AuthUserName");
 			//			String strContextPasswordSlot = Lookup("AuthPasswordSlot", "AuthPassword");
@@ -82,7 +82,7 @@ void AuthenticationService::ForwardToMainHandler(std::ostream &os, Context &ctx)
 	String service = Lookup("Service", "WebAppService");
 	Trace("Forward to : " << service);
 	ServiceHandler *sh = ServiceHandler::FindServiceHandler(service);
-	if (sh) {
+	if (sh != 0) {
 		sh->HandleService(os, ctx);
 	} else {
 		SYSWARNING(String("ServiceHandler [") << service << "] not found!");

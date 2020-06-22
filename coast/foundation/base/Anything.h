@@ -416,7 +416,7 @@ public:
 	void insert(iterator pos, size_type first, long last) { do_insert(pos, first, last); }
 	// additional methods close to STL's associative (hashed) containers
 	typedef const char *key_type;
-	size_type erase(key_type k) { return Remove(k); }
+	size_type erase(key_type k) { return static_cast<Anything::size_type>(Remove(k)); }
 	iterator find(key_type k) {
 		long found = FindIndex(k);
 		return (found < 0 ? end() : iterator(*this, found));
@@ -819,7 +819,7 @@ protected:
 	ROAnything(AnyImpl const *imp) : fAnyImp(imp) {}
 
 	AnyImpl const *GetImpl() const {
-		if ((bits & 0x01) || !bits) {
+		if (((bits & 0x01) != 0) || (bits == 0)) {
 			return 0;
 		}
 		return fAnyImp;

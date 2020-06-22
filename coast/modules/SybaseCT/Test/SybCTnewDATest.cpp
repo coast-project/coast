@@ -74,7 +74,7 @@ void SybCTnewDATest::InitOpenSetConPropTest() {
 				sybct.Finis(context);
 				TraceAny(anyCtxMessages, "Messages");
 				// trace messages which occurred without a connection
-				while (anyCtxMessages.GetSize()) {
+				while (anyCtxMessages.GetSize() != 0) {
 					SystemLog::Warning(String() << anyCtxMessages[0L].AsCharPtr() << "\n");
 					anyCtxMessages.Remove(0L);
 				}
@@ -122,7 +122,7 @@ void SybCTnewDATest::SimpleQueryTest() {
 				sybct.Finis(context);
 				TraceAny(anyCtxMessages, "Messages");
 				// trace messages which occurred without a connection
-				while (anyCtxMessages.GetSize()) {
+				while (anyCtxMessages.GetSize() != 0) {
 					SystemLog::Warning(String() << anyCtxMessages[0L].AsCharPtr() << "\n");
 					anyCtxMessages.Remove(0L);
 				}
@@ -177,7 +177,7 @@ void SybCTnewDATest::LimitedMemoryTest() {
 				sybct.Finis(context);
 				TraceAny(anyCtxMessages, "Messages");
 				// trace messages which occurred without a connection
-				while (anyCtxMessages.GetSize()) {
+				while (anyCtxMessages.GetSize() != 0) {
 					SystemLog::Warning(String() << anyCtxMessages[0L].AsCharPtr() << "\n");
 					anyCtxMessages.Remove(0L);
 				}
@@ -200,7 +200,7 @@ void SybCTnewDATest::LoginTimeoutTest() {
 			IntLoginTimeoutTest(context, lMaxConnections, 1L);
 			TraceAny(anyCtxMessages, "Messages");
 			// trace messages which occurred without a connection
-			while (anyCtxMessages.GetSize()) {
+			while (anyCtxMessages.GetSize() != 0) {
 				SystemLog::Warning(String() << anyCtxMessages[0L].AsCharPtr() << "\n");
 				anyCtxMessages.Remove(0L);
 			}
@@ -284,7 +284,7 @@ void SybCTnewDATest::ResultTimeoutTest() {
 			sybct.Finis(context);
 			TraceAny(anyCtxMessages, "Messages");
 			// trace messages which occurred without a connection
-			while (anyCtxMessages.GetSize()) {
+			while (anyCtxMessages.GetSize() != 0) {
 				SystemLog::Warning(String() << anyCtxMessages[0L].AsCharPtr() << "\n");
 				anyCtxMessages.Remove(0L);
 			}

@@ -12,7 +12,7 @@
 
 //---- TestElt
 TestElt::~TestElt() {
-	if (fValue) {
+	if (fValue != 0) {
 		delete fValue;
 	}
 	fValue = 0;
@@ -20,7 +20,7 @@ TestElt::~TestElt() {
 
 //---- TestList ------------------------------------------------------
 TestList::~TestList(void) {
-	while (fList) {
+	while (fList != 0) {
 		TestElt *tmp = fList;
 		fList = fList->fNext;
 		delete tmp;
@@ -31,7 +31,7 @@ void TestList::push_back(Test *aValue) {
 	// create a new element of the list
 	TestElt *tmp = new TestElt(aValue);
 	// if the list already exists, bind the new element at the end of it
-	if (fList) {
+	if (fList != 0) {
 		fIn->fNext = tmp;
 	} else
 	// if the list does not yet exist, the new element is the start point of the list
@@ -45,7 +45,7 @@ void TestList::push_back(Test *aValue) {
 }
 
 Test *TestList::first() {
-	if (fList) {
+	if (fList != 0) {
 		// go the the first element
 		fIt = fList;
 		// return the result
@@ -55,7 +55,7 @@ Test *TestList::first() {
 }
 
 Test *TestList::next() {
-	if ((fIt) && (fIt->fNext)) {
+	if (((fIt) != 0) && ((fIt->fNext) != 0)) {
 		// go the the next element
 		fIt = fIt->fNext;
 		// return the result

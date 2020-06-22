@@ -71,18 +71,18 @@ namespace {
 			} else if (lMainSwitch >= fgLowerBound && lEnableAll >= lMainSwitch && lEnableAll <= fgUpperBound) {
 				myMode = eEnableAll;
 			}
-			if (entryKey.Length() && (myMode == eEnableAll || myMode == eDisableAll)) {
+			if ((entryKey.Length() != 0) && (myMode == eEnableAll || myMode == eDisableAll)) {
 				fgTriggerMap[entryKey] = static_cast<long>(myMode);
 			}
 			String strSlotname;
 			for (long lIdx = 0, lSize = anySection.GetSize(); lIdx < lSize; ++lIdx) {
 				strSlotname = anySection.SlotName(lIdx);
-				if (!strSlotname.Length() || strSlotname.IsEqual(fgMainSwitchName) || strSlotname.IsEqual(fgEnableAllName) ||
-					strSlotname.IsEqual(fgLowerBoundName) || strSlotname.IsEqual(fgUpperBoundName) ||
-					strSlotname.IsEqual(fgDumpAnythingsName))
+				if ((strSlotname.Length() == 0) || strSlotname.IsEqual(fgMainSwitchName) ||
+					strSlotname.IsEqual(fgEnableAllName) || strSlotname.IsEqual(fgLowerBoundName) ||
+					strSlotname.IsEqual(fgUpperBoundName) || strSlotname.IsEqual(fgDumpAnythingsName))
 					continue;
 				String currentKey = entryKey;
-				if (currentKey.Length())
+				if (currentKey.Length() != 0)
 					currentKey.Append(fgPathDelim);
 				currentKey.Append(strSlotname);
 				if (anySection[lIdx].GetType() == AnyArrayType) {
@@ -121,7 +121,7 @@ namespace {
 				return;
 			}
 			std::istream *ifp = system::OpenStream(strFilename, "any");
-			if (ifp) {
+			if (ifp != 0) {
 				Anything anyDebugContext;
 				if (anyDebugContext.Import(*ifp, strFilename)) {
 					if (anyDebugContext.GetType() != AnyNullType) {
@@ -240,7 +240,7 @@ Tracer::~Tracer() {
 		--fgLevel;
 		TracerHelper hlp(fgLevel, fpAlloc);
 		hlp.GetStream() << fTrigger << ":";
-		if (fpMsg) {
+		if (fpMsg != 0) {
 			hlp.GetStream() << " " << fpMsg;
 		}
 		hlp.GetStream() << " --- leaving ---\n";

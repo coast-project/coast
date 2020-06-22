@@ -16,7 +16,7 @@ RegisterResultMapper(RegExpFilterFieldsResultMapper);
 
 bool RegExpFilterFieldsResultMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything script) {
 	StartTrace1(RegExpFilterFieldsResultMapper.DoPutAny, "key [" << NotNull(key) << "]");
-	if (script.IsNull() || not script.GetSize()) {
+	if (script.IsNull() || (script.GetSize() == 0)) {
 		return true;
 	}
 	return ResultMapper::DoPutAny(key, value, ctx, script);
@@ -43,7 +43,7 @@ bool RegExpFilterFieldsResultMapper::DoPutAnyWithSlotname(const char *key, Anyth
 			bMappedValues = true;
 			String strNewKey = key;
 			strNewKey.Append(getDelim()).Append(strSlotname);
-			if (roaScript.IsNull() || not roaScript.GetSize()) {
+			if (roaScript.IsNull() || (roaScript.GetSize() == 0)) {
 				//! catch emtpy mapper script and directly use final put
 				Trace("Calling ResultMapper::DoFinalPutAny() with new key [" << strNewKey << "]");
 				bMappingSuccess = DoFinalPutAny(strNewKey, anyValue, ctx) && bMappingSuccess;

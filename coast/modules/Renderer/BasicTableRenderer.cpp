@@ -236,7 +236,7 @@ void BasicTableRenderer::PrintBodySection(const ROAnything &config, int &row, st
 		dataSize = sectionData.GetSize();  // total number of rows
 	}
 
-	if (!dataSize) {
+	if (dataSize == 0) {
 		DoPrintEmptySection(reply, ctx, config, sectionConfig, row);
 	} else {
 		long rowSize = 0;  // number of columns
@@ -343,10 +343,10 @@ RowAccessor *BasicTableRenderer::SetupRowAccessors(const ROAnything &conf, Conte
 				long idx = a.FindIndex("Type");
 				if (idx >= 0) {
 					const char *type = a[idx].AsCharPtr(0);
-					if (type) {
+					if (type != 0) {
 						Renderer *r = FindRenderer(type);
 						accessor.SetRenderer(r);
-						if (r) {
+						if (r != 0) {
 							idx = a.FindIndex("Data");
 							if (idx >= 0) {
 								Anything mutableData = a[idx].DeepClone();
@@ -392,7 +392,7 @@ RowAccessor *BasicTableRenderer::SetupRowAccessors(const ROAnything &conf, Conte
 }
 
 void BasicTableRenderer::CleanupRowAccessors(RowAccessor *accessors, long size) {
-	if (accessors) {
+	if (accessors != 0) {
 		delete[] accessors;
 	}
 }
@@ -420,13 +420,13 @@ void BasicTableRenderer::PrintRow(int &row, std::ostream &reply, Context &ctx, R
 		}
 
 		String fontOptions = accessor.GetFontOptions();
-		if (fontOptions.Length()) {	 // start font tag
+		if (fontOptions.Length() != 0) {  // start font tag
 			reply << fontOptions;
 		}
 
 		PrintElement(reply, ctx, accessors[i]);	 // render element
 
-		if (fontOptions.Length()) {	 // end font tag
+		if (fontOptions.Length() != 0) {  // end font tag
 			reply << ("</FONT>");
 		}
 
@@ -446,7 +446,7 @@ void BasicTableRenderer::PrintRow(int &row, std::ostream &reply, Context &ctx, R
 void BasicTableRenderer::PrintElement(std::ostream &reply, Context &ctx, RowAccessor &accessor) {
 	Renderer *r = accessor.GetRenderer();
 
-	if (r) {
+	if (r != 0) {
 		r->RenderAll(reply, ctx, accessor.GetConfig());
 	} else {
 		// e.g. simple strings
@@ -457,7 +457,7 @@ void BasicTableRenderer::PrintElement(std::ostream &reply, Context &ctx, RowAcce
 void BasicTableRenderer::PrintNewLine(int &row, std::ostream &reply, ROAnything &rowColors, bool invertHeaders) {
 	if (!rowColors.IsNull()) {
 		const char *rowColor = GetColor(row++, rowColors, invertHeaders);
-		if (rowColor) {
+		if (rowColor != 0) {
 			reply << "<TR BGCOLOR=\"#" << rowColor << "\">\n";
 		} else {
 			reply << ("<TR>\n");

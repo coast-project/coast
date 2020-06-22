@@ -40,6 +40,7 @@ public:
 			LockUnlockEntry aMtxEntry(fMutex);
 			while (true) {
 				std::iostream *Ios = pSocket->GetStream();
+				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				if (Ios != 0 && (*Ios)) {
 					TimeoutModifier aTimeoutModifier((SocketStream *)Ios, 10 * 1000);
 					aTimeoutModifier.Use();
@@ -106,14 +107,14 @@ public:
 	AcceptorThread(Acceptor *acceptor) : Thread("AcceptorThread"), fAcceptor(acceptor) {}
 	virtual ~AcceptorThread() {
 		StartTrace(AcceptorThread.Dtor);
-		if (fAcceptor) {
+		if (fAcceptor != 0) {
 			delete fAcceptor;
 		}
 		fAcceptor = 0;
 	}
 	void Run() {
 		StartTrace(AcceptorThread.Run);
-		if (fAcceptor) {
+		if (fAcceptor != 0) {
 			fAcceptor->RunAcceptLoop();
 		}
 	}
@@ -121,7 +122,7 @@ public:
 protected:
 	bool DoStartRequestedHook(ROAnything args) {
 		StartTrace(AcceptorThread.DoStartRequestedHook);
-		if (fAcceptor) {
+		if (fAcceptor != 0) {
 			fAcceptor->SetThreadLocal(true);
 			return (fAcceptor->PrepareAcceptLoop() == 0);
 		}
@@ -129,7 +130,7 @@ protected:
 	}
 	void DoTerminationRequestHook(ROAnything) {
 		StartTrace(AcceptorThread.DoTerminationRequestHook);
-		if (fAcceptor) {
+		if (fAcceptor != 0) {
 			fAcceptor->StopAcceptLoop();
 		}
 	}
@@ -159,7 +160,7 @@ void ConnectorDAImplTest::setUp() {
 		new Acceptor(GetTestCaseConfig()["Address"].AsString(), GetTestCaseConfig()["Port"].AsLong(), 2, fCallBack));
 	t_assert(fCallBack != 0);
 	t_assert(fAcceptorThread != 0);
-	if ((fCallBack) && (fAcceptorThread)) {
+	if (((fCallBack) != 0) && ((fAcceptorThread) != 0)) {
 		bool startsuccesful = fAcceptorThread->Start();
 		t_assertm(startsuccesful, "probably bind failed; since thread not started");
 		bool running = fAcceptorThread->CheckState(Thread::eRunning, 3);
@@ -179,7 +180,7 @@ void ConnectorDAImplTest::setUp() {
 
 void ConnectorDAImplTest::tearDown() {
 	StartTrace(ConnectorDAImplTest.tearDown);
-	if (fAcceptorThread) {
+	if (fAcceptorThread != 0) {
 		fAcceptorThread->Terminate();
 		t_assert(fAcceptorThread->CheckState(Thread::eTerminated, 3));
 		delete fAcceptorThread;

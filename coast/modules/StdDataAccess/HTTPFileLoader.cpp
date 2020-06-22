@@ -121,7 +121,7 @@ bool HTTPFileLoader::ProcessFile(const String &filename, Context &context, Param
 	std::iostream *Ios = 0;
 	String ext;
 	Ios = coast::system::OpenStream(filename, ext, std::ios::in | std::ios::binary);
-	if (Ios) {
+	if (Ios != 0) {
 		Trace("Stream opened ok");
 		retVal = out->Put(coast::http::constants::protocolCodeSlotname, 200L, context) && retVal;
 		retVal = out->Put(coast::http::constants::protocolMsgSlotname, String("Ok"), context) && retVal;

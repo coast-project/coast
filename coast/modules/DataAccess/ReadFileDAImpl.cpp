@@ -27,7 +27,7 @@ bool ReadFileDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *o
 	StartTrace(ReadFileDAImpl.Exec);
 	bool retVal = false;
 	std::istream *Ios = GetFileStream(context, in);
-	if (Ios) {
+	if (Ios != 0) {
 		retVal = out->Put("FileContent", *Ios, context);
 		delete Ios;
 	}

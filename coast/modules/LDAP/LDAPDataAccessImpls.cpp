@@ -103,7 +103,7 @@ bool LDAPAbstractDAI::DoExec(Context &ctx, ParameterMapper *getter, ResultMapper
 
 	long noHTMLCharMapping = 0L;
 	getter->Get("NoHTMLCharMapping", noHTMLCharMapping, ctx);
-	cp["MapUTF8"] = !noHTMLCharMapping;
+	cp["MapUTF8"] = noHTMLCharMapping == 0;
 
 	long plainBinaryValues = 0L;
 	getter->Get("PlainBinaryValues", plainBinaryValues, ctx);
@@ -168,7 +168,7 @@ bool LDAPAbstractDAI::DoGetQuery(ParameterMapper *getter, Context &ctx, Anything
 	String base(64L);
 	getter->Get("LDAPBase", base, ctx);
 
-	if (!base.Length()) {
+	if (base.Length() == 0) {
 		eh.HandleError("Illegal Base DN in query (empty or not defined)");
 		return false;
 	}
@@ -189,7 +189,7 @@ bool LDAPAbstractDAI::DoCheckAttributes(Anything &attrs, bool bRemoveNullValues,
 	String strAttrName;
 	for (long i = 0; i < nofAttrs; ++i) {
 		strAttrName = attrs.SlotName(i);
-		if (!strAttrName.Length()) {
+		if (strAttrName.Length() == 0) {
 			Trace("failed at index:" << i);
 			String msg("All values listed under 'Attrs' must have an associated attribute name. Failed at attr: ");
 			msg.Append(i);
@@ -476,7 +476,7 @@ int LDAPModifyDAI::DoLDAPRequest(Context &ctx, ParameterMapper *getter, LDAPConn
 	int iRc(DoSpecificOperation(lc, base, ldapmods, iMsgId));
 
 	Trace("Freeing memory...");
-	if (ldapmods) {
+	if (ldapmods != 0) {
 		for (i = 0; i < totalmods; ++i) {
 			if (bBinaryOperation) {
 				int mod_bvaluesIndex(0);
@@ -591,7 +591,7 @@ int LDAPSearchDAI::DoLDAPRequest(Context &ctx, ParameterMapper *getter, LDAPConn
 	long size(query["Attrs"].IsNull() ? 0 : query["Attrs"].GetSize());
 	if (size > 0) {
 		attrs = (char **)calloc(size + 1, sizeof(char *));
-		if (!attrs) {
+		if (attrs == 0) {
 			static const char crashmsg[] = "FATAL: Attribute calloc failed in LDAPSearchDAI::DoLDAPRequest. Will crash.";
 			SystemLog::WriteToStderr(crashmsg, sizeof(crashmsg));
 			return -1;

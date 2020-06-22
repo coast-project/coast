@@ -37,7 +37,7 @@ bool MapperTestDAImpl::Exec(Context &context, ParameterMapper *input, ResultMapp
 			}
 			strPutKey = anyEntry.AsString();
 			Trace("get key [" << strGetKey << "] put key [" << strPutKey << "]");
-			if (strGetKey.Length()) {
+			if (strGetKey.Length() != 0) {
 				String inputStr(128L);
 				bool bGetCode, bPutCode = false;
 				if (strMode.Compare("int") == 0) {

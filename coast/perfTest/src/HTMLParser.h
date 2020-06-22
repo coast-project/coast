@@ -252,7 +252,13 @@ private:
 class MyHTMLWriter : public AAT_HTMLWriter {
 public:
 	MyHTMLWriter(Anything &urls)
-		: fUrls(urls), fStoreTitle(0), fRequestFailed(0), fFormNr(-1), fTitle(""), fAllStringsInPage(""), fInScript(false) {}
+		: fUrls(urls),
+		  fStoreTitle(false),
+		  fRequestFailed(false),
+		  fFormNr(-1),
+		  fTitle(""),
+		  fAllStringsInPage(""),
+		  fInScript(false) {}
 	virtual ~MyHTMLWriter() {}
 
 	virtual void Put(char c);

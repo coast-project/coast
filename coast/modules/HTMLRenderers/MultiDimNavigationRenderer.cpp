@@ -103,7 +103,7 @@ void MultiDimNavigationRenderer::RenderAll(std::ostream &reply, Context &c, cons
 		reply << "<tr>";
 		for (long columnNr = 0; columnNr < columnNrMax; ++columnNr) {
 			reply << "<td align=center ";
-			if (tdBGColor.Length()) {
+			if (tdBGColor.Length() != 0) {
 				reply << "BGColor=\"" << tdBGColor << "\" ";
 			}
 

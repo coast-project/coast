@@ -20,7 +20,7 @@ void ContainsStringRenderer::RenderAll(std::ostream &reply, Context &ctx, const 
 	strResult = RenderToString(ctx, config["Error"]);
 	RenderOnString(strSource, ctx, config["String"]);
 	RenderOnString(strContained, ctx, config["Contains"]);
-	if (strSource.Length() && strContained.Length()) {
+	if ((strSource.Length() != 0) && (strContained.Length() != 0)) {
 		long lIdx = strSource.Contains(strContained);
 		Trace("contains idx: " << lIdx);
 		if (lIdx >= 0) {

@@ -20,7 +20,7 @@ HiddenFieldRendererTest::HiddenFieldRendererTest(TString tname) : FieldRendererT
 };
 
 HiddenFieldRendererTest::~HiddenFieldRendererTest() {
-	if (fFieldRenderer) {
+	if (fFieldRenderer != 0) {
 		delete fFieldRenderer;
 	}
 	fFieldRenderer = 0;

@@ -70,7 +70,7 @@ void XMLTagParser::ProcessElement(std::istream &Is, TagToken &Tag, Anything Resu
 	Anything content = ProcessContent(Is, Tag);
 	String tag = Tag.GetTag();
 	if (Result.IsDefined(tag)) {
-		if (Result[tag].SlotName(0)) {
+		if (Result[tag].SlotName(0) != 0) {
 			// pack first item
 			Anything firstItem = Result[tag];
 			Anything dummy;
@@ -98,7 +98,7 @@ Anything XMLTagParser::ProcessContent(std::istream &Is, TagToken &Tag) {
 		}
 
 		if (nextToken.IsEndTag()) {
-			if (content.Length() && result.IsNull()) {
+			if ((content.Length() != 0) && result.IsNull()) {
 				result = content;
 			}
 		} else {

@@ -26,7 +26,7 @@ void OptionsPrinter::RenderAll(std::ostream &reply, Context &c, const ROAnything
 	for (int i = 0, sz = config.GetSize(); i < sz; ++i) {
 		String name = config.SlotName(i);
 		reply << ' ';
-		if (name.Length()) {
+		if (name.Length() != 0) {
 			reply << name.ToLower();
 			// render option value
 			reply << "=\"";

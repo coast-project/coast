@@ -71,9 +71,9 @@ bool HTTPPostRequestBodyParser::DoParseBody(std::istream &input) {
 		name = contentdisp["NAME"].AsString();
 		filename = contentdisp["FILENAME"].AsString();
 	}
-	if (name.Length() && filename.Length()) {
+	if ((name.Length() != 0) && (filename.Length() != 0)) {
 		fContent.Append(fUnparsedContent);
-	} else if (fUnparsedContent.Length()) {
+	} else if (fUnparsedContent.Length() != 0) {
 		Decode(fUnparsedContent, fContent);
 	}
 	return readSuccess;
@@ -120,7 +120,7 @@ bool HTTPPostRequestBodyParser::DoReadToBoundary(std::istream &input, const Stri
 			}
 		}
 		if (!boundaryseen) {
-			if (newLineFoundLastLine && body.Length()) {
+			if (newLineFoundLastLine && (body.Length() != 0)) {
 				body << coast::streamutils::LF;	 //!@FIXME could be wrong, if last line > 4k
 			}
 			body << line;
@@ -143,7 +143,7 @@ bool HTTPPostRequestBodyParser::DoParseMultiPart(std::istream &input, const Stri
 		String body;
 		endReached = DoReadToBoundary(input, bound, body);
 		Trace("Body: <" << body << ">");
-		if (body.Length()) {
+		if (body.Length() != 0) {
 			IStringStream innerpart(body);
 			MIMEHeader hinner;
 			try {

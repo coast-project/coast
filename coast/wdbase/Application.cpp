@@ -126,7 +126,7 @@ Application *Application::GetGlobalApplication(String &applicationName) {
 		Anything applicationConf;
 		if (fgConfig.LookupPath(applicationConf, "Application")) {
 			TraceAny(applicationConf, "Iterating over application config");
-			for (long i = 0, sz = applicationConf.GetSize() && !application; i < sz; ++i) {
+			for (long i = 0, sz = (static_cast<long>(applicationConf.GetSize() != 0) && (application) == 0); i < sz; ++i) {
 				// iterate over the applicationname list
 				applicationName = applicationConf[i].AsCharPtr(0);
 				Trace("testing for appname [" << applicationName << "]");
@@ -141,7 +141,7 @@ Application *Application::GetGlobalApplication(String &applicationName) {
 			// return the first in the list
 			Trace("Iterating over registered Application/Server entries");
 			RegistryIterator ri(MetaRegistry::instance().GetRegistry("Application"), false);
-			for (; ri.HasMore() && !application; application = SafeCast(ri.Next(applicationName), Application))
+			for (; ri.HasMore() && (application == 0); application = SafeCast(ri.Next(applicationName), Application))
 				;
 		}
 	}

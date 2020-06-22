@@ -344,7 +344,7 @@ public:
 	Connector(String ipAdr, long port, long connectTimeout = 0, String srcIpAdr = "", long srcPort = 0,
 			  bool threadLocal = false);
 	//! same as above, but take a ConnectorArgs object which wraps ipAdr, port, connectTimeout
-	Connector(ConnectorArgs &connectorArgs, String srcIpAdr = "", long srcPort = 0, bool threadLocal = 0);
+	Connector(ConnectorArgs &connectorArgs, String srcIpAdr = "", long srcPort = 0, bool threadLocal = false);
 
 	//!  Connector destructors deletes the internal socket object if allocated
 	virtual ~Connector();

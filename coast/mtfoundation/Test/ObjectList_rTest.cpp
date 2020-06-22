@@ -89,7 +89,7 @@ void ObjectList_rTest::CtorTest() {
 			assertCompare(148L, equal_to, (long)l.size());
 			for (int j = 0; j < (150 - 2); ++j) {
 				String *pS2 = l.front();
-				if (pS2) {
+				if (pS2 != 0) {
 					Trace(*pS2);
 				}
 				delete pS2;
@@ -125,7 +125,7 @@ void ObjectList_rTest::CtorTest() {
 			assertCompare(148L, equal_to, (long)l.size());
 			for (int j = 0; j < (150 - 2); ++j) {
 				String *pS2 = l.front();
-				if (pS2) {
+				if (pS2 != 0) {
 					Trace(*pS2);
 				}
 				delete pS2;

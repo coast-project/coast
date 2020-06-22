@@ -283,7 +283,7 @@ protected:
 		// we could do something here to persist the content of the queue and the putback message buffer
 		fQueue.reset();
 		fFailedPutbackMessages.reset();
-		if (fpQAllocator) {
+		if (fpQAllocator != 0) {
 			MT_Storage::UnrefAllocator(fpQAllocator);
 			fpQAllocator = 0;
 		}

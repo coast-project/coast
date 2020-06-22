@@ -83,7 +83,7 @@ Anything HTMLTreeWriter::PublishResult() {
 
 void HTMLTreeWriter::NewTag(String &tagname) {
 	StartTrace1(HTMLTreeWriter.NewTag, "Tag: " << tagname);
-	if (tagname) {
+	if (tagname != 0) {
 		String thisLevelTagName;
 		GetThisLevelTagName(thisLevelTagName);
 
@@ -134,7 +134,7 @@ void HTMLTreeWriter::EndTag(String &tagname) {
 		GetThisLevelTagName(thisLevelTagName);
 		Trace("This Level ->" << thisLevelTagName);
 		levelOfFailure = thisLevelTagName;
-		if (oldLevel.Length()) {
+		if (oldLevel.Length() != 0) {
 			levelOfFailure << ".";
 		}
 		levelOfFailure << oldLevel;
@@ -170,7 +170,7 @@ Anything HTMLTreeWriter::GetParseTree() {
 }
 
 void HTMLTreeWriter::Tag(int type, const char *tagname) {
-	if (tagname) {
+	if (tagname != 0) {
 		String tn(tagname);
 		if (type == '/') {	// End tag
 			EndTag(tn);

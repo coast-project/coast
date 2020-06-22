@@ -22,12 +22,12 @@ OraclePooledConnection::~OraclePooledConnection() {
 
 bool OraclePooledConnection::Open(String const &strServer, String const &strUsername, String const &strPassword) {
 	StartTrace1(OraclePooledConnection.Open, "server [" << strServer << "] user [" << strUsername << "]");
-	if (!fEnvironment.get()) {
+	if (fEnvironment.get() == 0) {
 		fEnvironment = OracleEnvironmentPtr(new (coast::storage::Global()) OracleEnvironment(
 			OracleEnvironment::THREADED_UNMUTEXED, fId, fPoolSize, fPoolBuckets));
 	}
-	if (fEnvironment.get() && fEnvironment->valid()) {
-		if (!fConnection.get())
+	if ((fEnvironment.get() != 0) && fEnvironment->valid()) {
+		if (fConnection.get() == 0)
 			fConnection = OracleConnectionPtr(fEnvironment->createConnection(strServer, strUsername, strPassword));
 		else {
 			fConnection->Open(strServer, strUsername, strPassword);
@@ -35,12 +35,12 @@ bool OraclePooledConnection::Open(String const &strServer, String const &strUser
 		fServer = strServer;
 		fUser = strUsername;
 	}
-	return fConnection.get();
+	return fConnection.get() != 0;
 }
 
 bool OraclePooledConnection::Close(bool bForce) {
 	StatTrace(OraclePooledConnection.Close, (bForce ? "" : "not ") << "forcing connection closing", coast::storage::Current());
-	if (fConnection.get()) {
+	if (fConnection.get() != 0) {
 		fConnection->Close();
 	}
 	if (bForce) {

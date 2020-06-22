@@ -216,7 +216,7 @@ void RegistryTest::TerminateTest() {
 
 	Registry *r = MetaRegistry::instance().GetRegistry("TerminateTest");
 	t_assert(r != 0);
-	if (r) {
+	if (r != 0) {
 		r->RegisterRegisterableObject("terminate1", &a);
 		r->RegisterRegisterableObject("terminate2", b);
 

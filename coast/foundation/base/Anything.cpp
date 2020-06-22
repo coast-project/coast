@@ -48,10 +48,10 @@ long IFAHash(const char *key, long &len, char stop1, char stop2)
 	u_long g;
 	const unsigned char *const keyp = reinterpret_cast<const unsigned char *>(key);
 	const unsigned char *p = keyp;
-	if (key) {
-		while (*p && *p != stop1 && *p != stop2) {
+	if (key != 0) {
+		while ((*p != 0u) && *p != stop1 && *p != stop2) {
 			h = (h << 4) + *p++;
-			if ((g = (h & 0xf0000000))) {
+			if ((g = (h & 0xf0000000)) != 0u) {
 				h = (h ^ (g >> 24)) ^ g;
 			}
 		}
@@ -70,7 +70,7 @@ public:
 
 	// input
 	void SkipToEOL();  // for reading comments by parser
-	bool Get(char &c) { return (fIs.get(c).good()) || (c = 0); }
+	bool Get(char &c) { return (fIs.get(c).good()) || ((c = 0) != 0); }
 	// the last assignment is a trick for sunCC weakness of storing EOF(-1) in c
 	void Putback(char c) { fIs.putback(c); }
 	bool IsGood() { return fIs.good(); }
@@ -130,8 +130,8 @@ bool AnythingToken::isNameDelimiter(char c) {
 	// alternative Impl: return strchr(" \t\n\r\v\"/#{}[&*",c) != 0;
 	// isprint( static_cast<unsigned char>(c)) shouldn't be used because of umlauts äüö and signed chars
 	// may be double quotes " should also be considered delimiters
-	return isspace(static_cast<unsigned char>(c)) || '/' == c || '#' == c || '&' == c || '*' == c || '{' == c || '}' == c ||
-		   '[' == c	 //|| ']' == c
+	return (isspace(static_cast<unsigned char>(c)) != 0) || '/' == c || '#' == c || '&' == c || '*' == c || '{' == c ||
+		   '}' == c || '[' == c	 //|| ']' == c
 		   || '\"' == c || 0 == c || '%' == c || '!' == c;
 }
 
@@ -153,8 +153,8 @@ AnythingToken::AnythingToken(InputContext &context) : fToken(0) {
 				fText.Append(c);
 				fToken = c;
 				return;
-			case '&':																// a object indicator, a number must follow
-				while (context.Get(c) && isspace(static_cast<unsigned char>(c))) {	// consume spaces
+			case '&':  // a object indicator, a number must follow
+				while (context.Get(c) && (isspace(static_cast<unsigned char>(c)) != 0)) {  // consume spaces
 					// adjust line count!
 					if ('\n' == c || '\r' == c) {
 						++context.LineRef();
@@ -170,7 +170,7 @@ AnythingToken::AnythingToken(InputContext &context) : fToken(0) {
 				// consume invalid characters up to a whitespace
 				do {
 					fText.Append(c);
-				} while (!isspace(static_cast<unsigned char>(c)) && context.Get(c));
+				} while ((isspace(static_cast<unsigned char>(c)) == 0) && context.Get(c));
 				if ('\n' == c || '\r' == c) {
 					++context.LineRef();
 				}
@@ -188,11 +188,11 @@ AnythingToken::AnythingToken(InputContext &context) : fToken(0) {
 						// should we allow more? YES! Note this code corresponts to
 						// DoReadName below
 						c = DoReadName(context, c);
-						if (c) {
+						if (c != 0) {
 							context.Putback(c);
 						}
 					} else {
-						if (c) {
+						if (c != 0) {
 							context.Putback(c);	 // re-interpret delimiters
 						}
 					}
@@ -222,7 +222,7 @@ AnythingToken::AnythingToken(InputContext &context) : fToken(0) {
 					// this is treated as a AnyStringimpl.
 					c = DoReadName(context, c);
 				}
-				if (c) {
+				if (c != 0) {
 					context.Putback(c);	 // putback a single char should be always supported.
 				}
 				return;
@@ -248,7 +248,7 @@ AnythingToken::AnythingToken(InputContext &context) : fToken(0) {
 					// this is treated as a AnyStringimpl.
 					c = DoReadName(context, c);
 				}
-				if (c) {
+				if (c != 0) {
 					context.Putback(c);
 				}
 				return;
@@ -256,15 +256,15 @@ AnythingToken::AnythingToken(InputContext &context) : fToken(0) {
 				context.SkipToEOL();
 				break;
 			default:
-				if (isalnum(static_cast<unsigned char>(c)) || '_' == c) {  // do we need to allow more?
+				if ((isalnum(static_cast<unsigned char>(c)) != 0) || '_' == c) {  // do we need to allow more?
 					// a name or string read it
 					c = DoReadName(context, c);
 					// should check for delimiter
 					// this character should be ignored safely
-					if (c) {
+					if (c != 0) {
 						context.Putback(c);
 					}
-				} else if (isspace(static_cast<unsigned char>(c))) {
+				} else if (isspace(static_cast<unsigned char>(c)) != 0) {
 					// ignore it but count line changes
 					if ('\n' == c || '\r' == c) {
 						++context.LineRef();
@@ -280,7 +280,7 @@ AnythingToken::AnythingToken(InputContext &context) : fToken(0) {
 }
 
 void AnythingToken::DoReadString(InputContext &context, char firstchar) {
-	if (firstchar) {
+	if (firstchar != 0) {
 		context.Putback(firstchar);	 // leave double quote on the stream
 	}
 	long linebreakswithinstring = fText.IntReadFrom(context.StreamRef(), firstchar);
@@ -366,7 +366,7 @@ char AnythingToken::DoReadDigits(InputContext &context) {
 	// returns 0 in case of eof
 	char c = 0;
 	while (context.Get(c)) {
-		if (isdigit(static_cast<unsigned char>(c))) {
+		if (isdigit(static_cast<unsigned char>(c)) != 0) {
 			fText.Append(c);
 		} else {
 			return c;  // we are done
@@ -393,7 +393,7 @@ char AnythingToken::DoReadOctalOrHex(InputContext &context) {
 			char saveXcase = c;
 			fToken = AnythingToken::eHexNumber;
 			while (context.Get(c)) {
-				if (isxdigit(static_cast<unsigned char>(c))) {
+				if (isxdigit(static_cast<unsigned char>(c)) != 0) {
 					fText.Append(c);
 				} else if (!isNameDelimiter(c)) {
 					// we might have some problem here if c is not a delim
@@ -460,7 +460,7 @@ char AnythingToken::DoReadNumber(InputContext &context, char firstchar) {
 			context.Get(firstchar);
 		}
 		// processed [+-]? follow: [0-9]*\.?[0-9]*([eE][+-]?[0-9]+)?
-		if (isdigit(static_cast<unsigned char>(firstchar))) {
+		if (isdigit(static_cast<unsigned char>(firstchar)) != 0) {
 			// collect decimal digits
 			intpart = true;
 			fText.Append(firstchar);
@@ -486,7 +486,7 @@ char AnythingToken::DoReadNumber(InputContext &context, char firstchar) {
 				context.Get(firstchar);
 			}
 			// processed [+-]?[0-9]*\.?[0-9]*([eE][+-]? follow: [0-9]+)?
-			if (isdigit(static_cast<unsigned char>(firstchar))) {
+			if (isdigit(static_cast<unsigned char>(firstchar)) != 0) {
 				exponent = true;
 				fText.Append(firstchar);
 				firstchar = DoReadDigits(context);
@@ -495,7 +495,7 @@ char AnythingToken::DoReadNumber(InputContext &context, char firstchar) {
 	} else {
 		// special case one digit number
 		fText.Append(firstchar);
-		if (isdigit(static_cast<unsigned char>(firstchar))) {
+		if (isdigit(static_cast<unsigned char>(firstchar)) != 0) {
 			intpart = true;
 		} else {
 			fToken = AnythingToken::eError;
@@ -523,7 +523,7 @@ namespace {
 	struct unescapeString {
 		String result;
 		void operator()(const char c) {
-			if (result.Length() && leftCharEscape(result[result.Length() - 1L], c)) {
+			if ((result.Length() != 0) && leftCharEscape(result[result.Length() - 1L], c)) {
 				result.Trim(result.Length() - 1L);
 			}
 			result.Append(c);
@@ -543,7 +543,7 @@ namespace {
 		String fStr;
 		void operator()(Anything const &anyValue) {
 			if (anyValue.GetType() == AnyCharPtrType) {
-				if (fStr.Length()) {
+				if (fStr.Length() != 0) {
 					fStr.Append(fgPathDelim);
 				}
 			} else if (anyValue.GetType() == AnyLongType) {
@@ -715,37 +715,39 @@ Anything::Anything(Allocator *a) : fAnyImp(0) {
 	SetAllocator(a);
 }
 Anything::Anything(AnyImpl *ai) : fAnyImp(ai) {
-	SetAllocator(ai ? ai->MyAllocator() : coast::storage::Current());
+	SetAllocator(ai != 0 ? ai->MyAllocator() : coast::storage::Current());
 }
-Anything::Anything(int i, Allocator *a) : fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(i, a)) {
+Anything::Anything(int i, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyLongImpl(i, a)) {
 	SetAllocator(a);
 }
 #if !defined(BOOL_NOT_SUPPORTED)
-Anything::Anything(bool b, Allocator *a) : fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(b, a)) {
+Anything::Anything(bool b, Allocator *a)
+	: fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyLongImpl(static_cast<long>(b), a)) {
 	SetAllocator(a);
 }
 #endif
-Anything::Anything(long i, Allocator *a) : fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(i, a)) {
+Anything::Anything(long i, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyLongImpl(i, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(float f, Allocator *a) : fAnyImp(new ((a) ? a : coast::storage::Current()) AnyDoubleImpl(f, a)) {
+Anything::Anything(float f, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyDoubleImpl(f, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(double d, Allocator *a) : fAnyImp(new ((a) ? a : coast::storage::Current()) AnyDoubleImpl(d, a)) {
+Anything::Anything(double d, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyDoubleImpl(d, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(IFAObject *o, Allocator *a) : fAnyImp(new ((a) ? a : coast::storage::Current()) AnyObjectImpl(o, a)) {
+Anything::Anything(IFAObject *o, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyObjectImpl(o, a)) {
 	SetAllocator(a);  // PS: Only for transient pointers NO checking!!
 }
-Anything::Anything(const String &s, Allocator *a) : fAnyImp(new ((a) ? a : coast::storage::Current()) AnyStringImpl(s, a)) {
+Anything::Anything(const String &s, Allocator *a)
+	: fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyStringImpl(s, a)) {
 	SetAllocator(a);
 }
 Anything::Anything(const char *s, long len, Allocator *a)
-	: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyStringImpl(s, len, a)) {
+	: fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyStringImpl(s, len, a)) {
 	SetAllocator(a);
 }
 Anything::Anything(void *buf, long len, Allocator *a)
-	: fAnyImp(new ((a) ? a : coast::storage::Current()) AnyBinaryBufImpl(buf, len, a)) {
+	: fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyBinaryBufImpl(buf, len, a)) {
 	SetAllocator(a);
 }
 
@@ -754,26 +756,26 @@ Anything::Anything(const Anything &any, Allocator *a) : fAnyImp(0) {
 	if (GetAllocator() == any.GetAllocator()) {
 		// add reference
 		fAnyImp = const_cast<AnyImpl *>(any.GetImpl());
-		if (GetImpl()) {
+		if (GetImpl() != 0) {
 			GetImpl()->Ref();
 		}
 	} else {
 		// copy memory
 		Anything xref;
-		if (any.GetImpl()) {
+		if (any.GetImpl() != 0) {
 			fAnyImp = any.GetImpl()->DeepClone(GetAllocator(), xref);
 		}
 	}
-	if (!GetImpl()) {
+	if (GetImpl() == 0) {
 		SetAllocator(a);  // remember allocator or make it sane in case of errors
 	}
 }
-Anything::Anything(ArrayMarker m, Allocator *a) : fAnyImp(new ((a) ? a : coast::storage::Current()) AnyArrayImpl(a)) {
+Anything::Anything(ArrayMarker m, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyArrayImpl(a)) {
 	SetAllocator(a);
 }
 
 Anything::~Anything() {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		GetImpl()->Unref();
 		fAnyImp = 0;
 	}
@@ -781,25 +783,25 @@ Anything::~Anything() {
 
 Anything Anything::DeepClone(Allocator *a) const {
 	Anything xref(a);
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->DeepClone(a, xref);
 	}
 	return Anything(a);	 // just set the allocator
 }
 
 Anything Anything::DeepClone(Allocator *a, Anything &xref) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->DeepClone(a, xref);
 	}
 	return Anything(a);	 // just set the allocator
 }
 
 long Anything::GetSize() const {
-	return GetImpl() ? GetImpl()->GetSize() : 0L;
+	return GetImpl() != 0 ? GetImpl()->GetSize() : 0L;
 }
 
 AnyImplType Anything::GetType() const {
-	return GetImpl() ? GetImpl()->GetType() : AnyNullType;
+	return GetImpl() != 0 ? GetImpl()->GetType() : AnyNullType;
 }
 
 void Anything::EnsureArrayImpl(Anything &anyToEnsure) {
@@ -817,7 +819,7 @@ void Anything::EnsureArrayImpl(Anything &anyToEnsure) {
 }
 
 long Anything::AsLong(long dflt) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsLong(dflt);
 	}
 	return dflt;
@@ -830,7 +832,7 @@ bool Anything::AsBool(bool dflt) const {
 }
 
 double Anything::AsDouble(double dflt) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsDouble(dflt);
 	}
 	return dflt;
@@ -844,24 +846,24 @@ IFAObject *Anything::AsIFAObject(IFAObject *dflt) const {
 }
 
 const char *Anything::AsCharPtr(const char *dflt) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsCharPtr(dflt);
 	}
 	return dflt;
 }
 
 const char *Anything::AsCharPtr(const char *dflt, long &buflen) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsCharPtr(dflt, buflen);
 	}
-	if (dflt) {
+	if (dflt != 0) {
 		buflen = strlen(dflt);
 	}
 	return dflt;
 }
 
 String Anything::AsString(const char *dflt) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsString(dflt);
 	}
 	return dflt;
@@ -871,11 +873,11 @@ void Anything::Expand() {
 	if (GetType() != AnyArrayType) {
 		Allocator *al = GetAllocator();
 		Assert(al != 0);
-		AnyArrayImpl *a = new ((al) ? al : coast::storage::Current()) AnyArrayImpl(al);
-		if (a && GetType() != AnyNullType) {
+		AnyArrayImpl *a = new ((al) != 0 ? al : coast::storage::Current()) AnyArrayImpl(al);
+		if ((a != 0) && GetType() != AnyNullType) {
 			a->At(0L) = *this;	// this semantic is different from the Java version
 		}
-		if (GetImpl()) {
+		if (GetImpl() != 0) {
 			GetImpl()->Unref();
 		}
 		fAnyImp = a;
@@ -937,7 +939,7 @@ Anything const &Anything::DoGetAt(long i) const {
 
 Anything &Anything::DoAt(const char *k) {
 	long i;
-	if (k && (*k != 0)) {
+	if ((k != 0) && (*k != 0)) {
 		if ((i = FindIndex(k)) == -1L) {
 			Expand();
 			Assert(AnyArrayType == GetImpl()->GetType());
@@ -949,7 +951,7 @@ Anything &Anything::DoAt(const char *k) {
 }
 Anything const &Anything::DoAt(const char *k) const {
 	long i;
-	if (k && (*k != 0)) {
+	if ((k != 0) && (*k != 0)) {
 		if ((i = FindIndex(k)) != -1L) {
 			return DoAt(i);
 		}
@@ -997,18 +999,18 @@ bool Anything::IsEqual(const Anything &other) const {
 	if (GetImpl() == other.GetImpl()) {
 		return true;
 	}
-	if (GetImpl() && other.GetImpl()) {
+	if ((GetImpl() != 0) && (other.GetImpl() != 0)) {
 		return GetImpl()->IsEqual(other.GetImpl());
 	}
 	return false;
 }
 
 bool Anything::IsEqual(const char *other) const {
-	if (GetImpl()) {
-		if (other) {
+	if (GetImpl() != 0) {
+		if (other != 0) {
 			return (strcmp(AsCharPtr(""), other) == 0);
 		}
-	} else if (!other) {
+	} else if (other == 0) {
 		return true;
 	}
 	return false;
@@ -1031,14 +1033,14 @@ long Anything::FindIndex(const long lIdx) const {
 }
 
 long Anything::FindValue(const char *k) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->Contains(k);
 	}
 	return -1L;
 }
 
 bool Anything::Contains(const char *k) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return (GetImpl()->Contains(k) >= 0);
 	}
 	return false;
@@ -1057,21 +1059,21 @@ Anything &Anything::operator=(const Anything &a) {
 		AnyImpl *oldImpl = GetImpl();
 		if (a.GetAllocator() == al) {
 			fAnyImp = const_cast<AnyImpl *>(a.GetImpl());
-			if (GetImpl()) {
+			if (GetImpl() != 0) {
 				GetImpl()->Ref();
 			}
-		} else if (a.GetImpl()) {
+		} else if (a.GetImpl() != 0) {
 			Assert(al != 0);
 			Anything xref;
 			fAnyImp = a.GetImpl()->DeepClone(al, xref);
 		} else {  // empty any
 			fAnyImp = 0;
 		}
-		if (!GetImpl()) {
+		if (GetImpl() == 0) {
 			SetAllocator(al);
 		}
 		// make it sane if we remain empty
-		if (oldImpl) {
+		if (oldImpl != 0) {
 			oldImpl->Unref();
 		}
 	}
@@ -1110,7 +1112,7 @@ protected:
 
 		fOs << '/';
 
-		if (isdigit(static_cast<unsigned char>(s[0L]))) {
+		if (isdigit(static_cast<unsigned char>(s[0L])) != 0) {
 			needquote = true;  // quote all numbers
 		} else {
 			for (long i = s.Length(); --i >= 0 && !needquote;) {
@@ -1275,7 +1277,7 @@ void Anything::Export(std::ostream &os, int level) const {
 }
 
 long Anything::RefCount() const {
-	return (GetImpl()) ? GetImpl()->RefCount() : 0L;
+	return (GetImpl()) != 0 ? GetImpl()->RefCount() : 0L;
 }
 
 bool Anything::Import(std::istream &is, const char *fname) {
@@ -1286,7 +1288,7 @@ bool Anything::Import(std::istream &is, const char *fname) {
 			// there has been a syntax error
 			String m("Anything::Import "), strFName(context.FileName());
 			bool bHasExt = true;
-			if (!strFName.Length() && fname != NULL) {
+			if ((strFName.Length() == 0) && fname != NULL) {
 				strFName << fname;
 				bHasExt = (strFName.SubString(strFName.Length() - 4L) == ".any");
 			} else {
@@ -1301,7 +1303,7 @@ bool Anything::Import(std::istream &is, const char *fname) {
 	} else {
 		Allocator *a = GetAllocator();
 
-		if (GetImpl()) {
+		if (GetImpl() != 0) {
 			GetImpl()->Unref();
 		}
 		fAnyImp = 0;
@@ -1313,7 +1315,8 @@ bool Anything::Import(std::istream &is, const char *fname) {
 
 bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, char delimIdx) const {
 	// do some shortcut if delimSlot does not exist in path
-	if (delimSlot == '\000' || delimIdx == '\000' || (!strchr(NotNull(path), delimSlot) && !strchr(NotNull(path), delimIdx))) {
+	if (delimSlot == '\000' || delimIdx == '\000' ||
+		((strchr(NotNull(path), delimSlot) == 0) && (strchr(NotNull(path), delimIdx) == 0))) {
 		// '\000' is not a valid delimiter, we do not use it, fast special case
 		long lIdx = FindIndex(path);
 		if (lIdx >= 0) {
@@ -1324,18 +1327,18 @@ bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, ch
 		// calculate key values into anything; cache hash values and size information
 		// assume we have at least one delimSlot in path
 		const char *tokPtr = path;
-		if (!tokPtr || *tokPtr == delimSlot) {
+		if ((tokPtr == 0) || *tokPtr == delimSlot) {
 			return false;
 		}
 		Anything c = *this;
 		do {
 			long lIdx = -1;
 			if (*tokPtr == delimIdx) {
-				if (!*++tokPtr || *tokPtr == delimIdx || *tokPtr == delimSlot) {
+				if ((*++tokPtr == 0) || *tokPtr == delimIdx || *tokPtr == delimSlot) {
 					return false;
 				}
 				lIdx = 0;
-				while (isdigit(*tokPtr)) {	//*tokPtr != '\0' &&  *tokPtr != delimSlot && *tokPtr != delimIdx)
+				while (isdigit(*tokPtr) != 0) {	 //*tokPtr != '\0' &&  *tokPtr != delimSlot && *tokPtr != delimIdx)
 					lIdx *= 10;
 					lIdx += (*tokPtr++ - '0');
 				}
@@ -1346,7 +1349,7 @@ bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, ch
 				if (lIdx >= c.GetSize() || c[lIdx].IsNull()) {
 					return false;
 				}
-			} else if (*tokPtr) {
+			} else if (*tokPtr != 0) {
 				if (*tokPtr == delimSlot) {
 					++tokPtr;
 					if (*tokPtr == '\0' || *tokPtr == delimSlot || *tokPtr == delimIdx) {
@@ -1374,15 +1377,15 @@ bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, ch
 }
 
 Allocator *Anything::GetAllocator() const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImplAllocator();
 	}
 	return reinterpret_cast<Allocator *>(bits & ~0x01);
 }
 
 bool Anything::SetAllocator(Allocator *a) {
-	if (!GetImpl() || !fAlloc) {
-		fAlloc = (a) ? a : coast::storage::Current();
+	if ((GetImpl() == 0) || (fAlloc == 0)) {
+		fAlloc = (a) != 0 ? a : coast::storage::Current();
 		bits |= 0x01;
 		return (a != 0);
 	}
@@ -1390,20 +1393,20 @@ bool Anything::SetAllocator(Allocator *a) {
 }
 
 Allocator *Anything::GetImplAllocator() const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->MyAllocator();
 	}
 	return 0;
 }
 
 AnyImpl const *Anything::GetImpl() const {
-	if (bits & 0x01) {
+	if ((bits & 0x01) != 0) {
 		return 0;
 	}
 	return fAnyImp;
 }
 AnyImpl *Anything::GetImpl() {
-	if (bits & 0x01) {
+	if ((bits & 0x01) != 0) {
 		return 0;
 	}
 	//! TODO: silently throws away constness!!!!
@@ -1411,7 +1414,7 @@ AnyImpl *Anything::GetImpl() {
 }
 
 void Anything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		GetImpl()->Accept(v, lIdx, slotname);
 	} else {
 		v.VisitNull(lIdx, slotname);
@@ -1526,14 +1529,14 @@ ROAnything::ROAnything(const ROAnything &a) : fAnyImp(a.fAnyImp) {
 Anything ROAnything::DeepClone(Allocator *a) const {
 	anyStartTrace(ROAnything.DeepClone);
 	Anything xref(a);
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->DeepClone(a, xref);
 	}
 	return Anything(a);
 }
 
 long ROAnything::GetSize() const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->GetSize();
 	}
 	return 0L;
@@ -1550,14 +1553,14 @@ ROAnything &ROAnything::operator=(const Anything &a) {
 }
 
 AnyImplType ROAnything::GetType() const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->GetType();
 	}
 	return AnyNullType;
 }
 
 long ROAnything::AsLong(long dflt) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsLong(dflt);
 	}
 	return dflt;
@@ -1571,7 +1574,7 @@ bool ROAnything::AsBool(bool dflt) const {
 }
 
 double ROAnything::AsDouble(double dflt) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsDouble(dflt);
 	}
 	return dflt;
@@ -1585,24 +1588,24 @@ IFAObject *ROAnything::AsIFAObject(IFAObject *dflt) const {
 }
 
 const char *ROAnything::AsCharPtr(const char *dflt) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsCharPtr(dflt);
 	}
 	return dflt;
 }
 
 const char *ROAnything::AsCharPtr(const char *dflt, long &buflen) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsCharPtr(dflt, buflen);
 	}
-	if (dflt) {
+	if (dflt != 0) {
 		buflen = strlen(dflt);
 	}
 	return dflt;
 }
 
 String ROAnything::AsString(const char *dflt) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsString(dflt);
 	}
 	return dflt;
@@ -1620,7 +1623,7 @@ long ROAnything::AssertRange(const char *k) const {
 }
 
 const ROAnything ROAnything::At(long i) const {
-	if (AssertRange(i) != -1 && GetImpl()) {
+	if (AssertRange(i) != -1 && (GetImpl() != 0)) {
 		if (GetType() != AnyArrayType) {
 			// if the type is not an AnyArrayType
 			// just return this
@@ -1640,13 +1643,13 @@ const ROAnything ROAnything::At(const char *k) const {
 }
 
 const char *ROAnything::SlotName(long slot) const {
-	if (GetImpl() && IsArrayImpl(GetImpl())) {
+	if ((GetImpl() != 0) && IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->SlotName(slot);
 	}
 	return 0;
 }
 const String &ROAnything::VisitSlotName(long slot) const {
-	if (GetImpl() && IsArrayImpl(GetImpl())) {
+	if ((GetImpl() != 0) && IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->VisitSlotName(slot);
 	}
 	return fgStrEmpty;
@@ -1656,7 +1659,7 @@ bool ROAnything::IsEqual(const ROAnything &other) const {
 	if (fAnyImp == other.fAnyImp) {
 		return true;
 	}
-	if (GetImpl() && other.GetImpl()) {
+	if ((GetImpl() != 0) && (other.GetImpl() != 0)) {
 		return GetImpl()->IsEqual(other.GetImpl());
 	}
 	return false;
@@ -1666,18 +1669,18 @@ bool ROAnything::IsEqual(const Anything &other) const {
 	if (GetImpl() == other.GetImpl()) {
 		return true;
 	}
-	if (GetImpl() && other.GetImpl()) {
+	if ((GetImpl() != 0) && (other.GetImpl() != 0)) {
 		return GetImpl()->IsEqual(other.GetImpl());
 	}
 	return false;
 }
 
 bool ROAnything::IsEqual(const char *other) const {
-	if (GetImpl()) {
-		if (other) {
+	if (GetImpl() != 0) {
+		if (other != 0) {
 			return (strcmp(AsCharPtr(""), other) == 0);
 		}
-	} else if (!other) {
+	} else if (other == 0) {
 		return true;
 	}
 	return false;
@@ -1685,7 +1688,7 @@ bool ROAnything::IsEqual(const char *other) const {
 
 long ROAnything::FindIndex(const char *k, long sizehint, u_long hashhint) const {
 	Assert(k);
-	if (GetImpl() && IsArrayImpl(GetImpl())) {
+	if ((GetImpl() != 0) && IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->FindIndex(k, sizehint, hashhint);
 	}
 	return -1L;
@@ -1693,21 +1696,21 @@ long ROAnything::FindIndex(const char *k, long sizehint, u_long hashhint) const 
 
 long ROAnything::FindIndex(const long lIdx) const {
 	Assert(lIdx >= 0);
-	if (GetImpl() && IsArrayImpl(GetImpl())) {
+	if ((GetImpl() != 0) && IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->FindIndex(lIdx);
 	}
 	return -1L;
 }
 
 long ROAnything::FindValue(const char *k) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->Contains(k);
 	}
 	return -1L;
 }
 
 bool ROAnything::Contains(const char *k) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return (GetImpl()->Contains(k) >= 0);
 	}
 	return false;
@@ -1734,7 +1737,8 @@ void ROAnything::Export(std::ostream &os, int level) const {
 
 bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot, char delimIdx) const {
 	// do some shortcut if delimSlot does not exist in path
-	if (delimSlot == '\000' || delimIdx == '\000' || (!strchr(NotNull(path), delimSlot) && !strchr(NotNull(path), delimIdx))) {
+	if (delimSlot == '\000' || delimIdx == '\000' ||
+		((strchr(NotNull(path), delimSlot) == 0) && (strchr(NotNull(path), delimIdx) == 0))) {
 		// '\000' is not a valid delimiter, we do not use it, fast special case
 		long lIdx = FindIndex(path);
 		if (lIdx >= 0) {
@@ -1746,7 +1750,7 @@ bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot
 		// assume we have at least one delimSlot in path
 		// String key(path); // do not need global allocator here!
 		const char *tokPtr = path;	//(const unsigned char *)(const char*)key;
-		if (!tokPtr || *tokPtr == delimSlot) {
+		if ((tokPtr == 0) || *tokPtr == delimSlot) {
 			return false;
 		}
 
@@ -1754,11 +1758,11 @@ bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot
 		do {
 			long lIdx = -1;
 			if (*tokPtr == delimIdx) {
-				if (!*++tokPtr || *tokPtr == delimIdx || *tokPtr == delimSlot) {
+				if ((*++tokPtr == 0) || *tokPtr == delimIdx || *tokPtr == delimSlot) {
 					return false;
 				}
 				lIdx = 0;
-				while (isdigit(*tokPtr)) {	//*tokPtr != '\0' &&  *tokPtr != delimSlot && *tokPtr != delimIdx)
+				while (isdigit(*tokPtr) != 0) {	 //*tokPtr != '\0' &&  *tokPtr != delimSlot && *tokPtr != delimIdx)
 					lIdx *= 10;
 					lIdx += (*tokPtr++ - '0');
 				}
@@ -1769,7 +1773,7 @@ bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot
 				if (lIdx >= c.GetSize() || c[lIdx].IsNull()) {	// caution: auto-enlargement!
 					return false;
 				}
-			} else if (*tokPtr) {
+			} else if (*tokPtr != 0) {
 				if (*tokPtr == delimSlot) {
 					++tokPtr;
 					if (*tokPtr == '\0' || *tokPtr == delimSlot || *tokPtr == delimIdx) {
@@ -1797,7 +1801,7 @@ bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot
 }
 
 void ROAnything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		GetImpl()->Accept(v, lIdx, slotname);
 	} else {
 		v.VisitNull(lIdx, slotname);
@@ -1827,7 +1831,7 @@ bool AnythingParser::DoParse(Anything &any) {
 	anyStartTrace(AnythingParser.DoParse);
 	// free old impl
 	Allocator *a = any.GetAllocator();
-	any = Anything((a) ? a : coast::storage::Current());  // assignment should be OK, but we keep it safe
+	any = Anything((a) != 0 ? a : coast::storage::Current());  // assignment should be OK, but we keep it safe
 
 	ParserXrefHandler xrefs;
 	AnythingToken tok(fContext);
@@ -1852,7 +1856,7 @@ bool AnythingParser::DoParse(Anything &any) {
 
 bool AnythingParser::DoParseSequence(Anything &any, ParserXrefHandler &xrefs) {
 	anyStartTrace(AnythingParser.DoParseSequence);
-	Allocator *a = (any.GetAllocator()) ? any.GetAllocator() : coast::storage::Current();
+	Allocator *a = (any.GetAllocator()) != 0 ? any.GetAllocator() : coast::storage::Current();
 	bool ok = true;
 	// we need to make it an array
 	any = Anything(Anything::ArrayMarker(), a);
@@ -1969,7 +1973,7 @@ bool AnythingParser::DoParseSequence(Anything &any, ParserXrefHandler &xrefs) {
 
 // sets a.fAnyImp according to tok for simple values
 bool AnythingParser::MakeSimpleAny(AnythingToken &tok, Anything &any) {
-	Allocator *a = (any.GetAllocator()) ? any.GetAllocator() : coast::storage::Current();
+	Allocator *a = (any.GetAllocator()) != 0 ? any.GetAllocator() : coast::storage::Current();
 	Assert(a != 0);
 	switch (tok.Token()) {
 		case '*':
@@ -2066,7 +2070,7 @@ void AnythingParser::ImportIncludeAny(Anything &element, const String &url) {
 		}
 
 		std::iostream *pStream = system::OpenStream(fileName, "");
-		if (pStream) {
+		if (pStream != 0) {
 			if (element.Import(*pStream, fileName) && queryString.Length() > 0) {
 				Anything anyLevel = escapedQueryStringToAny(queryString);
 				element = std::for_each(anyLevel.begin(), anyLevel.end(), resolveToAnyLevel(element)).result;
@@ -2091,7 +2095,7 @@ void AnythingParser::Error(String const &msg, String const &toktext) {
 	// put a space in front to give poor Sniff a chance
 	String m(fContext.FileName());
 	bool bHasExt = true;
-	if (!m.Length()) {
+	if (m.Length() == 0) {
 		m << "<NoName>";
 	} else {
 		bHasExt = (m.SubString(m.Length() - 4L) == ".any");
@@ -2104,8 +2108,8 @@ String Anything::CompareForTestCases(const ROAnything &expected, const ROAnythin
 	String sexp, act;
 	String retval;
 	OStringStream oexp(&sexp), oact(&act);
-	expected.Export(oexp, false);
-	actual.Export(oact, false);
+	expected.Export(oexp, 0);
+	actual.Export(oact, 0);
 	result = (sexp == act);
 	if (!result) {
 		retval << "expected: " << sexp << " but was: " << act;
@@ -2132,7 +2136,7 @@ void SlotFinder::Operate(Anything &source, Anything &dest, String destSlotname, 
 	dest = source;
 	long destIdx = -1L;
 	if (IntOperate(dest, destSlotname, destIdx, delim, indexdelim)) {
-		if (destSlotname.Length()) {
+		if (destSlotname.Length() != 0) {
 			if (!dest.IsDefined(destSlotname) || dest[destSlotname].IsNull()) {
 				Trace("adding slot [" << destSlotname << "]");
 				dest[destSlotname] = Anything(Anything::ArrayMarker(), dest.GetAllocator());
@@ -2155,7 +2159,7 @@ bool SlotFinder::IntOperate(Anything &dest, String &destSlotname, long &destIdx,
 	String s;
 	if ((lIdxDelim = destSlotname.StrChr(indexdelim)) != -1) {
 		s = destSlotname.SubString(0, lIdxDelim);
-		if (s.Length()) {
+		if (s.Length() != 0) {
 			Trace("part before index[" << s << "]");
 			if (IntOperate(dest, s, destIdx, delim, indexdelim)) {
 				// ensure that we have a valid anything
@@ -2177,12 +2181,12 @@ bool SlotFinder::IntOperate(Anything &dest, String &destSlotname, long &destIdx,
 			destIdx = s.AsLong(-1L);
 			Trace("index:" << destIdx);
 			destSlotname = tokenizer.GetRemainder(true);
-			if (destSlotname.Length() && destSlotname[0L] == delim) {
+			if ((destSlotname.Length() != 0) && destSlotname[0L] == delim) {
 				destSlotname.TrimFront(1);
 			}
 		}
 		Trace("remaining string[" << destSlotname << "]");
-		if (destSlotname.Length()) {
+		if (destSlotname.Length() != 0) {
 			// ensure that we have a valid anything
 			if (dest[destIdx].GetType() == AnyNullType) {
 				dest[destIdx] = Anything(Anything::ArrayMarker(), dest.GetAllocator());
@@ -2247,7 +2251,7 @@ void SlotPutter::Operate(Anything &source, Anything &dest, String destSlotname, 
 	long destIdx = -1L;
 	if (SlotFinder::IntOperate(work, destSlotname, destIdx, delim, indexdelim)) {
 		if (append) {
-			if (destSlotname.Length()) {
+			if (destSlotname.Length() != 0) {
 				Trace("appending source to dest[" << destSlotname << "]");
 				work[destSlotname].Append(source);
 			} else {
@@ -2255,7 +2259,7 @@ void SlotPutter::Operate(Anything &source, Anything &dest, String destSlotname, 
 				work[destIdx].Append(source);
 			}
 		} else {
-			if (destSlotname.Length()) {
+			if (destSlotname.Length() != 0) {
 				Trace("replacing dest[" << destSlotname << "] with source");
 				work[destSlotname] = source;
 			} else {
@@ -2282,7 +2286,7 @@ void SlotCleaner::Operate(Anything &dest, const ROAnything &config) {
 void SlotCleaner::Operate(Anything &dest, String slotName, bool removeLast, char delim, char indexdelim) {
 	StartTrace(SlotCleaner.Operate);
 
-	if (slotName.Length()) {
+	if (slotName.Length() != 0) {
 		Trace("Destination slotname [" << slotName << "]");
 		// first of all, get the correct store
 		Anything anyParent(dest, dest.GetAllocator());
@@ -2294,7 +2298,7 @@ void SlotCleaner::Operate(Anything &dest, String slotName, bool removeLast, char
 			// to remove from
 			long slotIndex = -1L;
 			if (SlotFinder::IntOperate(anyParent, slotName, slotIndex, delim, indexdelim)) {
-				if (slotName.Length()) {
+				if (slotName.Length() != 0) {
 					long sz = anyParent[slotName].GetSize();
 					if (removeLast && sz > 1) {
 						TraceAny(anyParent[slotName], "removing slot in this any");
@@ -2340,7 +2344,7 @@ void SlotCopier::Operate(Anything &source, Anything &dest, const ROAnything &con
 		String destSlot = config[i].AsCharPtr(0);
 		Trace("copying [" << sourceSlot << "] to [" << destSlot << "]");
 		Anything content(dest.GetAllocator());
-		if (sourceSlot && destSlot && source.LookupPath(content, sourceSlot, delim, indexdelim)) {
+		if ((sourceSlot != 0) && (destSlot != 0) && source.LookupPath(content, sourceSlot, delim, indexdelim)) {
 			dest[destSlot] = content;
 		}
 	}

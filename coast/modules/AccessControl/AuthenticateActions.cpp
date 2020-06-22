@@ -22,7 +22,7 @@ bool AuthenticateWeakAction::GetAccessManager(ROAnything config, Context &ctx, A
 	String amName = Renderer::RenderToString(ctx, config["AccessManager"]);
 	am = (amName.IsEqual("") ? AccessManagerModule::GetAccessManager() : AccessManagerModule::GetAccessManager(amName));
 
-	if (!am) {
+	if (am == 0) {
 		Trace("Failure, couldn't find " << (amName.IsEqual("") ? String("default") : amName) << " AccessManager.");
 		return false;
 	}

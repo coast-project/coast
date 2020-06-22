@@ -27,7 +27,7 @@ void StrSpecialTest::umlauteTest() {
 	std::istream *is = system::OpenStream("UmlautTest", "any");
 	t_assert(is != 0);
 
-	if (is) {
+	if (is != 0) {
 		test.Import(*is);
 		String testString(test["fields"][0L].AsString());
 		assertEqual("Ausf\xfchren", testString.SubString(0, 9));

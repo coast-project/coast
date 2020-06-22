@@ -47,9 +47,9 @@ bool ConnectorDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *
 	if (pSocket == NULL) {
 		// create new connector
 		pConnector = DoMakeConnector(context, in, out);
-		if (pConnector) {
+		if (pConnector != 0) {
 			pSocket = DoConnect(pConnector, context, in, out);
-			if (pSocket) {
+			if (pSocket != 0) {
 				// store params
 				anySocketParams = pSocket->ClientInfo();
 				anySocketParams["SocketFd"] = pSocket->GetFd();
@@ -61,7 +61,7 @@ bool ConnectorDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *
 		}
 	}
 
-	if (pSocket) {
+	if (pSocket != 0) {
 		// set socket option not to close the filedescriptor when Socket gets destructed
 		Trace("closeflag : " << (bCloseSocket ? "true" : "false"));
 		pSocket->CloseOnDelete(bCloseSocket);
@@ -70,7 +70,7 @@ bool ConnectorDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *
 	} else {
 		SYSWARNING("Socket not valid!");
 	}
-	if (bRecreate && pSocket) {
+	if (bRecreate && (pSocket != 0)) {
 		Trace("deleting recreated socket");
 		delete pSocket;
 	}
@@ -173,7 +173,7 @@ bool ConnectorDAImpl::DoExec(Socket *pSocket, Context &context, ParameterMapper 
 	lSocketStreamTimeout *= 1000L;
 	lCheckReadyTimeout *= 1000L;
 	std::iostream *pIos = NULL;
-	if (pSocket) {
+	if (pSocket != 0) {
 		if (bTcpNoDelay) {
 			pSocket->SetNoDelay();
 		}
@@ -221,7 +221,7 @@ bool ConnectorDAImpl::SendInput(std::iostream *pIos, Socket *s, long lCheckReady
 								Context &context, ParameterMapper *in, ResultMapper *out) {
 	StartTrace(ConnectorDAImpl.SendInput);
 
-	if (pIos) {
+	if (pIos != 0) {
 		long lRetCode = 0L;
 		Trace("waiting on ReadyForWriting, CheckReadyTimeout:" << lCheckReadyTimeout);
 		if (s->IsReadyForWriting(lCheckReadyTimeout, lRetCode)) {

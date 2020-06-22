@@ -223,14 +223,14 @@ void AppLogTest::LogRotatorTestsCommon() {
 		// set rotation time to simulate behavior
 		time_t now = time(0);
 		struct tm res, *tt;
-		if (!(anyModuleConfig["AppLogModule"]["RotateTimeIsGmTime"].AsBool(0L))) {
+		if (!(anyModuleConfig["AppLogModule"]["RotateTimeIsGmTime"].AsBool(false))) {
 			tt = system::LocalTime(&now, &res);
 		} else {
 			tt = system::GmTime(&now, &res);
 		}
 		long lDeltaSec = GetTestCaseConfig()["SecondsToWaitOnRotate"].AsLong(5);
 		long multiRotations = GetTestCaseConfig()["MultiRotations"].AsLong(0);
-		if (!multiRotations) {
+		if (multiRotations == 0) {
 			long lRotationTime = ((((tt->tm_hour * 60) + tt->tm_min) * 60) + tt->tm_sec + lDeltaSec) % 86400;
 			anyModuleConfig["AppLogModule"]["RotateSecond"] = lRotationTime;
 		}
@@ -272,7 +272,7 @@ void AppLogTest::LogRotatorTestsCommon() {
 									Trace("entry [" << strEntry << "] matched!");
 								}
 							}
-							if (!multiRotations) {
+							if (multiRotations == 0) {
 								assertEqualm(1, lFound,
 											 TString("expected exactly one rotated file of [")
 												 << strFileName << "] to exist in rotate directory [" << rotatedir << "]");

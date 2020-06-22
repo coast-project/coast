@@ -21,7 +21,7 @@ bool RendererDispatchAction::DoExecAction(String &transitionToken, Context &ctx,
 	Renderer::RenderOnString(nextAction, ctx, rendererSpec);
 	TraceAny(rendererSpec, "RendererSpec resulted in Action <" << nextAction << ">");
 
-	if (nextAction.Length()) {
+	if (nextAction.Length() != 0) {
 		ROAnything nextActionConfig = ctx.Lookup(nextAction);
 		TraceAny(nextActionConfig, "nextActionConfig");
 		if (nextActionConfig.IsNull()) {

@@ -121,7 +121,7 @@ int AppBooter::Run(int argc, const char *argv[], bool doHalt) {
 		Application *application = FindApplication(config, applicationName);
 		Trace("Using application<" << applicationName << ">");
 
-		if (application) {
+		if (application != 0) {
 			// initialization sequence
 			// let the application initialize the ressources
 			// necessary for its operation
@@ -174,7 +174,7 @@ void AppBooter::MergeConfigWithArgs(Anything &config, const Anything &args) {
 	// fill in command line arguments into the applications configuration
 	for (long i = 0; i < args.GetSize(); ++i) {
 		String slot = args.SlotName(i);
-		if (slot.Length()) {
+		if (slot.Length() != 0) {
 			// store params at top level to allow overriding of Config.any settings
 			// skip programname at top level
 			if (i > 0) {
@@ -280,7 +280,7 @@ bool AppBooter::OpenLibs(const Anything &config) {
 
 		for (long i = 0; i < sz; ++i) {
 			const char *dllName = libConfig[i].AsCharPtr(0);
-			if (dllName) {
+			if (dllName != 0) {
 				Trace("opening DLL [" << dllName << "]");
 				Sys(DynLibLoader) dllLoader(dllName);
 				if (!dllLoader.DLOpen()) {
@@ -332,7 +332,7 @@ Application *AppBooter::FindApplication(ROAnything config, String &applicationNa
 	Application *application = 0;
 
 	if (config.LookupPath(applicationConf, "Application") || config.LookupPath(applicationConf, "Server")) {
-		for (long i = 0, sz = applicationConf.GetSize() && !application; i < sz; ++i) {
+		for (long i = 0, sz = (static_cast<long>(applicationConf.GetSize() != 0) && (application) == 0); i < sz; ++i) {
 			// iterate over the applicationname list
 			applicationName = applicationConf[i].AsCharPtr(0);
 			if (applicationName.Length() > 0) {
@@ -346,7 +346,7 @@ Application *AppBooter::FindApplication(ROAnything config, String &applicationNa
 		// if no application object is configured in the config any
 		// return the first in the list
 		RegistryIterator ri(MetaRegistry::instance().GetRegistry("Application"), false);
-		for (; ri.HasMore() && !application; application = SafeCast(ri.Next(applicationName), Application))
+		for (; ri.HasMore() && (application == 0); application = SafeCast(ri.Next(applicationName), Application))
 			;
 	}
 	Trace("found application " << applicationName << " at " << long(application));
@@ -444,9 +444,9 @@ bool UnixDynLibLoader::DLOpen() {
 }
 
 bool UnixDynLibLoader::DLClose() {
-	if (fHandle) {
+	if (fHandle != 0) {
 		int ret = dlclose(fHandle);
-		if (ret) {
+		if (ret != 0) {
 			SystemLog::WriteToStderr(String(dlerror()) << "\n");
 		}
 		return (ret == 0);

@@ -37,7 +37,7 @@ bool WebAppService::DoHandleService(std::ostream &reply, Context &ctx) {
 	session = SessionListManager::SLM()->PrepareSession(session, isBusy, ctx);
 	Trace("session " << ((isBusy) ? "is busy" : "is not busy"));
 	// fifth stage: now act on the session
-	if (session) {
+	if (session != 0) {
 		ROAnything roaConfig;
 		roaConfig = Lookup("RenderNextPage");
 		return session->RenderNextPage(reply, ctx, roaConfig);
@@ -144,7 +144,7 @@ void WebAppService::Add2Query(Anything &query, const Anything &queryItems, bool 
 	StartTrace(WebAppService.Add2Query);
 	for (long i = 0, sz = queryItems.GetSize(); i < sz; ++i) {
 		const char *slotname = queryItems.SlotName(i);
-		if (slotname) {
+		if (slotname != 0) {
 			if (overwrite || !query.IsDefined(slotname)) {
 				query[slotname] = queryItems[i];
 			}

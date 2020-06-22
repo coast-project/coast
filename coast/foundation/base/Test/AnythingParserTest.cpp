@@ -63,7 +63,7 @@ void AnythingParserTest::checkImportExport(Anything any, String fileName) {
 
 void AnythingParserTest::writeResult(String *input, long nrOfElt, const char *path, const char *ext) {
 	std::ostream *os = system::OpenOStream(path, ext, std::ios::trunc);
-	if (os) {
+	if (os != 0) {
 		Anything emptyAny1, anyTest, anyTests;
 		AnythingParserTest::anyOutput = emptyAny1;
 		AnythingParserTest::lineCounter = 1;
@@ -561,7 +561,7 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 	anyTest.Import(is0);
 	assertEqual(AnyCharPtrType, anyTest.GetType());	 // Because of the L at the end
 	assertEqual(1, anyTest.GetSize());
-	if (anyTest.AsCharPtr()) {
+	if (anyTest.AsCharPtr() != 0) {
 		assertCharPtrEqual(anyTest.AsCharPtr(), "1234567890L");
 	}
 
@@ -571,7 +571,7 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 	anyTest.Import(is1);
 	assertEqual(AnyCharPtrType, anyTest.GetType());
 	assertEqual(1, anyTest.GetSize());
-	if (anyTest.AsCharPtr()) {
+	if (anyTest.AsCharPtr() != 0) {
 		assertCharPtrEqual(anyTest.AsCharPtr(), "aAbB01234");
 	}
 
@@ -581,7 +581,7 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 	anyTest.Import(is2);
 	assertEqual(AnyCharPtrType, anyTest.GetType());
 	assertEqual(1, anyTest.GetSize());
-	if (anyTest.AsCharPtr()) {
+	if (anyTest.AsCharPtr() != 0) {
 		assertCharPtrEqual(anyTest.AsCharPtr(), "aAbB01234");
 	}
 
@@ -593,7 +593,7 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 	anyTest.Import(is3);
 	assertEqual(AnyCharPtrType, anyTest.GetType());
 	assertEqual(1, anyTest.GetSize());
-	if (anyTest.AsCharPtr()) {
+	if (anyTest.AsCharPtr() != 0) {
 		assertCharPtrEqual(anyTest.AsCharPtr(), "aAbB01");
 	}
 
@@ -658,7 +658,7 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 			}
 
 			if ((i != 0) || (j != 0)) {
-				if (isprint((unsigned char)i * 16 + j)) {
+				if (isprint((unsigned char)i * 16 + j) != 0) {
 					if ((char)(i * 16 + j) == '"') {
 						input6.Append('\\');  //   \" sonst wird " als EndOfString interpretiert
 					}
@@ -689,7 +689,7 @@ void AnythingParserTest::parseSimpleTypeCharPtr() {
 	anyTest.Import(is7);
 	assertEqual(AnyNullType, anyTest.GetType());
 	assertEqual(0, anyTest.GetSize());
-	if (anyTest.AsCharPtr()) {
+	if (anyTest.AsCharPtr() != 0) {
 		assertCharPtrEqual(anyTest.AsCharPtr(), "!abc");
 	}
 	assertEqual(AnyNullType, anyTest.GetType());
@@ -730,7 +730,7 @@ void AnythingParserTest::parseMixedAnything() {
 	anyAnew["I"] = "String";
 
 	std::ostream *osHlp = system::OpenOStream("tmp/AnyTest", "txt", std::ios::trunc);
-	if (osHlp) {
+	if (osHlp != 0) {
 		*osHlp << anyAnew;
 		delete osHlp;
 	} else {
@@ -738,7 +738,7 @@ void AnythingParserTest::parseMixedAnything() {
 	}
 
 	std::istream *isHlp = system::OpenIStream("tmp/AnyTest", "txt");
-	if (!isHlp) {
+	if (isHlp == 0) {
 		assertEqual("'read tmp/AnyTest.txt'", "'could not read tmp/AnyTest.txt'");
 	} else {  // if ( isHlp )
 		Anything anyHlp;
@@ -746,7 +746,7 @@ void AnythingParserTest::parseMixedAnything() {
 		delete isHlp;
 
 		std::ostream *osNew = system::OpenOStream("tmp/AnyTestNew", "txt", std::ios::trunc);
-		if (osNew) {
+		if (osNew != 0) {
 			*osNew << anyHlp;
 			delete osNew;
 		} else {
@@ -761,14 +761,14 @@ void AnythingParserTest::parseMixedAnything() {
 		anyHlp["A"].SlotName(1L);
 		assertEqual(AnyCharPtrType, anyHlp["A"].At(1L).GetType());
 		assertEqual(1, anyHlp["A"].At(1L).GetSize());
-		if (anyHlp["A"].At(1L).AsCharPtr()) {
+		if (anyHlp["A"].At(1L).AsCharPtr() != 0) {
 			assertCharPtrEqual(anyHlp["A"].At(1L).AsCharPtr(), "123L");
 		}
 
 		anyHlp["A"].SlotName(2L);
 		assertEqual(AnyCharPtrType, anyHlp["A"].At(2L).GetType());
 		assertEqual(1, anyHlp["A"].At(2L).GetSize());
-		if (anyHlp["A"].At(2L).AsCharPtr()) {
+		if (anyHlp["A"].At(2L).AsCharPtr() != 0) {
 			assertCharPtrEqual(anyHlp["A"].At(2L).AsCharPtr(), "String");
 		}
 
@@ -800,21 +800,21 @@ void AnythingParserTest::parseMixedAnything() {
 		anyHlp["A"].At(3L).At(5L)["B"].SlotName(0L);
 		assertEqual(AnyCharPtrType, anyHlp["A"].At(3L).At(5L)["B"].At(0L).GetType());
 		assertEqual(1, anyHlp["A"].At(3L).At(5L)["B"].At(0L).GetSize());
-		if (anyHlp["A"].At(3L).At(5L)["B"].At(0L).AsCharPtr()) {
+		if (anyHlp["A"].At(3L).At(5L)["B"].At(0L).AsCharPtr() != 0) {
 			assertCharPtrEqual(anyHlp["A"].At(3L).At(5L)["B"].At(0L).AsCharPtr(), "ABC");
 		}
 
 		anyHlp["A"].At(3L).At(5L)["B"].SlotName(1L);
 		assertEqual(AnyCharPtrType, anyHlp["A"].At(3L).At(5L)["B"].At(1L).GetType());
 		assertEqual(1, anyHlp["A"].At(3L).At(5L)["B"].At(1L).GetSize());
-		if (anyHlp["A"].At(3L).At(5L)["B"].At(1L).AsCharPtr()) {
+		if (anyHlp["A"].At(3L).At(5L)["B"].At(1L).AsCharPtr() != 0) {
 			assertCharPtrEqual(anyHlp["A"].At(3L).At(5L)["B"].At(1L).AsCharPtr(), "BCD");
 		}
 
 		anyHlp["A"].At(3L).At(5L)["B"].SlotName(2L);
 		assertEqual(AnyCharPtrType, anyHlp["A"].At(3L).At(5L)["B"].At(2L).GetType());
 		assertEqual(1, anyHlp["A"].At(3L).At(5L)["B"].At(2L).GetSize());
-		if (anyHlp["A"].At(3L).At(5L)["B"].At(2L).AsCharPtr()) {
+		if (anyHlp["A"].At(3L).At(5L)["B"].At(2L).AsCharPtr() != 0) {
 			assertCharPtrEqual(anyHlp["A"].At(3L).At(5L)["B"].At(2L).AsCharPtr(), "CDE");
 		}
 
@@ -839,7 +839,7 @@ void AnythingParserTest::parseMixedAnything() {
 		assertEqual(AnyLongType, anyHlp["H"].GetType());
 		assertEqual(1, anyHlp["H"].GetSize());
 		assertEqual(1234, anyHlp["H"].AsLong());
-		if (anyHlp["I"].AsCharPtr()) {
+		if (anyHlp["I"].AsCharPtr() != 0) {
 			assertCharPtrEqual(anyHlp["I"].AsCharPtr(), "String");
 		}
 	}
@@ -1105,7 +1105,7 @@ void AnythingParserTest::parseTestFiles() {
 
 	for (testCnt = 0; testCnt < 21; testCnt++) {
 		std::istream *is = system::OpenStream((const char *)fileNames[testCnt], "txt");
-		if (is) {
+		if (is != 0) {
 			// Lese die Anything-Datei ein
 			Anything any0;
 			any0.Import(*is);
@@ -1118,7 +1118,7 @@ void AnythingParserTest::parseTestFiles() {
 			String tmp = "tmp/";
 			tmp.Append(fileNames[testCnt]);
 			std::ostream *os = system::OpenOStream((const char *)tmp, "res", std::ios::trunc);
-			if (os) {
+			if (os != 0) {
 				*os << AnythingParserTest::anyOutput;
 				delete os;
 				AnythingParserTest::anyOutput = emptyAny1;

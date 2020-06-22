@@ -102,7 +102,7 @@ void HTTPDAImplTest::SSLNirvanaConnectTests() {
 		for (long l = 0; l < cConfig["NumberOfRuns"].AsLong(0L); l++) {
 			SSL_CTX *sslctx = NULL;
 			// We must set our ssl context individually, otherwise SSLOBJMGR takes care of it
-			if (cConfig["UseSSLObjectManager"].AsBool(1)) {
+			if (cConfig["UseSSLObjectManager"].AsBool(true)) {
 				sslctx = SSLModule::GetSSLClientCtx(cConfig["Config"]["SSLModuleCfg"].DeepClone());
 			}
 			ctx.GetTmpStore()["SSLContext"] = (IFAObject *)sslctx;

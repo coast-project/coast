@@ -35,8 +35,7 @@ void PipeStreamTest::MoreWriteandRead() {
 	Pipe pipi(5000L);
 	std::iostream *stream = pipi.GetStream();
 
-	t_assert(stream != NULL);
-	if (stream) {
+	if (t_assert(stream != NULL)) {
 		pipi.SetTimeout(0);
 		t_assert(pipi.IsReadyForWriting());
 		(*stream) << "hallo" << std::endl;	// this might set IsReadyForWriting false
@@ -61,8 +60,7 @@ void PipeStreamTest::LoopWriteandRead() {
 	String buf(cBufSz);
 	buf << "hallo2\n";
 
-	t_assert(stream != NULL);
-	if (stream) {
+	if (t_assert(stream != NULL)) {
 		pipi.SetTimeout(0);
 		t_assert(pipi.IsReadyForWriting());
 		do {
@@ -73,6 +71,7 @@ void PipeStreamTest::LoopWriteandRead() {
 		stream->clear();
 		String h(cBufSz);
 		String expected("hallo2\n");
+		// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 		while (stream->read((char *)(const char *)h, cBufSz)) {
 			assertEqual(expected, h);
 		}
@@ -80,6 +79,7 @@ void PipeStreamTest::LoopWriteandRead() {
 		// now flush again
 		t_assert(pipi.IsReadyForWriting());
 		(*stream) << std::flush;
+		// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 		while (stream->read((char *)(const char *)h, cBufSz)) {
 			assertEqual(expected, h);
 		}

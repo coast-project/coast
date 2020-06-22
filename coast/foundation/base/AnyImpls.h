@@ -24,7 +24,7 @@ class AnyImpl {
 	Allocator *fAllocator;
 
 public:
-	AnyImpl(Allocator *a) : fRefCount(1), fAllocator((a) ? a : coast::storage::Current()) {}
+	AnyImpl(Allocator *a) : fRefCount(1), fAllocator((a) != 0 ? a : coast::storage::Current()) {}
 	virtual ~AnyImpl() {
 		Assert(fRefCount <= 0);
 		//		fAllocator = 0; //!@FIXME: do not set to 0 unless our SegStorAllocatorNewDelete::delete uses a different

@@ -61,7 +61,7 @@ namespace {
 		StartTrace(HTTPRequestReader.HandleFirstLine);
 		long llen = line.Length();
 		MIMEHeader::InvalidLineException invalidTerminationException("Invalid request line termination", line);
-		if (not coast::urlutils::TrimENDL(line).Length()) {
+		if (coast::urlutils::TrimENDL(line).Length() == 0) {
 			throw MIMEHeader::InvalidLineException("Empty request line", line);
 		}
 		bool const enforceCRLFTerminatedURI = ctx.Lookup("EnforceCRLFTerminatedURI", 0L) != 0;

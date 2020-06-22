@@ -22,8 +22,8 @@ void StringRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything
 	TraceAny(config, "config");
 	const char *res = LocalizationUtils::Eval(c.Language(), config);
 	Trace("res is" << res);
-	reply << (res ? res : "");	// fix null ptr behavior of ostream::operator<<(const char *)
-								// otherwise we would output "(null)" instead
+	reply << (res != 0 ? res : "");	 // fix null ptr behavior of ostream::operator<<(const char *)
+									 // otherwise we would output "(null)" instead
 }
 
 //---- LanguageSwitchRenderer ----------------------------------------------------------------

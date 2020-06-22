@@ -28,6 +28,7 @@ namespace coast {
 			// read line up to but not including next LF
 			line.Append(in, maxlinelen, LF);
 			char c = '\0';
+			// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 			if (in.peek() != EOF && in.get(c)) {
 				line.Append(c);
 			}
@@ -100,7 +101,7 @@ namespace {
 			throw MIMEHeader::InvalidLineException("Missing header field name", line);
 		}
 		String fieldvalue = line.SubString(pos + 1);
-		if (fieldvalue.Length()) {
+		if (fieldvalue.Length() != 0) {
 			coast::urlutils::TrimBlanks(fieldvalue);
 			StoreKeyValue(headers, fieldname, fieldvalue);
 		}
@@ -118,7 +119,7 @@ bool MIMEHeader::ParseHeaders(std::istream &in, long const maxlinelen, long cons
 		coast::streamutils::getLineFromStream(in, line, maxlinelen);
 		fParsedHeaderLength += line.Length();
 		Trace("headerlength: " << fParsedHeaderLength << ", maxheaderlen: " << maxheaderlen);
-		if (not coast::urlutils::TrimENDL(line).Length()) {
+		if (coast::urlutils::TrimENDL(line).Length() == 0) {
 			return true;  //!< successful header termination with empty line
 		}
 		if (fParsedHeaderLength > maxheaderlen)

@@ -11,6 +11,9 @@
 
 #include "ITOString.h"
 #include "TestCase.h"
+
+#include <string>
+
 class StringTestExtreme : public testframework::TestCase {
 protected:
 	String extremelyLongString;

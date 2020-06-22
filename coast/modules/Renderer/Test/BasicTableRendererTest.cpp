@@ -118,7 +118,7 @@ void BasicTableRendererTest::FullFledged() {
 		std::iostream *is2 = system::OpenStream("ReferenceTableOutput", "html");
 		String ref;
 		if (is2 != 0) {
-			int ch;
+			int ch = 0;
 			while ((ch = is2->get()) != EOF) {
 				ref << (char)ch;
 			}

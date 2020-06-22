@@ -84,7 +84,7 @@ bool DataAccess::Exec(ParameterMapper *params, ResultMapper *results, Context &t
 
 bool DataAccess::GetMyParameterMapper(Context &c, ParameterMapper *&pm) {
 	StartTrace(DataAccess.GetMyParameterMapper);
-	bool isScriptInterpreter;
+	bool isScriptInterpreter = false;
 
 	// look into own config
 	ROAnything script = c.Lookup("ParameterMapperScript");
@@ -119,7 +119,7 @@ bool DataAccess::GetMyParameterMapper(Context &c, ParameterMapper *&pm) {
 
 bool DataAccess::GetMyResultMapper(Context &c, ResultMapper *&rm) {
 	StartTrace(DataAccess.GetMyResultMapper);
-	bool isScriptInterpreter;
+	bool isScriptInterpreter = false;
 
 	// look into own config
 	ROAnything script = c.Lookup("ResultMapperScript");

@@ -119,7 +119,7 @@ void SessionListManagerTest::ReInitTest() {
 void SessionListManagerTest::CreateSessionTest() {
 	StartTrace(SessionListManagerTest.CreateSessionTest);
 
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
@@ -158,7 +158,7 @@ void SessionListManagerTest::CreateSessionTest() {
 void SessionListManagerTest::LookupSessionTest() {
 	StartTrace(SessionListManagerTest.LookupSessionTest);
 
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
@@ -226,7 +226,7 @@ void SessionListManagerTest::DisableSessionTest() {
 	StartTrace(SessionListManagerTest.DisableSessionTest);
 
 	// assumes SessionListManager is initialized ok
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 	if (sessionListManager != 0) {
@@ -271,7 +271,7 @@ void SessionListManagerTest::CleanupSessionTest() {
 	StartTrace(SessionListManagerTest.DisableSessionTest);
 
 	{
-		Session *s;
+		Session *s = NULL;
 		SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 		t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
@@ -320,7 +320,7 @@ void SessionListManagerTest::CleanupSessionTest() {
 		}
 	}
 	{
-		Session *s;
+		Session *s = NULL;
 		SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 		t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
@@ -374,7 +374,7 @@ void SessionListManagerTest::CleanupSessionTest() {
 void SessionListManagerTest::AddSameSessionNTimesTest() {
 	StartTrace(SessionListManagerTest.AddSameSessionNTimesTest);
 
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
@@ -435,7 +435,7 @@ void SessionListManagerTest::StdFilterQueryTest() {
 	Anything env;
 	Anything filterTags;
 	URLFilter urlFilter("Test");
-	long querySz;
+	long querySz = 0;
 
 	// first setup a state and scramble it
 	Anything state;
@@ -481,7 +481,7 @@ void SessionListManagerTest::SessionListInfoTest() {
 
 	Context ctx;
 	String sessionId;
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	Anything expectedSessionListInfo;
 	Anything resultedSessionListInfo = Anything(Anything::ArrayMarker());
@@ -515,7 +515,7 @@ void SessionListManagerTest::GetASessionsInfoTest() {
 	Context ctx;
 	String sessionId1;
 	String sessionId2;
-	Session *s1;
+	Session *s1 = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	sessionListManager->fMaxSessionsAllowed = 3;
 	Anything expected;
@@ -553,7 +553,7 @@ void SessionListManagerTest::SessionFactoryTest() {
 	args["env"]["header"]["USER-AGENT"] = "test agent";
 	args["env"]["header"]["REMOTE_ADDR"] = "127.0.0.1";
 	Context ctx(args);
-	Session *s, *s1;
+	Session *s = NULL, *s1 = NULL;
 	String sessionId("SessionFactoryTest");
 	Anything config1;
 	Anything moduleConfig1;
@@ -641,7 +641,7 @@ void SessionListManagerTest::DoPrepareSessionCalled(Context &ctx, Session *sessi
 void SessionListManagerTest::SessionAccountingTest() {
 	StartTrace(SessionListManagerTest.SessionAccountingTest);
 
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 

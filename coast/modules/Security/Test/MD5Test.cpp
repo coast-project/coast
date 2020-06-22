@@ -97,7 +97,7 @@ void MD5Test::signCheck()
 	// try to modify the digestedText, Check must fail
 	long max = digestedText.Length();
 	assertEqual(45, max);
-	bool ret;
+	bool ret = false;
 	String transcript3;
 
 	for (long i = 0; i < max; i++) {

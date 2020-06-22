@@ -43,7 +43,7 @@ bool RegisterableObject::Reset(const ROAnything installerSpec, const char *categ
 
 bool RegisterableObject::ResetTerminate(const char *category, TerminationPolicy *terminator) {
 	StartTrace1(RegisterableObject.ResetTerminate, "category <" << category << ">");
-	Registry *r;
+	Registry *r = NULL;
 	r = MetaRegistry::instance().GetRegistry(category);
 	if (r != 0) {
 		Trace("found registry, terminating it");

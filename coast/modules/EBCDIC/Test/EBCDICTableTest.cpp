@@ -21,7 +21,7 @@ void EBCDICTableTest::WholeTable() {
 	unsigned char converted[numChars];
 	unsigned char backConverted[numChars];
 
-	long i;
+	long i = 0;
 	for (i = 0; i < numChars; i++) {
 		toConvert[i] = (unsigned char)i;
 	}  // for

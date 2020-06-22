@@ -189,7 +189,7 @@ void BoostPoolTest::AllocationTest() {
 		l.pop_front();
 	}
 
-	tester *tmp;
+	tester *tmp = NULL;
 	{
 		// Create a memory leak on purpose.  (Allocator doesn't have
 		//  garbage collection)

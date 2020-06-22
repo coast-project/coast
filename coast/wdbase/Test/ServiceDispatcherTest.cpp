@@ -76,7 +76,7 @@ void ServiceDispatcherTest::FindTests() {
 void ServiceDispatcherTest::ServiceDispatcherModuleTest() {
 	StartTrace(ServiceDispatcherTest.ServiceDispatcherModuleTest);
 	WDModule *serviceDispatchersModule = SafeCast(WDModule::FindWDModule("ServiceDispatchersModule"), WDModule);
-	ServiceDispatcher *sd;
+	ServiceDispatcher *sd = NULL;
 	if (t_assert(serviceDispatchersModule != NULL)) {
 		if (t_assert((sd = ServiceDispatcher::FindServiceDispatcher("TestDispatcher")) != NULL)) {
 			assertEqual("I am the TestDispatcher", sd->Lookup("MyIdString", "none"));

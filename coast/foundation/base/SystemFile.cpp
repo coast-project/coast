@@ -810,7 +810,7 @@ namespace coast {
 
 		bool IsRegularFile(const char *path) {
 			struct stat64 stbuf;
-			bool bIsSymbolicLink;
+			bool bIsSymbolicLink = false;
 			if (CheckPath(path, &stbuf, bIsSymbolicLink)) {
 #if defined(WIN32)
 				// our version of MSDEV compiler (V 5) at least not fully
@@ -825,7 +825,7 @@ namespace coast {
 
 		bool IsDirectory(const char *path) {
 			struct stat64 stbuf;
-			bool bIsSymbolicLink;
+			bool bIsSymbolicLink = false;
 			if (CheckPath(path, &stbuf, bIsSymbolicLink)) {
 #if defined(WIN32)
 				// our version of MSDEV compiler (V 5) at least not fully
@@ -850,7 +850,7 @@ namespace coast {
 		bool GetFileSize(const char *path, ul_long &ulFileSize) {
 			StartTrace1(System.GetFileSize, "path to file [" << NotNull(path) << "]");
 			struct stat64 stbuf;
-			bool bIsSymbolicLink;
+			bool bIsSymbolicLink = false;
 			if (CheckPath(path, &stbuf, bIsSymbolicLink)) {
 				ulFileSize = stbuf.st_size;
 				Trace("file size: " << static_cast<long>(ulFileSize) << " bytes");
@@ -906,7 +906,7 @@ namespace coast {
 			FindClose(hSearch);
 #else
 			// searches directory dir and
-			DIR *fp;
+			DIR *fp = NULL;
 
 			if ((fp = opendir(dir)) != 0) {
 				// do not use Storage module to allocate memory here, since readdir_r wreaks havoc with our storage management

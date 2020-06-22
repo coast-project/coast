@@ -49,8 +49,8 @@ void ConditionalRenderer::TestCondition(Context &ctx, const ROAnything &config, 
 		RenderOnString(condname, ctx, lookupNameConfig);
 
 		if (condname.Length() > 0) {
-			char pathDelim;
-			char indexDelim;
+			char pathDelim = 0;
+			char indexDelim = 0;
 			IdentifyPathAndIndexDelim(pathDelim, indexDelim, ctx, config);
 			Trace("pathDelim: [" << pathDelim << "] indexDelim: [" << indexDelim << "]");
 			Trace("condition: [" << condname << "]");
@@ -112,8 +112,8 @@ void SwitchRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnythi
 	TraceAny(config, "config");
 
 	ROAnything lookupName;
-	char pathDelim;
-	char indexDelim;
+	char pathDelim = 0;
+	char indexDelim = 0;
 	IdentifyPathAndIndexDelim(pathDelim, indexDelim, ctx, config);
 	Trace("pathDelim: [" << pathDelim << "] indexDelim: [" << indexDelim << "]");
 	if (config.LookupPath(lookupName, "ContextLookupName")) {

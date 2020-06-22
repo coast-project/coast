@@ -95,7 +95,7 @@ namespace coast {
 		void CheckStores(Anything &anyFailures, ROAnything expected, Context &ctxToCheck, const char *testCaseName,
 						 coast::testframework::eResultCheckType rct) {
 			StartTrace(ConfiguredTestHelper.CheckStores);
-			char delimSlot, delimIdx;
+			char delimSlot = 0, delimIdx = 0;
 			delimSlot = expected["Delim"].AsCharPtr(".")[0L];
 			delimIdx = expected["IndexDelim"].AsCharPtr(":")[0L];
 			if (expected.IsDefined("SessionStore")) {

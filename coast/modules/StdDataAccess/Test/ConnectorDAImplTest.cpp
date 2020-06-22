@@ -61,7 +61,7 @@ public:
 					anyMessage.Import(*Ios, "importing stream");
 					TraceAny(anyMessage, "Message");
 					fLastRequest = anyMessage;
-					long lRetCode;
+					long lRetCode = 0;
 					if (pSocket->IsReadyForWriting(10 * 1000, lRetCode)) {
 						Trace("sending back reply message");
 						fReplyMessage.PrintOn(*Ios, false).flush();

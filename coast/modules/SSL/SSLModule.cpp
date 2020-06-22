@@ -60,7 +60,7 @@ static unsigned char dh1024_g[] = {
 };
 
 DH *get_dh1024() {
-	DH *dh;
+	DH *dh = NULL;
 
 	if ((dh = DH_new()) == 0) {
 		return (0);
@@ -458,7 +458,7 @@ void SSLModule::SetSSLSetAcceptableClientCAs(SSL_CTX *ctx, LookupInterface *obje
 }
 void SSLModule::SetSSLCtxVerifyParameters(SSL_CTX *ctx, LookupInterface *object) {
 	StartTrace(SSLModule.SetSSLCtxVerifyParameters);
-	long ret;
+	long ret = 0;
 	String peerCAFileName(object->Lookup("SSLPeerCAFile", ""));	 // used for verify location and client CA list
 	if (peerCAFileName.Length() != 0) {
 		peerCAFileName = system::GetFilePath(peerCAFileName, "");

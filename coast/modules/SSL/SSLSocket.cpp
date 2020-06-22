@@ -194,7 +194,7 @@ std::iostream *SSLSocket::DoMakeStream() {
 
 	SessionResumptionHookSetSession(ssl, sslSessionStored, sslinfo["SessionIsResumed"].AsLong(0) != 0L);
 
-	SSL_SESSION *sslSessionCurrent;
+	SSL_SESSION *sslSessionCurrent = NULL;
 	if ((sslSessionCurrent = SSL_get_session(ssl)) == (SSL_SESSION *)NULL) {
 		Trace("No valid SSL_SESSION created!!!");
 		String logMsg("SSL error: SSLSession not good.");

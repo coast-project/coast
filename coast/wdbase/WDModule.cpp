@@ -178,7 +178,7 @@ WDModule::~WDModule() {}
 
 bool WDModule::StdFinis(const char *category, const char *title) {
 	StartTrace(WDModule.StdFinis);
-	bool success;
+	bool success = false;
 	AliasTerminator at(category);
 	success = RegisterableObject::Terminate(category, &at);
 	return success;

@@ -130,7 +130,7 @@ void HTTPBodyResultMapper::ReadBody(String &body, std::istream &is, Context &ctx
 	if (contentLength > -1) {
 		body.Append(is, contentLength);
 	} else {
-		char c;
+		char c = 0;
 		while (is.get(c).good()) {
 			body.Append(c);
 		}

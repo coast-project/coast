@@ -225,8 +225,8 @@ inline void BlowfishScrambler::BF_encrypt(BF_LONG *data) const {
 		you will have to modify the code.
 #endif
 
-		BF_LONG l,
-		r;
+		BF_LONG l = 0,
+				r = 0;
 	const BF_LONG *p = fKey.P;
 	const BF_LONG *s = fKey.S;
 	l = data[0];
@@ -262,7 +262,7 @@ inline void BlowfishScrambler::BF_encrypt(BF_LONG *data) const {
 }
 
 inline void BlowfishScrambler::BF_decrypt(BF_LONG *data) const {
-	BF_LONG l, r;
+	BF_LONG l = 0, r = 0;
 	const BF_LONG *p = fKey.P;
 	const BF_LONG *s = fKey.S;
 
@@ -299,7 +299,7 @@ inline void BlowfishScrambler::BF_decrypt(BF_LONG *data) const {
 }
 
 inline void BlowfishScrambler::BF_ECB_encrypt(unsigned char *in, unsigned char *out) const {
-	BF_LONG l, d[2];
+	BF_LONG l = 0, d[2];
 
 	n2l(in, l);
 	d[0] = l;
@@ -314,7 +314,7 @@ inline void BlowfishScrambler::BF_ECB_encrypt(unsigned char *in, unsigned char *
 }
 
 inline void BlowfishScrambler::BF_ECB_decrypt(unsigned char *in, unsigned char *out) const {
-	BF_LONG l, d[2];
+	BF_LONG l = 0, d[2];
 
 	n2l(in, l);
 	d[0] = l;
@@ -333,9 +333,9 @@ void BlowfishScrambler::InitKey(const String &keyin) {
 	Trace("Configured name: " << fName << " using key:" << keyin);
 	int len = keyin.Length();
 	unsigned char *data = (unsigned char *)(const char *)keyin;
-	int i;
-	BF_LONG *p, ri, in[2];
-	unsigned char *d, *end;
+	int i = 0;
+	BF_LONG *p = NULL, ri = 0, in[2];
+	unsigned char *d = NULL, *end = NULL;
 	fKey = bf_init;
 	p = fKey.P;
 
@@ -389,7 +389,7 @@ void BlowfishScrambler::InitKey(const String &keyin) {
 }
 
 void BlowfishScrambler::DoECB_multipleBlockEncrypt(unsigned char *blockPtr, unsigned int length) const {
-	unsigned int i;
+	unsigned int i = 0;
 	if ((length % BF_BLOCK) != 0u) {
 		SystemLog::WriteToStderr("Blowfish requires the input to be a multiple of 8 bytes (64 bits) to work.\n");
 		return;
@@ -405,7 +405,7 @@ void BlowfishScrambler::DoECB_multipleBlockEncrypt(unsigned char *blockPtr, unsi
 }
 
 bool BlowfishScrambler::DoECB_multipleBlockDecrypt(unsigned char *blockPtr, unsigned int length) const {
-	unsigned int i;
+	unsigned int i = 0;
 	if ((length % BF_BLOCK) != 0u) {
 		SystemLog::WriteToStderr("Blowfish requires the input to be a multiple of 8 bytes (64bits) to work.\n");
 		return false;
@@ -538,7 +538,7 @@ void BlowfishCBCScrambler::DoBlowfishEncrypt(String &padded) const {
 	unsigned char *out = (unsigned char *)(const char *)padded;
 	const unsigned char *in = out;
 
-	BF_LONG tin0, tin1;
+	BF_LONG tin0 = 0, tin1 = 0;
 	BF_LONG tout0 = fIvec0, tout1 = fIvec1;	 // initialization vector always 0
 	long l = padded.Length();
 	BF_LONG tin[2];
@@ -567,7 +567,7 @@ bool BlowfishCBCScrambler::DoBlowfishDecrypt(String &padded) const {
 
 	unsigned char *out = (unsigned char *)(const char *)padded;
 	const unsigned char *in = out;
-	BF_LONG tin0, tin1;
+	BF_LONG tin0 = 0, tin1 = 0;
 	BF_LONG tout0 = 0, tout1 = 0;
 	BF_LONG xor0 = fIvec0, xor1 = fIvec1;  // we use initialization vector of zero
 	long l = padded.Length();

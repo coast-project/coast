@@ -12,6 +12,7 @@
 #include "DataMapper.h"
 #include "StringStream.h"
 #include "TestSuite.h"
+#include "math.h"
 
 //---- DataMapperTest ----------------------------------------------------------------
 Test *DataMapperTest::suite() {
@@ -37,23 +38,23 @@ void DataMapperTest::StdGetTest() {
 	mapper.Initialize("ParameterMapper");
 
 	// test the overloaded get api
-	int iTestVal;
+	int iTestVal = 0;
 	t_assert(mapper.Get("testInt", iTestVal, ctx));
 	assertEqual(10, iTestVal);
 
-	bool bTestVal;
+	bool bTestVal = false;
 	t_assert(mapper.Get("testBool", bTestVal, ctx));
 	assertEqual(false, bTestVal);
 
-	long lTestVal;
+	long lTestVal = 0;
 	t_assert(mapper.Get("testLong", lTestVal, ctx));
 	assertEqual(123, lTestVal);
 
-	float fTestVal;
+	float fTestVal = NAN;
 	t_assert(mapper.Get("testFloat", fTestVal, ctx));
 	t_assert(1.23F == fTestVal);
 
-	double dTestVal;
+	double dTestVal = NAN;
 	t_assert(mapper.Get("testDouble", dTestVal, ctx));
 	t_assert(2.46 == dTestVal);
 
@@ -75,19 +76,19 @@ void DataMapperTest::NegativGetTest() {
 	mapper.Initialize("ParameterMapper");
 
 	// Test the overloaded get api
-	int iTestVal;
+	int iTestVal = 0;
 	t_assert(!mapper.Get("TestInt", iTestVal, ctx));
 
-	bool bTestVal;
+	bool bTestVal = false;
 	t_assert(!mapper.Get("TestBool", bTestVal, ctx));
 
-	long lTestVal;
+	long lTestVal = 0;
 	t_assert(!mapper.Get("TestLong", lTestVal, ctx));
 
-	float fTestVal;
+	float fTestVal = NAN;
 	t_assert(!mapper.Get("TestFloat", fTestVal, ctx));
 
-	double dTestVal;
+	double dTestVal = NAN;
 	t_assert(!mapper.Get("TestDouble", dTestVal, ctx));
 
 	String sTestVal;

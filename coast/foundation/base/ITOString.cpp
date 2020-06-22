@@ -1247,7 +1247,7 @@ bool StringTokenizer2::HasMoreTokens(long start, long &end) {
 }
 
 std::istream &operator>>(std::istream &is, String &s) {
-	char aChar;
+	char aChar = 0;
 
 	s.Set(0, 0, cStrAllocMinimum);	// empty string reserve cStrAllocMinimum chars, tunable param
 

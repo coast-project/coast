@@ -145,7 +145,7 @@ void AllocTestThread::DoTimingWith(TString allocatorName, Allocator *myAlloc) {
 	long allocSz = 16;
 	const int cRunSize = 10000;
 
-	long i;
+	long i = 0;
 	for (i = 0; i < cAllocSz; i++) {
 		// generate some alloc sizes
 		allocSzArr[i] = allocSz;

@@ -31,7 +31,7 @@ Test *AnythingImportExportTest::suite() {
 }
 
 Anything AnythingImportExportTest::init5DimArray(long anzElt) {
-	long i0, i1;
+	long i0 = 0, i1 = 0;
 	char idx0[3] = {0}, idx1[3] = {0};
 	Anything anyInit;
 
@@ -49,7 +49,7 @@ Anything AnythingImportExportTest::init5DimArray(long anzElt) {
 }
 
 bool AnythingImportExportTest::check5DimArray(Anything &any0, Anything &any1, long anzElt) {
-	long i0, i1;
+	long i0 = 0, i1 = 0;
 	char idx0[3] = {0}, idx1[3] = {0};
 	bool retVal = true;
 	Anything any;
@@ -125,7 +125,7 @@ void AnythingImportExportTest::WriteRead5Test() {
 
 	std::ostream *os = system::OpenOStream("tmp/anything6", "tst", std::ios::out);
 	if (os != 0) {
-		int i;
+		int i = 0;
 		for (i = 0; i < 5; i++) {
 			*os << any0;
 		}

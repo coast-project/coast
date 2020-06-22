@@ -89,7 +89,7 @@ bool SybCTnewDAImpl::Finis() {
 		delete fgpPeriodicAction;
 		fgpPeriodicAction = NULL;
 	}
-	bool bInitialized;
+	bool bInitialized = false;
 	{
 		LockUnlockEntry me(fgStructureMutex);
 		bInitialized = fgInitialized;

@@ -38,7 +38,7 @@ void SocketStreamTest::simpleRead() {
 			t_assert(!!(*Ios));
 			long charcounter = str.Length();
 			while ((*Ios).good()) {
-				char c;
+				char c = 0;
 				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				if (Ios->get(c)) {
 					charcounter++;
@@ -149,7 +149,7 @@ void SocketStreamTest::parseHTTPReplyTest() {
 		t_assert(!!Ios);  // make sure is valid
 		String line;
 		Anything request;
-		char c;
+		char c = 0;
 		bool firstLine = true;
 
 		while (!(Ios.get(c).eof())) {

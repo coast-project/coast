@@ -147,7 +147,7 @@ bool LeaderFollowerPool::InitReactor(ROAnything args) {
 	for (long i = 0; i < argSz; ++i) {
 		Acceptor *acceptor = (Acceptor *)args[i].AsIFAObject(0);
 		if (acceptor != 0) {
-			int retVal;
+			int retVal = 0;
 			if ((retVal = acceptor->PrepareAcceptLoop()) != 0) {
 				String logMsg;
 				logMsg << "server (" << args.SlotName(i) << ")  prepare accept failed with retVal " << (long)retVal;

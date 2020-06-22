@@ -31,7 +31,7 @@ void ContextSlotAppender::Operate(Context &c, Anything &dest, const ROAnything &
 	StartTrace(ContextSlotAppender.Operate);
 	TraceAny(config, "Config");
 
-	long sz = config.GetSize(), idx, szd = 0;
+	long sz = config.GetSize(), idx = 0, szd = 0;
 	for (long i = 0; i < sz; ++i) {
 		String sourceLookupName = config.SlotName(i);
 		String destSlot;

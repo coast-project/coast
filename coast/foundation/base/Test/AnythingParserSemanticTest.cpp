@@ -98,7 +98,7 @@ void AnythingParserSemanticTest::writeResult(String *input, long nrOfElt, char *
 		AnythingParserSemanticTest::anyOutput = emptyAny1;
 		AnythingParserSemanticTest::lineCounter = 1;
 
-		long i;
+		long i = 0;
 		for (i = 0; i < nrOfElt; i++) {
 			IStringStream is(input[i]);
 			anyTest.Import(is);
@@ -125,7 +125,7 @@ void AnythingParserSemanticTest::writeResult(String *input, long nrOfElt, char *
 }
 
 void AnythingParserSemanticTest::scanAnything(Anything any0) {
-	long i, iMax = any0.GetSize();
+	long i = 0, iMax = any0.GetSize();
 	String slotNm;
 	Anything anyTest;
 	String buffer;
@@ -1536,7 +1536,7 @@ void AnythingParserSemanticTest::Semantic23Test() {
 	any = emptyAny;
 	any = any1;
 
-	long i, iMax = any.GetSize();
+	long i = 0, iMax = any.GetSize();
 
 	for (i = 0; i < iMax; i++) {
 		switch (i) {
@@ -1844,7 +1844,7 @@ void AnythingParserSemanticTest::Semantic27Test() {
 //	testSemantic27
 
 void AnythingParserSemanticTest::testSemantic28Prep(Anything *any) {
-	Anything *anyHlp0, *anyHlp1;
+	Anything *anyHlp0 = NULL, *anyHlp1 = NULL;
 	anyHlp0 = new Anything();
 	anyHlp1 = new Anything();
 
@@ -1863,7 +1863,7 @@ void AnythingParserSemanticTest::testSemantic28Prep(Anything *any) {
 
 void AnythingParserSemanticTest::Semantic28Test() {
 	// Init an anything-object for testing
-	Anything *any;
+	Anything *any = NULL;
 	any = new Anything();
 
 	AnythingParserSemanticTest::testSemantic28Prep(any);
@@ -1887,7 +1887,7 @@ void AnythingParserSemanticTest::testSemantic29Prep(Anything *any) {
 
 void AnythingParserSemanticTest::Semantic29Test() {
 	// Init an anything-object for testing
-	Anything *any;
+	Anything *any = NULL;
 	any = new Anything();
 
 	AnythingParserSemanticTest::testSemantic29Prep(any);

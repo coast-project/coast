@@ -236,7 +236,7 @@ long IFANextPrime(long x) {
 	}
 
 	for (;;) {
-		long n;
+		long n = 0;
 		for (n = 3; (n * n <= x) && ((x % n) != 0); ++++n) {
 		}
 		if (n * n > x) {
@@ -718,8 +718,8 @@ long AnyArrayImpl::Contains(const char *k) const {
 
 	Assert(k);	// require a valid search string
 
-	long i;	  // external slot index
-	long at;  // internal buffer index
+	long i = 0;	  // external slot index
+	long at = 0;  // internal buffer index
 	for (i = 0; i < fSize; ++i) {
 		at = IntAt(i);	// calculate the internal index
 		Assert(at >= 0 && at < fCapacity);
@@ -920,7 +920,7 @@ void AnyArrayImpl::MergeByComparer(long lo, long hi, long m, const AnyIntCompare
 	if (hi < m + 1 || lo > m) {
 		return;	 // nothing to merge
 	}
-	long i, j, k;
+	long i = 0, j = 0, k = 0;
 	long const sz = m - lo + 1;
 	long a[sz];	 // temporary array of lower half
 	for (k = 0, i = lo; i <= m && k < sz; ++i, ++k) {

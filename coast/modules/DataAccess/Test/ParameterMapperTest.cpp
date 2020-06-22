@@ -13,6 +13,7 @@
 #include "Mapper.h"
 #include "StringStream.h"
 #include "TestSuite.h"
+#include "math.h"
 
 ParameterMapperTest::ParameterMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 
@@ -193,9 +194,9 @@ void ParameterMapperTest::GetTest() {
 	ParameterMapper pm("ParameterMapperTest");
 	pm.Initialize("ParameterMapper");
 	String s;
-	bool b;
-	long l;
-	double d;
+	bool b = false;
+	long l = 0;
+	double d = NAN;
 	Anything a, empty;
 	OStringStream os;
 

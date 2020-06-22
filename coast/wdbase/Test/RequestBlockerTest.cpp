@@ -35,7 +35,7 @@ RBRunner::RBRunner(RequestBlockerTest *env, long iterations, long checkEvery, bo
 void RBRunner::Run() {
 	StartTrace(RBRunner.Run);
 	Trace(GetName() << " Id is: " << (long)GetId());
-	bool checkIt;
+	bool checkIt = false;
 	CheckRunningState(eWorking);
 	for (long i = 1; i <= cRunSz; i++) {  // avoid 0
 		checkIt = ((i % cCheckEvery) == 0);

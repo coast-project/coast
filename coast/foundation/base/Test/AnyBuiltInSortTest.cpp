@@ -104,7 +104,7 @@ void AnyBuiltInSortTest::SortMany() {
 	Anything a;
 	Anything b;
 	const long size = 1000;
-	long i;
+	long i = 0;
 	for (i = 0; i < size; i++) {
 #if defined(WIN32)
 		long r = rand();
@@ -170,7 +170,7 @@ void AnyBuiltInSortTest::SortIsStable() {
 	a["d"] = 1;
 	a["c"] = 2;
 	a["a"] = 3;
-	long i;
+	long i = 0;
 	for (i = 4; i < 10; i++) {
 		a.Append(i);
 	}

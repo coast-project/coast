@@ -31,9 +31,9 @@ void WorkerPoolManagerModuleWorker::DoInit(ROAnything workerInit) {
 void WorkerPoolManagerModuleWorker::DoProcessWorkload() {
 	StartTrace(WorkerPoolManagerModuleWorker.DoProcessWorkload);
 	if (CheckRunningState(eWorking)) {
-		Anything *pMessages;
-		Mutex *pMx;
-		Mutex::ConditionType *pCond;
+		Anything *pMessages = NULL;
+		Mutex *pMx = NULL;
+		Mutex::ConditionType *pCond = NULL;
 		pMx = (Mutex *)fWork["mutex"].AsIFAObject();
 		pCond = (Mutex::ConditionType *)fWork["condition"].AsIFAObject();
 		pMessages = (Anything *)fWork["messages"].AsIFAObject(0L);

@@ -69,7 +69,7 @@ void RECompiler::setNextOfEnd(long node, long pointTo) {
 	StartTrace(RECompiler.setNextOfEnd);
 	Assert(pointTo >= 0);
 	// Traverse the chain until the next offset is 0
-	long next;
+	long next = 0;
 	while ((next = ROAnything(fInstruction)[node][RE::offsetNext].AsLong(0)) != 0) {
 		node += next;
 	}
@@ -329,7 +329,7 @@ long RECompiler::characterClass() {
 	bool definingRange = false;
 	int idxFirst = fPatternIdx;
 	unsigned char rangeStart = 0;  // Character.MIN_VALUE;
-	unsigned char rangeEnd;
+	unsigned char rangeEnd = 0;
 	REBitSet range;
 	while (fPattern.Length() > fPatternIdx) {  //(fPattern.At(fPatternIdx) != ']')
 
@@ -356,7 +356,7 @@ long RECompiler::characterClass() {
 				break;
 			case '\\': {
 				// Escape always advances the stream
-				long c;
+				long c = 0;
 				switch (c = escape()) {
 					case ESC_ERROR:
 					case ESC_COMPLEX:
@@ -944,7 +944,7 @@ long RECompiler::expr(bool &isnullable) {
 		isnullable = isnullable || branchnullable;
 	}
 
-	long end;
+	long end = 0;
 	if (paren) {
 		if (fPattern.At(fPatternIdx) == ')') {
 			++fPatternIdx;

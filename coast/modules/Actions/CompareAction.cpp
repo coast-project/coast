@@ -61,7 +61,7 @@ namespace {
 			return c1.AsBool() == c2.AsBool();
 		}
 		if (comp.IsEqual("Anything")) {
-			bool ret;
+			bool ret = false;
 			String compareMsg(Anything::CompareForTestCases(c1, c2, ret));
 			Trace("AnyCompareMessage: " << compareMsg);
 			return ret;

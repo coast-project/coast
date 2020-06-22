@@ -192,7 +192,7 @@ LDAPConnection::EConnectState PersistentLDAPConnection::DoConnect(ROAnything bin
 		return eSetOptionsNok;
 	}
 	// send bind request (asynchronous)
-	int msgId;
+	int msgId = 0;
 	if (!Bind(bindName, bindPW, msgId, eh)) {
 		return eBindNok;
 	}

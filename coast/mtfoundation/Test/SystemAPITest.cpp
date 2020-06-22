@@ -305,9 +305,9 @@ void SystemAPITest::CONDITIONSTestMain(int nofthreads, bool broadcast) {
 	if (!t_assert(nofthreads >= 1)) {
 		return;
 	}
-	SimpleTestThread **pthread;
+	SimpleTestThread **pthread = NULL;
 	pthread = new SimpleTestThread *[nofthreads];
-	condthreadparam **params;
+	condthreadparam **params = NULL;
 	params = new condthreadparam *[nofthreads];
 	for (int j = 0; j < nofthreads; j++) {
 		pthread[j] = new SimpleTestThread;

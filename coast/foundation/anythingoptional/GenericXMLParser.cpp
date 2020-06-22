@@ -25,7 +25,7 @@ Anything GenericXMLParser::Parse(std::istream &reader, const char *filename, lon
 
 void GenericXMLParser::DoParse(String theTag, Anything &tag) {
 	StartTrace(GenericXMLParser.DoParse);
-	int c, lookahead;
+	int c = 0, lookahead = 0;
 	Anything &tagbody = tag;  // now just append, allow for different things like tagbody = tag["body"]
 	String reply;
 
@@ -91,7 +91,7 @@ void GenericXMLParser::DoParse(String theTag, Anything &tag) {
 }
 String GenericXMLParser::SkipToClosingAngleBracket() {
 	StartTrace(GenericXMLParser.SkipToClosingAngleBracket);
-	int c;
+	int c = 0;
 	String result;
 	while ((c = Get()) != 0 && c != '>' && c != EOF) {
 		result.Append(char(c));
@@ -100,7 +100,7 @@ String GenericXMLParser::SkipToClosingAngleBracket() {
 }
 Anything GenericXMLParser::ParseXmlOrProcessingInstruction() {
 	StartTrace(GenericXMLParser.ParseXmlOrProcessingInstruction);
-	int c;
+	int c = 0;
 	String key;
 	key.Append((char)Get());  // this is always a '?'
 	key.Append(ParseName());
@@ -124,7 +124,7 @@ Anything GenericXMLParser::ParseXmlOrProcessingInstruction() {
 }
 Anything GenericXMLParser::ParseCommentCdataOrDtd(bool withindtd) {
 	StartTrace(GenericXMLParser.ParseCommentCdataOrDtd);
-	int c;
+	int c = 0;
 	c = Get();	// read the '!'
 	String key("!");
 	Anything result;
@@ -275,7 +275,7 @@ Anything GenericXMLParser::ParseCdata() {
 String GenericXMLParser::SkipToCdataClosing() {
 	StartTrace(GenericXMLParser.SkipToCdataClosing);
 	String result;
-	int c;
+	int c = 0;
 	while ((c = Get()) != 0 && c != EOF) {
 		if (']' == c) {
 			if (']' == Peek()) {
@@ -299,7 +299,7 @@ String GenericXMLParser::SkipToCdataClosing() {
 }
 Anything GenericXMLParser::ParseComment() {
 	StartTrace(GenericXMLParser.ParseComment);
-	int c;
+	int c = 0;
 	// keep comments for test cases relying on them
 	String comment;
 #define GSR ((c = Get()), comment.Append(char(c)))
@@ -399,7 +399,7 @@ void GenericXMLParser::Store(Anything &cache, const Anything &body) {
 
 void GenericXMLParser::SkipWhitespace() {
 	StartTrace(GenericXMLParser.SkipWhitespace);
-	int c;
+	int c = 0;
 	while (!IsEof() && (c = Peek()) != 0 && c != EOF) {
 		if (isspace(c) == 0) {
 			return;
@@ -414,7 +414,7 @@ bool GenericXMLParser::IsValidNameChar(int c) {
 String GenericXMLParser::ParseToSemicolon() {
 	StartTrace(GenericXMLParser.ParseToSemicolon);
 	String value;
-	int c;
+	int c = 0;
 	while (!IsEof() && ';' != (c = Get())) {
 		value.Append(char(c));
 	}
@@ -424,7 +424,7 @@ String GenericXMLParser::ParseToSemicolon() {
 String GenericXMLParser::ParseName() {
 	StartTrace(GenericXMLParser.ParseName);
 	String theName;
-	int c;	// Unicode?
+	int c = 0;	// Unicode?
 	while (!IsEof() && (c = Peek()) != EOF && c != 0) {
 		if (IsValidNameChar(c) || ((isdigit(c) != 0) && theName.Length() > 0)) {
 			theName.Append((char)Get());
@@ -533,7 +533,7 @@ String GenericXMLParser::ParseQuotedString() {
 	String value;
 	SkipWhitespace();
 	int quote = Get();
-	int c;
+	int c = 0;
 	while (!IsEof() && (c = Get()) != quote) {
 		value.Append((char)c);
 	}
@@ -564,7 +564,7 @@ String GenericXMLParser::ParseValue() {
 String GenericXMLParser::ParseAsStringUpToEndTag(String &tagName) {
 	StartTrace(GenericXMLParser.ParseAsStringUpToEndTag);
 	String result;
-	int c;
+	int c = 0;
 	while (!IsEof() && (c = Get()) != 0) {
 		if ('<' == c) {
 			if ('/' == Peek()) {

@@ -168,7 +168,7 @@ namespace coast {
 				delete fpPeriodicAction;
 				fpPeriodicAction = NULL;
 			}
-			bool bInitialized;
+			bool bInitialized = false;
 			{
 				LockUnlockEntry me(fStructureMutex);
 				bInitialized = fInitialized;

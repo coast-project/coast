@@ -28,7 +28,7 @@ bool InstallerPolicy::IntInitialize(Registry *r) {
 	bool bRet = true;
 	RegistryIterator ri(r);
 	String name;
-	RegisterableObject *ro;
+	RegisterableObject *ro = NULL;
 	while (ri.HasMore()) {
 		ro = ri.Next(name);
 		if ((ro != 0) && !ro->IsInitialized()) {
@@ -64,7 +64,7 @@ bool TerminationPolicy::IntFinalize(Registry *r) {
 	bool bRet = true;
 	RegistryIterator ri(r);
 	String name;
-	RegisterableObject *ro;
+	RegisterableObject *ro = NULL;
 	while (ri.HasMore() && ((ro = ri.Next(name)) != NULL)) {
 		Trace("checking initialized state of <" << name << ">");
 		if (ro->IsInitialized()) {

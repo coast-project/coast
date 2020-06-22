@@ -445,7 +445,7 @@ int LDAPModifyDAI::DoLDAPRequest(Context &ctx, ParameterMapper *getter, LDAPConn
 	LDAPMod **ldapmods = (LDAPMod **)coast::storage::Current()->Calloc((totalmods + 1), sizeof(LDAPMod *));
 	ROAnything attrmods;
 	String modname;
-	int modcode, counter(0), iTotalMods(0);
+	int modcode = 0, counter(0), iTotalMods(0);
 	bool bBinaryOperation(false);
 	getter->Get("PlainBinaryValues", bBinaryOperation, ctx);
 
@@ -576,7 +576,7 @@ int LDAPSearchDAI::DoLDAPRequest(Context &ctx, ParameterMapper *getter, LDAPConn
 	// timeout override
 	int timeout((int)query["TimeLimit"].AsLong());
 	timeval tv;
-	timeval *tvp;
+	timeval *tvp = NULL;
 	if (timeout < 0) {
 		tv.tv_sec = lc->GetSearchTimeout();
 		tv.tv_usec = 0;

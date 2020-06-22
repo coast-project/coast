@@ -251,7 +251,7 @@ bool SMTPState::ConsumeReply(Anything &context, std::istream &is) {
 void SMTPState::ConsumeTillEol(std::istream &is, String &msg) {
 	StartTrace(SMTPState.ConsumeTillEol);
 
-	char c, peek;
+	char c = 0, peek = 0;
 	bool eol(false);
 	while (!eol && is.good()) {
 		is.get(c);
@@ -465,7 +465,7 @@ bool MailDAImpl::Exec(Context &ctx, ParameterMapper *in, ResultMapper *out) {
 	long port = ctx.Lookup("MailhostPort", 25L);
 	long timeout = ctx.Lookup("Timeout", 10L) * 1000;
 
-	bool result;
+	bool result = false;
 	Trace("Address<" << address << "," << port << ">");
 
 	Connector csc(address, port, timeout);

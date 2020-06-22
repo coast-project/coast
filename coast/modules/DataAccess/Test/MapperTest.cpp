@@ -16,6 +16,7 @@
 #include "Session.h"
 #include "StringStream.h"
 #include "TestSuite.h"
+#include "math.h"
 
 Test *MapperTest::suite() {
 	TestSuite *testSuite = new TestSuite;
@@ -144,7 +145,7 @@ void MapperTest::GetTests() {
 	}
 
 	{
-		float f;
+		float f = NAN;
 		t_assert(mapper.Get("AKeyInConfig", f, ctx));
 		assertDoublesEqualm(1.9, f, 0.0000001, "float from config");
 		t_assert(mapper.Get("AKeyFromContext", f, ctx));
@@ -154,7 +155,7 @@ void MapperTest::GetTests() {
 	}
 
 	{
-		double d;
+		double d = NAN;
 		t_assert(mapper.Get("AKeyInConfig", d, ctx));
 		assertDoublesEqualm(1.9, d, 0.0000001, "double from config");
 		t_assert(mapper.Get("AKeyFromContext", d, ctx));
@@ -164,7 +165,7 @@ void MapperTest::GetTests() {
 	}
 
 	{
-		int i;
+		int i = 0;
 		t_assert(mapper.Get("AKeyInConfig", i, ctx));
 		assertEqualm(1, i, "int from config");
 		t_assert(mapper.Get("AKeyFromContext", i, ctx));
@@ -174,7 +175,7 @@ void MapperTest::GetTests() {
 	}
 
 	{
-		long l;
+		long l = 0;
 		t_assert(mapper.Get("AKeyInConfig", l, ctx));
 		assertEqualm(1, l, "long from config");
 		t_assert(mapper.Get("AKeyFromContext", l, ctx));
@@ -235,7 +236,7 @@ void MapperTest::StdGetTest() {
 	mapper.Initialize("ParameterMapper");
 
 	// test the overloaded get api
-	int iTestVal;
+	int iTestVal = 0;
 	t_assert(mapper.Get("testInt", iTestVal, ctx));
 	assertEqual(10, iTestVal);
 
@@ -243,15 +244,15 @@ void MapperTest::StdGetTest() {
 	t_assert(mapper.Get("testBool", bTestVal, ctx));
 	assertEqual(false, bTestVal);
 
-	long lTestVal;
+	long lTestVal = 0;
 	t_assert(mapper.Get("testLong", lTestVal, ctx));
 	assertEqual(123, lTestVal);
 
-	float fTestVal;
+	float fTestVal = NAN;
 	t_assert(mapper.Get("testFloat", fTestVal, ctx));
 	t_assert(1.23F == fTestVal);
 
-	double dTestVal;
+	double dTestVal = NAN;
 	t_assert(mapper.Get("testDouble", dTestVal, ctx));
 	t_assert(2.46 == dTestVal);
 
@@ -279,19 +280,19 @@ void MapperTest::StdGetNoDataTest() {
 	mapper.Initialize("ParameterMapper");
 
 	// test the overloaded get api
-	int iTestVal;
+	int iTestVal = 0;
 	t_assert(!mapper.Get("testInt", iTestVal, ctx));
 
-	bool bTestVal;
+	bool bTestVal = false;
 	t_assert(!mapper.Get("testBool", bTestVal, ctx));
 
-	long lTestVal;
+	long lTestVal = 0;
 	t_assert(!mapper.Get("testLong", lTestVal, ctx));
 
-	float fTestVal;
+	float fTestVal = NAN;
 	t_assert(!mapper.Get("testFloat", fTestVal, ctx));
 
-	double dTestVal;
+	double dTestVal = NAN;
 	t_assert(!mapper.Get("testDouble", dTestVal, ctx));
 
 	String sTestVal;
@@ -363,7 +364,7 @@ void MapperTest::ExtendedPutTest() {
 	Context ctx(dummy, dummy, 0, 0, 0, 0);
 	Anything tmpStore(ctx.GetTmpStore());
 	const long arrSz = 10;
-	long i, j;
+	long i = 0, j = 0;
 
 	const char *mappername = "Mapper";
 	ResultMapper mapper(mappername);
@@ -486,7 +487,7 @@ void MapperTest::RenameSlotWithConfigGetTest() {
 	ParameterMapper m("RenameSlotWithConfigGetTest");
 	m.Initialize("ParameterMapper");
 	Context ctx;
-	long value1, value2;
+	long value1 = 0, value2 = 0;
 	ctx.GetTmpStore()["Kaspar"] = 42L;	// will never be accessed
 	ctx.GetTmpStore()["Peter"] = 43L;
 	t_assert(m.Get("Kaspar", value1, ctx));	 // "redirected" get

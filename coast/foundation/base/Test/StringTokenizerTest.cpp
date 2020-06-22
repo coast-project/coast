@@ -31,7 +31,7 @@ Test *StringTokenizerTest::suite() {
 }
 void StringTokenizerTest::constrMethods0() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", '0');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -88,7 +88,7 @@ void StringTokenizerTest::constrMethods0() {
 
 void StringTokenizerTest::constrMethods1() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", '1');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -125,7 +125,7 @@ void StringTokenizerTest::constrMethods1() {
 
 void StringTokenizerTest::constrMethods2() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", '2');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -158,7 +158,7 @@ void StringTokenizerTest::constrMethods2() {
 
 void StringTokenizerTest::constrMethods3() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", '3');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -191,7 +191,7 @@ void StringTokenizerTest::constrMethods3() {
 
 void StringTokenizerTest::constrMethods4() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", '4');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -224,7 +224,7 @@ void StringTokenizerTest::constrMethods4() {
 
 void StringTokenizerTest::constrMethods5() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", '5');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -257,7 +257,7 @@ void StringTokenizerTest::constrMethods5() {
 
 void StringTokenizerTest::constrMethods6() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", '6');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -290,7 +290,7 @@ void StringTokenizerTest::constrMethods6() {
 
 void StringTokenizerTest::constrMethods7() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", '7');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -323,7 +323,7 @@ void StringTokenizerTest::constrMethods7() {
 
 void StringTokenizerTest::constrMethods8() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", '8');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -352,7 +352,7 @@ void StringTokenizerTest::constrMethods8() {
 
 void StringTokenizerTest::constrMethods9() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", '9');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -385,7 +385,7 @@ void StringTokenizerTest::constrMethods9() {
 
 void StringTokenizerTest::constrMethods10() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("0123450678901230456078901230456709012", 'a');
 	assertEqual(st.fString, "0123450678901230456078901230456709012");
@@ -404,7 +404,7 @@ void StringTokenizerTest::constrMethods10() {
 
 void StringTokenizerTest::constrMethods11() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("", 'a');
 
@@ -422,7 +422,7 @@ void StringTokenizerTest::constrMethods11() {
 
 void StringTokenizerTest::constrMethods12() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer st("abc", 0x0);
 
@@ -475,7 +475,7 @@ void StringTokenizerTest::nextTokenNormal() {
 	t_assert(st0.fDelimiter == ':');
 
 	String token;
-	bool ret;
+	bool ret = false;
 
 	// first round
 	ret = st0.NextToken(token);
@@ -501,7 +501,7 @@ void StringTokenizerTest::nextTokenEmpty() {
 	t_assert(st0.fDelimiter == ':');
 
 	String token;
-	bool ret;
+	bool ret = false;
 
 	// first round
 	ret = st0.NextToken(token);
@@ -517,7 +517,7 @@ void StringTokenizerTest::resetTest() {
 	t_assert(st0.fDelimiter == ':');
 
 	String token;
-	bool ret;
+	bool ret = false;
 
 	// first round
 	ret = st0.NextToken(token);

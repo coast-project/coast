@@ -35,7 +35,7 @@ void SSLObjectManagerTest::UsePassedInCtxTest() {
 		TraceAny(cConfig, "cConfig");
 		for (long ii = 0; ii < cConfig["Config"]["Runs"].AsLong(10); ii++) {
 			Trace("At run index: " << ii);
-			SSL_CTX *sslctx;
+			SSL_CTX *sslctx = NULL;
 			sslctx = SSLObjectManager::SSLOBJMGR()->GetCtx(cConfig["Config"]["Address"].AsString(),
 														   cConfig["Config"]["Port"].AsString(), cConfig["Config"]);
 			t_assert(sslctx != (SSL_CTX *)NULL);
@@ -80,7 +80,7 @@ void SSLObjectManagerTest::ReUseCreatedCtxTest() {
 		TraceAny(cConfig, "cConfig");
 		for (long ii = 0; ii < cConfig["Config"]["Runs"].AsLong(10); ii++) {
 			Trace("At run index: " << ii);
-			SSL_CTX *sslctx;
+			SSL_CTX *sslctx = NULL;
 			sslctx = SSLObjectManager::SSLOBJMGR()->GetCtx(cConfig["Config"]["Address"].AsString(),
 														   cConfig["Config"]["Port"].AsString(), cConfig["Config"]);
 			t_assert(sslctx != (SSL_CTX *)NULL);
@@ -170,7 +170,7 @@ void SSLObjectManagerTest::SessionResumptionTest() {
 		SSLObjectManager::SSLOBJMGR()->RemoveCtx(cConfig["Config"]["Address"].AsString(), cConfig["Config"]["Port"].AsString());
 		for (long ii = 0; ii < cConfig["Config"]["Runs"].AsLong(255); ii++) {
 			Trace("At run index: " << ii);
-			SSL_CTX *sslctx;
+			SSL_CTX *sslctx = NULL;
 			sslctx = SSLObjectManager::SSLOBJMGR()->GetCtx(cConfig["Config"]["Address"].AsString(),
 														   cConfig["Config"]["Port"].AsString(), cConfig["Config"]);
 			t_assert(sslctx != (SSL_CTX *)NULL);
@@ -223,7 +223,7 @@ void SSLObjectManagerTest::NoSessionResumptionTest() {
 		SSLObjectManager::SSLOBJMGR()->RemoveCtx(cConfig["Config"]["Address"].AsString(), cConfig["Config"]["Port"].AsString());
 		for (long ii = 0; ii < cConfig["Config"]["Runs"].AsLong(10); ii++) {
 			Trace("At run index: " << ii);
-			SSL_CTX *sslctx;
+			SSL_CTX *sslctx = NULL;
 			sslctx = SSLObjectManager::SSLOBJMGR()->GetCtx(cConfig["Config"]["Address"].AsString(),
 														   cConfig["Config"]["Port"].AsString(), cConfig["Config"]);
 			t_assert(sslctx != (SSL_CTX *)NULL);
@@ -268,7 +268,7 @@ void SSLObjectManagerTest::GetDefaultCtxTest() {
 		TraceAny(cConfig, "cConfig");
 		for (int ii = 0; ii < 10; ii++) {
 			Trace("At run index: " << ii);
-			SSL_CTX *sslctx;
+			SSL_CTX *sslctx = NULL;
 			sslctx =
 				SSLObjectManager::SSLOBJMGR()->GetCtx(cConfig["Address"].AsString(), cConfig["Port"].AsString(), Anything());
 			t_assert(sslctx != (SSL_CTX *)NULL);

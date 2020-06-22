@@ -24,8 +24,8 @@ void DateRendererTest::setUp() {
 }
 
 void DateRendererTest::CompareHelper(const char *format, long offset) {
-	time_t now;
-	struct tm *tt, res;
+	time_t now = 0;
+	struct tm *tt = NULL, res;
 	time(&now);
 	now += offset * 86400;
 	tt = system::LocalTime(&now, &res);
@@ -128,7 +128,7 @@ void DateRendererTest::AbsolutTimeFormat()
 	ROAnything roConfig = fConfig;
 	dateRenderer.RenderAll(fReply, fContext, roConfig);
 
-	struct tm *tt, res;
+	struct tm *tt = NULL, res;
 	tt = system::LocalTime(&absolut, &res);
 	char date[maxsize];
 
@@ -150,9 +150,9 @@ void DateRendererTest::GMTTime()
 	ROAnything roConfig = fConfig;
 	dateRenderer.RenderAll(fReply, fContext, roConfig);
 
-	time_t now;
+	time_t now = 0;
 	time(&now);	 // use current time
-	struct tm *tt, res;
+	struct tm *tt = NULL, res;
 	tt = system::GmTime(&now, &res);
 	char date[maxsize];
 
@@ -176,8 +176,8 @@ void DateRendererTest::emptyConfig1()
 		dateRenderer.RenderAll(fReply, fContext, roConfig);
 
 		// assert the result
-		time_t now;
-		struct tm *tt, res;
+		time_t now = 0;
+		struct tm *tt = NULL, res;
 		time(&now);	 // use current time
 		tt = system::LocalTime(&now, &res);
 		char date[maxsize];
@@ -209,8 +209,8 @@ void DateRendererTest::emptyConfig2()
 		dateRenderer.RenderAll(fReply, fContext, roConfig);
 
 		// assert the result
-		time_t now;
-		struct tm *tt, res;
+		time_t now = 0;
+		struct tm *tt = NULL, res;
 		time(&now);	 // use current time
 		tt = system::LocalTime(&now, &res);
 		char date[maxsize];

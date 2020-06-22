@@ -533,7 +533,7 @@ void URLUtilsTest::ExhaustiveHTMLDecodeTest() {
 void URLUtilsTest::ExhaustiveUrlDecodeTest() {
 	StartTrace(URLUtilsTest.ExhaustiveUrlDecodeTest);
 
-	coast::urlutils::URLCheckStatus eUrlCheckStatus;
+	coast::urlutils::URLCheckStatus eUrlCheckStatus = coast::urlutils::eOk;
 	String Request;
 	String Answer;
 	Request = "%252E";

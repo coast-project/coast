@@ -81,7 +81,7 @@ namespace NTLMCoder {
 		StartTrace(NTLMCoder.EncodeServerNonce);
 		String buff((void *)"NTLMSSP\0\x2\0\0\0\x0\0\0\0\x28\0\0\0", 20L);
 		appendlong(buff, flags);
-		long i;
+		long i = 0;
 		for (i = 0L; i < 8; i++) {
 			buff.Append(nonce[i]);
 		}
@@ -173,7 +173,7 @@ namespace NTLMCoder {
 		String result;
 		setup_des_key(password.SubString(0L, 7L), &ks);
 		DES_ecb_encrypt(&magic, &lmhpw, &ks, DES_ENCRYPT);
-		long i;
+		long i = 0;
 		for (i = 0; i < 8; i++) {
 			result.Append((char)lmhpw[i]);
 		}

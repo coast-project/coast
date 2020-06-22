@@ -312,7 +312,7 @@ void URLRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &c
 	TraceAny(config, "config");
 
 	bool useBaseURL = (c.Lookup("UseBaseURL", 0L) != 0);
-	Renderer *r;
+	Renderer *r = NULL;
 
 	if (useBaseURL && !config.IsDefined("BaseAddr")) {
 		r = FindRenderer("SimpleURLPrinter");

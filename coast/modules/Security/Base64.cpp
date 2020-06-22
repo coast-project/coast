@@ -29,7 +29,7 @@ void Base64::DoEncode(String &encStr, const String &str) const {
 	const char *basis_64 = DoGetBasis();
 
 	const int cBlockSize = 3;
-	unsigned char c1, c2, c3;
+	unsigned char c1 = 0, c2 = 0, c3 = 0;
 	long blocks = str.Length() / cBlockSize;
 	long remBytes = str.Length() % cBlockSize;
 	long index = 0;
@@ -71,9 +71,9 @@ bool Base64::DoDecode(String &str, const String &encStr) const {
 	StartTrace(Base64.DoDecode);
 	Trace("input = " << encStr);
 	const int cBlockSize = 4;
-	unsigned char c1, c2, c3, c4;
-	unsigned char cr1, cr2, cr3, cr4;
-	unsigned char byte1, byte2, byte3;
+	unsigned char c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+	unsigned char cr1 = 0, cr2 = 0, cr3 = 0, cr4 = 0;
+	unsigned char byte1 = 0, byte2 = 0, byte3 = 0;
 	long blocks = encStr.Length() / cBlockSize;
 	long remBytes = encStr.Length() % cBlockSize;  // should be 0
 	long index = 0;

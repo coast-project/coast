@@ -29,7 +29,7 @@ bool LoopAction::DoExecAction(String &transitionToken, Context &ctx, const ROAny
 	String strIndexSlot = Renderer::RenderToStringWithDefault(ctx, config["IndexSlot"], "Index");
 
 	long stop = end + increment;
-	bool ret;
+	bool ret = false;
 	for (long i = start; i != stop; i += increment) {
 		Anything anyAdditionalInfo;
 		anyAdditionalInfo[strIndexSlot] = i;

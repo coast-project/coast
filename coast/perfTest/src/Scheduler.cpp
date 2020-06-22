@@ -19,7 +19,7 @@ String Scheduler::currTimeInDayHourMin() {
 	//               ---        -- --
 	//
 	// DayHourMin	"WED 17:27"
-	time_t now;
+	time_t now = 0;
 	time(&now);
 	struct tm time;
 	String timeDate;
@@ -103,7 +103,7 @@ String Scheduler::convertFromDayHourMinInDecimal(String timeDate) {
 String Scheduler::CurrTimeDateInDecimal() {
 	// CTimeDate = "Wed Apr 07 17:27:04 1999
 	// decimal	 = "199904071727"
-	time_t now;
+	time_t now = 0;
 	time(&now);
 	struct tm result;
 	String cTimeDate;

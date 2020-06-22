@@ -784,7 +784,7 @@ void StringTest::appendsAsHex() {
 	StartTrace(StringTest.appendsAsHex);
 	// Test Methode AppendAsHex(char)
 	{
-		int i;
+		int i = 0;
 		String str0;
 		for (i = 0; i < 256; i++) {
 			str0.AppendAsHex((unsigned char)i);
@@ -858,7 +858,7 @@ void StringTest::appendsTwoHexAsChar() {
 	// Test Methode AppendTwoHexAsChar(const char *)
 	{
 		char a[2];
-		int i, j;
+		int i = 0, j = 0;
 		String str0;
 
 		for (i = 0; i < 16; i++) {
@@ -919,7 +919,7 @@ void StringTest::appendsTwoHexAsChar() {
 		}
 
 		String str1;
-		int ch;
+		int ch = 0;
 		for (ch = (char)0; ch < 256; ch++) {
 			str1.Append((char)ch);
 			str1.Append(' ');
@@ -1471,7 +1471,7 @@ void StringTest::compareN1() {
 	StartTrace(StringTest.compareN1);
 	// Der Test geht bis zum \0
 	String str0, str1, str2, str3 = "XXXX456789", str4 = "456789";
-	long length;
+	long length = 0;
 
 	str0.Append("0123456789", 10);
 	str1.Append("0123456789", 10);
@@ -1528,7 +1528,7 @@ void StringTest::compareNs() {
 //==============================================================================================
 void StringTest::toLower0() {
 	String str, strHlp;
-	long i;
+	long i = 0;
 
 	for (i = 1; i < 256; i++) {
 		str.Append((char)i);
@@ -1570,7 +1570,7 @@ void StringTest::toLowers() {
 //==============================================================================================
 void StringTest::toUpper0() {
 	String str, strHlp;
-	long i;
+	long i = 0;
 
 	for (i = 1; i < 256; i++) {
 		str.Append((char)i);
@@ -1853,7 +1853,7 @@ void StringTest::caselessCompare3() {
 	StartTrace(StringTest.caselessCompare3);
 	// Fall MIT case
 	String str, strHlp, str1;
-	long i;
+	long i = 0;
 
 	for (i = 0; i < 256; i++) {
 		str.Append((char)i);
@@ -1897,7 +1897,7 @@ void StringTest::caselessCompares() {
 
 void StringTest::intPrintOn0() {
 	StartTrace(StringTest.intPrintOn0);
-	int i;
+	int i = 0;
 	String str, strHlp;
 
 	for (i = 0; i <= 256; i++) {
@@ -1970,7 +1970,7 @@ void StringTest::intPrintOn0() {
 
 void StringTest::intPrintOn1() {
 	StartTrace(StringTest.intPrintOn1);
-	int i;
+	int i = 0;
 	String str, strHlp;
 
 	for (i = 0; i <= 256; i++) {
@@ -2012,7 +2012,7 @@ void StringTest::intPrintOns() {
 //==============================================================================================
 void StringTest::at0() {
 	String str;
-	long i;
+	long i = 0;
 
 	for (i = 0; i < 256; i++) {
 		str.Append((char)i);
@@ -2042,7 +2042,7 @@ void StringTest::ats() {
 //==============================================================================================
 void StringTest::putAt0() {
 	String str;
-	long i;
+	long i = 0;
 
 	for (i = 0; i < 256; i++) {
 		str.Append(' ');
@@ -2073,7 +2073,7 @@ void StringTest::putAts() {
 //==============================================================================================
 void StringTest::replaceAt0() {
 	String str, strHlp;
-	long i;
+	long i = 0;
 	char buf[50] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0}, bufHlp[100];
 
 	for (i = (long)'A'; i <= (long)'Z'; i++) {
@@ -2084,7 +2084,7 @@ void StringTest::replaceAt0() {
 	}
 
 	// Replace at pos 0
-	long strCapTmp, strLenTmp;
+	long strCapTmp = 0, strLenTmp = 0;
 	for (i = 0; i <= (long)strlen(buf); i++) {
 		str = strHlp;
 		strCapTmp = str.Capacity();
@@ -2100,7 +2100,7 @@ void StringTest::replaceAt0() {
 
 void StringTest::replaceAt1() {
 	String str, strHlp;
-	long i, strCapTmp, strLenTmp;
+	long i = 0, strCapTmp = 0, strLenTmp = 0;
 	char buf[50] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0}, bufHlp[100];
 
 	for (i = (long)'A'; i <= (long)'Z'; i++) {
@@ -2126,7 +2126,7 @@ void StringTest::replaceAt1() {
 
 void StringTest::replaceAt2() {
 	String str, strHlp;
-	long i, strCapTmp, strLenTmp;
+	long i = 0, strCapTmp = 0, strLenTmp = 0;
 	char buf[50] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0}, bufHlp[100];
 
 	for (i = (long)'A'; i <= (long)'Z'; i++) {
@@ -2169,7 +2169,7 @@ void StringTest::replaceAtBeyondLength() {
 
 void StringTest::replaceAt5() {
 	String str, strHlp;
-	long i;
+	long i = 0;
 	char buf[50] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0};
 
 	for (i = (long)'A'; i <= (long)'Z'; i++) {
@@ -2196,7 +2196,7 @@ void StringTest::replaceAt5() {
 
 void StringTest::replaceAt6() {
 	String str, strHlp;
-	long i, strCapTmp, strLenTmp;
+	long i = 0, strCapTmp = 0, strLenTmp = 0;
 	char buf[50] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0}, bufHlp[100];
 
 	for (i = (long)'A'; i <= (long)'Z'; i++) {
@@ -2221,7 +2221,7 @@ void StringTest::replaceAt6() {
 
 void StringTest::replaceAt7() {
 	String str, strHlp;
-	long i, strCapTmp, strLenTmp;
+	long i = 0, strCapTmp = 0, strLenTmp = 0;
 	char buf[50] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0}, bufHlp[100];
 
 	for (i = (long)'A'; i <= (long)'Z'; i++) {
@@ -2253,7 +2253,7 @@ void StringTest::replaceAt8() {
 
 void StringTest::replaceAt9() {
 	String str, strHlp;
-	long i, strCapTmp, strLenTmp;
+	long i = 0, strCapTmp = 0, strLenTmp = 0;
 	char bufHlp[100];
 
 	for (i = (long)'A'; i <= (long)'Z'; i++) {
@@ -2304,7 +2304,7 @@ void StringTest::replaceAts() {
 //==============================================================================================
 void StringTest::strChr0() {
 	String str = "0123456789";
-	long i, j;
+	long i = 0, j = 0;
 
 	for (i = 0; i < 10; i++) {
 		for (j = 0; j < 10; j++) {
@@ -2330,7 +2330,7 @@ void StringTest::strChr0() {
 
 void StringTest::strChr1() {
 	String str = "0123456789";
-	long i;
+	long i = 0;
 
 	// Exceptions
 	for (i = 0; i < 10; i++) {
@@ -2357,7 +2357,7 @@ void StringTest::strChrs() {
 //==============================================================================================
 void StringTest::strRChr0() {
 	String str = "0123456789";
-	long i;
+	long i = 0;
 
 	for (i = 0; i < 10; i++) {
 		t_assert(str.StrRChr((char)(i + '0')) == i);
@@ -2389,7 +2389,7 @@ void StringTest::contain0() {
 	//----------------------------------------------
 	String str = "qwertzuiopasdfghjklyxcvbnm";
 	char buf[50];
-	long i, j, length = str.Length();
+	long i = 0, j = 0, length = str.Length();
 
 	for (i = 0; i < length; i++) {
 		for (j = 1; j <= length - i; j++) {
@@ -2427,7 +2427,7 @@ void StringTest::contains() {
 void StringTest::subString0() {
 	String str = "qwertzuiopasdfghjklyxcvbnmqwertzuiopasdfghjklyxcvbnm", strHlp;
 	char buf[50];
-	long i, j, length = str.Length() / 2;
+	long i = 0, j = 0, length = str.Length() / 2;
 
 	// SubString is done:  is the result the expected one?  Yes!!!
 	for (i = 0; i < length; i++) {
@@ -2481,7 +2481,7 @@ void StringTest::subString3() {
 	//	String SubString(long start, long length= -1) const;
 	//----------------------------------------------------------
 	String str = "01234567890123456789", strHlp;
-	long i, j, length = str.Length();
+	long i = 0, j = 0, length = str.Length();
 
 	for (i = 0; i < length; i++) {			// i=start
 		for (j = 0; j < length - i; j++) {	// j=nr of char to copy
@@ -2569,7 +2569,7 @@ void StringTest::subStrings() {
 //==============================================================================================
 void StringTest::trimFront0() {
 	String str, strHlp;
-	long i;
+	long i = 0;
 	strHlp.Append("0123456789", strlen("0123456789"));
 	str = strHlp;
 	// Normal cases
@@ -2696,7 +2696,7 @@ void StringTest::trim3() {
 
 void StringTest::trim4() {
 	String str, strHlp;
-	long length;
+	long length = 0;
 	strHlp.Append("0123456789", strlen("0123456789"));
 	str = strHlp;
 	// newLen > 0  and  < Length()
@@ -2752,7 +2752,7 @@ void StringTest::reserve() {
 //==============================================================================================
 void StringTest::TestCapacity() {
 	StartTrace(StringTest.TestCapacity);
-	long i;
+	long i = 0;
 	String test;
 	for (i = 1; i < (3 * 4048); i++) {
 		test.Append('a');
@@ -2872,7 +2872,7 @@ void StringTest::appendsWithDelimiter() {
 void StringTest::TestFirstCharOf() {
 	String test("0123456789");
 
-	long lIdx;
+	long lIdx = 0;
 	for (lIdx = 0; lIdx < test.Length(); lIdx++) {
 		String containsOneOff;
 		containsOneOff.Append(lIdx);
@@ -2907,7 +2907,7 @@ void StringTest::TestFirstCharOf() {
 
 void StringTest::TestContainsCharAbove() {
 	String test;
-	unsigned int ui;
+	unsigned int ui = 0;
 	unsigned int lowbound = 0;
 	unsigned int highbound = 256;
 
@@ -2944,7 +2944,7 @@ void StringTest::TestContainsCharAbove() {
 void StringTest::TestLastCharOf() {
 	String test("0123456789");
 
-	long lIdx;
+	long lIdx = 0;
 	String containsOneOff;
 	for (lIdx = 0; lIdx < test.Length(); lIdx++) {
 		containsOneOff.Append(lIdx);

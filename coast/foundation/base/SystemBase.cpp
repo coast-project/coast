@@ -126,7 +126,7 @@ namespace coast {
 		}
 
 		String GenTimeStamp(char const *format, bool const useLocalTime, time_t const referenceTime) {
-			struct tm res, *tt;
+			struct tm res, *tt = NULL;
 			if (useLocalTime) {
 				tt = system::LocalTime(&referenceTime, &res);
 			} else {
@@ -341,7 +341,7 @@ namespace coast {
 #if defined(WIN32)
 #define vsnprintf _vsnprintf
 #endif
-			va_list args;
+			va_list args = NULL;
 			va_start(args, format);
 			int charsWrittenOrRequired = ::vsnprintf(buf, buf_size, format, args);
 			va_end(args);

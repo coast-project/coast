@@ -53,7 +53,7 @@ void URLEncoderTest::EncodeDecodeTest() {
 	StartTrace(URLEncoderTest.EncodeDecodeTest);
 	URLEncoder encoder("encoder");
 
-	int i;
+	int i = 0;
 
 	String EmptySt, expected;
 	String EncodedString;

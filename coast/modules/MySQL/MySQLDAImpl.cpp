@@ -26,8 +26,8 @@ IFAObject *MySQLDAImpl::Clone(Allocator *a) const {
 bool MySQLDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out) {
 	StartTrace(MySQLDAImpl.Exec);
 
-	MYSQL mysql, *sock;
-	MYSQL_RES *res;
+	MYSQL mysql, *sock = NULL;
+	MYSQL_RES *res = NULL;
 
 	mysql_init(&mysql);
 
@@ -79,7 +79,7 @@ bool MySQLDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out)
 
 			// fill rows
 			Anything theSet;
-			MYSQL_ROW myRow;
+			MYSQL_ROW myRow = NULL;
 			long rowNum = 0;
 			while ((myRow = mysql_fetch_row(res)) != 0) {
 				Anything newRow;

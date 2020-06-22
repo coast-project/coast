@@ -16,7 +16,7 @@ void ObjectListTest::CtorTest() {
 	StartTraceMem(ObjectListTest.CtorTest);
 	{
 		TraceMemDelta("before allocation");
-		String *pString;
+		String *pString = NULL;
 		const long lCount = 10;
 		pString = new String("Guguseli");
 		ObjectList<String *> aStringList("StringPointerList");
@@ -55,7 +55,7 @@ void ObjectListTest::DtorTest() {
 	StartTraceMem(ObjectListTest.DtorTest);
 	{
 		TraceMemDelta("before allocation");
-		String *pString;
+		String *pString = NULL;
 		const long lCount = 10;
 		{
 			ObjectList<String *> aStringList("StringPointerList");

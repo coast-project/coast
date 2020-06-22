@@ -67,7 +67,7 @@ void AnythingParserTest::writeResult(String *input, long nrOfElt, const char *pa
 		Anything emptyAny1, anyTest, anyTests;
 		AnythingParserTest::anyOutput = emptyAny1;
 		AnythingParserTest::lineCounter = 1;
-		long i;
+		long i = 0;
 		for (i = 0; i < nrOfElt; i++) {
 			IStringStream is(input[i]);
 			anyTest.Import(is);
@@ -92,7 +92,7 @@ void AnythingParserTest::writeResult(String *input, long nrOfElt, const char *pa
 }
 
 void AnythingParserTest::scanAnything(Anything any0) {
-	long i, iMax = any0.GetSize();
+	long i = 0, iMax = any0.GetSize();
 	String slotNm;
 	Anything anyTest;
 	String buffer;
@@ -549,8 +549,8 @@ void AnythingParserTest::parseSimpleTypeNull() {
 
 void AnythingParserTest::parseSimpleTypeCharPtr() {
 	Anything anyTest;
-	long i, j;
-	char ch0, ch1;
+	long i = 0, j = 0;
+	char ch0 = 0, ch1 = 0;
 
 	// Beginning with a number
 	//
@@ -1054,7 +1054,7 @@ void AnythingParserTest::readWriteAnything() {
 	input[165] = "{/\"Hex\\xGHI\" \"\\xghi\\xhal\\xfgh\"}";
 	input[166] = "{/\"\\xABG\" \"\\x323\\xFF3\\xFGH\xABG\"}";
 
-	long i;
+	long i = 0;
 	for (i = 0; i < 167; i++)
 
 	{
@@ -1100,7 +1100,7 @@ void AnythingParserTest::parseTestFiles() {
 	fileNames[19] = String("AnythingTest15");
 	fileNames[20] = String("AnythingTest16");
 
-	long testCnt;
+	long testCnt = 0;
 	Anything emptyAny1, anyHlp, anyTest, anyTests;
 
 	for (testCnt = 0; testCnt < 21; testCnt++) {

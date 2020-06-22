@@ -241,7 +241,7 @@ Unicode HTMLParser::ParseName(char *name, Unicode c) {
 
 void HTMLParser::ParseComment() {
 	Meter(HTMLParser.ParseComment);
-	char c;
+	char c = 0;
 	String comment, endtry;
 
 	for (;;) {
@@ -433,7 +433,7 @@ void HTMLParser::ParseCharacterEntity() {
 
 long HTMLParser::IntParse() {
 	Meter(HTMLParser.IntParse);
-	Unicode c;
+	Unicode c = 0;
 
 	fExitParser = false;
 
@@ -547,8 +547,8 @@ bool IsOtherAcceptableChar(Unicode c) {
 
 Unicode HTMLParser::NextToken(String &token, bool withDelims, bool acceptEqual) {
 	Meter(HTMLParser.NextToken);
-	int i;
-	Unicode c, enddelim;
+	int i = 0;
+	Unicode c = 0, enddelim = 0;
 
 	do {
 		c = Get();
@@ -676,8 +676,8 @@ void HTMLParser::Error(const String &msg) {
 
 HTMLParser::TagType HTMLParser::LookupTag(const char *name) {
 	Meter(HTMLParser.LookupTag);
-	int position;
-	int last = sizeof(TagTable) / sizeof(TagInfo) - 1, base = 0, result;
+	int position = 0;
+	int last = sizeof(TagTable) / sizeof(TagInfo) - 1, base = 0, result = 0;
 	if (name != 0) {
 		while (last >= base) {
 			position = (base + last) >> 1;
@@ -708,8 +708,8 @@ void HTMLParser::VerifyTagTable() {
 
 Unicode HTMLParser::LookupSpecial(const char *name) {
 	Meter(HTMLParser.LookupSpecial);
-	int position;
-	int last = sizeof(SpecialCharTable) / sizeof(SpecialCharInfo) - 1, base = 0, result;
+	int position = 0;
+	int last = sizeof(SpecialCharTable) / sizeof(SpecialCharInfo) - 1, base = 0, result = 0;
 	if (name != 0) {
 		while (last >= base) {
 			position = (base + last) >> 1;
@@ -955,7 +955,7 @@ void MyHTMLWriter::RenderImageTag(int t, const char *s, Anything &node, const ch
 		// start tag
 		if (node.IsDefined("src")) {
 			String strSrc(node["src"].AsCharPtr(""));
-			long i;
+			long i = 0;
 			// check whether this image is already in the list
 			for (i = 0; i < fUrls["Imgs"].GetSize(); i++) {
 				if (strSrc.Compare(fUrls["Imgs"][i]["src"].AsCharPtr("")) == 0) {

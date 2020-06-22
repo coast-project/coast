@@ -139,7 +139,7 @@ protected:
 void RequestReactor::DoProcessEvent(Socket *sock) {
 	StartTrace(RequestReactor.DoProcessEvent);
 	if ((fProcessor != 0) && (sock != 0)) {
-		bool keepConnection;
+		bool keepConnection = false;
 		do {
 			StatEntry se(fStatHandler);
 

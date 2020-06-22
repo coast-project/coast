@@ -26,7 +26,7 @@ String SSLSocketUtils::GetNameFromX509Name(X509_NAME *x509_name, unsigned long f
 	/* Sigh...do it the hard way. */
 	BIO *mem = BIO_new(BIO_s_mem());
 	char *data = NULL;
-	long data_len = 0, ok;
+	long data_len = 0, ok = 0;
 
 	if ((ok = X509_NAME_print_ex(mem, x509_name, 0, flags)) != 0) {
 		data_len = BIO_get_mem_data(mem, &data);

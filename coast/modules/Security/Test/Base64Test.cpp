@@ -38,7 +38,7 @@ void Base64Test::EncodeDecodeTest() {
 	String OriginalString;
 	String EncodedString;
 	String DecodedString;
-	int i;
+	int i = 0;
 
 	// Test 1:
 	// checkif all HEX-values can be en-/decoded

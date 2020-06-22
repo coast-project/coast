@@ -885,7 +885,7 @@ bool HttpFlowController::AnalyseReply(Context &ctx) {
 
 	fDoRelocate = DoRelocate(ctx);
 	if (boRet && !fDoRelocate) {
-		bool boJump;
+		bool boJump = false;
 		boRet = DoProcessToken(ctx, boJump);
 		if (boJump) {
 			;  // possible config step jump as result of token test...
@@ -1250,7 +1250,7 @@ void HttpFlowController::GenerateMultipartContent(String &fieldName, ROAnything 
 		// Get File content with given Filename for this body:
 		std::iostream *pS = coast::system::OpenIStream(fieldFilename, "", std::ios::in, true);	// path will be resolved..
 		if (pS != 0) {
-			int c;
+			int c = 0;
 			while ((c = pS->get()) != EOF) {
 				fieldPartContent.Append((char)c);
 			}

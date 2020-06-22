@@ -75,7 +75,7 @@ void HTTPPostRequestBodyParserTest::ReadMultiPartPost() {
 
 		is = coast::system::OpenStream("MultiPartBody.txt", 0);
 		if (is != 0) {
-			char c;
+			char c = 0;
 			String tmp;
 			while ((!!(*is).get(c))) {
 				tmp.Append(c);

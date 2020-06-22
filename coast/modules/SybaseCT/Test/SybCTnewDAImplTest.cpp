@@ -101,7 +101,7 @@ void SybCTnewDAImplTest::DoGetConnectionTest() {
 	if (t_assert(SybCTnewDAImpl::Init(anyCfg))) {
 		assertEqualm(2L, SybCTnewDAImpl::fgListOfSybCT["Size"].AsLong(-1L), "size should now be 2");
 		SybCTnewDA *pSyb[3L] = {0};
-		bool bIsOpen;
+		bool bIsOpen = false;
 		String server, user;
 		assertEqual(2L, SybCTnewDAImpl::fgListOfSybCT["Unused"].GetSize());
 		t_assertm(SybCTnewDAImpl::DoGetConnection(pSyb[0L], bIsOpen, server, user), "expected valid connection");
@@ -121,7 +121,7 @@ void SybCTnewDAImplTest::DoGetConnectionTest() {
 		assertEqualm(2L, SybCTnewDAImpl::fgListOfSybCT["Size"].AsLong(-1L), "size should now be 2");
 		assertEqual(2L, SybCTnewDAImpl::fgListOfSybCT["Unused"].GetSize());
 		SybCTnewDA *pSyb[3L] = {0};
-		bool bIsOpen;
+		bool bIsOpen = false;
 		String server("SRV1"), user("USR1");
 		t_assertm(SybCTnewDAImpl::DoGetConnection(pSyb[0L], bIsOpen, server, user), "expected valid connection");
 		t_assertm(!bIsOpen, "expected unopen connection");
@@ -151,7 +151,7 @@ void SybCTnewDAImplTest::DoPutbackConnectionTest() {
 		assertEqualm(2L, SybCTnewDAImpl::fgListOfSybCT["Size"].AsLong(-1L), "size should now be 2");
 		assertEqual(2L, SybCTnewDAImpl::fgListOfSybCT["Unused"].GetSize());
 		SybCTnewDA *pSyb[3L] = {0};
-		bool bIsOpen;
+		bool bIsOpen = false;
 		String server("SRV1"), user("USR1");
 		t_assertm(SybCTnewDAImpl::DoGetConnection(pSyb[0L], bIsOpen, server, user), "expected valid connection");
 		t_assertm(!bIsOpen, "expected unopen connection");

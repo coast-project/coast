@@ -52,7 +52,7 @@ bool AppLogModule::Init(const ROAnything config) {
 		// generate for each server its respective logchannels
 		for (long i = 0; i < numOfServers; ++i) {
 			const char *servername = servers.SlotName(i);
-			Server *s;
+			Server *s = NULL;
 			if ((servername != 0) && ((s = Server::FindServer(servername)) != 0)) {
 				Anything cfg;
 				cfg["Channels"] = servers[i].DeepClone();
@@ -534,7 +534,7 @@ bool AppLogChannel::GetLogDirectories(ROAnything channel, String &logdir, String
 std::ostream *AppLogChannel::OpenLogStream(ROAnything channel, String &logfileName) {
 	StartTrace(AppLogChannel.OpenLogStream);
 	String logdir, rotatedir;
-	bool bGoAhead;
+	bool bGoAhead = false;
 
 	bGoAhead = GetLogDirectories(channel, logdir, rotatedir);
 
@@ -689,7 +689,7 @@ long AppLogModule::LogRotator::GetSecondsToWait() {
 	} else {
 		time_t now = time(0);
 
-		struct tm res, *tt;
+		struct tm res, *tt = NULL;
 		tt = ((fIsGmTime == false) ? (system::LocalTime(&now, &res)) : (system::GmTime(&now, &res)));
 
 		long lCurrentSecondInDay = ((((tt->tm_hour * 60) + tt->tm_min) * 60) + tt->tm_sec) % 86400;

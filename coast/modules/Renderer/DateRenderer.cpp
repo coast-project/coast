@@ -47,8 +47,8 @@ void DateRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything
 	}
 
 	//--- set the date to be output
-	time_t now;
-	struct tm *tt;
+	time_t now = 0;
+	struct tm *tt = NULL;
 
 	ROAnything roaCfg;
 	if (config.LookupPath(roaCfg, "Date") ||

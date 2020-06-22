@@ -102,7 +102,7 @@ int PipeStreamBuf::overflow(int c) {
 
 int PipeStreamBuf::underflow() {
 	StartTrace(PipeStreamBuf.underflow);
-	int count;
+	int count = 0;
 
 	if (gptr() < egptr()) {	 //(in_avail())
 		// data is still available
@@ -125,7 +125,7 @@ int PipeStreamBuf::underflow() {
 
 int PipeStreamBuf::sync() {
 	StartTrace(PipeStreamBuf.sync);
-	long count;
+	long count = 0;
 
 	if (((count = pptr() - pbase()) > 0) && (DoWrite(pbase(), count)) == EOF) {
 		return (EOF);

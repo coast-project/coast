@@ -62,7 +62,7 @@ void SecurityModuleTest::tearDown() {
 void SecurityModuleTest::EncodeDecodeTest() {
 	Encoder encoder("encoder");
 
-	int i;
+	int i = 0;
 
 	String EmptySt;
 	String EncodedString;

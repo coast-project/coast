@@ -88,7 +88,7 @@ void SocketTest::httpClientTest() {
 		if (Ios != 0) {
 			String query("GET / HTTP/1.0");
 			String reply;
-			long lRetCode;
+			long lRetCode = 0;
 			if (t_assertm(socket->IsReadyForWriting(GetConfig()["ReadyForWritingTimeout"].AsLong(5000L), lRetCode),
 						  TString("expected no timeout for sending http request to [")
 							  << connector.GetAddress() << ':' << connector.fPort << "]") &&
@@ -152,7 +152,7 @@ bool SocketTest::IsNonBlocking(int fd) {
 #if defined(WIN32)
 	return true;
 #else
-	int flags;
+	int flags = 0;
 	if (fd >= 0 && (flags = fcntl(fd, F_GETFL, 0)) >= 0) {
 		return 0 != (flags & O_NONBLOCK);
 	}

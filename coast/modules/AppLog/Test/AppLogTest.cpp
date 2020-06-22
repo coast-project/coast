@@ -222,7 +222,7 @@ void AppLogTest::LogRotatorTestsCommon() {
 		anyModuleConfig["AppLogModule"] = GetTestCaseConfig()["AppLogModule"].DeepClone();
 		// set rotation time to simulate behavior
 		time_t now = time(0);
-		struct tm res, *tt;
+		struct tm res, *tt = NULL;
 		if (!(anyModuleConfig["AppLogModule"]["RotateTimeIsGmTime"].AsBool(false))) {
 			tt = system::LocalTime(&now, &res);
 		} else {
@@ -481,7 +481,7 @@ void AppLogTest::TimeLoggingActionTest() {
 				String msg("AppLogTimeTest");
 				ctx.GetTmpStore() = Anything(Anything::ArrayMarker());
 				Anything expected;
-				Anything dataA, dataB, dataBA, dataBB, dataBAA, dataC, *data;
+				Anything dataA, dataB, dataBA, dataBB, dataBAA, dataC, *data = NULL;
 				dataA[TimeLogger::eTime] = 10L;
 				dataA[TimeLogger::eMsg] = "AppLogTimeTest";
 				dataA[TimeLogger::eUnit] = "ms";
@@ -587,7 +587,7 @@ void AppLogTest::CheckFile(Context &ctx, const char *channelname, String expecte
 		std::iostream *fp = system::OpenIStream(strLogFilename, NULL);
 		if (t_assertm(fp != NULL, name())) {
 			String fileContent;
-			char c;
+			char c = 0;
 			while (!fp->get(c).eof()) {
 				fileContent.Append(c);
 			}
@@ -606,7 +606,7 @@ void AppLogTest::CheckFileAfterChannelTermination(Context &ctx, const char *strL
 	std::iostream *fp = system::OpenIStream(strLogFilename, NULL);
 	if (t_assertm(fp != NULL, name())) {
 		String fileContent;
-		char c;
+		char c = 0;
 		while (!fp->get(c).eof()) {
 			fileContent.Append(c);
 		}

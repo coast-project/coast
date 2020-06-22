@@ -37,7 +37,7 @@ void AccessManagerTest::tearDown() {
 void AccessManagerTest::doTestAccessManager(ROAnything config, AccessManager *am) {
 	StartTrace(AccessManagerTest.doTestAccessManager);
 
-	bool res;
+	bool res = false;
 	ROAnything subconf, testconf;
 	String newRole;
 	Anything allowedEntities;

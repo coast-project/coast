@@ -116,7 +116,7 @@ Socket::~Socket() {
 	}
 	if (fDoClose) {
 		Trace("Closing socket: " << fSockFd);
-		long lRetCode;
+		long lRetCode = 0;
 		if ((fSockFd >= 0) && (lRetCode = closeSocket(fSockFd)) < 0) {
 			LogError(fSockFd, "close() socket", lRetCode);
 		}
@@ -222,7 +222,7 @@ bool Socket::ShutDown(long fd, long how) {
 	//  SHUT_RDWR     Disables  further   send   and
 	//                receive operations.
 	if (fd >= 0) {
-		long lRetCode;
+		long lRetCode = 0;
 		if ((lRetCode = ::shutdown(fd, how)) >= 0) {
 			return true;
 		}
@@ -310,7 +310,7 @@ bool Socket::SetNoDelay(int socketfd, bool bNoDelay) {
 	if (socketfd >= 0) {
 		// set bNoDelay to true to disable nagle algorithm, pass 1 to setsockopt
 		int val = (bNoDelay ? 1 : 0);
-		long lRetCode;
+		long lRetCode = 0;
 		// use of (char *) instead of (const char *) to make strange platforms happy (S370)
 		if ((lRetCode = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY, (char *)&val, sizeof(val))) == 0) {
 			return true;
@@ -325,7 +325,7 @@ bool Socket::SetSockoptReuseAddr(int socketfd, bool bReuse) {
 	if (socketfd >= 0) {
 		// reuse socket.. (avoid 4 minutes timeout)
 		int val = (bReuse ? 1 : 0);
-		long lRetCode;
+		long lRetCode = 0;
 		if ((lRetCode = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val))) == 0) {
 			return true;
 		}
@@ -338,7 +338,7 @@ bool Socket::SetSockoptBufSize(int socketfd, long lBufSize, bool bWriteSide) {
 	StartTrace(Socket.SetSockoptBufSize);
 	if (socketfd >= 0) {
 		int val = lBufSize;
-		long lRetCode;
+		long lRetCode = 0;
 		if ((lRetCode = setsockopt(socketfd, SOL_SOCKET, (bWriteSide ? SO_SNDBUF : SO_RCVBUF), (char *)&val, sizeof(val))) ==
 			0) {
 			return true;
@@ -361,7 +361,7 @@ bool Socket::SetToNonBlocking(int fd, bool dontblock) {
 		return true;
 	}
 #else
-	int flags;
+	int flags = 0;
 	if ((flags = fcntl(fd, F_GETFL, 0)) >= 0) {
 		if (dontblock) {
 			flags |= O_NONBLOCK;

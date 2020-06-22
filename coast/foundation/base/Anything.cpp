@@ -45,7 +45,7 @@ long IFAHash(const char *key, long &len, char stop1, char stop2)
 // long DoIFAHash(const unsigned char *key, long &len, unsigned char stop1, unsigned char stop2)
 {
 	long h = 0;
-	u_long g;
+	u_long g = 0;
 	const unsigned char *const keyp = reinterpret_cast<const unsigned char *>(key);
 	const unsigned char *p = keyp;
 	if (key != 0) {
@@ -938,7 +938,7 @@ Anything const &Anything::DoGetAt(long i) const {
 }
 
 Anything &Anything::DoAt(const char *k) {
-	long i;
+	long i = 0;
 	if ((k != 0) && (*k != 0)) {
 		if ((i = FindIndex(k)) == -1L) {
 			Expand();
@@ -950,7 +950,7 @@ Anything &Anything::DoAt(const char *k) {
 	return DoAt(GetSize());
 }
 Anything const &Anything::DoAt(const char *k) const {
-	long i;
+	long i = 0;
 	if ((k != 0) && (*k != 0)) {
 		if ((i = FindIndex(k)) != -1L) {
 			return DoAt(i);
@@ -1635,7 +1635,7 @@ const ROAnything ROAnything::At(long i) const {
 }
 
 const ROAnything ROAnything::At(const char *k) const {
-	long lIdx;
+	long lIdx = 0;
 	if ((lIdx = AssertRange(k)) != -1) {
 		return At(lIdx);
 	}
@@ -1816,7 +1816,7 @@ void InputContext::SkipToEOL() {
 	if (c == '\n' || c == '\r') {
 		++fLine;  // count contexts lines
 		// we should treat DOS-convention of CRLF nicely by reading it
-		char crnl;
+		char crnl = 0;
 		if (Get(crnl) && ((crnl != '\r' && c == '\n') || (c == '\r' && crnl != '\n'))) {
 			Putback(crnl);	// no crlf lfcr sequence
 		}
@@ -2155,7 +2155,7 @@ void SlotFinder::Operate(Anything &source, Anything &dest, String destSlotname, 
 bool SlotFinder::IntOperate(Anything &dest, String &destSlotname, long &destIdx, char delim, char indexdelim) {
 	StartTrace(SlotFinder.IntOperate);
 	Trace("processing[" << destSlotname << "]");
-	long lIdxDelim;
+	long lIdxDelim = 0;
 	String s;
 	if ((lIdxDelim = destSlotname.StrChr(indexdelim)) != -1) {
 		s = destSlotname.SubString(0, lIdxDelim);

@@ -53,7 +53,7 @@ void OTPListTest::RunOtpTests(String implName, OTPList *impl, TokenDataAccessCon
 	StartTrace(OTPListTest.RunOtpTests);
 
 	String tid, code;
-	long win, dist;
+	long win = 0, dist = 0;
 
 	Trace("Running tests for " << implName << "...");
 	ROAnything tests = GetConfig()["Tests"][implName];

@@ -24,7 +24,7 @@ Test *AnythingLookupTest::suite() {
 }
 
 Anything AnythingLookupTest::init5DimArray(long anzElt) {
-	long i0, i1;
+	long i0 = 0, i1 = 0;
 	char idx0[3] = {0}, idx1[3] = {0};
 	Anything anyInit;
 
@@ -58,7 +58,7 @@ void AnythingLookupTest::LookUp0Test() {
 }
 
 void AnythingLookupTest::LookUp1Test() {
-	long i0, i1;
+	long i0 = 0, i1 = 0;
 	char idx0[3] = {0}, idx1[3] = {0};
 	String path;
 	Anything any0, any1, anyTest, derived;
@@ -238,7 +238,7 @@ void AnythingLookupTest::EmptyLookup()
 	test["bar"] = 2L;
 	long lengthBefore = test.GetSize();
 
-	bool retVal;
+	bool retVal = false;
 	Anything result;
 
 	// pre condition
@@ -302,7 +302,7 @@ void AnythingLookupTest::invPathLookup() {
 	test["test"]["invalid"]["path"] = true;
 	long lengthBefore = test.GetSize();
 
-	bool retVal;
+	bool retVal = false;
 	Anything result;
 
 	// pre condition

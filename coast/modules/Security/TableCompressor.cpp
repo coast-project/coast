@@ -136,7 +136,7 @@ void TableCompressor::MakeTable(ROAnything baseState, const char *tag, ROAnythin
 	Anything state = baseState.DeepClone();
 	TraceAny(state, "State: ");
 	if (tag != 0) {
-		long sz = state.GetSize(), i;
+		long sz = state.GetSize(), i = 0;
 		Anything map;
 		Anything aSlot;
 		const char *slotname = 0;
@@ -169,7 +169,7 @@ void TableCompressor::MakeReverseTable(ROAnything state, const char *tag, const 
 	if ((tag != 0) && (reverseTag != 0)) {
 		long sz = state.GetSize();
 		Anything revKeyTable;
-		const char *slotname;
+		const char *slotname = NULL;
 
 		for (long i = 0; i < sz; ++i) {
 			slotname = state.SlotName(i);

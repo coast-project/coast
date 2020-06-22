@@ -190,7 +190,7 @@ CS_RETCODE SybCTnewDA::Init(CS_CONTEXT **context, Anything *pMessages, const Str
 		}
 	}
 	if (retcode == CS_SUCCEED) {
-		CS_INT maxCons;
+		CS_INT maxCons = 0;
 		retcode = ct_config(*context, CS_GET, CS_MAX_CONNECT, &maxCons, CS_UNUSED, NULL);
 		if (retcode == CS_SUCCEED) {
 			String strMsg("MAX_CONNECTIONS of SybCTnewDA: ");
@@ -218,7 +218,7 @@ CS_RETCODE SybCTnewDA::Init(CS_CONTEXT **context, Anything *pMessages, const Str
 
 CS_RETCODE SybCTnewDA::Finis(CS_CONTEXT *context) {
 	StartTrace(SybCTnewDA.Finis);
-	CS_RETCODE retcode;
+	CS_RETCODE retcode = 0;
 
 	retcode = ct_exit(context, CS_UNUSED);
 	if (retcode != CS_SUCCEED) {
@@ -236,7 +236,7 @@ CS_RETCODE SybCTnewDA::Finis(CS_CONTEXT *context) {
 bool SybCTnewDA::Open(DaParams &params, String user, String password, String server, String appl) {
 	StartTrace(SybCTnewDA.Open);
 	DAAccessTimer(SybCTnewDAImpl.Open, *(params.fpDAName), *(params.fpContext));
-	CS_RETCODE retcode;
+	CS_RETCODE retcode = 0;
 
 	// Allocate a connection structure.
 	if ((retcode = ct_con_alloc(fContext, &fConnection)) == CS_SUCCEED) {
@@ -361,7 +361,7 @@ bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, co
 	DAAccessTimer(SybCTnewDAImpl.SqlExec, *(params.fpDAName), *(params.fpContext));
 	Trace("dbcmd: [" << query << "]");
 
-	CS_RETCODE retcode;
+	CS_RETCODE retcode = 0;
 	CS_COMMAND *cmd = NULL;
 
 	// set param structure containing Context and Mappers used to return results and messages
@@ -395,7 +395,7 @@ bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, co
 	}
 
 	// Process the results. Loop while ct_results() returns CS_SUCCEED.
-	CS_INT res_type;
+	CS_INT res_type = 0;
 	CS_RETCODE query_code = CS_SUCCEED;
 	long lRowsReceived(0L);
 
@@ -414,7 +414,7 @@ bool SybCTnewDA::SqlExec(DaParams &params, String query, String resultformat, co
 				query_code = CS_FAIL;
 				break;
 			case CS_MSG_RESULT: {
-				CS_SMALLINT msg_id;
+				CS_SMALLINT msg_id = 0;
 				// the result was a message
 				retcode = ct_res_info(cmd, CS_MSGTYPE, (CS_VOID *)&msg_id, CS_UNUSED, NULL);
 				if (retcode != CS_SUCCEED) {
@@ -530,15 +530,15 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 	StartTrace(SybCTnewDA.DoFetchData);
 	DAAccessTimer(SybCTnewDAImpl.DoFetchData, *(params.fpDAName), *(params.fpContext));
 
-	CS_RETCODE retcode;
-	CS_INT num_cols;
-	CS_INT i;
-	CS_INT rows_read;
-	CS_DATAFMT *datafmt;
-	EX_COLUMN_DATA *coldata;
-	CS_CONNECTION *connection;
-	CS_INT rowsize;
-	CS_INT num_rows;  // number of rows to get in a single fetch
+	CS_RETCODE retcode = 0;
+	CS_INT num_cols = 0;
+	CS_INT i = 0;
+	CS_INT rows_read = 0;
+	CS_DATAFMT *datafmt = NULL;
+	EX_COLUMN_DATA *coldata = NULL;
+	CS_CONNECTION *connection = NULL;
+	CS_INT rowsize = 0;
+	CS_INT num_rows = 0;  // number of rows to get in a single fetch
 	long lMaxRows(0L);
 
 	connection = (CS_CONNECTION *)NULL;
@@ -792,7 +792,7 @@ CS_RETCODE SybCTnewDA::DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_I
 }
 
 CS_INT SybCTnewDA::DisplayDlen(CS_DATAFMT *column) {
-	CS_INT len;
+	CS_INT len = 0;
 
 	switch ((int)column->datatype) {
 		case CS_CHAR_TYPE:
@@ -879,7 +879,7 @@ bool SybCTnewDA::Close(bool bForce) {
 
 	CS_RETCODE retcode = CS_SUCCEED;
 	if (fConnection != 0) {
-		CS_INT close_option;
+		CS_INT close_option = 0;
 
 		close_option = bForce ? CS_FORCE_CLOSE : CS_UNUSED;
 		retcode = ct_close(fConnection, close_option);

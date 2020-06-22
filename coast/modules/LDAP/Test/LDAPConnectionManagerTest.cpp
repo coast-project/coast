@@ -42,7 +42,7 @@ void LDAPConnectionManagerTest::ConnectionManagerTest() {
 					Anything set = caseConfig["Suite"][ll]["Set"].DeepClone();
 					String server = set["Data"]["LDAPServer"].AsString();
 					long port = set["Data"]["LDAPServer"].AsLong(389);
-					LDAP *handle;
+					LDAP *handle = NULL;
 					if (set["Data"]["NullHandle"].AsLong(0L) != 0) {
 						Trace("Setting NULL handle");
 						handle = (LDAP *)NULL;
@@ -123,7 +123,7 @@ void LDAPConnectionManagerTest::NoAutoRebindTest() {
 			DoTest(PrepareConfig(GetConfig()["NoAutoRetryOkQueryTest"][0L]["ConfiguredActionTestAction"][0L].DeepClone()),
 				   GetConfig()["NoAutoRetryOkQueryTest"][0L]["ConfiguredActionTestAction"].SlotName(0));
 			String badConnectionPoolId;
-			long maxBadConnections;
+			long maxBadConnections = 0;
 			LDAP *badConnectionHandle =
 				CreateBadConnectionHandle("TestAutoRebindBadConnection", badConnectionPoolId, maxBadConnections);
 			assertEqual(true,
@@ -153,7 +153,7 @@ void LDAPConnectionManagerTest::AutoRebindTest() {
 			DoTest(PrepareConfig(GetConfig()["TestAutoRebind"][0L]["ConfiguredActionTestAction"][0L].DeepClone()),
 				   GetConfig()["TestAutoRebind"][0L]["ConfiguredActionTestAction"].SlotName(0));
 			String badConnectionPoolId;
-			long maxBadConnections;
+			long maxBadConnections = 0;
 			LDAP *badConnectionHandle =
 				CreateBadConnectionHandle("TestAutoRebindBadConnection", badConnectionPoolId, maxBadConnections);
 			assertEqual(true,

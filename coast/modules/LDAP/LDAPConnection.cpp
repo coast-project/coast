@@ -170,7 +170,7 @@ LDAPConnection::EConnectState LDAPConnection::DoConnect(ROAnything bindParams, L
 		if (SetProtocol(eh) && SetConnectionTimeout(eh) && SetSearchTimeout(eh) /* && SetRebindProc(eh) */) {
 			aRetState = LDAPConnection::eBindNok;
 			// send bind request (asynchronous)
-			int msgId;
+			int msgId = 0;
 			if (Bind(bindName, bindPW, msgId, eh)) {
 				// wait for bind result (using msgId)
 				Anything result;
@@ -281,9 +281,9 @@ bool LDAPConnection::WaitForResult(int msgId, Anything &result, LDAPErrorHandler
 	bool success = false;
 
 	String errMsg;
-	int resultCode;
+	int resultCode = 0;
 
-	LDAPMessage *ldapResult;
+	LDAPMessage *ldapResult = NULL;
 	LDAPMessageEntry lmAutoDestruct(&ldapResult);  // automatic destructor for LDAPMessage
 	lmAutoDestruct.Use();
 
@@ -295,7 +295,7 @@ bool LDAPConnection::WaitForResult(int msgId, Anything &result, LDAPErrorHandler
 		if (resultCode == -1 && fSearchTimeout == 0) {
 			// error, abandon!
 			Trace("[Timeout: 0] received an error");
-			int opRet;
+			int opRet = 0;
 			ldap_parse_result(fHandle, ldapResult, &opRet, NULL, NULL, NULL, NULL, 0);
 			errMsg << "Synchronous Wait4Result: ErrorCode: [" << (long)opRet << "] ErrorMsg: " << ldap_err2string(opRet);
 			HandleWait4ResultError(msgId, errMsg, eh);
@@ -326,7 +326,7 @@ bool LDAPConnection::WaitForResult(int msgId, Anything &result, LDAPErrorHandler
 				success = true;
 
 				// this is a bit special
-				int rc;
+				int rc = 0;
 				ldap_get_option(fHandle, LDAP_OPT_ERROR_NUMBER, &rc);
 				result["Type"] = "LDAP_RES_COMPARE";
 				result["Equal"] = (errCode == LDAP_COMPARE_TRUE);
@@ -378,10 +378,10 @@ void LDAPConnection::TransformResult(LDAPMessage *ldapResult, Anything &result, 
 		// extract data
 		LDAPMessage *entry = ldap_first_entry(fHandle, ldapResult);
 		String valStr, attrString, dn;
-		struct berval **vals;
-		BerElement *ber;
+		struct berval **vals = NULL;
+		BerElement *ber = NULL;
 		int count = 0;
-		int nofVals;
+		int nofVals = 0;
 		Anything entries;
 
 		// step through all entries

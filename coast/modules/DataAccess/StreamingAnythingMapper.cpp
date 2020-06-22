@@ -41,7 +41,7 @@ RegisterResultMapper(StreamToAnythingMapper);
 bool StreamToAnythingMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, ROAnything script) {
 	StartTrace1(StreamToAnythingMapper.DoPutStream, NotNull(key));
 	Anything anyResult;
-	bool importok;
+	bool importok = false;
 	{
 		DAAccessTimer(StreamToAnythingMapper.DoPutStream, "importing from stream", ctx);
 		importok = anyResult.Import(is);

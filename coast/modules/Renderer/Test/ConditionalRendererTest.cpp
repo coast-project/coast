@@ -781,7 +781,7 @@ void ConditionalRendererTest::SetTrueFalseCase(long condition, const String &key
 
 void ConditionalRendererTest::TestTrueFalseCase() {
 	StartTrace(ConditionalRendererTest.TestTrueFalseCase);
-	long condition;
+	long condition = 0;
 	for (condition = -5; condition < 6; condition++) {
 		OStringStream reply;
 		ConditionalRenderer conditionalRenderer("");

@@ -28,7 +28,7 @@ void URLFilterTest::DoFilterStateTest() {
 	StartTrace(URLFilterTest.DoFilterStateTest);
 	Anything query;
 	URLFilter urlFilter("Test");
-	long querySz;
+	long querySz = 0;
 
 	query["slot1"] = "xxx";
 	Anything dummy;
@@ -68,7 +68,7 @@ void URLFilterTest::DoUnscrambleStateTest() {
 	query["first"] = "base";
 	query["third"] = "derived";
 	URLFilter urlFilter("Test");
-	long querySz;
+	long querySz = 0;
 	Anything dummy;
 	Context ctx(dummy, query, 0, 0, 0, 0);
 
@@ -114,7 +114,7 @@ void URLFilterTest::FilterStateTest() {
 	Anything query;
 	Anything filterTags;
 	URLFilter urlFilter("Test");
-	long querySz;
+	long querySz = 0;
 
 	// setup a query with some state
 	query["slot1"] = "s1";
@@ -182,7 +182,7 @@ void URLFilterTest::UnscrambleStateTest() {
 	Anything query;
 	Anything filterTags;
 	URLFilter urlFilter("Test");
-	long querySz;
+	long querySz = 0;
 
 	// first setup a state and scramble it
 	Anything state;
@@ -219,7 +219,7 @@ void URLFilterTest::HandleCookieTest() {
 	Anything cookieState;
 	Anything cookieSpec;
 	URLFilter urlFilter("Test");
-	long querySz;
+	long querySz = 0;
 	Context ctx(env, query, 0, 0, 0, 0);
 
 	// setting up the data
@@ -401,7 +401,7 @@ void URLFilterTest::HandleQueryTest() {
 	Anything query;
 	Anything filterTags;
 	URLFilter urlFilter("Test");
-	long querySz;
+	long querySz = 0;
 
 	// first setup a state and scramble it
 	Anything state;

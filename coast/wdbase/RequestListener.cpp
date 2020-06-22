@@ -140,7 +140,7 @@ int ListenerThread::Init(ROAnything args) {
 		Trace(logMsg);
 		return -1;
 	}
-	int retVal;
+	int retVal = 0;
 	if ((retVal = fAcceptor->PrepareAcceptLoop()) != 0) {
 		String logMsg;
 		SystemLog::Error(logMsg << "server (" << fAcceptorName << ")  prepare accept failed");

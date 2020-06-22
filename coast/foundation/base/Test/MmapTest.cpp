@@ -173,7 +173,7 @@ void MmapTest::SimpleRead()
 		t_assert(is.good());
 		if (is.good()) {
 			const char *pc = fgcContent;
-			char c;
+			char c = 0;
 			do {
 				t_assert(!!is);
 				is.get(c);
@@ -223,7 +223,7 @@ void MmapTest::EmptyFileRead()
 		MmapStream is(mname, (std::ios::in));
 		t_assert(is.good());
 		if (is.good()) {
-			char c;
+			char c = 0;
 			t_assert(!!is);
 			is.get(c);
 			t_assert(is.eof());
@@ -243,7 +243,7 @@ void MmapTest::EmptyFilePutback()
 		t_assert(ms.good());
 		if (ms.good()) {
 			ms << 'X';
-			char c;
+			char c = 0;
 			ms.get(c);
 			t_assert(c == 'X');
 			ms.putback('Y');
@@ -267,7 +267,7 @@ void MmapTest::FStreamEmptyFilePutback()
 		t_assert(ms.good());
 		if (ms.good()) {
 			ms << 'X';
-			char c;
+			char c = 0;
 			ms.putback('Y');
 			t_assert(!ms.eof());
 			ms.get(c);	// this fails, no explanation
@@ -288,7 +288,7 @@ void MmapTest::SimpleReadOnly()
 		t_assert(is.good());
 		if (is.good()) {
 			const char *pc = fgcContent;
-			char c;
+			char c = 0;
 			do {
 				t_assert(!!is);
 				is.get(c);
@@ -311,7 +311,7 @@ void MmapTest::SimpleROPutback()
 		this->IntSimpleWrite();	 // set up testfile
 		IMmapStream is(fgcFilename);
 		t_assert(is.good());
-		char c;
+		char c = 0;
 		TString s;
 
 		for (int i = 0; i < 10; i++) {
@@ -321,7 +321,7 @@ void MmapTest::SimpleROPutback()
 		assertEqual("This is th", s);
 		is.putback(c);
 		t_assertm(!!is, "stream good after putback");
-		char c2;
+		char c2 = 0;
 		is.get(c2);
 		assertEqual(c2, c);
 	}
@@ -334,7 +334,7 @@ void MmapTest::SimplePutback()
 		this->IntSimpleWrite();													   // set up testfile
 		MmapStream is(fgcFilename, std::ios::in | std::ios::out | std::ios::app);  // do not trunc the file
 		t_assert(is.good());
-		char c;
+		char c = 0;
 		TString s;
 
 		for (int i = 0; i < 10; i++) {
@@ -344,7 +344,7 @@ void MmapTest::SimplePutback()
 		assertEqual("This is th", s);
 		is.putback(c);
 		t_assertm(!!is, "stream good after putback");
-		char c2;
+		char c2 = 0;
 		is.get(c2);
 		assertEqual(c2, c);
 		// add more putbacks to really test it

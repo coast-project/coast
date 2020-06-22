@@ -69,7 +69,7 @@ void LDAPErrorHandler::HandleSessionError(LDAP *handle, String msg) {
 
 void LDAPErrorHandler::HandleUnbindError(LDAP *handle) {
 	StartTrace(LDAPErrorHandler.HandleUnbindError);
-	int rc;
+	int rc = 0;
 	String msg;
 	if (handle != 0) {
 		ldap_get_option(handle, LDAP_OPT_ERROR_NUMBER, &rc);

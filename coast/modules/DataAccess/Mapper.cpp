@@ -255,7 +255,7 @@ bool ParameterMapper::interpretMapperScriptEntry(const char *key, Anything &valu
 												 String const &slotname) {
 	StartTrace1(ParameterMapper.interpretMapperScriptEntry,
 				"( \"" << NotNull(key) << "\" , ValueType &value, Context &ctx, ROAnything script)");
-	ParameterMapper *m;
+	ParameterMapper *m = NULL;
 	if (slotname.Length() <= 0) {
 		Trace("Anonymous slot, call myself again with script");
 		return doGetValue(key, value, ctx, script);
@@ -309,7 +309,7 @@ bool ParameterMapper::interpretMapperScriptEntry(const char *key, std::ostream &
 												 String const &slotname) {
 	StartTrace1(ParameterMapper.interpretMapperScriptEntry,
 				"( \"" << NotNull(key) << "\" , ValueType &os, Context &ctx, ROAnything script)");
-	ParameterMapper *m;
+	ParameterMapper *m = NULL;
 	if (slotname.Length() <= 0) {
 		Trace("Anonymous slot, call myself again with script");
 		return doGetValue(key, os, ctx, script);
@@ -529,7 +529,7 @@ bool ResultMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAn
 
 		for (long i = 0, sz = script.GetSize(); retval && i < sz; ++i) {
 			String slotname(script.SlotName(i));
-			ResultMapper *m;
+			ResultMapper *m = NULL;
 			ROAnything roaScript(script[i]);
 			if (slotname.Length() <= 0) {
 				Trace("Anonymous slot, call myself again with script[" << i << "]");
@@ -580,7 +580,7 @@ bool ResultMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, 
 
 		for (long i = 0, sz = script.GetSize(); retval && i < sz; ++i) {
 			String slotname(script.SlotName(i));
-			ResultMapper *m;
+			ResultMapper *m = NULL;
 			ROAnything roaScript(script[i]);
 			if (slotname.Length() <= 0) {
 				Trace("Anonymous slot, call myself again with script[" << i << "]");

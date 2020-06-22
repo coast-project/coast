@@ -694,7 +694,7 @@ void AnythingConstructorsTest::VoidStarLenConstrTest() {
 	t_assert(anyTest.AsString() == String((void *)arrTest, (long)sizeof(arrTest)));
 	t_assert(anyTest.AsString("Default") == String((void *)arrTest, (long)sizeof(arrTest)));
 
-	long i;
+	long i = 0;
 	for (i = 0; i < _elementsInArray; i++) {
 		t_assert(((long *)((const char *)anyTest.AsString()))[i] == i);
 		t_assert(((long *)((const char *)anyTest.At(0L).AsString()))[i] == i);

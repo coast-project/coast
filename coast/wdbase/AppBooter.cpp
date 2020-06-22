@@ -332,7 +332,8 @@ Application *AppBooter::FindApplication(ROAnything config, String &applicationNa
 	Application *application = 0;
 
 	if (config.LookupPath(applicationConf, "Application") || config.LookupPath(applicationConf, "Server")) {
-		for (long i = 0, sz = (static_cast<long>(applicationConf.GetSize() != 0) && (application) == 0); i < sz; ++i) {
+		for (long i = 0, sz = static_cast<long>((static_cast<long>(applicationConf.GetSize() != 0) != 0) && (application) == 0);
+			 i < sz; ++i) {
 			// iterate over the applicationname list
 			applicationName = applicationConf[i].AsCharPtr(0);
 			if (applicationName.Length() > 0) {

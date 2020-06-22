@@ -125,7 +125,7 @@ void HTTPMapperTest::GetTestInput(Anything &testInput, const char *testname) {
 
 String HTTPMapperTest::PrepareResults(ROAnything resultsAsAny) {
 	String results;
-	long l;
+	long l = 0;
 	for (l = 0; l < resultsAsAny.GetSize() - 1; l++) {
 		results << resultsAsAny[l].AsString() << "\r\n";
 	}

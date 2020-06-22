@@ -140,7 +140,7 @@ std::istream &operator>>(std::istream &is, GzipHdr &header) {
 			}
 		}
 		if (bCont && ((header.Flags & GzipHdr::eFNAME) != 0)) {
-			char aChar;
+			char aChar = 0;
 			header.FileName.Trim(0);
 			// read filename including terminating 0
 			while (bCont && (bCont = !is.read(&aChar, 1L).eof()) && aChar != '\0') {
@@ -151,7 +151,7 @@ std::istream &operator>>(std::istream &is, GzipHdr &header) {
 			strHeader.Append('\0');
 		}
 		if (bCont && ((header.Flags & GzipHdr::eFCOMMENT) != 0)) {
-			char aChar;
+			char aChar = 0;
 			header.Comment.Trim(0);
 			// read comment including terminating 0
 			while (bCont && (bCont = !is.read(&aChar, 1L).eof()) && aChar != '\0') {

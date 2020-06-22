@@ -72,7 +72,7 @@ void StringStreamTest::SimpleRead()
 	IStringStream is(s);
 	t_assert(is.good() != 0);
 	const char *pc = fgcContent;
-	char c;
+	char c = 0;
 	while ((!!is.get(c)) && (c == *pc++))
 		;											   // compare content
 	assertEqual(pc - fgcContent, strlen(fgcContent));  // have we reached the end?

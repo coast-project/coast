@@ -29,7 +29,7 @@ namespace coast {
 		String &TrimChars(String &str, bool front, char c) {
 			StartTrace(URLUtils.TrimChars);
 			// remove leading blanks
-			long at;
+			long at = 0;
 			if (front) {
 				at = 0;
 				while (c == str[at]) {
@@ -181,7 +181,7 @@ namespace coast {
 		// encode the given char *p into res by expanding problematic characters into %XX escapes
 		bool DoUrlEncode(const String &str, const String &exclusionSet, String &encoded, bool doCheck) {
 			StartTrace(URLUtils.DoUrlEncode);
-			char c;
+			char c = 0;
 
 			// encoding scheme for HTTP (RFC1738):
 			//	httpurl        = "http://" hostport [ "/" hpath [ "?" search ]]
@@ -364,7 +364,7 @@ namespace coast {
 			eUrlCheckStatus = eOk;
 			while (previous != current) {
 				previous = current;
-				URLCheckStatus eTmpUrlCheckStatus;
+				URLCheckStatus eTmpUrlCheckStatus = URLCheckStatus::eOk;
 				current = urlDecode(previous, eTmpUrlCheckStatus, replacePlusByBlank);
 				if (eTmpUrlCheckStatus == eSuspiciousChar) {
 					eUrlCheckStatus = eSuspiciousChar;
@@ -413,7 +413,7 @@ namespace coast {
 		String RemoveUnwantedChars(const String &instr, const String &badOnes) {
 			StartTrace1(URLUtils.RemoveUnwantedChars, "removing: " << badOnes << " from [" << instr << "]");
 			String work(instr);
-			long pos;
+			long pos = 0;
 			while ((pos = work.FirstCharOf(badOnes)) >= 0) {
 				work.erase(pos, 1);
 			}
@@ -432,7 +432,7 @@ namespace coast {
 												? String("...").Append(instr.SubString(instr.Length() - traceSuffixLength))
 												: "")
 							 << "]");
-			URLCheckStatus eUrlCheckStatus;
+			URLCheckStatus eUrlCheckStatus = URLCheckStatus::eOk;
 			return urlDecode(instr, eUrlCheckStatus, replacePlusByBlank);
 		}
 
@@ -455,7 +455,7 @@ namespace coast {
 			if (instr.StrChr('%') == -1L) {
 				return replacePlusByBlank ? str : instr;
 			}
-			char c;	 // current character
+			char c = 0;	 // current character
 			long length(str.Length());
 			if (length > 0) {
 				for (long lPos = 0; lPos < length; ++lPos) {
@@ -547,7 +547,7 @@ namespace coast {
 		String MSUrlEncode(const String &str) {
 			StartTrace(URLUtils.MSUrlEncode);
 			String result;
-			char c;
+			char c = 0;
 
 			if (str.Length() > 0) {
 				for (long l = 0; l < str.Length(); l++) {

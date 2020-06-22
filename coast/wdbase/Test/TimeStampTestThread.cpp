@@ -34,7 +34,7 @@ void TestWorker::DoProcessWorkload() {
 	Thread::Wait(fWaitTimeInProcess);
 	CheckRunningState(eWorking);
 	bool bSomething = false;
-	long l;
+	long l = 0;
 	for (l = 0; l < fNumberOfRuns; l++) {
 		if (fUtcCtor) {
 			TimeStamp aStamp1(946782245);

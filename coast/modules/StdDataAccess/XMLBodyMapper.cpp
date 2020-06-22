@@ -140,7 +140,7 @@ bool XMLTagParser::ParseTag(std::istream &Is, String &Tag) {
 
 bool XMLTagParser::ReadToExpectedChar(char ExpectedChar, std::istream &Is, String &Content) {
 	StartTrace(XMLTagParser.ReadToExpectedChar);
-	char c;
+	char c = 0;
 
 	while (Is.get(c).good()) {
 		if (c == ExpectedChar) {

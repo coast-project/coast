@@ -386,7 +386,7 @@ bool Server::ProcessRequest(std::ostream &reply, Context &ctx) {
 
 RequestProcessor *Server::MakeProcessor() {
 	StartTrace(Server.MakeProcessor);
-	RequestProcessor *rp;
+	RequestProcessor *rp = NULL;
 	const char *rpn = Lookup("RequestProcessor", "RequestProcessor");
 
 	Trace("Processor: <" << NotNull(rpn) << ">");
@@ -547,7 +547,7 @@ int Server::SetUid() {
 	String lookupedUser(Lookup("UserName", ""));
 
 	// from uname2id in util.c in apache/src
-	struct passwd *ent;
+	struct passwd *ent = NULL;
 
 	String m;
 	if (lookupedUser != "") {

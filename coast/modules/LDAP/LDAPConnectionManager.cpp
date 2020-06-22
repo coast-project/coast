@@ -43,12 +43,12 @@ Anything LDAPConnectionManager::GetLdapConnection(bool isLocked, long maxConnect
 	StartTrace(LDAPConnectionManager.GetLdapConnection);
 	Anything returned;
 	TimeStamp ts;
-	LDAP *handle;
+	LDAP *handle = NULL;
 	Anything handleInfo;
 	Trace("maxConnections: " << maxConnections << " fDefMaxConnections: " << fDefMaxConnections);
 	maxConnections = (maxConnections != 0L) ? maxConnections : fDefMaxConnections;
 
-	bool ret;
+	bool ret = false;
 	if (!isLocked) {
 		Semaphore *sema = LookupSema(maxConnections, poolId);
 		TraceAny(fLdapConnectionStore[poolId], "Contents for: " << poolId);
@@ -86,7 +86,7 @@ Anything LDAPConnectionManager::HandleRebindTimeout(Anything &returned, long reb
 	StartTrace(LDAPConnectionManager.HandleRebindTimeout);
 	TimeStamp now;
 	TimeStamp lastRebind(returned["LastRebind"].AsString());
-	bool mustRebind;
+	bool mustRebind = false;
 	String msg;
 	if (handle == (LDAP *)NULL) {
 		msg << "Rebind because connection handle is [NULL]";
@@ -141,7 +141,7 @@ bool LDAPConnectionManager::SetLdapConnection(long maxConnections, const String 
 
 Semaphore *LDAPConnectionManager::LookupSema(long maxConnections, const String &poolId) {
 	StartTrace(LDAPConnectionManager.LookupSema);
-	Semaphore *sema;
+	Semaphore *sema = NULL;
 	LockUnlockEntry me(fLdapConnectionStoreMutex);
 	{
 		if (!(fLdapConnectionStore.IsDefined(poolId))) {

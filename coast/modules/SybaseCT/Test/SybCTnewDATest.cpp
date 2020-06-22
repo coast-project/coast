@@ -31,7 +31,7 @@ void SybCTnewDATest::InitOpenSetConPropTest() {
 		ROAnything roaDbParams(GetConfig()["Sybase"]);
 		String strInterfacesFileName = roaDbParams["InterfacesFile"].AsString();
 		if (t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename")) {
-			CS_CONTEXT *context;
+			CS_CONTEXT *context = NULL;
 			Context ctx;
 			ParameterMapper aParamMapper("aParamMapper");
 			ResultMapper aResultMapper("aResultMapper");
@@ -93,7 +93,7 @@ void SybCTnewDATest::SimpleQueryTest() {
 		ROAnything roaDbParams(GetConfig()["Sybase"]);
 		String strInterfacesFileName = roaDbParams["InterfacesFile"].AsString();
 		if (t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename")) {
-			CS_CONTEXT *context;
+			CS_CONTEXT *context = NULL;
 			// create context
 			Context ctx;
 			ParameterMapper aParamMapper("NewDAInpuMapper");
@@ -141,7 +141,7 @@ void SybCTnewDATest::LimitedMemoryTest() {
 		ROAnything roaDbParams(GetConfig()["Sybase"]);
 		String strInterfacesFileName = roaDbParams["InterfacesFile"].AsString();
 		if (t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename")) {
-			CS_CONTEXT *context;
+			CS_CONTEXT *context = NULL;
 			// create context
 			Context ctx;
 			ParameterMapper aParamMapper("NewDAInpuMapper");
@@ -194,7 +194,7 @@ void SybCTnewDATest::LoginTimeoutTest() {
 	if (t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename")) {
 		long lMaxConnections = GetTestCaseConfig()["Connections"].AsLong(26L);
 		// create context
-		CS_CONTEXT *context;
+		CS_CONTEXT *context = NULL;
 		if (t_assertm(SybCTnewDA::Init(&context, &anyCtxMessages, strInterfacesFileName, lMaxConnections) == CS_SUCCEED,
 					  "Context should have been created")) {
 			IntLoginTimeoutTest(context, lMaxConnections, 1L);
@@ -248,7 +248,7 @@ void SybCTnewDATest::ResultTimeoutTest() {
 	ROAnything roaDbParams(GetConfig()["Sybase"]);
 	String strInterfacesFileName = roaDbParams["InterfacesFile"].AsString();
 	if (t_assertm(strInterfacesFileName.Length(), "expected non-empty interfaces filename")) {
-		CS_CONTEXT *context;
+		CS_CONTEXT *context = NULL;
 		// create context
 		Context ctx;
 		ParameterMapper aParamMapper("ResultTimeoutMapper");

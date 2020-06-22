@@ -26,7 +26,7 @@ Test *AnythingDeepCloneTest::suite() {
 }
 
 Anything AnythingDeepCloneTest::init5DimArray(long anzElt) {
-	long i0, i1;
+	long i0 = 0, i1 = 0;
 	char idx0[3] = {0}, idx1[3] = {0};
 	Anything anyInit;
 
@@ -44,7 +44,7 @@ Anything AnythingDeepCloneTest::init5DimArray(long anzElt) {
 }
 
 bool AnythingDeepCloneTest::check5DimArray(Anything &any0, Anything &any1, long anzElt) {
-	long i0, i1;
+	long i0 = 0, i1 = 0;
 	char idx0[3] = {0}, idx1[3] = {0};
 	bool retVal = true;
 	Anything any;
@@ -71,7 +71,7 @@ void AnythingDeepCloneTest::DeepClone0Test() {
 	String MyString("Another String");
 	int MyInt = 34;
 	long MyLong = 56;
-	long typeBefore, sizeBefore;
+	long typeBefore = 0, sizeBefore = 0;
 
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
@@ -243,7 +243,7 @@ void AnythingDeepCloneTest::DeepClone1Test() {
 	String MyString("Another String");
 	int MyInt = 34;
 	long MyLong = 56;
-	long typeBefore, sizeBefore;
+	long typeBefore = 0, sizeBefore = 0;
 
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
@@ -373,7 +373,7 @@ void AnythingDeepCloneTest::DeepClone1Test() {
 
 void AnythingDeepCloneTest::DeepClone2Test() {
 	Anything anyOriginal, any0;
-	long i, typeBefore, sizeBefore;
+	long i = 0, typeBefore = 0, sizeBefore = 0;
 
 	for (i = 0; i < 100; i++) {
 		anyOriginal.Append(i);
@@ -403,7 +403,7 @@ void AnythingDeepCloneTest::DeepClone2Test() {
 
 void AnythingDeepCloneTest::DeepClone3Test() {
 	Anything anyOriginal, any0;
-	long i, typeBefore, sizeBefore;
+	long i = 0, typeBefore = 0, sizeBefore = 0;
 
 	for (i = 0; i < 100; i++) {
 		anyOriginal.Append(i);
@@ -433,7 +433,7 @@ void AnythingDeepCloneTest::DeepClone3Test() {
 
 void AnythingDeepCloneTest::DeepClone4Test() {
 	Anything any0, any1;
-	long typeBefore, sizeBefore;
+	long typeBefore = 0, sizeBefore = 0;
 
 	any0.Append(12L);
 	any0.Append(13L);

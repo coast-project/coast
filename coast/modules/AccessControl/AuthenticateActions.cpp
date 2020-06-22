@@ -32,7 +32,7 @@ bool AuthenticateWeakAction::GetAccessManager(ROAnything config, Context &ctx, A
 bool AuthenticateWeakAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(AuthenticateWeakAction.DoExecAction);
 
-	AccessManager *am;
+	AccessManager *am = NULL;
 	if (!GetAccessManager(config, ctx, am)) {
 		return false;
 	}
@@ -48,7 +48,7 @@ bool AuthenticateStrongAction::DoExecAction(String &transitionToken, Context &ct
 	// write the action code here - you don't have to override DoAction anymore
 	StartTrace(AuthenticateStrongAction.DoExecAction);
 
-	AccessManager *am;
+	AccessManager *am = NULL;
 	if (!GetAccessManager(config, ctx, am)) {
 		return false;
 	}

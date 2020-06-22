@@ -83,7 +83,7 @@ void FileAccessControllerTests::doTestTDAC(TokenDataAccessController *tdac) {
 
 	if (t_assert(tdac != NULL)) {
 		String tid("000100002"), unknown("399249002"), empty(""), expectedSeed("e5a4103be54395b743c1c70365d47603");
-		unsigned long count, expectedCount = 612314215;
+		unsigned long count = 0, expectedCount = 612314215;
 		long increment = 23;
 
 		assertEqualm(expectedCount, tdac->GetCount(tid), "must not be 0");

@@ -47,7 +47,7 @@ void Renderer::Render(std::ostream &reply, Context &c, const ROAnything &info) {
 	AnyImplType aImplType = info.GetType();
 	Renderer *r = 0;  // this is our marker, makes logic simpler (PS)
 	if (aImplType == AnyCharPtrType || aImplType == AnyLongType || aImplType == AnyDoubleType) {
-		long len;
+		long len = 0;
 		const char *buf = info.AsCharPtr("", len);
 		Trace("Basic renderable leaf found--> " << NotNull(buf));
 		reply.write(buf, len);

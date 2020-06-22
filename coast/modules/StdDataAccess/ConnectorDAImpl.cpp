@@ -145,7 +145,7 @@ Socket *ConnectorDAImpl::RecreateSocket(Anything &anyParams, Context &context, P
 			}
 
 			Trace("socket recreated");
-			long retCode;
+			long retCode = 0;
 			if (s->IsReadyForReading(0, retCode)) {
 				std::iostream *pIos = s->GetStream();
 				pIos->peek();

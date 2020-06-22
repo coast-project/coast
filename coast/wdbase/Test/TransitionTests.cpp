@@ -93,7 +93,7 @@ bool TransitionTests::EvalRequest(ROAnything request, Anything &returned) {
 		(*Ios) << request << std::flush;
 
 		// read reply
-		char c;
+		char c = 0;
 		while ((c = Ios->get()) != EOF) {
 			reply << c;
 		}

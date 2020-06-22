@@ -99,7 +99,7 @@ Anything FlowControlDAStresser::Run(long id) {
 					  << "] End: [" << End << "] Diff: [" << Diff << "]");
 		while (true) {
 			Trace("PrepareRequest");
-			bool bPrepareRequestSucceeded;
+			bool bPrepareRequestSucceeded = false;
 			noBreakCondition = flowCntrl->PrepareRequest(ctx, bPrepareRequestSucceeded);
 
 			// break condition check was here -----
@@ -147,7 +147,7 @@ Anything FlowControlDAStresser::Run(long id) {
 				TraceAny(ctx.GetTmpStore(), "Tempstore");
 
 				// connect to server and place request and extract reply...
-				long accessTime;
+				long accessTime = 0;
 				if (!flowCntrl->ExecDataAccess(ctx, accessTime)) {
 					Trace("ExecDataAccess failed!");
 					// check if we wanted da.StdExec(ctx) to fail

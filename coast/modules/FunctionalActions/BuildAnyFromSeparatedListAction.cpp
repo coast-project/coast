@@ -109,7 +109,7 @@ bool BuildAnyFromSeparatedListAction::ReadValue(String &retValue, const ROAnythi
 }
 
 String BuildAnyFromSeparatedListAction::TrimEndingSpaces(String &value) {
-	long i, iMax = value.Length();
+	long i = 0, iMax = value.Length();
 	for (i = iMax - 1; i >= 0; i--) {
 		if (value[i] != ' ') {
 			break;

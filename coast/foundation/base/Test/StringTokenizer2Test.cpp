@@ -26,7 +26,7 @@ Test *StringTokenizer2Test::suite() {
 
 void StringTokenizer2Test::constrMethods0() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "0");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -84,7 +84,7 @@ void StringTokenizer2Test::constrMethods0() {
 
 void StringTokenizer2Test::constrMethods1() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "1");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -122,7 +122,7 @@ void StringTokenizer2Test::constrMethods1() {
 
 void StringTokenizer2Test::constrMethods2() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "2");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -158,7 +158,7 @@ void StringTokenizer2Test::constrMethods2() {
 
 void StringTokenizer2Test::constrMethods3() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "3");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -192,7 +192,7 @@ void StringTokenizer2Test::constrMethods3() {
 
 void StringTokenizer2Test::constrMethods4() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "4");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -226,7 +226,7 @@ void StringTokenizer2Test::constrMethods4() {
 
 void StringTokenizer2Test::constrMethods5() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "5");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -260,7 +260,7 @@ void StringTokenizer2Test::constrMethods5() {
 
 void StringTokenizer2Test::constrMethods6() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "6");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -294,7 +294,7 @@ void StringTokenizer2Test::constrMethods6() {
 
 void StringTokenizer2Test::constrMethods7() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "7");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -328,7 +328,7 @@ void StringTokenizer2Test::constrMethods7() {
 
 void StringTokenizer2Test::constrMethods8() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "8");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -358,7 +358,7 @@ void StringTokenizer2Test::constrMethods8() {
 
 void StringTokenizer2Test::constrMethods9() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "9");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -392,7 +392,7 @@ void StringTokenizer2Test::constrMethods9() {
 
 void StringTokenizer2Test::constrMethods10() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "01");
 	// t_assert( st.fString ==  "leer 0 leer 1 2345 0 6789 0 leer 1 23 0 456 0 789 0 leer 1 23 0 4567 0 9 0 leer 1 2" );
@@ -463,7 +463,7 @@ void StringTokenizer2Test::constrMethods10() {
 
 void StringTokenizer2Test::constrMethods11() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("01234506789012304560789010230456709012", "12");
 	assertEqual("01234506789012304560789010230456709012", st.fString);
@@ -514,7 +514,7 @@ void StringTokenizer2Test::constrMethods11() {
 
 void StringTokenizer2Test::constrMethods12() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "23");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -560,7 +560,7 @@ void StringTokenizer2Test::constrMethods12() {
 
 void StringTokenizer2Test::constrMethods13() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "012");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -646,7 +646,7 @@ void StringTokenizer2Test::constrMethods13() {
 
 void StringTokenizer2Test::constrMethods14() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "123");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -708,7 +708,7 @@ void StringTokenizer2Test::constrMethods14() {
 
 void StringTokenizer2Test::constrMethods15() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "111");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -746,8 +746,8 @@ void StringTokenizer2Test::constrMethods15() {
 
 void StringTokenizer2Test::constrMethods16() {
 	String token;
-	bool ret;
-	unsigned int i;
+	bool ret = false;
+	unsigned int i = 0;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "0123456789");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -771,7 +771,7 @@ void StringTokenizer2Test::constrMethods16() {
 
 void StringTokenizer2Test::constrMethods17() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "12345");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -857,7 +857,7 @@ void StringTokenizer2Test::constrMethods17() {
 
 void StringTokenizer2Test::constrMethods18() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("0123450678901230456078901230456709012", "abc");
 	assertEqual("0123450678901230456078901230456709012", st.fString);
@@ -877,7 +877,7 @@ void StringTokenizer2Test::constrMethods18() {
 
 void StringTokenizer2Test::constrMethods19() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("", "abc");
 
@@ -896,7 +896,7 @@ void StringTokenizer2Test::constrMethods19() {
 
 void StringTokenizer2Test::constrMethods20() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("abc", "");
 
@@ -919,7 +919,7 @@ void StringTokenizer2Test::constrMethods20() {
 
 void StringTokenizer2Test::constrMethods21() {
 	String token;
-	bool ret;
+	bool ret = false;
 
 	StringTokenizer2 st("abc", "abcd");
 

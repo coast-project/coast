@@ -133,7 +133,7 @@ int SocketStreamBuf::underflow() {
 }  // underflow
 
 int SocketStreamBuf::sync() {
-	long count;
+	long count = 0;
 
 	if (((count = pptr() - pbase()) > 0) && (DoWrite(pbase(), count) == EOF)) {
 		return (EOF);

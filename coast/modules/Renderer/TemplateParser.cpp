@@ -34,7 +34,7 @@ Anything TemplateParser::Parse(std::istream &reader, const char *filename, long 
 
 void TemplateParser::DoParse() {
 	StartTrace(TemplateParser.DoParse);
-	int c, lookahead;
+	int c = 0, lookahead = 0;
 	String reply;
 	Anything tag;
 
@@ -119,7 +119,7 @@ void TemplateParser::DoParse() {
 
 Anything TemplateParser::OldStyleComment() {
 	StartTrace(TemplateParser::OldStyleComment);
-	int c;
+	int c = 0;
 	// keep comments for test cases relying on them
 	String comment("<");
 #define GSR ((c = Get()), comment.Append(char(c)))
@@ -259,7 +259,7 @@ Anything TemplateParser::ProcessArgs(const String &renderer, const String &args)
 Anything TemplateParser::Macro() {
 	StartTrace(TemplateParser.Macro);
 	String reply("[");
-	int c;
+	int c = 0;
 	c = Get();
 	reply << char(c);
 	if (c == '[') {
@@ -343,7 +343,7 @@ void TemplateParser::CompactHTMLBlocks(Anything &cache) {
 
 void TemplateParser::SkipWhitespace() {
 	StartTrace(TemplateParser.SkipWhitespace);
-	int c;
+	int c = 0;
 	while (!IsGood() && (c = Peek()) != 0 && c != EOF) {
 		if (isspace(c) == 0) {
 			return;
@@ -361,7 +361,7 @@ bool TemplateParser::IsValidNameChar(int c) {
 String TemplateParser::ParseName() {
 	StartTrace(TemplateParser.ParseName);
 	String theName;
-	int c;	// Unicode?
+	int c = 0;	// Unicode?
 	while (!IsGood() && (c = Peek()) != EOF && c != 0) {
 		if (IsValidNameChar(c) || ((isdigit(c) != 0) && theName.Length() > 0)) {
 			theName.Append((char)Get());
@@ -374,7 +374,7 @@ String TemplateParser::ParseName() {
 String TemplateParser::ParseUpToWhitespaceOrMacroEnd() {
 	StartTrace(TemplateParser.ParseUpToWhitespaceOrMacroEnd);
 	String theName;
-	int c;
+	int c = 0;
 	while (!IsGood() && (c = Peek()) != EOF && c != 0 && (isspace(c) == 0)) {
 		if (']' == c) {
 			c = Get();
@@ -741,7 +741,7 @@ bool TemplateParser::IsEmptyOrWd() {
 
 Anything TemplateParser::ParseAnythingAndReturn(int endChar) {
 	StartTrace(TemplateParser.ParseAnythingAndReturn);
-	int c;
+	int c = 0;
 	long bl = 0;
 	String collectany("{");
 	while (!IsGood() && (c = Get()) != 0) {
@@ -800,7 +800,7 @@ void TemplateParser::ParseAnything(int endChar) {
 String TemplateParser::ReadHTMLAsString(int &endChar) {
 	StartTrace(TemplateParser.ReadHTMLAsString);
 	String result;
-	int c;
+	int c = 0;
 	while (!IsGood() && (c = Get()) != 0 && c != EOF) {
 		if ('<' == c) {
 			int lookahead = Peek();
@@ -823,7 +823,7 @@ String TemplateParser::ReadHTMLAsString(int &endChar) {
 String TemplateParser::ParseAsStringUpToEndTag(String &tagName) {
 	StartTrace(TemplateParser.ParseAsStringUpToEndTag);
 	String result;
-	int c;
+	int c = 0;
 	while (!IsGood() && (c = Get()) != 0) {
 		if ('<' == c) {
 			if ('/' == Peek()) {
@@ -888,7 +888,7 @@ Anything FormTemplateParser::ProcessSpecialTag(String &tagName, Anything &tagAtt
 
 void ScriptTemplateParser::DoParse() {
 	StartTrace(ScriptTemplateParser.DoParse);
-	int c, lookahead;
+	int c = 0, lookahead = 0;
 	String reply;
 	Anything tag;
 

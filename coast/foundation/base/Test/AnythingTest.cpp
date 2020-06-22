@@ -496,7 +496,7 @@ void AnythingTest::AsCharPtrBufLen() {
 	//--- AnyArrayImpl
 	Anything anyArray = Anything(Anything::ArrayMarker());
 
-	long arraylen;
+	long arraylen = 0;
 	anyArray.AsCharPtr("", arraylen);
 	assertEqual(12, arraylen);	// strlen("AnyArrayImpl")
 
@@ -504,32 +504,32 @@ void AnythingTest::AsCharPtrBufLen() {
 	char test[10];
 	memset(test, '\0', 10);
 	Anything anyTest((void *)test, 10);
-	long buflen;
+	long buflen = 0;
 	anyTest.AsCharPtr("", buflen);
 	assertEqual(10, buflen);
 
 	//--- AnyDoubleImpl
 	Anything anydouble(2.01);
-	long doublelen;
+	long doublelen = 0;
 	anydouble.AsCharPtr("", doublelen);
 	t_assert(3 <= doublelen);
 
 	//--- AnyLongImpl
 	Anything anylong(100);
-	long longlen;
+	long longlen = 0;
 	anylong.AsCharPtr("", longlen);
 	assertEqual(3, longlen);  // strlen("100")
 
 	//--- AnyObjectImpl
 	IFAObject *o = 0;
 	Anything anyobject(o);
-	long objectlen;
+	long objectlen = 0;
 	anyobject.AsCharPtr("", objectlen);
 	assertEqual(9, objectlen);	// strlen("IFAObject")
 
 	//--- AnyStringImpl
 	Anything anystring("abc");
-	long stringlen;
+	long stringlen = 0;
 	anystring.AsCharPtr("", stringlen);
 	assertEqual(3, stringlen);	// strlen("abc")
 }

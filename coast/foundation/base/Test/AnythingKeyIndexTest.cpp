@@ -44,7 +44,7 @@ Test *AnythingKeyIndexTest::suite() {
 }
 
 Anything AnythingKeyIndexTest::init5DimArray(long anzElt) {
-	long i0, i1;
+	long i0 = 0, i1 = 0;
 	char idx0[3] = {0}, idx1[3] = {0};
 	Anything anyInit;
 
@@ -62,7 +62,7 @@ Anything AnythingKeyIndexTest::init5DimArray(long anzElt) {
 }
 
 bool AnythingKeyIndexTest::check5DimArray(Anything &any0, Anything &any1, long anzElt) {
-	long i0, i1;
+	long i0 = 0, i1 = 0;
 	char idx0[3] = {0}, idx1[3] = {0};
 	bool retVal = true;
 	Anything any;
@@ -83,7 +83,7 @@ bool AnythingKeyIndexTest::check5DimArray(Anything &any0, Anything &any1, long a
 }
 
 void AnythingKeyIndexTest::RemoveInvKeys() {
-	long i0, i1, i2;
+	long i0 = 0, i1 = 0, i2 = 0;
 	Anything any0;
 
 	// Prepare:  Fill an anything
@@ -126,7 +126,7 @@ void AnythingKeyIndexTest::RemoveInvKeys() {
 
 void AnythingKeyIndexTest::SimpleRemove() {
 	Anything simple;
-	bool res;
+	bool res = false;
 	String resString;
 
 	simple["one"] = "One";
@@ -181,7 +181,7 @@ void AnythingKeyIndexTest::KeyAccess0()
 }  // KeyAccess0()
 
 void AnythingKeyIndexTest::KeyAccess1() {
-	long i0, i1, i2, i3, i4;
+	long i0 = 0, i1 = 0, i2 = 0, i3 = 0, i4 = 0;
 	char idx0[3] = {0}, idx1[3] = {0}, idx2[3] = {0}, idx3[3] = {0}, idx4[3] = {0};
 	Anything any0;
 
@@ -333,7 +333,7 @@ void AnythingKeyIndexTest::KeyAccess1() {
 void AnythingKeyIndexTest::KeyAccess2() {
 	// Anything used as a list
 	Anything array;
-	long i;
+	long i = 0;
 
 	for (i = 0; i < 1000; i++) {
 		if (i < 300) {
@@ -528,7 +528,7 @@ void AnythingKeyIndexTest::EmptyAccess1()
 	t_assert(test.IsDefined("") == false);
 	t_assert(test.GetSize() == sizeBefore);
 
-	long testNumber;
+	long testNumber = 0;
 	testNumber = test[""].AsLong(3);
 	assertEqual(3, testNumber);
 	t_assert(test.GetSize() == sizeBefore + 1);

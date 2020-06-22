@@ -159,7 +159,7 @@ void InterruptHandler::Run() {
 	}
 
 	sigset_t set;
-	int isignal;
+	int isignal = 0;
 	// setup the signal set that catches control-c
 	sigemptyset(&set);
 	sigaddset(&set, SIGINT);

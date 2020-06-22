@@ -267,7 +267,7 @@ void BlowfishTest::cbcCrossPlatform() {
 	config["InitVec1"] = (long)0xabcdef12;
 	BlowfishCBCScrambler bcsn("nonzero");
 	t_assert(bcsn.Init(config));
-	long index;
+	long index = 0;
 	long lowbound = 0L;
 	long highbound = 255L;
 	String reference;
@@ -534,7 +534,7 @@ void BlowfishTest::modifyScramble()
 	bfscrambler.DoEncode(scrambledText, clearText);
 
 	long max = scrambledText.Length();
-	long i;
+	long i = 0;
 	for (i = 0; i < max - 8; i++)
 	// regular case, modification in encription part
 	{
@@ -570,7 +570,7 @@ void BlowfishTest::rawECBCyphers() {
 	// The input for this test comes from the SSLeavy implementation.
 	// It exercises the scrambling/unscrambling of 8 byte blocks
 	// in ECB mode.
-	int i, n;
+	int i = 0, n = 0;
 	BlowfishScrambler bfscrambler("TestScrambler");
 	for (n = 0; n < NUM_TESTS; n++) {
 		String key;

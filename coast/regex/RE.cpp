@@ -65,7 +65,7 @@ String RE::SimplePatternToFullRegularExpression(const String &pattern) {
 }
 String RE::GetMatch(long const which) const {
 	StartTrace1(RE.GetMatch, "match#" << which);
-	long start;
+	long start = 0;
 	if (which < fRegisters.GetSize() && (start = GetStartRegister(which)) >= 0) {
 		return fSearch.SubString(start, GetEndRegister(which) - start);
 	}
@@ -264,7 +264,7 @@ long RE::MatchNodes(long firstNode, long lastNode, long idxStart) {
 					continue;
 				}
 				// Try all available branches
-				long nextBranch;
+				long nextBranch = 0;
 				do {
 					// Try matching the branch against the string
 					if ((idxNew = MatchNodes(node + nodeSize, -1, idx)) != -1) {
@@ -311,7 +311,7 @@ bool RE::MatchAt(long i) {
 		fBackRefs = Anything(Anything::ArrayMarker());
 
 		// Match against string
-		long idx;
+		long idx = 0;
 		if ((idx = MatchNodes(0, -1, i)) != -1) {
 			SetEndRegister(0, idx);
 			return true;

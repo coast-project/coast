@@ -46,7 +46,7 @@ void AnythingPerfTest::RunKeyLoop(const char *key, const Anything &a, const long
 void AnythingPerfTest::RunLookupPathLoop(const char *key, const Anything &a, const long iterations) {
 	RunROLookupPathLoop(key, a, iterations);
 	CatchTimeType aTimer(TString("LookupPathLoop/") << key << '/' << iterations << "/any", this, '/');
-	const char *out;
+	const char *out = NULL;
 	Anything result;
 	for (long i = 0; i < iterations; ++i) {
 		a.LookupPath(result, key);
@@ -57,7 +57,7 @@ void AnythingPerfTest::RunLookupPathLoop(const char *key, const Anything &a, con
 
 void AnythingPerfTest::RunROLookupPathLoop(const char *key, const ROAnything &a, const long iterations) {
 	CatchTimeType aTimer(TString("LookupPathLoop/") << key << '/' << iterations << "/roa", this, '/');
-	const char *out;
+	const char *out = NULL;
 	ROAnything result;
 	for (long i = 0; i < iterations; ++i) {
 		a.LookupPath(result, key);

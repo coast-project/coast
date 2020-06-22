@@ -129,7 +129,7 @@ bool OracleStatement::Prepare() {
 				  strErr))) {
 			fErrorMessages.Append(strErr);
 		} else {
-			ub2 fncode;
+			ub2 fncode = 0;
 			if (fpConnection->checkError(OCIAttrGet(getHandle(), OCI_HTYPE_STMT, (dvoid *)&fncode, 0, OCI_ATTR_STMT_TYPE,
 													fpConnection->ErrorHandle()),
 										 strErr)) {
@@ -213,11 +213,11 @@ OracleStatement::Description &OracleStatement::GetOutputDescription() {
 		if (getStatementType() == STMT_SELECT) {
 			OCIError *eh(getConnection()->ErrorHandle());
 
-			OCIParam *mypard;
-			ub2 dtype;
-			ub4 data_len;
-			text *col_name;
-			ub4 col_name_len;
+			OCIParam *mypard = NULL;
+			ub2 dtype = 0;
+			ub4 data_len = 0;
+			text *col_name = NULL;
+			ub4 col_name_len = 0;
 
 			// Request a parameter descriptor for position 1 in the select-list
 			ub4 counter = 1;
@@ -427,7 +427,7 @@ void OracleStatement::prepareAndBindBuffer(OracleStatement::Description::Element
 	// only used when not using bind
 	aDescEl["EffectiveLength"] = Anything(static_cast<void *>(0), sizeof(ub2) * lRows);
 
-	sword execStatus;
+	sword execStatus = 0;
 	execStatus = bindColumn(lBindPos, aDescEl, len);
 	if (execStatus != OCI_SUCCESS) {
 		throw OracleException(*getConnection(), execStatus);
@@ -498,7 +498,7 @@ void OracleStatement::fillRowColValue(OracleStatement::Description::Element &aDe
 	long len = aDescEl.AsLong("Length", 0L);
 	if (aDescEl["Type"].AsLong() == SQLT_RSET) {
 		OCIStmt *phCursor(0);
-		sword execStatus;
+		sword execStatus = 0;
 		execStatus = OCIHandleAlloc(getConnection()->getEnvironment().EnvHandle(), (void **)&phCursor, OCI_HTYPE_STMT,
 									0,		// extra memory to allocate
 									NULL);	// pointer to user-memory

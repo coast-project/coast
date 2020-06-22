@@ -21,7 +21,7 @@
 
 void ContextTest::setUp() {
 	t_assert(GetConfig().IsDefined("Modules"));
-	Server *s;
+	Server *s = NULL;
 	if (t_assert((s = Server::FindServer("Server")) != NULL)) {
 		ROAnything result;
 		t_assert(s->Lookup("TCP5010", result));

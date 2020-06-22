@@ -389,7 +389,7 @@ void ThreadsTest::SimpleMutexTest() {
 
 void ThreadsTest::TimedRunTest() {
 	StartTrace(ThreadsTest.TimedRunTest);
-	long testTime;
+	long testTime = 0;
 	// We do it 5 times
 	for (testTime = 1; testTime < 6; testTime++) {
 		long miliTestTime = testTime * MILISECGRANULARITY;

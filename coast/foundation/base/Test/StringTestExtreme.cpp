@@ -16,7 +16,7 @@
 using namespace coast;
 
 void StringTestExtreme::setUp() {
-	char s;
+	char s = 0;
 	extremelyLongString = "";
 	trueString = "";
 

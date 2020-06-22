@@ -100,7 +100,7 @@ bool LoopBackDAImpl::Exec(Context &c, ParameterMapper *input, ResultMapper *outp
 			const char *slotname = config.SlotName(i);
 			if (slotname != 0) {
 				String inputStr;
-				bool bGetCode, bPutCode = false;
+				bool bGetCode = false, bPutCode = false;
 				if (streaming == 1) {
 					StringStream Ios(inputStr);
 					bGetCode = input->Get(slotname, Ios, c);

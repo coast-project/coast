@@ -231,7 +231,7 @@ bool doStartThread(void *obj, bool *b, pthread_t *thrId, void *(*wrapper)(void *
 	}
 	//	if (b[3]);	//!< THR_SUSPENDED
 
-	int retVal;
+	int retVal = 0;
 	if ((retVal = pthread_create(thrId, &attr, wrapper, obj)) != 0) {
 		switch (retVal) {
 			case EAGAIN:
@@ -285,7 +285,7 @@ void doRWLock(rwlock_t *rw, bool reading) {
 }
 
 bool doRWTrylock(rwlock_t *rw, bool reading) {
-	int ret;
+	int ret = 0;
 	if (reading) {
 		ret = rwl_readtrylock(rw);	// rw_tryrdlock((rwlock_t*) rw);
 	} else {
@@ -308,7 +308,7 @@ bool doRWTrylock(rwlock_t *rw, bool reading) {
 }
 
 bool doRWUnlock(rwlock_t *rw, bool reading) {
-	int ret;
+	int ret = 0;
 	if (reading) {
 		ret = rwl_readunlock(rw);  // rw_tryrdlock((rwlock_t*) rw);
 	} else {
@@ -349,7 +349,7 @@ int doTimedWait(pthread_cond_t *c, pthread_mutex_t *m, long s, long n) {
  * Initialize a read-write lock
  */
 int rwl_init(rwlock_t *rwl) {
-	int status;
+	int status = 0;
 
 	rwl->r_active = 0;
 	rwl->r_wait = rwl->w_wait = 0;
@@ -379,7 +379,7 @@ int rwl_init(rwlock_t *rwl) {
  * Destroy a read-write lock
  */
 int rwl_destroy(rwlock_t *rwl) {
-	int status, status1, status2;
+	int status = 0, status1 = 0, status2 = 0;
 
 	if (rwl->valid != RWLOCK_VALID) {
 		return EINVAL;
@@ -436,7 +436,7 @@ static void rwl_readcleanup(void *arg) {
  * Lock a read-write lock for read access.
  */
 int rwl_readlock(rwlock_t *rwl) {
-	int status;
+	int status = 0;
 
 	if (rwl->valid != RWLOCK_VALID) {
 		return EINVAL;
@@ -469,7 +469,7 @@ int rwl_readlock(rwlock_t *rwl) {
  * block if unavailable).
  */
 int rwl_readtrylock(rwlock_t *rwl) {
-	int status, status2;
+	int status = 0, status2 = 0;
 
 	if (rwl->valid != RWLOCK_VALID) {
 		return EINVAL;
@@ -491,7 +491,7 @@ int rwl_readtrylock(rwlock_t *rwl) {
  * Unlock a read-write lock from read access.
  */
 int rwl_readunlock(rwlock_t *rwl) {
-	int status, status2;
+	int status = 0, status2 = 0;
 
 	if (rwl->valid != RWLOCK_VALID) {
 		return EINVAL;
@@ -526,7 +526,7 @@ static void rwl_writecleanup(void *arg) {
  * Lock a read-write lock for write access.
  */
 int rwl_writelock(rwlock_t *rwl) {
-	int status;
+	int status = 0;
 
 	if (rwl->valid != RWLOCK_VALID) {
 		return EINVAL;
@@ -559,7 +559,7 @@ int rwl_writelock(rwlock_t *rwl) {
  * block if unavailable.
  */
 int rwl_writetrylock(rwlock_t *rwl) {
-	int status, status2;
+	int status = 0, status2 = 0;
 
 	if (rwl->valid != RWLOCK_VALID) {
 		return EINVAL;
@@ -581,7 +581,7 @@ int rwl_writetrylock(rwlock_t *rwl) {
  * Unlock a read-write lock from write access.
  */
 int rwl_writeunlock(rwlock_t *rwl) {
-	int status;
+	int status = 0;
 
 	if (rwl->valid != RWLOCK_VALID) {
 		return EINVAL;

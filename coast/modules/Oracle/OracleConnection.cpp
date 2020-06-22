@@ -158,7 +158,7 @@ String OracleConnection::errorMessage(sword status) {
 	// in case of an error an error message is generated
 
 	text errbuf[512];
-	sb4 errcode;
+	sb4 errcode = 0;
 	String error(128L);
 
 	switch (status) {
@@ -301,7 +301,7 @@ OracleConnection::ObjectType OracleConnection::ReadSPDescriptionFromDB(const Str
 	MemChecker aCheckerLocal("OracleConnection.ReadSPDescriptionFromDB", getEnvironment().getAllocator());
 	MemChecker aCheckerGlobal("OracleConnection.ReadSPDescriptionFromDB", coast::storage::Global());
 
-	sword attrStat;
+	sword attrStat = 0;
 	DscHandleType aDschp;
 	if (checkError((attrStat = OCIHandleAlloc(getEnvironment().EnvHandle(), aDschp.getVoidAddr(), OCI_HTYPE_DESCRIBE, 0, 0)))) {
 		throw OracleException(*this, attrStat);
@@ -354,11 +354,11 @@ OracleConnection::ObjectType OracleConnection::ReadSPDescriptionFromDB(const Str
 	Trace(String("number of arguments: ") << numargs);
 
 	OCIParam *arg(0);
-	text *name;
-	ub4 namelen;
-	ub2 dtype;
-	OCITypeParamMode iomode;
-	ub4 data_len;
+	text *name = NULL;
+	ub4 namelen = 0;
+	ub2 dtype = 0;
+	OCITypeParamMode iomode = OCI_TYPEPARAM_IN;
+	ub4 data_len = 0;
 
 	// For a procedure, we begin with i = 1; for a function, we begin with i = 0.
 	int start = 0;

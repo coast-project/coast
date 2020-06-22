@@ -101,13 +101,13 @@ static int myIsBlank(int c) {
 }
 
 static int myIsNoDigit(int c) {
-	return static_cast<int>(isdigit(c)) == 0;
+	return static_cast<int>(static_cast<int>(isdigit(c)) == 0);
 }
 static int myIsNoSpace(int c) {
-	return static_cast<int>(isspace(c)) == 0;
+	return static_cast<int>(static_cast<int>(isspace(c)) == 0);
 }
 static int myIsNoAlnum(int c) {
-	return static_cast<int>(isalnum(c)) == 0;
+	return static_cast<int>(static_cast<int>(isalnum(c)) == 0);
 }
 
 // may insert special cases for Swiss lowercase/uppercase letters as well

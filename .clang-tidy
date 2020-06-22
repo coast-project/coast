@@ -1,14 +1,12 @@
 ---
-Checks:          '-*'
+Checks:          '-*,bugprone-macro-parentheses,readability-implicit-bool-conversion'
 #Checks:          '-*,portability-*,bugprone-*'
 #Checks:          '-*,clang-analyzer-*,modernize-*,portability-*,bugprone-*'
 #Checks:          '-*,cppcoreguidelines-init-variables,readability-named-parameter,modernize-replace-auto-ptr,modernize-loop-convert,bugprone-macro-parentheses,readability-implicit-bool-conversion,google-default-arguments,cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-type-const-cast,readability-named-parameter,readability-else-after-return'
 # modernize-use-nullptr,google-runtime-int,google-default-arguments,cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-type-const-cast,readability-named-parameter,readability-else-after-return
-#Checks:
-#Checks:          'clang-diagnostic-*,clang-analyzer-*'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
-AnalyzeTemporaryDtors: false
+AnalyzeTemporaryDtors: true
 FormatStyle:     file
 User:            m1huber
 CheckOptions:

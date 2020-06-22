@@ -127,7 +127,7 @@ bool BuildAnyFromSeparatedListAction::DoBuildHeader(Anything &anyHeaderTok, Anyt
 	for (long lIdx2 = 0L; lIdx2 < anyHeaderTok[0L].GetSize(); lIdx2++) {
 		String sElementname;
 		for (long lIdx = 0L; lIdx < anyHeaderTok.GetSize(); lIdx++) {
-			if (lIdx > 0 && anyHeaderTok[lIdx][lIdx2].AsString() != "") {
+			if (lIdx > 0 && !anyHeaderTok[lIdx][lIdx2].AsString().empty()) {
 				sElementname = sElementname << sHeaderSeparator << anyHeaderTok[lIdx][lIdx2].AsString();
 			} else {
 				sElementname = sElementname << anyHeaderTok[lIdx][lIdx2].AsString();

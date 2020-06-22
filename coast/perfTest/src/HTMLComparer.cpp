@@ -90,7 +90,7 @@ bool HTMLComparer::DoCompareAnyArray(Anything &master, Anything &slave) {
 void HTMLComparer::AddToPathStack(String path, int index) {
 	StartTrace(HTMLComparer.AddToPathStack);
 
-	if (path != "") {
+	if (!path.empty()) {
 		fPathStack.Append(path);
 	} else {
 		fPathStack.Append(index);

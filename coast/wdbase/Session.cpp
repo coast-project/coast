@@ -482,7 +482,7 @@ void Session::SetupContext(Context &context, String &transition, String &pagenam
 	getDefaultAction(context, transition);
 	if (query.IsDefined("action")) {
 		String theToken = query["action"].AsCharPtr(transition);
-		if (theToken != "") {
+		if (!theToken.empty()) {
 			transition = theToken;
 		}
 	}

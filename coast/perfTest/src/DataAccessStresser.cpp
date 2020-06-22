@@ -24,7 +24,7 @@ Anything DataAccessStresser::Run(long id) {
 	String daName = Lookup("DataAccess", "");
 	TraceAny(fConfig, "Config");
 	Anything results, anyRet;
-	if (daName != "") {
+	if (!daName.empty()) {
 		Anything env;
 		env["Id"] = id - 1;
 

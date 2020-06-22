@@ -99,7 +99,7 @@ void MemTracker::TrackFree(MemoryHeader *mh) {
 }
 
 void MemTracker::DumpUsedBlocks() {
-	if ((fpUsedList != 0) && (fpUsedList->size() != 0u)) {
+	if ((fpUsedList != 0) && (!fpUsedList->empty())) {
 		const size_t alignedSize = coast::memory::AlignedSize<MemoryHeader>::value;
 		std::ostringstream ostream;
 		ostream << "memory blocks still in use for " << fpName << ":\n";

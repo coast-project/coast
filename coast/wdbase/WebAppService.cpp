@@ -102,7 +102,7 @@ void WebAppService::ExtractPostBodyFields(Anything &query, const Anything &reque
 	long sz = reqBody.GetSize();
 	for (long i = 0; i < sz; ++i) {
 		String fieldName = reqBody[i]["header"]["CONTENT-DISPOSITION"]["NAME"].AsString();
-		if (fieldName != "") {
+		if (!fieldName.empty()) {
 			if (reqBody[i]["body"].GetSize() == 1) {
 				query[fieldName] = reqBody[i]["body"][0L];
 			} else {

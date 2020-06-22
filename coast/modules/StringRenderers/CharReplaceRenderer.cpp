@@ -24,10 +24,10 @@ void CharReplaceRenderer::RenderAll(std::ostream &reply, Context &c, const ROAny
 
 	String charsToReplace = config["CharsToReplace"].AsString();
 	String replaceChar = config["ReplaceChar"].AsString("_");
-	if (charsToReplace != "") {
+	if (!charsToReplace.empty()) {
 		String original;
 		RenderOnString(original, c, config["String"]);
-		if (replaceChar != "") {
+		if (!replaceChar.empty()) {
 			// replace characters
 			char rChar = replaceChar[0L];
 			long sz = charsToReplace.Length();

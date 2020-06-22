@@ -157,7 +157,7 @@ void AnythingKeyIndexTest::IndexAccess()
 	t_assert(fSequence[1].AsString("") == "Another String");
 	assertCompare(fSequence.GetSize(), equal_to, lengthBefore);
 	int newMax = lengthBefore + 2;
-	t_assert(fSequence[newMax].AsString("") == "");
+	t_assert(fSequence[newMax].AsString("").empty());
 	t_assert(fSequence.GetSize() == newMax + 1);
 }
 
@@ -169,13 +169,13 @@ void AnythingKeyIndexTest::KeyAccess0()
 	t_assert(fArray["slot"] == "contents");
 	t_assert(fArray["second"] == "more contents");
 	assertCompare(fArray.GetSize(), equal_to, lengthBefore);
-	t_assert(fArray["third"] == Anything());
+	t_assert(fArray["third"].empty());
 	// access of to a nonpresent slot returns an empty Anything
 	t_assert(fArray.GetSize() == lengthBefore + 1);
 	// and allocates the corresponding slot
 	fArray["fourth"] = "new slot";
 	lengthBefore = fArray.GetSize();
-	t_assert(fArray["third"] == Anything());
+	t_assert(fArray["third"].empty());
 	assertCompare(fArray.GetSize(), equal_to, lengthBefore);
 
 }  // KeyAccess0()

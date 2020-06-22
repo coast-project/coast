@@ -24,9 +24,9 @@ void EscapeRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything
 
 	String toEscape = config["ToEscape"].AsString();
 	String escapeChar = config["EscapeChar"].AsString();
-	if (toEscape != "") {
+	if (!toEscape.empty()) {
 		char eChar = '\\';
-		if (escapeChar != "") {
+		if (!escapeChar.empty()) {
 			eChar = escapeChar[0L];
 		}
 		String original;

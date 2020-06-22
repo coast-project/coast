@@ -41,7 +41,7 @@ void SecurityModuleTest::InitWithConfigTest() {
 	Anything theConfig;
 	theConfig["smtest"]["SecurityItems"]["TestScrambler"] = "MyTestScrambler";
 	TraceAny(theConfig, "config to use");
-	t_assert(system::GetFilePath("SecurityItems", "any") != "");
+	t_assert(!system::GetFilePath("SecurityItems", "any").empty());
 	Anything keyFromFile;
 	t_assert(system::LoadConfigFile(keyFromFile, "aTestKey.txt", ""));
 	t_assert(keyFromFile.AsString("oops") != "oops");

@@ -84,7 +84,7 @@ void AnythingConstructorsTest::DefaultConstrTest() {
 
 	assertCompare((fNull.AsString()).Length(), equal_to, 0L);
 	t_assert((fNull.AsString()).Capacity() >= (fNull.AsString()).Length());
-	t_assert(fNull.AsString() == "");
+	t_assert(fNull.AsString().empty());
 	t_assert(fNull.AsString("Default") == "Default");
 
 	t_assert(fNull.Contains("testSlot") == false);

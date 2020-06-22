@@ -549,7 +549,7 @@ int Server::SetUid() {
 	struct passwd *ent = NULL;
 
 	String m;
-	if (lookupedUser != "") {
+	if (!lookupedUser.empty()) {
 		const char *username = lookupedUser;
 		/* Only try to switch if we're running as root */
 		// get real id

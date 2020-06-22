@@ -29,7 +29,7 @@ void HTMLTreeWriter::Put(Unicode c) {
 void HTMLTreeWriter::addText() {
 	StartTrace(HTMLTreeWriter.addText);
 	fContentText = StripWhiteSpace(fContentText);
-	if (fContentText != "") {
+	if (!fContentText.empty()) {
 		Trace(fContentText);
 		fStructPos["Tree"]["Content"].Append(fContentText);
 		fContentText = "";
@@ -160,7 +160,7 @@ void HTMLTreeWriter::EndTag(String &tagname) {
 
 void HTMLTreeWriter::Argument(const String &key, const String &value) {
 	StartTrace1(HTMLTreeWriter.Argument, "key: >" << key << "< Value: >" << value << "<");
-	if (key != "") {
+	if (!key.empty()) {
 		fAttrStore[key] = value;
 	}
 }

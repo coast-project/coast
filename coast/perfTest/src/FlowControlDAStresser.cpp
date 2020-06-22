@@ -29,7 +29,7 @@ Anything FlowControlDAStresser::Run(long id) {
 
 	Trace("flowcontrolname is: " << flowCntrlName);
 
-	if (flowCntrlName != "") {
+	if (!flowCntrlName.empty()) {
 		FlowController *flowCntrl = FlowController::FindFlowController(flowCntrlName);
 		if (flowCntrl == 0) {
 			Trace("ERROR: flowcontrolname " << flowCntrlName << " not found");

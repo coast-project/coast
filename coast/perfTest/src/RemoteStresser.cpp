@@ -19,7 +19,7 @@ Anything RemoteStresser::Run(long id) {
 	Anything results;
 	// get the DataAccess's name from configuration
 	String daName = fConfig["DataAccess"].AsString("");
-	if (daName != "") {
+	if (!daName.empty()) {
 		// Create an empty Context and pass the stressers config into its environment store
 		Context ctx(fConfig.DeepClone(), Anything(), 0, 0, 0);
 		DataAccess da(daName);

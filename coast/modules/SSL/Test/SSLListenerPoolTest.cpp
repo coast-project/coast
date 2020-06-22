@@ -93,7 +93,7 @@ void SSLListenerPoolTest::DoTestConnect() {
 				data["ChecksToDo"] = data["LastChecksToDo"];
 			}
 			if (cConfig["SSLConnector"].AsLong(1) == 1) {
-				if (cConfig["ConnectorToUse"].AsString() != "") {
+				if (!cConfig["ConnectorToUse"].AsString().empty()) {
 					// deep clone, no side effect when adding Timeout
 					Anything connectorConfig = GetTestCaseConfig()[cConfig["ConnectorToUse"].AsString()].DeepClone();
 					if (cConfig.IsDefined("TimeoutToUse")) {

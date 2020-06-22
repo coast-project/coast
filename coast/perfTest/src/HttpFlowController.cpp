@@ -38,7 +38,7 @@ void HttpFlowController::ProcessSetCookie(Context &ctx) {
 		}
 	} else {
 		cookieInfo = setCookie.AsString("");
-		if (cookieInfo != "") {
+		if (!cookieInfo.empty()) {
 			DoProcessSetCookie(cookieInfo, ctx);
 		}
 	}
@@ -281,7 +281,7 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 			if (!formButtonContents.IsNull()) {
 				TraceAny(formButtonContents, "<----Buttons in the incoming HTML Form");
 
-				if ((formButtonPressed != "") && (formButtonContents.IsDefined(formButtonPressed))) {
+				if ((!formButtonPressed.empty()) && (formButtonContents.IsDefined(formButtonPressed))) {
 					Trace("True ->formButtonContents.IsDefined(formButtonPressed)");
 					String tmpValue = formButtonContents[formButtonPressed].AsString("");
 
@@ -295,7 +295,7 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 					} else {
 						formContentsInitial[formButtonContents[formButtonPressed].AsString("")] = formButtonPressed;
 					}
-				} else if (formButtonPressed == "") {
+				} else if (formButtonPressed.empty()) {
 					// not an error...
 				} else {
 					Trace("False->formButtonContents.IsDefined(formButtonPressed)");
@@ -322,7 +322,7 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 			if (!formImageButtonContents.IsNull()) {
 				TraceAny(formImageButtonContents, "<----ImageButtons in the incoming HTML Form");
 
-				if ((formImageButtonPressed != "") && (formImageButtonContents.IsDefined(formImageButtonPressed))) {
+				if ((!formImageButtonPressed.empty()) && (formImageButtonContents.IsDefined(formImageButtonPressed))) {
 					Trace("True ->formImageButtonContents.IsDefined(formImageButtonPressed)");
 					String Xcoord = formImageButtonPressed;
 					String Ycoord = formImageButtonPressed;
@@ -330,7 +330,7 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 					Ycoord << ".y";
 					formContentsInitial[Xcoord] = "10";
 					formContentsInitial[Ycoord] = "10";
-				} else if (formImageButtonPressed == "") {
+				} else if (formImageButtonPressed.empty()) {
 					// not an error...
 				} else {
 					Trace("False->formImageButtonContents.IsDefined(formImageButtonPressed)");
@@ -1048,7 +1048,7 @@ bool HttpFlowController::GetFormOrLinkInfo(const String &aTag, const String &aSl
 			}
 		}
 
-		if (ActualSlotNrStr != "") {
+		if (!ActualSlotNrStr.empty()) {
 			SlotNrStr << ActualSlotNrStr;  // e.g. "PreviousPage.Links.0" -
 		} else {
 			if (configForLinkFrameOrFormEtc.IsDefined("slotNr")) {
@@ -1191,7 +1191,7 @@ bool HttpFlowController::PeriodicalScheduling(Context &ctx) {
 long HttpFlowController::ResolveJumpNameToNr(String &jumpName, Anything &tmpStore) {
 	long jumpNr = -1;
 
-	if (jumpName != "") {  // jmp specified
+	if (!jumpName.empty()) {  // jmp specified
 		jumpNr = FindJumpNr(jumpName);
 
 		if (jumpNr < 0) {

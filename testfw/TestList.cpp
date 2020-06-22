@@ -12,9 +12,8 @@
 
 //---- TestElt
 TestElt::~TestElt() {
-	if (fValue != 0) {
 		delete fValue;
-	}
+
 	fValue = 0;
 }
 

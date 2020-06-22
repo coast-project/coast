@@ -20,9 +20,8 @@ ButtonRendererTest::ButtonRendererTest(TString tname) : FieldRendererTest(tname)
 };
 
 ButtonRendererTest::~ButtonRendererTest() {
-	if (fFieldRenderer != 0) {
 		delete fFieldRenderer;
-	}
+
 	fFieldRenderer = 0;
 };
 

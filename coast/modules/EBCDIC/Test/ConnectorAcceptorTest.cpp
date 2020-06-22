@@ -84,9 +84,9 @@ public:
 	AcceptorThread(Acceptor *acceptor) : Thread("AcceptorThread"), fAcceptor(acceptor) {}
 	~AcceptorThread() {
 		StartTrace(AcceptorThread.Dtor);
-		if (fAcceptor != 0) {
+
 			delete fAcceptor;
-		}
+
 		fAcceptor = 0;
 	}
 

@@ -107,9 +107,9 @@ public:
 	AcceptorThread(Acceptor *acceptor) : Thread("AcceptorThread"), fAcceptor(acceptor) {}
 	virtual ~AcceptorThread() {
 		StartTrace(AcceptorThread.Dtor);
-		if (fAcceptor != 0) {
+
 			delete fAcceptor;
-		}
+
 		fAcceptor = 0;
 	}
 	void Run() {

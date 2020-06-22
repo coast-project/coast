@@ -55,13 +55,10 @@ PipeExecutor::~PipeExecutor() {
 		waitpid(fChildPid, 0, 0);  // clean up zombies
 	}
 #endif
-	if (fPipe != 0) {
-		delete fPipe;  // this ultimatively closes stream and pipe
-	}
 
-	if (fStderr != 0) {
+		delete fPipe;  // this ultimatively closes stream and pipe
+
 		delete fStderr;
-	}
 }
 
 std::iostream *PipeExecutor::GetStream() {

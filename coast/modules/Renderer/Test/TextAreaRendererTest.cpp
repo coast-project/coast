@@ -19,9 +19,8 @@ TextAreaRendererTest::TextAreaRendererTest(TString tname) : FieldRendererTest(tn
 	fFieldRenderer = new (coast::storage::Global()) TextAreaRenderer("TextAreaRenderer");
 }
 TextAreaRendererTest::~TextAreaRendererTest() {
-	if (fFieldRenderer != 0) {
 		delete fFieldRenderer;
-	}
+
 	fFieldRenderer = 0;
 }
 

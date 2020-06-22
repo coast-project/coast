@@ -20,9 +20,8 @@ PulldownMenuRendererTest::PulldownMenuRendererTest(TString tname) : FieldRendere
 };
 
 PulldownMenuRendererTest::~PulldownMenuRendererTest() {
-	if (fFieldRenderer != 0) {
 		delete fFieldRenderer;
-	}
+
 	fFieldRenderer = 0;
 };
 

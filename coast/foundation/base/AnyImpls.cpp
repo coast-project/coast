@@ -590,9 +590,8 @@ AnyArrayImpl::~AnyArrayImpl() {
 		MyAllocator()->Free(fContents);
 
 		// free the key array
-		if (fKeys != 0) {
+
 			delete fKeys;
-		}
 
 		// free the index array
 		delete fInd;

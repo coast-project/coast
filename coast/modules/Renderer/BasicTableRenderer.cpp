@@ -392,9 +392,7 @@ RowAccessor *BasicTableRenderer::SetupRowAccessors(const ROAnything &conf, Conte
 }
 
 void BasicTableRenderer::CleanupRowAccessors(RowAccessor *accessors, long size) {
-	if (accessors != 0) {
 		delete[] accessors;
-	}
 }
 
 void BasicTableRenderer::PrintRow(int &row, std::ostream &reply, Context &ctx, RowAccessor *accessors, long rowSize,

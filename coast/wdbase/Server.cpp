@@ -166,9 +166,8 @@ Server::Server(const char *name)
 Server::~Server() {
 	StartTrace1(Server.~Server, "<" << GetName() << ">");
 	Assert(this != ServersModule::GetServerForReInit());
-	if (fPoolManager != 0) {
+
 		delete fPoolManager;
-	}
 }
 
 // intialization of the Server and its modules

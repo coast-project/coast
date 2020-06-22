@@ -1,5 +1,5 @@
 ---
-Checks:          '-*,bugprone-macro-parentheses,cppcoreguidelines-init-variables,readability-else-after-return,readability-implicit-bool-conversion,readability-delete-null-pointer'
+Checks:          '-*,bugprone-macro-parentheses,cppcoreguidelines-init-variables,readability-else-after-return,readability-implicit-bool-conversion,readability-delete-null-pointer,readability-container-size-empty'
 #Checks:          '-*,portability-*,bugprone-*'
 #Checks:          '-*,clang-analyzer-*,modernize-*,portability-*,bugprone-*'
 #Checks:          '-*,cppcoreguidelines-init-variables,readability-named-parameter,modernize-replace-auto-ptr,modernize-loop-convert,google-default-arguments,cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-type-const-cast'
@@ -39,5 +39,9 @@ CheckOptions:
     value:           llvm
   - key:             modernize-use-nullptr.NullMacros
     value:           'NULL'
+  - key:             readability-identifier-naming.ClassCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.ClassMethodCase
+    value:           CamelCase
 ...
 

@@ -1,9 +1,10 @@
 ---
-Checks:          '-*,bugprone-macro-parentheses,readability-implicit-bool-conversion'
+Checks:          '-*,bugprone-macro-parentheses,cppcoreguidelines-init-variables,readability-else-after-return,readability-implicit-bool-conversion'
 #Checks:          '-*,portability-*,bugprone-*'
 #Checks:          '-*,clang-analyzer-*,modernize-*,portability-*,bugprone-*'
-#Checks:          '-*,cppcoreguidelines-init-variables,readability-named-parameter,modernize-replace-auto-ptr,modernize-loop-convert,bugprone-macro-parentheses,readability-implicit-bool-conversion,google-default-arguments,cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-type-const-cast,readability-named-parameter,readability-else-after-return'
-# modernize-use-nullptr,google-runtime-int,google-default-arguments,cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-type-const-cast,readability-named-parameter,readability-else-after-return
+#Checks:          '-*,cppcoreguidelines-init-variables,readability-named-parameter,modernize-replace-auto-ptr,modernize-loop-convert,google-default-arguments,cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-type-const-cast'
+# modernize-use-nullptr,google-runtime-int,google-default-arguments,cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-type-const-cast
+# List of functions and docs: https://clang.llvm.org/extra/clang-tidy/checks/list.html
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: true

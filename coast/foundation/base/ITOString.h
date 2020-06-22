@@ -545,7 +545,7 @@ protected:
 };
 
 #define NotNull(s) ((s) ? (s) : "null")
-#define NotNullStr(s) ((s.Length() > 0) ? s.cstr() : "null")
+#define NotNullStr(s) (((s).Length() > 0) ? (s).cstr() : "null")
 
 inline bool String::SetAllocator(Allocator *a) {
 	if (!fAllocator || !fStringImpl) {

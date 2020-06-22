@@ -192,9 +192,9 @@ inline TString Test::toString() {
 #define assertEqual(expected, actual) \
 	(this->assertEquals((expected), (actual), static_cast<long>(__LINE__), __FILE__, TString(" " #expected " == " #actual " ")))
 
-#define assertEqualRaw(expected, actual)                                                                                     \
-	(this->assertEquals((expected), (expected.Length()), (actual), (actual.Length()), static_cast<long>(__LINE__), __FILE__, \
-						TString(" " #expected " == " #actual " ")))
+#define assertEqualRaw(expected, actual)                                                                               \
+	(this->assertEquals((expected), ((expected).Length()), (actual), ((actual).Length()), static_cast<long>(__LINE__), \
+						__FILE__, TString(" " #expected " == " #actual " ")))
 
 #define assertCharPtrEqual(expected, actual) \
 	(this->assertEquals((expected), (actual), static_cast<long>(__LINE__), __FILE__, (" " #expected " == " #actual " ")))
@@ -209,12 +209,12 @@ inline TString Test::toString() {
 #define assertEqualm(expected, actual, message) \
 	(this->assertEquals((expected), (actual), static_cast<long>(__LINE__), __FILE__, message))
 
-#define assertEqualRawm(expected, actual, message)                                                                           \
-	(this->assertEquals((expected), (expected.Length()), (actual), (actual.Length()), static_cast<long>(__LINE__), __FILE__, \
-						message))
+#define assertEqualRawm(expected, actual, message)                                                                     \
+	(this->assertEquals((expected), ((expected).Length()), (actual), ((actual).Length()), static_cast<long>(__LINE__), \
+						__FILE__, message))
 
 #define assertCharPtrEqualm(expected, actual, message)                               \
 	(this->assertEquals((expected), (actual), static_cast<long>(__LINE__), __FILE__, \
-						TString(" " #expected " == " #actual " ") << message))
+						TString(" " #expected " == " #actual " ") << (message)))
 
 #endif

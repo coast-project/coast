@@ -32,7 +32,7 @@
 // MEM_ALIGN_SIZE - Align size to nearest higher multiple  of MEM_ALIGN_BOUNDARY
 #define MEM_ALIGN_SIZE(blocksize) ((((blocksize) + MEM_ALIGN_BOUNDARY - 1) / MEM_ALIGN_BOUNDARY) * MEM_ALIGN_BOUNDARY)
 // EX_GET_COLUMNVALUE - calculate column value pointer given the row number
-#define EX_GET_COLUMN_VALUE(coldata, row, col, colfmt) (coldata[col].value + ((row) * (colfmt[col].maxlength)))
+#define EX_GET_COLUMN_VALUE(coldata, row, col, colfmt) ((coldata)[col].value + ((row) * ((colfmt)[col].maxlength)))
 
 class SybCTnewDA : public IFAObject, public coast::AllocatorNewDelete {
 	// Define structure where row data is bound.

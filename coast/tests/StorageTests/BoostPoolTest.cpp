@@ -484,13 +484,10 @@ void BasicTestMethod(theTestFunc tstFunc) {
 template <class T>
 struct dummyAlloc {};
 
-#define _SMALLOBJ_BENCH(FUNC, CODE_DECL, CODE_LOOP)                \
-	template <class T, const int N, template <class> class tAlloc> \
-	void FUNC(void **, int loop) {                                 \
-		CODE_DECL                                                  \
-		for (int i = 0; i < loop; ++i) {                           \
-			CODE_LOOP                                              \
-		}                                                          \
+#define _SMALLOBJ_BENCH(FUNC, CODE_DECL, CODE_LOOP)                                                     \
+	template <class T, const int N, template <class> class tAlloc>                                      \
+	void FUNC(void **, int loop) {                                                                      \
+		CODE_DECL for (int i = 0; i < loop; ++i) { CODE_LOOP } /* NOLINT(bugprone-macro-parentheses) */ \
 	}
 
 #define _SMALLOBJ_BENCH_ARRAY(FUNC, CODE_DECL, CODE_NEW, CODE_DELETE) \

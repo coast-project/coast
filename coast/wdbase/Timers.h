@@ -114,6 +114,7 @@ public:
 
 #define MethodTimerName(key, msg, ctx, name)                                                                         \
 	String _NAME2_(gsMreggoLemiT, name);                                                                             \
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                                                 \
 	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT, name)("Method", _QUOTE_(key), _NAME2_(gsMreggoLemiT, name) << msg, ctx, \
 												   TimeLogger::eMilliseconds)
 
@@ -121,12 +122,14 @@ public:
 
 #define MethodTimerUnitName(key, msg, ctx, res, name) \
 	String _NAME2_(gsMreggoLemiT, name);              \
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */  \
 	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT, name)("Method", _QUOTE_(key), _NAME2_(gsMreggoLemiT, name) << msg, ctx, res)
 
 #define DAAccessTimer(key, msg, ctx) DAAccessTimerName(key, msg, ctx, __LINE__)
 
 #define DAAccessTimerName(key, msg, ctx, name)                                                                           \
 	String _NAME2_(gsMreggoLemiT, name);                                                                                 \
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                                                     \
 	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT, name)("DataAccess", _QUOTE_(key), _NAME2_(gsMreggoLemiT, name) << msg, ctx, \
 												   TimeLogger::eMilliseconds)
 
@@ -134,13 +137,14 @@ public:
 
 #define RequestTimerName(key, msg, ctx, name)                                                                         \
 	String _NAME2_(gsMreggoLemiT, name);                                                                              \
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                                                  \
 	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT, name)("Request", _QUOTE_(key), _NAME2_(gsMreggoLemiT, name) << msg, ctx, \
 												   TimeLogger::eMilliseconds)
 
 #define RequestTimeLogger(ctx)                       \
 	if (TimeLoggingModule::fgDoLogging) {            \
 		String snarTreggoLemiT("TimeLoggingAction"); \
-		ctx.Process(snarTreggoLemiT);                \
+		(ctx).Process(snarTreggoLemiT);              \
 	}
 
 #endif

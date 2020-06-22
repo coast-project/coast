@@ -24,7 +24,7 @@ CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 CS_RETCODE SybCTnewDA_servermsg_handler(CS_CONTEXT *context, CS_CONNECTION *connection, CS_SERVERMSG *srvmsg);
 
 #define fooVALUE2STRING(typ) \
-	{ (int)typ, #typ }
+	{ (int)(typ), #typ }
 
 struct tValue2Strings {
 	int nValue;
@@ -1094,7 +1094,8 @@ CS_RETCODE SybCTnewDA_clientmsg_handler(CS_CONTEXT *context, CS_CONNECTION *conn
 				SystemLog::Error("SybCTnewDA_clientmsg_handler: could not put messages using Mapper");
 			}
 
-#define ERROR_SNOL(e, s, n, o, l) ((CS_SEVERITY(e) == s) && (CS_NUMBER(e) == n) && (CS_ORIGIN(e) == o) && (CS_LAYER(e) == l))
+#define ERROR_SNOL(e, s, n, o, l) \
+	((CS_SEVERITY(e) == (s)) && (CS_NUMBER(e) == (n)) && (CS_ORIGIN(e) == (o)) && (CS_LAYER(e) == (l)))
 
 			if (ERROR_SNOL(errmsg->msgnumber, CS_SV_RETRY_FAIL, 63, 2, 1)) {
 				Trace("a kind of timeout error occured");

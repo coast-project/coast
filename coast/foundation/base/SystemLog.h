@@ -135,30 +135,35 @@ protected:
 #define SYSDEBUG(msg)                                                                             \
 	{                                                                                             \
 		String strFileLineMsg(coast::storage::Current());                                         \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                          \
 		strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg; \
 		SystemLog::Debug(strFileLineMsg);                                                         \
 	}
 #define SYSINFO(msg)                                                                              \
 	{                                                                                             \
 		String strFileLineMsg(coast::storage::Current());                                         \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                          \
 		strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg; \
 		SystemLog::Info(strFileLineMsg);                                                          \
 	}
 #define SYSWARNING(msg)                                                                           \
 	{                                                                                             \
 		String strFileLineMsg(coast::storage::Current());                                         \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                          \
 		strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg; \
 		SystemLog::Warning(strFileLineMsg);                                                       \
 	}
 #define SYSERROR(msg)                                                                             \
 	{                                                                                             \
 		String strFileLineMsg(coast::storage::Current());                                         \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                          \
 		strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg; \
 		SystemLog::Error(strFileLineMsg);                                                         \
 	}
 #define SYSALERT(msg)                                                                             \
 	{                                                                                             \
 		String strFileLineMsg(coast::storage::Current());                                         \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                          \
 		strFileLineMsg << "( " << __FILE__ << ":" << static_cast<long>(__LINE__) << " ) " << msg; \
 		SystemLog::Alert(strFileLineMsg);                                                         \
 	}

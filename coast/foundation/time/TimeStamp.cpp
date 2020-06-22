@@ -311,11 +311,11 @@ String TimeStamp::intTimeRep::TraceIntValues() const {
 
 // zero fill number
 static char ChrNumbers[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-#define ZFNUM(result, num)                               \
-	if (num <= 9)                                        \
-		result.Append('0').Append(ChrNumbers[(int)num]); \
-	else                                                 \
-		result.Append(ChrNumbers[(num / 10)]).Append(ChrNumbers[(int)num % 10]);
+#define ZFNUM(result, num)                                   \
+	if ((num) <= 9)                                          \
+		(result).Append('0').Append(ChrNumbers[(int)(num)]); \
+	else                                                     \
+		(result).Append(ChrNumbers[((num) / 10)]).Append(ChrNumbers[(int)(num) % 10]);
 
 String TimeStamp::intTimeRep::AsString() const {
 	// result has length 14, optimize buffer to hold 14 characters plus 0
@@ -333,7 +333,7 @@ String TimeStamp::intTimeRep::AsString() const {
 	return result;
 }
 
-#define LYFA(theyear, mindex) ((1 == mindex && TimeStamp::IsLeap(theyear)) ? 1 : 0)
+#define LYFA(theyear, mindex) ((1 == (mindex) && TimeStamp::IsLeap(theyear)) ? 1 : 0)
 
 TimeStamp::TSIntNumberType TimeStamp::AMonth::AsSeconds(unsigned short lInYear) const {
 	return ((MDAYS[fMonth - 1] + LYFA(lInYear, (fMonth - 1))) * TimeStamp::DAY);

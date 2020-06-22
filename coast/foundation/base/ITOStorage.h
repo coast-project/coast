@@ -146,7 +146,7 @@ protected:
 
 #define PoolTrackStatTriggered(trigger, pAlloc, level) \
 	if (TriggerEnabled(trigger)) {                     \
-		pAlloc->PrintStatistic(level);                 \
+		(pAlloc)->PrintStatistic(level);               \
 	}
 
 //! Base class for memory allocation policies

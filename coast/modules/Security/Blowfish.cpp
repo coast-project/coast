@@ -11,9 +11,9 @@
 #include "SystemLog.h"
 #include "Tracer.h"
 #undef n2l
-#define n2l(c, l)                                                                                                             \
-	(l = ((unsigned long)(*((c)++))) << 24L, l |= ((unsigned long)(*((c)++))) << 16L, l |= ((unsigned long)(*((c)++))) << 8L, \
-	 l |= ((unsigned long)(*((c)++))))
+#define n2l(c, l)                                                                         \
+	((l) = ((unsigned long)(*((c)++))) << 24L, (l) |= ((unsigned long)(*((c)++))) << 16L, \
+	 (l) |= ((unsigned long)(*((c)++))) << 8L, (l) |= ((unsigned long)(*((c)++))))
 
 #undef l2n
 #define l2n(l, c)                                                                                      \
@@ -69,12 +69,12 @@
 
 /* This is normally very good */
 
-#define BF_ENC(LL, R, S, P)                                                     \
-	LL ^= P;                                                                    \
-	LL ^= (((*(BF_LONG *)((unsigned char *)&(S[0]) + ((R >> BF_0) & BF_M)) +    \
-			 *(BF_LONG *)((unsigned char *)&(S[256]) + ((R >> BF_1) & BF_M))) ^ \
-			*(BF_LONG *)((unsigned char *)&(S[512]) + ((R >> BF_2) & BF_M))) +  \
-		   *(BF_LONG *)((unsigned char *)&(S[768]) + ((R << BF_3) & BF_M)));
+#define BF_ENC(LL, R, S, P)                                                           \
+	LL ^= (P);                                                                        \
+	(LL) ^= (((*(BF_LONG *)((unsigned char *)&((S)[0]) + (((R) >> BF_0) & BF_M)) +    \
+			   *(BF_LONG *)((unsigned char *)&((S)[256]) + (((R) >> BF_1) & BF_M))) ^ \
+			  *(BF_LONG *)((unsigned char *)&((S)[512]) + (((R) >> BF_2) & BF_M))) +  \
+			 *(BF_LONG *)((unsigned char *)&((S)[768]) + (((R) << BF_3) & BF_M)));
 #else
 
 /* This will always work, even on 64 bit machines and strangly enough,
@@ -217,7 +217,7 @@ static BlowfishScrambler::BlowfishKey bf_init = {
 	}};
 
 //--- blowfish macros -------------------------------------
-#define F(x) (((SB[0][x.byte.zero] + SB[1][x.byte.one]) ^ SB[2][x.byte.two]) + SB[3][x.byte.three])
+#define F(x) (((SB[0][(x).byte.zero] + SB[1][(x).byte.one]) ^ SB[2][(x).byte.two]) + SB[3][(x).byte.three])
 
 inline void BlowfishScrambler::BF_encrypt(BF_LONG *data) const {
 #if (BF_ROUNDS != 16) && (BF_ROUNDS != 20)

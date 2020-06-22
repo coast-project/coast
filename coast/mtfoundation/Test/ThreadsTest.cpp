@@ -37,11 +37,11 @@ void ExecCountThread::Run() {
 	fCount++;
 }
 
-#define CheckSemaphoreCount(sema, expected)               \
-	{                                                     \
-		int count = -1;                                   \
-		assertCompare(0, equal_to, sema.GetCount(count)); \
-		assertCompare(expected, equal_to, count);         \
+#define CheckSemaphoreCount(sema, expected)                 \
+	{                                                       \
+		int count = -1;                                     \
+		assertCompare(0, equal_to, (sema).GetCount(count)); \
+		assertCompare(expected, equal_to, count);           \
 	}
 
 Test *ThreadsTest::suite() {

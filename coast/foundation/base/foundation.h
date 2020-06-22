@@ -43,6 +43,7 @@ typedef unsigned long long ul_long;
 #define ZAPEOF(x) ((x) < 0 ? -(x) : (x))
 
 // Macro for safer use of typecasts
+// NOLINTNEXTLINE(bugprone-macro-parentheses)
 #define SafeCast(objname, objtype) (dynamic_cast<objtype *>(objname))
 
 // min and max macros

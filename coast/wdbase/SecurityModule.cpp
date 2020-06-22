@@ -61,12 +61,12 @@ namespace coast {
 	}  // namespace security
 }  // namespace coast
 
-#define FindSecurityItemWithDefault(var, name, Type)           \
-	const Type *var = SafeCast(FindSecurityItem(name), Type);  \
-	if (!var) {                                                \
-		Trace("using standard item: " _QUOTE_(Type));          \
-		var = SafeCast(FindSecurityItem(_QUOTE_(Type)), Type); \
-	}                                                          \
+#define FindSecurityItemWithDefault(var, name, Type)             \
+	const Type *var = SafeCast(FindSecurityItem(name), Type);    \
+	if (!(var)) {                                                \
+		Trace("using standard item: " _QUOTE_(Type));            \
+		(var) = SafeCast(FindSecurityItem(_QUOTE_(Type)), Type); \
+	}                                                            \
 	Assert(var);
 
 long SecurityItem::GetNamePrefixFromEncodedText(String &scramblername, const String &encodedText) {

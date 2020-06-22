@@ -239,7 +239,9 @@ int rwl_writelock(rwlock_t *rwlock);
 int rwl_writetrylock(rwlock_t *rwlock);
 int rwl_writeunlock(rwlock_t *rwlock);
 }
+/* NOLINTNEXTLINE(bugprone-macro-parentheses) */
 #define THREADWRAPPERFUNCPROTO(wrapper) void *(*wrapper)(void *)
+/* NOLINTNEXTLINE(bugprone-macro-parentheses) */
 #define THREADWRAPPERFUNCDECL(name, param) void *name(void *param)
 #define THREADWRAPPERFUNC(thread) THREADWRAPPERFUNCDECL(ThreadWrapper, thread)
 #define THWRAPRETURNVAL return 0;
@@ -272,24 +274,24 @@ int thr_setconcurrency(int);
 //--- mutex macros
 #define MUTEX pthread_mutex_t
 #define MUTEXPTR pthread_mutex_t *
-#define GETMUTEXPTR(mutex) (pthread_mutex_t *)&mutex
-#define CREATEMUTEX(mutex, retcode) ((retcode = pthread_mutex_init(&mutex, 0)) == 0)
-#define DELETEMUTEX(mutex, retcode) ((retcode = pthread_mutex_destroy(&mutex)) == 0)
-#define LOCKMUTEX(mutex, retcode) ((retcode = pthread_mutex_lock((pthread_mutex_t *)&mutex)) == 0)
-#define UNLOCKMUTEX(mutex, retcode) ((retcode = pthread_mutex_unlock((pthread_mutex_t *)&mutex)) == 0)
-#define TRYLOCK(mutex, retcode) doTryLock((pthread_mutex_t *)&mutex, retcode)
+#define GETMUTEXPTR(mutex) ((pthread_mutex_t *)&(mutex))
+#define CREATEMUTEX(mutex, retcode) (((retcode) = pthread_mutex_init(&(mutex), 0)) == 0)
+#define DELETEMUTEX(mutex, retcode) (((retcode) = pthread_mutex_destroy(&(mutex))) == 0)
+#define LOCKMUTEX(mutex, retcode) (((retcode) = pthread_mutex_lock((pthread_mutex_t *)&(mutex))) == 0)
+#define UNLOCKMUTEX(mutex, retcode) (((retcode) = pthread_mutex_unlock((pthread_mutex_t *)&(mutex))) == 0)
+#define TRYLOCK(mutex, retcode) doTryLock((pthread_mutex_t *)&(mutex), retcode)
 
 //--- sema macros
 #if !defined(__APPLE__)
 #define SEMA sem_t
 #define SEMAPTR sem_t *
-#define GETSEMAPTR(sema) (sem_t *)&sema
-#define CREATESEMA(sema, count) (sem_init(&sema, 0, count) == 0)
-#define DELETESEMA(sema) (sem_destroy(&sema) == 0)
-#define LOCKSEMA(sema) (sem_wait((sem_t *)&sema) == 0)
-#define UNLOCKSEMA(sema) (sem_post((sem_t *)&sema) == 0)
-#define TRYSEMALOCK(sema) (sem_trywait((sem_t *)&sema) == 0)
-#define GETSEMACOUNT(sema, count) (sem_getvalue((sem_t *)&sema, &count))
+#define GETSEMAPTR(sema) ((sem_t *)&(sema))
+#define CREATESEMA(sema, count) (sem_init(&(sema), 0, count) == 0)
+#define DELETESEMA(sema) (sem_destroy(&(sema)) == 0)
+#define LOCKSEMA(sema) (sem_wait((sem_t *)&(sema)) == 0)
+#define UNLOCKSEMA(sema) (sem_post((sem_t *)&(sema)) == 0)
+#define TRYSEMALOCK(sema) (sem_trywait((sem_t *)&(sema)) == 0)
+#define GETSEMACOUNT(sema, count) (sem_getvalue((sem_t *)&(sema), &(count)))
 #else
 #define SEMA sem_t *
 #define SEMAPTR sem_t **
@@ -308,29 +310,30 @@ bool sem_initialize(sem_t **sema, unsigned int count);
 //--- read write locks
 #define RWLOCK rwlock_t
 #define RWLOCKPTR rwlock_t *
-#define GETRWLOCKPTR(rwlock) (rwlock_t *)&rwlock
-#define CREATERWLOCK(rwlock) rwl_init((rwlock_t *)&rwlock)
-#define DELETERWLOCK(rwlock) rwl_destroy((rwlock_t *)&rwlock)
-#define LOCKRWLOCK(rwlock, reading) doRWLock((rwlock_t *)&rwlock, reading)
-#define UNLOCKRWLOCK(rwlock, read) doRWUnlock((rwlock_t *)&rwlock, read)
-#define TRYRWLOCK(rwlock, reading) doRWTrylock((rwlock_t *)&rwlock, reading)
+#define GETRWLOCKPTR(rwlock) ((rwlock_t *)&(rwlock))
+#define CREATERWLOCK(rwlock) rwl_init((rwlock_t *)&(rwlock))
+#define DELETERWLOCK(rwlock) rwl_destroy((rwlock_t *)&(rwlock))
+#define LOCKRWLOCK(rwlock, reading) doRWLock((rwlock_t *)&(rwlock), reading)
+#define UNLOCKRWLOCK(rwlock, read) doRWUnlock((rwlock_t *)&(rwlock), read)
+#define TRYRWLOCK(rwlock, reading) doRWTrylock((rwlock_t *)&(rwlock), reading)
 
 //--- condition macros
 #define COND pthread_cond_t
 #define CONDPTR pthread_cond_t *
-#define GETCONDPTR(cond) (pthread_cond_t *)&cond
-#define CREATECOND(cond) (pthread_cond_init(&cond, 0) == 0)
-#define DELETECOND(cond) (pthread_cond_destroy(&cond) == 0)
-#define SIGNALCOND(cond) (pthread_cond_signal(&cond) == 0)
-#define BROADCASTCOND(cond) (pthread_cond_broadcast(&cond) == 0)
-#define CONDWAIT(cond, m) (pthread_cond_wait(&cond, m) == 0)
-#define CONDTIMEDWAIT(c, m, s, n) doTimedWait(&c, m, s, n)
+#define GETCONDPTR(cond) ((pthread_cond_t *)&(cond))
+#define CREATECOND(cond) (pthread_cond_init(&(cond), 0) == 0)
+#define DELETECOND(cond) (pthread_cond_destroy(&(cond)) == 0)
+#define SIGNALCOND(cond) (pthread_cond_signal(&(cond)) == 0)
+#define BROADCASTCOND(cond) (pthread_cond_broadcast(&(cond)) == 0)
+#define CONDWAIT(cond, m) (pthread_cond_wait(&(cond), m) == 0)
+#define CONDTIMEDWAIT(c, m, s, n) doTimedWait(&(c), m, s, n)
 
 #define THREADKEY pthread_key_t
-#define THRKEYCREATE(key, destFct) pthread_key_create(&key, destFct)
+#define THRKEYCREATE(key, destFct) pthread_key_create(&key, destFct) /* NOLINT(bugprone-macro-parentheses) */
 #define THRKEYDELETE(key) pthread_key_delete(key)
-#define SETTLSDATA(key, data) (pthread_setspecific(key, (const void *)data) == 0)
-#define GETTLSDATA(key, data, dataType) (data = reinterpret_cast<dataType *>(pthread_getspecific(key)))
+#define SETTLSDATA(key, data) (pthread_setspecific(key, (const void *)data) == 0) /* NOLINT(bugprone-macro-parentheses) */
+#define GETTLSDATA(key, data, dataType) \
+	(data = reinterpret_cast<dataType *>(pthread_getspecific(key))) /* NOLINT(bugprone-macro-parentheses) */
 
 #endif
 

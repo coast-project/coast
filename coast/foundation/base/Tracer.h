@@ -187,45 +187,50 @@ Will print out following messages
 	<more trace output of this method or enabled submethods>
   Server.Load: server in command [SomeServer] --- leaving ---
 \endcode */
-#define StartTrace1(trigger, msg)                                                                          \
-	String gsMrotcurtsnoCrecart(coast::storage::Current());                                                \
-	Tracer recart(_QUOTE_(trigger), gsMrotcurtsnoCrecart << msg); /* NOLINT(bugprone-macro-parentheses) */ \
+#define StartTrace1(trigger, msg)                                 \
+	String gsMrotcurtsnoCrecart(coast::storage::Current());       \
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */              \
+	Tracer recart(_QUOTE_(trigger), gsMrotcurtsnoCrecart << msg); \
 	recart.Use()
 
 /*! Macro to print out a \em msg when surrounding StartTrace() trigger is enabled
   \param msg message to print out  */
-#define Trace(msg)                                                                \
-	{                                                                             \
-		String gsMecart(coast::storage::Current());                               \
-		recart.WDDebug(gsMecart << msg); /* NOLINT(bugprone-macro-parentheses) */ \
+#define Trace(msg)                                       \
+	{                                                    \
+		String gsMecart(coast::storage::Current());      \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */ \
+		recart.WDDebug(gsMecart << msg);                 \
 	}
 
 /*! Macro to print out a message buffer \em buf with size \em sz when surrounding StartTrace() trigger is enabled
   \param buf pointer to buffer to print out
   \param sz size of buffer */
-#define TraceBuf(buf, sz)                                                                                \
-	{                                                                                                    \
-		String gsMecart("\n\n<", -1, coast::storage::Current());                                         \
-		gsMecart.Append((const void *)buf, sz).Append(">\n\n"); /* NOLINT(bugprone-macro-parentheses) */ \
-		recart.WDDebug(gsMecart);                                                                        \
+#define TraceBuf(buf, sz)                                        \
+	{                                                            \
+		String gsMecart("\n\n<", -1, coast::storage::Current()); \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */         \
+		gsMecart.Append((const void *)buf, sz).Append(">\n\n");  \
+		recart.WDDebug(gsMecart);                                \
 	}
 
 /*! Macro to print out a \em any when surrounding StartTrace() trigger is enabled
   \param any Anything to print out
   \param msg message to additionally print out */
-#define TraceAny(any, msg)                                                                \
-	{                                                                                     \
-		String gsMecart(coast::storage::Current());                                       \
-		recart.AnyWDDebug(any, gsMecart << msg); /* NOLINT(bugprone-macro-parentheses) */ \
+#define TraceAny(any, msg)                               \
+	{                                                    \
+		String gsMecart(coast::storage::Current());      \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */ \
+		recart.AnyWDDebug(any, gsMecart << msg);         \
 	}
 
 /*! Macro to print out a \em msg when surrounding StartTrace() trigger and the \em subtrigger is enabled
   \param subtrigger additional sublevel within current trigger scope
   \param msg message to print out */
-#define SubTrace(subtrigger, msg)                                                                         \
-	{                                                                                                     \
-		String gsMecart(coast::storage::Current());                                                       \
-		recart.SubWDDebug(_QUOTE_(subtrigger), gsMecart << msg); /* NOLINT(bugprone-macro-parentheses) */ \
+#define SubTrace(subtrigger, msg)                                \
+	{                                                            \
+		String gsMecart(coast::storage::Current());              \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */         \
+		recart.SubWDDebug(_QUOTE_(subtrigger), gsMecart << msg); \
 	}
 
 /*! Macro to print out a message buffer \em buf with size \em sz when surrounding StartTrace() trigger and the \em subtrigger is
@@ -233,31 +238,34 @@ Will print out following messages
   \param subtrigger additional sublevel within current trigger scope
   \param buf pointer to buffer to print out
   \param sz size of buffer */
-#define SubTraceBuf(subtrigger, buf, sz)                                                                 \
-	{                                                                                                    \
-		String gsMecart("\n\n<", -1, coast::storage::Current());                                         \
-		gsMecart.Append((const void *)buf, sz).Append(">\n\n"); /* NOLINT(bugprone-macro-parentheses) */ \
-		recart.SubWDDebug(_QUOTE_(subtrigger), gsMecart);                                                \
+#define SubTraceBuf(subtrigger, buf, sz)                         \
+	{                                                            \
+		String gsMecart("\n\n<", -1, coast::storage::Current()); \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */         \
+		gsMecart.Append((const void *)buf, sz).Append(">\n\n");  \
+		recart.SubWDDebug(_QUOTE_(subtrigger), gsMecart);        \
 	}
 
 /*! Macro to print out a \em any when surrounding StartTrace() trigger and the \em subtrigger is enabled
   \param subtrigger additional sublevel within current trigger scope
   \param any Anything to print out
   \param msg message to additionally print out */
-#define SubTraceAny(subtrigger, any, msg)                                                                         \
-	{                                                                                                             \
-		String gsMecart(coast::storage::Current());                                                               \
-		recart.SubAnyWDDebug(_QUOTE_(subtrigger), any, gsMecart << msg); /* NOLINT(bugprone-macro-parentheses) */ \
+#define SubTraceAny(subtrigger, any, msg)                                \
+	{                                                                    \
+		String gsMecart(coast::storage::Current());                      \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                 \
+		recart.SubAnyWDDebug(_QUOTE_(subtrigger), any, gsMecart << msg); \
 	}
 
 /*! Macro to print out a \em msg when \em trigger is enabled, this method is independent from StartTrace()
   \param trigger scope of trigger to check for
   \param msg message to print out
   \param allocator Allocator to use for allocating memory */
-#define StatTrace(trigger, msg, allocator)                                                                          \
-	{                                                                                                               \
-		String gsMecart(allocator);                                                                                 \
-		Tracer::StatWDDebug(_QUOTE_(trigger), gsMecart << msg, allocator); /* NOLINT(bugprone-macro-parentheses) */ \
+#define StatTrace(trigger, msg, allocator)                                 \
+	{                                                                      \
+		String gsMecart(allocator);                                        \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                   \
+		Tracer::StatWDDebug(_QUOTE_(trigger), gsMecart << msg, allocator); \
 	}
 
 /*! Macro to print out a message buffer \em buf with size \em sz when \em trigger is enabled, this method is independent from
@@ -266,11 +274,12 @@ Will print out following messages
   \param buf pointer to buffer to print out
   \param sz size of buffer
   \param allocator Allocator to use for allocating memory */
-#define StatTraceBuf(trigger, buf, sz, allocator)                                                        \
-	{                                                                                                    \
-		String gsMecart("\n\n<", -1, allocator);                                                         \
-		gsMecart.Append((const void *)buf, sz).Append(">\n\n"); /* NOLINT(bugprone-macro-parentheses) */ \
-		Tracer::StatWDDebug(_QUOTE_(trigger), gsMecart, allocator);                                      \
+#define StatTraceBuf(trigger, buf, sz, allocator)                   \
+	{                                                               \
+		String gsMecart("\n\n<", -1, allocator);                    \
+		/* NOLINTNEXTLINE(bugprone-macro-parentheses) */            \
+		gsMecart.Append((const void *)buf, sz).Append(">\n\n");     \
+		Tracer::StatWDDebug(_QUOTE_(trigger), gsMecart, allocator); \
 	}
 
 /*! Macro to print out a \em any when \em trigger is enabled, this method is independent from StartTrace()

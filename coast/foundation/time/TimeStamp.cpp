@@ -202,9 +202,10 @@ TimeStamp &TimeStamp::operator=(TSIntNumberType lTimeUtc) {
 	return *this;
 }
 
-TimeStamp &TimeStamp::operator=(String strStamp) {
+TimeStamp &TimeStamp::operator=(String const &strStamp) {
 	StartTrace1(TimeStamp.operator=, "String");
-	return Set(strStamp);
+	IntDoInit(strStamp);
+	return *this;
 }
 
 TimeStamp &TimeStamp::operator+=(long deltasecs) {

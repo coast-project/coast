@@ -43,6 +43,7 @@ struct oci_auto_handle {
 	 * @param rhs non const reference to right hand side object
 	 * @note rhs will not contain the internal handle anymore after the call
 	 */
+	// NOLINTNEXTLINE(misc-unconventional-assign-operator)
 	oci_auto_handle &operator=(oci_auto_handle &rhs) COAST_NOEXCEPT_OR_NOTHROW {
 		reset(rhs.release());
 		return *this;

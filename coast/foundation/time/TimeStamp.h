@@ -91,7 +91,7 @@ public:
 
 	TimeStamp &operator=(const TimeStamp &aStamp);
 	TimeStamp &operator=(TSIntNumberType lTimeUtc);
-	TimeStamp &operator=(String strStamp);
+	TimeStamp &operator=(String const &strStamp);
 	TimeStamp &Set(const String &externalTimeRep);
 	bool SetTime(unsigned char iHour, unsigned char iMin, unsigned char iSec);
 

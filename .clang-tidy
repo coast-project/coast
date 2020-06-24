@@ -1,9 +1,8 @@
 ---
-Checks:          '-*,bugprone-macro-parentheses,cppcoreguidelines-init-variables,readability-else-after-return,readability-implicit-bool-conversion,readability-delete-null-pointer,readability-container-size-empty'
-#Checks:          '-*,portability-*,bugprone-*'
-#Checks:          '-*,clang-analyzer-*,modernize-*,portability-*,bugprone-*'
-#Checks:          '-*,cppcoreguidelines-init-variables,readability-named-parameter,modernize-replace-auto-ptr,modernize-loop-convert,google-default-arguments,cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-type-const-cast'
-# modernize-use-nullptr,google-runtime-int,google-default-arguments,cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-type-const-cast
+Checks:          '-*,bugprone-macro-parentheses,cppcoreguidelines-init-variables,readability-else-after-return,readability-implicit-bool-conversion,readability-delete-null-pointer,readability-container-size-empty,readability-redundant-function-ptr-dereference,readability-redundant-member-init,readability-redundant-smartptr-get,readability-string-compare,readability-uppercase-literal-suffix,readability-misplaced-array-index,misc-unconventional-assign-operator'
+#Checks:          '-*,portability-*,bugprone-*,clang-analyzer-*,modernize-*'
+#Checks:          '-*,readability-named-parameter,modernize-replace-auto-ptr,modernize-loop-convert,google-default-arguments,cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-type-const-cast'
+# modernize-use-nullptr,google-runtime-int,
 # List of functions and docs: https://clang.llvm.org/extra/clang-tidy/checks/list.html
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
@@ -43,5 +42,51 @@ CheckOptions:
     value:           CamelCase
   - key:             readability-identifier-naming.ClassMethodCase
     value:           CamelCase
+  - key:             readability-redundant-smartptr-get.IgnoreMacros
+    value:           1
 ...
 
+# Proposed not yet enabled checks
+#
+# Must:
+#    clang-analyzer-cplusplus*
+#    clang-analyzer-deadcode*
+#    clang-analyzer-nullability*
+#    clang-analyzer-security*
+#    misc-misplaced-const
+#    misc-redundant-expression
+#    misc-static-assert
+#    misc-uniqueptr-reset-release
+#    misc-unused-alias-decls
+#    misc-unused-using-decls
+#    modernize-deprecated-headers
+#    modernize-make-shared
+#    modernize-make-unique
+#    modernize-raw-string-literal
+#    modernize-redundant-void-arg
+#    modernize-return-braced-init-list
+#    modernize-use-bool-literals
+#    modernize-use-default-member-init
+#    modernize-use-emplace
+#    modernize-use-equals-*
+#    modernize-use-noexcept
+#    modernize-use-nullptr
+#    modernize-use-override
+#    modernize-use-using
+#    performance-*
+#    bugprone-*
+#    readability-function-size
+#
+# Should:
+#    misc-unconventional-assign-operator
+#    modernize-use-auto
+#    cppcoreguidelines-*
+#
+# Should with C++17:
+#    modernize-concat-nested-namespaces
+#    modernize-unary-static-assert
+#    modernize-use-nodiscard
+#    modernize-use-uncaught-exceptions
+#
+# Could:
+#    modernize-loop-convert

@@ -45,7 +45,7 @@ protected:
 //! Thread pool that plays around with TerminateMeTestThread
 class TerminateTestThreadPool : public TestThreadPool {
 public:
-	TerminateTestThreadPool() : TestThreadPool() {}
+	TerminateTestThreadPool() {}
 
 protected:
 	virtual Thread *DoAllocThread(long i, ROAnything args);

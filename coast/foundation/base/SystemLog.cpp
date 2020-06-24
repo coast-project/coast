@@ -76,8 +76,7 @@ namespace {
 
 	public:
 		SystemLogInitializer()
-			: fSysLog(),
-			  fDoSystemLevelLog(SystemLog::eALERT),
+			: fDoSystemLevelLog(SystemLog::eALERT),
 			  fDoLogOnCerr(SystemLog::eERR),
 			  currentMessageFormatter(&coast::system::log::formatMessage) {
 			Init(0);

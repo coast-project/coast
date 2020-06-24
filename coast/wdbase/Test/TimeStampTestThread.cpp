@@ -11,7 +11,7 @@
 #include "ThreadedTimeStampTest.h"
 #include "TimeStamp.h"
 
-TestWorker::TestWorker() : WorkerThread(), fWaitTimeInProcess(0), fWasPrepared(false), fCompare(false), fUtcCtor(false) {}
+TestWorker::TestWorker() : fWaitTimeInProcess(0), fWasPrepared(false), fCompare(false), fUtcCtor(false) {}
 
 TestWorker::~TestWorker() {}
 

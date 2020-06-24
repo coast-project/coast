@@ -292,7 +292,7 @@ private:
 //:utility class - simple Thread to play around - Runs until Terminate is called
 class RecursiveSynchTestThread : public TestThread {
 public:
-	RecursiveSynchTestThread(Mutex &m, Condition &c) : TestThread(), fMutex(m), fCond(c) {}
+	RecursiveSynchTestThread(Mutex &m, Condition &c) : fMutex(m), fCond(c) {}
 	virtual void Run();
 
 protected:

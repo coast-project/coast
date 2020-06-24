@@ -58,7 +58,7 @@ void free_func(void *ctxp, dvoid *ptr) {
 #endif
 
 OracleEnvironment::OracleEnvironment(Mode eMode, u_long ulPoolId, u_long ulPoolSize, unsigned long ulBuckets)
-	: fEnvhp(), fMemPool(new PoolAllocator((0xac1e << 16) | ulPoolId, ulPoolSize, ulBuckets)) {
+	: fMemPool(new PoolAllocator((0xac1e << 16) | ulPoolId, ulPoolSize, ulBuckets)) {
 	StartTrace(OracleEnvironment.OracleEnvironment);
 	// caution: the following memory handles supplied must allocate on coast::storage::Global()
 	// because memory gets allocated through them in Open and freed in Close. Throughout the

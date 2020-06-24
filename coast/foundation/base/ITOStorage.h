@@ -365,7 +365,7 @@ class StorageHooks {
 	coast::storage::StorageHooksPtr fParentHook;
 
 public:
-	StorageHooks() : fParentHook() {}
+	StorageHooks() {}
 
 	virtual ~StorageHooks() {}
 

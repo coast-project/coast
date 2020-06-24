@@ -12,8 +12,7 @@
 
 #include <iostream>
 
-RendererTest::RendererTest(TString tname)
-	: TestCaseType(tname), fContext(Anything(), Anything(), 0, 0, 0, 0), fReply(), fConfig() {}
+RendererTest::RendererTest(TString tname) : TestCaseType(tname), fContext(Anything(), Anything(), 0, 0, 0, 0) {}
 
 void RendererTest::setUp() {
 	fContext.SetLanguage("D");	// set a default language explicitely

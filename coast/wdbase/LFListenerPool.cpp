@@ -86,7 +86,7 @@ bool LFListenerPool::AwaitEmpty(long sec) {
 	return ((RequestReactor *)fReactor)->AwaitEmpty(sec);
 }
 
-RequestReactor::RequestReactor(RequestProcessor *rp, WPMStatHandler *stat) : Reactor(), fProcessor(rp), fStatHandler(stat) {
+RequestReactor::RequestReactor(RequestProcessor *rp, WPMStatHandler *stat) : fProcessor(rp), fStatHandler(stat) {
 	StartTrace(RequestReactor.Ctor);
 	Assert(ValidInit());
 }

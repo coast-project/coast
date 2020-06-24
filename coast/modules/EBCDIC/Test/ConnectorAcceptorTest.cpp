@@ -24,7 +24,7 @@
 class EBCDICEchoMsgCallBack : public AcceptorCallBack {
 public:
 	//! default constructor is empty since class provides only protocol no implementation
-	EBCDICEchoMsgCallBack() : fLastRequest(), fReplyMessage() {}
+	EBCDICEchoMsgCallBack() {}
 
 	//! default destructor is empty since class provides only protocol no implementation
 	virtual ~EBCDICEchoMsgCallBack() {}

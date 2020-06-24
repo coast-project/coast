@@ -18,7 +18,7 @@ void RegisterableObject::ResetCache(bool resetCache) {
 }
 
 RegisterableObject::RegisterableObject(const char *name)
-	: NamedObject(), fName(name, -1, coast::storage::Global()), fStaticallyInitialized(false), fbInitialized(false) {}
+	: fName(name, -1, coast::storage::Global()), fStaticallyInitialized(false), fbInitialized(false) {}
 
 bool RegisterableObject::Install(const ROAnything installerSpec, const char *category, InstallerPolicy *installer) {
 	// this method installs a list of clones or aliases into the registry

@@ -21,8 +21,7 @@ namespace {
 	RWLock fDescriptionLock("OracleDescriptorLock", coast::storage::Global());
 }  // namespace
 
-OracleConnection::OracleConnection(OracleEnvironment &rEnv)
-	: fStatus(eUnitialized), fOracleEnv(rEnv), fErrhp(), fSrvhp(), fSvchp(), fUsrhp() {
+OracleConnection::OracleConnection(OracleEnvironment &rEnv) : fStatus(eUnitialized), fOracleEnv(rEnv) {
 	StartTrace(OracleConnection.OracleConnection);
 
 	// ---

@@ -27,7 +27,7 @@ struct PoolBucket {
 	Allocator::MemTrackerPtr fBucketTracker;
 };
 
-ExcessTrackerElt::ExcessTrackerElt() : fTracker(), fpNext(NULL), fulPayloadSize(0) {}
+ExcessTrackerElt::ExcessTrackerElt() : fpNext(NULL), fulPayloadSize(0) {}
 
 ExcessTrackerElt::ExcessTrackerElt(Allocator::MemTrackerPtr pTracker, ExcessTrackerElt *pNext, size_t ulPayloadSize)
 	: fTracker(pTracker), fpNext(pNext), fulPayloadSize(ulPayloadSize) {}
@@ -209,7 +209,7 @@ void ExcessTrackerElt::Refresh() {
 }
 
 PoolAllocator::PoolAllocator(long poolid, size_t poolSize, size_t maxPoolBuckets)
-	: Allocator(poolid), fNumOfPoolBucketSizes(maxPoolBuckets), fPoolTotalExcessTracker(), fpExcessTrackerList(NULL) {
+	: Allocator(poolid), fNumOfPoolBucketSizes(maxPoolBuckets), fpExcessTrackerList(NULL) {
 	StatTrace(PoolAllocator.PoolAllocator, "initializing PoolAllocator with id:" << poolid, coast::storage::Current());
 	switch (coast::storage::GetStatisticLevel()) {
 			// dummy entry, just in case the level gets extended

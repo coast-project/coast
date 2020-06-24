@@ -21,8 +21,7 @@ ThreadPoolManager::ThreadPoolManager(const char *name)
 	  fName(name, coast::storage::Global()),
 	  fRunningThreads(0L),
 	  fStartedThreads(0L),
-	  fTerminatedThreads(0L),
-	  fpStatEvtHandler() {}
+	  fTerminatedThreads(0L) {}
 
 ThreadPoolManager::~ThreadPoolManager() {
 	StartTrace(ThreadPoolManager.~ThreadPoolManager);
@@ -387,8 +386,7 @@ WorkerPoolManager::WorkerPoolManager(const char *name)
 	  fName(name, coast::storage::Global()),
 	  fPoolSize(0),
 	  fBlockRequestHandling(false),
-	  fTerminated(true),
-	  fpStatEvtHandler() {
+	  fTerminated(true) {
 	StartTrace(WorkerPoolManager.Ctor);
 }
 

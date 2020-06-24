@@ -15,8 +15,7 @@ namespace {
 };
 
 WPMStatHandler::WPMStatHandler(long poolSize)
-	: StatEvtHandler(),
-	  fPoolSize(poolSize),
+	: fPoolSize(poolSize),
 	  fMaxParallelRequests(0),
 	  fCurrentParallelRequests(0),
 	  fTotalRequests(0),

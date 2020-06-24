@@ -19,7 +19,7 @@
 
 //--- SSLSocket ----------------------
 SSLSocket::SSLSocket(SSL_CTX *ctx, int socket, const Anything &clientInfo, bool doClose, long timeout, Allocator *a)
-	: Socket(socket, clientInfo, doClose, timeout, a), fContext(ctx), fPeerCert(0), fSSLSocketArgs() {
+	: Socket(socket, clientInfo, doClose, timeout, a), fContext(ctx), fPeerCert(0) {
 	StartTrace1(SSLSocket.Ctor, "using allocator: [" << (long)a << "]");
 }
 
@@ -435,8 +435,7 @@ SSLSocketArgs::SSLSocketArgs(bool verifyCertifiedEntity, const String &certVerif
 	StartTrace(SSLSocketArgs.SSLSocketArgs);
 }
 
-SSLSocketArgs::SSLSocketArgs()
-	: fVerifyCertifiedEntity(false), fCertVerifyString(), fCertVerifyStringIsFilter(false), fSessionResumption(false) {}
+SSLSocketArgs::SSLSocketArgs() : fVerifyCertifiedEntity(false), fCertVerifyStringIsFilter(false), fSessionResumption(false) {}
 
 SSLSocketArgs::~SSLSocketArgs() {
 	StartTrace(SSLSocketArgs.~SSLSocketArgs);

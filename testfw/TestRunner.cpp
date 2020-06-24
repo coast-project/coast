@@ -66,7 +66,7 @@ void TestRunner::setLogToFileNamed(const char *name)
 	fLogStream = new std::fstream(name, std::ios::out);
 }  // setLogToFileNamed
 
-TestRunner::TestRunner() : fWait(false), fLogStream(0), fNumberOfSuccesses(0), fNumberOfFailures(0), fElapsedTime() {
+TestRunner::TestRunner() : fWait(false), fLogStream(0), fNumberOfSuccesses(0), fNumberOfFailures(0) {
 	fMappings = new TestList;
 }
 

@@ -87,8 +87,7 @@ static CleanupAllocator fgInitKey;
 #endif
 
 Thread::Thread(const char *name, bool daemon, bool detached, bool suspended, bool bound, Allocator *a)
-	: NamedObject(),
-	  tObservableBase(name),
+	: tObservableBase(name),
 	  fAllocator(a),
 	  fAllocCleaner(this),
 	  fThreadId(0),
@@ -98,7 +97,7 @@ Thread::Thread(const char *name, bool daemon, bool detached, bool suspended, boo
 	  fSuspended(suspended),
 	  fBound(bound),
 	  fStateMutex("ThreadStateMutex", coast::storage::Global()),
-	  fStateCond(),
+
 	  fRunningState(eReady),
 	  fState(eCreated),
 	  fSignature(deadSignature),

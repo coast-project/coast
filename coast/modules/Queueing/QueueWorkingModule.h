@@ -59,7 +59,7 @@ public:
 		  fQueue(),
 		  fFailedPutbackMessages(),
 		  fpQAllocator(0),
-		  fContext(),
+
 		  fContextLock("QueueWorkingModuleContextLock", coast::storage::Global()),
 		  fAlive(0UL) {
 		StartTrace(QueueWorkingModule.QueueWorkingModule);

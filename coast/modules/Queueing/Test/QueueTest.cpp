@@ -122,7 +122,7 @@ public:
 		  fWaitTimeMicroSec(lWaitTimeMicroSec),
 		  fToConsume(lHowManyConsumes),
 		  fConsumed(0L),
-		  fWork(),
+
 		  fProducts(Anything::ArrayMarker(), coast::storage::Global()) {}
 	bool DoStartRequestedHook(ROAnything roaWork) {
 		fWork = roaWork.DeepClone();
@@ -162,8 +162,7 @@ public:
 		  fQueue(aQueue),
 		  fWaitTimeMicroSec(lWaitTimeMicroSec),
 		  fToProduce(lHowManyProduces),
-		  fProduced(0L),
-		  fWork() {}
+		  fProduced(0L) {}
 	bool DoStartRequestedHook(ROAnything roaWork) {
 		fWork = roaWork.DeepClone();
 		return true;

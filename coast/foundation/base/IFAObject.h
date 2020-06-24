@@ -41,7 +41,7 @@ private:
 class NamedObject : public IFAObject {
 public:
 	/*! named object default constructor */
-	NamedObject() : IFAObject() {}
+	NamedObject() {}
 
 	/*! Naming support interface to set the objects name
 	 * @param name

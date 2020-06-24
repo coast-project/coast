@@ -241,8 +241,7 @@ namespace {
 		MTStorageInitializer()
 			: fAllocatorInit(new SimpleMutex("AllocatorInit", coast::storage::Global())),
 			  fAllocatorKey(0),
-			  fOldTracker(),
-			  fMTHooks(),
+
 			  fPoolAllocatorList(0) {
 			if (THRKEYCREATE(fAllocatorKey, 0)) {
 				SystemLog::Error("TlsAlloc of fAllocatorKey failed");

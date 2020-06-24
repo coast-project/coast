@@ -21,7 +21,7 @@ OracleStatement::OracleStatement(OracleConnection *pConn, String const &strStmt)
 	: fpConnection(pConn), fStmt(strStmt), fStatus(UNPREPARED), fStmtType(STMT_UNKNOWN) {}
 
 OracleStatement::OracleStatement(OracleConnection *pConn, OCIStmt *phStmt)
-	: fpConnection(pConn), fStmt(), fStmthp(phStmt), fStatus(PREPARED), fStmtType(STMT_SELECT) {}
+	: fpConnection(pConn), fStmthp(phStmt), fStatus(PREPARED), fStmtType(STMT_SELECT) {}
 
 OracleStatement::~OracleStatement() {
 	Cleanup();

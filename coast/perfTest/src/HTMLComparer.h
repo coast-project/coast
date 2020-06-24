@@ -21,7 +21,7 @@ class HTMLComparer {
 	HTMLComparer &operator=(const HTMLComparer &);
 
 public:
-	HTMLComparer(Anything master, Anything slave) : fMaster(master), fSlave(slave), fPathStack() {}
+	HTMLComparer(Anything master, Anything slave) : fMaster(master), fSlave(slave) {}
 	//--- public api
 	//! compares the two HTML trees
 	//! \param the comparison report is written on this string

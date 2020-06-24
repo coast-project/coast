@@ -49,9 +49,9 @@ long IFAHash(const char *key, long &len, char stop1, char stop2)
 	const unsigned char *const keyp = reinterpret_cast<const unsigned char *>(key);
 	const unsigned char *p = keyp;
 	if (key != 0) {
-		while ((*p != 0u) && *p != stop1 && *p != stop2) {
+		while ((*p != 0U) && *p != stop1 && *p != stop2) {
 			h = (h << 4) + *p++;
-			if ((g = (h & 0xf0000000)) != 0u) {
+			if ((g = (h & 0xf0000000)) != 0U) {
 				h = (h ^ (g >> 24)) ^ g;
 			}
 		}

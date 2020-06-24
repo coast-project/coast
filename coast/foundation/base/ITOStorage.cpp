@@ -140,8 +140,8 @@ void MemTracker::PrintStatistic(long lLevel) {
 								"Difference      %20lld bytes\n",
 #endif
 								fId, fpName, fMaxAllocated, fSizeAllocated, fNumAllocs,
-								(fSizeAllocated / ((fNumAllocs) != 0u ? fNumAllocs : 1)), fSizeFreed, fNumFrees,
-								(fSizeFreed / ((fNumFrees) != 0u ? fNumFrees : 1)), fAllocated);
+								(fSizeAllocated / ((fNumAllocs) != 0U ? fNumAllocs : 1)), fSizeFreed, fNumFrees,
+								(fSizeFreed / ((fNumFrees) != 0U ? fNumFrees : 1)), fAllocated);
 		SystemLog::WriteToStderr(buf, -1);
 	}
 }

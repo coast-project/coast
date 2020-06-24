@@ -73,8 +73,8 @@ void StressApp::ShowResult(long lTime) {
 			long itopia_max = result["Max"].AsLong(0);
 			long itopia_min = result["Min"].AsLong(0);
 			long err = result["Error"].AsLong(0);
-			double trxpsec = sum != 0u ? (double(anzTr) / (double(sum) / 1000.0)) : 0;
-			double avgtime = anzTr != 0u ? (double(sum) / double(anzTr)) : 0;
+			double trxpsec = sum != 0U ? (double(anzTr) / (double(sum) / 1000.0)) : 0;
+			double avgtime = anzTr != 0U ? (double(sum) / double(anzTr)) : 0;
 
 			// show summary for this run
 			strCout << "ID: " << setw(3) << setiosflags(ios::right) << i << " Time: " << setw(4)
@@ -137,8 +137,8 @@ void StressApp::ShowResult(long lTime) {
 			totErr += err;
 		}
 
-		double totTrxpsec = totSum != 0u ? (double(totTr) / (double(totSum) / 1000.0)) : 0;
-		double totAvgtime = totTr != 0u ? (double(totSum) / double(totTr)) : 0;
+		double totTrxpsec = totSum != 0U ? (double(totTr) / (double(totSum) / 1000.0)) : 0;
+		double totAvgtime = totTr != 0U ? (double(totSum) / double(totTr)) : 0;
 		strCout << "\nTotal:" << std::endl;
 		strCout << " Time: " << setw(5) << setiosflags(ios::right | ios::fixed) << setprecision(1) << (double(totSum) / 1000.0)
 				<< "s"

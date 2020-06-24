@@ -390,7 +390,7 @@ void BlowfishScrambler::InitKey(const String &keyin) {
 
 void BlowfishScrambler::DoECB_multipleBlockEncrypt(unsigned char *blockPtr, unsigned int length) const {
 	unsigned int i = 0;
-	if ((length % BF_BLOCK) != 0u) {
+	if ((length % BF_BLOCK) != 0U) {
 		SystemLog::WriteToStderr("Blowfish requires the input to be a multiple of 8 bytes (64 bits) to work.\n");
 		return;
 	}
@@ -406,7 +406,7 @@ void BlowfishScrambler::DoECB_multipleBlockEncrypt(unsigned char *blockPtr, unsi
 
 bool BlowfishScrambler::DoECB_multipleBlockDecrypt(unsigned char *blockPtr, unsigned int length) const {
 	unsigned int i = 0;
-	if ((length % BF_BLOCK) != 0u) {
+	if ((length % BF_BLOCK) != 0U) {
 		SystemLog::WriteToStderr("Blowfish requires the input to be a multiple of 8 bytes (64bits) to work.\n");
 		return false;
 	}

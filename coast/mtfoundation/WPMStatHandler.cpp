@@ -87,8 +87,8 @@ void WPMStatHandler::DoStatistic(Anything &statElements) {
 	statElements["TotalTime [ms]"] = ((dTotalTime * dScaleResolutionToMillisecondsFactor) > 0.0
 										  ? (totFmt % (dTotalTime * dScaleResolutionToMillisecondsFactor)).str().c_str()
 										  : "0");
-	statElements["AverageTime [ms]"] = (ullTotalRequests != 0u ? (avgFmt % dAvgTimemsec).str().c_str() : "0");
-	statElements["TRX/sec"] = (ullTotalRequests != 0u ? (trxFmt % dTrxPSec).str().c_str() : "0");
+	statElements["AverageTime [ms]"] = (ullTotalRequests != 0U ? (avgFmt % dAvgTimemsec).str().c_str() : "0");
+	statElements["TRX/sec"] = (ullTotalRequests != 0U ? (trxFmt % dTrxPSec).str().c_str() : "0");
 	TraceAny(statElements, "statElements");
 }
 

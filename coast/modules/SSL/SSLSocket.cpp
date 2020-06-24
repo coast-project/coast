@@ -39,7 +39,7 @@ unsigned long SSLSocket::GetSSLError(SSL *ssl, int res) {
 
 void SSLSocket::ReportSSLError(unsigned long err) {
 	StartTrace(SSLSocket.ReportSSLError);
-	while (err != 0u) {
+	while (err != 0U) {
 		// need to empty per thread error queue of SSL
 		const int buflen = 256;
 		char buf[buflen];
@@ -54,7 +54,7 @@ void SSLSocket::ReportSSLError(unsigned long err) {
 
 Anything SSLSocket::ReportSSLError(Anything &errAny, unsigned long err) {
 	StartTrace(SSLSocket.ReportSSLError);
-	while (err != 0u) {
+	while (err != 0U) {
 		// need to empty per thread error queue of SSL
 		const int buflen = 256;
 		char buf[buflen];

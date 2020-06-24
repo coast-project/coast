@@ -1425,7 +1425,7 @@ void SystemFileTest::MakeDirectoryExtendTest() {
 			Trace("deleting created directories");
 			strFillerDir.Trim(lTrimLen);
 			strFillerDir.Append(lIdx);
-			while (system::IsDirectory(strFillerDir) && (system::RemoveDirectory(strFillerDir) != 0u)) {
+			while (system::IsDirectory(strFillerDir) && (system::RemoveDirectory(strFillerDir) != 0U)) {
 				strFillerDir.Trim(lTrimLen);
 				strFillerDir.Append(--lIdx);
 				if ((lIdx % 1000) == 0) {

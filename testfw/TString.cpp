@@ -343,7 +343,7 @@ std::ostream &operator<<(std::ostream &os, const TString &s) {
 		os.write((const char *)s, len);	 // AB: use cast to apply operator const char *
 	}
 
-	if ((width != 0u) && width > len) {
+	if ((width != 0U) && width > len) {
 		size_t padlen = width - len;
 		char c = os.fill();
 

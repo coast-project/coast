@@ -103,7 +103,7 @@ bool MySQLDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out)
 	}
 
 	mysql_close(sock);
-	if (mysql_errno(sock) != 0u) {
+	if (mysql_errno(sock) != 0U) {
 		SetErrorMsg("close failed !", sock, context, out);
 		result = false;
 	}

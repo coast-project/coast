@@ -77,13 +77,13 @@ bool NTLMAuthClientMsgType3::IsValid() {
 	return NTLMAuthMessage::IsValid();
 }
 String NTLMAuthClientMsgType3::GetDomain() {
-	return DecodeString(28L, (GetFlags() & 0x01) != 0u);
+	return DecodeString(28L, (GetFlags() & 0x01) != 0U);
 }
 String NTLMAuthClientMsgType3::GetHost() {
-	return DecodeString(44L, (GetFlags() & 0x01) != 0u);
+	return DecodeString(44L, (GetFlags() & 0x01) != 0U);
 }
 String NTLMAuthClientMsgType3::GetUser() {
-	return DecodeString(36L, (GetFlags() & 0x01) != 0u);
+	return DecodeString(36L, (GetFlags() & 0x01) != 0U);
 }
 String NTLMAuthClientMsgType3::GetNTHash() {
 	return DecodeString(20L);

@@ -217,7 +217,7 @@ public:
 	long FirstCharOf(const String &charSet) const;
 	//! Return position of first char in string beeing > highMark or -1 if no char matching to criterion found.
 	//! Chars contained in the exclusion set are excluded from the check.
-	long ContainsCharAbove(unsigned highMark = 127u, const String excludeSet = "") const;
+	long ContainsCharAbove(unsigned highMark = 127U, const String excludeSet = "") const;
 	//! computes the length of the maximum initial segment of the string that consists entirely
 	//! of characters from the string pointed to by charSet
 	//! -1 indicates the string contains no chars from charSet

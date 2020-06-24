@@ -65,7 +65,7 @@ bool RegExpFilterFieldsParameterMapper::getValueWithSlotnameCommon(const char *k
 			bMappingSuccess = getValueWithSlotname(key, strSlotname, ctx, value, script);
 		}
 	}
-	for (long idx = anyProcessed.GetSize() - 1l; idx >= 0L; --idx) {
+	for (long idx = anyProcessed.GetSize() - 1L; idx >= 0L; --idx) {
 		Trace("removing processed entry at index " << anyProcessed[idx].AsLong(-1L));
 		availableContent.Remove(anyProcessed[idx].AsLong(-1L));
 	}

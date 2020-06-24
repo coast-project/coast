@@ -1302,7 +1302,7 @@ std::ostream &operator<<(std::ostream &os, const String &s) {
 	if (left != 0) {
 		os.write((const char *)s, len);
 	}
-	if ((width != 0u) && width > len) {
+	if ((width != 0U) && width > len) {
 		size_t padlen = width - len;
 		char const c = os.fill();
 		while (padlen-- > 0) {

@@ -278,7 +278,7 @@ void AnyKeyTable::Clear() {
 long AnyKeyTable::DoHash(const char *key, bool append, long sizehint, u_long hashhint) const {
 	// calculate some index into fHashTable
 	long keylen = sizehint;
-	long hashval = (hashhint) != 0u ? hashhint : IFAHash(key, keylen);
+	long hashval = (hashhint) != 0U ? hashhint : IFAHash(key, keylen);
 	long hash = hashval % fCapacity;
 
 	// look for next free slot

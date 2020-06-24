@@ -8,7 +8,7 @@ struct AlignedSize {
 		U b;
 	};
 	static size_t const offset = (sizeof(T) < offsetof(X, b)) ? offsetof(X, b) : sizeof(T);
-	static const size_t value = sizeof(T) + ((sizeof(T) % sizeof(U)) != 0u ? (sizeof(U) - sizeof(T) % sizeof(U)) : 0);
+	static const size_t value = sizeof(T) + ((sizeof(T) % sizeof(U)) != 0U ? (sizeof(U) - sizeof(T) % sizeof(U)) : 0);
 };
 struct AllocLD {
 	char *ptr;

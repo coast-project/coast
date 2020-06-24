@@ -54,7 +54,7 @@ bool RegExpFilterFieldsResultMapper::DoPutAnyWithSlotname(const char *key, Anyth
 			Trace("RetCode of Put:" << (bMappingSuccess ? "true" : "false"));
 		}
 	}
-	for (long idx = anyProcessed.GetSize() - 1l; idx >= 0L; --idx) {
+	for (long idx = anyProcessed.GetSize() - 1L; idx >= 0L; --idx) {
 		Trace("removing processed entry at index " << anyProcessed[idx].AsLong(-1L));
 		value.Remove(anyProcessed[idx].AsLong(-1L));
 	}

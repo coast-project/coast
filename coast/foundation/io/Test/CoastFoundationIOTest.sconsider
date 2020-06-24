@@ -18,7 +18,6 @@ import threading
 from stat import *
 from SocketServer import TCPServer, BaseRequestHandler
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-import Anything
 from SomeUtils import listFiles, getfqdn
 
 Import('*')

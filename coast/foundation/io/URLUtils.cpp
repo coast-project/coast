@@ -364,7 +364,7 @@ namespace coast {
 			eUrlCheckStatus = eOk;
 			while (previous != current) {
 				previous = current;
-				URLCheckStatus eTmpUrlCheckStatus = URLCheckStatus::eOk;
+				URLCheckStatus eTmpUrlCheckStatus = coast::urlutils::eOk;
 				current = urlDecode(previous, eTmpUrlCheckStatus, replacePlusByBlank);
 				if (eTmpUrlCheckStatus == eSuspiciousChar) {
 					eUrlCheckStatus = eSuspiciousChar;
@@ -432,7 +432,7 @@ namespace coast {
 												? String("...").Append(instr.SubString(instr.Length() - traceSuffixLength))
 												: "")
 							 << "]");
-			URLCheckStatus eUrlCheckStatus = URLCheckStatus::eOk;
+			URLCheckStatus eUrlCheckStatus = coast::urlutils::eOk;
 			return urlDecode(instr, eUrlCheckStatus, replacePlusByBlank);
 		}
 

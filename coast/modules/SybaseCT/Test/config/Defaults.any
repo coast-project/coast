@@ -7,12 +7,12 @@
 #-----------------------------------------------------------------------------------------------------
 {
 	/Sybase {
-		/Username	"coast_user"
-		/Password	"coast_pwd"
-		/Server		"SIFSCOAST1"
-		/Hostname	"sifs-coast1.hsr.ch"
-		/Port		5000
-		/Database	"coast_test"
-		/InterfacesFile	"config/interfaces"
+		/Username	"##USERNAME##"
+		/Password	"##PASSWORD##"
+		/Server		"##SERVER##"
+		/Hostname	"##HOSTNAME##"
+		/Port		##PORT##
+		/Database	"##DATABASE##"
+		/InterfacesFile	"##INTERFACESFILE##"
 	}
 }

@@ -3,26 +3,26 @@ go
 set nocount on
 go
 
-sp_dboption ##database##, "trunc log on chkpt", true
+sp_dboption ##DATABASE##, "trunc log on chkpt", true
 go
 
-sp_dboption ##database##, "select into/bulkcopy", true
+sp_dboption ##DATABASE##, "select into/bulkcopy", true
 go
 
-use ##database##
+use ##DATABASE##
 go
 
 checkpoint
 go
 if exists (select * from master.dbo.sysdatabases
-		where name = "##database##")
+		where name = "##DATABASE##")
 begin
 	execute sp_addtype id, "varchar(11)", "not null"
 	execute sp_addtype tid, "varchar(6)", "not null"
 end
 go
 if exists (select * from master.dbo.sysdatabases
-		where name = "##database##")
+		where name = "##DATABASE##")
 begin
 	create table authors
 	(au_id id not null,
@@ -39,7 +39,7 @@ go
 grant select on authors to public
 go
 if exists (select * from master.dbo.sysdatabases
-		where name = "##database##")
+		where name = "##DATABASE##")
 begin
 	create table publishers
 	(pub_id char(4) not null,
@@ -51,7 +51,7 @@ go
 grant select on publishers to public
 go
 if exists (select * from master.dbo.sysdatabases
-		where name = "##database##")
+		where name = "##DATABASE##")
 begin
 	create table roysched
 	(title_id tid not null,
@@ -63,7 +63,7 @@ go
 grant select on roysched to public
 go
 if exists (select * from master.dbo.sysdatabases
-		where name = "##database##")
+		where name = "##DATABASE##")
 begin
 	create table sales
 	(stor_id char(4) not null,
@@ -74,7 +74,7 @@ go
 grant select on sales to public
 go
 if exists (select * from master.dbo.sysdatabases
-		where name = "##database##")
+		where name = "##DATABASE##")
 begin
 	create table salesdetail
 	(stor_id char(4) not null,
@@ -87,7 +87,7 @@ go
 grant select on salesdetail to public
 go
 if exists (select * from master.dbo.sysdatabases
-		where name = "##database##")
+		where name = "##DATABASE##")
 begin
 	create table titleauthor
 	(au_id id not null,
@@ -99,7 +99,7 @@ go
 grant select on titleauthor to public
 go
 if exists (select * from master.dbo.sysdatabases
-		where name = "##database##")
+		where name = "##DATABASE##")
 begin
 	create table titles
 	(title_id tid not null,
@@ -117,7 +117,7 @@ go
 grant select on titles to public
 go
 if exists (select * from master.dbo.sysdatabases
-		where name = "##database##")
+		where name = "##DATABASE##")
 begin
 	create table stores
 	(stor_id char(4) not null,
@@ -133,7 +133,7 @@ go
 grant select on stores to public
 go
 if exists (select * from master.dbo.sysdatabases
-		where name = "##database##")
+		where name = "##DATABASE##")
 begin
 	create table discounts
 	(discounttype   varchar(40) not null,
@@ -146,7 +146,7 @@ go
 grant select on discounts to public
 go
 if exists (select * from master.dbo.sysdatabases
-                where name = "##database##")
+                where name = "##DATABASE##")
 begin
 	create table au_pix
 	(au_id		char(11) not null,
@@ -159,16 +159,16 @@ end
 go
 grant select on au_pix to public
 go
-if exists (select * from master.dbo.sysdatabases 
-                where name = "##database##") 
-begin 
+if exists (select * from master.dbo.sysdatabases
+                where name = "##DATABASE##")
+begin
 	create table blurbs
 	(au_id	id not null,
 	 copy	text null)
 end
-go 
-grant select on blurbs to public 
-go 
+go
+grant select on blurbs to public
+go
 execute sp_primarykey titles, title_id
 execute sp_primarykey titleauthor, au_id, title_id
 execute sp_primarykey authors, au_id
@@ -606,7 +606,7 @@ go
 insert roysched
 values('PS1372', 40001, 50000, 18)
 go
-dump transaction ##database## with truncate_only
+dump transaction ##DATABASE## with truncate_only
 go
 insert sales values ('7066', 'BA27618', '10/12/85')
 go
@@ -1079,7 +1079,7 @@ insert titles (title_id, title, type, pub_id, notes, contract)
 values('PC9999', 'Net Etiquette', 'popular_comp', '1389',
 'A must-read for computer conferencing debutantes!', 0)
 go
-dump transaction ##database## with truncate_only
+dump transaction ##DATABASE## with truncate_only
 go
 insert stores
 values('7066', "Barnum's", '567 Pasadena Ave.', 'Tustin', 'CA',
@@ -1108,18 +1108,18 @@ go
 insert stores
 values('5023', "Thoreau Reading Discount Chain", '20435 Walden Expressway',
 	'Concord', 'MA',
-	'USA', '01776', 'Net 60') 
+	'USA', '01776', 'Net 60')
 go
 insert discounts
 values('Initial Customer', NULL, NULL, NULL, 10.5)
 go
-insert discounts 
+insert discounts
 values('Volume Discount', NULL, 100, 1000, 6.7)
 go
 insert discounts
 values('Huge Volume Discount', NULL, 1001, NULL, 10)
 go
-insert discounts 
+insert discounts
 values('Customer Discount', '8042', NULL, NULL, 5.0)
 go
 insert blurbs values ("486-29-1786", "If Chastity Locksley didn't exist, this troubled world would have created her!  Not only did she master the mystic secrets of inner strength to conquer adversity when she encountered it in life, but, after ""reinventing herself"", as she says, by writing ""Emotional Security: A New Algorithm"" following the devastating loss of her cat Old Algorithm, she also founded Publish or Perish, the page-by-page, day-by-day, write-yourself-to-wellness encounter workshops franchise empire, the better to share her inspiring discoveries with us all.  Her ""Net Etiquette,"" a brilliant social treatise in its own right and a fabulous pun, is the only civilized alternative to the gross etiquette often practiced on the public networks.")
@@ -1174,7 +1174,7 @@ if @@rowcount = 0
 	end
 
 /* add all the new values */
-/* use isnull:  a null value in the titles table means 
+/* use isnull:  a null value in the titles table means
 **              "no sales yet" not "sales unknown"
 */
 update titles
@@ -1310,7 +1310,7 @@ go
 grant create procedure to public
 go
 
-dump transaction ##database## with truncate_only
+dump transaction ##DATABASE## with truncate_only
 go
-use ##database##
+use ##DATABASE##
 go

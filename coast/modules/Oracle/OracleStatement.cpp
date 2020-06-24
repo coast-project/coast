@@ -46,7 +46,7 @@ void OracleStatement::Cleanup() {
 	while (aAnyIter.Next(roaObject)) {
 		OracleStatement *pStmt = SafeCast(roaObject.AsIFAObject(0), OracleStatement);
 
-			delete pStmt;
+		delete pStmt;
 	}
 	fSubStatements = Anything();
 	// we need to cleanup the sub-statement handle

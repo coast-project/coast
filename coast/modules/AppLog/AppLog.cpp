@@ -95,7 +95,7 @@ bool AppLogModule::Finis() {
 				Trace("finishing channel [" << fLogConnections[i].SlotName(j) << "]");
 				IFAObject *logchannel = fLogConnections[i][j][0L].AsIFAObject(0);
 
-					delete logchannel;
+				delete logchannel;
 
 				fLogConnections[i][j] = 0L;
 			}

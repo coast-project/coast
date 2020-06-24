@@ -108,7 +108,7 @@ public:
 	virtual ~AcceptorThread() {
 		StartTrace(AcceptorThread.Dtor);
 
-			delete fAcceptor;
+		delete fAcceptor;
 
 		fAcceptor = 0;
 	}

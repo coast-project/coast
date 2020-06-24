@@ -167,7 +167,7 @@ Server::~Server() {
 	StartTrace1(Server.~Server, "<" << GetName() << ">");
 	Assert(this != ServersModule::GetServerForReInit());
 
-		delete fPoolManager;
+	delete fPoolManager;
 }
 
 // intialization of the Server and its modules

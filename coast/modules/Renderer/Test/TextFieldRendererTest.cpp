@@ -20,7 +20,7 @@ TextFieldRendererTest::TextFieldRendererTest(TString tname) : FieldRendererTest(
 };
 
 TextFieldRendererTest::~TextFieldRendererTest() {
-		delete fFieldRenderer;
+	delete fFieldRenderer;
 
 	fFieldRenderer = 0;
 };

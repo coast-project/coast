@@ -591,7 +591,7 @@ AnyArrayImpl::~AnyArrayImpl() {
 
 		// free the key array
 
-			delete fKeys;
+		delete fKeys;
 
 		// free the index array
 		delete fInd;

@@ -20,7 +20,7 @@ CheckBoxRendererTest::CheckBoxRendererTest(TString tname) : FieldRendererTest(tn
 };
 
 CheckBoxRendererTest::~CheckBoxRendererTest() {
-		delete fFieldRenderer;
+	delete fFieldRenderer;
 
 	fFieldRenderer = 0;
 };

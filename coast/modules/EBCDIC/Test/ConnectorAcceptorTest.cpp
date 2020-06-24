@@ -85,7 +85,7 @@ public:
 	~AcceptorThread() {
 		StartTrace(AcceptorThread.Dtor);
 
-			delete fAcceptor;
+		delete fAcceptor;
 
 		fAcceptor = 0;
 	}

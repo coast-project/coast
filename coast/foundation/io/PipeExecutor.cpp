@@ -56,9 +56,9 @@ PipeExecutor::~PipeExecutor() {
 	}
 #endif
 
-		delete fPipe;  // this ultimatively closes stream and pipe
+	delete fPipe;  // this ultimatively closes stream and pipe
 
-		delete fStderr;
+	delete fStderr;
 }
 
 std::iostream *PipeExecutor::GetStream() {

@@ -12,7 +12,7 @@
 #include "TestLocation.h"
 
 TestLocElt::~TestLocElt() {
-		delete fValue;
+	delete fValue;
 
 	fValue = 0;
 }

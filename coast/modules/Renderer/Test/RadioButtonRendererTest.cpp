@@ -20,7 +20,7 @@ RadioButtonRendererTest::RadioButtonRendererTest(TString tname) : FieldRendererT
 };
 
 RadioButtonRendererTest::~RadioButtonRendererTest() {
-		delete fFieldRenderer;
+	delete fFieldRenderer;
 
 	fFieldRenderer = 0;
 };

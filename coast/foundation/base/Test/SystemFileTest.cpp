@@ -451,13 +451,13 @@ void SystemFileTest::OpenStreamTest() {
 	std::iostream *Ios = system::OpenStream("Tracer.any");
 	t_assert(Ios == NULL);	// should not be found!
 
-		delete Ios;
+	delete Ios;
 
 	// open file with relative path
 	Ios = system::OpenStream("config/Tracer.any");
 	t_assert(Ios != NULL);
 
-		delete Ios;
+	delete Ios;
 
 	// deprecated:
 
@@ -465,13 +465,13 @@ void SystemFileTest::OpenStreamTest() {
 	Ios = system::OpenStream("Tracer", "any");
 	t_assert(Ios != NULL);	// should be found
 
-		delete Ios;
+	delete Ios;
 
 	// open file with relative path
 	Ios = system::OpenStream("config/Tracer", "any");
 	t_assert(Ios != NULL);
 
-		delete Ios;
+	delete Ios;
 
 	// open file with relative path for writing
 	Ios = system::OpenStream("tmp/Test1", "tst", std::ios::out);
@@ -487,13 +487,13 @@ void SystemFileTest::OpenStreamWithSearchTest() {
 	std::iostream *Ios = system::OpenStreamWithSearch("Tracer.any");
 	t_assert(Ios != NULL);
 
-		delete Ios;
+	delete Ios;
 
 	// open file with relative path
 	Ios = system::OpenStreamWithSearch("config/Tracer.any");
 	t_assert(Ios != NULL);
 
-		delete Ios;
+	delete Ios;
 
 	// open file with relative path for writing
 	Ios = system::OpenStreamWithSearch("tmp/Test1.tst", std::ios::out);

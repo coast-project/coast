@@ -165,7 +165,7 @@ TestRunner::~TestRunner() {
 				  << (fNumberOfSuccesses * 100) / testsRun << "% complete" << std::endl;
 	}  // if
 
-		delete fLogStream;
+	delete fLogStream;
 }
 
 /*

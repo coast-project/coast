@@ -20,7 +20,7 @@ ImageButtonRendererTest::ImageButtonRendererTest(TString tname) : FieldRendererT
 };
 
 ImageButtonRendererTest::~ImageButtonRendererTest() {
-		delete fFieldRenderer;
+	delete fFieldRenderer;
 
 	fFieldRenderer = 0;
 };

@@ -600,7 +600,7 @@ Connector::Connector(ConnectorArgs &connectorArgs, String srcIPAdr, long srcPort
 }
 
 Connector::~Connector() {
-		delete fSocket;
+	delete fSocket;
 }
 
 Socket *Connector::MakeSocket(bool doClose) {

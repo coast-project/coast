@@ -538,7 +538,7 @@ SSLConnector::SSLConnector(ROAnything config, SSL_CTX *ctx, bool deleteCtx)
 }
 
 SSLConnector::~SSLConnector() {
-		delete fSocket;
+	delete fSocket;
 
 	fSocket = 0;
 

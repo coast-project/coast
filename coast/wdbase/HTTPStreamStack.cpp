@@ -36,9 +36,9 @@ std::ostream &HTTPStreamStack::GetBodyStream() {
 }
 
 HTTPStreamStack::~HTTPStreamStack() {
-		delete fZipper;
+	delete fZipper;
 
-		delete fChunker;
+	delete fChunker;
 
 	fOutput.flush();
 }

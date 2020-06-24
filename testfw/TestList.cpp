@@ -12,7 +12,7 @@
 
 //---- TestElt
 TestElt::~TestElt() {
-		delete fValue;
+	delete fValue;
 
 	fValue = 0;
 }

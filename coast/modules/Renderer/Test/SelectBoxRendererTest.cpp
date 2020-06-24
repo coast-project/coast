@@ -16,7 +16,7 @@ SelectBoxRendererTest::SelectBoxRendererTest(TString tname) : FieldRendererTest(
 }
 
 SelectBoxRendererTest::~SelectBoxRendererTest() {
-		delete fFieldRenderer;
+	delete fFieldRenderer;
 
 	fFieldRenderer = 0;
 }

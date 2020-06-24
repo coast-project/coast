@@ -159,7 +159,7 @@ void ExcessTrackerElt::SetId(long lId) {
 	ExcessTrackerElt *pElt = this;
 	while (pElt != 0) {
 		Allocator::MemTrackerPtr pTracker = pElt->fTracker;
-		if (pTracker != 0) {
+		if (pTracker.get() != 0) {
 			pTracker->SetId(lId);
 		}
 		pElt = pElt->fpNext;
@@ -185,7 +185,7 @@ ul_long ExcessTrackerElt::CurrentlyAllocated() {
 	ExcessTrackerElt *pElt = this;
 	while (pElt != 0) {
 		Allocator::MemTrackerPtr pTracker = pElt->fTracker;
-		if (pTracker != 0) {
+		if (pTracker.get() != 0) {
 			llTotal += pTracker->CurrentlyAllocated();
 		}
 		pElt = pElt->fpNext;
@@ -197,7 +197,7 @@ void ExcessTrackerElt::Refresh() {
 	ExcessTrackerElt *pElt = this;
 	while (pElt != 0) {
 		Allocator::MemTrackerPtr pTracker = pElt->fTracker;
-		if ((pTracker != 0) && (pTracker->CurrentlyAllocated() > 0)) {
+		if ((pTracker.get() != 0) && (pTracker->CurrentlyAllocated() > 0)) {
 			const int bufSize = 256;
 			char buf[bufSize] = {0};
 			coast::system::SnPrintf(buf, bufSize, "ExcessAllocator was still in use! (id: %ld, name: %s) in Refresh()",
@@ -394,7 +394,7 @@ void PoolAllocator::DumpStillAllocated() {
 
 	for (i = 0; i < static_cast<long>(fNumOfPoolBucketSizes); ++i) {
 		Allocator::MemTrackerPtr pTracker = fPoolBuckets[i].fBucketTracker;
-		if ((pTracker != 0) && pTracker->PeakAllocated() > 0) {
+		if ((pTracker.get() != 0) && pTracker->PeakAllocated() > 0) {
 			if (pTracker->CurrentlyAllocated() > 0) {
 				bWasInUse = true;
 				break;
@@ -405,7 +405,7 @@ void PoolAllocator::DumpStillAllocated() {
 		bool bFirst = true;
 		for (i = 0; i < static_cast<long>(fNumOfPoolBucketSizes); ++i) {
 			Allocator::MemTrackerPtr pTracker = fPoolBuckets[i].fBucketTracker;
-			if ((pTracker != 0) && (pTracker->PeakAllocated() > 0) && (pTracker->CurrentlyAllocated() > 0)) {
+			if ((pTracker.get() != 0) && (pTracker->PeakAllocated() > 0) && (pTracker->CurrentlyAllocated() > 0)) {
 				if (bFirst) {
 					const int bufSize = 256;
 					char buf[bufSize] = {0};
@@ -424,7 +424,7 @@ void PoolAllocator::DumpStillAllocated() {
 
 void PoolAllocator::IntDumpStillAllocated(Allocator::MemTrackerPtr pTracker, size_t lSize, size_t lUsableSize) {
 	// finding unfreed items
-	if (pTracker != 0) {
+	if (pTracker.get() != 0) {
 		pTracker->DumpUsedBlocks();
 	}
 }
@@ -643,7 +643,7 @@ void PoolAllocator::PrintStatistic(long lLevel) {
 
 	for (long i = 0; i < static_cast<long>(fNumOfPoolBucketSizes); ++i) {
 		Allocator::MemTrackerPtr pTracker = fPoolBuckets[i].fBucketTracker;
-		if ((pTracker != 0) && pTracker->PeakAllocated() > 0) {
+		if ((pTracker.get() != 0) && pTracker->PeakAllocated() > 0) {
 			pTracker->PrintStatistic(lStatisticLevel);
 		}
 	}
@@ -678,7 +678,7 @@ void PoolAllocator::Refresh() {
 	}
 	for (long i = 0; i < static_cast<long>(fNumOfPoolBucketSizes); ++i) {
 		Allocator::MemTrackerPtr pTracker = fPoolBuckets[i].fBucketTracker;
-		if ((pTracker != 0) && pTracker->CurrentlyAllocated() > 0) {
+		if ((pTracker.get() != 0) && pTracker->CurrentlyAllocated() > 0) {
 			const int bufSize = 256;
 			char buf[bufSize] = {0};
 			coast::system::SnPrintf(buf, bufSize,

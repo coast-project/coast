@@ -39,12 +39,12 @@ if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
     if not hasattr(registry, 'getRealTarget'):
         registry.getRealTarget = getRealTarget
 
-hostonly, domain, fqdn = getfqdn()
+hostname, domain, fqdn = getfqdn()
 
 searchReplaceDict = {
     'FQDN': fqdn,
-    'HOSTNAME': hostonly,
-    'HOSTNAMEIP': socket.gethostbyname(hostonly),
+    'HOSTNAME': hostname,
+    'HOSTNAMEIP': socket.gethostbyname(hostname),
     'DOMAINONLY': domain,
 }
 
@@ -197,10 +197,10 @@ def setUp(target, source, env):
     #    env['ENV']['COAST_ROOT'] = tdirabs
     env['ENV']['COAST_LOGONCERR'] = '3'
     #    env['ENV']['COAST_PATH'] = ':'.join(['config', '.'])
-    searchReplace = []
     # create certificate files
     certOutDir, certFileNodesList, certDict = createCertificates(env)
     if certDict:
+        searchReplace = []
         for key, value in certDict.items():
             searchReplace.append((r"##" + key + "_abs##", value))
             searchReplace.append((r"##" + key + "_rel##", os.path.relpath(value, tdirabs)))

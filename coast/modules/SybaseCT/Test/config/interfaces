@@ -1,4 +1,4 @@
-##server##
-        master tcp ether ##hostname## ##port##
-        query  tcp ether ##hostname## ##port##
+##SERVER##
+        master tcp ether ##HOSTNAME## ##PORT##
+        query  tcp ether ##HOSTNAME## ##PORT##
 

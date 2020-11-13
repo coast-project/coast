@@ -10,11 +10,9 @@
 #define _ConversionUtilsTest_H
 
 #include "TestCase.h"
-class ConversionUtilsTest: public testframework::TestCase {
+class ConversionUtilsTest : public testframework::TestCase {
 public:
-	ConversionUtilsTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	ConversionUtilsTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void GetValueFromBufferTest();
 };

@@ -7,18 +7,18 @@
  */
 
 #include "TruncateStringRenderer.h"
+
 #include "SystemLog.h"
 #include "Tracer.h"
 
 //---- TruncateStringRenderer ---------------------------------------------------------------
 RegisterRenderer(TruncateStringRenderer);
 
-TruncateStringRenderer::TruncateStringRenderer(const char *name) : Renderer(name) { }
+TruncateStringRenderer::TruncateStringRenderer(const char *name) : Renderer(name) {}
 
-TruncateStringRenderer::~TruncateStringRenderer() { }
+TruncateStringRenderer::~TruncateStringRenderer() {}
 
-void TruncateStringRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void TruncateStringRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(TruncateStringRenderer.RenderAll);
 
 	TraceAny(config, "config");
@@ -44,14 +44,14 @@ void TruncateStringRenderer::RenderAll(std::ostream &reply, Context &c, const RO
 	String direction = config["Direction"].AsString("LR");
 	Trace("Direction: [" << direction << "]");
 
-	if ( !direction.IsEqual("LR") &&  !direction.IsEqual("RL") ) {
+	if (!direction.IsEqual("LR") && !direction.IsEqual("RL")) {
 		SystemLog::Error("TruncateStringRenderer::RenderAll: Wrong direction given");
 		return;
 	}
 
 	String strPart2Use = config["PartToUse"].AsString("L");
 	Trace("PartToUse: [" << strPart2Use << "]");
-	if ( !strPart2Use.IsEqual("L") &&  !strPart2Use.IsEqual("R") ) {
+	if (!strPart2Use.IsEqual("L") && !strPart2Use.IsEqual("R")) {
 		SystemLog::Error("TruncateStringRenderer::RenderAll: Wrong PartToUse given");
 		return;
 	}
@@ -102,7 +102,7 @@ void TruncateStringRenderer::RenderAll(std::ostream &reply, Context &c, const RO
 
 	Trace("left  string [" << strL << "]");
 	Trace("right string [" << strR << "]");
-	if ( strPart2Use == "L" ) {
+	if (strPart2Use == "L") {
 		Trace("using left part");
 		temp = strL;
 	} else {
@@ -110,7 +110,7 @@ void TruncateStringRenderer::RenderAll(std::ostream &reply, Context &c, const RO
 		temp = strR;
 	}
 
-	if (!temp.Length()) {
+	if (temp.Length() == 0) {
 		ROAnything roaDefaultConfig;
 		String strDefault;
 		if (config.LookupPath(roaDefaultConfig, "Default")) {

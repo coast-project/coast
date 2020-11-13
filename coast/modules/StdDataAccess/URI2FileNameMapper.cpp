@@ -7,15 +7,15 @@
  */
 
 #include "URI2FileNameMapper.h"
-#include "SystemFile.h"
+
 #include "Context.h"
+#include "SystemFile.h"
 
 using namespace coast;
 
 RegisterParameterMapper(URI2FileNameMapper);
 
-bool URI2FileNameMapper::DoFinalGetAny(const char *key, Anything &val, Context &ctx)
-{
+bool URI2FileNameMapper::DoFinalGetAny(const char *key, Anything &val, Context &ctx) {
 	StartTrace(URI2FileNameMapper.DoFinalGetAny);
 	String strKey(key);
 	if (strKey == "FileName") {
@@ -36,10 +36,10 @@ bool URI2FileNameMapper::DoFinalGetAny(const char *key, Anything &val, Context &
 			if (documentRoot.Length() > 0) {
 				// document root is given and seems to be a relative path
 				// check if we have to insert a '/' between path and documentRoot
-				if ( path[long(path.Length() - 1)] != '/' && documentRoot[0L] != '/' ) {
+				if (path[long(path.Length() - 1)] != '/' && documentRoot[0L] != '/') {
 					// no trailing or leading slash detected append one
 					path << '/';
-				} else if ( path[long(path.Length() - 1)] == '/' && documentRoot[0L] == '/' ) {
+				} else if (path[long(path.Length() - 1)] == '/' && documentRoot[0L] == '/') {
 					path.Trim(path.Length() - 1);
 				}
 #if defined(WIN32)
@@ -47,7 +47,7 @@ bool URI2FileNameMapper::DoFinalGetAny(const char *key, Anything &val, Context &
 				// but changes to a specific drive we have to add some special logic here
 				// at this point we know that documentRoot is not absolute
 				char drive;
-				if ( system::GetDriveLetter(documentRoot, drive) ) {
+				if (system::GetDriveLetter(documentRoot, drive)) {
 					// now that we have a drive letter we can use documentRoot as new root
 					path = "";
 				}
@@ -61,7 +61,7 @@ bool URI2FileNameMapper::DoFinalGetAny(const char *key, Anything &val, Context &
 
 		// trim / at end of document root since browser always
 		// sends / at beginning
-		if ( path[long(path.Length() - 1)] == '/'  && uri[0L] == '/') {
+		if (path[long(path.Length() - 1)] == '/' && uri[0L] == '/') {
 			path.Trim(path.Length() - 1);
 		}
 
@@ -71,32 +71,30 @@ bool URI2FileNameMapper::DoFinalGetAny(const char *key, Anything &val, Context &
 		val = value;
 		Trace("value :" << value);
 		Trace("path  :" << path);
-		if ( system::IsRegularFile(value) ) {
+		if (system::IsRegularFile(value)) {
 			// do nothing yet
-		} else if ( system::IsDirectory(value) ) {
-			if ( value[long(value.Length() - 1)] != '/' || uri.Length() == 0 ) {
+		} else if (system::IsDirectory(value)) {
+			if (value[long(value.Length() - 1)] != '/' || uri.Length() == 0) {
 				Anything tmpStore(ctx.GetTmpStore());
 				if (uri.Length() == 0) {
 					// set bad request error
 					tmpStore["HTTPError"] = 400L;
 					tmpStore["HTTPResponse"] = "Bad Request";
 					return false;
-				} else {
-					// set relocate error
-					tmpStore["HTTPError"] = 301L;
-					tmpStore["HTTPResponse"] = "Permanently moved";
-
-					value << '/';
-					val = value;
-					tmpStore["HTTPLocation"] = value;
-					Trace("relocated name is: [" << value << "]");
-					return false;
 				}
-			} else {
-				// append default file
-				value << ctx.Lookup("DirectoryIndex", "index.html");
+				// set relocate error
+				tmpStore["HTTPError"] = 301L;
+				tmpStore["HTTPResponse"] = "Permanently moved";
+
+				value << '/';
 				val = value;
+				tmpStore["HTTPLocation"] = value;
+				Trace("relocated name is: [" << value << "]");
+				return false;
 			}
+			value << ctx.Lookup("DirectoryIndex", "index.html");
+			val = value;
+
 		} else {
 			// no regular file and no directory set the error status
 			// hook for special CGI treatment
@@ -105,15 +103,14 @@ bool URI2FileNameMapper::DoFinalGetAny(const char *key, Anything &val, Context &
 			return result;
 		}
 	} else {
-		Trace( "Key[" << key << "]<" << val.AsCharPtr() << ">" );
+		Trace("Key[" << key << "]<" << val.AsCharPtr() << ">");
 		return ParameterMapper::DoFinalGetAny(strKey, val, ctx);
 	}
 	Trace("resolved name is: [" << val.AsCharPtr() << "]");
 	return true;
 }
 
-bool URI2FileNameMapper::ResolveInvalidFile(String &path, String &uri, String &value, Context &ctx)
-{
+bool URI2FileNameMapper::ResolveInvalidFile(String &path, String &uri, String &value, Context &ctx) {
 	StartTrace(URI2FileNameMapper.ResolveInvalidFile);
 
 	Anything tmpStore(ctx.GetTmpStore());
@@ -127,8 +124,7 @@ bool URI2FileNameMapper::ResolveInvalidFile(String &path, String &uri, String &v
 	return false;
 }
 
-void URI2FileNameMapper::TrimUriArguments(String &filename, Context &ctx)
-{
+void URI2FileNameMapper::TrimUriArguments(String &filename, Context &ctx) {
 	StartTrace(URI2FileNameMapper.TrimUriArguments);
 
 	long tail = filename.StrChr('?');

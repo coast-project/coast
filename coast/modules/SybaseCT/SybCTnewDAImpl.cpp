@@ -7,12 +7,14 @@
  */
 
 #include "SybCTnewDAImpl.h"
-#include "SybCTnewDA.h"
-#include "Timers.h"
-#include "TimeStamp.h"
-#include "StringStream.h"
+
 #include "Action.h"
+#include "LockUnlockEntry.h"
 #include "PeriodicAction.h"
+#include "StringStream.h"
+#include "SybCTnewDA.h"
+#include "TimeStamp.h"
+#include "Timers.h"
 
 SimpleMutex SybCTnewDAImpl::fgStructureMutex("StructureMutex", coast::storage::Global());
 Anything SybCTnewDAImpl::fgListOfSybCT;
@@ -26,27 +28,22 @@ Semaphore *SybCTnewDAImpl::fgpResourcesSema = NULL;
 //---- SybCTnewDAImpl ----------------------------------------------------------------
 RegisterDataAccessImpl(SybCTnewDAImpl);
 
-SybCTnewDAImpl::SybCTnewDAImpl(const char *name)
-	: DataAccessImpl(name)
-{
+SybCTnewDAImpl::SybCTnewDAImpl(const char *name) : DataAccessImpl(name) {
 	StartTrace(SybCTnewDAImpl.SybCTnewDAImpl);
 }
 
-SybCTnewDAImpl::~SybCTnewDAImpl()
-{
+SybCTnewDAImpl::~SybCTnewDAImpl() {
 	StartTrace(SybCTnewDAImpl.~SybCTnewDAImpl);
 }
 
-IFAObject *SybCTnewDAImpl::Clone(Allocator *a) const
-{
+IFAObject *SybCTnewDAImpl::Clone(Allocator *a) const {
 	StartTrace(SybCTnewDAImpl.Clone);
 	return new (a) SybCTnewDAImpl(fName);
 }
 
-bool SybCTnewDAImpl::Init(ROAnything config)
-{
+bool SybCTnewDAImpl::Init(ROAnything config) {
 	StartTrace(SybCTnewDAImpl.Init);
-	if ( !fgInitialized ) {
+	if (!fgInitialized) {
 		ROAnything myCfg;
 		String strInterfacesPathName;
 		long nrOfSybCTs = 5L;
@@ -56,7 +53,7 @@ bool SybCTnewDAImpl::Init(ROAnything config)
 			nrOfSybCTs = myCfg["ParallelQueries"].AsLong(nrOfSybCTs);
 			lCloseConnectionTimeout = myCfg["CloseConnectionTimeout"].AsLong(lCloseConnectionTimeout);
 			strInterfacesPathName = myCfg["InterfacesPathName"].AsString();
-			fbUseDelayedCommit = ( myCfg["DelayedCommit"].AsLong(0L) != 0 );
+			fbUseDelayedCommit = (myCfg["DelayedCommit"].AsLong(0L) != 0);
 		}
 
 		LockUnlockEntry me(fgStructureMutex);
@@ -65,17 +62,18 @@ bool SybCTnewDAImpl::Init(ROAnything config)
 		fgListOfSybCT.SetAllocator(coast::storage::Global());
 		fgListOfSybCT = Anything();
 		// SybCTnewDA::Init initializes the cs_context.  It must be done only once
-		if ( SybCTnewDA::Init(&fg_cs_context, &fgContextMessages, strInterfacesPathName, nrOfSybCTs) == CS_SUCCEED ) {
+		if (SybCTnewDA::Init(&fg_cs_context, &fgContextMessages, strInterfacesPathName, nrOfSybCTs) == CS_SUCCEED) {
 			// use the semaphore to block when no more resources are available
 			fgListOfSybCT["Size"] = nrOfSybCTs;
 			fgpResourcesSema = new Semaphore(nrOfSybCTs);
 			String server, user;
-			for ( long i = 0; i < nrOfSybCTs; ++i ) {
+			for (long i = 0; i < nrOfSybCTs; ++i) {
 				SybCTnewDA *pCT = new (coast::storage::Global()) SybCTnewDA(fg_cs_context);
 				IntDoPutbackConnection(pCT, false, server, user);
 			}
-			if ( !fgpPeriodicAction ) {
-				fgpPeriodicAction = new (coast::storage::Global()) PeriodicAction("SybCheckCloseOpenedConnectionsAction", lCloseConnectionTimeout);
+			if (fgpPeriodicAction == 0) {
+				fgpPeriodicAction = new (coast::storage::Global())
+					PeriodicAction("SybCheckCloseOpenedConnectionsAction", lCloseConnectionTimeout);
 				fgpPeriodicAction->Start();
 			}
 			fgInitialized = true;
@@ -84,28 +82,27 @@ bool SybCTnewDAImpl::Init(ROAnything config)
 	return fgInitialized;
 }
 
-bool SybCTnewDAImpl::Finis()
-{
+bool SybCTnewDAImpl::Finis() {
 	StartTrace(SybCTnewDAImpl.Finis);
-	if ( fgpPeriodicAction ) {
+	if (fgpPeriodicAction != 0) {
 		fgpPeriodicAction->Terminate();
 		delete fgpPeriodicAction;
 		fgpPeriodicAction = NULL;
 	}
-	bool bInitialized;
+	bool bInitialized = false;
 	{
 		LockUnlockEntry me(fgStructureMutex);
 		bInitialized = fgInitialized;
 		// force pending/upcoming Exec calls to fail
 		fgInitialized = false;
 	}
-	if ( bInitialized ) {
+	if (bInitialized) {
 		for (long lCount = 0L; lCount < fgListOfSybCT["Size"].AsLong(0L) && fgpResourcesSema->Acquire(); ++lCount) {
 			SybCTnewDA *pSyb = NULL;
 			bool bIsOpen = false;
 			String strServer, strUser;
-			if ( DoGetConnection(pSyb, bIsOpen, strServer, strUser) ) {
-				if ( bIsOpen ) {
+			if (DoGetConnection(pSyb, bIsOpen, strServer, strUser)) {
+				if (bIsOpen) {
 					pSyb->Close(true);
 				}
 				delete pSyb;
@@ -115,7 +112,7 @@ bool SybCTnewDAImpl::Finis()
 		fgpResourcesSema = NULL;
 		SybCTnewDA::Finis(fg_cs_context);
 		// trace messages which occurred without a connection
-		while ( fgContextMessages.GetSize() ) {
+		while (fgContextMessages.GetSize() != 0) {
 			SystemLog::Warning(fgContextMessages[0L].AsString());
 			fgContextMessages.Remove(0L);
 		}
@@ -123,16 +120,15 @@ bool SybCTnewDAImpl::Finis()
 	return !fgInitialized;
 }
 
-bool SybCTnewDAImpl::IntGetOpen(SybCTnewDA *&pSyb, bool &bIsOpen, const String &server, const String &user)
-{
+bool SybCTnewDAImpl::IntGetOpen(SybCTnewDA *&pSyb, bool &bIsOpen, const String &server, const String &user) {
 	StartTrace1(SybCTnewDAImpl.IntGetOpen, "server [" << server << "] user [" << user << "]");
 	pSyb = NULL;
 	bIsOpen = false;
 	Anything anyTimeStamp(coast::storage::Global()), anyEntry(coast::storage::Global());
 	TraceAny(fgListOfSybCT, "current list of connections");
-	if ( fgListOfSybCT.LookupPath(anyTimeStamp, "Open") && anyTimeStamp.GetSize() ) {
+	if (fgListOfSybCT.LookupPath(anyTimeStamp, "Open") && (anyTimeStamp.GetSize() != 0)) {
 		String strToLookup(server);
-		if ( strToLookup.Length() && user.Length() ) {
+		if ((strToLookup.Length() != 0) && (user.Length() != 0)) {
 			strToLookup << '.' << user;
 		}
 		Trace("Lookup name [" << strToLookup << "]");
@@ -140,18 +136,19 @@ bool SybCTnewDAImpl::IntGetOpen(SybCTnewDA *&pSyb, bool &bIsOpen, const String &
 			Anything anyTS(coast::storage::Global());
 			anyTS = anyTimeStamp[lIdx];
 			for (long lTimeSub = 0L; lTimeSub < anyTS.GetSize(); ++lTimeSub) {
-				if ( ( strToLookup.Length() <= 0 ) || strToLookup == anyTS[lTimeSub][1L].AsString() ) {
+				if ((strToLookup.Length() <= 0) || strToLookup == anyTS[lTimeSub][1L].AsString()) {
 					Trace("removing subentry :" << lIdx << ":" << lTimeSub);
 					anyEntry = anyTS[lTimeSub];
 					anyTS.Remove(lTimeSub);
-					// we do not have to close the connection before using because the SybCTnewDA is for the same server and user
-					bIsOpen = ( strToLookup.Length() > 0 );
+					// we do not have to close the connection before using because the SybCTnewDA is for the same server and
+					// user
+					bIsOpen = (strToLookup.Length() > 0);
 					break;
 				}
 			}
-			if ( !anyEntry.IsNull() ) {
+			if (!anyEntry.IsNull()) {
 				pSyb = SafeCast(anyEntry[0L].AsIFAObject(), SybCTnewDA);
-				if ( anyTS.GetSize() == 0L ) {
+				if (anyTS.GetSize() == 0L) {
 					anyTimeStamp.Remove(lIdx);
 				}
 				break;
@@ -161,27 +158,25 @@ bool SybCTnewDAImpl::IntGetOpen(SybCTnewDA *&pSyb, bool &bIsOpen, const String &
 	return !anyEntry.IsNull();
 }
 
-bool SybCTnewDAImpl::DoGetConnection(SybCTnewDA *&pSyb, bool &bIsOpen, const String &server, const String &user)
-{
+bool SybCTnewDAImpl::DoGetConnection(SybCTnewDA *&pSyb, bool &bIsOpen, const String &server, const String &user) {
 	StartTrace(SybCTnewDAImpl.DoGetConnection);
 	LockUnlockEntry me(fgStructureMutex);
 	return IntDoGetConnection(pSyb, bIsOpen, server, user);
 }
 
-bool SybCTnewDAImpl::IntDoGetConnection(SybCTnewDA *&pSyb, bool &bIsOpen, const String &server, const String &user)
-{
+bool SybCTnewDAImpl::IntDoGetConnection(SybCTnewDA *&pSyb, bool &bIsOpen, const String &server, const String &user) {
 	StartTrace(SybCTnewDAImpl.IntDoGetConnection);
 	pSyb = NULL;
 	bIsOpen = false;
-	if ( !server.Length() || !user.Length() || !IntGetOpen(pSyb, bIsOpen, server, user) ) {
+	if ((server.Length() == 0) || (user.Length() == 0) || !IntGetOpen(pSyb, bIsOpen, server, user)) {
 		// favour unused connection against open connection of different server/user
-		if ( fgListOfSybCT["Unused"].GetSize() ) {
+		if (fgListOfSybCT["Unused"].GetSize() != 0) {
 			Trace("removing first unused element");
 			pSyb = SafeCast(fgListOfSybCT["Unused"][0L].AsIFAObject(), SybCTnewDA);
 			fgListOfSybCT["Unused"].Remove(0L);
 		} else {
 			String strEmpty;
-			if ( IntGetOpen(pSyb, bIsOpen, strEmpty, strEmpty) ) {
+			if (IntGetOpen(pSyb, bIsOpen, strEmpty, strEmpty)) {
 				Trace("connection of different server or user");
 				// if this call would return false we could possibly delete and recreate an object
 				pSyb->Close();
@@ -189,29 +184,27 @@ bool SybCTnewDAImpl::IntDoGetConnection(SybCTnewDA *&pSyb, bool &bIsOpen, const 
 		}
 	}
 	Trace("returning &" << (long)(IFAObject *)pSyb);
-	if ( pSyb == NULL ) {
+	if (pSyb == NULL) {
 		SYSERROR("could not get a valid SybCTnewDA");
 	}
 	return (pSyb != NULL);
 }
 
-void SybCTnewDAImpl::DoPutbackConnection(SybCTnewDA *&pSyb, bool bIsOpen, const String &server, const String &user)
-{
+void SybCTnewDAImpl::DoPutbackConnection(SybCTnewDA *&pSyb, bool bIsOpen, const String &server, const String &user) {
 	StartTrace(SybCTnewDAImpl.DoPutbackConnection);
 	LockUnlockEntry me(fgStructureMutex);
 	IntDoPutbackConnection(pSyb, bIsOpen, server, user);
 }
 
-void SybCTnewDAImpl::IntDoPutbackConnection(SybCTnewDA *&pSyb, bool bIsOpen, const String &server, const String &user)
-{
+void SybCTnewDAImpl::IntDoPutbackConnection(SybCTnewDA *&pSyb, bool bIsOpen, const String &server, const String &user) {
 	StartTrace1(SybCTnewDAImpl.IntDoPutbackConnection, "putting &" << (long)(IFAObject *)pSyb);
-	if ( bIsOpen ) {
+	if (bIsOpen) {
 		String strToStore(server);
 		strToStore << '.' << user;
 		TimeStamp aStamp;
 		Anything anyTimeStamp(coast::storage::Global());
-		if ( !fgListOfSybCT.LookupPath(anyTimeStamp, "Open") ) {
-			anyTimeStamp = Anything(Anything::ArrayMarker(),coast::storage::Global());
+		if (!fgListOfSybCT.LookupPath(anyTimeStamp, "Open")) {
+			anyTimeStamp = Anything(Anything::ArrayMarker(), coast::storage::Global());
 			fgListOfSybCT["Open"] = anyTimeStamp;
 		}
 		Anything anyToStore(coast::storage::Global());
@@ -224,73 +217,76 @@ void SybCTnewDAImpl::IntDoPutbackConnection(SybCTnewDA *&pSyb, bool bIsOpen, con
 	TraceAny(fgListOfSybCT, "current list of connections");
 }
 
-bool SybCTnewDAImpl::Exec( Context &ctx, ParameterMapper *in, ResultMapper *out)
-{
+bool SybCTnewDAImpl::Exec(Context &ctx, ParameterMapper *in, ResultMapper *out) {
 	StartTrace(SybCTnewDAImpl.Exec);
 	bool bRet = false;
 	DAAccessTimer(SybCTnewDAImpl.Exec, fName, ctx);
 	// check if we are initialized
 	bool bInitialized = false;
-	if ( fgInitialized ) {
+	if (fgInitialized) {
 		LockUnlockEntry me(fgStructureMutex);
 		bInitialized = fgInitialized;
 	}
-	if ( bInitialized ) {
+	if (bInitialized) {
 		SemaphoreEntry aEntry(*fgpResourcesSema);
 		// we need the server and user to see if there is an existing and Open SybCTnewDA
 		String user, server;
-		in->Get( "SybDBUser", user, ctx);
-		in->Get( "SybDBHost", server, ctx);
-		Trace ("USER IS:" << user );
-		Trace ("Host is:" << server );
+		in->Get("SybDBUser", user, ctx);
+		in->Get("SybDBHost", server, ctx);
+		Trace("USER IS:" << user);
+		Trace("Host is:" << server);
 		out->Put("QuerySource", server, ctx);
 
 		SybCTnewDA *pSyb = NULL;
 		bool bIsOpen = false, bDoRetry = true;
 		long lTryCount(1L);
-		in->Get( "SybDBTries", lTryCount, ctx);
-		if ( lTryCount < 1 ) {
+		in->Get("SybDBTries", lTryCount, ctx);
+		if (lTryCount < 1) {
 			lTryCount = 1L;
 		}
 		// we slipped through and are ready to get a SybCT and execute a query
 		// find a free SybCTnewDA, we should always get a valid SybCTnewDA here!
-		while ( bDoRetry && --lTryCount >= 0 ) {
+		while (bDoRetry && --lTryCount >= 0) {
 			String command;
-			if ( DoGetConnection(pSyb, bIsOpen, server, user) ) {
+			if (DoGetConnection(pSyb, bIsOpen, server, user)) {
 				SybCTnewDA::DaParams daParams(&ctx, in, out, &fName);
 				// test if the connection is still valid, eg. we are able to get/set connection params
-				if ( bIsOpen ) {
+				if (bIsOpen) {
 					SybCTnewDA::DaParams outParams;
-					if ( pSyb->GetConProps(CS_USERDATA, (CS_VOID **)&outParams, CS_SIZEOF(SybCTnewDA::DaParams)) != CS_SUCCEED ) {
+					if (static_cast<long>(pSyb->GetConProps(CS_USERDATA, (CS_VOID **)&outParams,
+															CS_SIZEOF(SybCTnewDA::DaParams))) != CS_SUCCEED) {
 						// try to close and reopen connection
 						pSyb->Close();
 						bIsOpen = false;
 					}
 				}
-				if ( !bIsOpen ) {
+				if (!bIsOpen) {
 					String passwd, app;
-					in->Get( "SybDBPW", passwd, ctx);
-					in->Get( "SybDBApp", app, ctx);
+					in->Get("SybDBPW", passwd, ctx);
+					in->Get("SybDBApp", app, ctx);
 					// open new connection
-					if ( !( bIsOpen = pSyb->Open( daParams, user, passwd, server, app) ) ) {
+					if (!(bIsOpen = pSyb->Open(daParams, user, passwd, server, app))) {
 						SYSWARNING("Could not open connection to server [" << server << "] with user [" << user << "]");
 					}
 
 					// http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc31644.1502/html/sag2/sag2349.htm
-					//You can enable delayed_commit for the session with the set command or the database with sp_dboption. The syntax for delayed_commit is:
-					//set delayed_commit on | off | default
-					//  where on enables the delayed_commit option, off disables it, and default means the database-level setting takes effect.
-					//The syntax for sp_dboption is: sp_dboption database_name, 'delayed commit', [true | false]
-					//  where true enables delayed_commit at the database level, and false disables the delayed_commit option. Only the DBO can set this parameter.
+					// You can enable delayed_commit for the session with the set command or the database with sp_dboption. The
+					// syntax for delayed_commit is: set delayed_commit on | off | default
+					//  where on enables the delayed_commit option, off disables it, and default means the database-level
+					//  setting takes effect.
+					// The syntax for sp_dboption is: sp_dboption database_name, 'delayed commit', [true | false]
+					//  where true enables delayed_commit at the database level, and false disables the delayed_commit option.
+					//  Only the DBO can set this parameter.
 
-					// set the option delayed commit just once, after the DB connection was establisched. Further SybCTnewDAImpl::Exec() calls woun't fall here
+					// set the option delayed commit just once, after the DB connection was establisched. Further
+					// SybCTnewDAImpl::Exec() calls woun't fall here
 					if (fbUseDelayedCommit) {
 						// activate delayed commit
 						String sParamDelayed = "set delayed_commit on";
 						String sTmpResultformat;
-						in->Get( "SybDBResultFormat", sTmpResultformat, ctx);
-						//if ( !(bRet = pSyb->SqlExec(daParams, sParamDelayed, sTmpResultformat) ) )
-						if ( !(bRet = pSyb->SqlExec(daParams, sParamDelayed, "", 0, 0) ) ) {
+						in->Get("SybDBResultFormat", sTmpResultformat, ctx);
+						// if ( !(bRet = pSyb->SqlExec(daParams, sParamDelayed, sTmpResultformat) ) )
+						if (!(bRet = pSyb->SqlExec(daParams, sParamDelayed, "", 0, 0))) {
 							SYSWARNING("could not execute the sql command " << sParamDelayed << " or it was aborted");
 							// maybe a close is better here to reduce the risk of further failures
 							pSyb->Close();
@@ -298,13 +294,14 @@ bool SybCTnewDAImpl::Exec( Context &ctx, ParameterMapper *in, ResultMapper *out)
 						}
 					}
 				}
-				if ( bIsOpen ) {
-					if ( DoPrepareSQL(command, ctx, in) ) {
+				if (bIsOpen) {
+					if (DoPrepareSQL(command, ctx, in)) {
 						String resultformat, resultsize, resultmaxrows;
-						in->Get( "SybDBResultFormat", resultformat, ctx);
-						in->Get( "SybDBMaxResultSize", resultsize, ctx);
-						in->Get( "SybDBMaxRows", resultmaxrows, ctx);
-						if ( !(bRet = pSyb->SqlExec( daParams, command, resultformat, resultsize.AsLong(0L), resultmaxrows.AsLong(-1L) ) ) ) {
+						in->Get("SybDBResultFormat", resultformat, ctx);
+						in->Get("SybDBMaxResultSize", resultsize, ctx);
+						in->Get("SybDBMaxRows", resultmaxrows, ctx);
+						if (!(bRet = pSyb->SqlExec(daParams, command, resultformat, resultsize.AsLong(0L),
+												   resultmaxrows.AsLong(-1L)))) {
 							SYSWARNING("could not execute the sql command or it was aborted");
 							// maybe a close is better here to reduce the risk of further failures
 							pSyb->Close();
@@ -313,7 +310,7 @@ bool SybCTnewDAImpl::Exec( Context &ctx, ParameterMapper *in, ResultMapper *out)
 							bDoRetry = false;
 						}
 					} else {
-						out->Put("Messages", "Rendered slot SQL resulted in an empty string", ctx);
+						out->Put("Messages", true, ctx);
 						bDoRetry = false;
 					}
 				}
@@ -321,29 +318,29 @@ bool SybCTnewDAImpl::Exec( Context &ctx, ParameterMapper *in, ResultMapper *out)
 			} else {
 				SYSERROR("unable to get SybCTnewDA");
 			}
-			if ( bDoRetry && lTryCount > 0 ) {
+			if (bDoRetry && lTryCount > 0) {
 				SYSWARNING("Internally retrying to execute command [" << command << "]");
 			}
 		}
 	} else {
-		SystemLog::Error("Tried to access SybCTnewDAImpl when SybaseModule was not initialized!\n Try to add a slot SybaseModule to Modules slot and /SybaseModule { /SybCTnewDAImpl { <config> } } into Config.any");
+		SystemLog::Error(
+			"Tried to access SybCTnewDAImpl when SybaseModule was not initialized!\n Try to add a slot SybaseModule to Modules "
+			"slot and /SybaseModule { /SybCTnewDAImpl { <config> } } into Config.any");
 	}
 	return bRet;
 }
 
-bool SybCTnewDAImpl::DoPrepareSQL( String &command, Context &ctx, ParameterMapper *in)
-{
+bool SybCTnewDAImpl::DoPrepareSQL(String &command, Context &ctx, ParameterMapper *in) {
 	StartTrace(SybCTnewDAImpl.DoPrepareSQL);
 	DAAccessTimer(SybCTnewDAImpl.DoPrepareSQL, fName, ctx);
 	OStringStream os(command);
 	in->Get("SQL", os, ctx);
 	os.flush();
-	SubTrace (Query, "QUERY IS [" << command << "]");
+	SubTrace(Query, "QUERY IS [" << command << "]");
 	return (command.Length() > 0L);
 }
 
-bool SybCTnewDAImpl::CheckCloseOpenedConnections(long lTimeout)
-{
+bool SybCTnewDAImpl::CheckCloseOpenedConnections(long lTimeout) {
 	StartTrace(SybCTnewDAImpl.CheckCloseOpenedConnections);
 	bool bRet = false;
 	Anything anyTimeStamp(coast::storage::Global());
@@ -351,22 +348,22 @@ bool SybCTnewDAImpl::CheckCloseOpenedConnections(long lTimeout)
 	aStamp -= lTimeout;
 	Trace("current timeout " << lTimeout << "s, resulting time [" << aStamp.AsString() << "]");
 	LockUnlockEntry me(fgStructureMutex);
-	if ( fgInitialized ) {
+	if (fgInitialized) {
 		TraceAny(fgListOfSybCT, "current list of connections");
-		if ( fgListOfSybCT.LookupPath(anyTimeStamp, "Open") && anyTimeStamp.GetSize() ) {
+		if (fgListOfSybCT.LookupPath(anyTimeStamp, "Open") && (anyTimeStamp.GetSize() != 0)) {
 			SybCTnewDA *pSyb = NULL;
 			long lTS = 0L;
 			// if we still have open connections and the last access is older than lTimeout seconds
-			while ( anyTimeStamp.GetSize() && ( aStamp > TimeStamp(anyTimeStamp.SlotName(lTS)) ) ) {
+			while ((anyTimeStamp.GetSize() != 0) && (aStamp > TimeStamp(anyTimeStamp.SlotName(lTS)))) {
 				Anything anyTS(coast::storage::Global());
 				anyTS = anyTimeStamp[lTS];
 				TraceAny(anyTS, "stamp of connections to close [" << anyTimeStamp.SlotName(0L) << "]");
-				while ( anyTS.GetSize() ) {
+				while (anyTS.GetSize() != 0) {
 					pSyb = SafeCast(anyTS[0L][0L].AsIFAObject(), SybCTnewDA);
 					anyTS.Remove(0L);
-					if ( pSyb != NULL ) {
+					if (pSyb != NULL) {
 						Trace("closing timeouted connection");
-						if ( pSyb->Close() ) {
+						if (pSyb->Close()) {
 							bRet = true;
 						}
 					} else {
@@ -385,11 +382,10 @@ bool SybCTnewDAImpl::CheckCloseOpenedConnections(long lTimeout)
 
 //---- SybCheckCloseOpenedConnectionsAction ----------------------------------------------------------
 //: triggers cleanup of open but unused sybase connections
-class SybCheckCloseOpenedConnectionsAction : public Action
-{
+class SybCheckCloseOpenedConnectionsAction : public Action {
 public:
 	//--- constructors
-	SybCheckCloseOpenedConnectionsAction(const char *name) : Action(name) { }
+	SybCheckCloseOpenedConnectionsAction(const char *name) : Action(name) {}
 	~SybCheckCloseOpenedConnectionsAction() {}
 
 	//:cleans the session list from timeouted sessions

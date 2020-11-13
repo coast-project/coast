@@ -17,8 +17,7 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class GetEnvRendererTest : public testframework::TestCase
-{
+class GetEnvRendererTest : public testframework::TestCase {
 public:
 	//--- constructors
 
@@ -32,7 +31,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//! describe this testcase
 	void EnvTest();

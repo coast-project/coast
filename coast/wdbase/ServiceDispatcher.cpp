@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "ServiceDispatcher.h"
-#include "ServiceHandler.h"
-#include "Renderer.h"
+
 #include "Policy.h"
+#include "Renderer.h"
+#include "ServiceHandler.h"
 
 RegCacheImpl(ServiceDispatcher);
 RegisterModule(ServiceDispatchersModule);
@@ -37,16 +38,16 @@ bool ServiceDispatcher::Dispatch2Service(std::ostream &reply, Context &ctx) {
 	ctx.Push(strKey, this);
 	ServiceHandler *sh = FindServiceHandler(ctx);
 	// if no service handler is found, use DefaultHandler instead
-	if (!sh) {
+	if (sh == 0) {
 		String def = ServiceDispatcher::FindServiceName(ctx);
 		Trace("using DefaultHandler [" << def << "]");
 		sh = ServiceHandler::FindServiceHandler(def);
 	}
 	bool status = false;
-	if (sh) {
+	if (sh != 0) {
 		status = sh->HandleService(reply, ctx);
 	}
-	ctx.Pop(strKey); //!@FIXME: use PushPopEntry for LookupInterfaces too
+	ctx.Pop(strKey);  //!@FIXME: use PushPopEntry for LookupInterfaces too
 	return status;
 }
 
@@ -68,7 +69,7 @@ long RendererDispatcher::FindURIPrefixInList(const String &requestURI, const ROA
 	long apSz = uriPrefixList.GetSize();
 	for (long i = 0; i < apSz; ++i) {
 		const char *uriPrefix = uriPrefixList.SlotName(i);
-		if (uriPrefix && requestURI.StartsWith(uriPrefix)) {
+		if ((uriPrefix != 0) && requestURI.StartsWith(uriPrefix)) {
 			return i;
 		}
 	}
@@ -90,7 +91,8 @@ String RendererDispatcher::FindServiceName(Context &ctx) {
 		SubTraceAny(query, query, "Query: ");
 		Trace("Service [" << service << "]");
 		return service;
-	} else if (uriPrefixList.GetSize() > 0) {
+	}
+	if (uriPrefixList.GetSize() > 0) {
 		query["Error"] = String("Service[").Append(requestURI.SubString(0, requestURI.StrChr('/', 1))).Append("]NotFound");
 	}
 	String defaultHandler(ServiceDispatcher::FindServiceName(ctx));

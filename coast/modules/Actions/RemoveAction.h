@@ -16,15 +16,14 @@
 /*! @section RemoveActionConfiguration Configuration$
 @code
 {
-	/Store	Role			# optional, default TempStore [Role|Session|Request|TempStore], The Store where the data are copied into
-	/Slot	Rendererspec	# mandatory, producing the Slotname in the Store that is removed
-	/Delim   				# optional, default ".", first char is taken as delimiter for named slots
-	/IndexDelim				# optional, default ":", first char is taken as delimiter for indexed slots
+  /Store	Role			# optional, default TempStore [Role|Session|Request|TempStore], The Store where the data are copied into
+  /Slot	Rendererspec	# mandatory, producing the Slotname in the Store that is removed
+  /Delim   				# optional, default ".", first char is taken as delimiter for named slots
+  /IndexDelim				# optional, default ":", first char is taken as delimiter for indexed slots
 }
 @endcode
  */
-class RemoveAction : public Action
-{
+class RemoveAction : public Action {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	RemoveAction(const char *name) : Action(name) {}

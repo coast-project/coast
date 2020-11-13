@@ -11,13 +11,12 @@
 
 #include "TestCase.h"
 
-class SS1Test : public testframework::TestCase
-{
+class SS1Test : public testframework::TestCase {
 public:
 	SS1Test(TString tstrName);
 	virtual ~SS1Test();
 
-	static Test *suite ();
+	static Test *suite();
 
 	void SimpleTest();
 };

@@ -9,21 +9,19 @@
 #ifndef _WorkerPoolManagerTest_H
 #define _WorkerPoolManagerTest_H
 
+#include "Mutex.h"
 #include "TestCase.h"
-#include "Threads.h"
 
-class WorkerPoolManagerTest: public testframework::TestCase {
+class WorkerPoolManagerTest : public testframework::TestCase {
 public:
-	WorkerPoolManagerTest(TString tname) :
-		TestCaseType(tname), fCheckMutex("WorkerPoolManager") {
-	}
-	//!builds up a suite of testcases for this test
+	WorkerPoolManagerTest(TString tname) : TestCaseType(tname), fCheckMutex("WorkerPoolManager") {}
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!test initialization
+	//! test initialization
 	void InitTest();
 
-	//!test EnterAndLeaves
+	//! test EnterAndLeaves
 	void EnterLeaveTests();
 
 	void CheckProcessWorkload(bool isReady, bool wasPrepared);

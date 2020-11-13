@@ -26,11 +26,11 @@
  * @section msarm1 Mapper configuration
 @code
 {
-	/Fields {
-		/<name>		String
-		...
-	}
-	/FieldSeparator	String
+  /Fields {
+	/<name>		String
+	...
+  }
+  /FieldSeparator	String
 }
 @endcode
  * @par \c Fields
@@ -49,20 +49,20 @@
  * @par Example1:
 @code
 /MSAjaxFixFieldLengthResultMapper {
-	/DestinationSlot	Body
-	/Fields {
-		/len	0
-		/id1	*
-		/id2	*
-		/value	"+"
-	}
-	/FieldSeparator	"|"
-	/value {
-		/RootMapper *
-	}
-	/Content {
-		/ResultMapper *
-	}
+  /DestinationSlot	Body
+  /Fields {
+	/len	0
+	/id1	*
+	/id2	*
+	/value	"+"
+  }
+  /FieldSeparator	"|"
+  /value {
+	/RootMapper *
+  }
+  /Content {
+	/ResultMapper *
+  }
 }
 @endcode
  * value to put with key \b Content
@@ -72,20 +72,17 @@
  * resulting output in TmpStore would be:
 @code
 /Body {
-	/Content "3|x|y|\xC3\xA4\xC3\xB6\xC3\xBC|"
+  /Content "3|x|y|\xC3\xA4\xC3\xB6\xC3\xBC|"
 }
 @endcode
 */
-class MSAjaxFixFieldLengthResultMapper: public ResultMapper {
+class MSAjaxFixFieldLengthResultMapper : public ResultMapper {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	MSAjaxFixFieldLengthResultMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	MSAjaxFixFieldLengthResultMapper(const char *name) : ResultMapper(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) MSAjaxFixFieldLengthResultMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) MSAjaxFixFieldLengthResultMapper(fName); }
+
 protected:
 	//! potentially correct the length fields of the MSAjax structure
 	/*! @copydoc ResultMapper::DoPutAny() */

@@ -7,14 +7,17 @@
  */
 
 #include "LFListenerPoolTest.h"
-#include "LFListenerPool.h"
-#include "TestSuite.h"
-#include "Socket.h"
-#include "WPMStatHandler.h"
-#include "RequestProcessor.h"
 
-class TestProcessor: public RequestProcessor
-{
+#include "LFListenerPool.h"
+#include "RequestProcessor.h"
+#include "Socket.h"
+#include "TestSuite.h"
+#include "WPMStatHandler.h"
+
+#include <istream>
+#include <ostream>
+
+class TestProcessor : public RequestProcessor {
 public:
 	TestProcessor(LFListenerPoolTest *);
 	~TestProcessor();
@@ -24,59 +27,49 @@ protected:
 	LFListenerPoolTest *fTest;
 };
 
-TestProcessor::TestProcessor(LFListenerPoolTest *test)
-	: RequestProcessor("TestProcessor")
-	, fTest(test)
-{
+TestProcessor::TestProcessor(LFListenerPoolTest *test) : RequestProcessor("TestProcessor"), fTest(test) {
 	StartTrace(TestProcessor.Ctor);
 }
 
-TestProcessor::~TestProcessor()
-{
+TestProcessor::~TestProcessor() {
 	StartTrace(TestProcessor.Dtor);
 }
 
-void TestProcessor::ProcessRequest(Context &ctx)
-{
+void TestProcessor::ProcessRequest(Context &ctx) {
 	StartTrace(TestProcessor.ProcessRequest);
 	fTest->EventProcessed(ctx.GetSocket());
 }
 
-LFListenerPoolTest::LFListenerPoolTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+LFListenerPoolTest::LFListenerPoolTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(LFListenerPoolTest.LFListenerPoolTest);
 }
 
-LFListenerPoolTest::~LFListenerPoolTest()
-{
+LFListenerPoolTest::~LFListenerPoolTest() {
 	StartTrace(LFListenerPoolTest.Dtor);
 }
 
-void LFListenerPoolTest::setUp ()
-{
+void LFListenerPoolTest::setUp() {
 	StartTrace(LFListenerPoolTest.setUp);
 	t_assert(GetConfig().IsDefined("Modules"));
 }
 
-void LFListenerPoolTest::NoReactorTest()
-{
+void LFListenerPoolTest::NoReactorTest() {
 	StartTrace(LFListenerPoolTest.NoReactorTest);
 	LFListenerPool lfp(0);
 	Trace("ip:" << GetConfig()["Testhost"]["ip"].AsString() << " : port:" << GetConfig()["Testhost"]["port"].AsLong());
 	Anything lfpConfig;
 	lfpConfig.Append(String("Accept") << GetConfig()["Testhost"]["port"].AsString());
-	if ( t_assertm( !lfp.Init(2, lfpConfig, true), "no reactor is configured; init should fail")) {
+	if (t_assertm(!lfp.Init(2, lfpConfig, true), "no reactor is configured; init should fail")) {
 		t_assertm(lfp.GetPoolSize() == 0, "expected no threads in pool");
 		t_assertm(lfp.Start(true, 1000, 11) == -1, "expected Start to fail");
 	}
 }
 
-void LFListenerPoolTest::NoFactoryTest()
-{
+void LFListenerPoolTest::NoFactoryTest() {
 	StartTrace(LFListenerPoolTest.NoFactoryTest);
 	const long cNumOfThreads = 2;
-	LFListenerPool lfp(new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
+	LFListenerPool lfp(
+		new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
 
 	Anything lfpConfig;
 	lfpConfig.Append("TCP4343");
@@ -86,11 +79,11 @@ void LFListenerPoolTest::NoFactoryTest()
 	}
 }
 
-void LFListenerPoolTest::InvalidAcceptorTest()
-{
+void LFListenerPoolTest::InvalidAcceptorTest() {
 	StartTrace(LFListenerPoolTest.InvalidAcceptorTest);
 	const long cNumOfThreads = 2;
-	LFListenerPool lfp(new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
+	LFListenerPool lfp(
+		new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
 
 	Anything lfpConfig;
 	lfpConfig.Append("Fake");
@@ -100,8 +93,7 @@ void LFListenerPoolTest::InvalidAcceptorTest()
 	}
 }
 
-void LFListenerPoolTest::InvalidReactorTest()
-{
+void LFListenerPoolTest::InvalidReactorTest() {
 	StartTrace(LFListenerPoolTest.InvalidReactorTest);
 	const long cNumOfThreads = 2;
 	LFListenerPool lfp(new RequestReactor(0, 0));
@@ -114,16 +106,16 @@ void LFListenerPoolTest::InvalidReactorTest()
 	}
 }
 
-void LFListenerPoolTest::OneAcceptorTest()
-{
+void LFListenerPoolTest::OneAcceptorTest() {
 	StartTrace(LFListenerPoolTest.OneAcceptorTest);
 	const long cNumOfThreads = 2;
-	LFListenerPool lfp(new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
+	LFListenerPool lfp(
+		new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
 
 	Anything lfpConfig;
 	lfpConfig.Append("TCP5010");
 	if (t_assertm(lfp.Init(cNumOfThreads, lfpConfig, true), "expected initialization to succeed; are factories present?")) {
-		if (t_assert(lfp.Start(true, 1000, 11) == 0 )) {
+		if (t_assert(lfp.Start(true, 1000, 11) == 0)) {
 			ProcessOneEvent();
 			lfp.RequestTermination();
 			t_assertm(lfp.Join() == 0, "expected Join to succeed");
@@ -131,17 +123,17 @@ void LFListenerPoolTest::OneAcceptorTest()
 	}
 }
 
-void LFListenerPoolTest::TwoAcceptorsTest()
-{
+void LFListenerPoolTest::TwoAcceptorsTest() {
 	StartTrace(LFListenerPoolTest.TwoAcceptorsTest);
 	const long cNumOfThreads = 3;
-	LFListenerPool lfp(new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
+	LFListenerPool lfp(
+		new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
 
 	Anything lfpConfig;
 	lfpConfig.Append("TCP5010");
 	lfpConfig.Append("TCP5011");
 	if (t_assertm(lfp.Init(cNumOfThreads, lfpConfig, true), "expected initialization to succeed; are factories present?")) {
-		if (t_assert(lfp.Start(true, 1000, 11) == 0 )) {
+		if (t_assert(lfp.Start(true, 1000, 11) == 0)) {
 			ProcessTwoEvents();
 			lfp.RequestTermination();
 			t_assertm(lfp.Join() == 0, "expected Join to succeed");
@@ -149,12 +141,12 @@ void LFListenerPoolTest::TwoAcceptorsTest()
 	}
 }
 
-void LFListenerPoolTest::ManyAcceptorsTest()
-{
+void LFListenerPoolTest::ManyAcceptorsTest() {
 	StartTrace(LeaderFollowerPoolTest.ManyAcceptorsTest);
 	{
 		const long cNumOfThreads = 0;
-		LFListenerPool lfp(new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
+		LFListenerPool lfp(
+			new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
 
 		Anything lfpConfig;
 		lfpConfig.Append("TCP5010");
@@ -164,12 +156,12 @@ void LFListenerPoolTest::ManyAcceptorsTest()
 		if (t_assertm(!lfp.Init(cNumOfThreads, lfpConfig, true), "should not allow LFPool to run without threads")) {
 			t_assertm(lfp.GetPoolSize() == 0, "expected no threads in pool");
 			t_assertm(lfp.Start(true, 1000, 11) == -1, "expected Start to fail");
-
 		}
 	}
 	{
 		const long cNumOfThreads = 1;
-		LFListenerPool lfp(new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
+		LFListenerPool lfp(
+			new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
 
 		Anything lfpConfig;
 		lfpConfig.Append("TCP5010");
@@ -177,7 +169,7 @@ void LFListenerPoolTest::ManyAcceptorsTest()
 		lfpConfig.Append("TCP5012");
 
 		if (t_assertm(lfp.Init(cNumOfThreads, lfpConfig, true), "some port maybe already bound")) {
-			if (t_assert(lfp.Start(false, 1000, 10) == 0 )) {
+			if (t_assert(lfp.Start(false, 1000, 10) == 0)) {
 				ProcessManyEvents();
 				lfp.RequestTermination();
 				t_assertm(lfp.Join() == 0, "expected Join to succeed");
@@ -186,7 +178,8 @@ void LFListenerPoolTest::ManyAcceptorsTest()
 	}
 	{
 		const long cNumOfThreads = 2;
-		LFListenerPool lfp(new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
+		LFListenerPool lfp(
+			new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
 
 		Anything lfpConfig;
 		lfpConfig.Append("TCP5010");
@@ -194,7 +187,7 @@ void LFListenerPoolTest::ManyAcceptorsTest()
 		lfpConfig.Append("TCP5012");
 
 		if (t_assertm(lfp.Init(cNumOfThreads, lfpConfig, true), "some port maybe already bound")) {
-			if (t_assert(lfp.Start(false, 1000, 10) == 0 )) {
+			if (t_assert(lfp.Start(false, 1000, 10) == 0)) {
 				ProcessManyEvents();
 				lfp.RequestTermination();
 				t_assertm(lfp.Join() == 0, "expected Join to succeed");
@@ -203,7 +196,8 @@ void LFListenerPoolTest::ManyAcceptorsTest()
 	}
 	{
 		const long cNumOfThreads = 3;
-		LFListenerPool lfp(new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
+		LFListenerPool lfp(
+			new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
 
 		Anything lfpConfig;
 		lfpConfig.Append("TCP5010");
@@ -211,7 +205,7 @@ void LFListenerPoolTest::ManyAcceptorsTest()
 		lfpConfig.Append("TCP5012");
 
 		if (t_assertm(lfp.Init(cNumOfThreads, lfpConfig, true), "some port maybe already bound")) {
-			if (t_assert(lfp.Start(false, 1000, 10) == 0 )) {
+			if (t_assert(lfp.Start(false, 1000, 10) == 0)) {
 				ProcessManyEvents();
 				lfp.RequestTermination();
 				t_assertm(lfp.Join() == 0, "expected Join to succeed");
@@ -220,7 +214,8 @@ void LFListenerPoolTest::ManyAcceptorsTest()
 	}
 	{
 		const long cNumOfThreads = 4;
-		LFListenerPool lfp(new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
+		LFListenerPool lfp(
+			new RequestReactor(new (coast::storage::Global()) TestProcessor(this), new WPMStatHandler(cNumOfThreads)));
 
 		Anything lfpConfig;
 		lfpConfig.Append("TCP5010");
@@ -228,7 +223,7 @@ void LFListenerPoolTest::ManyAcceptorsTest()
 		lfpConfig.Append("TCP5012");
 
 		if (t_assertm(lfp.Init(cNumOfThreads, lfpConfig, true), "some port maybe already bound")) {
-			if (t_assert(lfp.Start(true, 1000, 11) == 0 )) {
+			if (t_assert(lfp.Start(true, 1000, 11) == 0)) {
 				ProcessManyEvents();
 				lfp.RequestTermination();
 				t_assertm(lfp.Join() == 0, "expected Join to succeed");
@@ -237,8 +232,7 @@ void LFListenerPoolTest::ManyAcceptorsTest()
 	}
 }
 
-bool LFListenerPoolTest::EventProcessed(Socket *socket)
-{
+bool LFListenerPoolTest::EventProcessed(Socket *socket) {
 	StartTrace(LFListenerPoolTest.EventProcessed);
 	if (t_assert(socket != NULL)) {
 		String request;
@@ -250,13 +244,12 @@ bool LFListenerPoolTest::EventProcessed(Socket *socket)
 	return false;
 }
 
-void LFListenerPoolTest::ProcessOneEvent()
-{
+void LFListenerPoolTest::ProcessOneEvent() {
 	StartTrace(LeaderFollowerPoolTest.ProcessOneEvent);
 	Connector c1(GetConfig()["Testhost"]["ip"].AsString(), GetConfig()["TCP5010"]["Port"].AsLong());
 	String reply1;
 
-	if ( t_assert(c1.GetStream() != NULL) ) {
+	if (t_assert(c1.GetStream() != NULL)) {
 		(*c1.GetStream()) << "hallo" << std::endl;
 		t_assert(!!(*c1.GetStream()));
 		(*c1.GetStream()) >> reply1;
@@ -266,8 +259,7 @@ void LFListenerPoolTest::ProcessOneEvent()
 	}
 }
 
-void LFListenerPoolTest::ProcessManyEvents()
-{
+void LFListenerPoolTest::ProcessManyEvents() {
 	StartTrace(LeaderFollowerPoolTest.ProcessManyEvents);
 	Connector c1(GetConfig()["Testhost"]["ip"].AsString(), GetConfig()["TCP5010"]["Port"].AsLong());
 	Connector c2(GetConfig()["Testhost"]["ip"].AsString(), GetConfig()["TCP5011"]["Port"].AsLong());
@@ -296,8 +288,7 @@ void LFListenerPoolTest::ProcessManyEvents()
 	}
 }
 
-void LFListenerPoolTest::ProcessTwoEvents()
-{
+void LFListenerPoolTest::ProcessTwoEvents() {
 	StartTrace(LeaderFollowerPoolTest.ProcessTwoEvents);
 	Connector c1(GetConfig()["Testhost"]["ip"].AsString(), GetConfig()["TCP5010"]["Port"].AsLong());
 	Connector c2(GetConfig()["Testhost"]["ip"].AsString(), GetConfig()["TCP5011"]["Port"].AsLong());
@@ -320,8 +311,7 @@ void LFListenerPoolTest::ProcessTwoEvents()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *LFListenerPoolTest::suite ()
-{
+Test *LFListenerPoolTest::suite() {
 	StartTrace(LFListenerPoolTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

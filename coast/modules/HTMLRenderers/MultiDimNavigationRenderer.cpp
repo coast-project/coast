@@ -7,28 +7,31 @@
  */
 
 #include "MultiDimNavigationRenderer.h"
+
 #include "Tracer.h"
+
+#include <ostream>
 
 //---- MultiDimNavigationRenderer ---------------------------------------------------------------
 RegisterRenderer(MultiDimNavigationRenderer);
 
-MultiDimNavigationRenderer::MultiDimNavigationRenderer(const char *name) : Renderer(name) { }
+MultiDimNavigationRenderer::MultiDimNavigationRenderer(const char *name) : Renderer(name) {}
 
-MultiDimNavigationRenderer::~MultiDimNavigationRenderer() { }
+MultiDimNavigationRenderer::~MultiDimNavigationRenderer() {}
 
-void MultiDimNavigationRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void MultiDimNavigationRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(MultiDimNavigationRenderer.RenderAll);
 
-	String tableWidth(""), borderWidth(""), cellpadding(""), cellspacing(""), eltsProLine(""), nrOfLines(""), nameOfSpecEltsList(""), tdBGColor(""),
-		   optionalTagBefore(""), optionalTagAfter(""), defaultElt(""), overrideDefaultElt("");
+	String tableWidth(""), borderWidth(""), cellpadding(""), cellspacing(""), eltsProLine(""), nrOfLines(""),
+		nameOfSpecEltsList(""), tdBGColor(""), optionalTagBefore(""), optionalTagAfter(""), defaultElt(""),
+		overrideDefaultElt("");
 	ROAnything roaSlotConfig, roaUndefEltConfig, roaSpecEltsConfig;
 
 	// Default value of tableWidth is 20%
 	if (config.LookupPath(roaSlotConfig, "TableWidth")) {
 		RenderOnString(tableWidth, c, roaSlotConfig);
 	}
-	if ( tableWidth.AsLong(-1) < 0 ) {
+	if (tableWidth.AsLong(-1) < 0) {
 		tableWidth = "20";
 	}
 
@@ -36,7 +39,7 @@ void MultiDimNavigationRenderer::RenderAll(std::ostream &reply, Context &c, cons
 	if (config.LookupPath(roaSlotConfig, "BorderWidth")) {
 		RenderOnString(borderWidth, c, roaSlotConfig);
 	}
-	if ( borderWidth.AsLong(-1) < 0 ) {
+	if (borderWidth.AsLong(-1) < 0) {
 		borderWidth = "0";
 	}
 
@@ -44,7 +47,7 @@ void MultiDimNavigationRenderer::RenderAll(std::ostream &reply, Context &c, cons
 	if (config.LookupPath(roaSlotConfig, "Cellpadding")) {
 		RenderOnString(cellpadding, c, roaSlotConfig);
 	}
-	if ( cellpadding.AsLong(-1) < 0 ) {
+	if (cellpadding.AsLong(-1) < 0) {
 		cellpadding = "0";
 	}
 
@@ -52,7 +55,7 @@ void MultiDimNavigationRenderer::RenderAll(std::ostream &reply, Context &c, cons
 	if (config.LookupPath(roaSlotConfig, "Cellspacing")) {
 		RenderOnString(cellspacing, c, roaSlotConfig);
 	}
-	if ( cellspacing.AsLong(-1) < 0 ) {
+	if (cellspacing.AsLong(-1) < 0) {
 		cellspacing = "0";
 	}
 
@@ -60,7 +63,7 @@ void MultiDimNavigationRenderer::RenderAll(std::ostream &reply, Context &c, cons
 	if (config.LookupPath(roaSlotConfig, "EltsProLine")) {
 		RenderOnString(eltsProLine, c, roaSlotConfig);
 	}
-	if ( eltsProLine.AsLong(-1) < 0 ) {
+	if (eltsProLine.AsLong(-1) < 0) {
 		eltsProLine = "1";
 	}
 
@@ -68,7 +71,7 @@ void MultiDimNavigationRenderer::RenderAll(std::ostream &reply, Context &c, cons
 	if (config.LookupPath(roaSlotConfig, "NrOfLines")) {
 		RenderOnString(nrOfLines, c, roaSlotConfig);
 	}
-	if ( nrOfLines.AsLong(-1) < 0 ) {
+	if (nrOfLines.AsLong(-1) < 0) {
 		nrOfLines = "1";
 	}
 
@@ -94,22 +97,23 @@ void MultiDimNavigationRenderer::RenderAll(std::ostream &reply, Context &c, cons
 	long lineNrMax = nrOfLines.AsLong(1);
 	long columnNrMax = eltsProLine.AsLong(1);
 
-	reply << "<table border=" << borderWidth << " cellpadding=" << cellpadding << " cellspacing=" << cellspacing <<  " width=\"" << tableWidth << "%\">";
-	for ( long lineNr = 0; lineNr < lineNrMax; ++lineNr ) {
+	reply << "<table border=" << borderWidth << " cellpadding=" << cellpadding << " cellspacing=" << cellspacing << " width=\""
+		  << tableWidth << "%\">";
+	for (long lineNr = 0; lineNr < lineNrMax; ++lineNr) {
 		reply << "<tr>";
-		for ( long columnNr = 0; columnNr < columnNrMax; ++columnNr ) {
+		for (long columnNr = 0; columnNr < columnNrMax; ++columnNr) {
 			reply << "<td align=center ";
-			if (tdBGColor.Length()) {
-				reply << "BGColor=\"" <<  tdBGColor << "\" ";
+			if (tdBGColor.Length() != 0) {
+				reply << "BGColor=\"" << tdBGColor << "\" ";
 			}
 
 			reply << " >" << optionalTagBefore;
 			String elementSlotName;
-			elementSlotName = String( "" ) << "Elt_L" << lineNr << "_C" << columnNr;
+			elementSlotName = String("") << "Elt_L" << lineNr << "_C" << columnNr;
 			String elementCondSlotName;
 			elementCondSlotName << elementSlotName << "_Cond";
 			String elementDefaultSlotName;
-			elementDefaultSlotName = String( "" ) << "Elt_L" << lineNr << "_Default";
+			elementDefaultSlotName = String("") << "Elt_L" << lineNr << "_Default";
 
 			bool renderButton = true;
 

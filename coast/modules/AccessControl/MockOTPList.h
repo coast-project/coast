@@ -17,51 +17,48 @@ class TokenDataAccessController;
 //! Mock-Implementation of the OTPList API.
 /*! Config:<pre>
 {
-	/TokenX {
-		/OtpList	mandatory, list of one time passwords for Token X
-		/Count		optional, initial index into otp list of Token X (default = 0)
-	}
-	/TokenY {
-		...
-	}
+  /TokenX {
+	/OtpList	mandatory, list of one time passwords for Token X
+	/Count		optional, initial index into otp list of Token X (default = 0)
+  }
+  /TokenY {
+	...
+  }
 }
 </pre>
 Example:
 <pre>
 {
-	/MyToken {
-		/OtpList {
-			"293ab3"
-			"ff293g"
-			"9301aa"
-		}
-		/Count	2
+  /MyToken {
+	/OtpList {
+	  "293ab3"
+	  "ff293g"
+	  "9301aa"
 	}
+	/Count	2
+  }
 
-	/YourToken {
-		/OtpList {
-			"9829r3"
-			"883299"
-			"md299d"
-		}
-		# no count given - defaults to 0
+  /YourToken {
+	/OtpList {
+	  "9829r3"
+	  "883299"
+	  "md299d"
 	}
+	# no count given - defaults to 0
+  }
 }
 </pre>
 Keeps one time password lists in its config and updates count in memory only.
 If no config is defined (i.e. no corresponding any file exists) then the
 Mock implementation will always return true, no matter what the inputs are.
 */
-class MockOTPList : public OTPList
-{
+class MockOTPList : public OTPList {
 public:
-	MockOTPList(const char *name) : OTPList(name) {};
-	~MockOTPList() {};
+	MockOTPList(const char *name) : OTPList(name){};
+	~MockOTPList(){};
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) MockOTPList(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) MockOTPList(fName); }
 
 	//! return true always (no matter what arguments are), if NO config is present.
 	//! if a config IS present then:

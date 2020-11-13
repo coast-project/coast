@@ -7,15 +7,16 @@
  */
 
 #include "ObjectListTest.h"
-#include "TestSuite.h"
+
 #include "ObjectList.h"
+#include "TestSuite.h"
 
 void ObjectListTest::CtorTest() {
 	StartTrace(ObjectListTest.CtorTest);
 	StartTraceMem(ObjectListTest.CtorTest);
 	{
 		TraceMemDelta("before allocation");
-		String *pString;
+		String *pString = NULL;
 		const long lCount = 10;
 		pString = new String("Guguseli");
 		ObjectList<String *> aStringList("StringPointerList");
@@ -54,7 +55,7 @@ void ObjectListTest::DtorTest() {
 	StartTraceMem(ObjectListTest.DtorTest);
 	{
 		TraceMemDelta("before allocation");
-		String *pString;
+		String *pString = NULL;
 		const long lCount = 10;
 		{
 			ObjectList<String *> aStringList("StringPointerList");
@@ -76,7 +77,7 @@ void ObjectListTest::DtorTest() {
 		{
 			ObjectList<int> aIntList("IntList");
 			for (long lIdx = 0; lIdx < lCount; lIdx++) {
-				aIntList.InsertTail((int) lCount);
+				aIntList.InsertTail((int)lCount);
 			}
 			assertEqual(lCount, aIntList.GetSize());
 			TraceMemDelta("after allocation of many ints");

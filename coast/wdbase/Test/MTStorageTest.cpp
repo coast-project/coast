@@ -7,32 +7,31 @@
  */
 
 #include "MTStorageTest.h"
+
+#include "LockUnlockEntry.h"
+#include "MT_Storage.h"
 #include "TestSuite.h"
 #include "Timers.h"
-#include "MT_Storage.h"
 
-class AllocTestThread : public Thread
-{
+class AllocTestThread : public Thread {
 public:
 	// Timings are done in nanoseconds, resolution scales it down to whatever you like
 	AllocTestThread(TString allocatorName, Allocator *alloc, MTStorageTest *mts);
 	void Run();
 
 protected:
-//	virtual void DoSignalThreadEnd();
+	//	virtual void DoSignalThreadEnd();
 
 	void DoTimingWith(TString allocatorName, Allocator *alloc);
 	TString fAllocatorName;
 	MTStorageTest *fTest;
 };
 
-MTStorageTest::MTStorageTest(TString tname) : TestCaseType(tname), fFinishedMutex("Finish"), fFinished(0), fStarted(false)
-{
+MTStorageTest::MTStorageTest(TString tname) : TestCaseType(tname), fFinishedMutex("Finish"), fFinished(0), fStarted(false) {
 	THRSETCONCURRENCY(3);
 }
 
-void MTStorageTest::GlobalAllocatorTiming()
-{
+void MTStorageTest::GlobalAllocatorTiming() {
 	fFinished = 0;
 	fStarted = false;
 	GlobalAllocator ga1;
@@ -51,7 +50,6 @@ void MTStorageTest::GlobalAllocatorTiming()
 		LockUnlockEntry me(fFinishedMutex);
 		fStarted = true;
 		fFinishedCond.BroadCast();
-
 	}
 
 	DiffTimer dt;
@@ -59,7 +57,7 @@ void MTStorageTest::GlobalAllocatorTiming()
 	{
 		LockUnlockEntry me(fFinishedMutex);
 
-		while ( fFinished < 2 ) {
+		while (fFinished < 2) {
 			fFinishedCond.TimedWait(fFinishedMutex, 10);
 		}
 	}
@@ -67,8 +65,7 @@ void MTStorageTest::GlobalAllocatorTiming()
 	Trace("GlobalAllocators t: " << dt.Reset());
 }
 
-void MTStorageTest::Update(tObservedPtr pObserved, tArgsRef roaUpdateArgs)
-{
+void MTStorageTest::Update(tObservedPtr pObserved, tArgsRef roaUpdateArgs) {
 	LockUnlockEntry me(fFinishedMutex);
 	{
 		StartTrace(MTStorageTest.Update);
@@ -82,17 +79,15 @@ void MTStorageTest::Update(tObservedPtr pObserved, tArgsRef roaUpdateArgs)
 	fFinishedCond.BroadCast();
 }
 
-void MTStorageTest::WaitForStart()
-{
+void MTStorageTest::WaitForStart() {
 	LockUnlockEntry me(fFinishedMutex);
 
-	while ( !fStarted) {
+	while (!fStarted) {
 		fFinishedCond.Wait(fFinishedMutex);
 	}
 }
 
-void MTStorageTest::PoolAllocatorTiming()
-{
+void MTStorageTest::PoolAllocatorTiming() {
 	fFinished = 0;
 	fStarted = false;
 
@@ -120,7 +115,7 @@ void MTStorageTest::PoolAllocatorTiming()
 	{
 		LockUnlockEntry me(fFinishedMutex);
 
-		while ( fFinished < 2 ) {
+		while (fFinished < 2) {
 			fFinishedCond.TimedWait(fFinishedMutex, 10);
 		}
 	}
@@ -128,8 +123,7 @@ void MTStorageTest::PoolAllocatorTiming()
 	Trace("PoolAllocators t: " << dt.Reset());
 }
 
-Test *MTStorageTest::suite ()
-{
+Test *MTStorageTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, MTStorageTest, GlobalAllocatorTiming);
 	ADD_CASE(testSuite, MTStorageTest, PoolAllocatorTiming);
@@ -137,32 +131,28 @@ Test *MTStorageTest::suite ()
 }
 
 AllocTestThread::AllocTestThread(TString allocatorName, Allocator *alloc, MTStorageTest *mts)
-	: Thread("AllocTestThread", false, true, false, false, alloc), fAllocatorName(allocatorName), fTest(mts)
-{
-}
+	: Thread("AllocTestThread", false, true, false, false, alloc), fAllocatorName(allocatorName), fTest(mts) {}
 
-void AllocTestThread::Run()
-{
+void AllocTestThread::Run() {
 	fTest->WaitForStart();
 	DoTimingWith(fAllocatorName, fAllocator);
 }
 
-void AllocTestThread::DoTimingWith(TString allocatorName, Allocator *myAlloc)
-{
+void AllocTestThread::DoTimingWith(TString allocatorName, Allocator *myAlloc) {
 	const int cAllocSz = 5;
 	long allocSzArr[cAllocSz];
 	void *allocPtr[cAllocSz];
 	long allocSz = 16;
 	const int cRunSize = 10000;
 
-	long i;
+	long i = 0;
 	for (i = 0; i < cAllocSz; i++) {
 		// generate some alloc sizes
 		allocSzArr[i] = allocSz;
 		allocSz *= 2;
 	}
-	for ( long run = cRunSize - 1; run >= 0; run--) {
-		if ( run < (cRunSize - cAllocSz) ) {
+	for (long run = cRunSize - 1; run >= 0; run--) {
+		if (run < (cRunSize - cAllocSz)) {
 			myAlloc->Free(allocPtr[(run + cAllocSz) % cAllocSz]);
 		}
 		allocPtr[run % cAllocSz] = myAlloc->Malloc(allocSzArr[run % cAllocSz]);

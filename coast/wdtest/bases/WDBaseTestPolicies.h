@@ -9,10 +9,10 @@
 #ifndef _WDBaseTestPolicies_H
 #define _WDBaseTestPolicies_H
 
-#include "TestCase.h"
 #include "AnythingConfigTestPolicy.h"
 #include "AppBooter.h"
 #include "Application.h"
+#include "TestCase.h"
 #include "WDModule.h"
 
 //---- WDBaseTestPolicies ----------------------------------------------------------
@@ -21,52 +21,39 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-namespace testframework
-{
+namespace testframework {
 
-	template
-	<
-	class dummy
-	>
-	class AnythingConfigWithDllAndModuleLoadingTestPolicy
-		: public AnythingConfigTestPolicy<dummy>
-	{
+	template <class dummy>
+	class AnythingConfigWithDllAndModuleLoadingTestPolicy : public AnythingConfigTestPolicy<dummy> {
 		AppBooter fBooter;
 
 	public:
 		typedef AnythingConfigWithDllAndModuleLoadingTestPolicy<dummy> ConfigPolicyType;
 		typedef AnythingConfigTestPolicy<dummy> BaseClassPolicyType;
 
-		AnythingConfigWithDllAndModuleLoadingTestPolicy() {};
-		virtual ~AnythingConfigWithDllAndModuleLoadingTestPolicy() {};
+		AnythingConfigWithDllAndModuleLoadingTestPolicy(){};
+		virtual ~AnythingConfigWithDllAndModuleLoadingTestPolicy(){};
 
 	protected:
+		ROAnything getConfigForDllAndModuleLoading() { return DoGetConfigForDllAndModuleLoading(); }
 
-		ROAnything getConfigForDllAndModuleLoading() {
-			return DoGetConfigForDllAndModuleLoading();
-		}
+		AppBooter &getAppBooter() { return fBooter; }
 
-		AppBooter &getAppBooter() {
-			return fBooter;
-		}
-
-		virtual ROAnything DoGetConfigForDllAndModuleLoading() {
-			return BaseClassPolicyType::GetConfig();
-		}
+		virtual ROAnything DoGetConfigForDllAndModuleLoading() { return BaseClassPolicyType::GetConfig(); }
 
 		virtual bool DoLoadConfig(TString strClassName, TString strTestName) {
 			StartTrace(AnythingConfigWithDllAndModuleLoadingTestPolicy.DoLoadConfig);
 			bool bRetCode = false;
-			if ( ( bRetCode = BaseClassPolicyType::DoLoadConfig(strClassName, strTestName) ) ) {
+			if ((bRetCode = BaseClassPolicyType::DoLoadConfig(strClassName, strTestName))) {
 				Anything anyConfig = getConfigForDllAndModuleLoading().DeepClone();
 				Application::InitializeGlobalConfig(anyConfig);
 
 				// load the shared objects defined in the config file
 				// those are the client parts not known at link time of this
 				// executable
-				if ( ( bRetCode = fBooter.OpenLibs(anyConfig) ) ) {
+				if ((bRetCode = fBooter.OpenLibs(anyConfig))) {
 					// add modules configured in the Config file
-					bRetCode = ( WDModule::Install(anyConfig) == 0 );
+					bRetCode = (WDModule::Install(anyConfig) == 0);
 				}
 			}
 			return bRetCode;
@@ -80,30 +67,25 @@ namespace testframework
 		}
 	};
 
-	template
-	<
-	class dummy
-	>
-	class AnythingConfigWithCaseDllAndModuleLoadingTestPolicy
-		: public AnythingConfigWithDllAndModuleLoadingTestPolicy<dummy>
-	{
+	template <class dummy>
+	class AnythingConfigWithCaseDllAndModuleLoadingTestPolicy : public AnythingConfigWithDllAndModuleLoadingTestPolicy<dummy> {
 	public:
 		typedef AnythingConfigWithCaseDllAndModuleLoadingTestPolicy<dummy> ConfigPolicyType;
 		typedef AnythingConfigWithDllAndModuleLoadingTestPolicy<dummy> BaseClassPolicyType;
 
-		AnythingConfigWithCaseDllAndModuleLoadingTestPolicy() {};
-		virtual ~AnythingConfigWithCaseDllAndModuleLoadingTestPolicy() {};
+		AnythingConfigWithCaseDllAndModuleLoadingTestPolicy(){};
+		virtual ~AnythingConfigWithCaseDllAndModuleLoadingTestPolicy(){};
 
 	protected:
-		virtual ROAnything DoGetConfigForDllAndModuleLoading() {
-			return BaseClassPolicyType::GetTestCaseConfig();
-		}
+		virtual ROAnything DoGetConfigForDllAndModuleLoading() { return BaseClassPolicyType::GetTestCaseConfig(); }
 	};
 
-	typedef TestCaseT<AnythingConfigWithDllAndModuleLoadingTestPolicy, NoStatisticPolicy, int> TestCaseWithGlobalConfigDllAndModuleLoading;
+	typedef TestCaseT<AnythingConfigWithDllAndModuleLoadingTestPolicy, NoStatisticPolicy, int>
+		TestCaseWithGlobalConfigDllAndModuleLoading;
 
-	typedef TestCaseT<AnythingConfigWithCaseDllAndModuleLoadingTestPolicy, NoStatisticPolicy, int> TestCaseWithCaseConfigDllAndModuleLoading;
+	typedef TestCaseT<AnythingConfigWithCaseDllAndModuleLoadingTestPolicy, NoStatisticPolicy, int>
+		TestCaseWithCaseConfigDllAndModuleLoading;
 
-}	// end namespace testframework
+}  // end namespace testframework
 
 #endif

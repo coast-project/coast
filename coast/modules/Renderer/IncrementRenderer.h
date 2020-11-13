@@ -17,7 +17,7 @@
 \par Configuration
 \code
 {
-	/IncValue		Rendererspec	mandatory, rendered string is converted to a number and incremented by one
+  /IncValue		Rendererspec	mandatory, rendered string is converted to a number and incremented by one
 }
 \endcode
 One can use
@@ -31,8 +31,7 @@ as a short cut for
 
 Non numeric values are converted to 0 and incremented to 1
 */
-class IncrementRenderer : public Renderer
-{
+class IncrementRenderer : public Renderer {
 public:
 	IncrementRenderer(const char *name);
 	void RenderAll(std::ostream &reply, Context &c, const ROAnything &config);

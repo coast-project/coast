@@ -12,14 +12,13 @@
 #include "CacheHandler.h"
 
 //--- LDAPDAIDataAcccessLoader -----------------------------------------------
-class LDAPDAIDataAcccessLoader : public CacheLoadPolicy
-{
+class LDAPDAIDataAcccessLoader : public CacheLoadPolicy {
 public:
 	LDAPDAIDataAcccessLoader();
 	LDAPDAIDataAcccessLoader(Anything config);
 	~LDAPDAIDataAcccessLoader();
-//! Method to get a cached ldap result
-//! Key must equal the name of a DataAccess definition as follows:
+	//! Method to get a cached ldap result
+	//! Key must equal the name of a DataAccess definition as follows:
 	virtual Anything Load(const char *lapDa);
 
 private:
@@ -28,14 +27,13 @@ private:
 };
 
 //--- LdapActionLoder --------------------------------------------------
-class LDAPDAIActionLoader : public CacheLoadPolicy
-{
+class LDAPDAIActionLoader : public CacheLoadPolicy {
 public:
 	LDAPDAIActionLoader();
 	LDAPDAIActionLoader(Anything config);
 	~LDAPDAIActionLoader();
-//! Method to get a cached ldap result
-//! Key must equal the name of a DataAccess definition as follows:
+	//! Method to get a cached ldap result
+	//! Key must equal the name of a DataAccess definition as follows:
 	virtual Anything Load(const char *ldapDaAction);
 
 private:
@@ -52,8 +50,7 @@ private:
 //! }</PRE>
 //! This allows you to define multiple ldap queries to be cached on initialization.
 //! Important: The called Action *must* return results in slot ["LDAPResult"][ldapDaAction]
-class LDAPDAICachePolicyModule : public WDModule
-{
+class LDAPDAICachePolicyModule : public WDModule {
 public:
 	enum EDataAccessType { dataaccess, action };
 	LDAPDAICachePolicyModule(const char *name);
@@ -61,9 +58,10 @@ public:
 
 	virtual bool Init(const ROAnything config);
 	virtual bool Finis();
+
 private:
 	bool InitialLoad(const ROAnything dataAccesses, LDAPDAICachePolicyModule::EDataAccessType daType, const Anything &config);
-//! Design by Contract: Every configured LDAPDataAccessImpl query must return data
+	//! Design by Contract: Every configured LDAPDataAccessImpl query must return data
 	bool CheckContractIsFulfilled(String &failedDataAccesseses, const ROAnything dataAccesses);
 	friend class LdapCacheLoaderTest;
 };
@@ -73,8 +71,7 @@ private:
 //! Get("TestDA1",:0.DN");
 //! See test cases more examples.
 
-class LDAPDAICacheGetter : public LookupInterface
-{
+class LDAPDAICacheGetter : public LookupInterface {
 public:
 	LDAPDAICacheGetter(const String &da);
 	~LDAPDAICacheGetter();

@@ -14,8 +14,7 @@
 
 //---- LDAPConnectionManagerTest ----------------------------------------------------------
 //! Tests LDAPConnecton and LDAPErrorHandler
-class LDAPConnectionManagerTest : public ConfiguredActionTest
-{
+class LDAPConnectionManagerTest : public ConfiguredActionTest {
 public:
 	//--- constructors
 
@@ -28,7 +27,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of tests
-	static Test *suite ();
+	static Test *suite();
 
 	TString getConfigFileName();
 

@@ -13,8 +13,7 @@
 
 class ParameterMapper;
 
-class ConnectorParams
-{
+class ConnectorParams {
 public:
 	ConnectorParams(Context &ctx, ParameterMapper *pMapper);
 

@@ -7,16 +7,14 @@
  */
 
 #include "RegistryTest.h"
-#include "TestSuite.h"
+
 #include "Page.h"
 #include "Policy.h"
+#include "TestSuite.h"
 
-RegistryTest::RegistryTest(TString tname) :
-		TestCaseType(tname), fRegistry(0) {
-}
+RegistryTest::RegistryTest(TString tname) : TestCaseType(tname), fRegistry(0) {}
 
-RegistryTest::~RegistryTest() {
-}
+RegistryTest::~RegistryTest() {}
 
 void RegistryTest::setUp() {
 	fRegistry = MetaRegistry::instance().GetRegistry(fName);
@@ -35,18 +33,19 @@ void RegistryTest::InstallAliases() {
 		fRegistry->RegisterRegisterableObject("B", b);
 
 		// registry with two elements
-		assertEqual( (long)a, (long)fRegistry->Find("A"));
-		assertEqual( (long)b, (long)fRegistry->Find("B"));
+		assertEqual((long)a, (long)fRegistry->Find("A"));
+		assertEqual((long)b, (long)fRegistry->Find("B"));
 
 		// Install
-		AliasInstaller policy("InstallAliases"); // policy name must match category name otherwise obects are installed in the wrong registry
+		AliasInstaller policy(
+			"InstallAliases");	// policy name must match category name otherwise obects are installed in the wrong registry
 
 		Anything args;
-		args["A"] = "NewA"; // regular case
-		args["B"] = Anything(Anything::ArrayMarker()); // create empty installer spec { }
+		args["A"] = "NewA";								// regular case
+		args["B"] = Anything(Anything::ArrayMarker());	// create empty installer spec { }
 		TraceAny(args, "spec to alias-install");
-		t_assertm( fRegistry->Install( args, &policy ), "installation of aliases should succeed");
-		t_assert( fRegistry->Find( "NewA" ) == a);
+		t_assertm(fRegistry->Install(args, &policy), "installation of aliases should succeed");
+		t_assert(fRegistry->Find("NewA") == a);
 
 		// Terminate registry
 		AliasTerminator terminator("Test");
@@ -54,7 +53,7 @@ void RegistryTest::InstallAliases() {
 
 		t_assertm(fRegistry->Terminate(&terminator), "expected successful termination");
 		// after termination the registry is empty
-		t_assert( fRegistry->Find( "A" ) == 0);
+		t_assert(fRegistry->Find("A") == 0);
 	}
 	{
 		// Insert regular objects into the registry
@@ -64,20 +63,21 @@ void RegistryTest::InstallAliases() {
 		fRegistry->RegisterRegisterableObject("B", b);
 
 		// registry with two elements
-		assertEqual( (long)a, (long)fRegistry->Find("A"));
-		assertEqual( (long)b, (long)fRegistry->Find("B"));
+		assertEqual((long)a, (long)fRegistry->Find("A"));
+		assertEqual((long)b, (long)fRegistry->Find("B"));
 
 		// Install
-		AliasInstaller policy("InstallAliases"); // policy name must match category name otherwise obects are installed in the wrong registry
+		AliasInstaller policy(
+			"InstallAliases");	// policy name must match category name otherwise obects are installed in the wrong registry
 
 		Anything args;
-		args["A"].Append("NewA"); // multiple aliases to same RegisterableObject
+		args["A"].Append("NewA");  // multiple aliases to same RegisterableObject
 		args["A"].Append("SecondA");
-		args["B"] = Anything(Anything::ArrayMarker()); // create empty installer spec { }
+		args["B"] = Anything(Anything::ArrayMarker());	// create empty installer spec { }
 		TraceAny(args, "spec to alias-install");
-		t_assertm( fRegistry->Install( args, &policy ), "installation of aliases should succeed");
-		t_assert( fRegistry->Find( "NewA" ) == a);
-		t_assert( fRegistry->Find( "SecondA" ) == a);
+		t_assertm(fRegistry->Install(args, &policy), "installation of aliases should succeed");
+		t_assert(fRegistry->Find("NewA") == a);
+		t_assert(fRegistry->Find("SecondA") == a);
 
 		// Terminate registry
 		AliasTerminator terminator("Test");
@@ -85,7 +85,7 @@ void RegistryTest::InstallAliases() {
 
 		t_assertm(fRegistry->Terminate(&terminator), "expected successful termination");
 		// after termination the registry is empty
-		t_assert( fRegistry->Find( "A" ) == 0);
+		t_assert(fRegistry->Find("A") == 0);
 	}
 }
 
@@ -98,39 +98,40 @@ void RegistryTest::InstallErroneousAliases() {
 	fRegistry->RegisterRegisterableObject("B", b);
 
 	// registry with two elements
-	assertEqual( (long)a, (long)fRegistry->Find("A"));
-	assertEqual( (long)b, (long)fRegistry->Find("B"));
+	assertEqual((long)a, (long)fRegistry->Find("A"));
+	assertEqual((long)b, (long)fRegistry->Find("B"));
 
 	// Install
-	AliasInstaller policy("InstallAliases"); // policy name must match category name otherwise obects are installed in the wrong registry
+	AliasInstaller policy(
+		"InstallAliases");	// policy name must match category name otherwise obects are installed in the wrong registry
 	Anything args;
-	args["A"] = ""; // create unnamed alias which should not get installed...
+	args["A"] = "";	 // create unnamed alias which should not get installed...
 	TraceAny(args, "spec to unname alias");
-	t_assertm( !fRegistry->Install( args, &policy ), "installation of aliases should fail");
+	t_assertm(!fRegistry->Install(args, &policy), "installation of aliases should fail");
 
 	args = Anything();
-	args["A"][0L] = Anything(Anything::ArrayMarker()); // create empty installer spec at index 0
+	args["A"][0L] = Anything(Anything::ArrayMarker());	// create empty installer spec at index 0
 	TraceAny(args, "spec to empty sub-any");
-	t_assertm( !fRegistry->Install( args, &policy ), "installation of non-string aliases should fail");
+	t_assertm(!fRegistry->Install(args, &policy), "installation of non-string aliases should fail");
 
 	// for hierarchies the current implementation of AliasInstaller does not handle intermediary slotnames;
 	// -> use HierarchyInstaller instead
 	args = Anything();
-	args["A"]["bad"] = "NewA"; // Aliases with structures are not defined
+	args["A"]["bad"] = "NewA";	// Aliases with structures are not defined
 	TraceAny(args, "spec to hierarchic alias spec");
-	t_assertm( !fRegistry->Install( args, &policy ), "installation of hierarchic aliases should fail");
+	t_assertm(!fRegistry->Install(args, &policy), "installation of hierarchic aliases should fail");
 
 	args = Anything();
-	args["C"] = "NewC"; // base not present
+	args["C"] = "NewC";	 // base not present
 	TraceAny(args, "spec of alias to non-existing RegisterableObject");
-	t_assertm( !fRegistry->Install( args, &policy ), "installation of non existing base object should fail");
+	t_assertm(!fRegistry->Install(args, &policy), "installation of non existing base object should fail");
 }
 
 void RegistryTest::InstallHierarchy() {
 	StartTrace(RegistryTest.InstallHierarchy);
 	// Insert regular objects into the registry
-	Page *a = new (coast::storage::Global()) Page("A"), *b = new (coast::storage::Global()) Page("B"), *c =
-			new (coast::storage::Global()) Page("C");
+	Page *a = new (coast::storage::Global()) Page("A"), *b = new (coast::storage::Global()) Page("B"),
+		 *c = new (coast::storage::Global()) Page("C");
 	Page *d = new (coast::storage::Global()) Page("D");
 
 	fRegistry->RegisterRegisterableObject("A", a);
@@ -140,37 +141,37 @@ void RegistryTest::InstallHierarchy() {
 
 	// registry with two elements
 	// Find
-	assertEqual( (long)a, (long)fRegistry->Find("A"));
-	assertEqual( (long)b, (long)fRegistry->Find("B"));
-	assertEqual( (long)c, (long)fRegistry->Find("C"));
-	assertEqual( (long)d, (long)fRegistry->Find("D"));
+	assertEqual((long)a, (long)fRegistry->Find("A"));
+	assertEqual((long)b, (long)fRegistry->Find("B"));
+	assertEqual((long)c, (long)fRegistry->Find("C"));
+	assertEqual((long)d, (long)fRegistry->Find("D"));
 
 	// Install
 	HierarchyInstaller policy("Hierarchy");
 	Anything args;
 
-	args["A"] = "NewA"; // regular case
+	args["A"] = "NewA";	 // regular case
 	args["A"].Append("SecondA");
-	args["B"]["NewB"] = "SubB"; // hierarchical structure
+	args["B"]["NewB"] = "SubB";	 // hierarchical structure
 	args["B"]["NewB"].Append("SecondSubB");
-	args["C"]["NewC"] = "SubC"; // only one page in substructure
-	args["D"]["NewD"]["SubD"] = Anything(Anything::ArrayMarker()); // no page in substructure
-	args["Z"] = "NewZ"; // base not present
+	args["C"]["NewC"] = "SubC";										// only one page in substructure
+	args["D"]["NewD"]["SubD"] = Anything(Anything::ArrayMarker());	// no page in substructure
+	args["Z"] = "NewZ";												// base not present
 	fRegistry->Install(args, &policy);
-	t_assert( fRegistry->Find( "NewA" ) != 0);
-	t_assert( fRegistry->Find( "SecondA" ) != 0);
-	t_assert( fRegistry->Find( "NewB" ) != 0);
+	t_assert(fRegistry->Find("NewA") != 0);
+	t_assert(fRegistry->Find("SecondA") != 0);
+	t_assert(fRegistry->Find("NewB") != 0);
 	// for hierarchies the SlotNames are present also
-	t_assert( fRegistry->Find( "SubB" ) != 0);
-	t_assert( fRegistry->Find( "SecondSubB" ) != 0);
-	t_assert( fRegistry->Find( "NewC" ) != 0);
-	t_assert( fRegistry->Find( "SubC" ) != 0);
-	t_assert( fRegistry->Find( "NewD" ) != 0);
-	t_assert( fRegistry->Find( "SubD" ) != 0);
-	t_assert( fRegistry->Find( "AnyArrayImpl" ) == 0);
-	t_assert( fRegistry->Find( "Z" ) == 0);
+	t_assert(fRegistry->Find("SubB") != 0);
+	t_assert(fRegistry->Find("SecondSubB") != 0);
+	t_assert(fRegistry->Find("NewC") != 0);
+	t_assert(fRegistry->Find("SubC") != 0);
+	t_assert(fRegistry->Find("NewD") != 0);
+	t_assert(fRegistry->Find("SubD") != 0);
+	t_assert(fRegistry->Find("AnyArrayImpl") == 0);
+	t_assert(fRegistry->Find("Z") == 0);
 	// must not be created when not present
-	t_assert( fRegistry->Find( "NewZ" ) == 0);
+	t_assert(fRegistry->Find("NewZ") == 0);
 	// neither
 
 	// Terminate registry
@@ -180,7 +181,7 @@ void RegistryTest::InstallHierarchy() {
 	fRegistry->Terminate(&terminator);
 
 	// objects are no longer there
-	t_assert( fRegistry->Find( "A" ) == 0);
+	t_assert(fRegistry->Find("A") == 0);
 }
 
 void RegistryTest::GetRegistry() {
@@ -215,7 +216,7 @@ void RegistryTest::TerminateTest() {
 
 	Registry *r = MetaRegistry::instance().GetRegistry("TerminateTest");
 	t_assert(r != 0);
-	if (r) {
+	if (r != 0) {
 		r->RegisterRegisterableObject("terminate1", &a);
 		r->RegisterRegisterableObject("terminate2", b);
 
@@ -232,17 +233,12 @@ void RegistryTest::TerminateTest() {
 	}
 }
 
-class TestPage: public Page {
+class TestPage : public Page {
 public:
-	TestPage(const char *name) :
-			Page(name) {
-	}
-	~TestPage() {
-	}
+	TestPage(const char *name) : Page(name) {}
+	~TestPage() {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) TestPage("TestPage");
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) TestPage("TestPage"); }
 };
 
 void RegistryTest::InstallHierarchyConfig() {
@@ -258,8 +254,8 @@ void RegistryTest::InstallHierarchyConfig() {
 	registry->RegisterRegisterableObject("Page", a);
 	registry->RegisterRegisterableObject("TestPage", b);
 
-	assertEqual( (long)a, (long)registry->Find("Page"));
-	assertEqual( (long)b, (long)registry->Find("TestPage"));
+	assertEqual((long)a, (long)registry->Find("Page"));
+	assertEqual((long)b, (long)registry->Find("TestPage"));
 
 	HierarchyInstaller policy("Hierarchy");
 	Anything config;
@@ -297,5 +293,4 @@ Test *RegistryTest::suite() {
 	ADD_CASE(testSuite, RegistryTest, TerminateTest);
 
 	return testSuite;
-
 }

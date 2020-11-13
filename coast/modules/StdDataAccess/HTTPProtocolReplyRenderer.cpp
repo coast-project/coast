@@ -7,10 +7,13 @@
  */
 
 #include "HTTPProtocolReplyRenderer.h"
-#include "RequestProcessor.h"
-#include "Server.h"
+
 #include "AnythingUtils.h"
 #include "HTTPConstants.h"
+#include "RequestProcessor.h"
+#include "Server.h"
+
+#include <ostream>
 
 RegisterRenderer(HTTPProtocolReplyRenderer);
 
@@ -75,26 +78,26 @@ namespace {
 		return map;
 	}
 	Anything fgStatusCodeMap = InitStatusCodeMap();
-}
+}  // namespace
 
 void HTTPProtocolReplyRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(HTTPProtocolReplyRenderer.RenderAll);
 
 	ROAnything realConfig;
-	if ( config.GetType() == AnyCharPtrType ) {
+	if (config.GetType() == AnyCharPtrType) {
 		realConfig = ctx.Lookup(config.AsString());
 	} else {
 		realConfig = (config.IsNull() ? ctx.Lookup("HTTPStatus") : config);
 	}
 	TraceAny(realConfig, "HTTPStatus config");
 	String httpVersion = Renderer::RenderToString(ctx, realConfig[coast::http::constants::protocolVersionSlotname]);
-	if (not httpVersion.Length()) {
+	if (httpVersion.Length() == 0) {
 		httpVersion = "HTTP/1.1";
 	}
 	String strFirstLine(128L);
 	strFirstLine << httpVersion << ' ';
 	long status = Renderer::RenderToString(ctx, realConfig[coast::http::constants::protocolCodeSlotname]).AsLong(-1L);
-	if ( status < 0L ) {
+	if (status < 0L) {
 		status = 200L;
 	}
 	Assert(status >= 100L && status < 600L);

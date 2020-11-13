@@ -7,57 +7,52 @@
  */
 
 #include "SSLModuleTest.h"
-#include "TestSuite.h"
-#include "SSLModule.h"
+
 #include "AnyLookupInterfaceAdapter.h"
+#include "SSLModule.h"
+#include "TestSuite.h"
 
 //---- SSLModuleTest ----------------------------------------------------------------
-SSLModuleTest::SSLModuleTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+SSLModuleTest::SSLModuleTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(SSLModuleTest.SSLModuleTest);
 }
 
-TString SSLModuleTest::getConfigFileName()
-{
+TString SSLModuleTest::getConfigFileName() {
 	return "SSLModuleTestConfig";
 }
 
-SSLModuleTest::~SSLModuleTest()
-{
+SSLModuleTest::~SSLModuleTest() {
 	StartTrace(SSLModuleTest.Dtor);
 }
 
-void SSLModuleTest::LoadCertAndKeyTest()
-{
+void SSLModuleTest::LoadCertAndKeyTest() {
 	StartTrace(SSLModuleTest.LoadCertAndKeyTest);
 	ROAnything cConfig;
 	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(cConfig) ) {
+	while (aEntryIterator.Next(cConfig)) {
 		TraceAny(cConfig, "cConfig");
 		AnyLookupInterfaceAdapter<ROAnything> rola(cConfig["Config"]);
-		if ( cConfig["TestData"]["ClientOrServer"].AsString() == "Client" ) {
+		if (cConfig["TestData"]["ClientOrServer"].AsString() == "Client") {
 			SSL_CTX *ctx = SSLModule::PrepareClientContext(&rola);
 			for (long l = 0; l < cConfig["TestData"]["NumberOfRuns"].AsLong(0L); l++) {
 				ctx = SSLModule::SetOwnCertificateAndKey(ctx, &rola, SSLModule::eClient);
 				Trace("In iteration: " << l);
-				t_assert(ctx != (SSL_CTX *) NULL);
+				t_assert(ctx != (SSL_CTX *)NULL);
 			}
 		}
-		if ( cConfig["TestData"]["ClientOrServer"].AsString() == "Server" ) {
+		if (cConfig["TestData"]["ClientOrServer"].AsString() == "Server") {
 			SSL_CTX *ctx = SSLModule::PrepareServerContext(&rola);
 			for (long l = 0; l < cConfig["TestData"]["NumberOfRuns"].AsLong(0L); l++) {
 				ctx = SSLModule::SetOwnCertificateAndKey(ctx, &rola, SSLModule::eServer);
 				Trace("In iteration: " << l);
-				t_assert(ctx != (SSL_CTX *) NULL);
+				t_assert(ctx != (SSL_CTX *)NULL);
 			}
 		}
 	}
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *SSLModuleTest::suite ()
-{
+Test *SSLModuleTest::suite() {
 	StartTrace(SSLModuleTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, SSLModuleTest, LoadCertAndKeyTest);

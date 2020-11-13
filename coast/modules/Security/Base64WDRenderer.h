@@ -13,8 +13,7 @@
 
 //---- Base64WDRenderer ----------------------------------------------------------
 //! Coast style Base64 encoding
-class Base64WDRenderer : public Renderer
-{
+class Base64WDRenderer : public Renderer {
 public:
 	//--- constructors
 	Base64WDRenderer(const char *name);

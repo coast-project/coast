@@ -7,13 +7,14 @@
  */
 
 #include "SessionTest.h"
+
+#include "AnyIterators.h"
+#include "FoundationTestTypes.h"
+#include "PoolAllocator.h"
+#include "Registry.h"
+#include "Role.h"
 #include "Session.h"
 #include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "Role.h"
-#include "Registry.h"
-#include "PoolAllocator.h"
-#include "AnyIterators.h"
 
 void SessionTest::setUp() {
 	StartTrace(SessionTest.setUp);
@@ -30,7 +31,7 @@ static Role *GetDefaultRole(Context &ctx) {
 
 void SessionTest::SetGetRole() {
 	StartTrace(SessionTest.SetGetRole);
-	Role *cust = Role::FindRole("RTCustomer"); // from RoleTest
+	Role *cust = Role::FindRole("RTCustomer");	// from RoleTest
 
 	Context theCtx;
 	Session s("dummysession");
@@ -117,7 +118,7 @@ void SessionTest::DoFindNextPageLogin() {
 		args["env"]["RoleChanges"]["LoginOK"] = "RTCustomer";
 
 		args["query"]["page"] = p;
-		args["query"]["role"] = "RTCustomer"; // trigger login
+		args["query"]["role"] = "RTCustomer";  // trigger login
 		args["query"]["action"] = "GoHome";
 		args["query"]["Language"] = "F";
 		c.PushRequest(args);
@@ -125,7 +126,7 @@ void SessionTest::DoFindNextPageLogin() {
 		String t;
 		s.SetupContext(c, t, p);
 		s.DoFindNextPage(c, t, p);
-		assertEqual("Login", t); // depends on configuration
+		assertEqual("Login", t);  // depends on configuration
 		assertEqual("Home", p);
 		t_assert(s.fStore.IsDefined("delayed"));
 		t_assert(s.fStore["delayed"].GetSize() == 1);
@@ -152,7 +153,7 @@ void SessionTest::DoFindNextPageLogin() {
 		s.GetRole(c2)->GetName(rname);
 		assertEqual("RTCustomer", rname);
 		assertEqual("CustomerHome", p);
-		assertEqual("PreprocessAction", t); // for dealing with legacy page classes
+		assertEqual("PreprocessAction", t);	 // for dealing with legacy page classes
 
 		// The new value for Language goes into TmpStore because of state full processing
 		// but the query gets the old value from the delayed query
@@ -203,20 +204,20 @@ void SessionTest::CheckInstalled() {
 
 	while (ri.HasMore()) {
 		String roleName("null");
-		Role *r = (Role *) ri.Next(roleName);
+		Role *r = (Role *)ri.Next(roleName);
 		Trace("role found <" << roleName << ">");
-		if (r) {
+		if (r != 0) {
 			String sname("null");
 			t_assert(r->GetName(sname));
 			Trace("r says: <" << sname << ">");
-			t_assert(r->IsInitialized()); // ensure config is available
-			if (r->GetSuper()) {
+			t_assert(r->IsInitialized());  // ensure config is available
+			if (r->GetSuper() != 0) {
 				String supername("null");
 				r->GetSuper()->GetName(supername);
 				Trace("super <" << supername << ">");
 			}
 			ROAnything map;
-			t_assert(r->Lookup("Map", map)); // ensure Map is configured
+			t_assert(r->Lookup("Map", map));  // ensure Map is configured
 		}
 	}
 }
@@ -282,7 +283,8 @@ void SessionTest::VerifyTest() {
 		TraceAny(ctx.GetEnvStore(), "env Store before");
 		ctx.GetEnvStore() = cConfig["Env"].DeepClone();
 		ctx.Push(&s);
-		assertComparem(cConfig["ExpectedResult"].AsBool(), equal_to, s.Verify(ctx), TString("expected verification to fail at idx:") << aEntryIterator.Index());
+		assertComparem(cConfig["ExpectedResult"].AsBool(), equal_to, s.Verify(ctx),
+					   TString("expected verification to fail at idx:") << aEntryIterator.Index());
 	}
 }
 
@@ -320,7 +322,7 @@ void SessionTest::IsDeletableTest() {
 		long notTimeout = time(0) + 1;
 		long isTimeout = time(0) + 200000;
 		Session s("TestSession");
-		s.ResetAccessTime(); // set time to "now"
+		s.ResetAccessTime();  // set time to "now"
 		{
 			// This one fails because the session is still referenced by the context
 			Context ctx;
@@ -344,7 +346,6 @@ void SessionTest::IsDeletableTest() {
 		assertEqual(true, s.IsDeletable(notTimeout, theCtx, true));
 		// The session is now removable because it is  timeout (and unreferenced)
 		assertEqual(true, s.IsDeletable(isTimeout, theCtx, false));
-
 	}
 }
 
@@ -383,28 +384,27 @@ void SessionTest::SetupContextTest() {
 		assertEqual("ErrorPage", p);
 	}
 }
-class STTestSession: public Session {
+class STTestSession : public Session {
 public:
-	STTestSession(const char *nm) :
-		Session(nm) {
-	}
-	Role *PublicCheckRoleExchange(const char *t, Context &ctx) {
-		return CheckRoleExchange(t, ctx);
-	}
+	STTestSession(const char *nm) : Session(nm) {}
+	Role *PublicCheckRoleExchange(const char *t, Context &ctx) { return CheckRoleExchange(t, ctx); }
 };
 
-void SessionTest::IntCheckRoleExchange(const char *source_role, const char *target_role, const char *transition, STTestSession &s,
-		Context &theCtx, bool should_succeed = true) {
+void SessionTest::IntCheckRoleExchange(const char *source_role, const char *target_role, const char *transition,
+									   STTestSession &s, Context &theCtx, bool should_succeed = true) {
 	Role *rs = Role::FindRole(source_role);
 	s.SetRole(rs, theCtx);
 
 	Role *rt = s.PublicCheckRoleExchange(transition, theCtx);
 
 	if (should_succeed) {
-		if (t_assertm(rt != 0, TString("srcR [") << source_role << "] transi [" << transition << "] trgR [" << target_role << "]")) {
+		if (t_assertm(rt != 0, TString("srcR [")
+								   << source_role << "] transi [" << transition << "] trgR [" << target_role << "]")) {
 			String rn;
 			rt->GetName(rn);
-			assertCharPtrEqualm(target_role, rn, TString("srcR [") << source_role << "] transi [" << transition << "] trgR [" << target_role << "]");
+			assertCharPtrEqualm(target_role, rn,
+								TString("srcR [")
+									<< source_role << "] transi [" << transition << "] trgR [" << target_role << "]");
 		}
 	} else {
 		t_assertm(!rt, TString("srcR [") << source_role << "] transi [" << transition << "] trgR [" << target_role << "]");

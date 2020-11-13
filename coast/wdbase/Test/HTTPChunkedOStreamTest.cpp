@@ -7,22 +7,20 @@
  */
 
 #include "HTTPChunkedOStreamTest.h"
+
 #include "HTTPChunkedOStream.h"
 #include "TestSuite.h"
 #include "Tracer.h"
 
-HTTPChunkedOStreamTest::HTTPChunkedOStreamTest(TString tstrName) : TestCaseType(tstrName)
-{
+HTTPChunkedOStreamTest::HTTPChunkedOStreamTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(HTTPChunkedOStreamTest.Ctor);
 }
 
-HTTPChunkedOStreamTest::~HTTPChunkedOStreamTest()
-{
+HTTPChunkedOStreamTest::~HTTPChunkedOStreamTest() {
 	StartTrace(HTTPChunkedOStreamTest.Dtor);
 }
 
-void HTTPChunkedOStreamTest::OverflowTest()
-{
+void HTTPChunkedOStreamTest::OverflowTest() {
 	StartTrace(HTTPChunkedOStreamTest.OverflowTest);
 	StringStream s;
 	HTTPChunkedOStream os(s, 10);
@@ -31,11 +29,9 @@ void HTTPChunkedOStreamTest::OverflowTest()
 	assertCharPtrEqual("a\r\n0123456789\r\n", s.str());
 	os.close();
 	assertCharPtrEqual("a\r\n0123456789\r\n6\r\nABCDEF\r\n0\r\n\r\n", s.str());
-
 }
 
-void HTTPChunkedOStreamTest::SimpleCloseNoFlush()
-{
+void HTTPChunkedOStreamTest::SimpleCloseNoFlush() {
 	StartTrace(HTTPChunkedOStreamTest.SimpleCloseNoFlush);
 	StringStream s;
 	HTTPChunkedOStream os(s);
@@ -44,8 +40,7 @@ void HTTPChunkedOStreamTest::SimpleCloseNoFlush()
 	os.close();
 	assertCharPtrEqual("3\r\nfoo\r\n0\r\n\r\n", s.str());
 }
-void HTTPChunkedOStreamTest::SimpleWithClose()
-{
+void HTTPChunkedOStreamTest::SimpleWithClose() {
 	StartTrace(HTTPChunkedOStreamTest.SimpleWithClose);
 	StringStream s;
 	HTTPChunkedOStream os(s);
@@ -56,8 +51,7 @@ void HTTPChunkedOStreamTest::SimpleWithClose()
 	assertCharPtrEqual("3\r\nfoo\r\n0\r\n\r\n", s.str());
 }
 
-void HTTPChunkedOStreamTest::SimpleFlush()
-{
+void HTTPChunkedOStreamTest::SimpleFlush() {
 	StartTrace(HTTPChunkedOStreamTest.SimpleFlush);
 
 	StringStream s;
@@ -65,16 +59,14 @@ void HTTPChunkedOStreamTest::SimpleFlush()
 	os << "foo" << std::flush;
 	t_assert(os.good());
 	assertCharPtrEqual("3\r\nfoo\r\n", s.str());
-
 }
 
-void HTTPChunkedOStreamTest::HexManipulator()
-{
+void HTTPChunkedOStreamTest::HexManipulator() {
 	StartTrace(HTTPChunkedOStreamTest.SimpleFlush);
 
 	StringStream s;
 	HTTPChunkedOStream os(s);
-	os << "foo" ;
+	os << "foo";
 	os.close();
 	s << 10 << std::flush;
 	t_assert(os.good());
@@ -82,8 +74,7 @@ void HTTPChunkedOStreamTest::HexManipulator()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *HTTPChunkedOStreamTest::suite ()
-{
+Test *HTTPChunkedOStreamTest::suite() {
 	StartTrace(HTTPChunkedOStreamTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

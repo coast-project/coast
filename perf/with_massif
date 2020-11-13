@@ -1,6 +1,7 @@
 #! /bin/sh
-. `dirname $0`/lib/measure_utils.sh
-which valgrind >/dev/null || { echo "No valgrind found." >&2; exit 1; }
+# shellcheck source=./lib/measure_utils.sh
+. "$(dirname "$0")"/lib/measure_utils.sh
+command -v valgrind >/dev/null || { echo "No valgrind found." >&2; exit 1; }
 
 # DIFF COMMAND
 print_diff_cmd() {
@@ -13,11 +14,11 @@ export_as_csv() (
 	return 1
 )
 
-# Measures performance of $TEST_NAMES using `valgrind --tool=massif`.
+# Measures performance of $TEST_NAMES using valgrind --tool=massif.
 #
 # Depends on:
 #   * measure_utils.sh
-#   * `valgrind --tool=massif`
+#   * valgrind --tool=massif
 #   * $TEST_NAMES
 #   * $PERF_DIR
 #   * $ARCHBITS
@@ -26,24 +27,24 @@ export_as_csv() (
 #   * $START_TIME
 measure_performance() {
 	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force
-	build `cat $TEST_NAMES`
+	build $(cat "$TEST_NAMES")
 
 	##
 	# MEASUREMENT
 	#
 	progress "VALGRIND-MASSIF-BASED MEASUREMENT ..."
-	for TESTNAME in `cat $TEST_NAMES`
+	for TESTNAME in $(cat "$TEST_NAMES")
 	do
-		start $TESTNAME
+		start "$TESTNAME"
 		RESULT=$PERF_DIR/massif/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.massif
 		RUNPARAMS="-x valgrind -x '--tool=massif' -x '--time-unit=B' -x '--detailed-freq=1' -x '--massif-out-file=$RESULT'"
-		mkdir -p `dirname $RESULT`
+		mkdir -p "$(dirname "$RESULT")"
 		log="$PERF_DIR/massif/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
-		if log_cmd scons CXXFLAGS="-fPIC" $SCONSFLAGS --run-force --runparams="${RUNPARAMS} -- -all" $TESTNAME > $log 2>&1
+		if log_cmd scons CXXFLAGS="-fPIC" $SCONSFLAGS --run-force --runparams="${RUNPARAMS} -- -all" "$TESTNAME" > "$log" 2>&1
 		then
-			measurement_successful $TESTNAME
+			measurement_successful "$TESTNAME"
 		else
-			measurement_failed $TESTNAME $log
+			measurement_failed "$TESTNAME" "$log"
 		fi
 	done
 }

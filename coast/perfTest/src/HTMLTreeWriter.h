@@ -14,11 +14,10 @@
 class String;
 class Anything;
 
-class HTMLTreeWriter : public AAT_HTMLWriter
-{
+class HTMLTreeWriter : public AAT_HTMLWriter {
 public:
 	HTMLTreeWriter();
-	virtual ~HTMLTreeWriter() { }
+	virtual ~HTMLTreeWriter() {}
 
 	virtual void Tag(int type, const char *tag);
 	virtual void Argument(const String &key, const String &value);
@@ -29,8 +28,8 @@ public:
 	Anything PublishResult();
 
 protected:
-	void addText ();
-	void addAttrs (Anything &posToAdd);
+	void addText();
+	void addAttrs(Anything &posToAdd);
 	Anything GetParseTree();
 	void NewTag(String &tagname);
 	void EndTag(String &tagname);
@@ -45,4 +44,4 @@ private:
 	String fContentText;
 };
 
-#endif		//not defined _HTMLTreeWriter_H
+#endif	// not defined _HTMLTreeWriter_H

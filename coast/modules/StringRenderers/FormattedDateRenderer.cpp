@@ -7,17 +7,19 @@
  */
 
 #include "FormattedDateRenderer.h"
+
 #include "Tracer.h"
+
+#include <ostream>
 
 //---- FormattedDateRenderer ---------------------------------------------------------------
 RegisterRenderer(FormattedDateRenderer);
 
-FormattedDateRenderer::FormattedDateRenderer(const char *name) : Renderer(name) { }
+FormattedDateRenderer::FormattedDateRenderer(const char *name) : Renderer(name) {}
 
-FormattedDateRenderer::~FormattedDateRenderer() { }
+FormattedDateRenderer::~FormattedDateRenderer() {}
 
-void FormattedDateRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void FormattedDateRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(FormattedDateRenderer.RenderAll);
 	TraceAny(config, "config");
 
@@ -35,10 +37,9 @@ void FormattedDateRenderer::RenderAll(std::ostream &reply, Context &c, const ROA
 	//                 "0123456789012345678"
 
 	String result;
-	if ( value.Length() == 19 ) {
-		result << value.At(4) << value.At(5) << " "
-			   << value.At(0) << value.At(1) << value.At(2) << " "
-			   << value.At(7) << value.At(8) << value.At(9) << value.At(10);
+	if (value.Length() == 19) {
+		result << value.At(4) << value.At(5) << " " << value.At(0) << value.At(1) << value.At(2) << " " << value.At(7)
+			   << value.At(8) << value.At(9) << value.At(10);
 	}
 	Trace("Rendered Value: [" << result << "]");
 	reply << result;

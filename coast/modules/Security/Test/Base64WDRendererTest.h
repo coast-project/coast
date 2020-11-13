@@ -18,8 +18,7 @@ further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
 
-class Base64WDRendererTest : public testframework::TestCase
-{
+class Base64WDRendererTest : public testframework::TestCase {
 public:
 	//--- constructors
 
@@ -33,13 +32,13 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//! sets the environment for this test
-	void setUp ();
+	void setUp();
 
 	//! deletes the environment for this test
-	void tearDown ();
+	void tearDown();
 
 	//! describe this testcase
 	void RenderAllTest();

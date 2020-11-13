@@ -13,35 +13,34 @@
 
 class Registry;
 
-class RegistryTest : public testframework::TestCase
-{
+class RegistryTest : public testframework::TestCase {
 public:
 	//--- constructors
 
-	//!TestCases for the Registry classes
+	//! TestCases for the Registry classes
 	//! \param name name of the test
 	RegistryTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~RegistryTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!sets the environment for this test
-	void setUp ();
+	//! sets the environment for this test
+	void setUp();
 	void tearDown();
 
 protected:
-	void	Constructor ();
-	void	GetRegistry ();
-	void	InstallAliases ();
-	void	InstallErroneousAliases ();
-	void	InstallHierarchy ();
-	void	InstallHierarchyConfig ();
-	void	TerminateTest ();
+	void Constructor();
+	void GetRegistry();
+	void InstallAliases();
+	void InstallErroneousAliases();
+	void InstallHierarchy();
+	void InstallHierarchyConfig();
+	void TerminateTest();
 
 	Registry *fRegistry;
 };

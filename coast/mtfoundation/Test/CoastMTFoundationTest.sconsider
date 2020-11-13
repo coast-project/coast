@@ -28,7 +28,7 @@ def tearDown(target, source, env):
 
 
 programDepends = [
-    'testfwWDBase.testfwWDBase',
+    'testfwFoundation.testfwFoundation',
     'CoastMTFoundation.CoastMTFoundation',
 ]
 sourceFiles = listFiles(['*.cpp'])

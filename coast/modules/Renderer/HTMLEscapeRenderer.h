@@ -13,8 +13,7 @@
 
 //---- HTMLEscapeRenderer ----------------------------------------------------------
 //! Render config an HTML-escaped result string
-class HTMLEscapeRenderer : public Renderer
-{
+class HTMLEscapeRenderer : public Renderer {
 public:
 	//--- constructors
 	HTMLEscapeRenderer(const char *name);

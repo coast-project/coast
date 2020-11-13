@@ -6,34 +6,32 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
-
-#include "HTTPResponseMapperTest.h"
-#include "HTTPMimeHeaderMapperTest.h"
-#include "HTTPDAImplTest.h"
-#include "HTTPMapperTest.h"
-#include "XMLBodyMapperTest.h"
-#include "HTTPProcessorTest.h"
-#include "MailDATest.h"
+#include "AuthenticationServiceTest.h"
 #include "CgiCallerTest.h"
 #include "CgiParamsTest.h"
-#include "AuthenticationServiceTest.h"
-#include "HTTPFileLoaderTest.h"
-#include "MIMEHeaderTest.h"
-#include "HTTPPostRequestBodyParserTest.h"
-#include "HTTPProtocolReplyRendererTest.h"
-#include "NewRendererTest.h"
-#include "HTTPRequestReaderTest.h"
 #include "ConnectorDAImplTest.h"
-#include "URI2FileNameTest.h"
+#include "HTTPDAImplTest.h"
+#include "HTTPFileLoaderTest.h"
+#include "HTTPMapperTest.h"
+#include "HTTPMimeHeaderMapperTest.h"
+#include "HTTPPostRequestBodyParserTest.h"
+#include "HTTPProcessorTest.h"
 #include "HTTPProcessorWithChecksTest.h"
-#include "MimeHeaderResultMapperTest.h"
-#include "SplitCookieResultMapperTest.h"
+#include "HTTPProtocolReplyRendererTest.h"
+#include "HTTPRequestReaderTest.h"
+#include "HTTPResponseMapperTest.h"
+#include "MIMEHeaderTest.h"
 #include "MSAjaxFixFieldLengthResultMapperTest.h"
+#include "MailDATest.h"
+#include "MimeHeaderResultMapperTest.h"
+#include "NewRendererTest.h"
 #include "SimpleDAServiceTest.h"
+#include "SplitCookieResultMapperTest.h"
+#include "TestRunner.h"
+#include "URI2FileNameTest.h"
+#include "XMLBodyMapperTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, MIMEHeaderTest);
 	ADD_SUITE(runner, HTTPRequestReaderTest);
 	ADD_SUITE(runner, HTTPPostRequestBodyParserTest);

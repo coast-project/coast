@@ -7,16 +7,17 @@
  */
 
 #include "HTTPProcessor.h"
-#include "Timers.h"
-#include "HTTPRequestReader.h"
+
+#include "AnyIterators.h"
+#include "AnythingUtils.h"
+#include "AppLog.h"
+#include "HTTPConstants.h"
 #include "HTTPPostRequestBodyParser.h"
 #include "HTTPProtocolReplyRenderer.h"
+#include "HTTPRequestReader.h"
 #include "MIMEHeader.h"
-#include "AnyIterators.h"
-#include "AppLog.h"
-#include "AnythingUtils.h"
 #include "StringStream.h"
-#include "HTTPConstants.h"
+#include "Timers.h"
 
 RegisterRequestProcessor(HTTPProcessor);
 
@@ -28,7 +29,7 @@ namespace {
 			args["env"]["header"][args["ClientInfo"].SlotName(i)] = args["ClientInfo"][i];
 		}
 	}
-}
+}  // namespace
 
 namespace coast {
 	namespace http {
@@ -37,26 +38,30 @@ namespace coast {
 			Anything defaultSpec;
 			defaultSpec["HTTPProtocolReplyRenderer"] = Anything();
 			ROAnything protocolRendererSpec;
-			Renderer::Render(os, ctx, ctx.Lookup("ProtocolReplyRenderer", protocolRendererSpec) ? protocolRendererSpec : defaultSpec);
+			Renderer::Render(os, ctx,
+							 ctx.Lookup("ProtocolReplyRenderer", protocolRendererSpec) ? protocolRendererSpec : defaultSpec);
 		}
-		Anything GenerateErrorMessageAny(Context& ctx, long const errorcode, String const& msg, String const& content, String const& component) {
+		Anything GenerateErrorMessageAny(Context &ctx, long const errorcode, String const &msg, String const &content,
+										 String const &component) {
 			StartTrace(HTTPProcessor.GenerateErrorMessageAny);
 			Anything anyMessage;
 			anyMessage["Component"] = component;
 			anyMessage[coast::http::constants::protocolCodeSlotname] = errorcode;
-			anyMessage[coast::http::constants::protocolMsgSlotname] = HTTPProtocolReplyRenderer::DefaultReasonPhrase(errorcode); //!@FIXME: remove but create and use HTTPResponseMsgRenderer instead where needed, issue #245
+			anyMessage[coast::http::constants::protocolMsgSlotname] = HTTPProtocolReplyRenderer::DefaultReasonPhrase(
+				errorcode);	 //!@FIXME: remove but create and use HTTPResponseMsgRenderer instead where needed, issue #245
 			anyMessage["ErrorMessage"] = msg;
 			anyMessage["FaultyContent"] = content;
 			TraceAny(anyMessage, "generated error message");
 			return anyMessage;
 		}
-		void PutErrorMessageIntoContext(Context& ctx, long const errorcode, String const& msg, String const& content, String const& component) {
+		void PutErrorMessageIntoContext(Context &ctx, long const errorcode, String const &msg, String const &content,
+										String const &component) {
 			StartTrace(HTTPProcessor.PutErrorMessageIntoContext);
 			Anything anyMessage = GenerateErrorMessageAny(ctx, errorcode, msg, content, component);
 			StorePutter::Operate(anyMessage, ctx, "Tmp", ctx.Lookup("RequestProcessorErrorSlot", "HTTPProcessor.Error"), true);
 		}
-	}
-}
+	}  // namespace http
+}  // namespace coast
 
 // configure request processor with server object
 void HTTPProcessor::Init(Server *server) {
@@ -67,11 +72,11 @@ MIMEHeader HTTPProcessor::GetMIMEHeader() const {
 	return MIMEHeader();
 }
 
-HTTPRequestReader HTTPProcessor::GetRequestReader(MIMEHeader& header) const {
+HTTPRequestReader HTTPProcessor::GetRequestReader(MIMEHeader &header) const {
 	return HTTPRequestReader(header);
 }
 
-HTTPPostRequestBodyParser HTTPProcessor::GetRequestBodyParser(MIMEHeader& header) const {
+HTTPPostRequestBodyParser HTTPProcessor::GetRequestBodyParser(MIMEHeader &header) const {
 	return HTTPPostRequestBodyParser(header);
 }
 
@@ -96,14 +101,17 @@ bool HTTPProcessor::DoPrepareContextRequest(std::iostream &Ios, Context &ctx, An
 bool HTTPProcessor::DoReadRequestBody(std::iostream &Ios, Context &ctx, Anything &request, HTTPRequestReader &reader) {
 	StartTrace(HTTPProcessor.DoReadRequestBody);
 	MethodTimer(HTTPProcessor.DoReadRequestBody, "Reading request body", ctx);
-	if ( request["REQUEST_METHOD"].AsString().IsEqual(coast::http::constants::postMethodSlotname) ) {
+	if (request["REQUEST_METHOD"].AsString().IsEqual(coast::http::constants::postMethodSlotname)) {
 		HTTPPostRequestBodyParser sm = GetRequestBodyParser(reader.GetHeaderParser());
 		try {
 			sm.Parse(Ios);
 		} catch (MIMEHeader::LineSizeExceededException &e) {
-			coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [LineSizeLimit]"), e.fLine, "HTTPProcessor::DoReadRequestBody");
+			coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [LineSizeLimit]"),
+													e.fLine, "HTTPProcessor::DoReadRequestBody");
 		} catch (MIMEHeader::RequestSizeExceededException &e) {
-			coast::http::PutErrorMessageIntoContext(ctx, 413, String(e.what()).Append(" => check setting of [RequestSizeLimit]"), e.fLine, "HTTPProcessor::DoReadRequestBody");
+			coast::http::PutErrorMessageIntoContext(ctx, 413,
+													String(e.what()).Append(" => check setting of [RequestSizeLimit]"), e.fLine,
+													"HTTPProcessor::DoReadRequestBody");
 		} catch (MIMEHeader::InvalidLineException &e) {
 			coast::http::PutErrorMessageIntoContext(ctx, 400, e.what(), e.fLine, "HTTPProcessor::DoReadRequestBody");
 		}
@@ -115,24 +123,23 @@ bool HTTPProcessor::DoReadRequestBody(std::iostream &Ios, Context &ctx, Anything
 	return true;
 }
 
-bool HTTPProcessor::DoReadInput(std::iostream &Ios, Context &ctx)
-{
+bool HTTPProcessor::DoReadInput(std::iostream &Ios, Context &ctx) {
 	StartTrace(HTTPProcessor.DoReadInput);
 	MethodTimer(HTTPProcessor.DoReadInput, "Reading input", ctx);
 
 	MIMEHeader header = GetMIMEHeader();
 	HTTPRequestReader reader = GetRequestReader(header);
-	if ( not DoReadRequestHeader(Ios, ctx, reader) ) {
+	if (not DoReadRequestHeader(Ios, ctx, reader)) {
 		return false;
 	}
 
 	// GetRequest() returns headers from request in subslot "header"
 	Anything request(reader.GetRequest());
-	if ( not DoPrepareContextRequest(Ios, ctx, request, reader) ) {
+	if (not DoPrepareContextRequest(Ios, ctx, request, reader)) {
 		return false;
 	}
 
-	if ( not DoReadRequestBody(Ios, ctx, request, reader) ) {
+	if (not DoReadRequestBody(Ios, ctx, request, reader)) {
 		return false;
 	}
 	SubTraceAny(request, request, "Arguments:");
@@ -164,7 +171,7 @@ namespace {
 		reply << std::flush;
 	}
 
-	void LogError(Context& ctx) {
+	void LogError(Context &ctx) {
 		StartTrace(HTTPProcessor.LogError);
 		AppLogModule::Log(ctx, "SecurityLog", AppLogModule::eERROR);
 	}
@@ -181,11 +188,12 @@ namespace {
 			LogError(ctx);
 			//!@FIXME: maybe we should log all of them?
 			Anything anyErrCode = roaErrorMessages[0L][coast::http::constants::protocolCodeSlotname].DeepClone();
-			StorePutter::Operate(anyErrCode, ctx, "Tmp", String("HTTPStatus.").Append(coast::http::constants::protocolCodeSlotname));
+			StorePutter::Operate(anyErrCode, ctx, "Tmp",
+								 String("HTTPStatus.").Append(coast::http::constants::protocolCodeSlotname));
 			ErrorReply(reply, roaErrorMessages[0L]["ErrorMessage"].AsString(), ctx);
 		}
 	}
-}
+}  // namespace
 
 bool HTTPProcessor::DoHandleReadInputError(std::iostream &Ios, Context &ctx) {
 	StartTrace(HTTPProcessor.DoHandleReadInputError);
@@ -205,8 +213,7 @@ bool HTTPProcessor::DoHandleProcessRequestError(std::iostream &Ios, Context &ctx
 	return false;
 }
 
-bool HTTPProcessor::DoProcessRequest(std::ostream &reply, Context &ctx)
-{
+bool HTTPProcessor::DoProcessRequest(std::ostream &reply, Context &ctx) {
 	StartTrace(HTTPProcessor.DoProcessRequest);
 	if (IsZipEncodingAcceptedByClient(ctx)) {
 		ctx.GetTmpStore()["ClientAcceptsGzipEnc"] = 1L;
@@ -223,28 +230,26 @@ namespace {
 		AnyExtensions::LeafIterator<ROAnything> iter(roaContainer);
 		ROAnything roaCurrAny;
 		while (iter.Next(roaCurrAny)) {
-			if (roaCurrAny.AsString().ToLower().Contains(strValue) != -1 ) {
+			if (roaCurrAny.AsString().ToLower().Contains(strValue) != -1) {
 				return true;
 			}
 		}
 		return false;
 	}
-}
+}  // namespace
 
-bool HTTPProcessor::IsZipEncodingAcceptedByClient(Context &ctx)
-{
+bool HTTPProcessor::IsZipEncodingAcceptedByClient(Context &ctx) {
 	StartTrace(HTTPProcessor.IsZipEncodingAcceptedByClient);
 	TraceAny(ctx.GetRequest(), "Request");
 	ROAnything roaEncoding;
-	if (!ctx.Lookup("DisableZipEncoding", 0L) && ctx.Lookup("header.ACCEPT-ENCODING", roaEncoding) ) {
+	if ((ctx.Lookup("DisableZipEncoding", 0L) == 0) && ctx.Lookup("header.ACCEPT-ENCODING", roaEncoding)) {
 		TraceAny(roaEncoding, "accepted encodings");
 		return containsLowercaseValue(roaEncoding, "gzip");
 	}
 	return false;
 }
 
-bool HTTPProcessor::DoKeepConnectionAlive(Context &ctx)
-{
+bool HTTPProcessor::DoKeepConnectionAlive(Context &ctx) {
 	StartTrace(HTTPProcessor.DoKeepConnectionAlive);
 	String protocol = ctx.Lookup("SERVER_PROTOCOL", "");
 	ROAnything roaConnection = ctx.Lookup("header.CONNECTION");

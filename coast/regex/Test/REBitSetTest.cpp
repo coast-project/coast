@@ -6,26 +6,24 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestSuite.h"
-#include "REBitSet.h"
 #include "REBitSetTest.h"
+
 #include "SystemFile.h"
+#include "TestSuite.h"
 #include "Tracer.h"
-#include <ctype.h>
+
+#include <cctype>
 
 //---- REBitSetTest ----------------------------------------------------------------
-REBitSetTest::REBitSetTest(TString tstrName) : TestCaseType(tstrName)
-{
+REBitSetTest::REBitSetTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(REBitSetTest.Ctor);
 }
 
-REBitSetTest::~REBitSetTest()
-{
+REBitSetTest::~REBitSetTest() {
 	StartTrace(REBitSetTest.Dtor);
 }
 
-void REBitSetTest::ManyTests()
-{
+void REBitSetTest::ManyTests() {
 	StartTrace(REBitSetTest.ManyTests);
 
 	REBitSet empty;
@@ -66,8 +64,7 @@ void REBitSetTest::ManyTests()
 	t_assert(two == excepttwo);
 }
 
-void REBitSetTest::SetTo255()
-{
+void REBitSetTest::SetTo255() {
 	StartTrace(REBitSetTest.SetTo255);
 	REBitSet s;
 
@@ -76,22 +73,19 @@ void REBitSetTest::SetTo255()
 	t_assert(!s.IsMember('a'));
 	t_assert('a' < 'b');
 	t_assert((unsigned char)'b' < (unsigned char)255);
-
 }
 
-void REBitSetTest::TestPredicateSet()
-{
+void REBitSetTest::TestPredicateSet() {
 	StartTrace(REBitSetTest.TestPredicateSet);
 	REBitSet s;
 
 	s.Set(isalpha);
-	for (unsigned i = 0; i < 256 ; ++i) {
+	for (unsigned i = 0; i < 256; ++i) {
 		assertEqual((isalpha(i) != 0), s.IsMember(i));
 	}
 }
 
-void REBitSetTest::GeneratePosixSet(std::ostream &cppfile, const char *pcName, REBitSet::Predicate predicate)
-{
+void REBitSetTest::GeneratePosixSet(std::ostream &cppfile, const char *pcName, REBitSet::Predicate predicate) {
 	REBitSet s;
 	s.Set(predicate);
 
@@ -102,29 +96,24 @@ void REBitSetTest::GeneratePosixSet(std::ostream &cppfile, const char *pcName, R
 }
 
 // auxiliary predicates for posix and special escape handling
-static int myIsBlank(int c)
-{
-	return (' ' == c || '\t' == c);
+static int myIsBlank(int c) {
+	return static_cast<int>(' ' == c || '\t' == c);
 }
 
-static int myIsNoDigit(int c)
-{
-	return ! isdigit(c);
+static int myIsNoDigit(int c) {
+	return static_cast<int>(static_cast<int>(isdigit(c)) == 0);
 }
-static int myIsNoSpace(int c)
-{
-	return ! isspace(c);
+static int myIsNoSpace(int c) {
+	return static_cast<int>(static_cast<int>(isspace(c)) == 0);
 }
-static int myIsNoAlnum(int c)
-{
-	return ! isalnum(c);
+static int myIsNoAlnum(int c) {
+	return static_cast<int>(static_cast<int>(isalnum(c)) == 0);
 }
 
 // may insert special cases for Swiss lowercase/uppercase letters as well
 // like myIsCHAlpha, myIsCHLower, myIsCHUpper
 
-void REBitSetTest::GeneratePosixSets()
-{
+void REBitSetTest::GeneratePosixSets() {
 	StartTrace(REBitSetTest.GeneratePosixSets);
 
 	// to be used by RECompiler to simplify charset handling for
@@ -159,8 +148,7 @@ void REBitSetTest::GeneratePosixSets()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *REBitSetTest::suite ()
-{
+Test *REBitSetTest::suite() {
 	StartTrace(REBitSetTest.suite);
 	TestSuite *testSuite = new TestSuite;
 
@@ -170,5 +158,4 @@ Test *REBitSetTest::suite ()
 	ADD_CASE(testSuite, REBitSetTest, GeneratePosixSets);
 
 	return testSuite;
-
 }

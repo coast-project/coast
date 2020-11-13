@@ -6,14 +6,13 @@
 #include "TestCase.h"
 
 //---- DummyTest -----------------------------------------------------------
-class DummyTest : public testframework::TestCase
-{
+class DummyTest : public testframework::TestCase {
 public:
 	DummyTest(TString tstrName);
 	virtual ~DummyTest();
 
-	static Test *suite ();
-	void dummyTest ();
+	static Test *suite();
+	void dummyTest();
 };
 
 #endif

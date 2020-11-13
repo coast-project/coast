@@ -9,34 +9,32 @@
 //#define XML_MAPPER_TRACING // does a lookup with the generated lookup-path
 
 #include "XMLMapper.h"
+
 #include "Context.h"
 
 //---- XMLMapper ------------------------------------------------------------------
 RegisterResultMapper(XMLMapper);
 
-XMLMapper::XMLMapper(const char *name) : ResultMapper(name)
-{
+XMLMapper::XMLMapper(const char *name) : ResultMapper(name) {
 	StartTrace(XMLMapper.Ctor);
 }
 
-IFAObject *XMLMapper::Clone(Allocator *a) const
-{
+IFAObject *XMLMapper::Clone(Allocator *a) const {
 	StartTrace(XMLMapper.Clone);
 	return new (a) XMLMapper(fName);
 }
 
 // ignores its config altogether, operates on the fConfig
-bool XMLMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything)
-{
+bool XMLMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything) {
 	StartTrace1(XMLMapper.DoPutAny, NotNull(key));
 	String pathSoFar;
 	String slotName;
 	Anything result;
 	bool bFound = false;
-	fDelim =      		fConfig["Delim"].AsCharPtr(".")[0L];
-	fIndexDelim = 		fConfig["IndexDelim"].AsCharPtr(":")[0L];
-	fIndexedPathOnly =	fConfig["IndexedPathOnly"].AsBool(0);
-	if ( !fConfig.IsDefined("Elements") || String().IsEqual(key) ) {
+	fDelim = fConfig["Delim"].AsCharPtr(".")[0L];
+	fIndexDelim = fConfig["IndexDelim"].AsCharPtr(":")[0L];
+	fIndexedPathOnly = fConfig["IndexedPathOnly"].AsBool(false);
+	if (!fConfig.IsDefined("Elements") || String().IsEqual(key)) {
 		return false;
 	}
 	long slotIndex = 0;
@@ -54,8 +52,7 @@ bool XMLMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnyth
 	return true;
 }
 
-bool XMLMapper::Iterate(Anything currentAny, String pathSoFar, long slotIndex, String slotName, bool bFound, Anything &result)
-{
+bool XMLMapper::Iterate(Anything currentAny, String pathSoFar, long slotIndex, String slotName, bool bFound, Anything &result) {
 	StartTrace1(XMLMapper.Iterate, pathSoFar);
 	if (fIndexedPathOnly || slotName.Length() == 0) {
 		pathSoFar << fIndexDelim << slotIndex;
@@ -64,7 +61,7 @@ bool XMLMapper::Iterate(Anything currentAny, String pathSoFar, long slotIndex, S
 			pathSoFar << fDelim << slotName;
 		}
 	}
-	for ( long l = 0, sz = currentAny.GetSize(); l < sz; ++l ) {
+	for (long l = 0, sz = currentAny.GetSize(); l < sz; ++l) {
 		Anything newAny = currentAny;
 		if (newAny.GetType() == AnyArrayType) {
 			slotName = newAny.SlotName(l);
@@ -75,8 +72,8 @@ bool XMLMapper::Iterate(Anything currentAny, String pathSoFar, long slotIndex, S
 		} else {
 			String outPath(pathSoFar);
 			outPath = outPath.SubString(2);
-			outPath  << fIndexDelim  << l;
-			if ( bFound ) {
+			outPath << fIndexDelim << l;
+			if (bFound) {
 				result.Append(outPath);
 			}
 		}

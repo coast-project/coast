@@ -10,7 +10,9 @@
 #define _SybCTnewDAImpl_H
 
 #include "DataAccessImpl.h"
-#include "Threads.h"
+#include "Semaphore.h"
+#include "SimpleMutex.h"
+
 #include <ctpublic.h>
 
 class SybCTnewDA;
@@ -21,8 +23,7 @@ class PeriodicAction;
 // further explanation of the purpose of the class
 // this may contain <B>HTML-Tags</B>
 // ...
-class SybCTnewDAImpl : public DataAccessImpl
-{
+class SybCTnewDAImpl : public DataAccessImpl {
 public:
 	//--- constructors
 	SybCTnewDAImpl(const char *name);
@@ -32,7 +33,7 @@ public:
 	IFAObject *Clone(Allocator *a) const;
 
 	//: executes the transaction
-	//!param: c - The context of the transaction
+	//! param: c - The context of the transaction
 	virtual bool Exec(Context &ctx, ParameterMapper *in, ResultMapper *out);
 
 	static bool Init(ROAnything config);
@@ -53,8 +54,8 @@ protected:
 	static Anything fgListOfSybCT;
 	static Anything fgContextMessages;
 	static CS_CONTEXT *fg_cs_context;
-	static bool		fgInitialized;
-	static bool		fbUseDelayedCommit;
+	static bool fgInitialized;
+	static bool fbUseDelayedCommit;
 	static PeriodicAction *fgpPeriodicAction;
 	static Semaphore *fgpResourcesSema;
 
@@ -62,10 +63,10 @@ private:
 	static bool IntDoGetConnection(SybCTnewDA *&pSyb, bool &bIsOpen, const String &server, const String &user);
 	static void IntDoPutbackConnection(SybCTnewDA *&pSyb, bool bIsOpen, const String &server, const String &user);
 
-	//constructor
+	// constructor
 	SybCTnewDAImpl();
 	SybCTnewDAImpl(const SybCTnewDAImpl &);
-	//assignement
+	// assignement
 	SybCTnewDAImpl &operator=(const SybCTnewDAImpl &);
 
 	friend class SybaseModule;

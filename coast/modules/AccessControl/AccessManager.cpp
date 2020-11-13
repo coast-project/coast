@@ -7,18 +7,18 @@
  */
 
 #include "AccessManager.h"
+
+#include "Policy.h"
 #include "Registry.h"
 #include "Tracer.h"
-#include "Policy.h"
 
 //---- AccessManagerModule ---------------------------------------------------------------
 RegisterModule(AccessManagerModule);
 
 // initialize static fields
-AccessManager	*AccessManagerModule::fgMainAccessManager = 0;
+AccessManager *AccessManagerModule::fgMainAccessManager = 0;
 
-bool AccessManagerModule::Init(const ROAnything config)
-{
+bool AccessManagerModule::Init(const ROAnything config) {
 	StartTrace(AccessManagerModule.Init);
 	bool ok = true;
 	// impl analog PagesModule f�r Finis und Init
@@ -34,19 +34,17 @@ bool AccessManagerModule::Init(const ROAnything config)
 	fgMainAccessManager = AccessManager::FindAccessManager(dflt);
 	Trace("default access manager '" << dflt << "' = " << (fgMainAccessManager ? "ok" : "not found"));
 
-	return ok && fgMainAccessManager;
+	return ok && (fgMainAccessManager != 0);
 }
 
-bool AccessManagerModule::Finis()
-{
+bool AccessManagerModule::Finis() {
 	StartTrace(AccessManagerModule.Finis);
 	AliasTerminator at("AccessManager");
 	return RegisterableObject::ResetTerminate("AccessManager", &at);
 }
 
-AccessManager *AccessManagerModule::GetAccessManager(const char *name)
-{
-	if (name) {
+AccessManager *AccessManagerModule::GetAccessManager(const char *name) {
+	if (name != 0) {
 		return AccessManager::FindAccessManager(name);
 	}
 	return fgMainAccessManager;
@@ -56,5 +54,4 @@ AccessManager *AccessManagerModule::GetAccessManager(const char *name)
 // (no implementation - is abstract)
 
 //---- registry interface
-RegCacheImpl(AccessManager);	// FindAccessManager() implementation
-
+RegCacheImpl(AccessManager);  // FindAccessManager() implementation

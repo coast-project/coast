@@ -17,7 +17,8 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class PoolAllocatorTest : public testframework::TestCaseWithConfig	/* TestCaseWithStatistics | TestCaseWithConfigAndStatistics */
+class PoolAllocatorTest
+	: public testframework::TestCaseWithConfig /* TestCaseWithStatistics | TestCaseWithConfigAndStatistics */
 {
 public:
 	//--- constructors
@@ -31,17 +32,17 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
-// uncomment if really needed or delete, base class does almost everything
-//	//! sets the environment for this test
-//	void setUp ();
-//
-//	//! deletes the environment for this test
-//	void tearDown ();
-//
-//	//! returns name of testcase specific config file name. Default is PoolAllocatorTest.any. Override only if special behavior needed.
-//	TString getConfigFileName() { return "PoolAllocatorTestXXX"; }
+	// uncomment if really needed or delete, base class does almost everything
+	//	//! sets the environment for this test
+	//	void setUp ();
+	//
+	//	//! deletes the environment for this test
+	//	void tearDown ();
+	//
+	//	//! returns name of testcase specific config file name. Default is PoolAllocatorTest.any. Override only if special
+	// behavior needed. 	TString getConfigFileName() { return "PoolAllocatorTestXXX"; }
 
 	//! describe this testcase
 	void ExcessTrackerEltCtorTest();

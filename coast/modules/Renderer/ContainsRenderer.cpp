@@ -7,17 +7,17 @@
  */
 
 #include "ContainsRenderer.h"
+
 #include "Tracer.h"
 
 //---- ContainsRenderer ---------------------------------------------------------------
 RegisterRenderer(ContainsRenderer);
 
-ContainsRenderer::ContainsRenderer(const char *name) : Renderer(name) { }
+ContainsRenderer::ContainsRenderer(const char *name) : Renderer(name) {}
 
-ContainsRenderer::~ContainsRenderer() { }
+ContainsRenderer::~ContainsRenderer() {}
 
-void ContainsRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void ContainsRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(ContainsRenderer.RenderAll);
 
 	String listDataName;
@@ -30,10 +30,10 @@ void ContainsRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnythi
 	Trace("Value To Check: <" << value << ">");
 
 	if (list.Contains(value)) {
-		Trace("list contains " << value );
+		Trace("list contains " << value);
 		Render(reply, c, config["True"]);
 	} else {
-		Trace("list does not contain " << value );
+		Trace("list does not contain " << value);
 		Render(reply, c, config["False"]);
 	}
 }

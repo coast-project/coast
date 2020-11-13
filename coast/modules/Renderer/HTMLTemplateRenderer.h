@@ -17,16 +17,16 @@
 \par Configuration
 \code
 {
-	/TemplateName	Rendererspec	mandatory, basename of html file; no .html extension; no path!
-	/Template {		Anything		optional, but mandatory if TemplateName is omitted, TemplateName takes precedence
-		"list of strings containing HTML code"
-		"the list may yet contain macros: [[#wd ContextLookup foo ]]"
-		"all the lines of the list are simply concatenated without "
-		"adding any linefeeds etc!"
-	}
-	/ParserConfig {					optional, local TemplateParser options, these will override global settings defined in HTMLTemplateConfig slot, see TemplateParser for available options
-		...
-	}
+  /TemplateName	Rendererspec	mandatory, basename of html file; no .html extension; no path!
+  /Template {		Anything		optional, but mandatory if TemplateName is omitted, TemplateName takes precedence
+	"list of strings containing HTML code"
+	"the list may yet contain macros: [[#wd ContextLookup foo ]]"
+	"all the lines of the list are simply concatenated without "
+	"adding any linefeeds etc!"
+  }
+  /ParserConfig {					optional, local TemplateParser options, these will override global settings defined in HTMLTemplateConfig slot, see TemplateParser for available options
+	...
+  }
 }
 \endcode
 The HTML template renderer is a generic renderer that allows to
@@ -72,8 +72,7 @@ templates that are defined inline.)
 
 HTMLTemplateRenderer uses the SystemLog mechanism to record error conditions!
 */
-class HTMLTemplateRenderer : public Renderer
-{
+class HTMLTemplateRenderer : public Renderer {
 public:
 	HTMLTemplateRenderer(const char *name);
 

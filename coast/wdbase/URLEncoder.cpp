@@ -6,29 +6,24 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "URLUtils.h"
-#include "Tracer.h"
 #include "URLEncoder.h"
+
+#include "Tracer.h"
+#include "URLUtils.h"
 
 // ------------------- URLEncoder ---------------------------------------------
 RegisterEncoder(URLEncoder);
 
-URLEncoder::URLEncoder(const char *name) : Encoder(name)
-{
-}
+URLEncoder::URLEncoder(const char *name) : Encoder(name) {}
 
-URLEncoder::~URLEncoder()
-{
-}
+URLEncoder::~URLEncoder() {}
 
-void URLEncoder::DoEncode(String &encStr, const String &str) const
-{
+void URLEncoder::DoEncode(String &encStr, const String &str) const {
 	StartTrace(URLEncoder.DoEncode);
 	encStr << coast::urlutils::urlEncode(str);
 }
 
-bool URLEncoder::DoDecode(String &str, const String &encStr) const
-{
+bool URLEncoder::DoDecode(String &str, const String &encStr) const {
 	StartTrace(URLEncoder.DoDecode);
 	str = coast::urlutils::urlDecode(encStr);
 	return true;

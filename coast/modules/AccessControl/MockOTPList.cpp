@@ -7,19 +7,19 @@
  */
 
 #include "MockOTPList.h"
-#include "Tracer.h"
+
 #include "Registry.h"
+#include "Tracer.h"
 
 // ---------------------- MockOTPList ---------------------------------
 
 RegisterOTPList(MockOTPList);
 
-bool MockOTPList::Verify(String tokenId, String otp, long window, TokenDataAccessController *)
-{
+bool MockOTPList::Verify(String tokenId, String otp, long window, TokenDataAccessController *) {
 	StartTrace(MockOTPList.Verify);
 
 	// if no config is present, then return distance 1 always
-	if ( fConfig.IsNull() ) {
+	if (fConfig.IsNull()) {
 		Trace("No config present.");
 		Trace("(Mocked) Success.");
 		return true;
@@ -34,12 +34,11 @@ bool MockOTPList::Verify(String tokenId, String otp, long window, TokenDataAcces
 	return (dist >= 0);
 }
 
-long MockOTPList::IsValid(String tokenId, String otp, long window, TokenDataAccessController *)
-{
+long MockOTPList::IsValid(String tokenId, String otp, long window, TokenDataAccessController *) {
 	StartTrace(MockOTPList.IsValid);
 
 	// if no config is present, then return distance 1 always
-	if ( fConfig.IsNull() ) {
+	if (fConfig.IsNull()) {
 		Trace("No config present.");
 		Trace("(Mocked) Match. Distance is: 0");
 		return 0L;
@@ -50,10 +49,10 @@ long MockOTPList::IsValid(String tokenId, String otp, long window, TokenDataAcce
 	Trace("window  : " << window);
 
 	ROAnything otpList = fConfig[tokenId]["OtpList"];
-	if ( !otpList.IsNull() ) {
+	if (!otpList.IsNull()) {
 		long count = GetCount(tokenId);
 		for (long i = count; i < otpList.GetSize() && i < count + window; i++) {
-			if ( otpList[i].AsString().IsEqual(otp) ) {
+			if (otpList[i].AsString().IsEqual(otp)) {
 				Trace("Match within window. Distance is: " << (i - count));
 				return (i - count);
 			}
@@ -63,18 +62,16 @@ long MockOTPList::IsValid(String tokenId, String otp, long window, TokenDataAcce
 	return -1L;
 }
 
-long MockOTPList::GetCount(String tokenId)
-{
+long MockOTPList::GetCount(String tokenId) {
 	StartTrace(MockOTPList.GetCount);
 	// lazy copy
-	if ( !fCount.IsDefined(tokenId) ) {
+	if (!fCount.IsDefined(tokenId)) {
 		fCount[tokenId] = fConfig[tokenId]["Count"].AsLong(0);
 	}
 	return fCount[tokenId].AsLong();
 }
 
-void MockOTPList::SetCount(String tokenId, long newCount)
-{
+void MockOTPList::SetCount(String tokenId, long newCount) {
 	StartTrace(MockOTPList.SetCount);
 	fCount[tokenId] = newCount;
 }

@@ -7,17 +7,13 @@
  */
 
 #include "XMLEscapeRenderer.h"
-#include "Tracer.h"
-#include <cstring>
 
-static const char *entitity_map[] = {
-	"<",	"&lt;",
-	">",	"&gt;",
-	"&",	"&amp;",
-	"\"",	"&quot;",
-	"'",	"&apos;",
-	0
-};
+#include "Tracer.h"
+
+#include <cstring>
+#include <ostream>
+
+static const char *entitity_map[] = {"<", "&lt;", ">", "&gt;", "&", "&amp;", "\"", "&quot;", "'", "&apos;", 0};
 
 RegisterRenderer(XMLEscapeRenderer);
 
@@ -28,14 +24,14 @@ void XMLEscapeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAny
 	Trace("input: [" << input << "]");
 	for (long i = 0, sz = input.Length(); i < sz; ++i) {
 		char c = input[i];
-		for (int iI = 0; entitity_map[iI]; iI += 2) {
+		for (int iI = 0; entitity_map[iI] != 0; iI += 2) {
 			if (c == entitity_map[iI][0]) {
 				reply << entitity_map[iI + 1];
 				goto found;
 			}
 		}
 		reply << c;
-		found: ;
+	found:;
 	}
 }
 
@@ -51,13 +47,13 @@ void XMLUnescapeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROA
 	reply << token;
 
 	while (tok(token)) {
-		for (int i = 0; entitity_map[i]; i += 2) {
+		for (int i = 0; entitity_map[i] != 0; i += 2) {
 			if (token.StartsWith(entitity_map[i + 1] + 1)) {
 				reply << entitity_map[i] << token.SubString(strlen(entitity_map[i + 1]) - 1);
 				goto found;
 			}
 		}
 		reply << "&" << token;
-		found: ;
+	found:;
 	}
 }

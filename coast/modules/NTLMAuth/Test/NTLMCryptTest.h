@@ -11,11 +11,9 @@
 
 #include "TestCase.h"
 
-class NTLMCryptTest: public testframework::TestCase {
+class NTLMCryptTest : public testframework::TestCase {
 public:
-	NTLMCryptTest(TString tstrName) :
-			TestCaseType(tstrName) {
-	}
+	NTLMCryptTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	static Test *suite();
 

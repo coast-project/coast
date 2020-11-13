@@ -7,8 +7,10 @@
  */
 
 #include "FlowControllerTest.h"
-#include "TestSuite.h"
+
 #include "FlowController.h"
+#include "TestSuite.h"
+
 #include <iostream>
 
 void FlowControllerTest::setUp() {
@@ -22,50 +24,49 @@ void FlowControllerTest::setUp() {
 	}
 	fConfig.Import(*ifp);
 	delete ifp;
-
 }
 
-//Test with Full configuration
+// Test with Full configuration
 void FlowControllerTest::FullConfigurationTest() {
 	DoTest();
 }
 
-//Test with configuration without NumberOfRuns ( default of one is taken )
+// Test with configuration without NumberOfRuns ( default of one is taken )
 void FlowControllerTest::WithoutNumberOfRunsConfigurationTest() {
 	DoTest();
 }
 
-//Test with configuration with NumberOfRuns=0 ( run is not executed )
+// Test with configuration with NumberOfRuns=0 ( run is not executed )
 void FlowControllerTest::NumberOfRuns0ConfigurationTest() {
 	DoTest();
 }
 
-//Test with configuration without PreRun (just Run executed )
+// Test with configuration without PreRun (just Run executed )
 void FlowControllerTest::WithoutPreRunConfigurationTest() {
 	DoTest();
 }
 
-//Test with configuration without Run ( just PreRun executed )
+// Test with configuration without Run ( just PreRun executed )
 void FlowControllerTest::WithoutRunConfigurationTest() {
 	DoTest();
 }
 
-//Test with configuration with only PreRun
+// Test with configuration with only PreRun
 void FlowControllerTest::PreRunOnlyConfigurationTest() {
 	DoTest();
 }
 
-//Test with configuration with only Run
+// Test with configuration with only Run
 void FlowControllerTest::RunOnlyConfigurationTest() {
 	DoTest();
 }
 
-//Test with configuration with only Run and only one step
+// Test with configuration with only Run and only one step
 void FlowControllerTest::RunOnlyOneStepConfigurationTest() {
 	DoTest();
 }
 
-//Test with configuration that does not contain any of the necessary slots
+// Test with configuration that does not contain any of the necessary slots
 void FlowControllerTest::InvalidConfigurationTest() {
 	DoTest();
 }
@@ -113,5 +114,4 @@ Test *FlowControllerTest::suite() {
 	ADD_CASE(testSuite, FlowControllerTest, InvalidConfigurationTest);
 
 	return testSuite;
-
 }

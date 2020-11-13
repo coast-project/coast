@@ -23,8 +23,7 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class MD5Renderer : public Renderer
-{
+class MD5Renderer : public Renderer {
 public:
 	//--- constructors
 	MD5Renderer(const char *name);

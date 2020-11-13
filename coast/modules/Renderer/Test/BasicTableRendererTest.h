@@ -15,14 +15,14 @@
 
 //---- BasicTableRendererTest -----------------------------------------------------------
 
-class BasicTableRendererTest : public RendererTest
-{
+class BasicTableRendererTest : public RendererTest {
 public:
 	BasicTableRendererTest(TString tstrName);
 	virtual ~BasicTableRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
+
 protected:
 	Context *CreateContext(const char *demodata);
 	void CanUseInvertedHeaders();

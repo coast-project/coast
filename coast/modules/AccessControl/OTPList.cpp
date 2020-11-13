@@ -7,15 +7,15 @@
  */
 
 #include "OTPList.h"
-#include "Tracer.h"
-#include "Registry.h"
+
 #include "Policy.h"
+#include "Registry.h"
+#include "Tracer.h"
 
 //---- OTPListsModule -----------------------------------------------------------
 RegisterModule(OTPListsModule);
 
-bool OTPListsModule::Init(const ROAnything config)
-{
+bool OTPListsModule::Init(const ROAnything config) {
 	if (config.IsDefined("OTPLists")) {
 		AliasInstaller ai("OTPList");
 		return RegisterableObject::Install(config["OTPLists"], "OTPList", &ai);
@@ -23,12 +23,10 @@ bool OTPListsModule::Init(const ROAnything config)
 	return false;
 }
 
-bool OTPListsModule::Finis()
-{
+bool OTPListsModule::Finis() {
 	return StdFinis("OTPList", "OTPLists");
 }
 
 //---- OTPList -----------------------------------------------------------
 
 RegCacheImpl(OTPList);	// FindOTPList()
-

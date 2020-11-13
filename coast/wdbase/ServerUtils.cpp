@@ -7,11 +7,15 @@
  */
 
 #include "ServerUtils.h"
-#include "Socket.h"
-#include "Server.h"
+
 #include "RequestProcessor.h"
-#include "Timers.h"
+#include "Server.h"
+#include "Socket.h"
 #include "SystemBase.h"
+#include "Timers.h"
+
+#include <istream>
+
 #include <errno.h>
 #include <signal.h>
 
@@ -22,8 +26,7 @@
 
 Server *WIN32InterruptHandler::fgServer;
 
-BOOL ConsoleHandler(DWORD dwCtrlType)
-{
+BOOL ConsoleHandler(DWORD dwCtrlType) {
 	StartTrace(WIN32InterruptHandler.ConsoleHandler);
 	switch (dwCtrlType) {
 			// Handle the CTRL+C signal.
@@ -52,8 +55,7 @@ BOOL ConsoleHandler(DWORD dwCtrlType)
 	return TRUE;
 }
 
-void SignalHandler(int sig)
-{
+void SignalHandler(int sig) {
 	StartTrace1(WIN32InterruptHandler.SignalHandler, "signal:" << (long)sig);
 	switch (sig) {
 			/* interrupt */
@@ -90,11 +92,10 @@ void SignalHandler(int sig)
 	WIN32InterruptHandler::ShutDown();
 }
 
-WIN32InterruptHandler::WIN32InterruptHandler(Server *server) : fServer(server)
-{
+WIN32InterruptHandler::WIN32InterruptHandler(Server *server) : fServer(server) {
 	StartTrace(WIN32InterruptHandler.Ctor);
 	// set a console handler callback function that shuts down the server in case a key press occurs in the console
-	SetConsoleCtrlHandler((PHANDLER_ROUTINE) ConsoleHandler, true);
+	SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, true);
 	// setup signal handler for other signal which could occur
 	// ... and occur in case we use cygwins kill utility
 	signal(SIGINT, SignalHandler);
@@ -106,13 +107,12 @@ WIN32InterruptHandler::WIN32InterruptHandler(Server *server) : fServer(server)
 	signal(SIGABRT, SignalHandler);
 
 	fgServer = fServer;
-	if ( fServer ) {
+	if (fServer) {
 		fServer->WritePIDFile();
 	}
 }
 
-void WIN32InterruptHandler::ShutDown()
-{
+void WIN32InterruptHandler::ShutDown() {
 	StartTrace(WIN32InterruptHandler.ShutDown);
 	if (fgServer) {
 		SystemLog::Info("caught SIGINT");
@@ -120,7 +120,7 @@ void WIN32InterruptHandler::ShutDown()
 		fgServer->RemovePIDFile();
 		fgServer = NULL;
 		// finally remove the console handler
-		SetConsoleCtrlHandler((PHANDLER_ROUTINE) ConsoleHandler, false);
+		SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, false);
 	}
 }
 #else
@@ -129,29 +129,24 @@ void WIN32InterruptHandler::ShutDown()
 // is based on the signal handling API's of the
 // solaris thread library
 
-InterruptHandler::InterruptHandler(Server *server)
-	: Thread("InterruptHandler", true)
-	, fServer(server)
-{
+InterruptHandler::InterruptHandler(Server *server) : Thread("InterruptHandler", true), fServer(server) {
 	StartTrace(InterruptHandler.Ctor);
 	Start();
 }
 
-InterruptHandler::~InterruptHandler()
-{
+InterruptHandler::~InterruptHandler() {
 	StartTrace(InterruptHandler.Dtor);
-	if ( GetId() != 0 ) {
+	if (GetId() != 0) {
 		THRKILL(GetId(), SIGTERM);
 	}
 	Terminate();
 	CheckState(Thread::eTerminated);
-	if (fServer) {
+	if (fServer != 0) {
 		fServer->RemovePIDFile();
 	}
 }
 
-void InterruptHandler::Run()
-{
+void InterruptHandler::Run() {
 	StartTrace(InterruptHandler.Run);
 
 	// the just wait for the signal to happen
@@ -159,12 +154,12 @@ void InterruptHandler::Run()
 	Trace("Pid: " << (long)coast::system::getpid());
 	Trace("Server [" << (fServer ? (const char *)(fServer->fName) : "no-name") << "]");
 
-	if ( fServer ) {
+	if (fServer != 0) {
 		fServer->WritePIDFile(coast::system::getpid());
 	}
 
 	sigset_t set;
-	int isignal;
+	int isignal = 0;
 	// setup the signal set that catches control-c
 	sigemptyset(&set);
 	sigaddset(&set, SIGINT);
@@ -178,22 +173,22 @@ handlesignal:
 	SetReady();
 
 	Trace("got signal: " << (long)isignal);
-	if (fServer) {
+	if (fServer != 0) {
 		String sigName;
 		sigName << (long)isignal;
-		if ( isignal == SIGHUP ) {
+		if (isignal == SIGHUP) {
 			SYSINFO("caught SIGHUP, resetting server");
 			int retVal = fServer->GlobalReinit();
-			if ( retVal == 0 ) {
+			if (retVal == 0) {
 				// everything ok, wait on next signal
 				goto handlesignal;
 			}
 			sigName = "SIGHUP";
 			// shutdown if any mishap happens
 			SYSERROR("GlobalReinit failed, shutting down...");
-		} else if ( isignal == SIGINT ) {
+		} else if (isignal == SIGINT) {
 			sigName = "SIGINT";
-		} else if ( isignal == SIGTERM ) {
+		} else if (isignal == SIGTERM) {
 			sigName = "SIGTERM";
 		} else {
 			SYSINFO("caught unknown signal " << sigName << " ...ignoring!");
@@ -208,16 +203,9 @@ handlesignal:
 }
 #endif
 
-HandleRequest::HandleRequest(const char *name)
-	: WorkerThread(name)
-	, fClientSocket(0)
-	, fProcessor(0)
-	, fRequestNumber(0)
-{
-}
+HandleRequest::HandleRequest(const char *name) : WorkerThread(name), fClientSocket(0), fProcessor(0), fRequestNumber(0) {}
 
-void HandleRequest::DoInit(ROAnything workerInit)
-{
+void HandleRequest::DoInit(ROAnything workerInit) {
 	StartTrace(HandleRequest.DoInit);
 	// request independant setup
 	fProcessor = SafeCast(workerInit["processor"].AsIFAObject(0), RequestProcessor);
@@ -225,8 +213,7 @@ void HandleRequest::DoInit(ROAnything workerInit)
 	fRequestNumber = 0;
 }
 
-void HandleRequest::DoWorkingHook(ROAnything workloadArgs)
-{
+void HandleRequest::DoWorkingHook(ROAnything workloadArgs) {
 	StartTrace(HandleRequest.DoWorkingHook);
 	// request specific setup
 	fClientSocket = (Socket *)workloadArgs["socket"].AsIFAObject(0);
@@ -234,10 +221,9 @@ void HandleRequest::DoWorkingHook(ROAnything workloadArgs)
 	TraceAny(workloadArgs, "my working arguments for request " << fRequestNumber);
 }
 
-void HandleRequest::DoProcessWorkload()
-{
+void HandleRequest::DoProcessWorkload() {
 	StartTrace(HandleRequest.DoProcessWorkload);
-	if (fClientSocket) {
+	if (fClientSocket != 0) {
 		{
 			// **the** one and only context for this request
 			Context ctx(fClientSocket);
@@ -245,7 +231,7 @@ void HandleRequest::DoProcessWorkload()
 				// set the request timer to time
 				// the duration of this request
 				RequestTimer(Cycle, "Nr: " << fRequestNumber, ctx);
-				if (fProcessor) {
+				if (fProcessor != 0) {
 					fProcessor->ProcessRequest(ctx);
 				}
 			}
@@ -259,30 +245,23 @@ void HandleRequest::DoProcessWorkload()
 	}
 }
 
-void HandleRequest::DoTerminationRequestHook(ROAnything workloadArgs)
-{
+void HandleRequest::DoTerminationRequestHook(ROAnything workloadArgs) {
 	StartTrace(HandleRequest.DoTerminationRequestHook);
 	// terminate running request by setting bad bit on stream
-	if (fClientSocket) {
+	if (fClientSocket != 0) {
 		Trace("client socket still active");
 		std::iostream *Ios = fClientSocket->GetStream();
 		Trace("");
-		if (Ios && !!(*Ios)) {
+		if ((Ios != 0) && !!(*Ios)) {
 			Trace("setting badbit on stream to terminate me");
 			Ios->clear(std::ios::badbit | Ios->rdstate());
 		}
 	}
 }
 
-RequestThreadsManager::RequestThreadsManager(String name)
-	: WorkerPoolManager(name)
-	, fRequests(0)
-	, fProcessor(0)
-{
-}
+RequestThreadsManager::RequestThreadsManager(String name) : WorkerPoolManager(name), fRequests(0), fProcessor(0) {}
 
-RequestThreadsManager::~RequestThreadsManager()
-{
+RequestThreadsManager::~RequestThreadsManager() {
 	StartTrace(RequestThreadsManager.~RequestThreadsManager);
 	bool reallyterminated = Terminate();
 	Assert(reallyterminated);
@@ -292,19 +271,18 @@ RequestThreadsManager::~RequestThreadsManager()
 	Anything dummy;
 	DoDeletePool(dummy);
 
-	if (fProcessor) {
+	if (fProcessor != 0) {
 		delete fProcessor;
 		fProcessor = 0;
 	}
 }
 
-void RequestThreadsManager::DoAllocPool(ROAnything args)
-{
+void RequestThreadsManager::DoAllocPool(ROAnything args) {
 	StartTrace(RequestThreadsManager.DoAllocPool);
 	TraceAny(args, "args");
 	RequestProcessor *processor = SafeCast(args["processor"].AsIFAObject(0), RequestProcessor);
 
-	if (processor) {
+	if (processor != 0) {
 		fProcessor = processor;
 	} else {
 		const char *msg = "OOPS, couldn't find a RequestProcessor in args";
@@ -314,34 +292,31 @@ void RequestThreadsManager::DoAllocPool(ROAnything args)
 	fRequests = new HandleRequest[GetPoolSize()];
 }
 
-WorkerThread *RequestThreadsManager::DoGetWorker(long i)
-{
+WorkerThread *RequestThreadsManager::DoGetWorker(long i) {
 	StartTrace(RequestThreadsManager.DoGetWorker);
 	// concrete subclass needs to determine the object ptr
-	if (fRequests) {
+	if (fRequests != 0) {
 		return &(fRequests[i]);
 	}
 	return 0;
 }
 
-void RequestThreadsManager::DoDeletePool(ROAnything args)
-{
+void RequestThreadsManager::DoDeletePool(ROAnything args) {
 	StartTrace(RequestThreadsManager.DoDeletePool);
-	if (fRequests) {
+	if (fRequests != 0) {
 		// SOP, should check if threads are really done.
-		//for (int i = 0; i < GetPoolSize(); i ++){
+		// for (int i = 0; i < GetPoolSize(); i ++){
 		//	Assert(fRequests[i].Terminate(1));
 		//}
-		delete [] fRequests;	// cast to correct type
-		fRequests = 0;			// reset so that base class will not try to delete it again
+		delete[] fRequests;	 // cast to correct type
+		fRequests = 0;		 // reset so that base class will not try to delete it again
 	}
-	if (fProcessor) {
+	if (fProcessor != 0) {
 		delete fProcessor;
 		fProcessor = 0;
 	}
 }
 
-bool RequestThreadsManager::CanReInitPool()
-{
-	return fProcessor ? true : false;
+bool RequestThreadsManager::CanReInitPool() {
+	return fProcessor != 0 ? true : false;
 }

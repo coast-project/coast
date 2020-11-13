@@ -13,8 +13,7 @@
 #include "Mapper.h"
 
 //! Handles LDAP Errors
-class LDAPErrorHandler
-{
+class LDAPErrorHandler {
 public:
 	enum eRetryState { eRetry, eIsInRetrySequence, eNoRetry };
 	LDAPErrorHandler(Context &ctx, ParameterMapper *getter, ResultMapper *putter, String daName);

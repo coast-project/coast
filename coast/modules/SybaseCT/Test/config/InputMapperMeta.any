@@ -191,13 +191,18 @@
 		}
 	}
 
+	/aParamMapper {
+		/LoginTimeout	5
+	}
 	/NewDAInpuMapper {
 #		/ShowQueryCount	0
+		/LoginTimeout	5
 	}
 	/LoginTimeoutMapper {
 		/LoginTimeout	5
 	}
 	/ResultTimeoutMapper {
+		/LoginTimeout	5
 		/ResultTimeout	5
 	}
 }

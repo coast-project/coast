@@ -12,9 +12,8 @@
 class String;
 class Anything;
 
-//!event handler for gathering statistic data
-class StatEvtHandler
-{
+//! event handler for gathering statistic data
+class StatEvtHandler {
 public:
 	StatEvtHandler();
 	virtual ~StatEvtHandler();
@@ -44,19 +43,18 @@ private:
 	StatEvtHandler &operator=(const StatEvtHandler &);
 };
 
-//!gathering statistic data
-class StatGatherer
-{
+//! gathering statistic data
+class StatGatherer {
 public:
 	StatGatherer();
 	virtual ~StatGatherer();
 
 	/*! get collected statistics
-		\param statElements Anything to get statistics data */
+	  \param statElements Anything to get statistics data */
 	void Statistic(Anything &statElements);
 
 	/*! prints collected pool statistics on stderr */
-	void PrintStatisticsOnStderr( const String &strName );
+	void PrintStatisticsOnStderr(const String &strName);
 
 protected:
 	//! collect the statistics in using class
@@ -67,9 +65,8 @@ private:
 	StatGatherer &operator=(const StatGatherer &);
 };
 
-//!observing statistic data
-class StatObserver
-{
+//! observing statistic data
+class StatObserver {
 public:
 	StatObserver();
 	virtual ~StatObserver();
@@ -86,4 +83,4 @@ private:
 	StatObserver &operator=(const StatObserver &);
 };
 
-#endif		//ifndef _STATUTILS_H
+#endif	// ifndef _STATUTILS_H

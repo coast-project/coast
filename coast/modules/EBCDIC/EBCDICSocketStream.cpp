@@ -7,14 +7,11 @@
  */
 
 #include "EBCDICSocketStream.h"
+
 #include "Socket.h"
 
 //---- EBCDICSocketStream ------------------------------------------------------
 EBCDICSocketStream::EBCDICSocketStream(Socket *s, long timeout, long sockbufsz)
-	: iosCoastEBCDICSocket(s, timeout, sockbufsz)
-	, std::iostream(rdbuf())
-{ }
+	: iosCoastEBCDICSocket(s, timeout, sockbufsz), std::iostream(rdbuf()) {}
 
-EBCDICSocketStream::~EBCDICSocketStream()
-{
-}
+EBCDICSocketStream::~EBCDICSocketStream() {}

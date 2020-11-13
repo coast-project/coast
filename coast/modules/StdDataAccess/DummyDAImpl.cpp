@@ -6,10 +6,11 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "DummyDAImpl.h"
+
+#include "AnyUtils.h"
 #include "StringStream.h"
 #include "Timers.h"
-#include "AnyUtils.h"
-RegisterDataAccessImpl( DummyDAImpl);
+RegisterDataAccessImpl(DummyDAImpl);
 
 bool DummyDAImpl::HandleError(const char *msg, Context &context) {
 	// does very little right now...
@@ -45,7 +46,7 @@ bool DummyDAImpl::BuildRequest(String &request, Context &context, ParameterMappe
 	if (TriggerEnabled(DummyDAImpl.BuildRequest)) {
 		tmpStore["ParameterMapper"]["RequestMade"] = request;
 	}
-	return true; // request built successfully
+	return true;  // request built successfully
 }
 
 String DummyDAImpl::GetReplyMatchingRequest(Anything &recording, Context &context, String &request) {
@@ -77,11 +78,10 @@ String DummyDAImpl::GetReplyMatchingRequest(Anything &recording, Context &contex
 			return eMsg;
 		}
 		return recording[index]["Reply"].AsString(eMsg);
-	} else {
-		String eMsg = "Request not found, index:";
-		eMsg << index << " Request:" << request;
-		return eMsg;
 	}
+	String eMsg = "Request not found, index:";
+	eMsg << index << " Request:" << request;
+	return eMsg;
 }
 
 bool DummyDAImpl::DoExec(Context &context, ParameterMapper *in, ResultMapper *out) {
@@ -106,7 +106,7 @@ bool DummyDAImpl::DoExec(Context &context, ParameterMapper *in, ResultMapper *ou
 	if (TriggerEnabled(DummyDAImpl.DoExecRecordOrTest)) {
 		String infoMsg = "\r\nReply from server ";
 		infoMsg << theReply;
-		SystemLog::Info(infoMsg); // perhaps enable this line with an entry in RequestLineRenderer.any.... future
+		SystemLog::Info(infoMsg);  // perhaps enable this line with an entry in RequestLineRenderer.any.... future
 	}
 	if (!RenderReply(theReply, context, out)) {
 		return false;

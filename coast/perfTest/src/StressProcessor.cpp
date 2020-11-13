@@ -7,16 +7,14 @@
  */
 
 #include "StressProcessor.h"
+
 #include "Stresser.h"
 
 RegisterRequestProcessor(StressProcessor);
 
-StressProcessor::StressProcessor(const char *name) :
-		RequestProcessor(name) {
-}
+StressProcessor::StressProcessor(const char *name) : RequestProcessor(name) {}
 
-StressProcessor::~StressProcessor() {
-}
+StressProcessor::~StressProcessor() {}
 
 bool StressProcessor::DoProcessRequest(std::ostream &reply, Context &ctx) {
 	StartTrace(StressProcessor.DoProcessRequest);

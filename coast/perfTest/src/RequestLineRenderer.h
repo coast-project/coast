@@ -12,8 +12,7 @@
 #include "Renderer.h"
 
 //---- RequestLineRenderer -----------------------------------------------------------
-class RequestLineRenderer : public Renderer
-{
+class RequestLineRenderer : public Renderer {
 public:
 	RequestLineRenderer(const char *name);
 	~RequestLineRenderer();
@@ -21,4 +20,4 @@ public:
 	virtual void RenderAll(std::ostream &reply, Context &c, const ROAnything &config);
 };
 
-#endif		//ifndef _RequestLineRenderer_H
+#endif	// ifndef _RequestLineRenderer_H

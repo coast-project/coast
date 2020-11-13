@@ -7,24 +7,21 @@
  */
 
 #include "AuthenticationServiceTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
+
 #include "AuthenticationService.h"
+#include "FoundationTestTypes.h"
 #include "SecurityModule.h"
 #include "StringStream.h"
+#include "TestSuite.h"
 
 //---- TestService ----------------------------------------------------------
 //:simple stub class to test service dispatcher
-class AuthTestService: public ServiceHandler {
+class AuthTestService : public ServiceHandler {
 public:
-	AuthTestService(const char *serviceHandlerName) :
-		ServiceHandler(serviceHandlerName) {
-	}
+	AuthTestService(const char *serviceHandlerName) : ServiceHandler(serviceHandlerName) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) AuthTestService(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) AuthTestService(fName); }
 
 protected:
 	virtual bool DoHandleService(std::ostream &os, Context &ctx) {
@@ -70,7 +67,6 @@ void AuthenticationServiceTest::OkTest() {
 		String expectedMsg("test ok");
 		MakeAuthenticationInfo(ctx, "KnownUser", "correct");
 		DoTest(ash, ctx, expectedMsg);
-
 	}
 	{
 		Context ctx;
@@ -157,7 +153,7 @@ void AuthenticationServiceTest::DoTest(ServiceHandler &sh, Context &ctx, String 
 	// --> Therefore ( output.IsEqual(expectedMsg) ) must be done
 	// long ret = ( (long)output.IsEqual(expectedMsg) || output.Contains( expectedMsg ) );
 	long ret = 0L;
-	ret = (long) output.IsEqual(expectedMsg);
+	ret = (long)output.IsEqual(expectedMsg);
 	if (ret <= 0) {
 		ret = output.Contains(expectedMsg);
 	}
@@ -175,7 +171,7 @@ void AuthenticationServiceTest::DoTest(ServiceHandler &sh, Context &ctx, Anythin
 		sh.HandleService(stream, ctx);
 		receivedAny.Import(stream);
 	}
-	assertAnyEqualm(expectedAny, receivedAny , name() );
+	assertAnyEqualm(expectedAny, receivedAny, name());
 }
 
 void AuthenticationServiceTest::MakeAuthenticationInfo(Context &ctx, String user, String pw) {
@@ -187,7 +183,7 @@ void AuthenticationServiceTest::MakeAuthenticationInfo(Context &ctx, String user
 	Encoder::Encode("Base64", namePW, clearText);
 
 	String authInfo("Basic ");
-	authInfo << namePW.SubString(7); // Remove "Base64:" at the beginning
+	authInfo << namePW.SubString(7);  // Remove "Base64:" at the beginning
 	Anything env = ctx.GetTmpStore();
 	env["header"]["AUTHORIZATION"] = authInfo;
 	TraceAny(env, "env with Authorization header");

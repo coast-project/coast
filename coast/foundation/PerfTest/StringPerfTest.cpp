@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestSuite.h"
 #include "StringPerfTest.h"
+
 #include "PoolAllocator.h"
+#include "TestSuite.h"
 
 void StringPerfTest::RunLoop(const char *str, const long iterations) {
 	CatchTimeType aTimer(TString("RunLoop/") << str << '/' << iterations << "/default", this);
@@ -37,8 +38,8 @@ void StringPerfTest::RunPoolAllocLoop(const char *str, const long iterations) {
 
 void StringPerfTest::referenceTest() {
 	StartTrace(StringPerfTest.referenceTest);
-	const char *sample = "this is a "; //short samp"; // 20 bytes
-	const char *sample1 = "this is a short samp"; //this is a short samp"; // 40 bytes
+	const char *sample = "this is a ";			   // short samp"; // 20 bytes
+	const char *sample1 = "this is a short samp";  // this is a short samp"; // 40 bytes
 	const long iterations = 100000;
 
 	// short sample

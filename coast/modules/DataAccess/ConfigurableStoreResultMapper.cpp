@@ -6,6 +6,7 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "ConfigurableStoreResultMapper.h"
+
 #include "AnythingUtils.h"
 
 //---- ConfigurableStoreResultMapper ------------------------------------------------------------------
@@ -14,7 +15,7 @@ RegisterResultMapper(ConfigurableStoreResultMapper);
 void ConfigurableStoreResultMapper::DoGetDestinationAny(const char *key, Anything &targetAny, Context &ctx) {
 	StartTrace1(ConfigurableStoreResultMapper.DoGetDestinationAny, NotNull(key));
 	String path = GetDestinationSlot(ctx), kPrefix(key);
-	if (path.Length() > 0 && kPrefix.Length()) {
+	if (path.Length() > 0 && (kPrefix.Length() != 0)) {
 		path.Append(getDelim());
 	}
 	path.Append(kPrefix);

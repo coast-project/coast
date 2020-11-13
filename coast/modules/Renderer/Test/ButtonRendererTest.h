@@ -11,19 +11,18 @@
 
 //-*-Mode: C++;-*-
 
-#include "RendererTest.h"
 #include "FieldRendererTest.h"
+#include "RendererTest.h"
 
 //---- ButtonRendererTest -----------------------------------------------------------
 
-class ButtonRendererTest : public FieldRendererTest
-{
+class ButtonRendererTest : public FieldRendererTest {
 public:
 	ButtonRendererTest(TString tstrName);
 	virtual ~ButtonRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
 
 protected:
 	void TestCaseEmptyConf();

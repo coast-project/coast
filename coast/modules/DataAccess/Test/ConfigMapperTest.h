@@ -11,16 +11,12 @@
 
 #include "WDBaseTestPolicies.h"
 
-class ConfigMapperTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class ConfigMapperTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	ConfigMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	ConfigMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 	//! builds up a suite of tests
 	static Test *suite();
-	TString getConfigFileName() {
-		return "ConfigMapperTestConfig";
-	}
+	TString getConfigFileName() { return "ConfigMapperTestConfig"; }
 	//! testing config mapper
 	void ConfigTest();
 };

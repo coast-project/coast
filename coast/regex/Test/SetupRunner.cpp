@@ -10,15 +10,14 @@
 #include "TestRunner.h"
 
 //--- test cases ---------------------------------------------------------------
-#include "RegexTest.h"
 #include "REBitSet.h"
 #include "REBitSetTest.h"
 #include "RECompilerTest.h"
+#include "RegexTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	// add a whole suite with the ADD_SUITE(runner,"Suites's Classname") macro
 	ADD_SUITE(runner, REBitSetTest);
 	ADD_SUITE(runner, RECompilerTest);
 	ADD_SUITE(runner, RegexTest);
-} // setupRunner
+}  // setupRunner

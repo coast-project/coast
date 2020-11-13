@@ -7,8 +7,9 @@
  */
 
 #include "ListRenderer.h"
-#include "Tracer.h"
+
 #include "AnyIterators.h"
+#include "Tracer.h"
 
 namespace {
 	const String ENRTY_STORE_NAME_DEFAULT("EntryData", -1, coast::storage::Global());
@@ -22,8 +23,7 @@ void ListRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything
 	ROAnything roaList;
 
 	// Check for mandatory configuration and presence of ListName
-	if (config.IsDefined("EntryRenderer")
-			&& (GetList(ctx, config, roaList) || config.LookupPath(roaList, "ListData"))) {
+	if (config.IsDefined("EntryRenderer") && (GetList(ctx, config, roaList) || config.LookupPath(roaList, "ListData"))) {
 		Anything anyRenderState;
 		ROAnything entryRendererConfig = config["EntryRenderer"];
 		ROAnything listHeader = config["ListHeader"];
@@ -33,8 +33,8 @@ void ListRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything
 		anyRenderState["ListSize"] = lListSize;
 
 		if (lListSize <= 0) {
-			SYSINFO(
-					"list at [" << RenderToStringWithDefault(ctx, config["ListName"], "config.ListData") << "] is empty, not rendering anything!");
+			SYSINFO("list at [" << RenderToStringWithDefault(ctx, config["ListName"], "config.ListData")
+								<< "] is empty, not rendering anything!");
 			return;
 		}
 
@@ -90,7 +90,8 @@ void ListRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything
 			SubTraceAny(TraceEntry, roaEntry, "data at index: " << i);
 			if (i < start) {
 				continue;
-			} else if (i > end) {
+			}
+			if (i > end) {
 				break;
 			}
 			// prepare data for rendering
@@ -104,10 +105,11 @@ void ListRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything
 			}
 			Context::PushPopEntry<Anything> aEntryDataInfo(ctx, "EntryDataInfo", anyAdditionalInfo);
 
-			// fill in some state information which can be used within the following rendering methods to transfer some state if needed
+			// fill in some state information which can be used within the following rendering methods to transfer some state if
+			// needed
 			anyRenderState["ListIndex"] = i;
 			anyRenderState["RenderIndex"] = (i - start);
-			if (strSlotName.Length()) {
+			if (strSlotName.Length() != 0) {
 				anyRenderState["Slotname"] = strSlotName;
 			} else {
 				anyRenderState.Remove("Slotname");
@@ -125,8 +127,8 @@ void ListRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything
 			RenderEntry(reply, ctx, config, entryRendererConfig, roaEntry, anyRenderState);
 
 			ROAnything roaEntryFooter;
-			if (EntryFooterHasToBeRendered(ctx, config, anyRenderState)
-					&& GetEntryFooter(config, roaEntryFooter, anyRenderState)) {
+			if (EntryFooterHasToBeRendered(ctx, config, anyRenderState) &&
+				GetEntryFooter(config, roaEntryFooter, anyRenderState)) {
 				RenderEntryFooter(reply, ctx, roaEntryFooter, roaEntry, anyRenderState);
 			}
 		}
@@ -149,19 +151,19 @@ void ListRenderer::RenderListFooter(std::ostream &reply, Context &ctx, const ROA
 }
 
 void ListRenderer::RenderEntry(std::ostream &reply, Context &ctx, const ROAnything &config,
-		const ROAnything &entryRendererConfig, const ROAnything &listItem, Anything &anyRenderState) {
+							   const ROAnything &entryRendererConfig, const ROAnything &listItem, Anything &anyRenderState) {
 	StartTrace(ListRenderer.RenderEntry);
 	Render(reply, ctx, entryRendererConfig);
 }
 
 void ListRenderer::RenderEntryHeader(std::ostream &reply, Context &ctx, const ROAnything &entryHeader,
-		const ROAnything &listItem, Anything &anyRenderState) {
+									 const ROAnything &listItem, Anything &anyRenderState) {
 	StartTrace(ListRenderer.RenderEntryHeader);
 	Render(reply, ctx, entryHeader);
 }
 
 void ListRenderer::RenderEntryFooter(std::ostream &reply, Context &ctx, const ROAnything &entryFooter,
-		const ROAnything &listItem, Anything &anyRenderState) {
+									 const ROAnything &listItem, Anything &anyRenderState) {
 	StartTrace(ListRenderer.RenderEntryFooter);
 	Render(reply, ctx, entryFooter);
 }
@@ -170,7 +172,7 @@ bool ListRenderer::GetList(Context &ctx, const ROAnything &config, ROAnything &r
 	StartTrace(ListRenderer.GetList);
 	String strListDataName;
 	RenderOnString(strListDataName, ctx, config["ListName"]);
-	return (strListDataName.Length() && ctx.Lookup(strListDataName, roaList));
+	return ((strListDataName.Length() != 0) && ctx.Lookup(strListDataName, roaList));
 }
 
 long ListRenderer::EntryHeaderNrToBeRendered(Context &ctx, const ROAnything &config, Anything &anyRenderState) {
@@ -212,8 +214,7 @@ bool ListRenderer::EntryFooterHasToBeRendered(Context &ctx, const ROAnything &co
 	return render;
 }
 
-bool ListRenderer::GetEntryHeader(const ROAnything &config, long nr, ROAnything &roaEntryHeader,
-		Anything &anyRenderState) {
+bool ListRenderer::GetEntryHeader(const ROAnything &config, long nr, ROAnything &roaEntryHeader, Anything &anyRenderState) {
 	StartTrace(ListRenderer.GetEntryHeader);
 	ROAnything roaEntryHeaderList;
 	if (config.LookupPath(roaEntryHeaderList, "EntryHeaders")) {

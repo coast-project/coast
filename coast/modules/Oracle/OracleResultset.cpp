@@ -7,8 +7,9 @@
  */
 
 #include "OracleResultset.h"
-#include "OracleStatement.h"
+
 #include "OracleException.h"
+#include "OracleStatement.h"
 #include "Tracer.h"
 
 OracleStatement::Description &OracleResultset::GetOutputDescription() {
@@ -31,10 +32,10 @@ OracleResultset::Status OracleResultset::next() {
 		case READY:
 		case DATA_AVAILABLE: {
 			sword status = frStmt.Fetch(1);
-			Trace("fetch status: " << (long) status)
-			if (status == OCI_SUCCESS || status == OCI_SUCCESS_WITH_INFO) {
+			Trace("fetch status: " << (long)status) if (status == OCI_SUCCESS || status == OCI_SUCCESS_WITH_INFO) {
 				fFetchStatus = DATA_AVAILABLE;
-			} else
+			}
+			else
 			// SQL_NO_DATA and other error/warn conditions
 			{
 				fFetchStatus = END_OF_FETCH;

@@ -9,13 +9,11 @@
 #ifndef _AnythingImportExportTest_H
 #define _AnythingImportExportTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnythingImportExportTest: public testframework::TestCase {
+#include "TestCase.h"
+class AnythingImportExportTest : public testframework::TestCase {
 public:
-	AnythingImportExportTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	AnythingImportExportTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 
 	void ImportTest();
@@ -38,4 +36,4 @@ protected:
 	bool check5DimArray(Anything &, Anything &, long);
 };
 
-#endif		//ifndef _AnythingImportExportTest_H
+#endif	// ifndef _AnythingImportExportTest_H

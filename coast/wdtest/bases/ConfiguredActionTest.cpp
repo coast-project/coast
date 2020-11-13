@@ -7,12 +7,14 @@
  */
 
 #include "ConfiguredActionTest.h"
-#include "TestSuite.h"
-#include "Page.h"
-#include "Server.h"
-#include "Role.h"
-#include "Timers.h"
+
 #include "CheckStores.h"
+#include "Page.h"
+#include "Role.h"
+#include "Server.h"
+#include "TestSuite.h"
+#include "Timers.h"
+
 #include <iostream>
 
 //---- ConfiguredActionTest ----------------------------------------------------------------
@@ -85,7 +87,8 @@ void ConfiguredActionTest::DoTest(Anything testCase, const char *testCaseName, C
 	Anything anyFailureStrings;
 	coast::testframework::CheckStores(anyFailureStrings, testCase["Result"], ctx, testCaseName, coast::testframework::exists);
 	// non-existence tests
-	coast::testframework::CheckStores(anyFailureStrings, testCase["NotResult"], ctx, testCaseName, coast::testframework::notExists);
+	coast::testframework::CheckStores(anyFailureStrings, testCase["NotResult"], ctx, testCaseName,
+									  coast::testframework::notExists);
 	for (long sz = anyFailureStrings.GetSize(), i = 0; i < sz; ++i) {
 		t_assertm(false, anyFailureStrings[i].AsString().cstr());
 	}
@@ -137,8 +140,7 @@ void ConfiguredActionTest::DoTestWithContext(Anything testCase, const String &te
 }
 
 void ConfiguredActionTest::AlterTestStoreHook(Anything &testCase) {
-	StartTrace(ConfiguredActionTest.AlterTestStoreHook)
-	;
+	StartTrace(ConfiguredActionTest.AlterTestStoreHook);
 }
 
 // builds up a suite of testcases, add a line for each testmethod

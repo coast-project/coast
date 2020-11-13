@@ -16,23 +16,20 @@
 class Context;
 
 //! DataAccess for
-class MailDAImpl: public DataAccessImpl {
+class MailDAImpl : public DataAccessImpl {
 	MailDAImpl();
 	MailDAImpl(const MailDAImpl &);
 	MailDAImpl &operator=(const MailDAImpl &);
+
 public:
-	MailDAImpl(const char *name) :
-		DataAccessImpl(name) {
-	}
+	MailDAImpl(const char *name) : DataAccessImpl(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) MailDAImpl(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) MailDAImpl(fName); }
 
 	//! executes the transaction
 	//! \param c The context of the transaction
 	virtual bool Exec(Context &c, ParameterMapper *, ResultMapper *);
 };
 
-#endif		//not defined _MailDAImpl_H
+#endif	// not defined _MailDAImpl_H

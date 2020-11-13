@@ -12,18 +12,17 @@
 #include "WDBaseTestPolicies.h"
 
 //---- DataAccessTest ----------------------------------------------------------
-//!single line description of the class
+//! single line description of the class
 //! further explanation of the purpose of the class
 //! this may contain <B>HTML-Tags</B>
 //! ...
-class DataAccessTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class DataAccessTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 	DataAccessTest(TString tstrName);
 	~DataAccessTest();
 
-	static Test *suite ();
+	static Test *suite();
 
 	void GetImplTest();
 	void ExecTest();

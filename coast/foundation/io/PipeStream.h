@@ -10,23 +10,24 @@
 #define _PipeStream_H
 
 #include "ITOString.h"
+
 #include <cstdio>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 class Pipe;
 
 const int cPipeStreamBufferSize = 8024;
 //! streambuf implementation for sockets
-class PipeStreamBuf : public std::streambuf
-{
+class PipeStreamBuf : public std::streambuf {
 public:
 	/*! constructor takes socket object and timeout
-		\param pipe the pipe this streambuf is writing to and/or reading from
-		\param timeout the timeout for a read or write operation uses Pipe->IsReady... Method
-		\param sockbufsz initial internal read/write buffer size
-		\param mode is the pipe reading, writing or both, default: in/out */
-	PipeStreamBuf(Pipe *pipe, long timeout = 500, long sockbufsz = cPipeStreamBufferSize, int mode = std::ios::out | std::ios::in);
+	  \param pipe the pipe this streambuf is writing to and/or reading from
+	  \param timeout the timeout for a read or write operation uses Pipe->IsReady... Method
+	  \param sockbufsz initial internal read/write buffer size
+	  \param mode is the pipe reading, writing or both, default: in/out */
+	PipeStreamBuf(Pipe *pipe, long timeout = 500, long sockbufsz = cPipeStreamBufferSize,
+				  int mode = std::ios::out | std::ios::in);
 	PipeStreamBuf(const PipeStreamBuf &ssbuf);
 
 	//! destructor flushes the buffer and empties put and get areas
@@ -40,14 +41,12 @@ public:
 		fTimeout = t;
 		return lOldTimeout;
 	}
-	long GetTimeout() {
-		return fTimeout;
-	}
+	long GetTimeout() { return fTimeout; }
 
 	//! canonical output operator for PipeStreamBufs
 	friend std::ostream &operator<<(std::ostream &os, PipeStreamBuf *ssbuf);
 
-protected: // seekxxx are protected in the std..
+protected:	// seekxxx are protected in the std..
 	typedef std::streambuf::pos_type pos_type;
 	typedef std::streambuf::off_type off_type;
 	typedef std::ios::seekdir seekdir;
@@ -59,9 +58,7 @@ protected: // seekxxx are protected in the std..
 	virtual pos_type seekoff(off_type off, seekdir dir, openmode mode = std::ios::in | std::ios::out);
 
 	/*! no buffer setting needed, because we carry our own buffer, a String object */
-	std::streambuf *setbuf(char *, int) {
-		return this;
-	}
+	std::streambuf *setbuf(char *, int) { return this; }
 
 	//! consumes chars of the put area
 	virtual int overflow(int c = EOF);
@@ -70,15 +67,15 @@ protected: // seekxxx are protected in the std..
 	virtual int underflow();
 
 	/*! writes pending bytes to the pipe guarded by fTimeout
-		\param buf the buffer to write
-		\param len the maximum length of the buffer
-		\return number of written characters */
+	  \param buf the buffer to write
+	  \param len the maximum length of the buffer
+	  \return number of written characters */
 	virtual long DoWrite(const char *buf, long len);
 
 	/*! reads pending bytes from the socket guarded by fTimeout
-		\param buf the buffer to read bytes in
-		\param len the maximum length of the buffer
-		\return number of characters read */
+	  \param buf the buffer to read bytes in
+	  \param len the maximum length of the buffer
+	  \return number of characters read */
 	virtual long DoRead(char *buf, long len) const;
 
 	//! defines the holding area for the streambuf
@@ -89,23 +86,17 @@ protected: // seekxxx are protected in the std..
 	char *startr() {
 		if (fReadBufStorage.Capacity() > 0) {
 			return (char *)(const char *)fReadBufStorage;
-		} else {
-			return 0;
 		}
+		return 0;
 	}
-	char *endr() {
-		return startr() + fReadBufStorage.Capacity();
-	}
+	char *endr() { return startr() + fReadBufStorage.Capacity(); }
 	char *startw() {
 		if (fWriteBufStorage.Capacity() > 0) {
 			return (char *)(const char *)fWriteBufStorage;
-		} else {
-			return 0;
 		}
+		return 0;
 	}
-	char *endw() {
-		return startw() + fWriteBufStorage.Capacity();
-	}
+	char *endw() { return startw() + fWriteBufStorage.Capacity(); }
 
 	//! the storage of the holding area buffer
 	String fReadBufStorage;
@@ -125,19 +116,16 @@ protected: // seekxxx are protected in the std..
 };
 
 //! adapts ios to a Pipe Stream buffer
-class iosCoastPipe : virtual public std::ios
-{
+class iosCoastPipe : virtual public std::ios {
 public:
-	iosCoastPipe(Pipe *s, long timeout = 500, long sockbufsz = cPipeStreamBufferSize, int mode = std::ios::in | std::ios::out )
+	iosCoastPipe(Pipe *s, long timeout = 500, long sockbufsz = cPipeStreamBufferSize, int mode = std::ios::in | std::ios::out)
 		: fPipeBuf(s, timeout, sockbufsz, mode) {
 		init(&fPipeBuf);
 	}
 
-	virtual ~iosCoastPipe() { }
+	virtual ~iosCoastPipe() {}
 
-	PipeStreamBuf *rdbuf()  {
-		return &fPipeBuf;
-	}
+	PipeStreamBuf *rdbuf() { return &fPipeBuf; }
 
 protected:
 	iosCoastPipe();
@@ -147,19 +135,16 @@ protected:
 };
 
 //! istream for sockets
-class IPipeStream : public iosCoastPipe, public std::istream
-{
+class IPipeStream : public iosCoastPipe, public std::istream {
 public:
 	/*! constructor creates iosCoastPipe
-		\param p the pipe for the istream
-		\param timeout the timeout for read operations
-		\param bufsz initial internal read/write buffer size */
+	  \param p the pipe for the istream
+	  \param timeout the timeout for read operations
+	  \param bufsz initial internal read/write buffer size */
 	IPipeStream(Pipe *p, long timeout = 500, long bufsz = cPipeStreamBufferSize)
-		: iosCoastPipe(p, timeout, bufsz, std::ios::in)
-		, std::istream(&fPipeBuf)
-	{}
+		: iosCoastPipe(p, timeout, bufsz, std::ios::in), std::istream(&fPipeBuf) {}
 
-	~IPipeStream() { }
+	~IPipeStream() {}
 
 private:
 	IPipeStream();
@@ -168,20 +153,17 @@ private:
 };
 
 //! ostream for sockets
-class OPipeStream : public iosCoastPipe, public std::ostream
-{
+class OPipeStream : public iosCoastPipe, public std::ostream {
 public:
 	/*! constructor creates iosCoastPipe
-		\param s the socket for the ostream
-		\param timeout the timeout for write operations
-		\param bufsz initial internal pipe buffer size */
+	  \param s the socket for the ostream
+	  \param timeout the timeout for write operations
+	  \param bufsz initial internal pipe buffer size */
 	OPipeStream(Pipe *s, long timeout = 500, long bufsz = cPipeStreamBufferSize)
-		: iosCoastPipe(s, timeout, bufsz, std::ios::out)
-		, std::ostream(&fPipeBuf)
-	{}
+		: iosCoastPipe(s, timeout, bufsz, std::ios::out), std::ostream(&fPipeBuf) {}
 
 	//! destructor does nothing
-	~OPipeStream() { }
+	~OPipeStream() {}
 
 private:
 	OPipeStream();
@@ -190,17 +172,16 @@ private:
 };
 
 //! iostream for sockets
-class PipeStream : public iosCoastPipe, public std::iostream
-{
+class PipeStream : public iosCoastPipe, public std::iostream {
 public:
 	/*! constructor creates iosCoastPipe
-		\param s the socket for the iostream
-		\param timeout the timeout for read/write operations
-		\param sockbufsz size of the underlying PipeStreamBuf */
+	  \param s the socket for the iostream
+	  \param timeout the timeout for read/write operations
+	  \param sockbufsz size of the underlying PipeStreamBuf */
 	PipeStream(Pipe *s, long timeout = 500, long sockbufsz = cPipeStreamBufferSize);
 
 	//! destructor does nothing
-	~PipeStream() { }
+	~PipeStream() {}
 
 private:
 	PipeStream();
@@ -209,16 +190,15 @@ private:
 };
 
 //! temporarily changes the timeout used by a PipeStream
-class PipeTimeoutModifier
-{
+class PipeTimeoutModifier {
 public:
 	/*! constructor modifies the timeout parameter of the given PipeStream object
-		\param ios pointer to the PipeStream to modify
-		\param timeout the timeout for read/write operations */
+	  \param ios pointer to the PipeStream to modify
+	  \param timeout the timeout for read/write operations */
 	PipeTimeoutModifier(PipeStream *ios, long timeout);
 	~PipeTimeoutModifier();
 
-	void Use() {};
+	void Use(){};
 
 protected:
 	long fOriginalTimeout;

@@ -6,12 +6,13 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "SimpleDataAccessService.h"
-#include "Timers.h"
-#include "Renderer.h"
+
 #include "DataAccess.h"
+#include "HTTPConstants.h"
+#include "Renderer.h"
 #include "RequestProcessor.h"
 #include "StringStream.h"
-#include "HTTPConstants.h"
+#include "Timers.h"
 
 RegisterServiceHandler(SimpleDataAccessService);
 
@@ -25,12 +26,12 @@ bool SimpleDataAccessService::DoHandleService(std::ostream &reply, Context &ctx)
 		Trace("Executing data access: " << service);
 
 		if (DataAccess(service).StdExec(ctx)) {
-			MethodTimer(SimpleDataAccessService.DoHandleService, "Processing output", ctx)
-			;
+			MethodTimer(SimpleDataAccessService.DoHandleService, "Processing output", ctx);
 		} else {
 			Trace("error something wrong with service:" << service);
 			Anything mapinfo = tmpStore["Mapper"];
-			if (!(mapinfo.IsDefined("HTTPStatus") && mapinfo["HTTPStatus"].IsDefined(coast::http::constants::protocolCodeSlotname))) {
+			if (!(mapinfo.IsDefined("HTTPStatus") &&
+				  mapinfo["HTTPStatus"].IsDefined(coast::http::constants::protocolCodeSlotname))) {
 				mapinfo[coast::http::constants::protocolCodeSlotname] = 500L;
 				mapinfo[coast::http::constants::protocolMsgSlotname] = "internal server error";
 

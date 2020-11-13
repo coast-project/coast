@@ -6,16 +6,17 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "Action.h"
-#include "Page.h"
-#include "Timers.h"
+
 #include "AnyIterators.h"
+#include "Page.h"
 #include "Policy.h"
+#include "Timers.h"
 
 RegCacheImpl(Action);
 RegisterModule(ActionsModule);
 
-const char* Action::gpcCategory = "Action";
-const char* Action::gpcConfigPath = "Actions";
+const char *Action::gpcCategory = "Action";
+const char *Action::gpcConfigPath = "Actions";
 
 bool ActionsModule::Init(const ROAnything config) {
 	ROAnything roaActions;
@@ -61,8 +62,7 @@ bool Action::ExecAction(String &transitionToken, Context &c, const ROAnything &c
 					return result;
 				}
 			}
-		}
-			break;
+		} break;
 		case AnyCharPtrType:
 			transitionToken = config.AsString();
 			Trace("action script is simple string, implicitly changing transition to <" << transitionToken << ">");
@@ -83,10 +83,11 @@ bool Action::CallAction(String &actionName, String &transitionToken, Context &c,
 	if (actionName.Length() > 0) {
 		TraceAny(config, "config given");
 		Action *a(FindAction(actionName));
-		if (a) {
+		if (a != 0) {
 			Trace(actionName << " found, executing it");
 			return a->DoExecAction(transitionToken, c, config);
-		} else if (!config.IsNull()) {
+		}
+		if (!config.IsNull()) {
 			return ExecAction(transitionToken, c, config);
 		}
 		return true;
@@ -94,11 +95,9 @@ bool Action::CallAction(String &actionName, String &transitionToken, Context &c,
 	return false;
 }
 
-class PreprocessAction: public Action {
+class PreprocessAction : public Action {
 public:
-	PreprocessAction(const char *name) :
-		Action(name) {
-	}
+	PreprocessAction(const char *name) : Action(name) {}
 	virtual bool DoAction(String &action, Context &);
 };
 RegisterAction(PreprocessAction);
@@ -106,7 +105,7 @@ RegisterAction(PreprocessAction);
 bool PreprocessAction::DoAction(String &action, Context &c) {
 	StatTrace(PreprocessAction.DoAction, "<" << action << ">", coast::storage::Current());
 	Page *s(c.GetPage());
-	if (s) {
+	if (s != 0) {
 		s->Preprocess(c);
 	}
 	return true;

@@ -10,8 +10,9 @@
 
 #ifndef HTTPCONSTANTS_H_
 #define HTTPCONSTANTS_H_
+#include "foundation.h"	 //!< for ENDL
+
 #include <iosfwd>
-#include "foundation.h"		//!< for ENDL
 class ROAnything;
 class String;
 class Context;
@@ -19,22 +20,25 @@ class Context;
 namespace coast {
 	namespace http {
 		namespace constants {
-			char const * const splitFieldsRegularExpression = "^(accept|allow|cache-control|connection|content-(encoding|language)|expect|If-None-Match|pragma|Proxy-Authenticate|TE$|trailer|Transfer-Encoding|upgrade|vary|via|warning|WWW-Authenticate)";
-			char const * const protocolVersionSlotname = "HTTPVersion";
-			char const * const protocolCodeSlotname = "ResponseCode";
-			char const * const protocolMsgSlotname = "ResponseMsg";
-			char const * const newLine = ENDL;
-			char const * const contentTypeAnything = "application/x-coast-anything";
-			char const * const contentTypeMultipart = "multipart/part";
-			char const * const contentDispositionSlotname = "CONTENT-DISPOSITION";
-			char const * const contentTypeSlotname = "CONTENT-TYPE";
-			char const * const contentLengthSlotname = "CONTENT-LENGTH";
-			char const * const boundarySlotname = "BOUNDARY";
-			char const * const cookieSlotname = "COOKIE";
-			char const * const setCookieSlotname = "SET-COOKIE";
+			char const *const splitFieldsRegularExpression =
+				"^(accept|allow|cache-control|connection|content-(encoding|language)|expect|If-None-Match|pragma|Proxy-"
+				"Authenticate|"
+				"TE$|trailer|Transfer-Encoding|upgrade|vary|via|warning|WWW-Authenticate)";
+			char const *const protocolVersionSlotname = "HTTPVersion";
+			char const *const protocolCodeSlotname = "ResponseCode";
+			char const *const protocolMsgSlotname = "ResponseMsg";
+			char const *const newLine = ENDL;
+			char const *const contentTypeAnything = "application/x-coast-anything";
+			char const *const contentTypeMultipart = "multipart/part";
+			char const *const contentDispositionSlotname = "CONTENT-DISPOSITION";
+			char const *const contentTypeSlotname = "CONTENT-TYPE";
+			char const *const contentLengthSlotname = "CONTENT-LENGTH";
+			char const *const boundarySlotname = "BOUNDARY";
+			char const *const cookieSlotname = "COOKIE";
+			char const *const setCookieSlotname = "SET-COOKIE";
 
-			char const * const getMethodSlotname = "GET";
-			char const * const postMethodSlotname = "POST";
+			char const *const getMethodSlotname = "GET";
+			char const *const postMethodSlotname = "POST";
 
 			char const headerNameDelimiter = ':';
 			char const headerArgumentsDelimiter = ',';
@@ -43,11 +47,11 @@ namespace coast {
 			char const contentDispositionDelimiter = ';';
 			char const keyValueDelimiter = '=';
 			char const space = ' ';
-		}
-		void putValuesOnSameLine(std::ostream &os, Context &ctx, String const& slotname, ROAnything const &values);
-		void putValuesOnMultipleLines(std::ostream &os, Context &ctx, String const& slotname, ROAnything const &values);
+		}  // namespace constants
+		void putValuesOnSameLine(std::ostream &os, Context &ctx, String const &slotname, ROAnything const &values);
+		void putValuesOnMultipleLines(std::ostream &os, Context &ctx, String const &slotname, ROAnything const &values);
 		void putHeaderFieldToStream(std::ostream &os, Context &ctx, String const &slotname, ROAnything const &values);
-	}
-}
+	}  // namespace http
+}  // namespace coast
 
 #endif /* HTTPCONSTANTS_H_ */

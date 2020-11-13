@@ -11,7 +11,7 @@
 
 #include "TestCase.h"
 
-class SecurityModuleTest: public testframework::TestCase {
+class SecurityModuleTest : public testframework::TestCase {
 public:
 	SecurityModuleTest(TString tstrName);
 	~SecurityModuleTest();

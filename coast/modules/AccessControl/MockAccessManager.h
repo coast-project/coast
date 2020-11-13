@@ -15,37 +15,37 @@
 //! Mock Access Manager to simplify testing.
 /*! Config:<pre>
 {
-	/AcceptedCodes {
-		# list of accepted otp codes
-		"33920023"
+  /AcceptedCodes {
+	# list of accepted otp codes
+	"33920023"
+  }
+  /AcceptedUsers {
+	# uid/password pairs
+	/user1	"secret"
+	/tester	"dingdong"
+  }
+  /Rights {
+	# rights for users/roles only (no groups)
+	/user1 {
+	  "resetPW"
+	  "someOtherRight"
 	}
-	/AcceptedUsers {
-		# uid/password pairs
-		/user1	"secret"
-		/tester	"dingdong"
+	/user2 {
+	  "changePW"
+	  "resetPW"
 	}
-	/Rights {
-		# rights for users/roles only (no groups)
-		/user1 {
-			"resetPW"
-			"someOtherRight"
-		}
-		/user2 {
-			"changePW"
-			"resetPW"
-		}
-		/tester {
-			# has no rights
-		}
+	/tester {
+	  # has no rights
 	}
+  }
 
-	# roles to return by auth. request
-	/AuthSuccessRole	loginOk
-	/AuthFailRole		stayOut
+  # roles to return by auth. request
+  /AuthSuccessRole	loginOk
+  /AuthFailRole		stayOut
 
-	# IsAllowed(uid, right) must succeed with the following (see /Rights above)
-	/RightForPasswdChange	"changePW"
-	/RightForPasswdReset	"resetPW"
+  # IsAllowed(uid, right) must succeed with the following (see /Rights above)
+  /RightForPasswdChange	"changePW"
+  /RightForPasswdReset	"resetPW"
 }
 </pre>
 Performs weak and strong authentication. All data is taken from config.
@@ -53,16 +53,13 @@ For the strong authentication, count and seed are not relevant, the
 code is simply looked up in a list. User/password pairs are also looked
 up from a list (see examples above).
 */
-class MockAccessManager : public AccessManager
-{
+class MockAccessManager : public AccessManager {
 public:
 	//--- constructors
 	MockAccessManager(const char *name) : AccessManager(name) {}
 	~MockAccessManager() {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) MockAccessManager(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) MockAccessManager(fName); }
 
 	//! check if user exists in AcceptUsers list
 	virtual bool Validate(String &uid);

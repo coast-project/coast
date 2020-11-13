@@ -7,19 +7,22 @@
  */
 
 #include "StringTestExtreme.h"
-#include "TestSuite.h"
+
 #include "SystemFile.h"
+#include "TestSuite.h"
+
+#include <istream>
 
 using namespace coast;
 
 void StringTestExtreme::setUp() {
-	char s;
+	char s = 0;
 	extremelyLongString = "";
 	trueString = "";
 
-	std::iostream *is = system::OpenStream("longString", "txt", std::ios::in);
-	while (is && !is->eof()) {
-		if (is->read(&s, 1)) {
+	std::istream *is = system::OpenStream("longString", "txt", std::ios::in);
+	while ((is != 0) && !is->eof()) {
+		if (is->read(&s, 1)) {	// NOLINT(readability-implicit-bool-conversion)
 			extremelyLongString.Append(s);
 			trueString.append(1, s);
 		}
@@ -35,6 +38,6 @@ Test *StringTestExtreme::suite() {
 
 void StringTestExtreme::extremeLength() {
 	// Init a string without parameters
-	t_assert(extremelyLongString.Length()>0);
+	t_assert(extremelyLongString.Length() > 0);
 	assertEqual(trueString.length(), extremelyLongString.Length());
 }

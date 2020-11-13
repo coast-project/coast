@@ -7,44 +7,39 @@
  */
 
 #include "ErrorHandlerTest.h"
-#include "TestSuite.h"
+
+#include "Context.h"
 #include "FoundationTestTypes.h"
 #include "PersistentLDAPConnection.h"
-#include "Context.h"
+#include "TestSuite.h"
 
 //---- ErrorHandlerTest ----------------------------------------------------------------
-ErrorHandlerTest::ErrorHandlerTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+ErrorHandlerTest::ErrorHandlerTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(ErrorHandlerTest.ErrorHandlerTest);
 }
 
-ErrorHandlerTest::~ErrorHandlerTest()
-{
+ErrorHandlerTest::~ErrorHandlerTest() {
 	StartTrace(ErrorHandlerTest.Dtor);
 }
 
-void ErrorHandlerTest::setUp ()
-{
+void ErrorHandlerTest::setUp() {
 	StartTrace(ErrorHandlerTest.setUp);
 	fCtx = new Context();
 	fPut = new (coast::storage::Global()) RootMapper(name());
-	t_assert( fPut && fPut->Initialize("ParameterMapper") );
+	t_assert(fPut && fPut->Initialize("ParameterMapper"));
 	fGet = new (coast::storage::Global()) ParameterMapper(name());
-	t_assert( fGet && fGet->Initialize("ResultMapper") );
+	t_assert(fGet && fGet->Initialize("ResultMapper"));
 	t_assert(GetConfig().IsDefined("Modules"));
 }
 
-void ErrorHandlerTest::tearDown ()
-{
+void ErrorHandlerTest::tearDown() {
 	StartTrace(ErrorHandlerTest.tearDown);
 	delete fCtx;
 	delete fPut;
 	delete fGet;
 }
 
-void ErrorHandlerTest::HandleConnectionErrorTest()
-{
+void ErrorHandlerTest::HandleConnectionErrorTest() {
 	StartTrace(ErrorHandlerTest.HandleConnectionErrorTest);
 
 	// set up LDAP connection
@@ -58,24 +53,23 @@ void ErrorHandlerTest::HandleConnectionErrorTest()
 	// do test (connection params will provoke error which will be handled)
 	LDAPErrorHandler eh(*fCtx, fGet, fPut, daName);
 	eh.PutConnectionParams(cp);
-	t_assertm( !plc.Connect(cp, eh), "Could connect, but shouldn't!");
+	t_assertm(!plc.Connect(cp, eh), "Could connect, but shouldn't!");
 
 	Anything error;
 	t_assertm(eh.GetLDAPError(error), "Found no error, but should!");
 	TraceAny(error, "connection error:");
 
-	if ( !error.IsNull() ) {
+	if (!error.IsNull()) {
 		assertAnyEqual(error["LdapConnectionParams"], cp);
 #if defined(USE_OPENLDAP)
-		assertEqual(error["LdapCode"].AsLong(), -1L);	//!@FIXME code on openldap
+		assertEqual(error["LdapCode"].AsLong(), -1L);  //!@FIXME code on openldap
 #else
-		assertEqual(error["LdapCode"].AsLong(), 91L);	//!@FIXME code on iPlanet-LDAP
+		assertEqual(error["LdapCode"].AsLong(), 91L);  //!@FIXME code on iPlanet-LDAP
 #endif
 	}
 }
 
-void ErrorHandlerTest::HandleErrorTest()
-{
+void ErrorHandlerTest::HandleErrorTest() {
 	StartTrace(ErrorHandlerTest.HandleErrorTest);
 
 	LDAPErrorHandler eh(*fCtx, fGet, fPut, "TestHandleError");
@@ -110,8 +104,7 @@ void ErrorHandlerTest::HandleErrorTest()
 	assertAnyEqual(error["MyErrorArgs"], info);
 }
 
-void ErrorHandlerTest::ShouldRetryTest()
-{
+void ErrorHandlerTest::ShouldRetryTest() {
 	StartTrace(ErrorHandlerTest.HandleErrorTest);
 
 	LDAPErrorHandler eh(*fCtx, fGet, fPut, "TestHandleError");
@@ -124,8 +117,7 @@ void ErrorHandlerTest::ShouldRetryTest()
 	assertEqual(LDAPErrorHandler::eIsInRetrySequence, eh.GetRetryState());
 }
 
-void ErrorHandlerTest::ParamAccessTest()
-{
+void ErrorHandlerTest::ParamAccessTest() {
 	StartTrace(ErrorHandlerTest.ParamAccessTest);
 
 	Anything qp, cp;
@@ -137,10 +129,10 @@ void ErrorHandlerTest::ParamAccessTest()
 	cp["Server"] = "any.server.com";
 
 	rqp = eh.GetQueryParams();
-	t_assertm( rqp.IsNull() , "Found query params, but shouldn't!");
+	t_assertm(rqp.IsNull(), "Found query params, but shouldn't!");
 
 	rcp = eh.GetConnectionParams();
-	t_assertm( rcp.IsNull(), "Found connection params, but shouldn't!");
+	t_assertm(rcp.IsNull(), "Found connection params, but shouldn't!");
 
 	eh.PutConnectionParams(cp);
 	rcp = eh.GetConnectionParams();
@@ -152,8 +144,7 @@ void ErrorHandlerTest::ParamAccessTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *ErrorHandlerTest::suite ()
-{
+Test *ErrorHandlerTest::suite() {
 	StartTrace(ErrorHandlerTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, ErrorHandlerTest, ParamAccessTest);

@@ -6,36 +6,32 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "Anything.h"
-#include "Context.h"
-#include "StringStream.h"
-#include "Renderer.h"
-#include "TestSuite.h"
-#include "FormRenderer.h"
 #include "TextAreaRendererTest.h"
 
-TextAreaRendererTest::TextAreaRendererTest (TString tname) : FieldRendererTest(tname)
-{
+#include "Anything.h"
+#include "Context.h"
+#include "FormRenderer.h"
+#include "Renderer.h"
+#include "StringStream.h"
+#include "TestSuite.h"
+
+TextAreaRendererTest::TextAreaRendererTest(TString tname) : FieldRendererTest(tname) {
 	fFieldRenderer = new (coast::storage::Global()) TextAreaRenderer("TextAreaRenderer");
 }
-TextAreaRendererTest::~TextAreaRendererTest()
-{
-	if (fFieldRenderer) {
-		delete fFieldRenderer;
-	}
+TextAreaRendererTest::~TextAreaRendererTest() {
+	delete fFieldRenderer;
+
 	fFieldRenderer = 0;
 }
 
 /*===============================================================*/
 /*     Init                                                      */
 /*===============================================================*/
-void TextAreaRendererTest::setUp ()
-{
+void TextAreaRendererTest::setUp() {
 	FieldRendererTest::setUp();
 }
 
-Test *TextAreaRendererTest::suite ()
-{
+Test *TextAreaRendererTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	// Generic test done for each type of FieldRenderer
@@ -73,7 +69,6 @@ Test *TextAreaRendererTest::suite ()
 	ADD_CASE(testSuite, TextAreaRendererTest, TextTextArea);
 
 	return testSuite;
-
 }
 
 /*=================================================================================*/
@@ -82,101 +77,108 @@ Test *TextAreaRendererTest::suite ()
 /*===============================================================*/
 /*     Check where all is correctly defined                      */
 /*===============================================================*/
-void TextAreaRendererTest::TestCase0()
-{
+void TextAreaRendererTest::TestCase0() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestCase0";
 	this->TestField0();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 the options of field>the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestCase1()
-{
+void TextAreaRendererTest::TestCase1() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestCase1";
 	this->TestField1();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 0="the option nr. 0 of field" 1="the option nr. 1 of field" 2="the option nr. 2 of field">the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestCase2()
-{
+void TextAreaRendererTest::TestCase2() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestCase2";
 	this->TestField2();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" 0="the option nr. 0 of field" the option nr. 1 of field 2="the option nr. 2 of field">the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestCase3()
-{
+void TextAreaRendererTest::TestCase3() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestCase3";
 	this->TestField3();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" 0="the option nr. 0 of field" the option nr. 1 of field 2="the option nr. 2 of field">the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
 /*===============================================================*/
 /*     Check where not all is correctly defined                  */
 /*===============================================================*/
-void TextAreaRendererTest::TestCaseEmptyConf()
-{
+void TextAreaRendererTest::TestCaseEmptyConf() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestCaseEmptyConf";
 	this->TestEmptyConf();
-	assertCharPtrEqual( "", fReply.str() );
+	assertCharPtrEqual("", fReply.str());
 }
 
-void TextAreaRendererTest::TestCaseWithoutName()
-{
+void TextAreaRendererTest::TestCaseWithoutName() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestCaseWithoutName";
 	this->TestFieldWithoutName();
-	assertCharPtrEqual( "", fReply.str() );
+	assertCharPtrEqual("", fReply.str());
 }
 
-void TextAreaRendererTest::TestCaseWithoutLabel()
-{
+void TextAreaRendererTest::TestCaseWithoutLabel() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestCaseWithoutLabel";
 	this->TestFieldWithoutLabel();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 the options of field>the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestCaseWithoutValue()
-{
+void TextAreaRendererTest::TestCaseWithoutValue() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestFieldWithoutValue";
 	this->TestFieldWithoutValue();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 the options of field></TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestCaseWithoutSource()
-{
+void TextAreaRendererTest::TestCaseWithoutSource() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestFieldWithoutSource";
 	this->TestFieldWithoutSource();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 the options of field></TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestCaseWithoutMultiple()
-{
+void TextAreaRendererTest::TestCaseWithoutMultiple() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestFieldWithoutMultiple";
 	this->TestFieldWithoutMultiple();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 the options of field>the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestCaseWithoutChecked()
-{
+void TextAreaRendererTest::TestCaseWithoutChecked() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestFieldWithoutChecked";
 	this->TestFieldWithoutChecked();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 the options of field>the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestCaseWithoutOptions()
-{
+void TextAreaRendererTest::TestCaseWithoutOptions() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestFieldWithoutOptions";
 	this->TestFieldWithoutOptions();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10>the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
 /*===============================================================*/
 /*     Check where there is a fault fConfig                      */
 /*===============================================================*/
-void TextAreaRendererTest::TestCaseWrong()
-{
+void TextAreaRendererTest::TestCaseWrong() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestFieldWithoutOptions";
 	this->TestFieldWithoutName();
-	assertCharPtrEqual( "", fReply.str() );
+	assertCharPtrEqual("", fReply.str());
 }
 
 /*=================================================================================*/
@@ -185,158 +187,163 @@ void TextAreaRendererTest::TestCaseWrong()
 void TextAreaRendererTest::AllAttributesTextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-AllAttributesTextArea";
 	this->TestField0();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 the options of field>the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
 void TextAreaRendererTest::WidthTextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-TestFieldWidth";
 	this->TestFieldWidth();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30></TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 void TextAreaRendererTest::HeightTextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-TestFieldHeight";
 	this->TestFieldHeight();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" ROWS=20></TEXTAREA>), fReply.str());
+	// clang-format on
 }
 
 void TextAreaRendererTest::WrapTextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-TestFieldWrap";
 	this->TestFieldWrap();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" WRAP=10></TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 
 void TextAreaRendererTest::Options4TextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-Test4Opt";
 	this->TestField4Opt();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" 0="the option nr. 0 of field" 1="the option nr. 1 of field" 2="the option nr. 2 of field" 3="the option nr. 3 of field"></TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 
 void TextAreaRendererTest::Options3TextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-Test3Opt";
 	this->TestField3Opt();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" 0="the option nr. 0 of field" 1="the option nr. 1 of field" 2="the option nr. 2 of field"></TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 
 void TextAreaRendererTest::Options2TextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-Test2Opt";
 	this->TestField2Opt();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" 0="the option nr. 0 of field" 1="the option nr. 1 of field"></TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 
 void TextAreaRendererTest::Option1TextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-Test1Opt";
 	this->TestField1Opt();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" 0="the option nr. 0 of field"></TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 
 void TextAreaRendererTest::OptionsNoSlotName2TextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-Test2OptNoSlotName";
 	this->TestField2OptNoSlotName();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" the option nr. 0 of field the option nr. 1 of field></TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 
 void TextAreaRendererTest::OptionNoSlotName1TextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-Test1OptNoSlotName";
 	this->TestField1OptNoSlotName();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" the option nr. 0 of field></TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 
 void TextAreaRendererTest::OptionsMixedTextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-Test3OptMixed";
 	this->TestField3OptMixed();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" the option nr. 0 of field 1="the option nr. 1 of field" the option nr. 2 of field></TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 
 void TextAreaRendererTest::NoOptionsTextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-TestOptEmpty";
 	this->TestFieldOptEmpty();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field"></TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 
 void TextAreaRendererTest::TextTextArea()
 // test the date renderer with simple formatting strings
 {
-
 	fCurrentTestMethod = "TextAreaRendererTest-Text";
 	this->TestFieldValue();
+	// clang-format off
 	assertEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field">the value of field</TEXTAREA>), fReply.str());
-
+	// clang-format on
 }
 
 /*===============================================================*/
 /*     Check the indirection                                     */
 /*===============================================================*/
-void TextAreaRendererTest::TestOptionRendererOld()
-{
+void TextAreaRendererTest::TestOptionRendererOld() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestOptionRendererOld";
 	this->TestFieldOptionRendererOld();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 0="the option nr. 0 of field" 1="07.08.97" 2="the option nr. 2 of field">the value of field</TEXTAREA>), fReply.str() );
-
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestFaultOptionRendererOld()
-{
+void TextAreaRendererTest::TestFaultOptionRendererOld() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestFaultOptionRendererOld";
 	this->TestFieldFaultOptionRendererOld();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 0="the option nr. 0 of field" 1="" 2="the option nr. 2 of field">the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestOptionRenderer()
-{
+void TextAreaRendererTest::TestOptionRenderer() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestOptionRenderer";
 	this->TestFieldOptionRenderer();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 0="the option nr. 0 of field" 1="07.08.97" 2="the option nr. 2 of field">the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }
 
-void TextAreaRendererTest::TestFaultOptionRenderer()
-{
+void TextAreaRendererTest::TestFaultOptionRenderer() {
 	fCurrentTestMethod = "TextAreaRendererTest-TestFaultOptionRenderer";
 	this->TestFieldFaultOptionRenderer();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<TEXTAREA NAME="fld_the name of field" COLS=30 ROWS=20 WRAP=10 0="the option nr. 0 of field" 1="%d.%m.%y870912000" 2="the option nr. 2 of field">the value of field</TEXTAREA>), fReply.str() );
+	// clang-format on
 }

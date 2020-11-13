@@ -9,25 +9,27 @@
 #ifndef _MTStorageTest_H
 #define _MTStorageTest_H
 
+#include "Condition.h"
+#include "Mutex.h"
 #include "TestCase.h"
 #include "Threads.h"
 
-class MTStorageTest: public testframework::TestCase, public Observable<Thread, ROAnything>::Observer {
+class MTStorageTest : public testframework::TestCase, public Observable<Thread, ROAnything>::Observer {
 	typedef Observable<Thread, ROAnything> tBaseClass;
 	typedef tBaseClass::tObservedPtr tObservedPtr;
 	typedef tBaseClass::tArgsRef tArgsRef;
+
 public:
-	//!constructors
+	//! constructors
 	MTStorageTest(TString tstrName);
-	//!builds up a suite of testcases for this test
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
 	void WaitForStart();
 	virtual void Update(tObservedPtr pObserved, tArgsRef roaUpdateArgs);
-protected:
-	//--- subclass api
 
-	//!tests the StorageAllocators
+protected:
+	//! tests the StorageAllocators
 	void GlobalAllocatorTiming();
 	void PoolAllocatorTiming();
 

@@ -16,13 +16,12 @@
  * The action will get called from within a PeriodicAction through its registered name.
  * The setup of the PeriodicAction is done in coast::oracle::ConnectionPool::Init.
  */
-class OracleCheckCloseOpenedConnectionsAction : public Action
-{
+class OracleCheckCloseOpenedConnectionsAction : public Action {
 public:
 	/*! Default ctor using a name
 	 * @param name unique name to register this action
 	 */
-	OracleCheckCloseOpenedConnectionsAction(const char *name) : Action(name) { }
+	OracleCheckCloseOpenedConnectionsAction(const char *name) : Action(name) {}
 	/*! cleans the session list from timeouted sessions
 	 * @param transitionToken string passed in when action was executed
 	 * @param ctx Context to be used for action processing

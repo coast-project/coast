@@ -11,19 +11,18 @@
 
 //-*-Mode: C++;-*-
 
-#include "RendererTest.h"
 #include "FieldRendererTest.h"
+#include "RendererTest.h"
 
 //---- ResetButtonRendererTest -----------------------------------------------------------
 
-class ResetButtonRendererTest : public FieldRendererTest
-{
+class ResetButtonRendererTest : public FieldRendererTest {
 public:
 	ResetButtonRendererTest(TString tstrName);
 	virtual ~ResetButtonRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
 
 protected:
 	void TestCaseEmptyConf();
@@ -43,7 +42,6 @@ protected:
 	void TestFaultOptionRenderer();
 	void TestOptionRendererOld();
 	void TestFaultOptionRendererOld();
-
 };
 
 #endif

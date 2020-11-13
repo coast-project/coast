@@ -7,8 +7,9 @@
  */
 
 #include "AnythingLookupTest.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
+#include "TestSuite.h"
 
 Test *AnythingLookupTest::suite() {
 	TestSuite *testSuite = new TestSuite;
@@ -23,17 +24,17 @@ Test *AnythingLookupTest::suite() {
 }
 
 Anything AnythingLookupTest::init5DimArray(long anzElt) {
-	long i0, i1;
-	char idx0[3] = { 0 }, idx1[3] = { 0 };
+	long i0 = 0, i1 = 0;
+	char idx0[3] = {0}, idx1[3] = {0};
 	Anything anyInit;
 
 	for (i0 = '0'; i0 < anzElt + '0'; i0++) {
-		long l0 = (long) (i0 - '0');
-		idx0[0L] = (char) i0;
+		long l0 = (long)(i0 - '0');
+		idx0[0L] = (char)i0;
 
 		for (i1 = '0'; i1 < anzElt + '0'; i1++) {
-			long l1 = (long) (i1 - '0');
-			idx1[0L] = (char) i1;
+			long l1 = (long)(i1 - '0');
+			idx1[0L] = (char)i1;
 			anyInit[idx0][idx1] = (l0) + (l1);
 		}
 	}
@@ -57,8 +58,8 @@ void AnythingLookupTest::LookUp0Test() {
 }
 
 void AnythingLookupTest::LookUp1Test() {
-	long i0, i1;
-	char idx0[3] = { 0 }, idx1[3] = { 0 };
+	long i0 = 0, i1 = 0;
+	char idx0[3] = {0}, idx1[3] = {0};
 	String path;
 	Anything any0, any1, anyTest, derived;
 
@@ -67,24 +68,24 @@ void AnythingLookupTest::LookUp1Test() {
 
 	// Reinit 'any0' using LookupPath
 	for (i0 = '0'; i0 < '5'; i0++) {
-		long l0 = (long) (i0 - '0');
-		idx0[0L] = (char) i0;
+		long l0 = (long)(i0 - '0');
+		idx0[0L] = (char)i0;
 		for (i1 = '0'; i1 < '5'; i1++) {
-			long l1 = (long) (i1 - '0');
-			idx1[0L] = (char) i1;
+			long l1 = (long)(i1 - '0');
+			idx1[0L] = (char)i1;
 			path = idx0;
-			t_assert(any0.LookupPath( derived, path ));
+			t_assert(any0.LookupPath(derived, path));
 			derived[idx1] = 2 * ((l0) + (l1)) + 1;
 		}
 	}
 
 	// Test if reinit was OK
 	for (i0 = '0'; i0 < '5'; i0++) {
-		long l0 = (long) (i0 - '0');
-		idx0[0L] = (char) i0;
+		long l0 = (long)(i0 - '0');
+		idx0[0L] = (char)i0;
 		for (i1 = '0'; i1 < '5'; i1++) {
-			long l1 = (long) (i1 - '0');
-			idx1[0L] = (char) i1;
+			long l1 = (long)(i1 - '0');
+			idx1[0L] = (char)i1;
 			assertEqual(2 * ((l0) + (l1)) + 1, any0[idx0][idx1].AsLong());
 		}
 	}
@@ -230,18 +231,18 @@ void AnythingLookupTest::EmptyLookup()
 /* what: test lookupPath with empty path
  */
 {
-	String path; // this path is intentionally left empty
+	String path;  // this path is intentionally left empty
 	Anything test;
 
 	test["foo"] = 1L;
 	test["bar"] = 2L;
 	long lengthBefore = test.GetSize();
 
-	bool retVal;
+	bool retVal = false;
 	Anything result;
 
-	//pre condition
-	assertCompare( test.GetSize(), equal_to, lengthBefore );
+	// pre condition
+	assertCompare(test.GetSize(), equal_to, lengthBefore);
 	t_assert(test["foo"] == 1L);
 	t_assert(test["bar"] == 2L);
 
@@ -251,7 +252,7 @@ void AnythingLookupTest::EmptyLookup()
 	// post condition
 	assertEqual(false, retVal);
 	t_assert(result.IsNull());
-	assertCompare( test.GetSize(), equal_to, 2L );
+	assertCompare(test.GetSize(), equal_to, 2L);
 	t_assert(test["foo"] == 1L);
 	t_assert(test["bar"] == 2L);
 
@@ -260,7 +261,7 @@ void AnythingLookupTest::EmptyLookup()
 	// post condition
 	assertEqual(false, retVal);
 	t_assert(result.IsNull());
-	assertCompare( test.GetSize(), equal_to, 2L );
+	assertCompare(test.GetSize(), equal_to, 2L);
 	t_assert(test["foo"] == 1L);
 	t_assert(test["bar"] == 2L);
 
@@ -269,7 +270,7 @@ void AnythingLookupTest::EmptyLookup()
 	// post condition
 	assertEqual(false, retVal);
 	t_assert(result.IsNull());
-	assertCompare( test.GetSize(), equal_to, 2L );
+	assertCompare(test.GetSize(), equal_to, 2L);
 	t_assert(test["foo"] == 1L);
 	t_assert(test["bar"] == 2L);
 
@@ -278,19 +279,19 @@ void AnythingLookupTest::EmptyLookup()
 	// post condition
 	assertEqual(false, retVal);
 	t_assert(result.IsNull());
-	assertCompare( test.GetSize(), equal_to, 2L );
+	assertCompare(test.GetSize(), equal_to, 2L);
 	t_assert(test["foo"] == 1L);
 	t_assert(test["bar"] == 2L);
 
-	retVal = test.LookupPath(result, (const char *) 0);
+	retVal = test.LookupPath(result, (const char *)0);
 
 	// post condition
 	assertEqual(false, retVal);
 	t_assert(result.IsNull());
-	assertCompare( test.GetSize(), equal_to, 2L );
+	assertCompare(test.GetSize(), equal_to, 2L);
 	t_assert(test["foo"] == 1L);
 	t_assert(test["bar"] == 2L);
-} // EmptyLookup
+}  // EmptyLookup
 
 void AnythingLookupTest::invPathLookup() {
 	String path("Invalid path");
@@ -301,11 +302,11 @@ void AnythingLookupTest::invPathLookup() {
 	test["test"]["invalid"]["path"] = true;
 	long lengthBefore = test.GetSize();
 
-	bool retVal;
+	bool retVal = false;
 	Anything result;
 
-	//pre condition
-	assertCompare( test.GetSize(), equal_to, lengthBefore );
+	// pre condition
+	assertCompare(test.GetSize(), equal_to, lengthBefore);
 	t_assert(test["foo"] == 1L);
 	t_assert(test["bar"] == 2L);
 
@@ -315,7 +316,7 @@ void AnythingLookupTest::invPathLookup() {
 	// post condition
 	assertEqual(false, retVal);
 	t_assert(result.IsNull());
-	assertCompare( test.GetSize(), equal_to, lengthBefore );
+	assertCompare(test.GetSize(), equal_to, lengthBefore);
 	t_assert(test["foo"] == 1L);
 	t_assert(test["bar"] == 2L);
 
@@ -325,7 +326,7 @@ void AnythingLookupTest::invPathLookup() {
 	intLookupPathCheck(test, "test.");
 	intLookupPathCheck(test, "test..");
 
-} // invPathLookup
+}  // invPathLookup
 
 void AnythingLookupTest::intLookupPathCheck(Anything &test, const char *path) {
 	// do the test
@@ -357,7 +358,6 @@ void AnythingLookupTest::LookUpWithSpecialCharsTest() {
 
 	derived["m�r�"] = "new data";
 	assertEqual("new data", parent["H�-r�"]["c�mes"]["m�r�"].AsString("x"));
-
 }
 
 void AnythingLookupTest::LookupCaseSensitiveTest() {

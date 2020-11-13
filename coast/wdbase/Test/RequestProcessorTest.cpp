@@ -7,11 +7,12 @@
  */
 
 #include "RequestProcessorTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "StringStreamSocket.h"
-#include "Server.h"
+
 #include "AnythingUtils.h"
+#include "FoundationTestTypes.h"
+#include "Server.h"
+#include "StringStreamSocket.h"
+#include "TestSuite.h"
 
 void RequestProcessorTest::InitTest() {
 	StartTrace(RequestProcessorTest.InitTest);
@@ -53,14 +54,13 @@ void RequestProcessorTest::ProcessRequestTest() {
 
 		rp.ProcessRequest(ctx);
 		assertAnyEqualm(empty, ctx.Lookup("ClientInfo"), "expected ClientInfo to be empty");
-
 	}
 
 	//--- null socket pointer case ---------
 	{
 		LoopbackProcessor rp("test");
 		rp.Init(Server::FindServer("Server"));
-		Context ctx((Socket *) 0);
+		Context ctx((Socket *)0);
 
 		rp.ProcessRequest(ctx);
 		assertAnyEqualm(empty, ctx.Lookup("ClientInfo"), "expected ClientInfo to be empty");
@@ -86,8 +86,7 @@ Test *RequestProcessorTest::suite() {
 }
 RegisterRequestProcessor(LoopbackProcessor);
 
-LoopbackProcessor::LoopbackProcessor(const char *processorName) :
-		RequestProcessor(processorName) {
+LoopbackProcessor::LoopbackProcessor(const char *processorName) : RequestProcessor(processorName) {
 	StartTrace(LoopbackProcessor.LoopbackProcessor);
 }
 

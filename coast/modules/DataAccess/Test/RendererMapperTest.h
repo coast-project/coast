@@ -9,23 +9,22 @@
 #ifndef _RendererMapperTest_H
 #define _RendererMapperTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
+#include "TestCase.h"
 
 //---- RendererMapperTest ----------------------------------------------------------
-//!test mapper moved to renderer use via RendererMapper
+//! test mapper moved to renderer use via RendererMapper
 //! further explanation of the purpose of the class
 //! this may contain <B>HTML-Tags</B>
 //! ...
-class RendererMapperTest : public testframework::TestCase
-{
+class RendererMapperTest : public testframework::TestCase {
 public:
 	//--- constructors
 	RendererMapperTest(TString tstrName);
 	~RendererMapperTest();
 
 	//--- public api
-	//!single line description of newmethod
+	//! single line description of newmethod
 	//! further explanation of the purpose of the method
 	//! this may contain <B>HTML-Tags</B>
 	//! ...
@@ -33,7 +32,7 @@ public:
 	//! \return explanation of return value
 	//! \pre explanation of precondition for the method call
 	//! \post explanation of postcondition for the method call
-	static Test *suite ();
+	static Test *suite();
 	void setUp();
 	void StdGetTest();
 	void GetOnAnyTest();

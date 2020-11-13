@@ -7,6 +7,7 @@
  */
 
 #include "DataAccessImplTest.h"
+
 #include "DataAccessImpl.h"
 #include "TestSuite.h"
 
@@ -18,12 +19,9 @@ Test *DataAccessImplTest::suite() {
 	return testSuite;
 }
 
-DataAccessImplTest::DataAccessImplTest(TString tname) :
-	TestCaseType(tname) {
-}
+DataAccessImplTest::DataAccessImplTest(TString tname) : TestCaseType(tname) {}
 
-DataAccessImplTest::~DataAccessImplTest() {
-}
+DataAccessImplTest::~DataAccessImplTest() {}
 
 void DataAccessImplTest::GetConfigNameTest() {
 	DataAccessImpl dai("testdai");
@@ -32,7 +30,7 @@ void DataAccessImplTest::GetConfigNameTest() {
 
 void DataAccessImplTest::DoLoadConfigTest() {
 	DataAccessImpl dai("testdai");
-	t_assert( dai.Initialize("DataAccessImpl") );
+	t_assert(dai.Initialize("DataAccessImpl"));
 	t_assert(dai.GetConfig().IsDefined("testitem1"));
 	assertEqual("foo", dai.GetConfig()["testitem1"].AsCharPtr());
 	t_assert(dai.GetConfig().IsDefined("testitem2"));

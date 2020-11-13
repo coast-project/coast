@@ -21,15 +21,14 @@
 //! </PRE>
 //! Checks if the field contains a least @ and at least one . afterwards and no but trailing blanks
 //! If further enhancements are needed, think of a RegExp checking action
-class EmailAddressCheckAction : public NotEmptyCheckAction
-{
+class EmailAddressCheckAction : public NotEmptyCheckAction {
 public:
 	//--- constructors
 	EmailAddressCheckAction(const char *name);
 	~EmailAddressCheckAction();
 
 protected:
-	//!Checks if the String fieldToCheck contains a formal valid email address
+	//! Checks if the String fieldToCheck contains a formal valid email address
 	//! \param fieldToCheck the String to be checked
 	//! \param ctx the context the action runs within.
 	//! \param config the configuration of the action.

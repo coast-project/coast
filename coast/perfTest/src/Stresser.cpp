@@ -7,31 +7,27 @@
  */
 
 #include "Stresser.h"
-#include "Registry.h"
+
 #include "DiffTimer.h"
+#include "Policy.h"
+#include "Registry.h"
 #include "SystemLog.h"
 #include "Tracer.h"
-#include "Policy.h"
 
 //---- Stresser -----------------------------------------------------------
-Stresser::Stresser(const char *StresserName)
-	: ConfNamedObject(StresserName)
-{
+Stresser::Stresser(const char *StresserName) : ConfNamedObject(StresserName) {
 	StartTrace(Stresser.Stresser);
 }
 
-Stresser::~Stresser()
-{
-}
+Stresser::~Stresser() {}
 
 //---- registry interface
-RegCacheImpl(Stresser);	// FindStresser()
+RegCacheImpl(Stresser);	 // FindStresser()
 
-Anything Stresser::RunStresser(const String &StresserName, long id)
-{
+Anything Stresser::RunStresser(const String &StresserName, long id) {
 	StartTrace1(Stresser.RunStresser, "StresserName [" << StresserName << "]");
 	Stresser *stresserPrototyp = Stresser::FindStresser(StresserName);
-	if (stresserPrototyp) {
+	if (stresserPrototyp != 0) {
 		return stresserPrototyp->Run(id);
 	}
 	Trace("Stresser not found " << StresserName);
@@ -42,51 +38,41 @@ Anything Stresser::RunStresser(const String &StresserName, long id)
 	return anyRet;
 }
 
-bool Stresser::DoGetConfigName(const char *category, const char *objName, String &configFileName) const
-{
+bool Stresser::DoGetConfigName(const char *category, const char *objName, String &configFileName) const {
 	configFileName = "StresserMeta";
 	return true;
 }
 
-bool Stresser::DoLoadConfig(const char *category)
-{
+bool Stresser::DoLoadConfig(const char *category) {
 	StartTrace1(Stresser.DoLoadConfig, "fName [" << fName << "]");
 
-	if ( ConfNamedObject::DoLoadConfig(category) && fConfig.IsDefined(fName) ) {
+	if (ConfNamedObject::DoLoadConfig(category) && fConfig.IsDefined(fName)) {
 		// trx impls use only a subset of the whole configuration file
 		fConfig = fConfig[fName];
 		TraceAny(fConfig, "Config:");
 		return (!fConfig.IsNull());
 	}
 	fConfig = ROAnything();
-	SystemLog::Info(String("Stresser::DoLoadConfig: no configuration entry for <") << fName << "> defined, still returning true");
+	SystemLog::Info(String("Stresser::DoLoadConfig: no configuration entry for <")
+					<< fName << "> defined, still returning true");
 	return true;
 }
 
 // Provide a dummy Stresser that only stresses itself to do some testing with it
-class DummyStresser: public Stresser
-{
+class DummyStresser : public Stresser {
 public:
-	DummyStresser(const char *StresserName)
-		: Stresser(StresserName) {
-		StartTrace(DummyStresser.Ctor);
-	};
-	~DummyStresser() {
-		StartTrace(DummyStresser.Destructor);
-	};
+	DummyStresser(const char *StresserName) : Stresser(StresserName) { StartTrace(DummyStresser.Ctor); };
+	~DummyStresser() { StartTrace(DummyStresser.Destructor); };
 
 	Anything Run(long id);
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) DummyStresser(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) DummyStresser(fName); }
 };
 
 RegisterStresser(DummyStresser);
 
-Anything DummyStresser::Run(long id)
-{
+Anything DummyStresser::Run(long id) {
 	StartTrace(DummyStresser.Run);
 
 	int number(0);
@@ -108,17 +94,11 @@ Anything DummyStresser::Run(long id)
 //---- StressersModule -----------------------------------------------------------
 RegisterModule(StressersModule);
 
-StressersModule::StressersModule(const char *name)
-	: WDModule(name)
-{
-}
+StressersModule::StressersModule(const char *name) : WDModule(name) {}
 
-StressersModule::~StressersModule()
-{
-}
+StressersModule::~StressersModule() {}
 
-bool StressersModule::Init(const ROAnything config)
-{
+bool StressersModule::Init(const ROAnything config) {
 	StartTrace(StressersModule.Init);
 	TraceAny(config, "Config");
 
@@ -129,7 +109,6 @@ bool StressersModule::Init(const ROAnything config)
 	return false;
 }
 
-bool StressersModule::Finis()
-{
+bool StressersModule::Finis() {
 	return StdFinis("Stresser", "Stressers");
 }

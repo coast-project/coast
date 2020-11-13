@@ -10,8 +10,7 @@
 
 RegisterModule(OracleModule);
 
-OracleModule::OracleModule(const char *name) :
-		WDModule(name) {
+OracleModule::OracleModule(const char *name) : WDModule(name) {
 	StartTrace(OracleModule.OracleModule);
 }
 
@@ -26,7 +25,7 @@ bool OracleModule::Init(const ROAnything config) {
 	if (config.LookupPath(myCfg, "OracleModule")) {
 		TraceAny(myCfg, "OracleModuleConfig");
 		// initialize ConnectionPool
-		if (!fpConnectionPool.get()) {
+		if (fpConnectionPool.get() == 0) {
 			fpConnectionPool = ConnectionPoolPtr(new coast::oracle::ConnectionPool("OracleConnectionPool"));
 		}
 		ROAnything roaPoolConfig(myCfg["ConnectionPool"]);
@@ -43,7 +42,7 @@ coast::oracle::ConnectionPool *OracleModule::GetConnectionPool() {
 
 bool OracleModule::Finis() {
 	StartTrace(OracleModule.Finis);
-	if (fpConnectionPool.get()) {
+	if (fpConnectionPool.get() != 0) {
 		Trace("de-initialize ConnectionPool");
 		fpConnectionPool->Finis();
 		fpConnectionPool.reset();

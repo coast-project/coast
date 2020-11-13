@@ -7,21 +7,21 @@
  */
 
 #include "PageNameRenderer.h"
+
 #include "Page.h"
 
 RegisterRenderer(PageNameRenderer);
 
-PageNameRenderer::PageNameRenderer(const char *name) : Renderer(name) { }
+PageNameRenderer::PageNameRenderer(const char *name) : Renderer(name) {}
 
-PageNameRenderer::~PageNameRenderer() { }
+PageNameRenderer::~PageNameRenderer() {}
 
-void PageNameRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void PageNameRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(PageNameRenderer.RenderAll);
 
 	String pageName;
 	Page *p = c.GetPage();
-	if (p && p->GetName(pageName)) {
+	if ((p != 0) && p->GetName(pageName)) {
 		reply << pageName;
 	} else {
 		Trace("Context / Page korrupt: " << ((p == 0) ? (const char *)pageName : "No Page in Context"));

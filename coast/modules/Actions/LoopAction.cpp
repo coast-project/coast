@@ -7,23 +7,18 @@
  */
 
 #include "LoopAction.h"
+
 #include "Renderer.h"
 #include "Tracer.h"
 
 //---- LoopAction ---------------------------------------------------------------
 RegisterAction(LoopAction);
 
-LoopAction::LoopAction(const char *name)
-	: Action(name)
-{
-}
+LoopAction::LoopAction(const char *name) : Action(name) {}
 
-LoopAction::~LoopAction()
-{
-}
+LoopAction::~LoopAction() {}
 
-bool LoopAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool LoopAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(LoopAction.DoExecAction);
 
 	bool breakOut = config["BreakOutOnFailure"].AsBool(false);
@@ -34,14 +29,14 @@ bool LoopAction::DoExecAction(String &transitionToken, Context &ctx, const ROAny
 	String strIndexSlot = Renderer::RenderToStringWithDefault(ctx, config["IndexSlot"], "Index");
 
 	long stop = end + increment;
-	bool ret;
+	bool ret = false;
 	for (long i = start; i != stop; i += increment) {
 		Anything anyAdditionalInfo;
 		anyAdditionalInfo[strIndexSlot] = i;
 		Context::PushPopEntry<Anything> aEntryDataInfo(ctx, "EntryDataInfo", anyAdditionalInfo);
 
 		ret = ExecAction(transitionToken, ctx, config["Action"]);
-		if ( ret == false && breakOut ) {
+		if (ret == false && breakOut) {
 			return ret;
 		}
 	}

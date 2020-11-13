@@ -10,13 +10,13 @@
 #define IT_TESTFW_TestRunner_h_
 
 #include "TestTimer.h"
+
 #include <iosfwd>
 
 class Test;
 class TestList;
 
-#define ADD_SUITE(RUNNER,SUITE) \
-	(RUNNER).addTest(#SUITE, SUITE::suite());
+#define ADD_SUITE(RUNNER, SUITE) (RUNNER).addTest(#SUITE, SUITE::suite());
 
 //---- TestRunner -----------------------------------------------------------
 //! main class running tests
@@ -34,8 +34,9 @@ class TestList;
  * TestRunner [-wait] ExampleTestCase
  */
 class TestRunner {
-	TestRunner(TestRunner const&);
-	TestRunner& operator=(TestRunner const&);
+	TestRunner(TestRunner const &);
+	TestRunner &operator=(TestRunner const &);
+
 protected:
 	bool fWait;
 	TestList *fMappings;

@@ -14,7 +14,7 @@ namespace {
 	long const _CalleeIndex = 0L;
 	long const _ParametersStartIndex = _CalleeIndex + 1L;
 
-	ROAnything IntGetCallee(Context &ctx, ROAnything callee, char const* className) {
+	ROAnything IntGetCallee(Context &ctx, ROAnything callee, char const *className) {
 		StartTrace(CallRenderer.IntGetCallee);
 		if (callee.GetType() != AnyArrayType) {
 			const char *callname = callee.AsCharPtr(0);
@@ -28,7 +28,7 @@ namespace {
 		TraceAny(callee, "rendering callee");
 		return callee;
 	}
-}
+}  // namespace
 
 void CallRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(CallRenderer.RenderAll);

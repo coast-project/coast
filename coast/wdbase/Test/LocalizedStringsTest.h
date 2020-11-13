@@ -11,29 +11,28 @@
 
 #include "WDBaseTestPolicies.h"
 
-class LocalizedStringsTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class LocalizedStringsTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
-	//!ConfiguredTestCase constructor
+	//! ConfiguredTestCase constructor
 	//! \param name name of the test
 	LocalizedStringsTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~LocalizedStringsTest();
 
 	//--- public api
 
-	//!builds up a suite of tests
-	static Test *suite ();
+	//! builds up a suite of tests
+	static Test *suite();
 
-	//!sets the environment for this test
-	void setUp ();
+	//! sets the environment for this test
+	void setUp();
 
 	TString getConfigFileName();
 
-	//!describe this Test
+	//! describe this Test
 	void test();
 };
 

@@ -13,17 +13,8 @@
 /*!
 This is done in this separate file to break include dependencies of Anything.h to AnyImpl.h
 */
-namespace AnyImplHelper
-{
-	enum AnyTypes {
-		eNull,
-		eCharPtr,
-		eArray,
-		eLong,
-		eDouble,
-		eVoidBuf,
-		eObject
-	};
+namespace AnyImplHelper {
+	enum AnyTypes { eNull, eCharPtr, eArray, eLong, eDouble, eVoidBuf, eObject };
 };
 
 typedef AnyImplHelper::AnyTypes AnyImplType;

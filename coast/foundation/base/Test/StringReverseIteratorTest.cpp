@@ -1,4 +1,5 @@
 #include "StringReverseIteratorTest.h"
+
 #include "TestSuite.h"
 
 void StringReverseIteratorTest::testEmptyStringBegin() {

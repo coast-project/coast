@@ -10,12 +10,10 @@
 #define _TypeTraitsTest_H
 
 #include "TestCase.h"
-class TypeTraitsTest: public testframework::TestCase {
+class TypeTraitsTest : public testframework::TestCase {
 public:
-	TypeTraitsTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
-    static Test *suite();
+	TypeTraitsTest(TString tstrName) : TestCaseType(tstrName) {}
+	static Test *suite();
 	void TraitsTest();
 	void ClassTraitsTest();
 };

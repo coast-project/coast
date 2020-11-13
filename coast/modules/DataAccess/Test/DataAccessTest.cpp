@@ -7,14 +7,14 @@
  */
 
 #include "DataAccessTest.h"
-#include "TestSuite.h"
+
+#include "Context.h"
 #include "DataAccess.h"
 #include "Session.h"
-#include "Context.h"
+#include "TestSuite.h"
 
 //---- DataAccessTest ----------------------------------------------------------------
-Test *DataAccessTest::suite ()
-{
+Test *DataAccessTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, DataAccessTest, GetImplTest);
 	ADD_CASE(testSuite, DataAccessTest, ExecTest);
@@ -22,25 +22,17 @@ Test *DataAccessTest::suite ()
 	return testSuite;
 }
 
-DataAccessTest::DataAccessTest(TString tname)
-	: TestCaseType(tname)
-{
-}
+DataAccessTest::DataAccessTest(TString tname) : TestCaseType(tname) {}
 
-DataAccessTest::~DataAccessTest()
-{
-}
+DataAccessTest::~DataAccessTest() {}
 
 class GetImplDataAccess : public DataAccess {
 public:
-	GetImplDataAccess(const char* name) : DataAccess(name) {}
-	DataAccessImpl *MyGetImpl(const char *daName, Context &context) {
-		return GetImpl(daName, context);
-	}
+	GetImplDataAccess(const char *name) : DataAccess(name) {}
+	DataAccessImpl *MyGetImpl(const char *daName, Context &context) { return GetImpl(daName, context); }
 };
 
-void DataAccessTest::GetImplTest()
-{
+void DataAccessTest::GetImplTest() {
 	Anything dummy;
 	Context ctx(dummy, dummy, 0, 0, 0, 0);
 	Anything tmpStore(ctx.GetTmpStore());
@@ -49,19 +41,18 @@ void DataAccessTest::GetImplTest()
 	GetImplDataAccess daTest(daName);
 	DataAccessImpl *m = daTest.MyGetImpl(daName, ctx);
 
-	t_assert( m != 0 );
+	t_assert(m != 0);
 
 	daName = "daTestNone";
 	GetImplDataAccess daTestNone(daName);
 	DataAccessImpl *none = daTestNone.MyGetImpl(daName, ctx);
 
-	t_assert( !none );
+	t_assert(!none);
 	String str(tmpStore["DataAccess"][daName]["Error"][0L].AsCharPtr());
 	t_assert(str.Contains("DataAccessImpl::FindDataAccessImpl returned 0 for daTestNone"));
 }
 
-void DataAccessTest::ExecTest()
-{
+void DataAccessTest::ExecTest() {
 	StartTrace(DataAccessTest.ExecTest);
 	Anything dummy;
 	Context ctx(GetTestCaseConfig().DeepClone(), dummy, 0, 0, 0, 0);
@@ -77,15 +68,12 @@ void DataAccessTest::ExecTest()
 	assertEqual("XXX", tmpStore["Mapper"]["cReply"].AsCharPtr());
 }
 
-class SessionUnlockTestDAImpl : public DataAccessImpl
-{
+class SessionUnlockTestDAImpl : public DataAccessImpl {
 public:
-	SessionUnlockTestDAImpl(const char *name): DataAccessImpl(name) {}
+	SessionUnlockTestDAImpl(const char *name) : DataAccessImpl(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) SessionUnlockTestDAImpl(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) SessionUnlockTestDAImpl(fName); }
 	virtual bool Exec(Context &c, ParameterMapper *input, ResultMapper *output) {
 		c.GetTmpStore()["session"] = c.GetSession()->IsLockedByMe() ? "LOCKED" : "unlocked";
 		return true;
@@ -94,8 +82,7 @@ public:
 
 RegisterDataAccessImpl(SessionUnlockTestDAImpl);
 
-void DataAccessTest::CopySessionStoreTest()
-{
+void DataAccessTest::CopySessionStoreTest() {
 	StartTrace(DataAccessTest.SessionUnlockTest);
 	Context sessionctx;
 	Session s("SessionUnlockTest");

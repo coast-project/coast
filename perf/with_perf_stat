@@ -1,6 +1,7 @@
 #! /bin/sh
-. `dirname $0`/lib/measure_utils.sh
-which perf >/dev/null || { echo "No perf found." >&2; exit 1; }
+# shellcheck source=./lib/measure_utils.sh
+. "$(dirname "$0")"/lib/measure_utils.sh
+command -v perf >/dev/null || { echo "No perf found." >&2; exit 1; }
 
 # DIFF COMMAND
 print_diff_cmd() {
@@ -18,16 +19,16 @@ export_as_csv() (
 	printf "instructions,branches,branch_misses,l1_dcache_loads,"
 	printf "l1_dcache_load_misses,llc_loads,llc_load_misses\n"
 
-	for file in $PERF_DIR/perf_stat/*-*_*.perf
+	for file in "$PERF_DIR"/perf_stat/*-*_*.perf
 	do
 		# summary variables about whole test
-		summary=`dirname $file`/`basename -s .perf $file`.summary
+		summary="$(dirname "$file")"/$(basename -s .perf "$file").summary
 
 		# extract variables from filename:
 		# 	* testname
 		#	* archbits
 		# 	* buildcfg
-		basename $file | sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)\.\w\+/testname=\1\narchbits=\2\nbuildcfg=\3/' > $summary
+		basename "$file" | sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)\.\w\+/testname=\1\narchbits=\2\nbuildcfg=\3/' > "$summary"
 
 		# Example:
 #   Performance counter stats for '/home/paddor/SA/coast/tests/CoastRegexTest/bin/Linux_glibc_2.9-x86_64-64_optimized/CoastRegexTest -all' (20 runs):
@@ -49,7 +50,7 @@ export_as_csv() (
 #
 #         0.096578481 seconds time elapsed                                          ( +-  0.59% )
 
-		sed < $file -ne '
+		sed < "$file" -ne '
 		/Performance counter stats for/,$ {
 		  s/^\s*Performance counter stats for .* (\([[:digit:]]\+\) runs):.*$/times_run=\1/p
 		  s/^\s*\([[:digit:].]\+\) seconds time elapsed\s\+(\s*+-\s*\([[:digit:].]\+\)%\s*).*$/elapsed_time=\1\nelapsed_time_derivation=\2/p
@@ -63,7 +64,7 @@ export_as_csv() (
 		# tee /dev/stderr |\
 
 		# translate to lowercase
-		tr A-Z a-z |\
+		tr '[:upper:]' '[:lower:]' |\
 
 		# transform "variable-name=value" => "variable_name=value"
 		sed "s/\([[:alnum:]]\)-\([[:alpha:]]\)/\1_\2/g" |\
@@ -71,7 +72,7 @@ export_as_csv() (
 		# sanitize: only allow variable declarations to integers and
 		# floats, and only lower case variable names, leading character
 		# has to be a lower case letter
-		grep '^[[:lower:]][[:lower:][:digit:]_]\+=[[:digit:].]\+$' >> $summary
+		grep '^[[:lower:]][[:lower:][:digit:]_]\+=[[:digit:].]\+$' >> "$summary"
 
 		# Example of resulting summary file:
 		#
@@ -108,23 +109,30 @@ export_as_csv() (
 		#elapsed_time_derivation=0.59
 
 		# set summary variables
-		eval `cat $summary`
+		# shellcheck disable=SC2046
+		eval $(cat "$summary")
 
 		# print CSV data
-		printf "$testname,$archbits,$buildcfg,perf_stat,"
-		printf "$times_run,$elapsed_time,$elapsed_time_derivation,"
-		printf "$task_clock,$context_switches,$cpu_migrations,$page_faults"
-		printf "$cycles,$stalled_cycles_frontend,$stalled_cycles_backend,"
-		printf "$instructions,$branches,$branch_misses,$l1_dcache_loads,"
-		printf "$l1_dcache_load_misses,$llc_loads,$llc_load_misses\n"
+		# shellcheck disable=SC2154
+		printf "%s,%s,%s,%s," "$testname" "$archbits" "$buildcfg" "perf_stat"
+		# shellcheck disable=SC2154
+		printf "%s,%s,%s," "$times_run" "$elapsed_time" "$elapsed_time_derivation"
+		# shellcheck disable=SC2154
+		printf "%s,%s,%s,%s" "$task_clock" "$context_switches" "$cpu_migrations" "$page_faults"
+		# shellcheck disable=SC2154
+		printf "%s,%s,%s," "$cycles" "$stalled_cycles_frontend" "$stalled_cycles_backend"
+		# shellcheck disable=SC2154
+		printf "%s,%s,%s,%s," "$instructions" "$branches" "$branch_misses" "$l1_dcache_loads"
+		# shellcheck disable=SC2154
+		printf "%s,%s,%s\n" "$l1_dcache_load_misses" "$llc_loads" "$llc_load_misses"
 	done
 )
 
-# Measures performance of $TEST_NAMES using `time`.
+# Measures performance of $TEST_NAMES using perf.
 #
 # Depends on:
 #   * measure_utils.sh
-#   * `perf stat`
+#   * perf stat
 #   * $TEST_NAMES
 #   * $PERF_DIR
 #   * $BUILDCFG
@@ -133,30 +141,30 @@ export_as_csv() (
 # Honors:
 #   * $START_TIME
 measure_performance() {
-	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force 
-	build `cat $TEST_NAMES`
+	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force
+	build $(cat "$TEST_NAMES")
 
 	##
 	# MEASUREMENT
 	#
 	progress "PERF-STAT MEASUREMENT ..."
-	for TESTNAME in `cat $TEST_NAMES`
+	for TESTNAME in $(cat "$TEST_NAMES")
 	do
-		start $TESTNAME
+		start "$TESTNAME"
 		RESULT=$PERF_DIR/perf_stat/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.perf
-		mkdir -p `dirname $RESULT`
+		mkdir -p "$(dirname "$RESULT")"
 
 		# store start time which is the same for both 32/64 builds
-		echo "$START_TIME" > $PERF_DIR/perf_stat/${TESTNAME}.start_time
+		echo "$START_TIME" > "$PERF_DIR"/perf_stat/"${TESTNAME}".start_time
 
-		warmup $TESTNAME || continue
+		warmup "$TESTNAME" || continue
 
 		log="$PERF_DIR/perf_stat/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
-		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x perf -x stat -x -d -x '-o$RESULT' -x '-r 20' -- -all" $TESTNAME > $log 2>&1
+		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x perf -x stat -x -d -x '-o$RESULT' -x '-r 20' -- -all" "$TESTNAME" > "$log" 2>&1
 		then
-			measurement_successful $TESTNAME
+			measurement_successful "$TESTNAME"
 		else
-			measurement_failed $TESTNAME $log
+			measurement_failed "$TESTNAME" "$log"
 		fi
 	done
 }
@@ -167,6 +175,6 @@ measure_performance() {
 
 BUILDCFG="optimized"
 [ -n "$DIFF_TEST" ] && { print_diff_cmd; exit; }
-$EXPORT && { export_as_csv; exit; }
+$EXPORT && { export_as_csv; exit $?; }
 
 measure_performance_for_selected_archbits

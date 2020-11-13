@@ -17,24 +17,24 @@
 \par Configuration
 \code
 {
-	/Tags {				Anything	optional, tag specific settings
-		/AttrNameCase	String		optional, [lower|upper|preserve], default lower, specify if attribute name should be case adjusted
-		...
-		/<tagname> {				optional, override above 'global' settings with tag specific setting
-			/<setting>	String		optional, use same setting-names as above, but only for specific tagname
-			...
-		}
-		...
+  /Tags {				Anything	optional, tag specific settings
+	/AttrNameCase	String		optional, [lower|upper|preserve], default lower, specify if attribute name should be case adjusted
+	...
+	/<tagname> {				optional, override above 'global' settings with tag specific setting
+	  /<setting>	String		optional, use same setting-names as above, but only for specific tagname
+	  ...
 	}
+	...
+  }
 }
 \endcode
 */
-class TemplateParser
-{
+class TemplateParser {
 public:
 	TemplateParser() {}
 	virtual ~TemplateParser() {}
-	Anything Parse(std::istream &reader, const char *filename = "NO_FILE", long startline = 1L, Allocator *a = coast::storage::Current(), const ROAnything roaParserConfig = ROAnything());
+	Anything Parse(std::istream &reader, const char *filename = "NO_FILE", long startline = 1L,
+				   Allocator *a = coast::storage::Current(), const ROAnything roaParserConfig = ROAnything());
 
 protected:
 	virtual void DoParse();
@@ -75,15 +75,14 @@ protected:
 
 	Anything fCache;
 	std::istream *fReader;
-	String	fFileName;
-	long	fLine;
+	String fFileName;
+	long fLine;
 	ROAnything froaConfig;
 };
 
 //---- FormTemplateParser ----------------------------------------------------------
 //! Used to parse Form-specific HTML-Template content
-class FormTemplateParser: public TemplateParser
-{
+class FormTemplateParser : public TemplateParser {
 protected:
 	bool IsSpecialTag(String &tagName, Anything &tagAttributes);
 	Anything ProcessSpecialTag(String &tagName, Anything &tagAttributes, bool mustrender);
@@ -91,8 +90,7 @@ protected:
 
 //---- ScriptTemplateParser ----------------------------------------------------------
 //! Used to parse script-specific HTML-Template content
-class ScriptTemplateParser: public TemplateParser
-{
+class ScriptTemplateParser : public TemplateParser {
 protected:
 	void DoParse();
 };

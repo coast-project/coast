@@ -13,8 +13,7 @@
 
 //---- TestRunnerApplication -----------------------------------------------------------
 //! comment
-class TestRunnerApplication : public Application
-{
+class TestRunnerApplication : public Application {
 public:
 	TestRunnerApplication();
 	TestRunnerApplication(const char *AppName);

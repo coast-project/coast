@@ -13,12 +13,10 @@
 
 struct condthreadparam;
 class Anything;
-class SystemAPITest: public testframework::TestCase {
+class SystemAPITest : public testframework::TestCase {
 public:
-	SystemAPITest(TString tname) :
-		TestCaseType(tname) {
-	}
-	//!builds up a suite of testcases for this test
+	SystemAPITest(TString tname) : TestCaseType(tname) {}
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
 protected:

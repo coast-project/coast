@@ -12,31 +12,29 @@
 #include "WDBaseTestPolicies.h"
 
 //---- HTTPDAImplTest ----------------------------------------------------------
-//!TestClass for for HTMLParser functionality
+//! TestClass for for HTMLParser functionality
 
-class HTTPDAImplTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class HTTPDAImplTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-
 	//--- constructors
 	HTTPDAImplTest(TString tstrName);
-	~HTTPDAImplTest() {};
+	~HTTPDAImplTest(){};
 
 	//--- public api
-	//!generate HTMLParser test suite
+	//! generate HTMLParser test suite
 	//! this method generates the tests for the HTMLParser classed
 	//! \return a new test is created by this method
-	static Test *suite ();
+	static Test *suite();
 
 	TString getConfigFileName();
 
 protected:
 	//--- tests for public api of class connector
 
-	//!tests htmlparser with a file from config
+	//! tests htmlparser with a file from config
 	void useSSLTest();
 
-	//!tests htmlparser with a file from config
+	//! tests htmlparser with a file from config
 	void ErrorHandlingTest();
 
 	void SSLTests();

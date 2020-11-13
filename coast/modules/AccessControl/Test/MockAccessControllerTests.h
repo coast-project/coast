@@ -16,23 +16,18 @@
 /*!
 Each of the tested AccessControllers has an own config file.
 */
-class MockAccessControllerTests : public FileAccessControllerTests
-{
+class MockAccessControllerTests : public FileAccessControllerTests {
 public:
 	//--- constructors
-	MockAccessControllerTests(TString tstrName)
-		: FileAccessControllerTests(tstrName)
-	{}
-	~MockAccessControllerTests() {};
+	MockAccessControllerTests(TString tstrName) : FileAccessControllerTests(tstrName) {}
+	~MockAccessControllerTests(){};
 
 	//--- public api
 
 	//! builds up a suite of tests
-	static Test *suite ();
+	static Test *suite();
 
-	TString getConfigFileName() {
-		return "MockAccessControllerTestsConfig";
-	}
+	TString getConfigFileName() { return "MockAccessControllerTestsConfig"; }
 
 	void MockUDACTest();
 	void MockTDACTest();

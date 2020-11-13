@@ -6,13 +6,13 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
-#include "RemoteStresserTest.h"
-#include "HTTPFlowControllerPrepareTest.h"
 #include "FlowControllerTest.h"
 #include "HTMLComparerTest.h"
-#include "NewRendererTest.h"
 #include "HTMLParserTest.h"
+#include "HTTPFlowControllerPrepareTest.h"
+#include "NewRendererTest.h"
+#include "RemoteStresserTest.h"
+#include "TestRunner.h"
 
 void setupRunner(TestRunner &runner) {
 	// Use this work suite to debug a failing TestCase
@@ -25,4 +25,4 @@ void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, HTMLComparerTest);
 	ADD_SUITE(runner, NewRendererTest);
 	ADD_SUITE(runner, HTMLParserTest);
-} // setupRunner
+}  // setupRunner

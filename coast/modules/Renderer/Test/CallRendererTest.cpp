@@ -7,6 +7,7 @@
  */
 
 #include "CallRendererTest.h"
+
 #include "CallRenderer.h"
 #include "TestSuite.h"
 
@@ -34,7 +35,7 @@ void CallRendererTest::LookupCallTest() {
 	Renderer::Render(fReply, fContext, myConfig);
 	assertCharPtrEqual("A Test Peter was here", fReply.str());
 	ROAnything dummy;
-	t_assert(!fContext.Lookup("myparam2", dummy)); // params are popped again
+	t_assert(!fContext.Lookup("myparam2", dummy));	// params are popped again
 }
 
 // builds up a suite of testcases, add a line for each testmethod

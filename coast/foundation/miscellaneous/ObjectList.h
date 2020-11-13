@@ -10,25 +10,22 @@
 #define _ObjectList_H
 
 #include "ITOString.h"
-#include "Tracer.h"
 #include "ITOTypeTraits.h"
 #include "STLStorage.h"
+#include "Tracer.h"
+
 #include <algorithm>
 #include <list>
 
 #define DefaultListType std::list
 
-template <
-typename Tp,
-		 template < typename, typename > class tListType = DefaultListType,
-		 template < class > class STLAlloc = DefaultAllocatorGlobalType
-		 >
-class ObjectList : public tListType< Tp, STLAlloc< Tp > >
-{
+template <typename Tp, template <typename, typename> class tListType = DefaultListType,
+		  template <class> class STLAlloc = DefaultAllocatorGlobalType>
+class ObjectList : public tListType<Tp, STLAlloc<Tp> > {
 public:
-	typedef STLAlloc< Tp > STLAllocatorType;
-	typedef tListType< Tp, STLAllocatorType > ListType;
-	typedef ObjectList<Tp, tListType, STLAlloc > ThisType;
+	typedef STLAlloc<Tp> STLAllocatorType;
+	typedef tListType<Tp, STLAllocatorType> ListType;
+	typedef ObjectList<Tp, tListType, STLAlloc> ThisType;
 	typedef typename ListType::reference ListTypeReference;
 	typedef typename ListType::value_type ListTypeValueType;
 	typedef typename ListType::const_iterator ListIterator;
@@ -40,70 +37,56 @@ private:
 		enum DeleteFuncSelector { Reftype, Pointertype };
 		enum { delAlgo = (boost_or_std::is_pointer<Tp>::value) ? Pointertype : Reftype };
 
-		void DoDeleteObject(const ListTypeValueType &newObjPtr, coast::typetraits::Int2Type<Reftype> ) {};
-		void DoDeleteObject(const ListTypeValueType &newObjPtr, coast::typetraits::Int2Type<Pointertype> ) {
-			StatTrace(ObjectList.DoDeleteObject, "deleting element:" << reinterpret_cast<long>(newObjPtr), coast::storage::Current());
+		void DoDeleteObject(const ListTypeValueType &newObjPtr, coast::typetraits::Int2Type<Reftype>){};
+		void DoDeleteObject(const ListTypeValueType &newObjPtr, coast::typetraits::Int2Type<Pointertype>) {
+			StatTrace(ObjectList.DoDeleteObject, "deleting element:" << reinterpret_cast<long>(newObjPtr),
+					  coast::storage::Current());
 			delete newObjPtr;
 		}
-		void operator() (Tp pElement) {
-			DoDeleteObject(pElement, coast::typetraits::Int2Type<delAlgo>() );
-		}
+		void operator()(Tp pElement) { DoDeleteObject(pElement, coast::typetraits::Int2Type<delAlgo>()); }
 	};
 
 	ObjectList();
 
-	//!standard assignement operator prohibited
+	//! standard assignement operator prohibited
 	ThisType &operator=(const ThisType &);
 	ObjectList(const ThisType &);
 
 public:
 	ObjectList(const char *name, Allocator *a = coast::storage::Global())
-		: ListType()
-		, fpAlloc(a)
-		, fName(name, -1, fpAlloc)
-		, fShutdown(false)
-		, fDestructiveShutdown(false) {
+		: ListType(), fpAlloc(a), fName(name, -1, fpAlloc), fShutdown(false), fDestructiveShutdown(false) {
 		StatTrace(ObjectList.ObjectList, "param ctor this:" << reinterpret_cast<long>(this), coast::storage::Current());
 	}
 
 	virtual ~ObjectList() {
 		StartTrace1(ObjectList.~ObjectList, (fDestructiveShutdown ? "destructive" : ""));
-		if ( fDestructiveShutdown ) {
+		if (fDestructiveShutdown) {
 			// no more workers waiting and capable of emptying the list
 			std::for_each(this->listptr()->begin(), this->listptr()->end(), DeleteWrapper());
 			this->listptr()->clear();
 		}
 	}
 
-	bool InsertTail(const ListTypeValueType &newObjPtr) {
-		return DoInsertTail(newObjPtr);
-	}
+	bool InsertTail(const ListTypeValueType &newObjPtr) { return DoInsertTail(newObjPtr); }
 
 	/*! removes the head element of the list
-		\param aElement reference to a receiving element, depending on the type (pointer, element) an assignment operator of the element is required!
-		\param lSecs unused
-		\param lNanosecs unused
-		\return true only when an element could be get, false in case the list was empty or we are in shutdown mode */
+	  \param aElement reference to a receiving element, depending on the type (pointer, element) an assignment operator of the element is required!
+	  \param lSecs unused
+	  \param lNanosecs unused
+	  \return true only when an element could be get, false in case the list was empty or we are in shutdown mode */
 	bool RemoveHead(ListTypeReference aElement, long lSecs = 0L, long lNanosecs = 0L) {
 		return DoRemoveHead(aElement, lSecs, lNanosecs);
 	}
 
-	size_t GetSize() const {
-		return DoGetSize();
-	}
-	bool IsEmpty() const {
-		return DoIsEmpty();
-	}
+	size_t GetSize() const { return DoGetSize(); }
+	bool IsEmpty() const { return DoIsEmpty(); }
 
-	/*! Method to be called to signal that we want to destroy the list. If the elements should still be consumed by the workers reading from the list false should be passed as argument. If a 'destructive' shutdown is wanted true should be passed.
-		\param bDestructive set to true if the list should not be emptied by the workers and not accessed further */
-	void SignalShutdown(bool bDestructive = false) {
-		DoSignalShutdown(bDestructive);
-	}
+	/*! Method to be called to signal that we want to destroy the list. If the elements should still be consumed by the workers
+	  reading from the list false should be passed as argument. If a 'destructive' shutdown is wanted true should be passed.
+	  \param bDestructive set to true if the list should not be emptied by the workers and not accessed further */
+	void SignalShutdown(bool bDestructive = false) { DoSignalShutdown(bDestructive); }
 
-	bool IsShuttingDown() const {
-		return this->fShutdown;
-	}
+	bool IsShuttingDown() const { return this->fShutdown; }
 
 	void ResetAfterShutdown() {
 		this->fShutdown = false;
@@ -112,13 +95,13 @@ public:
 
 protected:
 	/*! removes the head element of the list
-		\param aElement reference to a receiving element, depending on the type (pointer, element) an assignment operator of the element is required!
-		\param lSecs unused
-		\param lNanosecs unused
-		\return true only when an element could be get, false in case the list was empty or we are in shutdown mode */
+	  \param aElement reference to a receiving element, depending on the type (pointer, element) an assignment operator of the element is required!
+	  \param lSecs unused
+	  \param lNanosecs unused
+	  \return true only when an element could be get, false in case the list was empty or we are in shutdown mode */
 	virtual bool DoRemoveHead(ListTypeReference aElement, long lSecs = 0L, long lNanosecs = 0L) {
 		StartTrace(ObjectList.DoRemoveHead);
-		if ( !IsShuttingDown() && !IntIsEmpty() ) {
+		if (!IsShuttingDown() && !IntIsEmpty()) {
 			IntRemoveHead(aElement);
 			Trace("element removed");
 			return true;
@@ -129,7 +112,7 @@ protected:
 
 	virtual bool DoInsertTail(const ListTypeValueType &newObjPtr) {
 		StartTrace(ObjectList.DoInsertTail);
-		if ( !IsShuttingDown() ) {
+		if (!IsShuttingDown()) {
 			this->listptr()->push_back(newObjPtr);
 			Trace("pushing object, new size:" << (long)this->constlistptr()->size());
 			return true;
@@ -138,8 +121,9 @@ protected:
 		return false;
 	}
 
-	/*! Method to be called to signal that we want to destroy the list. If the elements should still be consumed by the workers reading from the list false should be passed as argument. If a 'destructive' shutdown is wanted true should be passed.
-		\param bDestructive set to true if the list should not be emptied by the workers and not accessed further */
+	/*! Method to be called to signal that we want to destroy the list. If the elements should still be consumed by the workers
+	  reading from the list false should be passed as argument. If a 'destructive' shutdown is wanted true should be passed.
+	  \param bDestructive set to true if the list should not be emptied by the workers and not accessed further */
 	virtual void DoSignalShutdown(bool bDestructive = false) {
 		StartTrace1(ObjectList.DoSignalShutdown, (bDestructive ? "destructive" : ""));
 		this->fDestructiveShutdown = bDestructive;
@@ -150,30 +134,22 @@ protected:
 		StatTrace(ObjectList.DoGetSize, "this:" << reinterpret_cast<long>(this), coast::storage::Current());
 		return IntGetSize();
 	}
-	virtual bool DoIsEmpty() const {
-		return IntIsEmpty();
-	}
+	virtual bool DoIsEmpty() const { return IntIsEmpty(); }
 
 private:
 	size_t IntGetSize() const {
 		StatTrace(ObjectList.IntGetSize, "size:" << (long)this->constlistptr()->size(), coast::storage::Current());
 		return this->constlistptr()->size();
 	}
-	bool IntIsEmpty() const {
-		return this->constlistptr()->empty();
-	}
+	bool IntIsEmpty() const { return this->constlistptr()->empty(); }
 
 	void IntRemoveHead(ListTypeReference aElement) {
 		aElement = this->listptr()->front();
 		this->listptr()->pop_front();
 	}
 
-	ListType *listptr() {
-		return this;
-	}
-	const ListType *constlistptr() const {
-		return this;
-	}
+	ListType *listptr() { return this; }
+	const ListType *constlistptr() const { return this; }
 
 	Allocator *fpAlloc;
 	String fName;

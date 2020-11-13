@@ -7,39 +7,34 @@
  */
 
 #include "LoopBackDAImplTest.h"
-#include "DataAccessImpl.h"
-#include "TestSuite.h"
-#include "SystemFile.h"
+
 #include "Context.h"
+#include "DataAccessImpl.h"
+#include "SystemFile.h"
+#include "TestSuite.h"
+
+#include <istream>
 
 //---- LoopBackDAImplTest ----------------------------------------------------------------
-Test *LoopBackDAImplTest::suite ()
-{
+Test *LoopBackDAImplTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, LoopBackDAImplTest, ExecTest);
 	return testSuite;
 }
 
-LoopBackDAImplTest::LoopBackDAImplTest(TString tname)
-	: TestCaseType(tname)
-{
-}
+LoopBackDAImplTest::LoopBackDAImplTest(TString tname) : TestCaseType(tname) {}
 
-LoopBackDAImplTest::~LoopBackDAImplTest()
-{
-}
+LoopBackDAImplTest::~LoopBackDAImplTest() {}
 
-void LoopBackDAImplTest::setUp ()
-{
+void LoopBackDAImplTest::setUp() {
 	std::iostream *Ios = coast::system::OpenStream("LoopBackDAImplTest", "any");
-	if ( Ios ) {
+	if (Ios != 0) {
 		fStdContextAny.Import((*Ios));
 		delete Ios;
 	}
 }
 
-void LoopBackDAImplTest::ExecTest()
-{
+void LoopBackDAImplTest::ExecTest() {
 	StartTrace(LoopBackDAImplTest.ExecTest);
 
 	Anything dummy;
@@ -63,4 +58,3 @@ void LoopBackDAImplTest::ExecTest()
 	assertEqual("coast bsshht", tmpStore["Mapper"]["fReply"].AsCharPtr());
 	assertEqual("XXX", tmpStore["Mapper"]["cReply"].AsCharPtr());
 }
-

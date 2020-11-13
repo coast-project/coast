@@ -9,14 +9,12 @@
 #ifndef _FlowController_h_
 #define _FlowController_h_
 
-#include "WDModule.h"
 #include "Context.h"
+#include "WDModule.h"
 
-class FlowControllersModule: public WDModule {
+class FlowControllersModule : public WDModule {
 public:
-	FlowControllersModule(const char *name) :
-		WDModule(name) {
-	}
+	FlowControllersModule(const char *name) : WDModule(name) {}
 	virtual bool Init(const ROAnything config);
 	virtual bool Finis();
 };
@@ -40,34 +38,34 @@ public:
  *	}
  * \endcode
  */
-class FlowController: public ConfNamedObject {
+class FlowController : public ConfNamedObject {
 	FlowController();
 	FlowController(const FlowController &);
 	FlowController &operator=(const FlowController &);
 
 	//! Utility method that copies the slots from runConfig to dest
 	void DoPrepare(Anything &dest, const ROAnything &runConfig);
+
 public:
 	FlowController(const char *FlowControllerName);
-	//!Input data for the DataAccess are placed into the context.
+	//! Input data for the DataAccess are placed into the context.
 	//! \param ctx Context of the stress run
 	//! \return true if a DataAccess is to be executed - false if the series is finished
-	virtual bool PrepareRequest(Context & ctx);
-	//!Input data for the DataAccess are placed into the context.
+	virtual bool PrepareRequest(Context &ctx);
+	//! Input data for the DataAccess are placed into the context.
 	//! \param ctx Context of the stress run
 	//! \param bPrepareRequestSucceeded status of the request preparation
 	//! \return true if a DataAccess is to be executed - false if the series is finished
-	virtual bool PrepareRequest(Context & ctx, bool & bPrepareRequestSucceeded);
-	virtual bool ExecDataAccess(Context & ctx, long & execTime);
-	virtual bool AnalyseReply(Context & ctx);
-	virtual bool AnalyseReply(Context & ctx, Anything & result);
-	virtual void CleanupAfterStep(Context & ctx);
-	virtual void Init(Context & ctx);
+	virtual bool PrepareRequest(Context &ctx, bool &bPrepareRequestSucceeded);
+	virtual bool ExecDataAccess(Context &ctx, long &execTime);
+	virtual bool AnalyseReply(Context &ctx);
+	virtual bool AnalyseReply(Context &ctx, Anything &result);
+	virtual void CleanupAfterStep(Context &ctx);
+	virtual void Init(Context &ctx);
 	RegCacheDef(FlowController);
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) FlowController(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) FlowController(fName); }
+
 protected:
 	virtual long GetRequestNr(Context &ctx);
 	virtual ROAnything GetStepConfig(Context &ctx);

@@ -19,52 +19,49 @@ class HTTPPostRequestBodyParser;
 namespace coast {
 	namespace http {
 		void RenderHTTPProtocolStatus(std::ostream &os, Context &ctx);
-		Anything GenerateErrorMessageAny(Context& ctx, long const errorcode, String const& msg, String const& content, String const& component);
-		void PutErrorMessageIntoContext(Context& ctx, long const errorcode, String const& msg, String const& content, String const& component);
-	}
-}
+		Anything GenerateErrorMessageAny(Context &ctx, long const errorcode, String const &msg, String const &content,
+										 String const &component);
+		void PutErrorMessageIntoContext(Context &ctx, long const errorcode, String const &msg, String const &content,
+										String const &component);
+	}  // namespace http
+}  // namespace coast
 
 //--- HTTPProcessor ----------------------------------------------------------
 //! Policy object to read HTTP Requests unscramble URL Variables
-class HTTPProcessor : public RequestProcessor
-{
+class HTTPProcessor : public RequestProcessor {
 public:
-	HTTPProcessor(const char *processorName) :
-		RequestProcessor(processorName) {
-	}
+	HTTPProcessor(const char *processorName) : RequestProcessor(processorName) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) HTTPProcessor(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) HTTPProcessor(fName); }
 
-	//!configure request processor with server object
+	//! configure request processor with server object
 	virtual void Init(Server *server);
 
 	//! checks request headers if zip-encoding is accepted by client
 	static bool IsZipEncodingAcceptedByClient(Context &ctx);
 
 protected:
-	//!get the MIMEHeader used to parse the request
+	//! get the MIMEHeader used to parse the request
 	virtual MIMEHeader GetMIMEHeader() const;
 
-	//!get the RequestReader used to parse and check the request line
-	virtual HTTPRequestReader GetRequestReader(MIMEHeader& header) const;
+	//! get the RequestReader used to parse and check the request line
+	virtual HTTPRequestReader GetRequestReader(MIMEHeader &header) const;
 
-	//!get the RequestBodyParser used to parse and check the request body
-	virtual HTTPPostRequestBodyParser GetRequestBodyParser(MIMEHeader& header) const;
+	//! get the RequestBodyParser used to parse and check the request body
+	virtual HTTPPostRequestBodyParser GetRequestBodyParser(MIMEHeader &header) const;
 
-	//!read the input arguments from the stream and generate an anything
+	//! read the input arguments from the stream and generate an anything
 	virtual bool DoReadInput(std::iostream &ios, Context &ctx);
 
 	virtual bool DoReadRequestHeader(std::iostream &Ios, Context &ctx, HTTPRequestReader &reader);
 
 	virtual bool DoPrepareContextRequest(std::iostream &Ios, Context &ctx, Anything &request, HTTPRequestReader &reader);
 
-	//!read in the request body from a POST if any
+	//! read in the request body from a POST if any
 	virtual bool DoReadRequestBody(std::iostream &Ios, Context &ctx, Anything &request, HTTPRequestReader &reader);
 
-	//!process the arguments and generate a reply
+	//! process the arguments and generate a reply
 	virtual bool DoProcessRequest(std::ostream &reply, Context &ctx);
 
 	virtual bool DoVerifyRequest(Context &ctx);

@@ -12,14 +12,12 @@
 #include "Socket.h"
 
 //---- EBCDICAcceptor ----------------------------------------------------------
-//!accepts a connection from an EBCDIC peer and creates an appropriate socket
-class EBCDICAcceptor : public Acceptor
-{
+//! accepts a connection from an EBCDIC peer and creates an appropriate socket
+class EBCDICAcceptor : public Acceptor {
 	// This class handles an accept loop
 	// in its own thread
 public:
-	EBCDICAcceptor(const char *ipadress, long port, long backlog,
-				   AcceptorCallBack *cb);
+	EBCDICAcceptor(const char *ipadress, long port, long backlog, AcceptorCallBack *cb);
 	~EBCDICAcceptor();
 
 protected:

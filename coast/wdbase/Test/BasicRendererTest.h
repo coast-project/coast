@@ -11,35 +11,34 @@
 
 #include "TestCase.h"
 
-class BasicRendererTest : public testframework::TestCase
-{
+class BasicRendererTest : public testframework::TestCase {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//@param: name - name of the test
 	BasicRendererTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~BasicRendererTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!sets the environment for this test
-	void setUp ();
+	//! sets the environment for this test
+	void setUp();
 
-	//!test the rendering of a simple string
+	//! test the rendering of a simple string
 	void RenderASimpleString();
-	//!render something onto a string
+	//! render something onto a string
 	void RenderOnStringTest();
-	//!render something onto a string using a default
+	//! render something onto a string using a default
 	void RenderOnStringDefaultTest();
-	//!render a simple list
+	//! render a simple list
 	void RenderASimpleList();
-	//!render a simple config using a mock class TestRenderer
+	//! render a simple config using a mock class TestRenderer
 	void RenderWithConfig();
 };
 

@@ -10,6 +10,7 @@
 #define _SegStorAllocator_H
 
 #include "ITOStorage.h"
+
 #include <boost/pool/pool.hpp>
 #include <map>
 
@@ -20,23 +21,20 @@ class SegStoreAllocator : public Allocator {
 
 	AllocPoolMapping allocPoolMap;
 
-	//FIXME actually breaks LSP
+	// FIXME actually breaks LSP
 	void Free(void *vp) {}
+
 public:
 	SegStoreAllocator(long allocatorid) : Allocator(allocatorid) {}
 	~SegStoreAllocator();
 
-	//!print out the allocators statistics
+	//! print out the allocators statistics
 	void PrintStatistic(long lLevel = -1);
 
-	//!returns the currently allocated bytes
-	ul_long CurrentlyAllocated() {
-		return 0;
-	}
+	//! returns the currently allocated bytes
+	ul_long CurrentlyAllocated() { return 0; }
 
-	virtual void *Malloc(size_t size) {
-		return Alloc(size);
-	}
+	virtual void *Malloc(size_t size) { return Alloc(size); }
 
 	void *Alloc(size_t sz);
 	void Free(void *p, size_t sz);

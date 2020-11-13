@@ -12,19 +12,17 @@
 #include "Mapper.h"
 
 //! Parses a http response from a stream and puts it under Mapper.HTTPResponse
-class HTTPResponseMapper: public ResultMapper {
+class HTTPResponseMapper : public ResultMapper {
 	HTTPResponseMapper();
 	HTTPResponseMapper(const HTTPResponseMapper &);
 	HTTPResponseMapper &operator=(const HTTPResponseMapper &);
+
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	HTTPResponseMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	HTTPResponseMapper(const char *name) : ResultMapper(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) HTTPResponseMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) HTTPResponseMapper(fName); }
+
 protected:
 	//! reads a http response from istream and puts it under Mapper.HTTPResponse
 	/*! @copydoc ResultMapper::DoPutStream() */

@@ -7,67 +7,61 @@
  */
 
 #include "MockAccessManager.h"
+
 #include "Tracer.h"
 
 //---- MockAccessManager ----------------------------------------------------------------
 RegisterAccessManager(MockAccessManager);
 
-bool MockAccessManager::Validate(String &uid)
-{
+bool MockAccessManager::Validate(String &uid) {
 	StartTrace1(MockAccessManager.Validate, "uid = " << uid);
-	bool bRet ( Lookup( "AcceptedUsers" ).IsDefined(uid) );
+	bool bRet(Lookup("AcceptedUsers").IsDefined(uid));
 	Trace((bRet ? "User exists." : "User unknown."));
 	return bRet;
 }
 
-bool MockAccessManager::Validate(Context &ctx, String uid)
-{
+bool MockAccessManager::Validate(Context &ctx, String uid) {
 	StartTrace(MockAccessManager.Validate);
 	return Validate(uid);
 }
 
-bool MockAccessManager::AuthenticateWeak(String uid, String passwd, String &newRole)
-{
+bool MockAccessManager::AuthenticateWeak(String uid, String passwd, String &newRole) {
 	StartTrace1(MockAccessManager.AuthenticateWeak, "uid = " << uid << " passwd = " << passwd);
-	bool ret( false );
-	if ( ((ROAnything)fMockData)["AcceptedUsers"].IsDefined( uid ) ) {
+	bool ret(false);
+	if (((ROAnything)fMockData)["AcceptedUsers"].IsDefined(uid)) {
 		ret = ((ROAnything)fMockData)["AcceptedUsers"][uid].AsString("iMp0Ss1blE_Va1LuE").IsEqual(passwd);
 	} else {
-		ret = Lookup( "AcceptedUsers" )[uid].AsString("iMp0Ss1blE_Va1LuE").IsEqual(passwd);
+		ret = Lookup("AcceptedUsers")[uid].AsString("iMp0Ss1blE_Va1LuE").IsEqual(passwd);
 	}
-	newRole = (ret ? Lookup( "AuthSuccessRole", "AuthSuccessRole") : Lookup( "AuthFailRole", "AuthFailRole" ) );
+	newRole = (ret ? Lookup("AuthSuccessRole", "AuthSuccessRole") : Lookup("AuthFailRole", "AuthFailRole"));
 	Trace("weak authentication = " << (ret ? "successful." : "failed.") << " new role = " << newRole);
 	return ret;
 }
 
-bool MockAccessManager::AuthenticateWeak(Context &ctx, String uid, String passwd, String &newRole)
-{
+bool MockAccessManager::AuthenticateWeak(Context &ctx, String uid, String passwd, String &newRole) {
 	StartTrace(MockAccessManager.AuthenticateWeak);
 	return AuthenticateWeak(uid, passwd, newRole);
 }
 
-bool MockAccessManager::AuthenticateStrong(String uid, String passwd, String otp, long window, String &newRole)
-{
+bool MockAccessManager::AuthenticateStrong(String uid, String passwd, String otp, long window, String &newRole) {
 	StartTrace(MockAccessManager.AuthenticateStrong);
 
 	Trace("otp = " << otp);
 	Trace("window = " << window << " [ignored]");
 
-	bool ret ( AuthenticateWeak(uid, passwd, newRole) && Lookup( "AcceptedCodes" ).Contains(otp) );
-	newRole = (ret ? Lookup( "AuthSuccessRole", "AuthSuccessRole") : Lookup( "AuthFailRole", "AuthFailRole" ) );
+	bool ret(AuthenticateWeak(uid, passwd, newRole) && Lookup("AcceptedCodes").Contains(otp));
+	newRole = (ret ? Lookup("AuthSuccessRole", "AuthSuccessRole") : Lookup("AuthFailRole", "AuthFailRole"));
 
 	Trace("strong authentication = " << (ret ? "successful." : "failed.") << " new role = " << newRole);
 	return ret;
 }
 
-bool MockAccessManager::AuthenticateStrong(Context &ctx, String uid, String passwd, String otp, long window, String &newRole)
-{
+bool MockAccessManager::AuthenticateStrong(Context &ctx, String uid, String passwd, String otp, long window, String &newRole) {
 	StartTrace(MockAccessManager.AuthenticateStrong);
 	return AuthenticateStrong(uid, passwd, otp, window, newRole);
 }
 
-bool MockAccessManager::ChangePassword(String uid, String newpwd, String oldpwd)
-{
+bool MockAccessManager::ChangePassword(String uid, String newpwd, String oldpwd) {
 	StartTrace(MockAccessManager.ChangePassword);
 
 	String dummy;
@@ -75,8 +69,8 @@ bool MockAccessManager::ChangePassword(String uid, String newpwd, String oldpwd)
 	Trace("oldpwd = " << oldpwd);
 	Trace("newpwd = " << newpwd);
 
-	if ( AuthenticateWeak(uid, oldpwd, dummy) ) {
-		if ( IsAllowed(uid, Lookup( "RightForPasswdChange" ).AsString()) ) {
+	if (AuthenticateWeak(uid, oldpwd, dummy)) {
+		if (IsAllowed(uid, Lookup("RightForPasswdChange").AsString())) {
 			fMockData["AcceptedUsers"][uid] = newpwd;
 			Trace("Password changed.");
 			return true;
@@ -88,18 +82,16 @@ bool MockAccessManager::ChangePassword(String uid, String newpwd, String oldpwd)
 	return false;
 }
 
-bool MockAccessManager::ChangePassword(Context &ctx, String uid, String newpwd, String oldpwd)
-{
+bool MockAccessManager::ChangePassword(Context &ctx, String uid, String newpwd, String oldpwd) {
 	StartTrace(MockAccessManager::ChangePassword);
 	return ChangePassword(uid, newpwd, oldpwd);
 }
 
-bool MockAccessManager::ResetPassword(String uid)
-{
+bool MockAccessManager::ResetPassword(String uid) {
 	StartTrace1(MockAccessManager.ResetPassword, "uid = " << uid);
 
-	if ( Validate(uid) ) {
-		if ( IsAllowed(uid, Lookup( "RightForPasswdReset" ).AsString()) ) {
+	if (Validate(uid)) {
+		if (IsAllowed(uid, Lookup("RightForPasswdReset").AsString())) {
 			fMockData["AcceptedUsers"][uid] = uid;
 			Trace("Password reset.");
 			return true;
@@ -111,43 +103,37 @@ bool MockAccessManager::ResetPassword(String uid)
 	return false;
 }
 
-bool MockAccessManager::ResetPassword(Context &ctx, String uid)
-{
+bool MockAccessManager::ResetPassword(Context &ctx, String uid) {
 	StartTrace(MockAccessManager.ResetPassword);
 	return ResetPassword(uid);
 }
 
-bool MockAccessManager::GetAllowedEntitiesFor(Anything who, Anything &allowed)
-{
+bool MockAccessManager::GetAllowedEntitiesFor(Anything who, Anything &allowed) {
 	StartTrace1(MockAccessManager.GetAllowedEntitiesFor, "who = " << who.AsString());
-	String whoStr( who.AsString() );
-	if ( Lookup( "Rights" ).IsDefined(whoStr) ) {
-		allowed = Lookup( "Rights" )[whoStr].DeepClone();
+	String whoStr(who.AsString());
+	if (Lookup("Rights").IsDefined(whoStr)) {
+		allowed = Lookup("Rights")[whoStr].DeepClone();
 		TraceAny(allowed, "Granted rights:");
 		return true;
-	} else {
-		Trace("User/role/group '" << whoStr << "' not defined in rights list.");
-		allowed = Anything(Anything::ArrayMarker());
-		return false;
 	}
+	Trace("User/role/group '" << whoStr << "' not defined in rights list.");
+	allowed = Anything(Anything::ArrayMarker());
+	return false;
 }
 
-bool MockAccessManager::GetAllowedEntitiesFor(Context &ctx, Anything who, Anything &allowed)
-{
+bool MockAccessManager::GetAllowedEntitiesFor(Context &ctx, Anything who, Anything &allowed) {
 	StartTrace(MockAccessManager.GetAllowedEntitiesFor);
 	return GetAllowedEntitiesFor(who, allowed);
 }
 
-bool MockAccessManager::IsAllowed(String who, String right)
-{
+bool MockAccessManager::IsAllowed(String who, String right) {
 	StartTrace1(MockAccessManager.IsAllowed, "who = " << who << " right = " << right);
-	bool ret( Lookup( "Rights" )[who].Contains(right) );
+	bool ret(Lookup("Rights")[who].Contains(right));
 	Trace("Right " << (ret ? "granted." : "denied."));
 	return ret;
 }
 
-bool MockAccessManager::IsAllowed(Context &ctx, String who, String entity)
-{
+bool MockAccessManager::IsAllowed(Context &ctx, String who, String entity) {
 	StartTrace(MockAccessManager.IsAllowed);
 	return IsAllowed(who, entity);
 }

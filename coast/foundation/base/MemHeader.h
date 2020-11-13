@@ -15,11 +15,10 @@
 #endif
 #include <iosfwd>
 
-//!handling headers for memory management
-//!supports custom memory management by easing handling of header information
-struct MemoryHeader
-{
-	//!the states a chunk of memory can be in
+//! handling headers for memory management
+//! supports custom memory management by easing handling of header information
+struct MemoryHeader {
+	//! the states a chunk of memory can be in
 #if __cplusplus >= 201103L
 	enum EMemState : unsigned char {
 #else
@@ -28,29 +27,24 @@ struct MemoryHeader
 		eFree = 1L,
 		eUsed = 2L,
 		eNotPooled = 4L,
-		eFreeNotPooled = ( eFree | eNotPooled ),
-		eUsedNotPooled = ( eUsed | eNotPooled ),
+		eFreeNotPooled = (eFree | eNotPooled),
+		eUsedNotPooled = (eUsed | eNotPooled),
 	};
 
-	//!magic cookie to determine memory boundaries
+	//! magic cookie to determine memory boundaries
 	static unsigned char const gcMagic;
 
-	//!constructor simplifying settings of values
-	MemoryHeader(u_long size, EMemState ems)
-		: fMagic(MemoryHeader::gcMagic)
-		, fState(ems)
-		, fUsableSize(size)
-		, fNextFree(0) {
-	}
-	//!the cookie defining the boundary of the memory
+	//! constructor simplifying settings of values
+	MemoryHeader(u_long size, EMemState ems) : fMagic(MemoryHeader::gcMagic), fState(ems), fUsableSize(size), fNextFree(0) {}
+	//! the cookie defining the boundary of the memory
 	unsigned char fMagic;
-	//!state a chunk of memory is in
+	//! state a chunk of memory is in
 	EMemState fState;
-	//!size of the memory chunk
+	//! size of the memory chunk
 	size_t fUsableSize;
-	//!link to next free chunk in pool
+	//! link to next free chunk in pool
 	MemoryHeader *fNextFree;
-	std::ostream& DumpAsHex(std::ostream& stream) const;
+	std::ostream &DumpAsHex(std::ostream &stream) const;
 };
 
 #endif

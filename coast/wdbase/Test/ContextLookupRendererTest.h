@@ -9,17 +9,16 @@
 #ifndef _ContextLookupRendererTest_h_
 #define _ContextLookupRendererTest_h_
 
-#include "TestCase.h"
-#include "StringStream.h"
 #include "Anything.h"
+#include "StringStream.h"
+#include "TestCase.h"
 
-class ContextLookupRendererTest : public testframework::TestCase
-{
+class ContextLookupRendererTest : public testframework::TestCase {
 public:
 	ContextLookupRendererTest(TString tstrName);
-	virtual ~ContextLookupRendererTest() {};
+	virtual ~ContextLookupRendererTest(){};
 
-	static Test *suite ();
+	static Test *suite();
 
 protected:
 	void ContextCharPtr();

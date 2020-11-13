@@ -7,10 +7,12 @@
  */
 
 #include "LeaderFollowerPool.h"
-#include "StringStream.h"
+
 #include "Socket.h"
-#include "SystemLog.h"
+#include "StringStream.h"
 #include "SystemBase.h"
+#include "SystemLog.h"
+
 #include <iomanip>
 #if !defined(WIN32)
 #include <errno.h>
@@ -22,9 +24,13 @@
 const long LeaderFollowerPool::cNoCurrentLeader = -1;
 const long LeaderFollowerPool::cBlockPromotion = -2;
 
-LeaderFollowerPool::LeaderFollowerPool(Reactor *reactor) :
-	ThreadPoolManager("LeaderFollowerPool"), fReactor(reactor), fCurrentLeader(cNoCurrentLeader), fOldLeader(cNoCurrentLeader),
-			fPoolState(Thread::eCreated), fLFMutex("LeaderFollowerPool", coast::storage::Global()) {
+LeaderFollowerPool::LeaderFollowerPool(Reactor *reactor)
+	: ThreadPoolManager("LeaderFollowerPool"),
+	  fReactor(reactor),
+	  fCurrentLeader(cNoCurrentLeader),
+	  fOldLeader(cNoCurrentLeader),
+	  fPoolState(Thread::eCreated),
+	  fLFMutex("LeaderFollowerPool", coast::storage::Global()) {
 	StartTrace(LeaderFollowerPool.Ctor);
 	Assert(fReactor);
 }
@@ -37,7 +43,7 @@ int LeaderFollowerPool::Terminate(long lWaitToTerminate, long lWaitOnJoin) {
 		LockUnlockEntry me(fLFMutex);
 		fPoolState = Thread::eTerminated;
 		// need to delete objects before unloading dlls
-		if (fReactor) {
+		if (fReactor != 0) {
 			Trace("deleting reactor");
 			delete fReactor;
 			fReactor = 0;
@@ -76,13 +82,13 @@ void LeaderFollowerPool::WaitForRequest(Thread *t, long timeout) {
 			} else {
 				fFollowersCondition.Wait(fLFMutex);
 			}
-			if ((fPoolState >= Thread::eTerminationRequested) || !(t && (t->CheckState(Thread::eRunning)))) {
+			if ((fPoolState >= Thread::eTerminationRequested) || !((t != 0) && (t->CheckState(Thread::eRunning)))) {
 				Trace("No longer running, terminating");
 				PromoteNewLeader();
 				return;
 			}
 		}
-		fCurrentLeader = (long) Thread::MyId();
+		fCurrentLeader = (long)Thread::MyId();
 		Trace("New Leader: " << fCurrentLeader << " processing events");
 		fLFMutex.Unlock();
 		t->SetWorking();
@@ -97,9 +103,9 @@ void LeaderFollowerPool::PromoteNewLeader() {
 	StartTrace(LeaderFollowerPool.PromoteNewLeader);
 	{
 		LockUnlockEntry me(fLFMutex);
-		if (fCurrentLeader != (long) Thread::MyId() && fCurrentLeader != cBlockPromotion) {
+		if (fCurrentLeader != (long)Thread::MyId() && fCurrentLeader != cBlockPromotion) {
 			String msg("inconsistent pool: ");
-			msg << (long) Thread::MyId() << " is not leader(" << fCurrentLeader << ")";
+			msg << (long)Thread::MyId() << " is not leader(" << fCurrentLeader << ")";
 			SYSERROR(msg);
 			Trace(msg);
 		}
@@ -132,27 +138,27 @@ bool LeaderFollowerPool::InitReactor(ROAnything args) {
 		SYSERROR("no acceptors: argument <= 0");
 		return false;
 	}
-	if (!fReactor) {
+	if (fReactor == 0) {
 		Trace("Reactor not set");
 		SYSERROR("Reactor not set");
 		return false;
 	}
 
 	for (long i = 0; i < argSz; ++i) {
-		Acceptor *acceptor = (Acceptor *) args[i].AsIFAObject(0);
-		if (acceptor) {
-			int retVal;
+		Acceptor *acceptor = (Acceptor *)args[i].AsIFAObject(0);
+		if (acceptor != 0) {
+			int retVal = 0;
 			if ((retVal = acceptor->PrepareAcceptLoop()) != 0) {
 				String logMsg;
-				logMsg << "server (" << args.SlotName(i) << ")  prepare accept failed with retVal " << (long) retVal;
+				logMsg << "server (" << args.SlotName(i) << ")  prepare accept failed with retVal " << (long)retVal;
 				SYSERROR(logMsg);
 				Trace(logMsg);
 				return false;
 			}
 			// start the accept loop
 			OStringStream os;
-			os << std::setw(20) << args.SlotName(i) << " Accepting requests from: " << acceptor->GetAddress() << " port: "
-					<< acceptor->GetPort() << " backlog: " << acceptor->GetBacklog() << std::endl;
+			os << std::setw(20) << args.SlotName(i) << " Accepting requests from: " << acceptor->GetAddress()
+			   << " port: " << acceptor->GetPort() << " backlog: " << acceptor->GetBacklog() << std::endl;
 			SystemLog::WriteToStderr(os.str());
 			fReactor->RegisterHandle(acceptor);
 		} else {
@@ -169,7 +175,7 @@ Thread *LeaderFollowerPool::DoAllocThread(long i, ROAnything args) {
 
 void LeaderFollowerThread::Run() {
 	StartTrace(LeaderFollowerThread.Run);
-	if (fPool) {
+	if (fPool != 0) {
 		fPool->WaitForRequest(this, fTimeout);
 	}
 }
@@ -184,10 +190,10 @@ void Reactor::ProcessEvent(Socket *socket, LeaderFollowerPool *lfp) {
 	// We have to promote a new leader even if the socket we got from
 	// the acceptor is invalid. Otherwise nobody sits at the phone to
 	// wait for incoming calls :-)
-	if (lfp) {
+	if (lfp != 0) {
 		lfp->PromoteNewLeader();
 	}
-	if (socket) {
+	if (socket != 0) {
 		DoProcessEvent(socket);
 		delete socket;
 	}
@@ -195,7 +201,7 @@ void Reactor::ProcessEvent(Socket *socket, LeaderFollowerPool *lfp) {
 
 void Reactor::RegisterHandle(Acceptor *acceptor) {
 	StartTrace(Reactor.RegisterHandle);
-	if (acceptor) {
+	if (acceptor != 0) {
 		fHandleSet.RegisterHandle(acceptor);
 	}
 }
@@ -204,7 +210,7 @@ HandleSet::~HandleSet() {
 	StartTrace1(HandleSet.Dtor, "fDemuxTableSz: [" << fDemuxTable.GetSize() << "]");
 	TraceAny(fDemuxTable, "fDemuxTable: ");
 	for (long i = fDemuxTable.GetSize() - 1; i >= 0; --i) {
-		Acceptor *acceptor = (Acceptor *) fDemuxTable[i].AsIFAObject();
+		Acceptor *acceptor = (Acceptor *)fDemuxTable[i].AsIFAObject();
 		delete acceptor;
 	}
 }
@@ -213,7 +219,7 @@ void HandleSet::HandleEvents(Reactor *reactor, LeaderFollowerPool *lfp, long tim
 	StartTrace(HandleSet.HandleEvents);
 
 	Acceptor *acceptor = WaitForEvents(timeout);
-	if (acceptor) {
+	if (acceptor != 0) {
 		reactor->ProcessEvent(acceptor->DoAccept(), lfp);
 	} else {
 		// timeout case
@@ -237,8 +243,8 @@ Acceptor *HandleSet::WaitForEvents(long timeout) {
 		fds[i].events = POLLIN;
 		fds[i].fd = -1;
 #endif
-		Acceptor *a = (Acceptor *) fDemuxTable[i].AsIFAObject(0);
-		if (a) {
+		Acceptor *a = (Acceptor *)fDemuxTable[i].AsIFAObject(0);
+		if (a != 0) {
 			int fd = a->GetFd();
 			if (fd >= 0) {
 #if defined(USE_SELECT)
@@ -264,7 +270,7 @@ Acceptor *HandleSet::WaitForEvents(long timeout) {
 	long retCode = poll(fds, NOFDS, timeout);
 #endif
 	if (0 == retCode) {
-		return 0; // timeout, no error
+		return 0;  // timeout, no error
 	}
 	while (retCode < 0 && coast::system::SyscallWasInterrupted()) {
 #if defined(USE_SELECT)
@@ -272,20 +278,20 @@ Acceptor *HandleSet::WaitForEvents(long timeout) {
 #else
 		retCode = poll(fds, NOFDS, timeout);
 #endif
-		SYSERROR("select/poll call interrupted. I do a restart. Socket error number: " <<
-				(long) SOCKET_ERROR << " return code " << retCode << " LastSyError: " << SystemLog::LastSysError());
+		SYSERROR("select/poll call interrupted. I do a restart. Socket error number: "
+				 << (long)SOCKET_ERROR << " return code " << retCode << " LastSyError: " << SystemLog::LastSysError());
 	}
 	if (retCode > 0) {
 		for (i = 0, sz = fDemuxTable.GetSize(); i < sz; ++i) {
 			long idx = (fLastAcceptorUsedIndex + 1 + i) % NOFDS;
-			Acceptor *a = (Acceptor *) fDemuxTable[idx].AsIFAObject(0);
-			if (a) {
+			Acceptor *a = (Acceptor *)fDemuxTable[idx].AsIFAObject(0);
+			if (a != 0) {
 #if defined(USE_SELECT)
 				int fd = a->GetFd();
 				if (fd >= 0 && FD_ISSET(fd, &rfds))
 #else
 				Assert(a->GetFd() == fds[idx].fd);
-				if (fds[idx].revents & POLLIN)
+				if ((fds[idx].revents & POLLIN) != 0)
 #endif
 				{
 					fLastAcceptorUsedIndex = idx;
@@ -295,15 +301,15 @@ Acceptor *HandleSet::WaitForEvents(long timeout) {
 		}
 	}
 	SYSERROR("select/poll call with acceptors failed");
-	SYSERROR("Socket error number: " << (long) SOCKET_ERROR << " return code " << retCode <<
-			" LastSyError: " << SystemLog::LastSysError());
+	SYSERROR("Socket error number: " << (long)SOCKET_ERROR << " return code " << retCode
+									 << " LastSyError: " << SystemLog::LastSysError());
 	return 0;
 }
 
 void HandleSet::RegisterHandle(Acceptor *acceptor) {
 	StartTrace(HandleSet.RegisterHandle);
 	LockUnlockEntry me(fMutex);
-	if (acceptor && acceptor->GetFd() > 0) {
-		fDemuxTable.Append((IFAObject *) acceptor);
+	if ((acceptor != 0) && acceptor->GetFd() > 0) {
+		fDemuxTable.Append((IFAObject *)acceptor);
 	}
 }

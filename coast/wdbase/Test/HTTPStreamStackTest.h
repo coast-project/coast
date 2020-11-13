@@ -11,8 +11,7 @@
 
 #include "TestCase.h"
 
-class HTTPStreamStackTest : public testframework::TestCase
-{
+class HTTPStreamStackTest : public testframework::TestCase {
 public:
 	//--- constructors
 
@@ -26,7 +25,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//! Test with no special encoding
 	void NoEncoding();

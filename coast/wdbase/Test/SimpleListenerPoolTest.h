@@ -11,21 +11,20 @@
 
 #include "ListenerPoolTest.h"
 
-class SimpleListenerPoolTest : public ListenerPoolTest
-{
+class SimpleListenerPoolTest : public ListenerPoolTest {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	SimpleListenerPoolTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~SimpleListenerPoolTest();
 
 	//--- public api
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
 	void PoolTest();
 

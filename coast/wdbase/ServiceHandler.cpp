@@ -7,13 +7,13 @@
  */
 
 #include "ServiceHandler.h"
+
 #include "Policy.h"
 
-const char* ServiceHandler::gpcCategory = "ServiceHandler";
-const char* ServiceHandler::gpcConfigPath = "ServiceHandlers";
+const char *ServiceHandler::gpcCategory = "ServiceHandler";
+const char *ServiceHandler::gpcConfigPath = "ServiceHandlers";
 
-ServiceHandler::ServiceHandler(const char *ServiceHandlerName) :
-	HierarchConfNamed(ServiceHandlerName) {
+ServiceHandler::ServiceHandler(const char *ServiceHandlerName) : HierarchConfNamed(ServiceHandlerName) {
 	StatTrace(ServiceHandler.Ctor, ServiceHandlerName, coast::storage::Current());
 }
 
@@ -23,7 +23,7 @@ bool ServiceHandler::HandleService(std::ostream &os, Context &ctx) {
 	String strKey("ServiceHandler");
 	ctx.Push(strKey, this);
 	bool status = DoHandleService(os, ctx);
-	ctx.Pop(strKey); //!@FIXME: use PushPopEntry for LookupInterfaces too
+	ctx.Pop(strKey);  //!@FIXME: use PushPopEntry for LookupInterfaces too
 	return status;
 }
 

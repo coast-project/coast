@@ -9,34 +9,32 @@
 #ifndef _SessionTest_H
 #define _SessionTest_H
 
-#include "WDBaseTestPolicies.h"
 #include "Context.h"
+#include "WDBaseTestPolicies.h"
 
 class STTestSession;
 
-class SessionTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class SessionTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	SessionTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	SessionTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void setUp();
-	//!test usage of session store with context
+	//! test usage of session store with context
 	void UseSessionStoreTest();
 
-	//!test Session::Verify method
+	//! test Session::Verify method
 	void VerifyTest();
 
-	//!test the sessions info functionality
+	//! test the sessions info functionality
 	void InfoTest();
 
-	//!Checks the removability of a session
+	//! Checks the removability of a session
 	void IsDeletableTest();
 
-	//!Checks the context initialization
+	//! Checks the context initialization
 	void SetupContextTest();
 
-	//!test method CheckRoleExchange
+	//! test method CheckRoleExchange
 	void CheckRoleExchangeTest();
 
 protected:
@@ -47,9 +45,8 @@ protected:
 	void DoFindNextPageLogin();
 	void SetGetRole();
 	void RetrieveFromDelayed();
-	void IntCheckRoleExchange(const char *source_role, const char *target_role, const char *transition, STTestSession &s, Context &theCtx,
-			bool should_succeed);
+	void IntCheckRoleExchange(const char *source_role, const char *target_role, const char *transition, STTestSession &s,
+							  Context &theCtx, bool should_succeed);
 };
 
 #endif
-

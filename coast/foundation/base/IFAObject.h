@@ -19,31 +19,29 @@ class String;
 class IFAObject {
 public:
 	/*! virtual destructor to nicely cleanup derived types */
-	virtual ~IFAObject() {
-	}
+	virtual ~IFAObject() {}
 
 	/*! Support for prototype pattern
 	 * @param a Allocator passed in to allocate new objects with if required
 	 * @return Baseclass pointer to cloned instance of a derived type
 	 */
 	virtual IFAObject *Clone(Allocator *a) const = 0;
+
 private:
 	/*! Support for prototype pattern
 	 * @return Baseclass pointer to cloned instance of a derived type
 	 */
-	IFAObject *Clone() const {
-		return Clone(coast::storage::Current());
-	}
+	IFAObject *Clone() const { return Clone(coast::storage::Current()); }
 };
 
 //! Defines abstract named object api
 /*! This object serves as a base class for \em logically \em named objects of same type.
  * The name could be used to distinguish different instances of an object of the same base.
  */
-class NamedObject: public IFAObject {
+class NamedObject : public IFAObject {
 public:
 	/*! named object default constructor */
-	NamedObject() : IFAObject() {}
+	NamedObject() {}
 
 	/*! Naming support interface to set the objects name
 	 * @param name
@@ -58,12 +56,12 @@ public:
 	/*! Naming support interface for getting this objects name as plain old char array
 	 * @return char array representation of this objects name
 	 */
-	virtual const char *GetName() const  = 0;
+	virtual const char *GetName() const = 0;
 
 private:
-	//!not allowed
+	//! not allowed
 	NamedObject(const NamedObject &);
-	//!not allowed
+	//! not allowed
 	NamedObject &operator=(const NamedObject &);
 };
 

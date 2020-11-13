@@ -9,27 +9,26 @@
 #ifndef _StringStreamBuf_H
 #define _StringStreamBuf_H
 
+#include "ITOString.h"
+#include "ITOTypeTraits.h"
+
 #include <cstdio>
-#include <streambuf>
+#include <istream>
+#include <ostream>
+
+#define SS_TRACE(msg)
 
 //! StringStreamBuf adapts String objects to the iostream framework
 /*! the underlying string is used directly as the buffer to save copying overhead */
-namespace NSStringStream
-{
+namespace NSStringStream {
 	enum IoDirectionValues { eIn, eOut };
 }
 
-using std::streambuf;
-
-template
-<
-typename BufferType,
-		 typename IoDirType
-		 >
-class StringStreamBuf : public streambuf
-{
+template <typename BufferType, typename IoDirType>
+class StringStreamBuf : public std::streambuf {
 	StringStreamBuf(const StringStreamBuf &);
 	StringStreamBuf &operator=(const StringStreamBuf &);
+
 public:
 	typedef typename coast::typetraits::fooTypeTraits<BufferType>::ConstPlainTypeRef ConstPlainTypeRef;
 	typedef typename coast::typetraits::fooTypeTraits<BufferType>::ConstPlainTypePtr ConstPlainTypePtr;
@@ -37,33 +36,24 @@ public:
 	typedef typename coast::typetraits::fooTypeTraits<BufferType>::ConstCorrectPtr2RefType BufferTypeRef;
 
 	/*! default ctor, allocates new internal String object for output
-		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreamBuf(int mode = std::ios::out)
-		: fStore(0)
-		, fDeleteStore(false)
-		, fOpenMode(mode) {
+	  \param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
+	explicit StringStreamBuf(int mode = std::ios::out) : fStore(0), fDeleteStore(false), fOpenMode(mode) {
 		xinit();
 		setbufpointers(0, 0);
 	}
 
 	/*! ctor usually used for input
-		\param s contains characters to be read
-		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreamBuf(ConstPlainTypeRef s, int mode = std::ios::in)
-		: fStore(0)
-		, fDeleteStore(false)
-		, fOpenMode(mode) {
+	  \param s contains characters to be read
+	  \param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
+	explicit StringStreamBuf(ConstPlainTypeRef s, int mode = std::ios::in) : fStore(0), fDeleteStore(false), fOpenMode(mode) {
 		xinit(static_cast<ConstPlainTypePtr>(&s));
 		setbufpointers(0, 0);
 	}
 
 	/*! ctor usually used for output
-		\param s target string to be filled,
-		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreamBuf(PlainTypePtr s, int mode = std::ios::out)
-		: fStore(0)
-		, fDeleteStore(false)
-		, fOpenMode(mode) {
+	  \param s target string to be filled,
+	  \param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
+	explicit StringStreamBuf(PlainTypePtr s, int mode = std::ios::out) : fStore(0), fDeleteStore(false), fOpenMode(mode) {
 		xinit(s);
 		setbufpointers(0, 0);
 	}
@@ -71,7 +61,7 @@ public:
 	/*! dtor, deletes string object if it has been allocated by this */
 	virtual ~StringStreamBuf() {
 		sync();
-		if ( fDeleteStore ) {
+		if (fDeleteStore) {
 			delete fStore;
 			fStore = 0;
 		}
@@ -79,13 +69,9 @@ public:
 	}
 
 	/*! not much to do when synchronizing, just insert string termination character */
-	virtual int sync() {
-		return specificSync(IoDirType());
-	}
+	virtual int sync() { return specificSync(IoDirType()); }
 
-	int specificSync(coast::typetraits::Int2Type<NSStringStream::eIn>) {
-		return 0;
-	}
+	int specificSync(coast::typetraits::Int2Type<NSStringStream::eIn>) { return 0; }
 
 	int specificSync(coast::typetraits::Int2Type<NSStringStream::eOut>) {
 		AdjustStringLength(IoDirType());
@@ -93,57 +79,57 @@ public:
 	}
 
 	/*! reveal underlying string.
-		\return underlying string buffer
-		\note do not change it when continuing using the stream */
+	  \return underlying string buffer
+	  \note do not change it when continuing using the stream */
 	BufferTypeRef str() {
 		sync();
 		Assert(fStore);
 		return *fStore;
 	}
 
-protected: // seekxxx are protected in the std..
+protected:	// seekxxx are protected in the std..
 	typedef std::streambuf::pos_type pos_type;
 	typedef std::streambuf::off_type off_type;
 	typedef std::ios::seekdir seekdir;
 	typedef std::ios::openmode openmode;
 
 	/*! standard iostream behavior, adjust put or get position absolutely */
-	virtual pos_type seekpos(pos_type p, openmode mode = static_cast<openmode>(std::ios::in | std::ios::out) ) {
+	virtual pos_type seekpos(pos_type p, openmode mode = static_cast<openmode>(std::ios::in | std::ios::out)) {
 		AdjustStringLength(IoDirType());
 		if (long(p) >= long(fStore->Capacity())) {
 			// we need to enlarge the string
 			// we can only if we write
-			if (! (mode & std::ios::out) || !reserve(p)) {
+			if (((mode & std::ios::out) == 0) || !reserve(p)) {
 				// OOPS we got a problem
 				return pos_type(EOF);
 			}
 		}
-		if (mode & std::ios::in) {
+		if ((mode & std::ios::in) != 0) {
 			setgetpointer(p);
 		}
-		if (mode & std::ios::out) {
-			if (fOpenMode & std::ios::app) { // do this on a best try basis
+		if ((mode & std::ios::out) != 0) {
+			if ((fOpenMode & std::ios::app) != 0) {	 // do this on a best try basis
 				if (p < fStore->Length() && fStore->Length() > 0) {
-					p = fStore->Length();    // always go to the end
+					p = fStore->Length();  // always go to the end
 				}
 			}
 			// PS: should not be needed: if (p > fFileLength) fFileLength = p;
 			setp(start(), epptr());
 			if (pbase()) {
-				pbump(p);    // needed, because we no longer carry base()
+				pbump(p);  // needed, because we no longer carry base()
 			}
 		}
 		return p;
 	}
 
 	/*! standard iostream behavior, adjust put or get position relatively */
-	virtual pos_type seekoff(off_type of, seekdir dir, openmode mode = static_cast<openmode>(std::ios::in | std::ios::out) ) {
-		//sync(); // will adjust fFileLength if needed
-		AdjustStringLength(IoDirType()); // recognize where we have been with putting
+	virtual pos_type seekoff(off_type of, seekdir dir, openmode mode = static_cast<openmode>(std::ios::in | std::ios::out)) {
+		// sync(); // will adjust fFileLength if needed
+		AdjustStringLength(IoDirType());  // recognize where we have been with putting
 		long pos = long(of);
-		pos += (dir == std::ios::cur) ? long((mode & std::ios::in ? gptr() : pptr()) - pbase()) :
-				   (dir == std::ios::end && fStore->Length() > 0) ? long(fStore->Length()) : 0L;
-		if (pos < 0L ) {
+		pos += (dir == std::ios::cur) ? long(((mode & std::ios::in) != 0 ? gptr() : pptr()) - pbase())
+									  : (dir == std::ios::end && fStore->Length() > 0) ? long(fStore->Length()) : 0L;
+		if (pos < 0L) {
 			return pos_type(EOF);
 		}
 		return seekpos(pos, mode);
@@ -151,12 +137,12 @@ protected: // seekxxx are protected in the std..
 
 protected:
 	/*! standard iostream behavior, extends the String
-		\return EOF if extension is not possible (this might be a big problem) */
+	  \return EOF if extension is not possible (this might be a big problem) */
 	virtual int overflow(int c = EOF) {
-		Assert( pbase() ? pbase() <= pptr() : 0 == pptr() );
+		Assert(pbase() ? pbase() <= pptr() : 0 == pptr());
 
 		if (c != EOF) {
-			if (reserve(pptr() - pbase() + 1)) { // this will extend the string
+			if (reserve(pptr() - pbase() + 1)) {  // this will extend the string
 				Assert(pptr() < epptr());
 				return sputc(c);
 			}
@@ -168,23 +154,23 @@ protected:
 	}
 
 	/*! standard iostream behavior, look for new characters available (no op for Strings)
-		can't produce new chars because we always use the whole String
-		\return EOF if no more characters for input available = EOF reached */
+	  can't produce new chars because we always use the whole String
+	  \return EOF if no more characters for input available = EOF reached */
 	virtual int underflow() {
 		if (gptr() < egptr()) {
 			return ZAPEOF(*gptr());
 		}
-		return EOF; // we never handle underflow, because our buffer is the String content
+		return EOF;	 // we never handle underflow, because our buffer is the String content
 	}
 
 private:
 	/*! auxiliary StringStreamBuf initialization */
 	void xinit() {
 		// adjust fOpenMode to contain valid combination of flags
-		if (fOpenMode & (std::ios::ate | std::ios::app)) {
+		if ((fOpenMode & (std::ios::ate | std::ios::app)) != 0) {
 			fOpenMode |= std::ios::out;
 		}
-		if ( fStore && fDeleteStore ) {
+		if (fStore && fDeleteStore) {
 			delete fStore;
 		}
 		fStore = new String(64L);
@@ -194,16 +180,16 @@ private:
 
 	void xinit(PlainTypePtr s) {
 		// adjust fOpenMode to contain valid combination of flags
-		if (fOpenMode & (std::ios::ate | std::ios::app)) {
+		if ((fOpenMode & (std::ios::ate | std::ios::app)) != 0) {
 			fOpenMode |= std::ios::out;
 		}
-		if (fOpenMode & std::ios::trunc) {
+		if ((fOpenMode & std::ios::trunc) != 0) {
 			SS_TRACE("clear the string, i.e. ignore contents due to std::ios::trunc flag");
 			s = 0;
 		}
 		// initialize buffer, allocate new String object if required
-		if ( s ) {
-			if ( fStore && fDeleteStore ) {
+		if (s) {
+			if (fStore && fDeleteStore) {
 				delete fStore;
 			}
 			SS_TRACE("bare pointer assignment, no copy!");
@@ -211,7 +197,7 @@ private:
 			fDeleteStore = false;
 		} else {
 			SS_TRACE("plain vanilla empty new buffer");
-			if ( fStore && fDeleteStore ) {
+			if (fStore && fDeleteStore) {
 				delete fStore;
 			}
 			fStore = new String(16L);
@@ -222,16 +208,16 @@ private:
 
 	void xinit(ConstPlainTypePtr contents) {
 		// adjust fOpenMode to contain valid combination of flags
-		if (fOpenMode & (std::ios::ate | std::ios::app)) {
+		if ((fOpenMode & (std::ios::ate | std::ios::app)) != 0) {
 			fOpenMode |= std::ios::out;
 		}
-		if (fOpenMode & std::ios::trunc) {
+		if ((fOpenMode & std::ios::trunc) != 0) {
 			SS_TRACE("clear the string, i.e. ignore contents due to std::ios::trunc flag");
 			contents = 0;
 		}
 		// initialize buffer, allocate new String object if required
-		if ( contents ) {
-			if ( fStore && fDeleteStore ) {
+		if (contents) {
+			if (fStore && fDeleteStore) {
 				delete fStore;
 			}
 			SS_TRACE("const bare pointer assignment, no copy!");
@@ -240,7 +226,7 @@ private:
 			fDeleteStore = false;
 		} else {
 			SS_TRACE("!plain vanilla empty new buffer in const section!");
-			if ( fStore && fDeleteStore ) {
+			if (fStore && fDeleteStore) {
 				delete fStore;
 			}
 			fStore = new String(16L);
@@ -250,7 +236,15 @@ private:
 	}
 
 	/*! auxiliary operation to keep track of really output bytes, terminate string */
-	void AdjustStringLength(coast::typetraits::Int2Type<NSStringStream::eIn>) {
+	void AdjustStringLength(coast::typetraits::Int2Type<NSStringStream::eIn>) {}
+
+	/*! auxiliary operation to set iostream get buffer pointers according to parameters */
+	void setgetpointer(long getoffset) {
+		char *eg = 0;
+		if (fStore && fStore->GetImpl()) {
+			eg = const_cast<char *>(fStore->GetContent()) + fStore->Length();  // points after get area
+		}
+		setg((fOpenMode & std::ios::in) != 0 ? start() : eg, start() + getoffset, eg);
 	}
 
 	void AdjustStringLength(coast::typetraits::Int2Type<NSStringStream::eOut>) {
@@ -258,21 +252,12 @@ private:
 			Assert(pptr() && pptr() >= start());
 			long newlen = pptr() - pbase();
 			Assert(newlen < fStore->Capacity());
-			if ( fStore->GetImpl() && ( newlen > fStore->Length() ) ) {
+			if (fStore->GetImpl() && (newlen > fStore->Length())) {
 				fStore->SetLength(newlen);
-				fStore->GetContent()[newlen] = '\0'; // terminate the string
-				setgetpointer(gptr() - eback()); // might be able to read more
+				fStore->GetContent()[newlen] = '\0';  // terminate the string
+				setgetpointer(gptr() - eback());	  // might be able to read more
 			}
 		}
-	}
-
-	/*! auxiliary operation to set iostream get buffer pointers according to parameters */
-	void setgetpointer(long getoffset) {
-		char *eg = 0;
-		if (fStore && fStore->GetImpl()) {
-			eg = const_cast<char *>(fStore->GetContent()) + fStore->Length();    // points after get area
-		}
-		setg((fOpenMode & std::ios::in) ? start() : eg, start() + getoffset , eg);
 	}
 
 	/*! auxiliary operation to set iostream buffer pointers according to parameters */
@@ -281,10 +266,10 @@ private:
 		if (fStore->GetImpl()) {
 			sc = const_cast<char *>(fStore->GetContent());
 		}
-		if ((fOpenMode & (std::ios::app | std::ios::ate)) && putoffset < fStore->Length()  ) {
-			putoffset = fStore->Length(); // adjust it to the end
-			if (fOpenMode & (std::ios::ate)) {
-				fOpenMode &= ~std::ios::ate; // adjust it only once to the end
+		if ((fOpenMode & (std::ios::app | std::ios::ate)) && putoffset < fStore->Length()) {
+			putoffset = fStore->Length();  // adjust it to the end
+			if ((fOpenMode & (std::ios::ate)) != 0) {
+				fOpenMode &= ~std::ios::ate;  // adjust it only once to the end
 			}
 		}
 		// save 1 byte for '\0' termination
@@ -294,58 +279,54 @@ private:
 		// if not reading the get area is defined empty.
 		setp(sc, endptr);
 		if (pbase()) {
-			pbump(putoffset);    // needed because we no longer carry base()
+			pbump(putoffset);  // needed because we no longer carry base()
 		}
-		if (! sc) {
+		if (sc == 0) {
 			Assert(!start());
 			Assert(!pbase());
 			Assert(!gptr());
 			Assert(!pptr());
 		}
-		Assert(!pptr() || ( pptr() >= fStore->GetContent() && pptr() < fStore->GetContent() + fStore->Capacity()));
+		Assert(!pptr() || (pptr() >= fStore->GetContent() && pptr() < fStore->GetContent() + fStore->Capacity()));
 		Assert(!gptr() || (gptr() >= start() && gptr() <= egptr()));
 	}
 
 	/*! enlarge the underlying String, adjust buffer pointers if needed (expand file size and mapped region) */
-	bool reserve ( pos_type newlength ) {
+	bool reserve(pos_type newlength) {
 		// we might check if newlength is really bigger than fLength
 		// second, only if fProtection includes eWrite it is possible to enlarge the file
 		if (newlength >= fStore->Capacity()) {
 			return doreserve(newlength, IoDirType());
 		}
-		return true; // space is still available, false alarm
+		return true;  // space is still available, false alarm
 	}
 
-	bool doreserve( long newlength, coast::typetraits::Int2Type<NSStringStream::eIn>) {
-		return false;
-	}
+	bool doreserve(long newlength, coast::typetraits::Int2Type<NSStringStream::eIn>) { return false; }
 
-	bool doreserve( long newlength, coast::typetraits::Int2Type<NSStringStream::eOut>) {
+	bool doreserve(long newlength, coast::typetraits::Int2Type<NSStringStream::eOut>) {
 		AdjustStringLength(IoDirType());
 		Assert((pptr() - pbase()) == fStore->Length());
-		long putoffset = 0; // remember offsets if we readjust the mmap/file
+		long putoffset = 0;	 // remember offsets if we readjust the mmap/file
 		long getoffset = 0;
 		Assert(start() == pbase());
-		if (pbase() != 0 ) {
+		if (pbase() != 0) {
 			if (pptr() > pbase()) {
-				putoffset = pptr() - pbase();    // remember where we have been
+				putoffset = pptr() - pbase();  // remember where we have been
 			}
 			if (gptr() > eback()) {
 				getoffset = gptr() - eback();
 			}
 		}
-		fStore->Reserve(newlength - fStore->Capacity() + 1); // allow 1 more for '\0'
+		fStore->Reserve(newlength - fStore->Capacity() + 1);  // allow 1 more for '\0'
 		// optimization of enlargement is done by String class.
-		setbufpointers(getoffset, putoffset); // readjust, pointer might have changed
-		Assert((epptr() - pbase()) == fStore->Capacity() - 1); // allow 1 more for '\0'
+		setbufpointers(getoffset, putoffset);					// readjust, pointer might have changed
+		Assert((epptr() - pbase()) == fStore->Capacity() - 1);	// allow 1 more for '\0'
 		return true;
 	}
 
 	/*! auxiliary functions for interfacing to setp and setg, getting rid of
-		old streambuf style setb() and base() */
-	char *start() {
-		return (fStore && fStore->GetImpl() ? const_cast<char *>(fStore->GetContent()) : 0);
-	}
+	  old streambuf style setb() and base() */
+	char *start() { return (fStore && fStore->GetImpl() ? const_cast<char *>(fStore->GetContent()) : 0); }
 
 	char *endbuf() {
 		if (fStore && fStore->GetImpl()) {
@@ -372,60 +353,44 @@ private:
 
 //! adapts ios to a StringStream buffer --> THIS CLASS IS NOT TO BE INSTANTIATED
 //! may be unsafe_ios
-template
-<
-typename BufferType,
-		 typename IoDirType
-		 >
-class StringStreambase : virtual public std::ios
-{
+template <typename BufferType, typename IoDirType>
+class StringStreambase : virtual public std::ios {
 public:
 	typedef typename coast::typetraits::fooTypeTraits<BufferType>::ConstPlainTypeRef ConstPlainTypeRef;
 	typedef typename coast::typetraits::fooTypeTraits<BufferType>::PlainTypePtr PlainTypePtr;
 	typedef StringStreamBuf<BufferType, IoDirType> StreamBufType;
-	typedef StringStreamBuf<BufferType, IoDirType>* StreamBufTypePtr;
+	typedef StringStreamBuf<BufferType, IoDirType> *StreamBufTypePtr;
 	typedef typename StreamBufType::BufferTypeRef BufferTypeRef;
 
 public:
 	/*! default ctor, allocates new internal String object for output
-		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreambase(int mode = std::ios::out)
-		: fSSBuf(mode) {
+	  \param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
+	explicit StringStreambase(int mode = std::ios::out) : fSSBuf(mode) {
 		// init from ios is needed, because ios() won't do the job; (see comment in iostream.h)
 		init(&fSSBuf);
 	}
 
 	/*! ctor usually used for input
-		\param s contains characters to be read
-		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreambase(ConstPlainTypeRef s, int mode = std::ios::in)
-		: fSSBuf(s, mode) {
-		init(&fSSBuf);
-	}
+	  \param s contains characters to be read
+	  \param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
+	explicit StringStreambase(ConstPlainTypeRef s, int mode = std::ios::in) : fSSBuf(s, mode) { init(&fSSBuf); }
 
 	/*! ctor usually used for output
-		\param s target string to be filled,
-		\param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
-	StringStreambase(PlainTypePtr s, int mode = std::ios::out)
-		: fSSBuf(s, mode) {
-		init(&fSSBuf);
-	}
+	  \param s target string to be filled,
+	  \param mode ios modes, bitwise or of [in|out|app|ate]: if mode is std::ios::app or std::ios::ate output is appended */
+	explicit StringStreambase(PlainTypePtr s, int mode = std::ios::out) : fSSBuf(s, mode) { init(&fSSBuf); }
 
 	//! dtor not much to do
 	virtual ~StringStreambase() {}
 
 	/*! reveal underlying streambuf implementation
-		\return underlying streambuf */
-	StreamBufTypePtr rdbuf()  {
-		return &fSSBuf;
-	}
+	  \return underlying streambuf */
+	StreamBufTypePtr rdbuf() { return &fSSBuf; }
 
 	/*! reveal underlying string.
-		\return underlying string buffer
-		\note do not change it when continuing using the stream */
-	BufferTypeRef str() {
-		return fSSBuf.str();
-	}
+	  \return underlying string buffer
+	  \note do not change it when continuing using the stream */
+	BufferTypeRef str() { return fSSBuf.str(); }
 
 protected:
 	//! the buffer with its underlying String

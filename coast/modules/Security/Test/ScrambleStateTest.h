@@ -9,14 +9,12 @@
 #ifndef _ScrambleStateTest_H
 #define _ScrambleStateTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
+#include "TestCase.h"
 
-class ScrambleStateTest: public testframework::TestCase {
+class ScrambleStateTest : public testframework::TestCase {
 public:
-	ScrambleStateTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	ScrambleStateTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 
 	void setUp();

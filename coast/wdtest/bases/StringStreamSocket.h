@@ -13,17 +13,16 @@
 #include "StringStream.h"
 
 //---- StringStreamSocket ----------------------------------------------------------
-//!utility lightweight mock up socket for writing test cases easily
-class StringStreamSocket : public Socket
-{
+//! utility lightweight mock up socket for writing test cases easily
+class StringStreamSocket : public Socket {
 public:
 	//--- constructors
-	//!param: str - supplies the data for reading and collects from writing
+	//! param: str - supplies the data for reading and collects from writing
 	StringStreamSocket(String &str);
 
 protected:
 	bool IsReady(bool forreading);
-	//deprecated:
+	// deprecated:
 	bool IsReady(long fd, short event, long timeout, long &retCode);
 };
 

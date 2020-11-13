@@ -12,13 +12,11 @@
 #include "FoundationTestTypes.h"
 
 //---- HTTPMimeHeaderMapperTest ----------------------------------------------------------
-class HTTPMimeHeaderMapperTest: public testframework::TestCaseWithConfig {
+class HTTPMimeHeaderMapperTest : public testframework::TestCaseWithConfig {
 public:
 	//! ConfiguredTestCase constructor
 	//! \param name name of the test
-	HTTPMimeHeaderMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	HTTPMimeHeaderMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//! builds up a suite of tests
 	static Test *suite();

@@ -7,10 +7,11 @@
  */
 
 #include "AnyUtilsTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
+
 #include "AnyUtils.h"
+#include "FoundationTestTypes.h"
 #include "SystemLog.h"
+#include "TestSuite.h"
 
 using namespace coast;
 
@@ -24,9 +25,9 @@ void AnyUtilsTest::CompareTest() {
 		eMsg << myFilename << ".any";
 		SYSERROR(eMsg);
 		return;
-	} else {
-		testConfig2.Import(*ifp);
 	}
+	testConfig2.Import(*ifp);
+
 	// close file
 	delete ifp;
 
@@ -67,7 +68,8 @@ void AnyUtilsTest::printMixedXmlTest() {
 	mixed.Append("anonymous");
 	mixed["number"] = 5L;
 	mixed["end"] = "finish";
-	t_assert(DoXMLTest("<any:seq><foo>bar</foo><any:elt>anonymous</any:elt><number>5</number><end>finish</end></any:seq>", mixed));
+	t_assert(
+		DoXMLTest("<any:seq><foo>bar</foo><any:elt>anonymous</any:elt><number>5</number><end>finish</end></any:seq>", mixed));
 }
 
 void AnyUtilsTest::DoCheck(Anything testCases, bool expectedResult, String description) {
@@ -82,8 +84,8 @@ void AnyUtilsTest::DoCheck(Anything testCases, bool expectedResult, String descr
 		msg << "." << testCases.SlotName(i) << "\n";
 		OStringStream resultStream;
 		bool res = AnyUtils::AnyCompareEqual(testee["In"], testee["Master"], testCases.SlotName(i), &resultStream,
-				testee["Delim"].AsCharPtr(".")[0L], testee["IndexDelim"].AsCharPtr(":")[0L]);
-		assertEqualm( expectedResult, res, (const char *)(msg << resultStream.str()) );
+											 testee["Delim"].AsCharPtr(".")[0L], testee["IndexDelim"].AsCharPtr(":")[0L]);
+		assertEqualm(expectedResult, res, (const char *)(msg << resultStream.str()));
 	}
 }
 
@@ -97,9 +99,9 @@ void AnyUtilsTest::MergeTest() {
 		eMsg << myFilename << ".any";
 		SYSERROR(eMsg);
 		return;
-	} else {
-		testConfig.Import(*ifp);
 	}
+	testConfig.Import(*ifp);
+
 	// close file
 	delete ifp;
 
@@ -107,10 +109,10 @@ void AnyUtilsTest::MergeTest() {
 		Trace("Executing " << testConfig.SlotName(i));
 		ROAnything testee = testConfig[i];
 		Anything anyMaster = testee["Master"].DeepClone();
-		AnyUtils::AnyMerge(anyMaster, testee["ToMerge"], testee["OverwriteSlots"].AsBool(0L), testee["Delim"].AsCharPtr(".")[0L],
-				testee["IndexDelim"].AsCharPtr(":")[0L]);
+		AnyUtils::AnyMerge(anyMaster, testee["ToMerge"], testee["OverwriteSlots"].AsBool(false),
+						   testee["Delim"].AsCharPtr(".")[0L], testee["IndexDelim"].AsCharPtr(":")[0L]);
 		assertAnyCompareEqual(testee["Expected"], anyMaster, testConfig.SlotName(i), testee["Delim"].AsCharPtr(".")[0L],
-				testee["IndexDelim"].AsCharPtr(":")[0L]);
+							  testee["IndexDelim"].AsCharPtr(":")[0L]);
 	}
 }
 

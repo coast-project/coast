@@ -14,35 +14,30 @@ class Context;
 class Anything;
 class ROAnything;
 
-typedef String (*funcPtr)( String );
+typedef String (*funcPtr)(String);
 
 //---- HttpFlowController -----------------------------------------------------------
 
-class HttpFlowController : public FlowController
-{
+class HttpFlowController : public FlowController {
 public:
 	HttpFlowController(const char *HttpFlowControllerName);
 
-	//!Input data for the DataAccess are placed into the context.
+	//! Input data for the DataAccess are placed into the context.
 	//! \param ctx Context of the stress run
 	//! \return true if a DataAccess is to be executed - false if the series is finished
 	virtual bool PrepareRequest(Context &ctx);
 	virtual bool PrepareRequest(Context &ctx, bool &bPrepareRequestSucceeded);
-	virtual bool AnalyseReply(Context &ctx, Anything &result) {
-		return FlowController::AnalyseReply(ctx, result);
-	};
+	virtual bool AnalyseReply(Context &ctx, Anything &result) { return FlowController::AnalyseReply(ctx, result); };
 	virtual bool AnalyseReply(Context &ctx);
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) HttpFlowController(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) HttpFlowController(fName); }
 
 protected:
 	virtual void DoCommand(Context &ctx, ROAnything commandConfig);
 
 private:
-	//!Finds a slot in the array of links or forms given by information in the config slot of the current FlowController step
+	//! Finds a slot in the array of links or forms given by information in the config slot of the current FlowController step
 	//! \param aTag "Link" or "Form" as String to drive this method
 	//! \param aSlotName slot to be retrieved from the found html link or form array member
 	//! \param aTag ctx, how to get to all information
@@ -54,7 +49,7 @@ private:
 	//! calls e.g. ..("Form", "action", ctx, anyResult )
 	//! calls e.g. ..("Frame", "src", ctx, anyResult )
 	//! was static - why (?)
-	bool GetFormOrLinkInfo( const String &aTag, const String &aSlotName, Context &ctx, Anything &aResult );
+	bool GetFormOrLinkInfo(const String &aTag, const String &aSlotName, Context &ctx, Anything &aResult);
 
 	// block the following default elements of this class
 	// because they're not allowed to be used
@@ -67,20 +62,21 @@ private:
 	bool DoLocationRelocate(Context &ctx);
 	void ProcessSetCookie(Context &ctx);
 	void DoProcessSetCookie(String &cookieInfo, Context &ctx);
-	bool DoProcessToken( Context &ctx, bool &boJump );
+	bool DoProcessToken(Context &ctx, bool &boJump);
 	bool DoProcessLinksFormsAndFrames(Context &ctx);
-	void CheckFuzzyMatch(Anything &containerToCheck, String &strToLookFor );
-	void HandleTheError(String &theMsg, Anything &tmpStore );
-	bool ResolveLabels(Anything &jmpTable, const ROAnything &runConfig, Anything &tmpStore );
+	void CheckFuzzyMatch(Anything &containerToCheck, String &strToLookFor);
+	void HandleTheError(String &theMsg, Anything &tmpStore);
+	bool ResolveLabels(Anything &jmpTable, const ROAnything &runConfig, Anything &tmpStore);
 	long FindJumpNr(String &jmpLabel);
-	long ResolveJumpNameToNr(String &jumpName, Anything &tmpStore );
-	void CheckDoJump(long jumpNr, Anything &tmpStore );
-	void GenerateMultipartContent( String &fieldName, ROAnything fieldConfig, ROAnything boundary, String &multipartContents, Context &ctx );
+	long ResolveJumpNameToNr(String &jumpName, Anything &tmpStore);
+	void CheckDoJump(long jumpNr, Anything &tmpStore);
+	void GenerateMultipartContent(String &fieldName, ROAnything fieldConfig, ROAnything boundary, String &multipartContents,
+								  Context &ctx);
 	void DoCleanupAfterStep(Context &ctx, ROAnything roaStepConfig);
 	// scheduling
-	bool GenericScheduling( Anything &tmpStore, Anything &scheduling, String &currentTimeDate, funcPtr conversionFunction   );
-	bool SingleScheduling( Context &ctx );
-	bool PeriodicalScheduling( Context &ctx );
+	bool GenericScheduling(Anything &tmpStore, Anything &scheduling, String &currentTimeDate, funcPtr conversionFunction);
+	bool SingleScheduling(Context &ctx);
+	bool PeriodicalScheduling(Context &ctx);
 	void SetupSSLCtx(Anything &sslModuleCfg, Context &ctx);
 	void PrepareConnector(Context &ctx);
 
@@ -92,4 +88,3 @@ private:
 };
 
 #endif
-

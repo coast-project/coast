@@ -7,13 +7,14 @@
  */
 
 #include "HierarchyInstallerWithConfig.h"
+
 #include "Tracer.h"
 
-void HierarchyInstallerWithConfig::DoInitializeLeaf(const char *leafName, HierarchConfNamed *& leaf) {
+void HierarchyInstallerWithConfig::DoInitializeLeaf(const char *leafName, HierarchConfNamed *&leaf) {
 	StartTrace1(HierarchyInstallerWithConfig.DoInitializeLeaf, "current leaf [" << leafName << "]");
 	ROAnything roaObjectConfig;
 	SubTraceAny(TraceFullConfig, fObjectConfig, "installer config");
-	if ( fObjectConfig.LookupPath(roaObjectConfig, leafName, fSlotDelim, fIdxDelim) ) {
+	if (fObjectConfig.LookupPath(roaObjectConfig, leafName, fSlotDelim, fIdxDelim)) {
 		TraceAny(roaObjectConfig, "setting config for object [" << leafName << "]");
 		leaf->SetConfig(GetCategory(), leafName, roaObjectConfig);
 	}

@@ -12,8 +12,7 @@
 #include "StringStream.h"
 
 //! Helper class to handle chunked and gzip encoding of http bodys.
-class HTTPStreamStack
-{
+class HTTPStreamStack {
 public:
 	//! Creates a stack of ostreams to stream out an http body.
 	//! The additional header fields followed by the header separator are rendered to the output stream.

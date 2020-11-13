@@ -12,13 +12,12 @@
 #include "SocketStream.h"
 
 //---- EBCDICSocketStreamBuf ---------------------------------------------
-//!Translates data to and from EBCDIC
+//! Translates data to and from EBCDIC
 //! data received is converted from EBCDIC to ASCII,
 //! data sent is converted from ASCII to EBCDIC
 //! Caution: *ALL* data is converted. Do *NOT* send binary data accross
 //! an EBCDICSocketStreamBuf (or characters that cannot be translated)
-class EBCDICSocketStreamBuf : public SocketStreamBuf
-{
+class EBCDICSocketStreamBuf : public SocketStreamBuf {
 public:
 	EBCDICSocketStreamBuf(Socket *socket, long timeout = 300 * 1000, long sockbufsz = cSocketStreamBufferSize);
 
@@ -29,7 +28,7 @@ protected:
 	//! \pre buf is not 0
 	virtual long DoWrite(const char *buf, long len);
 
-	//!translate buf from EBCDIC to ASCII after reading from the socket
+	//! translate buf from EBCDIC to ASCII after reading from the socket
 	//! \param buf the buffer to write
 	//! \param len the maximum length of the buffer
 	//! \pre buf is not 0
@@ -39,6 +38,6 @@ private:
 	// don't use these
 	EBCDICSocketStreamBuf();
 	EBCDICSocketStreamBuf(const EBCDICSocketStreamBuf &ssbuf);
-}; // EBCDICSocketStreamBuf
+};	// EBCDICSocketStreamBuf
 
 #endif

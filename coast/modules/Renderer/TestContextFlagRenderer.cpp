@@ -7,23 +7,23 @@
  */
 
 #include "TestContextFlagRenderer.h"
+
 #include "Tracer.h"
 
 //---- TestContextFlagRenderer ---------------------------------------------------------------
 RegisterRenderer(TestContextFlagRenderer);
 
-TestContextFlagRenderer::TestContextFlagRenderer(const char *name) : Renderer(name) { }
+TestContextFlagRenderer::TestContextFlagRenderer(const char *name) : Renderer(name) {}
 
-TestContextFlagRenderer::~TestContextFlagRenderer() { }
+TestContextFlagRenderer::~TestContextFlagRenderer() {}
 
-void TestContextFlagRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void TestContextFlagRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(TestContextFlagRenderer.RenderAll);
 
 	String flagName;
 	Renderer::RenderOnString(flagName, ctx, config["FlagName"]);
 
-	if (ctx.Lookup(flagName, 0L)) {
+	if (ctx.Lookup(flagName, 0L) != 0) {
 		Renderer::Render(reply, ctx, config["WhenSet"]);
 	} else {
 		Renderer::Render(reply, ctx, config["WhenNotSet"]);

@@ -7,33 +7,32 @@
  */
 
 #include "TestLocation.h"
+
 #include "Test.h"
 
 // Returns a short description of the failure.
-TString TestLocation::toString ()
-{
+TString TestLocation::toString() {
 	return fMessage;
 }
 
-TestLocation::TestLocation (Test *aTest, TString &cause, TString &fileName,
-							long lineNumber, TString &message)
+TestLocation::TestLocation(Test *aTest, TString &cause, TString &fileName, long lineNumber, TString &message)
 // in: aTest: the test in question
 //	   cause: the assertion text of the test
 //	fileName: the filename of the file where the assertion is written
-//lineNumber: the line number of the assertion
+// lineNumber: the line number of the assertion
 //   message:
 
 {
 	fMessage << cause;
 	if (message.Length() > 0) {
 		fMessage << "; " << message;
-	} // if
+	}  // if
 	fFileName << fileName;
 	fTestName << aTest->toString();
 	fLineNumber = lineNumber;
 }
 
-//TestLocation  TestLocation::operator = (TestLocation aValue)
+// TestLocation  TestLocation::operator = (TestLocation aValue)
 //{
 //	fMessage	= aValue.fMessage;
 //	fLineNumber	= aValue.fLineNumber;

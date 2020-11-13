@@ -7,15 +7,16 @@
  */
 
 #include "RegExpFilterFieldsParameterMapperTest.h"
+
+#include "AnyUtils.h"
+#include "Context.h"
+#include "HierarchyInstallerWithConfig.h"
 #include "RegExpFilterFieldsParameterMapper.h"
 #include "TestSuite.h"
-#include "HierarchyInstallerWithConfig.h"
-#include "Context.h"
-#include "AnyUtils.h"
 
 namespace {
-    const char *_Value = "Value";
-    const char *_Stream = "Stream";
+	const char *_Value = "Value";
+	const char *_Stream = "Stream";
 	bool setupMappers(ROAnything roaMapperConfigs) {
 		StartTrace(RegExpFilterFieldsParameterMapperTest.setupMappers);
 		Anything mappersToInitialize;
@@ -42,7 +43,7 @@ namespace {
 		coast::testframework::PutInStore(caseConfig["Query"], ctx.GetQuery());
 		coast::testframework::PutInStore(caseConfig["Env"], ctx.GetEnvStore());
 	}
-}
+}  // namespace
 
 void RegExpFilterFieldsParameterMapperTest::ConfiguredTests() {
 	StartTrace(RegExpFilterFieldsParameterMapperTest.ConfiguredTests);
@@ -72,7 +73,12 @@ void RegExpFilterFieldsParameterMapperTest::ConfiguredTests() {
 					t_assertm(rm->Get(getKeyName, stream, ctx), caseName);
 					assertEquals(roaValue.AsString().cstr(), strValue.cstr());
 				} else {
-					t_assertm(false, TString("neither ").Append(_Value).Append(" nor ").Append(_Stream).Append(" is defined in configuration for ").Append(caseName));
+					t_assertm(false, TString("neither ")
+										 .Append(_Value)
+										 .Append(" nor ")
+										 .Append(_Stream)
+										 .Append(" is defined in configuration for ")
+										 .Append(caseName));
 					continue;
 				}
 			}

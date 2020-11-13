@@ -64,14 +64,15 @@ prepare environment:
     BUILD_TESTOPT: "--usetool=TestfwTransformer"
     BUILD_EXCLUDE_CACHEDIR: "--exclude=$BUILD_OUTPUT_32 --exclude=$BUILD_OUTPUT_64"
 #    BUILD_COMPILERS: "--with-cc= --with-cxx="
+    BUILD_COMPILER_STD: "--use-lang-features=gnu++98"
     BUILD_COMPILER_WARN: "--warnlevel=medium"
     BUILD_TARGETS: "--exclude=testfw/dummytest tests"
-    BUILD_JOBS: "--jobs=$$(nproc)"
+    BUILD_JOBS: "--jobs=$${BUILD_JOBS_NUM:-10}"
     BUILD_SCONS_CONFIG: "--config=force"
     BUILD_IGNORE_MISSING: "--ignore-missing"
     BUILD_RUNOPT: ""
     BUILD_RUNOPTARGS: ""
-    BUILD_COMMANDLINE: "scons -u $$BUILD_OUTPUT_OPT $$BUILD_EXCLUDE_CACHEDIR $$BUILD_ARCHBITS $$BUILD_CFG $$BUILD_WITH_TRACE $$BUILD_COMPILERS $$BUILD_TESTOPT $$BUILD_JOBS $$BUILD_SCONS_CONFIG $$BUILD_IGNORE_MISSING $$BUILD_RUNOPT $$BUILD_RUNOPTARGS $$BUILD_TARGETS"
+    BUILD_COMMANDLINE: "scons -u $$BUILD_OUTPUT_OPT $$BUILD_EXCLUDE_CACHEDIR $$BUILD_ARCHBITS $$BUILD_CFG $$BUILD_WITH_TRACE $$BUILD_COMPILERS $$BUILD_COMPILER_STD $$BUILD_COMPILER_WARN $$BUILD_TESTOPT $$BUILD_JOBS $$BUILD_SCONS_CONFIG $$BUILD_IGNORE_MISSING $$BUILD_RUNOPT $$BUILD_RUNOPTARGS $$BUILD_TARGETS"
 
 compile failure test:
   extends: .build_template
@@ -83,7 +84,7 @@ compile failure test:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
 
-compile:32:opt:
+compile:gnu++98:32:opt:
   extends: .build_template
   variables:
     BUILD_CFG: "--build-cfg=optimized"
@@ -96,7 +97,7 @@ compile:32:opt:
     paths:
     - '${BUILD_OUTPUT_32}'
 
-compile:32:opt:trc:
+compile:gnu++98:32:opt:trc:
   extends: .build_template
   variables:
     BUILD_CFG: "--build-cfg=optimized"
@@ -109,7 +110,7 @@ compile:32:opt:trc:
     paths:
     - '${BUILD_OUTPUT_32}'
 
-compile:32:dbg:trc:
+compile:gnu++98:32:dbg:trc:
   extends: .build_template
   variables:
     BUILD_CFG: "--build-cfg=debug"
@@ -122,7 +123,7 @@ compile:32:dbg:trc:
     paths:
     - '${BUILD_OUTPUT_32}'
 
-compile:64:opt:
+compile:gnu++98:64:opt:
   extends: .build_template
   variables:
     BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
@@ -137,7 +138,7 @@ compile:64:opt:
     paths:
     - '${BUILD_OUTPUT_64}'
 
-compile:64:opt:trc:
+compile:gnu++98:64:opt:trc:
   extends: .build_template
   variables:
     BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
@@ -152,13 +153,103 @@ compile:64:opt:trc:
     paths:
     - '${BUILD_OUTPUT_64}'
 
-compile:64:dbg:trc:
+compile:gnu++98:64:dbg:trc:
   extends: .build_template
   variables:
     BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
     BUILD_ARCHBITS: "--archbits=64"
     BUILD_CFG: "--build-cfg=debug"
     BUILD_WITH_TRACE: "--tracemode=1"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_64}'
+
+compile:c++11:32:opt:
+  extends: .build_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_32}'
+
+compile:c++11:32:opt:trc:
+  extends: .build_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_32}'
+
+compile:c++11:32:dbg:trc:
+  extends: .build_template
+  variables:
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_32}'
+
+compile:c++11:64:opt:
+  extends: .build_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_64}'
+
+compile:c++11:64:opt:trc:
+  extends: .build_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  artifacts:
+    expire_in: 2 hours
+    paths:
+    - '${BUILD_OUTPUT_64}'
+
+compile:c++11:64:dbg:trc:
+  extends: .build_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
   script:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
@@ -174,9 +265,9 @@ compile:64:dbg:trc:
     BUILD_JOBS: "--jobs=1"
     BUILD_TARGETS: "--exclude=testfw/dummytest tests"
     BUILD_RUNOPT: "--run-force"
-    BUILD_RUNOPTARGS: "--runparams=\"-d -d -- -all\""
+    BUILD_RUNOPTARGS: '--runparams="-d -d -- -all"'
 
-test:32:opt:
+test:gnu++98:32:opt:
   extends: .test_template
   variables:
     BUILD_CFG: "--build-cfg=optimized"
@@ -186,8 +277,8 @@ test:32:opt:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
   dependencies:
-  - compile:32:opt
-  needs: ["compile:32:opt"]
+  - compile:gnu++98:32:opt
+  needs: ['compile:gnu++98:32:opt']
   artifacts:
     expire_in: 1 week
     when: always
@@ -197,7 +288,7 @@ test:32:opt:
     reports:
       junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
 
-test:32:opt:trc:
+test:gnu++98:32:opt:trc:
   extends: .test_template
   variables:
     BUILD_CFG: "--build-cfg=optimized"
@@ -207,8 +298,8 @@ test:32:opt:trc:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
   dependencies:
-  - compile:32:opt:trc
-  needs: ["compile:32:opt:trc"]
+  - compile:gnu++98:32:opt:trc
+  needs: ['compile:gnu++98:32:opt:trc']
   artifacts:
     expire_in: 1 week
     when: always
@@ -218,7 +309,7 @@ test:32:opt:trc:
     reports:
       junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
 
-test:32:dbg:trc:
+test:gnu++98:32:dbg:trc:
   extends: .test_template
   variables:
     BUILD_CFG: "--build-cfg=debug"
@@ -228,8 +319,8 @@ test:32:dbg:trc:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
   dependencies:
-  - compile:32:dbg:trc
-  needs: ["compile:32:dbg:trc"]
+  - compile:gnu++98:32:dbg:trc
+  needs: ['compile:gnu++98:32:dbg:trc']
   artifacts:
     expire_in: 1 week
     when: always
@@ -239,7 +330,7 @@ test:32:dbg:trc:
     reports:
       junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
 
-test:64:opt:
+test:gnu++98:64:opt:
   extends: .test_template
   variables:
     BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
@@ -251,8 +342,8 @@ test:64:opt:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
   dependencies:
-  - compile:64:opt
-  needs: ["compile:64:opt"]
+  - compile:gnu++98:64:opt
+  needs: ['compile:gnu++98:64:opt']
   artifacts:
     expire_in: 1 week
     when: always
@@ -262,7 +353,7 @@ test:64:opt:
     reports:
       junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
 
-test:64:opt:trc:
+test:gnu++98:64:opt:trc:
   extends: .test_template
   variables:
     BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
@@ -274,8 +365,8 @@ test:64:opt:trc:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
   dependencies:
-  - compile:64:opt:trc
-  needs: ["compile:64:opt:trc"]
+  - compile:gnu++98:64:opt:trc
+  needs: ['compile:gnu++98:64:opt:trc']
   artifacts:
     expire_in: 1 week
     when: always
@@ -285,7 +376,7 @@ test:64:opt:trc:
     reports:
       junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
 
-test:64:dbg:trc:
+test:gnu++98:64:dbg:trc:
   extends: .test_template
   variables:
     BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
@@ -297,8 +388,146 @@ test:64:dbg:trc:
   - echo $(eval echo $BUILD_COMMANDLINE)
   - eval $(eval echo $BUILD_COMMANDLINE)
   dependencies:
-  - compile:64:dbg:trc
-  needs: ["compile:64:dbg:trc"]
+  - compile:gnu++98:64:dbg:trc
+  needs: ['compile:gnu++98:64:dbg:trc']
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+
+test:c++11:32:opt:
+  extends: .test_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_32}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_32}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:c++11:32:opt
+  needs: ['compile:c++11:32:opt']
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+
+test:c++11:32:opt:trc:
+  extends: .test_template
+  variables:
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_32}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_32}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:c++11:32:opt:trc
+  needs: ['compile:c++11:32:opt:trc']
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+
+test:c++11:32:dbg:trc:
+  extends: .test_template
+  variables:
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_32}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_32}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:c++11:32:dbg:trc
+  needs: ['compile:c++11:32:dbg:trc']
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_32}/tests/*/log/*/*.test.xml'
+
+test:c++11:64:opt:
+  extends: .test_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=0"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_64}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_64}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:c++11:64:opt
+  needs: ['compile:c++11:64:opt']
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+
+test:c++11:64:opt:trc:
+  extends: .test_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=optimized"
+    BUILD_WITH_TRACE: "--tracemode=1"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_64}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_64}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:c++11:64:opt:trc
+  needs: ['compile:c++11:64:opt:trc']
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.log'
+    - '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+    reports:
+      junit: '${BUILD_OUTPUT_64}/tests/*/log/*/*.test.xml'
+
+test:c++11:64:dbg:trc:
+  extends: .test_template
+  variables:
+    BUILD_OUTPUT_OPT: "--baseoutdir=${BUILD_OUTPUT_64}"
+    BUILD_ARCHBITS: "--archbits=64"
+    BUILD_CFG: "--build-cfg=debug"
+    BUILD_WITH_TRACE: "--tracemode=1"
+    BUILD_COMPILER_STD: "--use-lang-features=c++11"
+  script:
+  - echo "cleaning ${BUILD_OUTPUT_64}/tests/ prior to run..." && rm -rf ${BUILD_OUTPUT_64}/tests/
+  - echo $(eval echo $BUILD_COMMANDLINE)
+  - eval $(eval echo $BUILD_COMMANDLINE)
+  dependencies:
+  - compile:c++11:64:dbg:trc
+  needs: ['compile:c++11:64:dbg:trc']
   artifacts:
     expire_in: 1 week
     when: always

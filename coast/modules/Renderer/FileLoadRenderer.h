@@ -17,14 +17,13 @@
 \par Configuration
 \code
 {
-	/File2Load	Rendererspec	mandatory, name of the file 2 load
-	/Quiet		Rendererspec    defaults to "no" -> error message is rendered on stream
+  /File2Load	Rendererspec	mandatory, name of the file 2 load
+  /Quiet		Rendererspec    defaults to "no" -> error message is rendered on stream
 }
 \endcode
 
 */
-class FileLoadRenderer : public Renderer
-{
+class FileLoadRenderer : public Renderer {
 public:
 	//--- constructors
 	FileLoadRenderer(const char *name);

@@ -13,16 +13,13 @@
 
 class String;
 
-class UniqueIdGenTest : public testframework::TestCase
-{
+class UniqueIdGenTest : public testframework::TestCase {
 public:
 	/*! \param tstrName name of the test */
-	UniqueIdGenTest(TString tstrName) :
-			TestCaseType(tstrName) {
-	}
+	UniqueIdGenTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//! describe this testcase
 	void GetUniqueIdTest();

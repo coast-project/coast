@@ -15,13 +15,12 @@
 
 #include "TestCase.h"
 
-class MmapTest : public testframework::TestCase
-{
+class MmapTest : public testframework::TestCase {
 public:
 	MmapTest(TString tstrName);
 	virtual ~MmapTest();
 
-	static Test *suite ();
+	static Test *suite();
 
 	void LargeWrite();
 	void SimpleWrite();

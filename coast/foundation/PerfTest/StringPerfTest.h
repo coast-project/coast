@@ -10,13 +10,12 @@
 #define _StringPerfTest_H
 
 #include "FoundationTestTypes.h"
-class StringPerfTest: public testframework::TestCaseWithStatistics {
+class StringPerfTest : public testframework::TestCaseWithStatistics {
 public:
-	StringPerfTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	StringPerfTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void referenceTest();
+
 protected:
 	void RunLoop(const char *str, const long iterations);
 	void RunPreallocLoop(const char *str, const long iterations);

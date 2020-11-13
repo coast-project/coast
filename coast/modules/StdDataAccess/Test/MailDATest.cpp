@@ -7,29 +7,24 @@
  */
 
 #include "MailDATest.h"
+
 #include "TestSuite.h"
 
-
 //---- MailDATest ----------------------------------------------------------------
-MailDATest::MailDATest(TString tname)
-	: ConfiguredActionTest(tname)
-{
+MailDATest::MailDATest(TString tname) : ConfiguredActionTest(tname) {
 	StartTrace(MailDATest.MailDATest);
 }
 
-TString MailDATest::getConfigFileName()
-{
+TString MailDATest::getConfigFileName() {
 	return "MailDATestConfig";
 }
 
-MailDATest::~MailDATest()
-{
+MailDATest::~MailDATest() {
 	StartTrace(MailDATest.Dtor);
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *MailDATest::suite ()
-{
+Test *MailDATest::suite() {
 	StartTrace(MailDATest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, MailDATest, TestCases);

@@ -11,15 +11,11 @@
 
 #include "FoundationTestTypes.h"
 
-class AnythingUtilsTest: public testframework::TestCaseWithConfig {
+class AnythingUtilsTest : public testframework::TestCaseWithConfig {
 public:
-	AnythingUtilsTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	AnythingUtilsTest(TString tname) : TestCaseType(tname) {}
 
-	TString getConfigFileName() {
-		return "AnythingUtilsTestConfig";
-	}
+	TString getConfigFileName() { return "AnythingUtilsTestConfig"; }
 
 	virtual void setUp();
 

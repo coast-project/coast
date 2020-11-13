@@ -14,30 +14,31 @@
 //---- TransitionDispatchAction ----------------------------------------------------------
 //! Lookups the transitionToken in context and executes the configuration as actionscript
 /*! @section TransitionDispatchActionDescription Description
- * This Action is useful if anyone wants to dispatch an action(script) based on the value of the transitionToken returned from a previously called Action(script).
+ * This Action is useful if anyone wants to dispatch an action(script) based on the value of the transitionToken returned from a
+previously called Action(script).
  * @subsection TransitionDispatchActionConfiguration Configuration
  * There is nothing to configure for this Action.
  * @subsection TransitionDispatchActionExamples Examples
- * In the following example, the action specification given in slot \b AuthenticateSuccess gets executed as it is assumed to be the result of the LoginAction.
+ * In the following example, the action specification given in slot \b AuthenticateSuccess gets executed as it is assumed to be
+the result of the LoginAction.
 @code
 /SomeActionScript {
-	/LoginAction {
-		/...
-	}
-	# assume that LoginAction changed transitionToken to AuthenticateSuccess
-	/TransitionDispatchAction *
+  /LoginAction {
+	/...
+  }
+  # assume that LoginAction changed transitionToken to AuthenticateSuccess
+  /TransitionDispatchAction *
 }
 /AuthenticateSuccess {
-	/NextActionToExecute {}
-	/AndSoOn ...
+  /NextActionToExecute {}
+  /AndSoOn ...
 }
 /AuthenticateFailed {
-	/WhateverWeMustDoHere {}
+  /WhateverWeMustDoHere {}
 }
 @endcode
 */
-class TransitionDispatchAction : public Action
-{
+class TransitionDispatchAction : public Action {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	TransitionDispatchAction(const char *name) : Action(name) {}

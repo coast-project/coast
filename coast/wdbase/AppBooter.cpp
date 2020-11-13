@@ -7,13 +7,15 @@
  */
 
 #include "AppBooter.h"
+
+#include "Application.h"
+#include "Registry.h"
 #include "StringStream.h"
 #include "SystemFile.h"
 #include "SystemLog.h"
-#include "Application.h"
-#include "Registry.h"
-#include "WDModule.h"
+#include "Tracer.h"
 #include "URLUtils.h"
+#include "WDModule.h"
 
 using namespace coast;
 
@@ -24,8 +26,7 @@ using namespace coast;
 #include <dlfcn.h>
 #endif
 
-class DynLibLoader
-{
+class DynLibLoader {
 public:
 	DynLibLoader(const char *name);
 	virtual ~DynLibLoader();
@@ -41,10 +42,9 @@ protected:
 
 #if defined(WIN32)
 
-#define Sys(className)		_NAME2_(Win32,className)
+#define Sys(className) _NAME2_(Win32, className)
 
-class Win32DynLibLoader: public DynLibLoader
-{
+class Win32DynLibLoader : public DynLibLoader {
 public:
 	Win32DynLibLoader(const char *name);
 	Win32DynLibLoader(const char *name, long handle);
@@ -56,14 +56,13 @@ public:
 	virtual String DLError();
 
 protected:
-	HINSTANCE	fHandle;
+	HINSTANCE fHandle;
 };
 
 #else
-#define Sys(className)		_NAME2_(Unix,className)
+#define Sys(className) _NAME2_(Unix, className)
 
-class UnixDynLibLoader: public DynLibLoader
-{
+class UnixDynLibLoader : public DynLibLoader {
 public:
 	UnixDynLibLoader(const char *name);
 	UnixDynLibLoader(const char *name, long handle);
@@ -80,11 +79,10 @@ protected:
 
 #endif
 
-AppBooter::AppBooter()	{ }
-AppBooter::~AppBooter()	{ }
+AppBooter::AppBooter() {}
+AppBooter::~AppBooter() {}
 
-void AppBooter::HandleArgs(int argc, const char *argv[], Anything &args )
-{
+void AppBooter::HandleArgs(int argc, const char *argv[], Anything &args) {
 	StartTrace(AppBooter.HandleArgs);
 	for (long i = 0; i < argc; ++i) {
 		coast::urlutils::Pair(argv[i], '=', args);
@@ -92,8 +90,7 @@ void AppBooter::HandleArgs(int argc, const char *argv[], Anything &args )
 	TraceAny(args, "passed arguments");
 }
 
-void AppBooter::SetSignalMask()
-{
+void AppBooter::SetSignalMask() {
 	StartTrace(AppBooter.SetSignalMask);
 #if !defined(WIN32)
 	// Block all signals for this and all subsequently created threads
@@ -105,18 +102,17 @@ void AppBooter::SetSignalMask()
 #endif
 }
 
-int AppBooter::Run(int argc, const char *argv[], bool doHalt)
-{
+int AppBooter::Run(int argc, const char *argv[], bool doHalt) {
 	StartTrace(AppBooter.Run);
 	// this is the main routine for the Application
 	// framework. It shouldn't be necessary for clients
 	// to patch that code
-	long retVal(-1);	// the return value of this process
-	Anything config;	// the global configuration anything
+	long retVal(-1);  // the return value of this process
+	Anything config;  // the global configuration anything
 
 	// Boot resets config so HandleArgs here
-	HandleArgs(argc, argv, config ); // evaluate commandline arguments
-	if (Boot(config)) {	// proceed only if you can load the config file
+	HandleArgs(argc, argv, config);	 // evaluate commandline arguments
+	if (Boot(config)) {				 // proceed only if you can load the config file
 		// load the application instance by name
 		// configured in the global config file
 		String applicationName;
@@ -125,11 +121,11 @@ int AppBooter::Run(int argc, const char *argv[], bool doHalt)
 		Application *application = FindApplication(config, applicationName);
 		Trace("Using application<" << applicationName << ">");
 
-		if (application) {
+		if (application != 0) {
 			// initialization sequence
 			// let the application initialize the ressources
 			// necessary for its operation
-			if ( (retVal = application->GlobalInit(argc, argv, config)) == 0 ) {
+			if ((retVal = application->GlobalInit(argc, argv, config)) == 0) {
 				// let the application do the main loop
 				retVal = application->GlobalRun();
 
@@ -162,20 +158,15 @@ int AppBooter::Run(int argc, const char *argv[], bool doHalt)
 	return retVal;
 }
 
-String AppBooter::PrepareBootFileLoading(const ROAnything &roconfig)
-{
+String AppBooter::PrepareBootFileLoading(const ROAnything &roconfig) {
 	StartTrace(AppBooter.PrepareBootFileLoading);
 
-	system::InitPath(
-		roconfig["COAST_ROOT"].AsCharPtr(0),
-		roconfig["COAST_PATH"].AsCharPtr(0)
-	);
+	system::InitPath(roconfig["COAST_ROOT"].AsCharPtr(0), roconfig["COAST_PATH"].AsCharPtr(0));
 
 	return roconfig["COAST_BOOTFILE"].AsCharPtr("Config");
 }
 
-void AppBooter::MergeConfigWithArgs(Anything &config, const Anything &args)
-{
+void AppBooter::MergeConfigWithArgs(Anything &config, const Anything &args) {
 	StartTrace(AppBooter.MergeConfigWithArgs);
 	TraceAny(args, "args:");
 	SubTraceAny(TraceConfig, config, "config:");
@@ -183,7 +174,7 @@ void AppBooter::MergeConfigWithArgs(Anything &config, const Anything &args)
 	// fill in command line arguments into the applications configuration
 	for (long i = 0; i < args.GetSize(); ++i) {
 		String slot = args.SlotName(i);
-		if ( slot.Length() ) {
+		if (slot.Length() != 0) {
 			// store params at top level to allow overriding of Config.any settings
 			// skip programname at top level
 			if (i > 0) {
@@ -204,17 +195,17 @@ void AppBooter::MergeConfigWithArgs(Anything &config, const Anything &args)
 	SubTraceAny(TraceConfig, config, "resulting config:");
 }
 
-bool AppBooter::Boot(Anything &args) // access the intial config file
+bool AppBooter::Boot(Anything &args)  // access the intial config file
 {
 	StartTrace(AppBooter.Boot);
 
-	int numberOfCpus = 1;							// a reasonable assumption
+	int numberOfCpus = 1;  // a reasonable assumption
 #if defined(_SC_NPROCESSORS_ONLN)
 	// POSIX call
 	if ((numberOfCpus = sysconf(_SC_NPROCESSORS_ONLN)) != -1)
 #endif
 	{
-		THRSETCONCURRENCY(numberOfCpus);			// macro for sun os
+		THRSETCONCURRENCY(numberOfCpus);  // macro for sun os
 	}
 	//--- setting default environment
 	Anything config = Anything(Anything::ArrayMarker());
@@ -228,14 +219,15 @@ bool AppBooter::Boot(Anything &args) // access the intial config file
 
 		// beware: this assignment has to be made after copying args into config
 		// otherwise if args == fgConfig we keep appending endlessly
-		Application::InitializeGlobalConfig(config);//Application::fgConfig= config;
+		Application::InitializeGlobalConfig(config);  // Application::fgConfig= config;
 
 		// initialize syslog channel
 		SystemLog::Init(config["AppId"].AsCharPtr("Coast"));
 		// log first event
 		SystemLog::Info("started");
 		OStringStream os;
-		os <<  std::setw(20) << "" << " I will be using " << numberOfCpus << " cpus !\n";
+		os << std::setw(20) << ""
+		   << " I will be using " << numberOfCpus << " cpus !\n";
 		os.flush();
 		SystemLog::WriteToStderr(os.str());
 
@@ -247,7 +239,7 @@ bool AppBooter::Boot(Anything &args) // access the intial config file
 		}
 
 		// add modules configured in the Config file
-		if ( WDModule::Install(config) != 0 ) {
+		if (WDModule::Install(config) != 0) {
 			return false;
 		}
 		args = config;
@@ -256,8 +248,7 @@ bool AppBooter::Boot(Anything &args) // access the intial config file
 	return ret;
 }
 
-void AppBooter::Halt(const Anything &config)
-{
+void AppBooter::Halt(const Anything &config) {
 	StartTrace(AppBooter.Halt);
 
 	// terminate according to modules list
@@ -266,13 +257,13 @@ void AppBooter::Halt(const Anything &config)
 	CloseLibs();
 }
 
-bool AppBooter::ReadFromFile(Anything &config, const char *filename)
-{
+bool AppBooter::ReadFromFile(Anything &config, const char *filename) {
 	StartTrace1(AppBooter.ReadFromFile, "filename<" << NotNull(filename) << ">");
 	std::istream *ifp = system::OpenStream(filename, "any");
 	if (ifp == 0) {
 		String logMsg;
-		SystemLog::Error(logMsg << "AppBooter::ReadFromFile: can't open file " << NotNull(filename) << ".any. Are COAST_ROOT/COAST_PATH correctly set?");
+		SystemLog::Error(logMsg << "AppBooter::ReadFromFile: can't open file " << NotNull(filename)
+								<< ".any. Are COAST_ROOT/COAST_PATH correctly set?");
 		return false;
 	}
 	config.Import(*ifp);
@@ -281,8 +272,7 @@ bool AppBooter::ReadFromFile(Anything &config, const char *filename)
 	return true;
 }
 
-bool AppBooter::OpenLibs(const Anything &config)
-{
+bool AppBooter::OpenLibs(const Anything &config) {
 	StartTrace(AppBooter.OpenLibs);
 	Anything libConfig;
 	if (config.LookupPath(libConfig, "DLL")) {
@@ -290,7 +280,7 @@ bool AppBooter::OpenLibs(const Anything &config)
 
 		for (long i = 0; i < sz; ++i) {
 			const char *dllName = libConfig[i].AsCharPtr(0);
-			if ( dllName ) {
+			if (dllName != 0) {
 				Trace("opening DLL [" << dllName << "]");
 				Sys(DynLibLoader) dllLoader(dllName);
 				if (!dllLoader.DLOpen()) {
@@ -298,20 +288,18 @@ bool AppBooter::OpenLibs(const Anything &config)
 					msg << ": " << dllLoader.DLError();
 					SystemLog::Alert(msg);
 					return false;
-				} else {
-					String msg("successfully opened DLL: ");
-					msg << dllName;
-					SystemLog::Info(msg);
-					fLibArray[dllName] = dllLoader.DLHandle();
 				}
+				String msg("successfully opened DLL: ");
+				msg << dllName;
+				SystemLog::Info(msg);
+				fLibArray[dllName] = dllLoader.DLHandle();
 			}
 		}
 	}
 	return true;
 }
 
-bool AppBooter::CloseLibs()
-{
+bool AppBooter::CloseLibs() {
 	StartTrace(AppBooter.CloseLibs);
 	long sz = fLibArray.GetSize();
 	TraceAny(fLibArray, "libraries");
@@ -319,7 +307,7 @@ bool AppBooter::CloseLibs()
 	for (long i = sz - 1; i >= 0; --i) {
 		Trace("closing down [" << fLibArray.SlotName(i) << "]");
 		Sys(DynLibLoader) dllLoader(fLibArray.SlotName(i), fLibArray[i].AsLong(0));
-		if ( !dllLoader.DLClose() ) {
+		if (!dllLoader.DLClose()) {
 			// PS: we've got an error
 			String msg("failed to close DLL: ");
 			msg << fLibArray.SlotName(i) << " " << dllLoader.DLError();
@@ -336,19 +324,19 @@ bool AppBooter::CloseLibs()
 	return ret;
 }
 
-Application *AppBooter::FindApplication(ROAnything config, String &applicationName)
-{
+Application *AppBooter::FindApplication(ROAnything config, String &applicationName) {
 	StartTrace(AppBooter.FindApplication);
 	Trace("application:" << applicationName);
 	SubTraceAny(TraceConfig, config, "config");
 	ROAnything applicationConf;
 	Application *application = 0;
 
-	if (config.LookupPath(applicationConf, "Application") || config.LookupPath(applicationConf, "Server")  ) {
-		for (long i = 0, sz = applicationConf.GetSize() && !application; i < sz; ++i) {
+	if (config.LookupPath(applicationConf, "Application") || config.LookupPath(applicationConf, "Server")) {
+		for (long i = 0, sz = static_cast<long>((static_cast<long>(applicationConf.GetSize() != 0) != 0) && (application) == 0);
+			 i < sz; ++i) {
 			// iterate over the applicationname list
 			applicationName = applicationConf[i].AsCharPtr(0);
-			if ( applicationName.Length() > 0 ) {
+			if (applicationName.Length() > 0) {
 				Trace("trying application " << applicationName);
 				// return the first application object found by name
 				application = Application::FindApplication(applicationName);
@@ -359,15 +347,14 @@ Application *AppBooter::FindApplication(ROAnything config, String &applicationNa
 		// if no application object is configured in the config any
 		// return the first in the list
 		RegistryIterator ri(MetaRegistry::instance().GetRegistry("Application"), false);
-		for ( ; ri.HasMore() && !application ; application = SafeCast(ri.Next(applicationName), Application));
+		for (; ri.HasMore() && (application == 0); application = SafeCast(ri.Next(applicationName), Application))
+			;
 	}
 	Trace("found application " << applicationName << " at " << long(application));
 	return application;
 }
 
-DynLibLoader::DynLibLoader(const char *name)
-	:	fName(name)
-{
+DynLibLoader::DynLibLoader(const char *name) : fName(name) {
 	// remove platform specific extensions
 	long lStart = fName.Contains(".so");
 	if (lStart > 0) {
@@ -381,113 +368,86 @@ DynLibLoader::DynLibLoader(const char *name)
 
 	// prepend lib if not already there
 	lStart = fName.Contains("lib");
-	if (lStart !=  0) {
+	if (lStart != 0) {
 		String tmpName("lib");
 		tmpName << fName;
 		fName = tmpName;
 	}
 }
 
-DynLibLoader::~DynLibLoader()
-{ }
+DynLibLoader::~DynLibLoader() {}
 
 #if defined(WIN32)
 
-Win32DynLibLoader::Win32DynLibLoader(const char *name)
-	: DynLibLoader(name), fHandle(0)
-{
+Win32DynLibLoader::Win32DynLibLoader(const char *name) : DynLibLoader(name), fHandle(0) {
 	// append platform specific extension
 	fName.Append(".dll");
 }
 
-Win32DynLibLoader::Win32DynLibLoader(const char *name, long handle)
-	: DynLibLoader(name), fHandle((HINSTANCE)handle)
-{
+Win32DynLibLoader::Win32DynLibLoader(const char *name, long handle) : DynLibLoader(name), fHandle((HINSTANCE)handle) {
 	// append platform specific extension
 	fName.Append(".dll");
 }
 
-Win32DynLibLoader::~Win32DynLibLoader()
-{
-}
+Win32DynLibLoader::~Win32DynLibLoader() {}
 
-bool Win32DynLibLoader::DLOpen()
-{
+bool Win32DynLibLoader::DLOpen() {
 	fHandle = LoadLibraryEx(fName, NULL, 0);
 	return (fHandle != NULL);
 }
 
-bool Win32DynLibLoader::DLClose()
-{
+bool Win32DynLibLoader::DLClose() {
 	return (FreeLibrary(fHandle) != 0);
 }
 
-String Win32DynLibLoader::DLError()
-{
+String Win32DynLibLoader::DLError() {
 	LPVOID lpMsgBuf;
-	FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL,
-		GetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-		(LPTSTR) &lpMsgBuf,
-		0,
-		NULL
-	);
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
+				  GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),  // Default language
+				  (LPTSTR)&lpMsgBuf, 0, NULL);
 	// Display the string.
 	String msg(fName);
-	msg  << " " << LPCTSTR(lpMsgBuf);
+	msg << " " << LPCTSTR(lpMsgBuf);
 	// Free the buffer.
-	LocalFree( lpMsgBuf );
+	LocalFree(lpMsgBuf);
 	return msg;
 }
 
-long Win32DynLibLoader::DLHandle()
-{
+long Win32DynLibLoader::DLHandle() {
 	return (long)fHandle;
 }
 
 #else
 
-UnixDynLibLoader::UnixDynLibLoader(const char *name)
-	: DynLibLoader(name), fHandle(0)
-{
+UnixDynLibLoader::UnixDynLibLoader(const char *name) : DynLibLoader(name), fHandle(0) {
 	// append platform specific extension
 #if defined(__APPLE__)
 	fName.Append(".dylib");
 #else
-fName.Append(".so");
+	fName.Append(".so");
 #endif
 }
 
-UnixDynLibLoader::UnixDynLibLoader(const char *name, long handle)
-	: DynLibLoader(name), fHandle((void *)handle)
-{
+UnixDynLibLoader::UnixDynLibLoader(const char *name, long handle) : DynLibLoader(name), fHandle((void *)handle) {
 	// append platform specific extension
 #if defined(__APPLE__)
 	fName.Append(".dylib");
 #else
-fName.Append(".so");
+	fName.Append(".so");
 #endif
 }
 
-UnixDynLibLoader::~UnixDynLibLoader()
-{
-}
+UnixDynLibLoader::~UnixDynLibLoader() {}
 
-bool UnixDynLibLoader::DLOpen()
-{
-	fHandle = dlopen(fName, RTLD_NOW | RTLD_GLOBAL );
+bool UnixDynLibLoader::DLOpen() {
+	fHandle = dlopen(fName, RTLD_NOW | RTLD_GLOBAL);
 	return (fHandle != 0);
 }
 
-bool UnixDynLibLoader::DLClose()
-{
-	if (fHandle) {
+bool UnixDynLibLoader::DLClose() {
+	if (fHandle != 0) {
 		int ret = dlclose(fHandle);
-		if ( ret ) {
+		if (ret != 0) {
 			SystemLog::WriteToStderr(String(dlerror()) << "\n");
 		}
 		return (ret == 0);
@@ -495,13 +455,11 @@ bool UnixDynLibLoader::DLClose()
 	return false;
 }
 
-long UnixDynLibLoader::DLHandle()
-{
+long UnixDynLibLoader::DLHandle() {
 	return (long)fHandle;
 }
 
-String UnixDynLibLoader::DLError()
-{
+String UnixDynLibLoader::DLError() {
 	StartTrace(UnixDynLibLoader.DLError);
 	String errorMsg(dlerror());
 	Trace("DLError<" << errorMsg);

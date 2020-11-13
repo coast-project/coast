@@ -11,24 +11,23 @@
 
 #include "TestCase.h"
 
-class RendererDispatcherTest : public testframework::TestCase
-{
+class RendererDispatcherTest : public testframework::TestCase {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	RendererDispatcherTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~RendererDispatcherTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!test the find of rendered service names
+	//! test the find of rendered service names
 	void FindServiceNameTest();
 };
 

@@ -9,45 +9,44 @@
 #ifndef _WPMStatHandler_H
 #define _WPMStatHandler_H
 
-#include "StatUtils.h"
 #include "DiffTimer.h"
+#include "StatUtils.h"
 #include "Threads.h"
 
-//!gather statistical information about a worker pool
-class WPMStatHandler: public StatEvtHandler
-{
+//! gather statistical information about a worker pool
+class WPMStatHandler : public StatEvtHandler {
 public:
 	WPMStatHandler(long poolSize);
 
 	enum EWPMStatEvt { eEnter, eLeave };
 
 	/*! set new PoolSize, currently it is only used when printing statistics
-		\param lNewPoolSize new size of Pool for printing statistics */
+	  \param lNewPoolSize new size of Pool for printing statistics */
 	void setPoolSize(long lNewPoolSize) {
 		LockUnlockEntry me(fMutex);
 		fPoolSize = lNewPoolSize;
 	}
 	/*! get current PoolSize
-		\return current PoolSize */
+	  \return current PoolSize */
 	long getPoolSize() {
 		LockUnlockEntry me(fMutex);
 		return fPoolSize;
 	}
 	/*! atomically increment current PoolSize
-		\return new PoolSize */
+	  \return new PoolSize */
 	long incrementPoolSize() {
 		LockUnlockEntry me(fMutex);
 		return ++fPoolSize;
 	}
 
 protected:
-	//!gathering statistics for event evt
+	//! gathering statistics for event evt
 	void DoHandleStatEvt(long evt);
-	//!collect the gathered statistics
+	//! collect the gathered statistics
 	void DoStatistic(Anything &statElements);
-	//!get the number of requests processed so far
+	//! get the number of requests processed so far
 	long DoGetTotalRequests();
-	//!get the number of currently active requests
+	//! get the number of currently active requests
 	long DoGetCurrentParallelRequests();
 
 private:
@@ -61,9 +60,9 @@ private:
 	ul_long fTotalRequests;
 	//! number of ms used to service the fTotalRequests
 	double fTotalTime;
-	//!timer to measure elapsed time during processing of requests
+	//! timer to measure elapsed time during processing of requests
 	DiffTimer fTimer;
-	//!guard for setting values
+	//! guard for setting values
 	SimpleMutex fMutex;
 
 	friend class WPMStatHandlerTest;

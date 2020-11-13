@@ -11,11 +11,9 @@
 
 #include "FoundationTestTypes.h"
 
-class HTMLParserTest: public testframework::TestCase {
+class HTMLParserTest : public testframework::TestCase {
 public:
-	HTMLParserTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	HTMLParserTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void ParseFileTest();
 };

@@ -11,26 +11,25 @@
 
 #include "TestCase.h"
 
-//!test for RequestBlocker, migrated from mtfoundation/Test/ThreadsTest
-class RequestBlockerTest : public testframework::TestCase
-{
+//! test for RequestBlocker, migrated from mtfoundation/Test/ThreadsTest
+class RequestBlockerTest : public testframework::TestCase {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	RequestBlockerTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~RequestBlockerTest();
 
 	//--- public api
-	//!hook for thread into testcase
+	//! hook for thread into testcase
 	virtual void QueryRB(bool compare, bool checkIt, TString tname);
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!test RB singleton, which is a RWLock implementtion
+	//! test RB singleton, which is a RWLock implementtion
 	virtual void RBTest();
 };
 

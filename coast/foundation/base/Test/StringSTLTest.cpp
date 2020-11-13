@@ -7,6 +7,7 @@
  */
 
 #include "StringSTLTest.h"
+
 #include "TestSuite.h"
 
 // the following 2 tests should belong to StringSTLTest,
@@ -16,10 +17,10 @@ void StringSTLTest::testStringSingleErase() {
 	assertEqual(5, a.end() - a.begin());
 	t_assert(a.begin() == a.erase(a.begin()));
 	assertEqual(4, a.end() - a.begin());
-	t_assert(a.end() == a.erase(a.end()));// cannot delete past the end
+	t_assert(a.end() == a.erase(a.end()));	// cannot delete past the end
 	assertEqual(4, a.end() - a.begin());
 	String_iterator aItEnd(a.end());
-	t_assert( aItEnd - 1 == a.erase( aItEnd - 1 ) );
+	t_assert(aItEnd - 1 == a.erase(aItEnd - 1));
 	assertEqual(3, a.end() - a.begin());
 	t_assert(a.begin() + 1 == a.erase(a.begin() + 1));
 	assertEqual(2, a.end() - a.begin());
@@ -36,17 +37,17 @@ void StringSTLTest::testStringRangeErase() {
 	{
 		String a = fStr5;
 		assertEqual(1L, a.erase(1).Length());
-		assertCharPtrEqual(fStr5.SubString(0L,1L), a);
+		assertCharPtrEqual(fStr5.SubString(0L, 1L), a);
 	}
 	{
 		String a = fStr5;
 		assertEqual(1L, a.erase(1, 20).Length());
-		assertCharPtrEqual(fStr5.SubString(0L,1L), a);
+		assertCharPtrEqual(fStr5.SubString(0L, 1L), a);
 	}
 	{
 		String a = fStr5;
 		assertEqual(2L, a.erase(1, 3).Length());
-		assertCharPtrEqual(String(fStr5.SubString(0,1)).Append(fStr5[4L]), a);
+		assertCharPtrEqual(String(fStr5.SubString(0, 1)).Append(fStr5[4L]), a);
 	}
 }
 void StringSTLTest::testStringRangeIteratorErase() {
@@ -63,9 +64,9 @@ void StringSTLTest::testStringRangeIteratorErase() {
 	}
 	{
 		String a = fStr5;
-		t_assert(a.begin()+1 == a.erase(a.begin()+1, a.begin() + 4));
+		t_assert(a.begin() + 1 == a.erase(a.begin() + 1, a.begin() + 4));
 		assertEqual(2, a.end() - a.begin());
-		assertCharPtrEqual(String(fStr5.SubString(0,1)).Append(fStr5[4L]), a);
+		assertCharPtrEqual(String(fStr5.SubString(0, 1)).Append(fStr5[4L]), a);
 	}
 }
 void StringSTLTest::setUp() {
@@ -95,12 +96,12 @@ void StringSTLTest::testStringInsertIteratorSingle() {
 		String a = fStr5;
 		long const l = a.Length();
 		long const offset = 2L;
-		String::iterator pos = a.begin()+offset;
+		String::iterator pos = a.begin() + offset;
 		t_assert(pos == a.insert(pos, 'z'));
 		assertEqual(l + 1L, a.Length());
-		assertCharPtrEqual(String().Append(fStr5.SubString(0,offset)).Append('z').Append(fStr5.SubString(offset)), a);
+		assertCharPtrEqual(String().Append(fStr5.SubString(0, offset)).Append('z').Append(fStr5.SubString(offset)), a);
 	}
-	{ //! illegal iterator passed
+	{  //! illegal iterator passed
 		String a = fStr5;
 		long const l = a.Length();
 		t_assert(a.end() == a.insert(fStr5.end(), 'z'));
@@ -133,10 +134,10 @@ void StringSTLTest::testStringInsertIteratorMultiple() {
 		long const l = a.Length();
 		long const offset = 2L;
 		long const sz = chars.Length();
-		String::iterator pos = a.begin()+offset;
+		String::iterator pos = a.begin() + offset;
 		a.insert(pos, sz, chars[0L]);
 		assertEqual(l + sz, a.Length());
-		assertCharPtrEqual(String().Append(fStr5.SubString(0,offset)).Append(chars).Append(fStr5.SubString(offset)), a);
+		assertCharPtrEqual(String().Append(fStr5.SubString(0, offset)).Append(chars).Append(fStr5.SubString(offset)), a);
 	}
 }
 void StringSTLTest::testStringInsertIteratorRange() {
@@ -164,10 +165,10 @@ void StringSTLTest::testStringInsertIteratorRange() {
 		long const l = a.Length();
 		long const offset = 2L;
 		long const sz = chars.Length();
-		String::iterator pos = a.begin()+offset;
+		String::iterator pos = a.begin() + offset;
 		a.insert(pos, chars.begin(), chars.end());
 		assertEqual(l + sz, a.Length());
-		assertCharPtrEqual(String().Append(fStr5.SubString(0,offset)).Append(chars).Append(fStr5.SubString(offset)), a);
+		assertCharPtrEqual(String().Append(fStr5.SubString(0, offset)).Append(chars).Append(fStr5.SubString(offset)), a);
 	}
 }
 

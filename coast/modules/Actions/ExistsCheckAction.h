@@ -17,15 +17,15 @@
  * @section ecac Action configuration
 \code
 {
-	/LookupName		Rendererspec
-	/Delim   		String
-	/IndexDelim		String
+  /LookupName		Rendererspec
+  /Delim   		String
+  /IndexDelim		String
 }
 \endcode
 or just
 \code
 {
-	"name" "delim" "indexdelim"
+  "name" "delim" "indexdelim"
 }
 \endcode
  * @par \c LookupName or first index entry
@@ -43,36 +43,37 @@ or just
  * @par Example1:
  * @code
 {
-	{
-		"LostAndFound.HandBags."
-		{ /ContextLookupRenderer "Company.Employees.Fred.WifeName" }
-		".Contents"
-	}
+  {
+	"LostAndFound.HandBags."
+	{ /ContextLookupRenderer "Company.Employees.Fred.WifeName" }
+	".Contents"
+  }
 }
  * @endcode
- * Renders its config into a string and checks whether the rendered path/slot exists in context (e.g. the example checks, whether
- * \em "LostAndFound.Handbags.Cindy.Contents" exists, provided that \em "Company.Employees.Fred.WifeName" is rendered as "Cindy").
+ * Renders its config into a string and checks whether the rendered path/slot exists in context (e.g. the example checks,
+whether
+ * \em "LostAndFound.Handbags.Cindy.Contents" exists, provided that \em "Company.Employees.Fred.WifeName" is rendered as
+"Cindy").
  * The action returns true if the rendered slot exists, false otherwise.
  *
  * @par Example2:
  * @code
 {
-	/LookupName {
-		"NeedToTestForASlot_ContainingADefault_Delimiter"
-		".Contents"
-	}
-	/Delim "_"
+  /LookupName {
+	"NeedToTestForASlot_ContainingADefault_Delimiter"
+	".Contents"
+  }
+  /Delim "_"
 }
  * @endcode
- * In this example, the LookupPath delimiter will be temporarily changed to \b _ so that \c ".Contents" will be treated a regular string without
+ * In this example, the LookupPath delimiter will be temporarily changed to \b _ so that \c ".Contents" will be treated a
+regular string without
  * having the dot being used as a path delimiter.
 */
-class ExistsCheckAction: public Action {
+class ExistsCheckAction : public Action {
 public:
 	/*! \param name defines the name of the action */
-	ExistsCheckAction(const char *name) :
-		Action(name) {
-	}
+	ExistsCheckAction(const char *name) : Action(name) {}
 
 protected:
 	/*! Checks whether the slot defined in config exists

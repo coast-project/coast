@@ -7,50 +7,52 @@
  */
 
 #include "LDAPConnectionManager.h"
+
+#include "Mutex.h"
 #include "PersistentLDAPConnection.h"
-#include "TimeStamp.h"
+#include "Semaphore.h"
 #include "SystemLog.h"
+#include "Threads.h"
+#include "TimeStamp.h"
+#include "Tracer.h"
 
 THREADKEY LDAPConnectionManager::fgErrnoKey = 0;
 
-LDAPConnectionManager *LDAPConnectionManager::LDAPCONNMGR()
-{
+LDAPConnectionManager *LDAPConnectionManager::LDAPCONNMGR() {
 	return SafeCast(WDModule::FindWDModule("LDAPConnectionManager"), LDAPConnectionManager);
 }
 
 RegisterModule(LDAPConnectionManager);
 //---- LDAPConnectionManager ----------------------------------------------------------------
 LDAPConnectionManager::LDAPConnectionManager(const char *name)
-	: WDModule(name)
-	, fLdapConnectionStoreMutex("LdapConnectionStoreMutex", coast::storage::Global())
-	, fFreeListMutex("FreeListMutex", coast::storage::Global())
-	, fLdapConnectionStore(coast::storage::Global())
-	, fFreeList(coast::storage::Global())
-	, fDefMaxConnections(0L)
-{
+	: WDModule(name),
+	  fLdapConnectionStoreMutex("LdapConnectionStoreMutex", coast::storage::Global()),
+	  fFreeListMutex("FreeListMutex", coast::storage::Global()),
+	  fLdapConnectionStore(coast::storage::Global()),
+	  fFreeList(coast::storage::Global()),
+	  fDefMaxConnections(0L) {
 	StartTrace1(LDAPConnectionManager.LDAPConnectionManager, "Name:<" << NotNull(name) << ">");
 }
 
-LDAPConnectionManager::~LDAPConnectionManager()
-{
+LDAPConnectionManager::~LDAPConnectionManager() {
 	StartTrace(LDAPConnectionManager.~LDAPConnectionManager);
 }
 
-Anything LDAPConnectionManager::GetLdapConnection(bool isLocked, long maxConnections, const String &poolId, long rebindTimeout)
-{
+Anything LDAPConnectionManager::GetLdapConnection(bool isLocked, long maxConnections, const String &poolId,
+												  long rebindTimeout) {
 	StartTrace(LDAPConnectionManager.GetLdapConnection);
 	Anything returned;
 	TimeStamp ts;
-	LDAP *handle;
+	LDAP *handle = NULL;
 	Anything handleInfo;
 	Trace("maxConnections: " << maxConnections << " fDefMaxConnections: " << fDefMaxConnections);
-	maxConnections = (maxConnections != 0L) ? maxConnections :  fDefMaxConnections;
+	maxConnections = (maxConnections != 0L) ? maxConnections : fDefMaxConnections;
 
-	bool ret;
-	if ( !isLocked ) {
+	bool ret = false;
+	if (!isLocked) {
 		Semaphore *sema = LookupSema(maxConnections, poolId);
 		TraceAny(fLdapConnectionStore[poolId], "Contents for: " << poolId);
-		if ( sema != ( Semaphore * ) NULL ) {
+		if (sema != (Semaphore *)NULL) {
 			// we aquire the sema. If no handles are available, we block until one is ready
 			Trace("Acquiring sema for: " << poolId);
 			sema->Acquire();
@@ -68,36 +70,35 @@ Anything LDAPConnectionManager::GetLdapConnection(bool isLocked, long maxConnect
 	}
 	// set default
 	returned["LastRebind"] = TimeStamp::Min().AsString();
-	if ( ret ) {
-		handle = (LDAP *) handleInfo["Handle"].AsIFAObject(0);
-		if ( handleInfo.IsDefined("LastRebind") ) {
+	if (ret) {
+		handle = (LDAP *)handleInfo["Handle"].AsIFAObject(0);
+		if (handleInfo.IsDefined("LastRebind")) {
 			returned["LastRebind"] = handleInfo["LastRebind"].AsString();
 		}
 	} else {
-		handle = (LDAP *) NULL;
+		handle = (LDAP *)NULL;
 	}
-	Trace("Get: " << poolId << " "  << PersistentLDAPConnection::DumpConnectionHandle(handle) << " Ret: " << ret);
+	Trace("Get: " << poolId << " " << PersistentLDAPConnection::DumpConnectionHandle(handle) << " Ret: " << ret);
 	return HandleRebindTimeout(returned, rebindTimeout, handle);
 }
 
-Anything LDAPConnectionManager::HandleRebindTimeout(Anything &returned, long rebindTimeout, LDAP *handle)
-{
+Anything LDAPConnectionManager::HandleRebindTimeout(Anything &returned, long rebindTimeout, LDAP *handle) {
 	StartTrace(LDAPConnectionManager.HandleRebindTimeout);
 	TimeStamp now;
-	TimeStamp lastRebind( returned["LastRebind"].AsString() );
-	bool mustRebind;
+	TimeStamp lastRebind(returned["LastRebind"].AsString());
+	bool mustRebind = false;
 	String msg;
-	if ( handle == (LDAP *) NULL ) {
+	if (handle == (LDAP *)NULL) {
 		msg << "Rebind because connection handle is [NULL]";
 		SystemLog::Info(msg);
 		Trace(msg);
 		mustRebind = true;
 	} else {
-		if ( rebindTimeout != 0L ) {
-			mustRebind =  ( ((lastRebind + rebindTimeout) <=  now) );
-			if ( mustRebind ) {
-				msg << "Now: " << now.AsStringWithZ() << " LastRebind: " << lastRebind.AsStringWithZ() << " RebindTimeout: " <<
-					rebindTimeout << " Must rebind: " << mustRebind;
+		if (rebindTimeout != 0L) {
+			mustRebind = (((lastRebind + rebindTimeout) <= now));
+			if (mustRebind) {
+				msg << "Now: " << now.AsStringWithZ() << " LastRebind: " << lastRebind.AsStringWithZ()
+					<< " RebindTimeout: " << rebindTimeout << " Must rebind: " << mustRebind;
 				SystemLog::Info(msg);
 				Trace(msg);
 			}
@@ -105,81 +106,75 @@ Anything LDAPConnectionManager::HandleRebindTimeout(Anything &returned, long reb
 			mustRebind = false;
 		}
 	}
-	returned["Handle"] 		= (IFAObject * )handle;
-	returned["MustRebind"]	= mustRebind;
+	returned["Handle"] = (IFAObject *)handle;
+	returned["MustRebind"] = mustRebind;
 	TraceAny(returned, "Returning:");
 	return returned;
 }
 
-bool LDAPConnectionManager::SetLdapConnection(long maxConnections, const String &poolId, LDAP *handle)
-{
+bool LDAPConnectionManager::SetLdapConnection(long maxConnections, const String &poolId, LDAP *handle) {
 	StartTrace(LDAPConnectionManager.SetLdapConnection);
 	// Lock is already set!
 	Trace("maxConnections: " << maxConnections << " fDefMaxConnections: " << fDefMaxConnections);
-	maxConnections = (maxConnections != 0L) ? maxConnections :  fDefMaxConnections;
+	maxConnections = (maxConnections != 0L) ? maxConnections : fDefMaxConnections;
 	Anything handleInfo;
 
 	// If there is  an old connection stored, release it
 	bool ret = ReGetHandleInfo(maxConnections, poolId, handleInfo);
-	if ( ret ) {
-		LDAP *storedHandle = (LDAP *) handleInfo["Handle"].AsIFAObject(0);
-		if ( storedHandle != (LDAP *) NULL ) {
-			Trace("Set: " << poolId << " Disconnecting storedHandle: " <<
-				  PersistentLDAPConnection::DumpConnectionHandle((LDAP *) storedHandle));
+	if (ret) {
+		LDAP *storedHandle = (LDAP *)handleInfo["Handle"].AsIFAObject(0);
+		if (storedHandle != (LDAP *)NULL) {
+			Trace("Set: " << poolId << " Disconnecting storedHandle: "
+						  << PersistentLDAPConnection::DumpConnectionHandle((LDAP *)storedHandle));
 			ret = PersistentLDAPConnection::Disconnect(storedHandle);
 		}
 		Trace("handleInfo type: " << handleInfo.GetType());
-		handleInfo["Handle"]  	= (IFAObject *) handle;
-		handleInfo["LastRebind"]  = TimeStamp::Now().AsStringWithZ();
+		handleInfo["Handle"] = (IFAObject *)handle;
+		handleInfo["LastRebind"] = TimeStamp::Now().AsStringWithZ();
 		SetHandleInfo(maxConnections, poolId, handleInfo);
 	}
-	Trace("Set: " << poolId << " "  <<
-		  PersistentLDAPConnection::DumpConnectionHandle((LDAP *) handleInfo["Handle"].AsIFAObject(0))
-		  << " Ret: " << ret);
+	Trace("Set: " << poolId << " "
+				  << PersistentLDAPConnection::DumpConnectionHandle((LDAP *)handleInfo["Handle"].AsIFAObject(0))
+				  << " Ret: " << ret);
 	return ret;
 }
 
-Semaphore *LDAPConnectionManager::LookupSema(long maxConnections, const String &poolId)
-{
+Semaphore *LDAPConnectionManager::LookupSema(long maxConnections, const String &poolId) {
 	StartTrace(LDAPConnectionManager.LookupSema);
-	Semaphore *sema;
+	Semaphore *sema = NULL;
 	LockUnlockEntry me(fLdapConnectionStoreMutex);
 	{
-		if ( !(fLdapConnectionStore.IsDefined(poolId)) ) {
+		if (!(fLdapConnectionStore.IsDefined(poolId))) {
 			// We are the first ones
 			// semaphore is initialized to the desired amount of connections
 			Trace("Creating sema for: " << poolId << " with maxConnections: " << maxConnections);
 			sema = new Semaphore(maxConnections);
-			fLdapConnectionStore[poolId]["Sema"] = (IFAObject *) sema;
+			fLdapConnectionStore[poolId]["Sema"] = (IFAObject *)sema;
 		}
 	}
-	return (Semaphore * ) fLdapConnectionStore[poolId]["Sema"].AsIFAObject(0);
+	return (Semaphore *)fLdapConnectionStore[poolId]["Sema"].AsIFAObject(0);
 }
 
-bool LDAPConnectionManager::GetHandleInfo(long maxConnections, const String &poolId, Anything &handleInfo)
-{
+bool LDAPConnectionManager::GetHandleInfo(long maxConnections, const String &poolId, Anything &handleInfo) {
 	StartTrace(LDAPConnectionManager.GetHandleInfo);
 	// We look for a unlocked handle and set the mutex.
 	long slotIndex = GetAndLockSlot(maxConnections, poolId);
 	bool ret = (slotIndex != -1L);
-	if ( ret ) {
+	if (ret) {
 		LockUnlockEntry me(fLdapConnectionStoreMutex);
-		{
-			handleInfo = fLdapConnectionStore[poolId]["HandleInfo"][slotIndex];
-		}
+		{ handleInfo = fLdapConnectionStore[poolId]["HandleInfo"][slotIndex]; }
 	}
 	Trace("Entry for: " << poolId << " found at slotIndex: " << slotIndex << " Returning: " << ret);
 	return ret;
 }
 
-long LDAPConnectionManager::GetUnusedFreeListEntry(long maxConnections, const String &poolId)
-{
+long LDAPConnectionManager::GetUnusedFreeListEntry(long maxConnections, const String &poolId) {
 	StartTrace(LDAPConnectionManager.GetAndLockSlot);
 	// Because we use a counting semaphore, we know that we should get one unlocked entry
 	LockUnlockEntry me(fFreeListMutex);
 	{
-		for (long l = 0 ; l < maxConnections; l++ ) {
-			if ( fFreeList[poolId][l].AsLong(-1L) == -1L ) {
+		for (long l = 0; l < maxConnections; l++) {
+			if (fFreeList[poolId][l].AsLong(-1L) == -1L) {
 				fFreeList[poolId][l] = Thread::MyId();
 				Trace("Found freelist entry: [" << poolId << "] at index: [" << l << "] thread: [" << Thread::MyId() << "]");
 				return l;
@@ -191,15 +186,14 @@ long LDAPConnectionManager::GetUnusedFreeListEntry(long maxConnections, const St
 	return -1L;
 }
 
-long LDAPConnectionManager::GetThisThreadsFreeListEntry(long maxConnections, const String &poolId)
-{
+long LDAPConnectionManager::GetThisThreadsFreeListEntry(long maxConnections, const String &poolId) {
 	StartTrace(LDAPConnectionManager.GetAndLockSlot);
 	// Because we use a counting semaphore, we know that we should get one unlocked entry
 	long myId = Thread::MyId();
 	LockUnlockEntry me(fFreeListMutex);
 	{
-		for (long l = 0 ; l < maxConnections; l++ ) {
-			if ( fFreeList[poolId][l].AsLong(-1L) == myId ) {
+		for (long l = 0; l < maxConnections; l++) {
+			if (fFreeList[poolId][l].AsLong(-1L) == myId) {
 				Trace("Found freelist entry: [" << poolId << "] at index: [" << l << "] thread: [" << myId << "]");
 				return l;
 			}
@@ -210,18 +204,17 @@ long LDAPConnectionManager::GetThisThreadsFreeListEntry(long maxConnections, con
 	return -1L;
 }
 
-long LDAPConnectionManager::GetAndLockSlot(long maxConnections, const String &poolId)
-{
+long LDAPConnectionManager::GetAndLockSlot(long maxConnections, const String &poolId) {
 	StartTrace(LDAPConnectionManager.GetAndLockSlot);
 	// Because we use a counting semaphore, we know that we should get one unlocked entry
-	Mutex *mutex = (Mutex *) NULL;
+	Mutex *mutex = (Mutex *)NULL;
 	long l = GetUnusedFreeListEntry(maxConnections, poolId);
-	if ( l != -1L ) {
+	if (l != -1L) {
 		LockUnlockEntry me(fLdapConnectionStoreMutex);
 		{
-			mutex = (Mutex * ) fLdapConnectionStore[poolId]["Mutexes"][l].AsIFAObject(0);
-			if ( mutex != (Mutex * ) NULL ) {
-				if ( mutex->TryLock() ) {
+			mutex = (Mutex *)fLdapConnectionStore[poolId]["Mutexes"][l].AsIFAObject(0);
+			if (mutex != (Mutex *)NULL) {
+				if (mutex->TryLock()) {
 					Trace("Found handle AND locking mutex  for: [" << poolId << "] at index: [" << l << "]");
 					return l;
 				}
@@ -230,8 +223,8 @@ long LDAPConnectionManager::GetAndLockSlot(long maxConnections, const String &po
 				name << "Mutex_" << poolId << "_Index_" << l;
 				// We are the first ones and must create the mutex on the heap
 				mutex = new Mutex(name, coast::storage::Global());
-				if ( mutex != ( Mutex *) NULL ) {
-					fLdapConnectionStore[poolId]["Mutexes"][l] = (IFAObject *) mutex;
+				if (mutex != (Mutex *)NULL) {
+					fLdapConnectionStore[poolId]["Mutexes"][l] = (IFAObject *)mutex;
 					Trace("Locking mutex for: " << poolId << " at index: " << l);
 					mutex->Lock();
 					return l;
@@ -244,47 +237,45 @@ long LDAPConnectionManager::GetAndLockSlot(long maxConnections, const String &po
 	return -1L;
 }
 
-bool LDAPConnectionManager::ReleaseHandleInfo(long maxConnections, const String &poolId)
-{
+bool LDAPConnectionManager::ReleaseHandleInfo(long maxConnections, const String &poolId) {
 	StartTrace(LDAPConnectionManager.ReleaseHandleInfo);
 	Trace("maxConnections: " << maxConnections << " fDefMaxConnections: " << fDefMaxConnections);
-	maxConnections = (maxConnections != 0L) ? maxConnections :  fDefMaxConnections;
+	maxConnections = (maxConnections != 0L) ? maxConnections : fDefMaxConnections;
 	long slotIndex = GetThisThreadsFreeListEntry(maxConnections, poolId);
-	bool ret = ( slotIndex != -1L );
-	if ( ret ) {
-		Semaphore *sema = (Semaphore *) NULL;
+	bool ret = (slotIndex != -1L);
+	if (ret) {
+		Semaphore *sema = (Semaphore *)NULL;
 		LockUnlockEntry me1(fLdapConnectionStoreMutex);
 		{
-			Mutex *mutex = (Mutex * ) fLdapConnectionStore[poolId]["Mutexes"][slotIndex].AsIFAObject(0);
-			if ( mutex != (Mutex *) NULL ) {
+			Mutex *mutex = (Mutex *)fLdapConnectionStore[poolId]["Mutexes"][slotIndex].AsIFAObject(0);
+			if (mutex != (Mutex *)NULL) {
 				Trace("Unlocking mutex for: " << poolId << " at index: " << slotIndex);
 				mutex->Unlock();
 			}
-			sema = (Semaphore * ) fLdapConnectionStore[poolId]["Sema"].AsIFAObject(0);
+			sema = (Semaphore *)fLdapConnectionStore[poolId]["Sema"].AsIFAObject(0);
 		}
 		LockUnlockEntry me2(fFreeListMutex);
 		{
 			fFreeList[poolId][slotIndex] = -1L;
 			Trace("Releasing freelist entry: [" << poolId << "] at index: [" << slotIndex << "]");
 			// Sema must be released at the end of all housekeeping to be done
-			if ( sema != ( Semaphore *) NULL ) {
+			if (sema != (Semaphore *)NULL) {
 				sema->Release();
 				String msg;
 				msg << "Releasing LDAP connection at entry: [" << slotIndex << "] for connection pool: " << poolId;
 				Trace(msg);
-//				SystemLog::Info(msg);
+				//				SystemLog::Info(msg);
 			}
 		}
 	}
 	return ret;
 }
 
-bool LDAPConnectionManager::ReGetHandleInfo(long maxConnections, const String &poolId, Anything &handleInfo)
-{
+bool LDAPConnectionManager::ReGetHandleInfo(long maxConnections, const String &poolId, Anything &handleInfo) {
 	StartTrace(LDAPConnectionManager.ReGetHandleInfo);
 	long slotIndex = ReGetLockedSlot(maxConnections, poolId);
-	bool ret = ( slotIndex != -1L);
-	if ( ret ) {
+	bool ret = (slotIndex != -1L);
+	if (ret) {
 		LockUnlockEntry me(fLdapConnectionStoreMutex);
 		{
 			// We already hold the lock for this handle, safe access now
@@ -295,12 +286,11 @@ bool LDAPConnectionManager::ReGetHandleInfo(long maxConnections, const String &p
 	return ret;
 }
 
-bool LDAPConnectionManager::SetHandleInfo(long maxConnections, const String &poolId, Anything &handleInfo)
-{
+bool LDAPConnectionManager::SetHandleInfo(long maxConnections, const String &poolId, Anything &handleInfo) {
 	StartTrace(LDAPConnectionManager.ReGetHandleInfo);
 	long slotIndex = ReGetLockedSlot(maxConnections, poolId);
-	bool ret = ( slotIndex != -1L);
-	if ( ret ) {
+	bool ret = (slotIndex != -1L);
+	if (ret) {
 		LockUnlockEntry me(fLdapConnectionStoreMutex);
 		{
 			// We already hold the lock for this handle, safe access now
@@ -311,19 +301,16 @@ bool LDAPConnectionManager::SetHandleInfo(long maxConnections, const String &poo
 	return ret;
 }
 
-long LDAPConnectionManager::ReGetLockedSlot(long maxConnections, const String &poolId)
-{
+long LDAPConnectionManager::ReGetLockedSlot(long maxConnections, const String &poolId) {
 	StartTrace(LDAPConnectionManager.ReGetLockedSlot);
 	// Because we use a counting semaphore, we know that there will be at least one unlocked entry, (MaxCount - semaphore count)
 	long l = GetThisThreadsFreeListEntry(maxConnections, poolId);
-	if ( l != -1L ) {
+	if (l != -1L) {
 		// Was mutex locked by the same thread (us)?
-		Mutex *mutex = (Mutex *) NULL;
+		Mutex *mutex = (Mutex *)NULL;
 		LockUnlockEntry me(fLdapConnectionStoreMutex);
-		{
-			mutex = (Mutex * ) fLdapConnectionStore[poolId]["Mutexes"][l].AsIFAObject(0);
-		}
-		Assert(mutex != (Mutex *) NULL);
+		mutex = (Mutex *)fLdapConnectionStore[poolId]["Mutexes"][l].AsIFAObject(0);
+		Assert(mutex != (Mutex *)NULL);
 		Assert(mutex->IsLockedByMe());
 		Trace("Found handle for: [" << poolId << "] at index: [" << l << "]");
 		return l;
@@ -335,8 +322,7 @@ long LDAPConnectionManager::ReGetLockedSlot(long maxConnections, const String &p
 	return -1L;
 }
 
-bool LDAPConnectionManager::Init(const ROAnything config)
-{
+bool LDAPConnectionManager::Init(const ROAnything config) {
 	StartTrace(LDAPConnectionManager.Init);
 	SubTraceAny(TraceConfig, config, "Config: ");
 	ROAnything moduleConfig;
@@ -344,7 +330,7 @@ bool LDAPConnectionManager::Init(const ROAnything config)
 	TraceAny(moduleConfig, "moduleConfig");
 	fDefMaxConnections = moduleConfig["DefMaxConnections"].AsLong(2L);
 	Trace("fDefMaxConnections: " << fDefMaxConnections);
-	if ( THRKEYCREATE(LDAPConnectionManager::fgErrnoKey, PersistentLDAPConnection::tsd_destruct)) {
+	if (THRKEYCREATE(LDAPConnectionManager::fgErrnoKey, PersistentLDAPConnection::tsd_destruct)) {
 		Trace("Thread key creation for fgErrnoKey failed.");
 		SystemLog::Error("Thread key creation for fgErrnoKey failed.");
 		return false;
@@ -354,41 +340,42 @@ bool LDAPConnectionManager::Init(const ROAnything config)
 	return ResetInit(config);
 }
 
-bool LDAPConnectionManager::Finis()
-{
+bool LDAPConnectionManager::Finis() {
 	StartTrace(LDAPConnectionManager.Finis);
 	bool ret = true;
 	{
 		LockUnlockEntry me(fLdapConnectionStoreMutex);
 		{
 			TraceAny(fLdapConnectionStore, "fLdapConnectionStore");
-			for ( long pools = 0; pools < fLdapConnectionStore.GetSize(); pools++ ) {
-				for ( long items = 0; items < fLdapConnectionStore[pools]["Mutexes"].GetSize(); items++ ) {
-					SystemLog::Info(String("LDAPConnectionManager: At index: [") << items   << "]");
-					Mutex *mutex = (Mutex * ) fLdapConnectionStore[pools]["Mutexes"][items].AsIFAObject(0);
-					if ( mutex != ( Mutex * ) NULL ) {
+			for (long pools = 0; pools < fLdapConnectionStore.GetSize(); pools++) {
+				for (long items = 0; items < fLdapConnectionStore[pools]["Mutexes"].GetSize(); items++) {
+					SystemLog::Info(String("LDAPConnectionManager: At index: [") << items << "]");
+					Mutex *mutex = (Mutex *)fLdapConnectionStore[pools]["Mutexes"][items].AsIFAObject(0);
+					if (mutex != (Mutex *)NULL) {
 						bool locked = mutex->TryLock();
-						if ( locked ) {
-							LDAP *handle = (LDAP *) fLdapConnectionStore[pools]["HandleInfo"][items]["Handle"].AsIFAObject(0);
-							SystemLog::Info(String("LDAPConnectionManager: Pool: [") << fLdapConnectionStore.SlotName(pools) << "] " <<
-											"At index: [" << items   << "] " <<
-											"LDAPConnectionManager: Freeing LDAP " <<
-											PersistentLDAPConnection::DumpConnectionHandle(handle) << "\n");
-							if (handle) {
+						if (locked) {
+							LDAP *handle = (LDAP *)fLdapConnectionStore[pools]["HandleInfo"][items]["Handle"].AsIFAObject(0);
+							SystemLog::Info(String("LDAPConnectionManager: Pool: [")
+											<< fLdapConnectionStore.SlotName(pools) << "] "
+											<< "At index: [" << items << "] "
+											<< "LDAPConnectionManager: Freeing LDAP "
+											<< PersistentLDAPConnection::DumpConnectionHandle(handle) << "\n");
+							if (handle != 0) {
 								PersistentLDAPConnection::Disconnect(handle);
 							}
 							mutex->Unlock();
 							delete mutex;
 						}
 					} else {
-						SystemLog::Info(String("LDAPConnectionManager: Pool: [") << fLdapConnectionStore.SlotName(pools) << "] " <<
-										"At index: [" << items   << "] " <<
-										"LDAPConnectionManager: TryLock mutex and deleting of mutex failed!");
+						SystemLog::Info(String("LDAPConnectionManager: Pool: [")
+										<< fLdapConnectionStore.SlotName(pools) << "] "
+										<< "At index: [" << items << "] "
+										<< "LDAPConnectionManager: TryLock mutex and deleting of mutex failed!");
 						ret = false;
 					}
 				}
-				Semaphore *sema = (Semaphore * ) fLdapConnectionStore[pools]["Sema"].AsIFAObject(0);
-				if ( sema != ( Semaphore * ) NULL ) {
+				Semaphore *sema = (Semaphore *)fLdapConnectionStore[pools]["Sema"].AsIFAObject(0);
+				if (sema != (Semaphore *)NULL) {
 					delete sema;
 				}
 			}
@@ -399,41 +386,33 @@ bool LDAPConnectionManager::Finis()
 	return ret;
 }
 
-void LDAPConnectionManager::EmptyLdapConnectionStore()
-{
+void LDAPConnectionManager::EmptyLdapConnectionStore() {
 	StartTrace(LDAPConnectionManager.EmptyLdapConnectionStore);
 	LockUnlockEntry me(fLdapConnectionStoreMutex);
-	{
-		fLdapConnectionStore = Anything(coast::storage::Global());
-	}
+	{ fLdapConnectionStore = Anything(coast::storage::Global()); }
 }
 
-bool LDAPConnectionManager::ResetFinis(const ROAnything )
-{
+bool LDAPConnectionManager::ResetFinis(const ROAnything) {
 	StartTrace(LDAPConnectionManager.ResetFinis);
 	// Do not allow to reset this module!
 	return true;
 }
 
-bool LDAPConnectionManager::ResetInit(const ROAnything config)
-{
+bool LDAPConnectionManager::ResetInit(const ROAnything config) {
 	StartTrace(LDAPConnectionManager.ResetInit);
 	// Do not allow to reset this module!
 	return true;
 }
 
-void LDAPConnectionManager::EnterReInit()
-{
+void LDAPConnectionManager::EnterReInit() {
 	StartTrace(LDAPConnectionManager.EnterReInit);
 }
 
-void LDAPConnectionManager::LeaveReInit()
-{
+void LDAPConnectionManager::LeaveReInit() {
 	StartTrace(LDAPConnectionManager.LeaveReInit);
 }
 
-bool LDAPConnectionManager::ReplaceHandlesForConnectionPool(const String &poolId, LDAP *handle)
-{
+bool LDAPConnectionManager::ReplaceHandlesForConnectionPool(const String &poolId, LDAP *handle) {
 	StartTrace(LDAPConnectionManager.ReplaceHandlesForConnectionPool);
 	bool ret = true;
 	Trace("Working on pool: [" << poolId << "]");
@@ -441,21 +420,22 @@ bool LDAPConnectionManager::ReplaceHandlesForConnectionPool(const String &poolId
 		LockUnlockEntry me(fLdapConnectionStoreMutex);
 		{
 			TraceAny(fLdapConnectionStore, "fLdapConnectionStore");
-			for ( long items = 0; items < fLdapConnectionStore[poolId]["Mutexes"].GetSize(); items++ ) {
-				Mutex *mutex = (Mutex * ) fLdapConnectionStore[poolId]["Mutexes"][items].AsIFAObject(0);
-				Trace("Trying to get lock for: " << poolId << " at index: " <<  items);
-				if ( mutex != ( Mutex * ) NULL ) {
-					if ( mutex->TryLock() ) {
-						LDAP *oldHandle = (LDAP *) fLdapConnectionStore[poolId]["HandleInfo"][items]["Handle"].AsIFAObject(0);
-						if (oldHandle) {
+			for (long items = 0; items < fLdapConnectionStore[poolId]["Mutexes"].GetSize(); items++) {
+				Mutex *mutex = (Mutex *)fLdapConnectionStore[poolId]["Mutexes"][items].AsIFAObject(0);
+				Trace("Trying to get lock for: " << poolId << " at index: " << items);
+				if (mutex != (Mutex *)NULL) {
+					if (mutex->TryLock()) {
+						LDAP *oldHandle = (LDAP *)fLdapConnectionStore[poolId]["HandleInfo"][items]["Handle"].AsIFAObject(0);
+						if (oldHandle != 0) {
 							PersistentLDAPConnection::Disconnect(oldHandle);
 						}
-						Trace("Replaced " << LDAPConnection::DumpConnectionHandle(oldHandle) << " New " <<   LDAPConnection::DumpConnectionHandle(handle));
-						fLdapConnectionStore[poolId]["HandleInfo"][items]["Handle"] = (IFAObject *) handle;
+						Trace("Replaced " << LDAPConnection::DumpConnectionHandle(oldHandle) << " New "
+										  << LDAPConnection::DumpConnectionHandle(handle));
+						fLdapConnectionStore[poolId]["HandleInfo"][items]["Handle"] = (IFAObject *)handle;
 						mutex->Unlock();
 					}
 				} else {
-					Trace("Locking mutex for connection pool: " << poolId << " at index: " <<  items << " failed!");
+					Trace("Locking mutex for connection pool: " << poolId << " at index: " << items << " failed!");
 					ret = false;
 				}
 			}
@@ -463,4 +443,3 @@ bool LDAPConnectionManager::ReplaceHandlesForConnectionPool(const String &poolId
 	}
 	return ret;
 }
-

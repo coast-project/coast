@@ -9,19 +9,16 @@
 #include "StringStreamSocket.h"
 
 //---- StringStreamSocket ----------------------------------------------------------------
-StringStreamSocket::StringStreamSocket(String &str): Socket(-1)
-{
+StringStreamSocket::StringStreamSocket(String &str) : Socket(-1) {
 	fStream = new StringStream(str);
 	fClientInfo["REMOTE_ADDR"] = "localhost";
 	fClientInfo["HTTPS"] = false;
 }
 
-bool StringStreamSocket::IsReady(bool forreading)
-{
+bool StringStreamSocket::IsReady(bool forreading) {
 	return true;
 }
 
-bool StringStreamSocket::IsReady(long fd, short event, long timeout, long &retCode)
-{
+bool StringStreamSocket::IsReady(long fd, short event, long timeout, long &retCode) {
 	return true;
 }

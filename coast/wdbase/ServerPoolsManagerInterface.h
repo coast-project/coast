@@ -9,28 +9,29 @@
 #ifndef _ServerPoolsManagerInterface_h_
 #define _ServerPoolsManagerInterface_h_
 
+#include "Condition.h"
+#include "LockUnlockEntry.h"
+#include "LockedValueIncrementDecrementEntry.h"
+#include "Mutex.h"
 #include "WDModule.h"
-#include "Threads.h"
 
 class Server;
 class RequestProcessor;
 
-class ServerPoolsManagerInterfacesModule: public WDModule {
+class ServerPoolsManagerInterfacesModule : public WDModule {
 public:
-	ServerPoolsManagerInterfacesModule(const char *name) :
-		WDModule(name) {
-	}
+	ServerPoolsManagerInterfacesModule(const char *name) : WDModule(name) {}
 	virtual bool Init(const ROAnything config);
 	virtual bool Finis();
 	virtual bool ResetFinis(const ROAnything config);
 };
 
-class ServerPoolsManagerInterface: public ConfNamedObject {
-	virtual RequestProcessor* DoGetRequestProcessor() = 0;
+class ServerPoolsManagerInterface : public ConfNamedObject {
+	virtual RequestProcessor *DoGetRequestProcessor() = 0;
 
-	//!guard ready flag
+	//! guard ready flag
 	Mutex fMutex;
-	//!synchronize ready changes
+	//! synchronize ready changes
 	Mutex::ConditionType fCond;
 	long fCount;
 
@@ -39,16 +40,15 @@ class ServerPoolsManagerInterface: public ConfNamedObject {
 	ServerPoolsManagerInterface();
 	ServerPoolsManagerInterface(const ServerPoolsManagerInterface &);
 	ServerPoolsManagerInterface &operator=(const ServerPoolsManagerInterface &);
+
 public:
 	ServerPoolsManagerInterface(const char *ServerThreadPoolsManagerName);
 	virtual ~ServerPoolsManagerInterface();
 
-	//!registry interface
-	RegCacheDef(ServerPoolsManagerInterface); // FindServerThreadPoolsManager()
+	//! registry interface
+	RegCacheDef(ServerPoolsManagerInterface);  // FindServerThreadPoolsManager()
 
-	RequestProcessor* GetRequestProcessor() {
-		return DoGetRequestProcessor();
-	}
+	RequestProcessor *GetRequestProcessor() { return DoGetRequestProcessor(); }
 
 	//! initialize the managed thread pools
 	virtual int Init(Server *server) = 0;
@@ -59,29 +59,29 @@ public:
 	//! run the the thread pools
 	virtual int Run(Server *server) = 0;
 
-	//!block the request handling in the managed pools
+	//! block the request handling in the managed pools
 	virtual bool BlockRequests(Server *server) = 0;
 
-	//!unblock the request handling in the managed pools
+	//! unblock the request handling in the managed pools
 	virtual void UnblockRequests() = 0;
 
-	//!terminate thread pool operation
+	//! terminate thread pool operation
 	virtual int RequestTermination() = 0;
 
-	//!terminate thread pool operation
+	//! terminate thread pool operation
 	virtual void Terminate() = 0;
 
-	//!access to configuration data
+	//! access to configuration data
 	virtual long GetThreadPoolSize() = 0;
 
-	//!check if pool already started or terminated
+	//! check if pool already started or terminated
 	bool IsReady(bool ready, long timeout);
 
 protected:
-	//!set flag if pool ready or terminated
+	//! set flag if pool ready or terminated
 	void SetReady(bool ready);
 
-	//!keep ready state
+	//! keep ready state
 	bool fReady, fbInTermination;
 };
 

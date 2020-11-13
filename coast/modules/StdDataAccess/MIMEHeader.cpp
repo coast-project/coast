@@ -7,55 +7,62 @@
  */
 
 #include "MIMEHeader.h"
-#include "Tracer.h"
-#include "RE.h"
+
 #include "HTTPConstants.h"
+#include "RE.h"
 #include "SystemLog.h"
-//#include "RECompiler.h"
+#include "Tracer.h"
+
 #include <cstdio>	// for EOF
-#include <cstring>  // for strlen
+#include <cstring>	// for strlen
+#include <istream>
 
 namespace coast {
 	namespace streamutils {
 		void getLineFromStream(std::istream &in, String &line, long const maxlinelen) {
 			StartTrace(MIMEHeader.getLineFromStream);
-			if ( !in.good() ) throw MIMEHeader::StreamNotGoodException();
+			if (!in.good())
+				throw MIMEHeader::StreamNotGoodException();
 			// reset line
 			line.Trim(0L);
 			// read line up to but not including next LF
 			line.Append(in, maxlinelen, LF);
 			char c = '\0';
-			if ( in.peek() != EOF && in.get(c)) {
+			// NOLINTNEXTLINE(readability-implicit-bool-conversion)
+			if (in.peek() != EOF && in.get(c)) {
 				line.Append(c);
 			}
 			Trace("Line length: " << line.Length() << " maxlinelen: " << maxlinelen << "\n" << line.DumpAsHex());
-			if (line.Length() > maxlinelen) throw MIMEHeader::LineSizeExceededException("Line size exceeded", line, maxlinelen, line.Length());
+			if (line.Length() > maxlinelen)
+				throw MIMEHeader::LineSizeExceededException("Line size exceeded", line, maxlinelen, line.Length());
 		}
-	}
-}
+	}  // namespace streamutils
+}  // namespace coast
 
 namespace {
 	String const boundaryToken("boundary=", -1, coast::storage::Global());
 
-//	Anything const headersREProgram = RECompiler().compile(coast::http::constants::splitFieldsRegularExpression);
+	//	Anything const headersREProgram = RECompiler().compile(coast::http::constants::splitFieldsRegularExpression);
 
 	String shiftedHeaderKey(String const &key, coast::urlutils::NormalizeTag const shiftFlag) {
 		return coast::urlutils::Normalize(key, shiftFlag);
 	}
 
-	void StoreKeyValue(Anything &headers, String const& strKey, String const &strValue)
-	{
+	void StoreKeyValue(Anything &headers, String const &strKey, String const &strValue) {
 		StartTrace(MIMEHeader.StoreKeyValue);
 		//!@FIXME: use precompiled RE-Program as soon as RE's ctor takes an ROAnything as program
 		RE multivalueRE(coast::http::constants::splitFieldsRegularExpression, RE::MATCH_ICASE);
-		if ( multivalueRE.ContainedIn(strKey) ) {
+		if (multivalueRE.ContainedIn(strKey)) {
 			Anything &anyValues = headers[strKey];
-			coast::urlutils::Split(strValue, coast::http::constants::headerArgumentsDelimiter, anyValues, coast::http::constants::headerArgumentsDelimiter, coast::urlutils::eUpshift);
+			coast::urlutils::Split(strValue, coast::http::constants::headerArgumentsDelimiter, anyValues,
+								   coast::http::constants::headerArgumentsDelimiter, coast::urlutils::eUpshift);
 		} else if (strKey.IsEqual(coast::http::constants::contentDispositionSlotname)) {
 			Anything &anyValues = headers[strKey];
-			coast::urlutils::Split(strValue, coast::http::constants::contentDispositionDelimiter, anyValues, coast::http::constants::keyValueDelimiter, coast::urlutils::eUpshift);
+			coast::urlutils::Split(strValue, coast::http::constants::contentDispositionDelimiter, anyValues,
+								   coast::http::constants::keyValueDelimiter, coast::urlutils::eUpshift);
 		} else if (strKey.IsEqual(coast::http::constants::boundarySlotname)) {
-			Trace("Explicit boundary header found with value [" << strValue << "], overwriting potentially existing value [" << ROAnything(headers)[strKey].AsString() << "]");
+			Trace("Explicit boundary header found with value [" << strValue << "], overwriting potentially existing value ["
+																<< ROAnything(headers)[strKey].AsString() << "]");
 			headers[strKey] = strValue;
 		} else {
 			coast::urlutils::AppendValueTo(headers, strKey, strValue);
@@ -94,7 +101,7 @@ namespace {
 			throw MIMEHeader::InvalidLineException("Missing header field name", line);
 		}
 		String fieldvalue = line.SubString(pos + 1);
-		if (fieldvalue.Length()) {
+		if (fieldvalue.Length() != 0) {
 			coast::urlutils::TrimBlanks(fieldvalue);
 			StoreKeyValue(headers, fieldname, fieldvalue);
 		}
@@ -103,19 +110,20 @@ namespace {
 		}
 		TraceAny(headers, "headers on exit");
 	}
-}
+}  // namespace
 
 bool MIMEHeader::ParseHeaders(std::istream &in, long const maxlinelen, long const maxheaderlen) {
 	StartTrace(MIMEHeader.ParseHeaders);
 	String line(maxlinelen);
-	while ( true ) {
+	while (true) {
 		coast::streamutils::getLineFromStream(in, line, maxlinelen);
 		fParsedHeaderLength += line.Length();
 		Trace("headerlength: " << fParsedHeaderLength << ", maxheaderlen: " << maxheaderlen);
-		if (not coast::urlutils::TrimENDL(line).Length()) {
-			return true;	//!< successful header termination with empty line
+		if (coast::urlutils::TrimENDL(line).Length() == 0) {
+			return true;  //!< successful header termination with empty line
 		}
-		if (fParsedHeaderLength > maxheaderlen) throw MIMEHeader::RequestSizeExceededException("Header size exceeded", line, maxheaderlen, fParsedHeaderLength);
+		if (fParsedHeaderLength > maxheaderlen)
+			throw MIMEHeader::RequestSizeExceededException("Header size exceeded", line, maxheaderlen, fParsedHeaderLength);
 		try {
 			SplitAndAddHeaderLine(fHeader, line, fNormalizeKey);
 		} catch (MIMEHeader::InvalidLineException &e) {
@@ -124,7 +132,6 @@ bool MIMEHeader::ParseHeaders(std::istream &in, long const maxlinelen, long cons
 	}
 	return false;
 }
-
 
 //================= multipart specific section
 
@@ -146,6 +153,6 @@ long MIMEHeader::GetContentLength() const {
 }
 
 bool MIMEHeader::DoLookup(const char *key, ROAnything &result, char delim, char indexdelim) const {
-	StartTrace1(MIMEHeader.DoLookup, "key: <" << NotNull(key) << ">" );
+	StartTrace1(MIMEHeader.DoLookup, "key: <" << NotNull(key) << ">");
 	return ROAnything(fHeader).LookupPath(result, shiftedHeaderKey(key, fNormalizeKey), delim, indexdelim);
 }

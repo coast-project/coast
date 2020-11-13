@@ -7,6 +7,7 @@
  */
 
 #include "StringStream.h"
+
 #include "Tracer.h"
 
 namespace NSStringStream {
@@ -15,13 +16,13 @@ namespace NSStringStream {
 		std::streamsize szReadSize = 0;
 		Trace("Bytes to copy: " << lBytes2Copy);
 		String sBuf(lBytes2Copy);
-		char *buf = (char *) (const char *) sBuf;
+		char *buf = (char *)(const char *)sBuf;
 		copiedBytes = 0L;
 		bool bRet = true;
 		while (lBytes2Copy > 0L) {
 			if (streamSrc->good()) {
 				if (streamDest.good()) {
-					streamSrc->read(buf, (int) lBytes2Copy);
+					streamSrc->read(buf, (int)lBytes2Copy);
 					szReadSize = streamSrc->gcount();
 					streamDest.write(buf, szReadSize);
 					copiedBytes += static_cast<long>(szReadSize);
@@ -34,11 +35,12 @@ namespace NSStringStream {
 				}
 			} else {
 				// test if we reached eof of streamSrc
-				bRet = (streamSrc->eof() != 0);
-				Trace("Source stream is not good anymore" << (bRet ? " (eof)" : "") << ", finishing copy!" );
+				bRet = (static_cast<int>(streamSrc->eof()) != 0);
+				Trace("Source stream is not good anymore" << (bRet ? " (eof)" : "") << ", finishing copy!");
 				break;
 			}
-		} Trace("bytes copied this time: " << copiedBytes);
+		}
+		Trace("bytes copied this time: " << copiedBytes);
 		return bRet;
 	}
-}
+}  // namespace NSStringStream

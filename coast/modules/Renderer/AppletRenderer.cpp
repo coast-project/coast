@@ -7,20 +7,21 @@
  */
 
 #include "AppletRenderer.h"
+
 #include "Tracer.h"
+
+#include <ostream>
 
 //---- AppletRenderer --------------------------------------------------------------
 RegisterRenderer(AppletRenderer);
 AppletRenderer::AppletRenderer(const char *name) : Renderer(name) {}
 
-void AppletRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void AppletRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(AppletRenderer.Render);
 	TraceAny(config, "config");
 
 	ROAnything startClass;
 	if (config.LookupPath(startClass, "Applet")) {
-
 		reply << "<APPLET";
 
 		ROAnything codeBase;

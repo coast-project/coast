@@ -7,19 +7,18 @@
  */
 
 #include "TableRenderer.h"
+
 #include "FormRenderer.h"
 #include "StringStream.h"
+
 #include <cstring>
 
 //---- TableRenderer -------------------------------------------------------------------
 RegisterRenderer(TableRenderer);
 
-TableRenderer::TableRenderer(const char *name) : Renderer(name)
-{
-}
+TableRenderer::TableRenderer(const char *name) : Renderer(name) {}
 
-void TableRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &any)
-{
+void TableRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &any) {
 	//--- tracing
 	StartTrace1(TableRenderer.RenderAll, "");
 	TraceAny(any, "Config");
@@ -43,7 +42,7 @@ void TableRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything 
 
 	if (any.IsDefined("DataSource")) {
 		const char *name = any["DataSource"].AsCharPtr(0);
-		if (name) {
+		if (name != 0) {
 			// assumption: data of DataSource is always in the TmpStore
 			// and never directly built into the config files!
 			appTmpStore.LookupPath(eData, name);
@@ -52,7 +51,7 @@ void TableRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything 
 
 	for (long i = startRow, sz = eData.GetSize(); (i < sz) && (i < startRow + rowsPerPage); ++i) {
 		const char *rowColor = GetColor(i, rowColors);
-		if (rowColor) {
+		if (rowColor != 0) {
 			reply << "<TR BGCOLOR=\"#" << rowColor << "\">";
 		} else {
 			reply << ("<TR>");
@@ -71,8 +70,7 @@ void TableRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything 
 	PrintControls(reply, c, startRow, rowsPerPage, eData.GetSize());
 }
 
-void TableRenderer::PrintControls(std::ostream &reply, Context &c, long start, long rowsperpage, long size)
-{
+void TableRenderer::PrintControls(std::ostream &reply, Context &c, long start, long rowsperpage, long size) {
 	//--- list navigation elements
 	bool hasNextElements = start + rowsperpage < size;
 	bool hasPrevElements = start > 0;
@@ -114,12 +112,11 @@ void TableRenderer::PrintControls(std::ostream &reply, Context &c, long start, l
 	reply << ("</TABLE>");
 }
 
-void TableRenderer::PrintHeader(std::ostream &reply, Context &c, const ROAnything &tbColHeader)
-{
+void TableRenderer::PrintHeader(std::ostream &reply, Context &c, const ROAnything &tbColHeader) {
 	const char *titleBGColor = c.Lookup("TitleBGColor", (char *)0);
 	const char *titleFGColor = c.Lookup("TitleFGColor", (char *)0);
 
-	if (titleBGColor) {
+	if (titleBGColor != 0) {
 		reply << "<TR BGCOLOR=\"#" << titleBGColor << "\">";
 	} else {
 		reply << ("<TR>");
@@ -127,7 +124,7 @@ void TableRenderer::PrintHeader(std::ostream &reply, Context &c, const ROAnythin
 	for (long r = 0, sz = tbColHeader.GetSize(); r < sz; ++r) {
 		ROAnything header = tbColHeader[r]["Title"];
 		PrintOptions(reply, "TH", header);
-		if (titleFGColor) {
+		if (titleFGColor != 0) {
 			reply << "<FONT COLOR=\"#" << titleFGColor << "\">";
 		}
 		Render(reply, c, header["Render"]);
@@ -137,13 +134,11 @@ void TableRenderer::PrintHeader(std::ostream &reply, Context &c, const ROAnythin
 	reply << ("</TR>");
 }
 
-const char *TableRenderer::GetColor(long index, const ROAnything &config)
-{
+const char *TableRenderer::GetColor(long index, const ROAnything &config) {
 	return config[index % config.GetSize()].AsCharPtr(0);
 }
 
-void TableRenderer::PrintRow(std::ostream &reply, Context &c, const ROAnything &row)
-{
+void TableRenderer::PrintRow(std::ostream &reply, Context &c, const ROAnything &row) {
 	StartTrace1(TableRenderer.PrintRow, "");
 	TraceAny(row, "Table Row");
 
@@ -159,26 +154,23 @@ void TableRenderer::PrintRow(std::ostream &reply, Context &c, const ROAnything &
 
 RegisterRenderer(ItemRenderer);
 
-ItemRenderer::ItemRenderer(const char *name) : Renderer(name)
-{
-}
+ItemRenderer::ItemRenderer(const char *name) : Renderer(name) {}
 
-void ItemRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void ItemRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(ItemRenderer.RenderAll);
 	TraceAny(config, "Item Config");
 
 	if (config.IsDefined("Attr")) {
 		const char *attr = config["Attr"].AsCharPtr(0);
-		if (attr) {
-			if ( strcmp("@Index", attr) == 0 ) {
+		if (attr != 0) {
+			if (strcmp("@Index", attr) == 0) {
 				Anything tmpStore(c.GetTmpStore());
-				long ix( tmpStore["RowIndex"].AsLong(-1) );
+				long ix(tmpStore["RowIndex"].AsLong(-1));
 				if (ix >= 0) {
 					reply << (ix);
 				}
 			} else {
-				Anything row( c.GetTmpStore()["RowData"] );
+				Anything row(c.GetTmpStore()["RowData"]);
 				if (row.IsDefined(attr)) {
 					Anything data = row[attr];
 					OStringStream form;
@@ -186,7 +178,7 @@ void ItemRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &
 					if (data.GetType() == AnyDoubleType) {
 						form << data.AsDouble(0.0);
 					} else if (data.GetType() == AnyLongType) {
-						form << (double) data.AsLong(0);
+						form << (double)data.AsLong(0);
 					} else {
 						form << data.AsCharPtr("");
 					}

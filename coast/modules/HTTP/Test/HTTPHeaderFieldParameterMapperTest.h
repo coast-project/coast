@@ -12,13 +12,11 @@
 #include "FoundationTestTypes.h"
 #include "WDBaseTestPolicies.h"
 
-class HTTPHeaderFieldParameterMapperTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class HTTPHeaderFieldParameterMapperTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//! ConfiguredTestCase constructor
 	//! \param name name of the test
-	HTTPHeaderFieldParameterMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	HTTPHeaderFieldParameterMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//! builds up a suite of tests
 	static Test *suite();

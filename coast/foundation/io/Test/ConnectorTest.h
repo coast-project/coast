@@ -11,45 +11,44 @@
 
 #include "FoundationTestTypes.h"
 
-class ConnectorTest : public testframework::TestCaseWithConfig
-{
+class ConnectorTest : public testframework::TestCaseWithConfig {
 public:
 	//--- constructors
 	ConnectorTest(TString tstrName);
 	~ConnectorTest();
 
 	//--- public api
-	//!generate Connector test suite
+	//! generate Connector test suite
 	//! this method generates the tests for the Connector classed
 	//! \return a new test is created by this method
-	static Test *suite ();
+	static Test *suite();
 
 	//--- tests for public api of class connector
-	//!tests connector constructor with localhost and port 80
+	//! tests connector constructor with localhost and port 80
 	void simpleConstructorTest();
 
-	//!tests connector constructor with localhost and port 80
+	//! tests connector constructor with localhost and port 80
 	void bindingConstructorTest();
 
-	//!tests connector constructor with localhost and port 80
+	//! tests connector constructor with localhost and port 80
 	void timeOutTest();
 
-	//!tests connector constructor with faulty parameters
+	//! tests connector constructor with faulty parameters
 	void faultyConstructorTest();
 
-	//!tests method MakeSocket
+	//! tests method MakeSocket
 	void makeSocketTest();
 
-	//!tests method MakeSocket with boolean flag == false
+	//! tests method MakeSocket with boolean flag == false
 	void makeSocketWithReuseTest();
 
-	//!tests method UseSocket
+	//! tests method UseSocket
 	void useSocketTest();
 
-	//!tests method GetStream
+	//! tests method GetStream
 	void getStreamTest();
 
-	//!tests allocator
+	//! tests allocator
 	void allocatorConstructorTest();
 
 private:

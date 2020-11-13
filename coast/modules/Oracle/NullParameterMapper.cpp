@@ -7,13 +7,13 @@
  */
 
 #include "NullParameterMapper.h"
-#include "Tracer.h"
+
 #include "AnyIterators.h"
+#include "Tracer.h"
 
 RegisterParameterMapper(NullParameterMapper);
 
-NullParameterMapper::NullParameterMapper(const char *name) :
-		ParameterMapper(name) {
+NullParameterMapper::NullParameterMapper(const char *name) : ParameterMapper(name) {
 	StatTrace(NullParameterMapper.Ctor, name, coast::storage::Current());
 }
 
@@ -25,7 +25,7 @@ IFAObject *NullParameterMapper::Clone(Allocator *a) const {
 bool NullParameterMapper::DoGetAny(const char *key, Anything &value, Context &ctx, ROAnything script) {
 	StartTrace1(NullParameterMapper.DoGetAny, NotNull(key));
 	if (ParameterMapper::DoGetAny(key, value, ctx, script)) {
-		Trace("value before replacement [" << (value.IsNull()?String("*"):value.AsString()) << "]");
+		Trace("value before replacement [" << (value.IsNull() ? String("*") : value.AsString()) << "]");
 		ROAnything roaTreatAsNullValues = Lookup("TreatAsNull");
 		if (!value.IsNull() && !roaTreatAsNullValues.IsNull()) {
 			ROAnything roaTestValue;
@@ -39,9 +39,9 @@ bool NullParameterMapper::DoGetAny(const char *key, Anything &value, Context &ct
 				}
 			}
 		}
-		Trace("returning true and value [" << (value.IsNull()?String("*"):value.AsString()) << "]");
+		Trace("returning true and value [" << (value.IsNull() ? String("*") : value.AsString()) << "]");
 		return true;
 	}
-	Trace("returning false and value [" << (value.IsNull()?String("*"):value.AsString()) << "]");
+	Trace("returning false and value [" << (value.IsNull() ? String("*") : value.AsString()) << "]");
 	return false;
 }

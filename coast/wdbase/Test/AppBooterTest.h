@@ -9,35 +9,33 @@
 #ifndef _AppBooterTest_H
 #define _AppBooterTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
+#include "TestCase.h"
 
-class AppBooterTest: public testframework::TestCase {
+class AppBooterTest : public testframework::TestCase {
 public:
-	AppBooterTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	AppBooterTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 
-	//!test HandleArgs method with empty arguments
+	//! test HandleArgs method with empty arguments
 	void HandleNullArgsTest();
 
-	//!test HandleArgs method with simple arguments
+	//! test HandleArgs method with simple arguments
 	void HandleUnstructuredArgsTest();
 
-	//!test HandleArgs method with complex arguments
+	//! test HandleArgs method with complex arguments
 	void HandleStructuredArgsTest();
 
-	//!test Bootfile loading parameters
+	//! test Bootfile loading parameters
 	void PrepareBootFileLoadingTest();
 
-	//!test merging of configuration with commandline arguments
+	//! test merging of configuration with commandline arguments
 	void MergeConfigWithArgsTest();
 
-	//!test opening of libraries
+	//! test opening of libraries
 	void OpenLibsTest();
 
-	//!tests sequencing of initialization and termination of application api
+	//! tests sequencing of initialization and termination of application api
 	void RunTest();
 
 	void Method(const String &str);

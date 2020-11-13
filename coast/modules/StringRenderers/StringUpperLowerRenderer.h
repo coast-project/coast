@@ -18,19 +18,17 @@
 //		/Value 	String to convert
 //      /Mode	upper or lower
 //	}</PRE>
-class StringUpperLowerRenderer : public Renderer
-{
+class StringUpperLowerRenderer : public Renderer {
 public:
 	//--- constructors
 	StringUpperLowerRenderer(const char *name);
 	~StringUpperLowerRenderer();
 
 	//:Renders ?? on <I>reply </I>
-	//!param: reply - out - the stream where the rendered output is written on.
-	//!param: c - the context the renderer runs within.
-	//!param: config - the configuration of the renderer.
+	//! param: reply - out - the stream where the rendered output is written on.
+	//! param: c - the context the renderer runs within.
+	//! param: config - the configuration of the renderer.
 	virtual void RenderAll(std::ostream &reply, Context &c, const ROAnything &config);
-
 };
 
 #endif

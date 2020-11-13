@@ -11,18 +11,15 @@
 
 #include "Mapper.h"
 
-class HTMLTreeMapper: public ResultMapper {
+class HTMLTreeMapper : public ResultMapper {
 	HTMLTreeMapper();
 	HTMLTreeMapper(const HTMLTreeMapper &);
 	HTMLTreeMapper &operator=(const HTMLTreeMapper &);
+
 public:
-	HTMLTreeMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	HTMLTreeMapper(const char *name) : ResultMapper(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) HTMLTreeMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) HTMLTreeMapper(fName); }
 
 	//! reads an HTML document from istream
 	//! The HTML is parsed and the tags are put into an Anything, which is then stored in Mapper.HTTPBody
@@ -34,18 +31,15 @@ public:
 	virtual bool DoPutStream(const char *key, std::istream &is, Context &ctx, ROAnything config);
 };
 
-class HTMLTreeAndSortedTagsMapper: public ResultMapper {
+class HTMLTreeAndSortedTagsMapper : public ResultMapper {
 	HTMLTreeAndSortedTagsMapper();
 	HTMLTreeAndSortedTagsMapper(const HTMLTreeAndSortedTagsMapper &);
 	HTMLTreeAndSortedTagsMapper &operator=(const HTMLTreeAndSortedTagsMapper &);
+
 public:
-	HTMLTreeAndSortedTagsMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	HTMLTreeAndSortedTagsMapper(const char *name) : ResultMapper(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) HTMLTreeAndSortedTagsMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) HTMLTreeAndSortedTagsMapper(fName); }
 
 	//! reads an HTML document from istream
 	//! The HTML is parsed and the tags are put into an Anything, which is then stored

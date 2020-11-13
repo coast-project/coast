@@ -7,10 +7,11 @@
  */
 
 #include "ResultMapperTest.h"
-#include "TestSuite.h"
+
+#include "Context.h"
 #include "FoundationTestTypes.h"
 #include "StringStream.h"
-#include "Context.h"
+#include "TestSuite.h"
 
 void ResultMapperTest::DoSelectScriptTest() {
 	StartTrace(ResultMapperTest.DoSelectScriptTest);
@@ -111,7 +112,9 @@ void ResultMapperTest::DoPutAnyTest() {
 		rm.Put("out", any, ctx);
 		OStringStream os;
 		os << ctx.Lookup("Mapper") << std::flush;
-		assertEqual("{\n  /a " _QUOTE_("value") "\n  /b " _QUOTE_("value") "\n  /c " _QUOTE_("value") "\n  /d " _QUOTE_("value") "\n}", os.str());
+		assertEqual(
+			"{\n  /a " _QUOTE_("value") "\n  /b " _QUOTE_("value") "\n  /c " _QUOTE_("value") "\n  /d " _QUOTE_("value") "\n}",
+			os.str());
 		TraceAny(ctx.GetTmpStore(), "tmp");
 	}
 	// 3.2 DelegationScript

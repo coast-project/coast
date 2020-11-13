@@ -7,23 +7,23 @@
  */
 
 #include "ContainsStringRenderer.h"
+
 #include "Tracer.h"
 
 //---- ContainsStringRenderer ---------------------------------------------------------------
 RegisterRenderer(ContainsStringRenderer);
 
-void ContainsStringRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void ContainsStringRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(ContainsStringRenderer.RenderAll);
 	TraceAny(config, "config");
 	String strSource, strContained, strResult;
 	strResult = RenderToString(ctx, config["Error"]);
 	RenderOnString(strSource, ctx, config["String"]);
 	RenderOnString(strContained, ctx, config["Contains"]);
-	if ( strSource.Length() && strContained.Length() ) {
+	if ((strSource.Length() != 0) && (strContained.Length() != 0)) {
 		long lIdx = strSource.Contains(strContained);
 		Trace("contains idx: " << lIdx);
-		if ( lIdx >= 0 ) {
+		if (lIdx >= 0) {
 			strResult = RenderToStringWithDefault(ctx, config["True"], Anything(lIdx));
 		} else {
 			strResult = RenderToStringWithDefault(ctx, config["False"], Anything(lIdx));

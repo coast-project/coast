@@ -11,14 +11,12 @@
 
 #include "WDBaseTestPolicies.h"
 
-class ServerTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class ServerTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	ServerTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	ServerTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 
-	//!sets the environment for this test
+	//! sets the environment for this test
 	void setUp();
 
 	//! test initialization - run - termination sequences

@@ -7,48 +7,47 @@
  */
 
 #include "ListenerPoolTest.h"
+
 #include "RequestListener.h"
 #include "TestSuite.h"
 
-class TestCallBack : public AcceptorCallBack
-{
+#include <istream>
+
+class TestCallBack : public AcceptorCallBack {
 public:
-	TestCallBack(TestReceiver *tr) : fReceiver(tr) {};
-	virtual ~TestCallBack() {};
+	TestCallBack(TestReceiver *tr) : fReceiver(tr){};
+	virtual ~TestCallBack(){};
 	virtual void CallBack(Socket *socket);
 	virtual void Wait() {
 		// dummy wait to force context switch
-		Thread::Wait(0,1000L);
+		Thread::Wait(0, 1000L);
 	}
 	virtual void Signal() {
 		// dummy wait to force context switch
-		Thread::Wait(0,1000L);
+		Thread::Wait(0, 1000L);
 	}
 
 protected:
 	TestReceiver *fReceiver;
 };
 
-AcceptorCallBack *TestCallBackFactory::MakeCallBack()
-{
+AcceptorCallBack *TestCallBackFactory::MakeCallBack() {
 	return new TestCallBack(&fReceiver);
 }
 
-void TestCallBack::CallBack(Socket *socket)
-{
+void TestCallBack::CallBack(Socket *socket) {
 	StartTrace(TestCallBack.CallBack);
 
 	std::iostream *Ios = socket->GetStream();
 
-	if (Ios) {
+	if (Ios != 0) {
 		fReceiver->Receive(Ios, socket);
 	}
 
 	delete socket;
 }
 
-void TestReceiver::Receive(std::iostream *Ios, Socket *socket)
-{
+void TestReceiver::Receive(std::iostream *Ios, Socket *socket) {
 	StartTrace(TestReceiver.Receive);
 
 	LockUnlockEntry me(fMutex);
@@ -62,58 +61,50 @@ void TestReceiver::Receive(std::iostream *Ios, Socket *socket)
 	DoChecks(toImport, socket);
 }
 
-void TestReceiver::DoChecks(Anything &toImport, Socket *socket)
-{
+void TestReceiver::DoChecks(Anything &toImport, Socket *socket) {
 	StartTrace(TestReceiver.DoChecks);
 	Anything clientInfo = socket->ClientInfo();
 	Anything collectedFailures;
-	for ( long l = 0; l < toImport["ChecksToDo"].GetSize(); l++ ) {
-		String pathToCheck	= toImport["ChecksToDo"].SlotName(l);
+	for (long l = 0; l < toImport["ChecksToDo"].GetSize(); l++) {
+		String pathToCheck = toImport["ChecksToDo"].SlotName(l);
 		String expected = toImport["ChecksToDo"][l].AsString();
 		Anything tmp;
 		clientInfo.LookupPath(tmp, pathToCheck);
 		String was = tmp.AsString();
 		String result;
-		result  << "CheckPath:   " << pathToCheck << " Expected: " << expected << " Was: " << was;
-		if ( expected != was ) {
+		result << "CheckPath:   " << pathToCheck << " Expected: " << expected << " Was: " << was;
+		if (expected != was) {
 			collectedFailures.Append(result);
 		}
 	}
 	if (collectedFailures.GetSize() > 0) {
 		Anything feedBack;
-		feedBack["TestData"]	 = toImport;
+		feedBack["TestData"] = toImport;
 		feedBack["FailedChecks"] = collectedFailures;
-		feedBack["ClientInfo"]	 = clientInfo;
+		feedBack["ClientInfo"] = clientInfo;
 		fFailures.Append(feedBack);
 	}
 }
 
-Anything TestReceiver::GetResult()
-{
+Anything TestReceiver::GetResult() {
 	LockUnlockEntry me(fMutex);
 	return fResult;
 }
 
-Anything TestReceiver::GetFailures()
-{
+Anything TestReceiver::GetFailures() {
 	LockUnlockEntry me(fMutex);
 	return fFailures;
 }
 
-class FakeAcceptorFactory: public AcceptorFactory
-{
+class FakeAcceptorFactory : public AcceptorFactory {
 public:
-	FakeAcceptorFactory(const char *name): AcceptorFactory(name) {};
-	~FakeAcceptorFactory() {};
+	FakeAcceptorFactory(const char *name) : AcceptorFactory(name){};
+	~FakeAcceptorFactory(){};
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) FakeAcceptorFactory(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) FakeAcceptorFactory(fName); }
 
-	Acceptor *MakeAcceptor(AcceptorCallBack *ac) {
-		return 0;
-	}
+	Acceptor *MakeAcceptor(AcceptorCallBack *ac) { return 0; }
 
 private:
 	// block the following default elements of this class
@@ -121,75 +112,67 @@ private:
 	FakeAcceptorFactory();
 	FakeAcceptorFactory(const FakeAcceptorFactory &);
 	FakeAcceptorFactory &operator=(const FakeAcceptorFactory &);
-
 };
 RegisterAcceptorFactory(FakeAcceptorFactory);
 
 //---- ListenerPoolTest ----------------------------------------------------------------
-ListenerPoolTest::ListenerPoolTest(TString tname)
-	: TestCaseType(tname)
-{
+ListenerPoolTest::ListenerPoolTest(TString tname) : TestCaseType(tname) {
 	StartTrace(ListenerPoolTest.ListenerPoolTest);
 }
 
-ListenerPoolTest::~ListenerPoolTest()
-{
+ListenerPoolTest::~ListenerPoolTest() {
 	StartTrace(ListenerPoolTest.Dtor);
 }
 
-void ListenerPoolTest::setUp ()
-{
+void ListenerPoolTest::setUp() {
 	StartTrace(ListenerPoolTest.setUp);
 	t_assert(GetConfig().IsDefined("AcceptorFactories"));
 	t_assert(GetConfig().IsDefined("Modules"));
 }
 
-void ListenerPoolTest::DoSendReceive(Connector *c, String msg)
-{
+void ListenerPoolTest::DoSendReceive(Connector *c, String msg) {
 	StartTrace(ListenerPoolTest.DoSendReceive);
 
 	std::iostream *Ios = c->GetStream();
 	String errorMsg = msg;
-	errorMsg  << msg << " connect failed";
+	errorMsg << msg << " connect failed";
 	t_assertm(Ios != 0, (const char *)errorMsg);
-	if (Ios) {
+	if (Ios != 0) {
 		*Ios << msg << std::endl;
 		t_assert(!!(*Ios));
 		String reply;
 		*Ios >> reply;
 		t_assertm(!!(*Ios), "oops socket time out? connector time out too short?");
-		assertEqual("Ok", reply); //PS use correct macro
+		assertEqual("Ok", reply);  // PS use correct macro
 	}
 }
 
-void ListenerPoolTest::DoSendReceive(Connector *c, Anything toSend)
-{
+void ListenerPoolTest::DoSendReceive(Connector *c, Anything toSend) {
 	StartTrace(ListenerPoolTest.DoSendReceive);
 
 	std::iostream *Ios = c->GetStream();
 	t_assertm(Ios != 0, "connect failed.");
 	TraceAny(toSend, "toSend:");
-	if (Ios) {
+	if (Ios != 0) {
 		toSend.Export(*Ios);
 		t_assert(!!(*Ios));
 		String reply;
 		*Ios >> reply;
 		t_assertm(!!(*Ios), "oops socket time out? connector time out too short?");
-		assertEqual("Ok", reply); //PS use correct macro
+		assertEqual("Ok", reply);  // PS use correct macro
 	}
 }
 
-bool ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, String msg, bool iosGoodAfterSend, bool iosGoodBeforeSend)
-{
+bool ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, String msg, bool iosGoodAfterSend, bool iosGoodBeforeSend) {
 	StartTrace(ListenerPoolTest.DoSendReceive);
 	std::iostream *Ios = c->GetStream();
 	bool testsWereSuccessful = false;
-	if ( iosGoodBeforeSend ) {
-		testsWereSuccessful = t_assertm(Ios != (std::iostream *) NULL, "Expected iostream not to be 0");
+	if (iosGoodBeforeSend) {
+		testsWereSuccessful = t_assertm(Ios != (std::iostream *)NULL, "Expected iostream not to be 0");
 	} else {
-		testsWereSuccessful = t_assertm(Ios == (std::iostream *) NULL, "Expected iostream to be 0");
+		testsWereSuccessful = t_assertm(Ios == (std::iostream *)NULL, "Expected iostream to be 0");
 	}
-	if (Ios) {
+	if (Ios != 0) {
 		*Ios << msg << std::endl;
 		if (iosGoodAfterSend) {
 			testsWereSuccessful = t_assertm(!!(*Ios), "Expected iostream state to be good after send") && testsWereSuccessful;
@@ -203,17 +186,16 @@ bool ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, String msg, bool i
 	return testsWereSuccessful;
 }
 
-bool ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, Anything toSend, bool iosGoodAfterSend, bool iosGoodBeforeSend)
-{
+bool ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, Anything toSend, bool iosGoodAfterSend, bool iosGoodBeforeSend) {
 	StartTrace(ListenerPoolTest.DoSendReceive);
 	std::iostream *Ios = c->GetStream();
 	bool testsWereSuccessful = false;
-	if ( iosGoodBeforeSend ) {
-		testsWereSuccessful = t_assertm(Ios != (std::iostream *) NULL, "Expected iostream not to be 0");
+	if (iosGoodBeforeSend) {
+		testsWereSuccessful = t_assertm(Ios != (std::iostream *)NULL, "Expected iostream not to be 0");
 	} else {
-		testsWereSuccessful = t_assertm(Ios == (std::iostream *) NULL, "Expected iostream to be 0");
+		testsWereSuccessful = t_assertm(Ios == (std::iostream *)NULL, "Expected iostream to be 0");
 	}
-	if (Ios) {
+	if (Ios != 0) {
 		toSend.Export(*Ios);
 		if (iosGoodAfterSend) {
 			testsWereSuccessful = t_assertm(!!(*Ios), "Expected iostream state to be good after send") && testsWereSuccessful;
@@ -227,13 +209,12 @@ bool ListenerPoolTest::DoSendReceiveWithFailure(Connector *c, Anything toSend, b
 	return testsWereSuccessful;
 }
 
-void ListenerPoolTest::InitFailureTest()
-{
+void ListenerPoolTest::InitFailureTest() {
 	StartTrace(ListenerPoolTest.InitFailureTest);
 
 	Anything config;
 	config.Append("TCP5010");
-	config.Append("TCP5010");	// same port twice - should fail on init
+	config.Append("TCP5010");  // same port twice - should fail on init
 
 	TestCallBackFactory *tcbf = new TestCallBackFactory;
 	ListenerPool lpToTest(tcbf);
@@ -241,8 +222,7 @@ void ListenerPoolTest::InitFailureTest()
 	t_assertm(!lpToTest.Init(config.GetSize(), config), "Init successful where it should fail");
 }
 
-void ListenerPoolTest::InitFailureNullAcceptorTest()
-{
+void ListenerPoolTest::InitFailureNullAcceptorTest() {
 	StartTrace(ListenerPoolTest.InitFailureNullAcceptorTest);
 
 	Anything config;
@@ -254,13 +234,12 @@ void ListenerPoolTest::InitFailureNullAcceptorTest()
 	t_assertm(!lpToTest.Init(config.GetSize(), config), "Init successful where it should fail");
 }
 
-void ListenerPoolTest::NullCallBackFactoryTest()
-{
+void ListenerPoolTest::NullCallBackFactoryTest() {
 	StartTrace(ListenerPoolTest.NullCallBackFactoryTest);
 
 	Anything config;
 	config.Append("TCP5010");
-	config.Append("TCP5010");	// same port twice - should fail on init
+	config.Append("TCP5010");  // same port twice - should fail on init
 
 	TestCallBackFactory *tcbf = 0;
 	ListenerPool lpToTest(tcbf);

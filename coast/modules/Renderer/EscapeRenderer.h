@@ -17,30 +17,29 @@
 \par Configuration
 \code
 {
-	/String			Rendererspec	mandatory, String to be escaped
-	/EscapeChar		String			optional, default '\', defines the escape character
-	/ToEscape		String			mandatory, characters to escape
+  /String			Rendererspec	mandatory, String to be escaped
+  /EscapeChar		String			optional, default '\', defines the escape character
+  /ToEscape		String			mandatory, characters to escape
 }
 \endcode
 \par Example
 \code
 { /EscapeRenderer {
-	/String			"You can't escape this String's content"
-	/EscapeChar		"\\"
-	/ToEscape		"'"
+  /String			"You can't escape this String's content"
+  /EscapeChar		"\\"
+  /ToEscape		"'"
 } }
 \endcode
 
 Renders : "You can\'t escape this String\'s content"
  */
-class EscapeRenderer : public Renderer
-{
+class EscapeRenderer : public Renderer {
 public:
 	//--- constructors
 	EscapeRenderer(const char *name);
 	~EscapeRenderer();
 
-	//!Sets an escape character before defined characters in a String
+	//! Sets an escape character before defined characters in a String
 	//! \param reply out - the stream where the rendered output is written on.
 	//! \param c the context the renderer runs within.
 	//! \param config the configuration of the renderer.

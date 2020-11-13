@@ -7,18 +7,20 @@
  */
 
 #include "AnythingLookupPathResultMapper.h"
+
 #include "Tracer.h"
 
 //---- AnythingLookupPathResultMapper ----------------------------------------------------------------
 RegisterResultMapper(AnythingLookupPathResultMapper);
 
-bool AnythingLookupPathResultMapper::DoPutAnyWithSlotname(const char *key, Anything &value, Context &ctx, ROAnything roaScript, const char *slotname)
-{
-	StartTrace1(AnythingLookupPathResultMapper.DoPutAnyWithSlotname, "key [" << NotNull(key) << "] slotname [" << NotNull(slotname) << "]");
+bool AnythingLookupPathResultMapper::DoPutAnyWithSlotname(const char *key, Anything &value, Context &ctx, ROAnything roaScript,
+														  const char *slotname) {
+	StartTrace1(AnythingLookupPathResultMapper.DoPutAnyWithSlotname,
+				"key [" << NotNull(key) << "] slotname [" << NotNull(slotname) << "]");
 	Trace("Using slotname [" << slotname << "] as Lookup path in value");
-	bool bRet = true;	// do not fail when lookup fails!
+	bool bRet = true;  // do not fail when lookup fails!
 	Anything anyValue;
-	if ( value.LookupPath(anyValue, slotname) ) {
+	if (value.LookupPath(anyValue, slotname)) {
 		TraceAny(anyValue, "Calling myself again with Anything looked up at [" << slotname << "]");
 		bRet = DoPutAny(key, anyValue, ctx, roaScript);
 		Trace("RetCode of DoPutAny:" << (bRet ? "true" : "false"));

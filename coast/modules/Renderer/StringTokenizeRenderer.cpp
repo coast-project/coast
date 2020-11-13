@@ -7,17 +7,17 @@
  */
 
 #include "StringTokenizeRenderer.h"
+
 #include "StringStream.h"
 
 RegisterRenderer(StringTokenizeRenderer);
 
-void StringTokenizeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void StringTokenizeRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(StringTokenizeRenderer.RenderAll);
 	TraceAny(config, "config");
 
 	Anything anyTokens, anyOutputTokenList;
-	if ( SplitStringIntoTokens(ctx, config, anyTokens) ) {
+	if (SplitStringIntoTokens(ctx, config, anyTokens)) {
 		BuildTokenList(ctx, config, anyTokens, anyOutputTokenList);
 
 		String strOut;
@@ -28,8 +28,8 @@ void StringTokenizeRenderer::RenderAll(std::ostream &reply, Context &ctx, const 
 	}
 }
 
-void StringTokenizeRenderer::BuildTokenList(Context &ctx, const ROAnything &config, Anything &anyTokens, Anything &anyOutputTokenList)
-{
+void StringTokenizeRenderer::BuildTokenList(Context &ctx, const ROAnything &config, Anything &anyTokens,
+											Anything &anyOutputTokenList) {
 	StartTrace(StringTokenizeRenderer.BuildTokenList);
 
 	ROAnything roaRenderToken;
@@ -43,34 +43,35 @@ void StringTokenizeRenderer::BuildTokenList(Context &ctx, const ROAnything &conf
 
 	StringTokenizer tokens(strRenderToken, ';');
 	String strTok;
-	while ( tokens.NextToken(strTok) ) {
+	while (tokens.NextToken(strTok)) {
 		IStringStream stream(strTok);
 		long lStart = 0L, lEnd = 0L, lDiff = 0L;
 		char c = '\0';
 		stream >> lStart;
-		if ( stream.good() ) {
-			if ( stream.get(c) && c == '-' ) {
+		if (stream.good()) {
+			// NOLINTNEXTLINE(readability-implicit-bool-conversion)
+			if (stream.get(c) && c == '-') {
 				stream >> lEnd;
-				if ( lEnd == 0L ) {
+				if (lEnd == 0L) {
 					lEnd = (lStart >= 0L) ? lMaxTokens : -lMaxTokens;
 					Trace("setting second number from tokensize: " << lEnd);
-				} else if ( lEnd > lMaxTokens ) {
+				} else if (lEnd > lMaxTokens) {
 					lEnd = lMaxTokens;
 					Trace("setting second number from tokensize: " << lEnd);
-				} else if ( lEnd < -lMaxTokens ) {
+				} else if (lEnd < -lMaxTokens) {
 					lEnd = -lMaxTokens;
 					Trace("setting second number from tokensize: " << lEnd);
 				}
-				lStart = (lStart < 0 ? (lMaxTokens+lStart+1) : lStart);
-				lEnd = (lEnd < 0 ? (lMaxTokens+lEnd+1) : lEnd);
+				lStart = (lStart < 0 ? (lMaxTokens + lStart + 1) : lStart);
+				lEnd = (lEnd < 0 ? (lMaxTokens + lEnd + 1) : lEnd);
 				lDiff = abs(lEnd - lStart);
 			}
 			Trace("char:" << c);
 		}
-		long lIncr = ( ( lStart <= lEnd ) ? 1L : -1L );
+		long lIncr = ((lStart <= lEnd) ? 1L : -1L);
 		Trace("start: " << lStart << " end: " << lEnd << " diff: " << lDiff);
 		Trace("incr: " << lIncr);
-		while ( lDiff >= 0L ) {
+		while (lDiff >= 0L) {
 			anyOutputTokenList.Append(lStart);
 			lStart += lIncr;
 			--lDiff;
@@ -84,8 +85,7 @@ void StringTokenizeRenderer::BuildTokenList(Context &ctx, const ROAnything &conf
 	TraceAny(anyOutputTokenList, "Tokens to render");
 }
 
-bool StringTokenizeRenderer::SplitStringIntoTokens(Context &ctx, const ROAnything &config, Anything &anyTokens)
-{
+bool StringTokenizeRenderer::SplitStringIntoTokens(Context &ctx, const ROAnything &config, Anything &anyTokens) {
 	StartTrace(StringTokenizeRenderer.SplitStringIntoTokens);
 
 	String value, token;
@@ -115,7 +115,7 @@ bool StringTokenizeRenderer::SplitStringIntoTokens(Context &ctx, const ROAnythin
 			Trace("got char token [" << token << "]");
 			StringTokenizer tokens(value, token[0L]);
 			String strTok;
-			while ( tokens.NextToken(strTok) ) {
+			while (tokens.NextToken(strTok)) {
 				Trace("current segment is [" << strTok << "]");
 				anyTokens.Append(strTok);
 			}
@@ -142,8 +142,8 @@ bool StringTokenizeRenderer::SplitStringIntoTokens(Context &ctx, const ROAnythin
 	return true;
 }
 
-void StringTokenizeRenderer::BuildOutputString(Context &ctx, const ROAnything &config, String &strOut, Anything &anyTokensToOutput, Anything &anyTokens)
-{
+void StringTokenizeRenderer::BuildOutputString(Context &ctx, const ROAnything &config, String &strOut,
+											   Anything &anyTokensToOutput, Anything &anyTokens) {
 	StartTrace(StringTokenizeRenderer.BuildOutputString);
 
 	String filler;
@@ -164,9 +164,9 @@ void StringTokenizeRenderer::BuildOutputString(Context &ctx, const ROAnything &c
 	for (long lIdx = 0L, sz = anyTokensToOutput.GetSize(); lIdx < sz; ++lIdx) {
 		long lTokIdx = anyTokensToOutput[lIdx].AsLong(0L);
 		Trace("abs of lTokIdx: " << (long)abs(lTokIdx));
-		if ( abs(lTokIdx) < anyTokens.GetSize() ) {
+		if (abs(lTokIdx) < anyTokens.GetSize()) {
 			bFoundToken = true;
-			if ( lIdx > 0L && filler.Length() ) {
+			if (lIdx > 0L && (filler.Length() != 0)) {
 				Trace("inserting output filler [" << filler << "]");
 				strOut << filler;
 			}
@@ -179,7 +179,7 @@ void StringTokenizeRenderer::BuildOutputString(Context &ctx, const ROAnything &c
 			strOut << anyTokens[lTokIdx].AsString();
 		}
 	}
-	if ( !bFoundToken ) {
+	if (!bFoundToken) {
 		// no token output, use either the value from Default slot or return the empty string
 		strOut = strDefault;
 	}

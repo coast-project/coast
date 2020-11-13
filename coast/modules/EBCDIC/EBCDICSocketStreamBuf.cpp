@@ -7,16 +7,14 @@
  */
 
 #include "EBCDICSocketStreamBuf.h"
+
 #include "a2ee2a.h"
 
 //---- EBCDICSocketStreamBuf ---------------------------------------------------
 EBCDICSocketStreamBuf::EBCDICSocketStreamBuf(Socket *socket, long timeout, long sockbufsz)
-	: SocketStreamBuf(socket, timeout, sockbufsz)
-{
-}
+	: SocketStreamBuf(socket, timeout, sockbufsz) {}
 
-long EBCDICSocketStreamBuf::DoWrite(const char *buf, long len)
-{
+long EBCDICSocketStreamBuf::DoWrite(const char *buf, long len) {
 	char *ebcdicBuf = new char[len];
 
 	ascii2ebcdic(ebcdicBuf, buf, len);
@@ -28,10 +26,8 @@ long EBCDICSocketStreamBuf::DoWrite(const char *buf, long len)
 	return bytesWritten;
 }
 
-long EBCDICSocketStreamBuf::DoRead(char *buf, long len) const
-{
+long EBCDICSocketStreamBuf::DoRead(char *buf, long len) const {
 	long bytesRead = SocketStreamBuf::DoRead(buf, len);
 	ebcdic2ascii(buf, buf, bytesRead);
 	return bytesRead;
-
 }

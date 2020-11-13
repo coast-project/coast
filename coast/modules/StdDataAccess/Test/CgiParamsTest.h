@@ -11,14 +11,12 @@
 
 #include "TestCase.h"
 
-class CgiParamsTest: public testframework::TestCase {
+class CgiParamsTest : public testframework::TestCase {
 public:
-	CgiParamsTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
-	//!builds up a suite of testcases for this test
+	CgiParamsTest(TString tstrName) : TestCaseType(tstrName) {}
+	//! builds up a suite of testcases for this test
 	static Test *suite();
-	//!describe this testcase
+	//! describe this testcase
 	void EnvironTest();
 };
 

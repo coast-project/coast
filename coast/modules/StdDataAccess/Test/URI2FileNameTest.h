@@ -12,29 +12,27 @@
 #include "TestCase.h"
 
 //---- URI2FileNameTest ----------------------------------------------------------
-//!TestCases description
-class URI2FileNameTest : public testframework::TestCase
-{
+//! TestCases description
+class URI2FileNameTest : public testframework::TestCase {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	URI2FileNameTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~URI2FileNameTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!describe this testcase
+	//! describe this testcase
 	void Uri2FilenameTest();
 
 protected:
-
 };
 
 #endif

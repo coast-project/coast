@@ -11,19 +11,19 @@
 
 //-*-Mode: C++;-*-
 
-#include "RendererTest.h"
 #include "FieldRendererTest.h"
+#include "RendererTest.h"
 
 //---- TextFieldRendererTest -----------------------------------------------------------
 
-class TextFieldRendererTest : public FieldRendererTest
-{
+class TextFieldRendererTest : public FieldRendererTest {
 public:
 	TextFieldRendererTest(TString tstrName);
 	virtual ~TextFieldRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
+
 protected:
 	// Generic test cases
 	void TestCaseEmptyConf();
@@ -60,7 +60,6 @@ protected:
 	void OptionNoSlotName1TextArea();
 	void OptionsMixedTextArea();
 	void NoOptionsTextArea();
-
 };
 
 #endif

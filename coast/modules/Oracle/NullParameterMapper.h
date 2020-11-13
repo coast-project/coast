@@ -20,10 +20,10 @@
  *
 \code
 {
-	/TreatAsNull {
-		"ThisEvaluatesToAnyNull"
-		...
-	}
+  /TreatAsNull {
+	"ThisEvaluatesToAnyNull"
+	...
+  }
 }
 \endcode
  *
@@ -35,17 +35,16 @@
  *
 \code
 /MyNullMapper {
-	/TreatAsNull {
-		"null"
-		"NULL"
-		""
-	}
+  /TreatAsNull {
+	"null"
+	"NULL"
+	""
+  }
 }
 \endcode
  *
  */
-class NullParameterMapper : public ParameterMapper
-{
+class NullParameterMapper : public ParameterMapper {
 public:
 	/*! Default registering ctor using a unique name to register mapper with
 	 * @param name Mapper gets registered using this name
@@ -53,17 +52,19 @@ public:
 	NullParameterMapper(const char *name);
 
 protected:
-	//! Set returned value to AnyNullImpl if value retrieved using ParameterMapper::DoFinalGetAny() matches any value in \c TreatAsNull list.
+	//! Set returned value to AnyNullImpl if value retrieved using ParameterMapper::DoFinalGetAny() matches any value in \c
+	//! TreatAsNull list.
 	/*! @copydetails ParameterMapper::DoFinalGetAny()
 	 */
-//	virtual bool DoFinalGetAny(const char *key, Anything &value, Context &ctx);
-	virtual bool DoGetAny( const char *key, Anything &value, Context &ctx, ROAnything script );
+	//	virtual bool DoFinalGetAny(const char *key, Anything &value, Context &ctx);
+	virtual bool DoGetAny(const char *key, Anything &value, Context &ctx, ROAnything script);
 
 	/*! Clone interface implementation
 	 * @return Pointer to IFAObject base class
 	 */
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
+
 private:
 	NullParameterMapper();
 	NullParameterMapper(const NullParameterMapper &);

@@ -9,21 +9,20 @@
 #ifndef _AnyToXMLTest_h_
 #define _AnyToXMLTest_h_
 
-#include "TestCase.h"
 #include "AnyToXMLRenderer.h"
+#include "TestCase.h"
 
 class Anything;
 class String;
 
 //---- AnyToXMLTest -----------------------------------------------------------
-class AnyToXMLTest : public testframework::TestCase
-{
+class AnyToXMLTest : public testframework::TestCase {
 public:
 	AnyToXMLTest(TString tstrName);
 	virtual ~AnyToXMLTest();
 
-	void setUp ();
-	static Test *suite ();
+	void setUp();
+	static Test *suite();
 
 	// Produce an XML out of an Anything
 	void AnythingToXMLTest();

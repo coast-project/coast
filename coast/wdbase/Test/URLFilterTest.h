@@ -11,25 +11,24 @@
 
 #include "WDBaseTestPolicies.h"
 
-class URLFilterTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class URLFilterTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
-	//!TestCases for the Registry classes
+	//! TestCases for the Registry classes
 	//! \param name name of the test
 	URLFilterTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~URLFilterTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!sets the environment for this test
-	void setUp ();
+	//! sets the environment for this test
+	void setUp();
 
 	// handle simple things first
 	void DoFilterStateTest();

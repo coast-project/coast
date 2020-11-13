@@ -7,8 +7,9 @@
  */
 
 #include "SysLogTest.h"
-#include "SystemLog.h"
+
 #include "SystemBase.h"
+#include "SystemLog.h"
 #include "TestSuite.h"
 #include "Tracer.h"
 
@@ -28,29 +29,22 @@ void SysLogTest::TestFlags() {
 }
 
 namespace {
-	const char * const MessagePrefix = "SYSLOGTEST: ";
+	const char *const MessagePrefix = "SYSLOGTEST: ";
 	const time_t refTime = 1234567890;
-	String getTimeStampPrefixString() {
-		return coast::system::GenTimeStamp("%Y%m%d%H%M%S", true, refTime).Append(' ');
-	}
+	String getTimeStampPrefixString() { return coast::system::GenTimeStamp("%Y%m%d%H%M%S", true, refTime).Append(' '); }
 	String formatMessageFixedTimeStamp(const char *level, const char *msg) {
 		String finalMessage(128L);
 		finalMessage.Append(getTimeStampPrefixString());
 		finalMessage.Append(MessagePrefix).Append(msg).Append('\n');
 		return finalMessage;
 	}
-}
+}  // namespace
 
-struct TestSysLog: public SystemLog {
+struct TestSysLog : public SystemLog {
 	String fMessage;
-	virtual void DoTraceLevel(const char *level, const char *msg) {
-		fMessage = DoFormatTraceLevelMessage(level, msg);
-	}
-	virtual void DoLogTrace(eLogLevel, const char *logMsg) {
-		DoTraceLevel(MessagePrefix, logMsg);
-	}
-	virtual void DoSystemLevelLog(SystemLog::eLogLevel, const char*) {
-	}
+	virtual void DoTraceLevel(const char *level, const char *msg) { fMessage = DoFormatTraceLevelMessage(level, msg); }
+	virtual void DoLogTrace(eLogLevel, const char *logMsg) { DoTraceLevel(MessagePrefix, logMsg); }
+	virtual void DoSystemLevelLog(SystemLog::eLogLevel, const char *) {}
 };
 
 void SysLogTest::TestFormatter() {
@@ -60,13 +54,18 @@ void SysLogTest::TestFormatter() {
 	SystemLog::SystemLogPtr mySysLog = SystemLog::SystemLogPtr(new TestSysLog());
 	SystemLog::SystemLogPtr oldLogger = SystemLog::replaceSysLog(mySysLog);
 	SystemLog::Error(logMessage);
-	assertCharPtrEqual(String(MessagePrefix).Append(logMessage).Append('\n').cstr(), static_cast<TestSysLog*>(mySysLog.get())->fMessage.cstr());
-	SystemLog::messageFormatterFunctionType oldFormatter = SystemLog::replaceMessageFormatter(&coast::system::log::formatMessageTimeStamp);
+	assertCharPtrEqual(String(MessagePrefix).Append(logMessage).Append('\n').cstr(),
+					   static_cast<TestSysLog *>(mySysLog.get())->fMessage.cstr());
+	SystemLog::messageFormatterFunctionType oldFormatter =
+		SystemLog::replaceMessageFormatter(&coast::system::log::formatMessageTimeStamp);
 	SystemLog::Error(logMessage);
-	assertCharPtrEqualm(String(MessagePrefix).Append(logMessage).Append('\n').cstr(), static_cast<TestSysLog*>(mySysLog.get())->fMessage.SubString(14+1).cstr(), "expected message at offset 15 as it is prefixed by a timestamp");
+	assertCharPtrEqualm(String(MessagePrefix).Append(logMessage).Append('\n').cstr(),
+						static_cast<TestSysLog *>(mySysLog.get())->fMessage.SubString(14 + 1).cstr(),
+						"expected message at offset 15 as it is prefixed by a timestamp");
 	SystemLog::replaceMessageFormatter(&formatMessageFixedTimeStamp);
 	SystemLog::Error(logMessage);
-	assertCharPtrEqual(getTimeStampPrefixString().Append(MessagePrefix).Append(logMessage).Append('\n').cstr(), static_cast<TestSysLog*>(mySysLog.get())->fMessage.cstr());
+	assertCharPtrEqual(getTimeStampPrefixString().Append(MessagePrefix).Append(logMessage).Append('\n').cstr(),
+					   static_cast<TestSysLog *>(mySysLog.get())->fMessage.cstr());
 	SystemLog::replaceSysLog(oldLogger);
 	SystemLog::Error(logMessage);
 	SystemLog::replaceMessageFormatter(oldFormatter);
@@ -78,19 +77,22 @@ void SysLogTest::TestFormatterChangeByEnv() {
 	// prepare setting up environment
 	String envVarSetting(coast::system::log::envnameLogonCerrWithTimestamp);
 	envVarSetting.Append("=1");
-	putenv(const_cast<char*>(envVarSetting.cstr()));
+	putenv(const_cast<char *>(envVarSetting.cstr()));
 	// re-init syslog to re-evaluate environment variables
 	SystemLog::Init("blub");
 	// need to replace syslog instance to catch generated message
 	SystemLog::SystemLogPtr mySysLog = SystemLog::SystemLogPtr(new TestSysLog());
 	SystemLog::SystemLogPtr oldLogger = SystemLog::replaceSysLog(mySysLog);
 	SystemLog::Error(logMessage);
-	assertCharPtrEqualm(String(MessagePrefix).Append(logMessage).Append('\n').cstr(), static_cast<TestSysLog*>(mySysLog.get())->fMessage.SubString(14+1).cstr(), "expected message at offset 15 as it is prefixed by a timestamp");
+	assertCharPtrEqualm(String(MessagePrefix).Append(logMessage).Append('\n').cstr(),
+						static_cast<TestSysLog *>(mySysLog.get())->fMessage.SubString(14 + 1).cstr(),
+						"expected message at offset 15 as it is prefixed by a timestamp");
 	unsetenv(coast::system::log::envnameLogonCerrWithTimestamp);
 	SystemLog::Init(0);
 	oldLogger = SystemLog::replaceSysLog(mySysLog);
 	SystemLog::Error(logMessage);
-	assertCharPtrEqual(String(MessagePrefix).Append(logMessage).Append('\n').cstr(), static_cast<TestSysLog*>(mySysLog.get())->fMessage.cstr());
+	assertCharPtrEqual(String(MessagePrefix).Append(logMessage).Append('\n').cstr(),
+					   static_cast<TestSysLog *>(mySysLog.get())->fMessage.cstr());
 	SystemLog::replaceSysLog(oldLogger);
 }
 

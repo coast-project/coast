@@ -13,13 +13,12 @@
 #include "TextFieldRendererTest.h"
 
 //---- FileBrowseRendererTest -----------------------------------------------------------
-class FileBrowseRendererTest : public TextFieldRendererTest
-{
+class FileBrowseRendererTest : public TextFieldRendererTest {
 public:
 	FileBrowseRendererTest(TString tstrName);
 	virtual ~FileBrowseRendererTest();
 
-	static Test *suite ();
+	static Test *suite();
 
 protected:
 	// Generic test cases

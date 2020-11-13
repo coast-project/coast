@@ -12,21 +12,18 @@
 #include "RequestProcessor.h"
 
 //---- StressProcessor ----------------------------------------------------------
-//!Expects a Stresser name in the requests, runs it and replies the result
-class StressProcessor : public RequestProcessor
-{
+//! Expects a Stresser name in the requests, runs it and replies the result
+class StressProcessor : public RequestProcessor {
 public:
 	//--- constructors
 	StressProcessor(const char *name);
 	virtual ~StressProcessor();
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) StressProcessor(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) StressProcessor(fName); }
 
 	//--- public api
-	//!runs the Stresser given in args and streams the result back
+	//! runs the Stresser given in args and streams the result back
 	//! \param args the input should contain /StresserName otherwise the Default Stresser is run.
 	//! \param reply the results gets streamed there
 	virtual bool DoProcessRequest(std::ostream &reply, Context &ctx);

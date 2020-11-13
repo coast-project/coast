@@ -7,23 +7,24 @@
  */
 
 #include "SortedTagsHTMLMapper.h"
+
+#include "Context.h"
 #include "HTMLParser.h"
 #include "StringStream.h"
-#include "Context.h"
 
 RegisterResultMapper(SortedTagsHTMLMapper);
 
 bool SortedTagsHTMLMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, ROAnything script) {
 	StartTrace1(SortedTagsHTMLMapper.DoPutStream, NotNull(key));
 
-	bool analyseReply = ctx.Lookup("SortedTagsHTMLMapperAnalyseReply", 0L);
+	bool analyseReply = ctx.Lookup("SortedTagsHTMLMapperAnalyseReply", 0L) != 0;
 
 	if (!analyseReply) {
 		analyseReply = (ctx.Lookup("IsAbsPath", 0L) == 0);
 	}
 
 	Trace("analyseReply is: " << analyseReply);
-	if (key && analyseReply) {
+	if ((key != 0) && analyseReply) {
 		AAT_HTMLReader mr(&is);
 		Anything fAllReq;
 		MyHTMLWriter mw(fAllReq);

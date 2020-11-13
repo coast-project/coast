@@ -17,25 +17,19 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class HTTPResponseMapperTest : public testframework::TestCase
-{
+class HTTPResponseMapperTest : public testframework::TestCase {
 public:
 	//--- constructors
 
 	//! TestCase constructor
 	//! \param name name of the test
-	HTTPResponseMapperTest(TString tstrName)
-    :TestCaseType(tstrName)
-    {
-}
-    //! destroys the test case
-	~HTTPResponseMapperTest()
-    {
-}
-    //--- public api
+	HTTPResponseMapperTest(TString tstrName) : TestCaseType(tstrName) {}
+	//! destroys the test case
+	~HTTPResponseMapperTest() {}
+	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//! describe this TestParsedResponse
 	void TestParsedResponse();

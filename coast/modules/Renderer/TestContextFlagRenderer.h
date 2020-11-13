@@ -12,14 +12,15 @@
 #include "Renderer.h"
 
 //---- TestContextFlagRenderer ----------------------------------------------------------
-//! Context.Lookup() result of rendered \c FlagName slot as long value and either render \c WhenSet (!=0) or \c WhenNotSet (==0) Renderer specification
+//! Context.Lookup() result of rendered \c FlagName slot as long value and either render \c WhenSet (!=0) or \c WhenNotSet (==0)
+//! Renderer specification
 /*! @deprecated Use either ConditionalRenderer or SwitchRenderer which are even more flexible
 \par Configuration
 \code
 {
-	/FlagName		Rendererspec	mandatory, rendered result will be used to lookup value in Context
-	/WhenSet		Rendererspec	optional, gets evaluated when lookup of rendered FlagName slot evaluates to != 0
-	/WhenNotSet		Rendererspec	optional, gets evaluated when lookup of rendered FlagName slot evaluates to == 0
+  /FlagName		Rendererspec	mandatory, rendered result will be used to lookup value in Context
+  /WhenSet		Rendererspec	optional, gets evaluated when lookup of rendered FlagName slot evaluates to != 0
+  /WhenNotSet		Rendererspec	optional, gets evaluated when lookup of rendered FlagName slot evaluates to == 0
 }
 \endcode
 Is equivalent to
@@ -31,8 +32,7 @@ or also
 /ConditionalRenderer { /ContextCondition <FlagName> /True <IsSet> /False <NotSet> }
 \endcode
 */
-class TestContextFlagRenderer : public Renderer
-{
+class TestContextFlagRenderer : public Renderer {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	TestContextFlagRenderer(const char *name);

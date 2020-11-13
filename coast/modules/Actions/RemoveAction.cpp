@@ -7,6 +7,7 @@
  */
 
 #include "RemoveAction.h"
+
 #include "AnythingUtils.h"
 #include "Renderer.h"
 #include "Tracer.h"
@@ -14,20 +15,20 @@
 //---- RemoveAction ---------------------------------------------------------------
 RegisterAction(RemoveAction);
 
-bool RemoveAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool RemoveAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(RemoveAction.DoExecAction);
 
 	String slotName;
 	Renderer::RenderOnString(slotName, ctx, config["Slot"]);
-	if (slotName.Length()) {
+	if (slotName.Length() != 0) {
 		// first of all, get the correct store
 		String store = config["Store"].AsString("TmpStore");
 		char delim = config["Delim"].AsCharPtr(".")[0L];
 		char indexdelim = config["IndexDelim"].AsCharPtr(":")[0L];
 		// must use reference here to prevent copying the content due to different allocator locations
 		Anything &anyStore = StoreFinder::FindStore(ctx, store), anyParent(anyStore, anyStore.GetAllocator());
-		SubTraceAny(TraceContent, anyParent, String("content in store [") << store << "], looking for slot [" << slotName << "]");
+		SubTraceAny(TraceContent, anyParent,
+					String("content in store [") << store << "], looking for slot [" << slotName << "]");
 
 		// test if the path to be deleted exists in the store, avoids creation of nonexisting slot
 		// also avoid content copying here using same allocator as parent any
@@ -37,7 +38,7 @@ bool RemoveAction::DoExecAction(String &transitionToken, Context &ctx, const ROA
 			// to remove from
 			long slotIndex = -1L;
 			if (SlotFinder::IntOperate(anyParent, slotName, slotIndex, delim, indexdelim)) {
-				if (slotName.Length()) {
+				if (slotName.Length() != 0) {
 					Trace("removing named slot [" << slotName << "]");
 					anyParent.Remove(slotName);
 				} else if (slotIndex != -1L) {

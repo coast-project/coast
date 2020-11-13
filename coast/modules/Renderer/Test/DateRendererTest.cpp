@@ -7,31 +7,25 @@
  */
 
 #include "DateRendererTest.h"
+
 #include "DateRenderer.h"
-#include "TestSuite.h"
 #include "SystemBase.h"
+#include "TestSuite.h"
 
 using namespace coast;
 
-DateRendererTest::DateRendererTest (TString tname)
-	: RendererTest(tname)
-{
-}
+DateRendererTest::DateRendererTest(TString tname) : RendererTest(tname) {}
 
-DateRendererTest::~DateRendererTest()
-{
-}
+DateRendererTest::~DateRendererTest() {}
 
-void DateRendererTest::setUp ()
-{
+void DateRendererTest::setUp() {
 	RendererTest::setUp();
 	fConfig["Format"] = "%C";
 }
 
-void DateRendererTest::CompareHelper(const char *format, long offset)
-{
-	time_t now;
-	struct tm *tt, res;
+void DateRendererTest::CompareHelper(const char *format, long offset) {
+	time_t now = 0;
+	struct tm *tt = NULL, res;
 	time(&now);
 	now += offset * 86400;
 	tt = system::LocalTime(&now, &res);
@@ -103,8 +97,7 @@ void DateRendererTest::DifferentFormats3()
 	CompareHelper(format);
 }
 
-void DateRendererTest::RelativeTimeFormat()
-{
+void DateRendererTest::RelativeTimeFormat() {
 	DateRenderer dateRenderer("");
 	const char *format = "%d.%m.%y";
 
@@ -124,7 +117,7 @@ void DateRendererTest::AbsolutTimeFormat()
 {
 	DateRenderer dateRenderer("");
 	const int maxsize = 100;
-	time_t absolut = 870912000;		// seconds
+	time_t absolut = 870912000;	 // seconds
 	const char *format = "%d.%m.%y";
 
 	// set up the configuration
@@ -135,7 +128,7 @@ void DateRendererTest::AbsolutTimeFormat()
 	ROAnything roConfig = fConfig;
 	dateRenderer.RenderAll(fReply, fContext, roConfig);
 
-	struct tm *tt, res;
+	struct tm *tt = NULL, res;
 	tt = system::LocalTime(&absolut, &res);
 	char date[maxsize];
 
@@ -157,9 +150,9 @@ void DateRendererTest::GMTTime()
 	ROAnything roConfig = fConfig;
 	dateRenderer.RenderAll(fReply, fContext, roConfig);
 
-	time_t now;
-	time(&now);						// use current time
-	struct tm *tt, res;
+	time_t now = 0;
+	time(&now);	 // use current time
+	struct tm *tt = NULL, res;
 	tt = system::GmTime(&now, &res);
 	char date[maxsize];
 
@@ -175,7 +168,7 @@ void DateRendererTest::emptyConfig1()
 
 	// set up the configuration
 	// render the configuration
-	fConfig.Remove( "Format" );
+	fConfig.Remove("Format");
 
 	ROAnything roConfig = fConfig;
 	// We try try up to 4 times to do the test within the same second.
@@ -183,9 +176,9 @@ void DateRendererTest::emptyConfig1()
 		dateRenderer.RenderAll(fReply, fContext, roConfig);
 
 		// assert the result
-		time_t now;
-		struct tm *tt, res;
-		time(&now);						// use current time
+		time_t now = 0;
+		struct tm *tt = NULL, res;
+		time(&now);	 // use current time
 		tt = system::LocalTime(&now, &res);
 		char date[maxsize];
 
@@ -197,11 +190,10 @@ void DateRendererTest::emptyConfig1()
 		if (date == fReply.str() || i != 4) {
 			assertEqual(date, fReply.str());
 			break;
-		} else {
-			if (i == 4) {
-				// now the test really failed
-				assertEqual(date, fReply.str());
-			}
+		}
+		if (i == 4) {
+			// now the test really failed
+			assertEqual(date, fReply.str());
 		}
 	}
 }
@@ -217,9 +209,9 @@ void DateRendererTest::emptyConfig2()
 		dateRenderer.RenderAll(fReply, fContext, roConfig);
 
 		// assert the result
-		time_t now;
-		struct tm *tt, res;
-		time(&now);						// use current time
+		time_t now = 0;
+		struct tm *tt = NULL, res;
+		time(&now);	 // use current time
 		tt = system::LocalTime(&now, &res);
 		char date[maxsize];
 
@@ -231,17 +223,15 @@ void DateRendererTest::emptyConfig2()
 		if (date == fReply.str() || i != 4) {
 			assertEqual(date, fReply.str());
 			break;
-		} else {
-			if (i == 4) {
-				// now the test really failed
-				assertEqual(date, fReply.str());
-			}
+		}
+		if (i == 4) {
+			// now the test really failed
+			assertEqual(date, fReply.str());
 		}
 	}
 }
 
-Test *DateRendererTest::suite ()
-{
+Test *DateRendererTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, DateRendererTest, simpleFormat);
 	ADD_CASE(testSuite, DateRendererTest, DifferentFormats1);

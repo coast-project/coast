@@ -14,28 +14,24 @@
 class Context;
 class ServiceHandler;
 //---- AuthenticationServiceTest ----------------------------------------------------------
-//!ConfiguredTestCases description
-class AuthenticationServiceTest: public ConfiguredActionTest {
+//! ConfiguredTestCases description
+class AuthenticationServiceTest : public ConfiguredActionTest {
 public:
-	AuthenticationServiceTest(TString tstrName) :
-		ConfiguredActionTest(tstrName) {
-	}
+	AuthenticationServiceTest(TString tstrName) : ConfiguredActionTest(tstrName) {}
 
-	TString getConfigFileName() {
-		return "AuthenticationServiceTestConfig";
-	}
+	TString getConfigFileName() { return "AuthenticationServiceTestConfig"; }
 
-	//!builds up a suite of tests
+	//! builds up a suite of tests
 	static Test *suite();
 
-	//!Authentication is Ok
+	//! Authentication is Ok
 	void OkTest();
 	void OkTest1();
-	//!Authentication fails
+	//! Authentication fails
 	void AuthenticationFailedTest();
-	//!User is ok , but service is not configured well
+	//! User is ok , but service is not configured well
 	void ServiceNotFoundTest();
-	//!service is not configured at all
+	//! service is not configured at all
 	void NoConfigTest();
 
 protected:

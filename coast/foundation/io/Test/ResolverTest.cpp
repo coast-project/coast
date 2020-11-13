@@ -7,24 +7,18 @@
  */
 
 #include "Resolver.h"
-#include "TestSuite.h"
+
 #include "ResolverTest.h"
+#include "TestSuite.h"
 
-ResolverTest::ResolverTest(TString tname) :
-	TestCaseType(tname)
-{
-}
+ResolverTest::ResolverTest(TString tname) : TestCaseType(tname) {}
 
-ResolverTest::~ResolverTest()
-{
-}
+ResolverTest::~ResolverTest() {}
 
-void ResolverTest::simpleDNS2IPTest()
-{
+void ResolverTest::simpleDNS2IPTest() {
 	StartTrace(ResolverTest.simpleDNS2IPTest);
 	ROAnything roaConfig;
-	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(
-		GetTestCaseConfig());
+	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
 	while (aEntryIterator.Next(roaConfig)) {
 		TString strCase;
 		if (!aEntryIterator.SlotName(strCase)) {
@@ -37,12 +31,10 @@ void ResolverTest::simpleDNS2IPTest()
 	}
 }
 
-void ResolverTest::simpleIP2DNSTest()
-{
+void ResolverTest::simpleIP2DNSTest() {
 	StartTrace(ResolverTest.simpleIP2DNSTest);
 	ROAnything roaConfig;
-	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(
-		GetTestCaseConfig());
+	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
 	while (aEntryIterator.Next(roaConfig)) {
 		TString strCase;
 		if (!aEntryIterator.SlotName(strCase)) {
@@ -53,14 +45,13 @@ void ResolverTest::simpleIP2DNSTest()
 		expFQDN = roaConfig["fqdn"].AsString();
 		ip = roaConfig["ip"].AsString();
 		resDN = Resolver::IPAddress2DNS(ip);
-		if ( !expDN.IsEqual(resDN) && !expFQDN.IsEqual(resDN) ) {
+		if (!expDN.IsEqual(resDN) && !expFQDN.IsEqual(resDN)) {
 			assertEqualm(expDN, resDN, TString("Failed at ") << strCase);
 		}
 	}
 }
 
-Test *ResolverTest::suite()
-{
+Test *ResolverTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, ResolverTest, simpleDNS2IPTest);
 	ADD_CASE(testSuite, ResolverTest, simpleIP2DNSTest);

@@ -6,28 +6,27 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
-#include "MapperTest.h"
-#include "ParameterMapperTest.h"
-#include "ResultMapperTest.h"
-#include "DataMapperTest.h"
+#include "ConfigMapperTest.h"
 #include "DataAccessImplTest.h"
 #include "DataAccessTest.h"
-#include "RendererMapperTest.h"
-#include "NameUsingOutputMapperTest.h"
+#include "DataMapperTest.h"
 #include "LoopBackDAImplTest.h"
-#include "SlotnameOutputMapperTest.h"
+#include "MapperTest.h"
+#include "NameUsingOutputMapperTest.h"
+#include "ParameterMapperTest.h"
 #include "ReadFileDAImplTest.h"
-#include "WriteFileDAImplTest.h"
-#include "ConfigMapperTest.h"
-#include "StreamingAnythingMapperTest.h"
+#include "RegExpFilterFieldsParameterMapperTest.h"
 #include "RegExpFilterFieldsResultMapperTest.h"
 #include "RegExpSearchReplaceResultMapperTest.h"
 #include "RenderedKeyResultMapperTest.h"
-#include "RegExpFilterFieldsParameterMapperTest.h"
+#include "RendererMapperTest.h"
+#include "ResultMapperTest.h"
+#include "SlotnameOutputMapperTest.h"
+#include "StreamingAnythingMapperTest.h"
+#include "TestRunner.h"
+#include "WriteFileDAImplTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, DataAccessTest);
 	ADD_SUITE(runner, DataAccessImplTest);
 	ADD_SUITE(runner, MapperTest);
@@ -47,4 +46,4 @@ void setupRunner(TestRunner &runner)
 	ADD_SUITE(runner, RegExpSearchReplaceResultMapperTest);
 	ADD_SUITE(runner, RenderedKeyResultMapperTest);
 	ADD_SUITE(runner, RegExpFilterFieldsParameterMapperTest);
-} // setupRunner
+}  // setupRunner

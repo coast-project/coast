@@ -7,15 +7,15 @@
  */
 
 #include "HTTPDAImpl.h"
-#include "HTTPDAImplTest.h"
-#include "TestSuite.h"
-#include "SSLModule.h"
+
 #include "AnyIterators.h"
 #include "Context.h"
+#include "HTTPDAImplTest.h"
+#include "SSLModule.h"
+#include "TestSuite.h"
 
 //---- HTTPDAImplTest ----------------------------------------------------------------
-HTTPDAImplTest::HTTPDAImplTest(TString tstrName) :
-	TestCaseType(tstrName) {
+HTTPDAImplTest::HTTPDAImplTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(HTTPDAImplTest.HTTPDAImplTest);
 }
 
@@ -70,14 +70,16 @@ void HTTPDAImplTest::SSLTests() {
 		ctx.GetTmpStore() = cConfig["Config"].DeepClone();
 		// We must set our ssl context individually, otherwise SSLOBJMGR takes care of it
 		SSL_CTX *sslctx = SSLModule::GetSSLClientCtx(cConfig["Config"]["SSLModuleCfg"].DeepClone());
-		ctx.GetTmpStore()["SSLContext"] = (IFAObject *) sslctx;
+		ctx.GetTmpStore()["SSLContext"] = (IFAObject *)sslctx;
 		assertEqual(httpDAImpl.Exec(ctx, &in, &out), cConfig["Results"]["HTTPDAImplRet"].AsBool(0));
 		Anything tmp = ctx.GetTmpStore();
 		Anything clientInfo;
 		clientInfo = tmp["ClientInfoBackends"];
 		TraceAny(clientInfo, "ClientInfo used to verify test results.");
-		assertEqual(clientInfo["SSL"]["Peer"]["SSLCertVerifyStatus"]["SSL"]["Ok"].AsBool(0), cConfig["Results"]["SSLCertVerifyStatus"].AsBool(1));
-		assertEqual(clientInfo["SSL"]["Peer"]["AppLevelCertVerifyStatus"].AsBool(0), cConfig["Results"]["AppLevelCertVerifyStatus"].AsBool(1));
+		assertEqual(clientInfo["SSL"]["Peer"]["SSLCertVerifyStatus"]["SSL"]["Ok"].AsBool(0),
+					cConfig["Results"]["SSLCertVerifyStatus"].AsBool(1));
+		assertEqual(clientInfo["SSL"]["Peer"]["AppLevelCertVerifyStatus"].AsBool(0),
+					cConfig["Results"]["AppLevelCertVerifyStatus"].AsBool(1));
 		TraceAny(ctx.GetTmpStore(), "Tempstore after");
 	}
 }
@@ -100,17 +102,19 @@ void HTTPDAImplTest::SSLNirvanaConnectTests() {
 		for (long l = 0; l < cConfig["NumberOfRuns"].AsLong(0L); l++) {
 			SSL_CTX *sslctx = NULL;
 			// We must set our ssl context individually, otherwise SSLOBJMGR takes care of it
-			if (cConfig["UseSSLObjectManager"].AsBool(1)) {
+			if (cConfig["UseSSLObjectManager"].AsBool(true)) {
 				sslctx = SSLModule::GetSSLClientCtx(cConfig["Config"]["SSLModuleCfg"].DeepClone());
 			}
-			ctx.GetTmpStore()["SSLContext"] = (IFAObject *) sslctx;
+			ctx.GetTmpStore()["SSLContext"] = (IFAObject *)sslctx;
 			assertEqual(httpDAImpl.Exec(ctx, &in, &out), cConfig["Results"]["HTTPDAImplRet"].AsBool(0));
 			Anything tmp = ctx.GetTmpStore();
 			Anything clientInfo;
 			clientInfo = tmp["ClientInfoBackends"];
 			TraceAny(clientInfo, "ClientInfo used to verify test results.");
-			assertEqual(clientInfo["SSL"]["Peer"]["SSLCertVerifyStatus"]["SSL"]["Ok"].AsBool(0), cConfig["Results"]["SSLCertVerifyStatus"].AsBool(1));
-			assertEqual(clientInfo["SSL"]["Peer"]["AppLevelCertVerifyStatus"].AsBool(0), cConfig["Results"]["AppLevelCertVerifyStatus"].AsBool(1));
+			assertEqual(clientInfo["SSL"]["Peer"]["SSLCertVerifyStatus"]["SSL"]["Ok"].AsBool(0),
+						cConfig["Results"]["SSLCertVerifyStatus"].AsBool(1));
+			assertEqual(clientInfo["SSL"]["Peer"]["AppLevelCertVerifyStatus"].AsBool(0),
+						cConfig["Results"]["AppLevelCertVerifyStatus"].AsBool(1));
 			TraceAny(ctx.GetTmpStore(), "Tempstore after");
 		}
 	}

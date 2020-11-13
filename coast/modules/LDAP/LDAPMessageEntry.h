@@ -13,20 +13,19 @@
 
 //---- LDAPMessageEntry ---------------------------------------------------
 //! Automatic destruction of LDAPMessage struct
-class LDAPMessageEntry
-{
+class LDAPMessageEntry {
 public:
-	//!Sets the LDAPMessage pointer to pointer in the constructor
+	//! Sets the LDAPMessage pointer to pointer in the constructor
 	LDAPMessageEntry(LDAPMessage **LDAPMessagePtrIn);
 
-	//!releases the LDAPMessage in destructor
+	//! releases the LDAPMessage in destructor
 	~LDAPMessageEntry();
 
-	//!dummy method to prevent optimizing compilers from optimizing away unused variables
+	//! dummy method to prevent optimizing compilers from optimizing away unused variables
 	void Use() const;
 
 private:
-	//!reference to LDAPMessage pointer (pointer to pointer) used by this object
+	//! reference to LDAPMessage pointer (pointer to pointer) used by this object
 	LDAPMessage **fLDAPMessagePtr;
 };
 

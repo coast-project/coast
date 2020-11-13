@@ -7,14 +7,15 @@
  */
 
 #include "HTTPRequestReaderTest.h"
-#include "HTTPRequestReader.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "Context.h"
-#include "MIMEHeader.h"
-#include "StringStreamSocket.h"
+
 #include "AnyIterators.h"
 #include "AnyUtils.h"
+#include "Context.h"
+#include "FoundationTestTypes.h"
+#include "HTTPRequestReader.h"
+#include "MIMEHeader.h"
+#include "StringStreamSocket.h"
+#include "TestSuite.h"
 
 void HTTPRequestReaderTest::ReadMinimalInputTest() {
 	StartTrace(HTTPRequestReaderTest.ReadMinimalInputTest);
@@ -26,7 +27,7 @@ void HTTPRequestReaderTest::ReadMinimalInputTest() {
 		AnyLookupInterfaceAdapter<Anything> lia(anyParams);
 		TString caseName;
 		aEntryIterator.SlotName(caseName);
-		if (not caseName.Length())
+		if (caseName.Length() == 0)
 			caseName.Append("failed at idx:").Append(aEntryIterator.Index());
 
 		MIMEHeader header;

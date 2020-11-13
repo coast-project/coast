@@ -12,16 +12,12 @@
 #include "ReadFileDAImpl.h"
 
 //! FIXME: DataAccess to be refactored soon, do not stray HTTP knowledge around everywhere...
-class HTTPFileLoader: public ReadFileDAImpl {
+class HTTPFileLoader : public ReadFileDAImpl {
 public:
-	HTTPFileLoader(const char *name) :
-		ReadFileDAImpl(name) {
-	}
+	HTTPFileLoader(const char *name) : ReadFileDAImpl(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) HTTPFileLoader(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) HTTPFileLoader(fName); }
 
 	//! executes the transaction
 	//! \param c The context of the transaction
@@ -58,4 +54,4 @@ private:
 	friend class HTTPFileLoaderTest;
 };
 
-#endif		//not defined _HTTPFileLoader_H
+#endif	// not defined _HTTPFileLoader_H

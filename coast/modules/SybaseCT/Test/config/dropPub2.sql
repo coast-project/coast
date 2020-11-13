@@ -1,4 +1,4 @@
-use ##database##
+use ##DATABASE##
 go
 set nocount on
 

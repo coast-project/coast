@@ -7,26 +7,23 @@
  */
 
 #include "HTMLCacheLoaderTest.h"
-#include "TestSuite.h"
+
 #include "HTMLTemplateCacheLoader.h"
-#include "TemplateParser.h"
 #include "HTMLTemplateRenderer.h"
 #include "StringStream.h"
+#include "TemplateParser.h"
+#include "TestSuite.h"
 
 //---- HTMLCacheLoaderTest ----------------------------------------------------------------
-HTMLCacheLoaderTest::HTMLCacheLoaderTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+HTMLCacheLoaderTest::HTMLCacheLoaderTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(HTMLCacheLoaderTest.Ctor);
 }
 
-HTMLCacheLoaderTest::~HTMLCacheLoaderTest()
-{
+HTMLCacheLoaderTest::~HTMLCacheLoaderTest() {
 	StartTrace(HTMLCacheLoaderTest.Dtor);
 }
 
-void HTMLCacheLoaderTest::LoadEmptyCacheTest()
-{
+void HTMLCacheLoaderTest::LoadEmptyCacheTest() {
 	StartTrace(HTMLCacheLoaderTest.LoadEmptyCacheTest);
 	TemplateParser tp;
 	HTMLTemplateCacheLoader htcl(&tp);
@@ -47,8 +44,7 @@ void HTMLCacheLoaderTest::LoadEmptyCacheTest()
 	t_assert(0 == coast::system::io::unlink(filename));
 }
 
-void HTMLCacheLoaderTest::SimpleBuildCacheTest()
-{
+void HTMLCacheLoaderTest::SimpleBuildCacheTest() {
 	StartTrace(HTMLCacheLoaderTest.SimpleBuildCacheTest);
 	const String TEMPLATE("<b>a simple template</b>");
 	IStringStream is(TEMPLATE);
@@ -58,15 +54,14 @@ void HTMLCacheLoaderTest::SimpleBuildCacheTest()
 	htcl.BuildCache(cache, is);
 	t_assert(!cache.IsNull());
 	assertEqual(1, cache.GetSize());
-//modern cache format:
+	// modern cache format:
 	assertEqual(TEMPLATE, cache[0L].AsString());
-// classic template cache format:
-//	assertEqual(0,cache[0L][0L].AsLong(-1));
-//	assertEqual(TEMPLATE,cache[0L][1L].AsString());
-//	assertEqual(2,cache[0L].GetSize());
+	// classic template cache format:
+	//	assertEqual(0,cache[0L][0L].AsLong(-1));
+	//	assertEqual(TEMPLATE,cache[0L][1L].AsString());
+	//	assertEqual(2,cache[0L].GetSize());
 }
-void HTMLCacheLoaderTest::SimpleMacroBuildCacheTest()
-{
+void HTMLCacheLoaderTest::SimpleMacroBuildCacheTest() {
 	StartTrace(HTMLCacheLoaderTest.SimpleMacroBuildCacheTest);
 	const String TEMPLATE("a macro [[#wd HTMLTemplateRenderer { /Template bar }]] with text");
 	IStringStream is(TEMPLATE);
@@ -76,7 +71,7 @@ void HTMLCacheLoaderTest::SimpleMacroBuildCacheTest()
 	htcl.BuildCache(cache, is);
 	t_assert(!cache.IsNull());
 	assertEqual(3, cache.GetSize());
-#if 1 // new cache format
+#if 1  // new cache format
 	t_assert(cache[0L].GetType() == AnyCharPtrType);
 	assertCharPtrEqual("a macro ", cache[0L].AsString());
 	t_assert(cache[2L].GetType() == AnyCharPtrType);
@@ -87,7 +82,7 @@ void HTMLCacheLoaderTest::SimpleMacroBuildCacheTest()
 	t_assert(cache[1L]["HTMLTemplateRenderer"].IsDefined("Template"));
 	assertCharPtrEqual("bar", cache[1L]["HTMLTemplateRenderer"]["Template"].AsString());
 
-#else // classic cache format
+#else  // classic cache format
 	assertEqual(2, cache[0L].GetSize());
 	assertEqual(3, cache[1L].GetSize());
 	assertEqual(2, cache[2L].GetSize());
@@ -105,8 +100,7 @@ void HTMLCacheLoaderTest::SimpleMacroBuildCacheTest()
 	assertCharPtrEqual("bar", cache[1L][2L]["Template"].AsString());
 #endif
 }
-void HTMLCacheLoaderTest::SimpleCommentBuildCacheTest()
-{
+void HTMLCacheLoaderTest::SimpleCommentBuildCacheTest() {
 	StartTrace(HTMLCacheLoaderTest.SimpleCommentBuildCacheTest);
 	const String TEMPLATE("a macro <!--#wd HTMLTemplateRenderer { /Template bar } --> with text");
 	IStringStream is(TEMPLATE);
@@ -126,7 +120,7 @@ void HTMLCacheLoaderTest::SimpleCommentBuildCacheTest()
 	assertCharPtrEqual("HTMLTemplateRenderer", cache[1L].SlotName(0L));
 	t_assert(cache[1L]["HTMLTemplateRenderer"].IsDefined("Template"));
 	assertCharPtrEqual("bar", cache[1L]["HTMLTemplateRenderer"]["Template"].AsString());
-#else // classic cache format
+#else  // classic cache format
 	assertEqual(2, cache[0L].GetSize());
 	assertEqual(3, cache[1L].GetSize());
 	assertEqual(2, cache[2L].GetSize());
@@ -144,8 +138,7 @@ void HTMLCacheLoaderTest::SimpleCommentBuildCacheTest()
 	assertCharPtrEqual("bar", cache[1L][2L]["Template"].AsString());
 #endif
 }
-void HTMLCacheLoaderTest::ConsecutiveCommentBuildCacheTest()
-{
+void HTMLCacheLoaderTest::ConsecutiveCommentBuildCacheTest() {
 	StartTrace(HTMLCacheLoaderTest.ConsecutiveCommentBuildCacheTest);
 	const String TEMPLATE("test <!--#wd Lookup foo ---><!-- hui --><!--#wd ContextLookupRenderer bar -->");
 	IStringStream is(TEMPLATE);
@@ -163,7 +156,7 @@ void HTMLCacheLoaderTest::ConsecutiveCommentBuildCacheTest()
 	assertCharPtrEqual("ContextLookupRenderer", cache[3L].SlotName(0L));
 	assertCharPtrEqual("foo", cache[1L]["Lookup"][0L].AsString());
 	assertCharPtrEqual("bar", cache[3L]["ContextLookupRenderer"][0L].AsString());
-#else // classic cache format
+#else  // classic cache format
 
 	assertEqual(2, cache[0L].GetSize());
 	assertEqual(3, cache[1L].GetSize());
@@ -183,8 +176,7 @@ void HTMLCacheLoaderTest::ConsecutiveCommentBuildCacheTest()
 #endif
 }
 
-void HTMLCacheLoaderTest::CheckCacheIsLoaded()
-{
+void HTMLCacheLoaderTest::CheckCacheIsLoaded() {
 	StartTrace(HTMLCacheLoaderTest.CheckCacheIsLoaded);
 	Anything config;
 	config["TemplatesDir"] = "config/HTMLTemplates";
@@ -194,8 +186,7 @@ void HTMLCacheLoaderTest::CheckCacheIsLoaded()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *HTMLCacheLoaderTest::suite ()
-{
+Test *HTMLCacheLoaderTest::suite() {
 	StartTrace(HTMLCacheLoaderTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, HTMLCacheLoaderTest, LoadEmptyCacheTest);

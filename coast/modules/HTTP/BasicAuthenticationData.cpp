@@ -7,13 +7,13 @@
  */
 
 #include "BasicAuthenticationData.h"
-#include "Tracer.h"
+
 #include "Base64.h"
 #include "StringStream.h"
+#include "Tracer.h"
 
 //---- BasicAuthenticationData ----------------------------------------------------------------
-BasicAuthenticationData::BasicAuthenticationData(const String &authorizationHeaderValue)
-{
+BasicAuthenticationData::BasicAuthenticationData(const String &authorizationHeaderValue) {
 	StartTrace(BasicAuthenticationData.BasicAuthenticationData);
 
 	Trace("Authorization header: " << authorizationHeaderValue);
@@ -32,5 +32,5 @@ BasicAuthenticationData::BasicAuthenticationData(const String &authorizationHead
 	StringTokenizer tok(namePW, ':');
 	fSyntaxValid = tok(fUserName) && tok(fPassword);
 
-	Trace( "name : pw = [" << fUserName << " : " << fPassword << "]" );
+	Trace("name : pw = [" << fUserName << " : " << fPassword << "]");
 }

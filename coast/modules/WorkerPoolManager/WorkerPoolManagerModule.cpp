@@ -7,27 +7,24 @@
  */
 
 #include "WorkerPoolManagerModule.h"
-#include "WorkerPoolManagerModulePoolManager.h"
+
 #include "SystemLog.h"
 #include "Tracer.h"
+#include "WorkerPoolManagerModulePoolManager.h"
 
 //---- WorkerPoolManagerModule ---------------------------------------------------------------
 RegisterModule(WorkerPoolManagerModule);
 
-WorkerPoolManagerModule::WorkerPoolManagerModule(const char *name)
-	: WDModule(name)
-{
+WorkerPoolManagerModule::WorkerPoolManagerModule(const char *name) : WDModule(name) {
 	StartTrace(WorkerPoolManagerModule.WorkerPoolManagerModule);
 }
 
-WorkerPoolManagerModule::~WorkerPoolManagerModule()
-{
+WorkerPoolManagerModule::~WorkerPoolManagerModule() {
 	StartTrace(WorkerPoolManagerModule.~WorkerPoolManagerModule);
 	Finis();
 }
 
-bool WorkerPoolManagerModule::Init(const ROAnything config)
-{
+bool WorkerPoolManagerModule::Init(const ROAnything config) {
 	StartTrace(WorkerPoolManagerModule.Init);
 	TraceAny(config, "WorkerPoolManagerModule's config");
 	long l = 0L;
@@ -40,8 +37,9 @@ bool WorkerPoolManagerModule::Init(const ROAnything config)
 				ROAnything anySub = pools[l];
 				String poolName(pools.SlotName(l));
 				TraceAny(anySub, "initializing Pool for " << poolName << " with config");
-				WorkerPoolManagerModulePoolManager *pPool = new WorkerPoolManagerModulePoolManager(String("WorkerPoolManagerModulePoolManager:") << poolName);
-				if (pPool) {
+				WorkerPoolManagerModulePoolManager *pPool =
+					new WorkerPoolManagerModulePoolManager(String("WorkerPoolManagerModulePoolManager:") << poolName);
+				if (pPool != 0) {
 					Trace("initializing the pool");
 					// let the pool initialize...
 					if (pPool->Init(anySub)) {
@@ -62,8 +60,7 @@ bool WorkerPoolManagerModule::Init(const ROAnything config)
 	return true;
 }
 
-WorkerPoolManagerModulePoolManager *WorkerPoolManagerModule::GetPoolManager(const char *pPoolName)
-{
+WorkerPoolManagerModulePoolManager *WorkerPoolManagerModule::GetPoolManager(const char *pPoolName) {
 	StartTrace1(WorkerPoolManagerModule.GetPoolManager, String("searching for ") << pPoolName);
 	if (fWorkerPools.IsDefined(pPoolName)) {
 		Trace(String(pPoolName) << ": Pool found");
@@ -74,10 +71,9 @@ WorkerPoolManagerModulePoolManager *WorkerPoolManagerModule::GetPoolManager(cons
 	return NULL;
 }
 
-bool WorkerPoolManagerModule::Finis()
-{
+bool WorkerPoolManagerModule::Finis() {
 	StartTrace(WorkerPoolManagerModule.Finis);
-	while (fWorkerPools.GetSize()) {
+	while (fWorkerPools.GetSize() != 0) {
 		Trace(String(fWorkerPools.SlotName(0L)) << ": stopping workers");
 		WorkerPoolManager *pPool = (WorkerPoolManager *)fWorkerPools[0L].AsIFAObject();
 		(*pPool).BlockRequests();

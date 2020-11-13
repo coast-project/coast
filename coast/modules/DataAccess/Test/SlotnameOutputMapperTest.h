@@ -12,29 +12,28 @@
 #include "ConfiguredActionTest.h"
 
 //---- SlotnameOutputMapperTest ----------------------------------------------------------
-//!Test the SlotnameOutputMapper
-class SlotnameOutputMapperTest : public ConfiguredActionTest
-{
+//! Test the SlotnameOutputMapper
+class SlotnameOutputMapperTest : public ConfiguredActionTest {
 public:
 	//--- constructors
 
-	//!ConfiguredTestCase constructor
+	//! ConfiguredTestCase constructor
 	//! \param name name of the test
 	SlotnameOutputMapperTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~SlotnameOutputMapperTest();
 
 	//--- public api
 
-	//!builds up a suite of tests
-	static Test *suite ();
+	//! builds up a suite of tests
+	static Test *suite();
 
 	TString getConfigFileName();
 
-	//!Performs a mapping and checks the Stores
+	//! Performs a mapping and checks the Stores
 	void BasicFunctionTest();
-	//!Performs mapping test for overwrite or append and checks the Stores
+	//! Performs mapping test for overwrite or append and checks the Stores
 	void OverwriteOrAppendTest();
 };
 

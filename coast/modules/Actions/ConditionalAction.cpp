@@ -6,6 +6,7 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "ConditionalAction.h"
+
 #include "Tracer.h"
 //---- ConditionalAction ---------------------------------------------------------------
 RegisterAction(ConditionalAction);
@@ -18,9 +19,10 @@ bool ConditionalAction::DoExecAction(String &transitionToken, Context &ctx, cons
 		return false;
 	}
 	bool result = ExecAction(transitionToken, ctx, roaActionSpec);
-	Trace("executing Call action was " << (result?"":"not ") << "successful, new transition [" << transitionToken << "]");
-	if ( config.LookupPath(roaActionSpec, result ? "True" : "False", '\000') ) {
-		TraceAny(roaActionSpec, (result ? "True" : "False") << " action specification for transition [" << transitionToken << "]");
+	Trace("executing Call action was " << (result ? "" : "not ") << "successful, new transition [" << transitionToken << "]");
+	if (config.LookupPath(roaActionSpec, result ? "True" : "False", '\000')) {
+		TraceAny(roaActionSpec, (result ? "True" : "False")
+									<< " action specification for transition [" << transitionToken << "]");
 		return ExecAction(transitionToken, ctx, roaActionSpec);
 	}
 	return true;

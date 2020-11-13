@@ -7,6 +7,7 @@
  */
 
 #include "CreateAnythingFromStringAction.h"
+
 #include "AnythingUtils.h"
 #include "Renderer.h"
 #include "StringStream.h"
@@ -14,12 +15,11 @@
 //---- CreateAnythingFromStringAction ---------------------------------------------------------------
 RegisterAction(CreateAnythingFromStringAction);
 
-CreateAnythingFromStringAction::CreateAnythingFromStringAction(const char *name) : Action(name) { }
+CreateAnythingFromStringAction::CreateAnythingFromStringAction(const char *name) : Action(name) {}
 
-CreateAnythingFromStringAction::~CreateAnythingFromStringAction() { }
+CreateAnythingFromStringAction::~CreateAnythingFromStringAction() {}
 
-bool CreateAnythingFromStringAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool CreateAnythingFromStringAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(CreateAnythingFromStringAction.DoExecAction);
 	TraceAny(config, "config:");
 
@@ -34,7 +34,7 @@ bool CreateAnythingFromStringAction::DoExecAction(String &transitionToken, Conte
 	Trace("resulting string before creating the any:[" << string << "]");
 
 	Anything newAny;
-	if (string.Length()) {
+	if (string.Length() != 0) {
 		IStringStream is(string);
 		newAny.Import(is);
 	}

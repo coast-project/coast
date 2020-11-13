@@ -10,34 +10,32 @@
 #define _SocketTest_H
 
 #include "FoundationTestTypes.h"
-class SocketTest: public testframework::TestCaseWithConfig {
+class SocketTest : public testframework::TestCaseWithConfig {
 public:
-	SocketTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	SocketTest(TString tname) : TestCaseType(tname) {}
 
-	//!builds up a suite of testcases for this test
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!tests the Socket class with a fd from Connector
+	//! tests the Socket class with a fd from Connector
 	void simpleConstructorTest();
 
-	//!tests the Socket class with a invalid fd
+	//! tests the Socket class with a invalid fd
 	void faultyConstructorTest();
 
-	//!tests the Socket class with a fd from Connector with a pool allocator
+	//! tests the Socket class with a fd from Connector with a pool allocator
 	void allocatorConstructorTest();
 
-	//!tests the Socket class with a http server interaction as client
+	//! tests the Socket class with a http server interaction as client
 	void httpClientTest();
 
-	//!tests the Socket class with a nonexistent server interaction as client
+	//! tests the Socket class with a nonexistent server interaction as client
 	void faultyClientTest();
 
-	//!tests the conversion of ip-addr to network address
+	//! tests the conversion of ip-addr to network address
 	void MakeInetAddrTest();
 
-	//!tests the extension of the clientinfo Anything for use by keepalive connections
+	//! tests the extension of the clientinfo Anything for use by keepalive connections
 	void AppendToClientInfoTest();
 
 	void SetToNonBlockingTest();

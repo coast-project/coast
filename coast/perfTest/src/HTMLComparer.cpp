@@ -7,6 +7,7 @@
  */
 
 #include "HTMLComparer.h"
+
 #include "Tracer.h"
 
 bool HTMLComparer::Compare(String &report) {
@@ -24,10 +25,8 @@ bool HTMLComparer::Compare(String &report) {
 		if (i > 0) {
 			report << ".";
 		}
-
 	}
 	return false;
-
 }
 
 bool HTMLComparer::DoCompareAny(Anything &master, Anything &slave) {
@@ -41,28 +40,23 @@ bool HTMLComparer::DoCompareAny(Anything &master, Anything &slave) {
 
 	if (masterType == AnyArrayType) {
 		return DoCompareAnyArray(master, slave);
-	} else {
-		String masterString = master.AsString("X");
-		masterString.ToLower();
-		Trace("Masterstring: " << masterString);
-
-		if (masterString != "ignore") {
-			//	   return master.AsString("X")==slave.AsString("U");
-
-			if (master.AsString("X") == slave.AsString("U")) {
-				return true;
-			} else {
-				fPathStack.Append("\n");
-				fPathStack.Append(master);
-				fPathStack.Append("\nMaster:");
-				fPathStack.Append(slave);
-				fPathStack.Append("\nDifferent sections:\nSlave :");
-				return false;
-			}
-
-		}
-		return true;
 	}
+	String masterString = master.AsString("X");
+	masterString.ToLower();
+	Trace("Masterstring: " << masterString);
+
+	if (masterString != "ignore") {
+		if (master.AsString("X") == slave.AsString("U")) {
+			return true;
+		}
+		fPathStack.Append("\n");
+		fPathStack.Append(master);
+		fPathStack.Append("\nMaster:");
+		fPathStack.Append(slave);
+		fPathStack.Append("\nDifferent sections:\nSlave :");
+		return false;
+	}
+	return true;
 }
 
 bool HTMLComparer::DoCompareAnyArray(Anything &master, Anything &slave) {
@@ -76,8 +70,7 @@ bool HTMLComparer::DoCompareAnyArray(Anything &master, Anything &slave) {
 		String slaveSlotName = slave.SlotName(i);
 
 		if (masterSlotName != slaveSlotName) {
-			Trace("Slotnames different :" << masterSlotName
-					<< "/" << slaveSlotName);
+			Trace("Slotnames different :" << masterSlotName << "/" << slaveSlotName);
 			AddToPathStack(masterSlotName, i);
 			return false;
 		}
@@ -97,10 +90,9 @@ bool HTMLComparer::DoCompareAnyArray(Anything &master, Anything &slave) {
 void HTMLComparer::AddToPathStack(String path, int index) {
 	StartTrace(HTMLComparer.AddToPathStack);
 
-	if (path != "") {
+	if (!path.empty()) {
 		fPathStack.Append(path);
 	} else {
 		fPathStack.Append(index);
 	}
-
 }

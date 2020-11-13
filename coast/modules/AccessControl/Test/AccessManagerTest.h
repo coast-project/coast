@@ -25,31 +25,25 @@ They have a config themselves, which in turn defines the backends
 (i.e. AccessControllers) that they utilize to get access to user-
 and token information.
 */
-class AccessManagerTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class AccessManagerTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
 	//! TestCase constructor
 	//! \param name name of the test
-	AccessManagerTest(TString tstrName)
-    :TestCaseType(tstrName)
-    {
-}
-    //! destroys the test case
-	~AccessManagerTest()
-    {
-}
-    //--- public api
+	AccessManagerTest(TString tstrName) : TestCaseType(tstrName) {}
+	//! destroys the test case
+	~AccessManagerTest() {}
+	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//! sets the environment for this test
-	void setUp ();
+	void setUp();
 
 	//! deletes the environment for this test
-	void tearDown ();
+	void tearDown();
 
 	TString getConfigFileName();
 

@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "DataAccessStresser.h"
-#include "Timers.h"
-#include "StringStream.h"
+
 #include "DataAccess.h"
+#include "StringStream.h"
+#include "Timers.h"
 RegisterStresser(DataAccessStresser);
 
 Anything DataAccessStresser::Run(long id) {
@@ -23,7 +24,7 @@ Anything DataAccessStresser::Run(long id) {
 	String daName = Lookup("DataAccess", "");
 	TraceAny(fConfig, "Config");
 	Anything results, anyRet;
-	if (daName != "") {
+	if (!daName.empty()) {
 		Anything env;
 		env["Id"] = id - 1;
 
@@ -50,7 +51,7 @@ Anything DataAccessStresser::Run(long id) {
 			Trace("AccessTime " << accessTime);
 			sum += accessTime;
 			ROAnything roaInfoMessage;
-			if (Lookup("InfoMessage", roaInfoMessage) && roaInfoMessage.GetSize()) {
+			if (Lookup("InfoMessage", roaInfoMessage) && (roaInfoMessage.GetSize() != 0)) {
 				TraceAny(roaInfoMessage, "slots to Output");
 				Anything metaInfo = Anything(Anything::ArrayMarker());
 				results["InfoMessageCtr"][strStepNr] = metaInfo;

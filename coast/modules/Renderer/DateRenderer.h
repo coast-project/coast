@@ -17,20 +17,20 @@
 \par Configuration
 \code
 {
-	/Format 			Rendererspec		optional, default "\%c", format string a la strftime
-	/Date				[Rendererspec|long]	optional, default 0, date/time in seconds
-	/Offset  			Rendererspec		optional, default 0, offset in seconds or days (if a trailing 'd' was given) added to the time
-	/DeltaGMT			long				optional, default 0 [0|1], if set to 1, the GMT difference [+|-][0-9] is added to the output
-	/DeltaGMTSeconds	long				optional, default 0 [0|1], if set to true it will output the gmt to localtime offset in seconds
-	/UseLocalTime		long				optional, default 1 [0|1], use localized time/date if set to true, gmt time/date otherwise
+  /Format 			Rendererspec		optional, default "\%c", format string a la strftime
+  /Date				[Rendererspec|long]	optional, default 0, date/time in seconds
+  /Offset  			Rendererspec		optional, default 0, offset in seconds or days (if a trailing 'd' was given) added to the time
+  /DeltaGMT			long				optional, default 0 [0|1], if set to 1, the GMT difference [+|-][0-9] is added to the output
+  /DeltaGMTSeconds	long				optional, default 0 [0|1], if set to true it will output the gmt to localtime offset in seconds
+  /UseLocalTime		long				optional, default 1 [0|1], use localized time/date if set to true, gmt time/date otherwise
 }
 \endcode
 or just
 \code
 {
-	"\%c"		Rendererspec	optional, default "\%c", format string a la strftime
-	0			long			optional, /Date attribute described above
-	0			long			optional, /Offset attribute described above
+  "\%c"		Rendererspec	optional, default "\%c", format string a la strftime
+  0			long			optional, /Date attribute described above
+  0			long			optional, /Offset attribute described above
 }
 \endcode
 
@@ -48,8 +48,7 @@ to '%C' (= 19 for the current century and 20 for the next).
 \attention The buffer for constructing the time string is limited to 200 bytes!
 \note Unix dates will break somewhen around year 2036
 */
-class DateRenderer : public Renderer
-{
+class DateRenderer : public Renderer {
 public:
 	DateRenderer(const char *name);
 
@@ -59,4 +58,4 @@ private:
 	const size_t gcMaxDateArraySize;
 };
 
-#endif		//not defined _DateRenderer_H
+#endif	// not defined _DateRenderer_H

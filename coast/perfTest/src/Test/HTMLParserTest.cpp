@@ -7,9 +7,10 @@
  */
 
 #include "HTMLParserTest.h"
-#include "TestSuite.h"
-#include "HTMLParser.h"
+
 #include "AnyUtils.h"
+#include "HTMLParser.h"
+#include "TestSuite.h"
 
 void HTMLParserTest::ParseFileTest() {
 	StartTrace(HTMLParserTest.ParseFileTest);
@@ -17,8 +18,8 @@ void HTMLParserTest::ParseFileTest() {
 	std::iostream *input = coast::system::OpenIStream("eSport", "html");
 	std::iostream *expectedResultInput = coast::system::OpenStream("eSportResult", "any");
 
-	if (t_assertm(input != NULL, "expected eSport.html to be there")
-			&& t_assertm(expectedResultInput != NULL, "expected eSportResult.any to be there")) {
+	if (t_assertm(input != NULL, "expected eSport.html to be there") &&
+		t_assertm(expectedResultInput != NULL, "expected eSportResult.any to be there")) {
 		Anything expected;
 		expected.Import(*expectedResultInput, "eSportResult.any");
 

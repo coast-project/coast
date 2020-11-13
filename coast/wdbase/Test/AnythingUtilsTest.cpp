@@ -7,6 +7,7 @@
  */
 
 #include "AnythingUtilsTest.h"
+
 #include "AnythingUtils.h"
 #include "TestSuite.h"
 

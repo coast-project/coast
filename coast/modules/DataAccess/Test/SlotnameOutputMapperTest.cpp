@@ -7,14 +7,14 @@
  */
 
 #include "SlotnameOutputMapperTest.h"
-#include "SlotnameOutputMapper.h"
-#include "TestSuite.h"
+
 #include "CheckStores.h"
 #include "Context.h"
+#include "SlotnameOutputMapper.h"
+#include "TestSuite.h"
 
 //---- SlotnameOutputMapperTest ----------------------------------------------------------------
-SlotnameOutputMapperTest::SlotnameOutputMapperTest(TString tname) :
-	ConfiguredActionTest(tname) {
+SlotnameOutputMapperTest::SlotnameOutputMapperTest(TString tname) : ConfiguredActionTest(tname) {
 	StartTrace(SlotnameOutputMapperTest.SlotnameOutputMapperTest);
 }
 
@@ -35,7 +35,8 @@ void SlotnameOutputMapperTest::BasicFunctionTest() {
 	Context ctx;
 	som.Put("Data", GetTestCaseConfig()["AnyToPut"].DeepClone(), ctx);
 	Anything anyFailureStrings;
-	coast::testframework::CheckStores(anyFailureStrings, GetTestCaseConfig()["Result"], ctx, name(), coast::testframework::exists);
+	coast::testframework::CheckStores(anyFailureStrings, GetTestCaseConfig()["Result"], ctx, name(),
+									  coast::testframework::exists);
 	for (long sz = anyFailureStrings.GetSize(), i = 0; i < sz; ++i) {
 		t_assertm(false, anyFailureStrings[i].AsString().cstr());
 	}
@@ -51,8 +52,9 @@ void SlotnameOutputMapperTest::OverwriteOrAppendTest() {
 	som.Put("Data", GetTestCaseConfig()["AnyToPut"][0L].DeepClone(), ctx);
 	som.Put("Data", GetTestCaseConfig()["AnyToPut"][1L].DeepClone(), ctx);
 	Anything anyFailureStrings;
-	coast::testframework::CheckStores(anyFailureStrings, GetTestCaseConfig()["Result"], ctx, name(), coast::testframework::exists);
-	for ( long sz=anyFailureStrings.GetSize(),i=0; i<sz;++i ) {
+	coast::testframework::CheckStores(anyFailureStrings, GetTestCaseConfig()["Result"], ctx, name(),
+									  coast::testframework::exists);
+	for (long sz = anyFailureStrings.GetSize(), i = 0; i < sz; ++i) {
 		t_assertm(false, anyFailureStrings[i].AsString().cstr());
 	}
 }

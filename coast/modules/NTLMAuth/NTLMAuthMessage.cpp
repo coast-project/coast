@@ -7,6 +7,7 @@
  */
 
 #include "NTLMAuthMessage.h"
+
 #include "NTLMCoder.h"
 #include "Tracer.h"
 
@@ -21,7 +22,7 @@ long NTLMAuthMessage::DecodeLong(long pos) {
 	return DecodeShort(pos) + (DecodeShort(pos + 2) << 16);
 }
 long NTLMAuthMessage::DecodeShort(long pos) {
-	return (unsigned char) fMsg[pos] + ((unsigned char) fMsg[pos + 1L] << 8);
+	return (unsigned char)fMsg[pos] + ((unsigned char)fMsg[pos + 1L] << 8);
 }
 String NTLMAuthMessage::DecodeString(long pos, bool striputf) {
 	long len = DecodeShort(pos);
@@ -76,13 +77,13 @@ bool NTLMAuthClientMsgType3::IsValid() {
 	return NTLMAuthMessage::IsValid();
 }
 String NTLMAuthClientMsgType3::GetDomain() {
-	return DecodeString(28L, (GetFlags() & 0x01));
+	return DecodeString(28L, (GetFlags() & 0x01) != 0U);
 }
 String NTLMAuthClientMsgType3::GetHost() {
-	return DecodeString(44L, (GetFlags() & 0x01));
+	return DecodeString(44L, (GetFlags() & 0x01) != 0U);
 }
 String NTLMAuthClientMsgType3::GetUser() {
-	return DecodeString(36L, (GetFlags() & 0x01));
+	return DecodeString(36L, (GetFlags() & 0x01) != 0U);
 }
 String NTLMAuthClientMsgType3::GetNTHash() {
 	return DecodeString(20L);

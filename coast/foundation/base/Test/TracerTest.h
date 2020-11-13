@@ -11,14 +11,13 @@
 
 #include "TestCase.h"
 
-class TracerTest : public testframework::TestCase
-{
+class TracerTest : public testframework::TestCase {
 public:
-	//!constructors
+	//! constructors
 	TracerTest(TString tstrName) : TestCaseType(tstrName) {}
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
 	void setUp();
 
@@ -35,7 +34,7 @@ public:
 	void TracerTestNotAllAboveLowerBound();
 	void TracerTestBug248();
 
-	//!test case for the Tracer.h test macros
+	//! test case for the Tracer.h test macros
 	void CheckMacrosCompile();
 };
 

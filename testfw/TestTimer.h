@@ -14,17 +14,17 @@
 #if defined(WIN32)
 #include <windows.h>
 typedef __int64 HRTESTTIME;
-#define GetHRTESTTIME()	GetTickCount()
+#define GetHRTESTTIME() GetTickCount()
 #elif defined(__sun)
 #include <sys/times.h>
-typedef hrtime_t 		HRTESTTIME;
-#define GetHRTESTTIME()		gethrtime()
+typedef hrtime_t HRTESTTIME;
+#define GetHRTESTTIME() gethrtime()
 #else
 #include <time.h>
 
-typedef clock_t			HRTESTTIME;
+typedef clock_t HRTESTTIME;
 extern "C" HRTESTTIME gettimes();
-#define GetHRTESTTIME()	gettimes()
+#define GetHRTESTTIME() gettimes()
 #endif
 
 //---- TestTimer ----------------------------------------------------------
@@ -35,64 +35,62 @@ Sun  : 1000000000 ticks per second, eg. 1ns steps
 WIN32:       1000 ticks per second, eg. 1ms steps
 The ticks can be scaled to different resolutions, but the accuraccy depends on the used system timer
 */
-class TestTimer
-{
+class TestTimer {
 public:
 	typedef HRTESTTIME tTimeType;
 
 	/*! Timings are system dependent, resolution is used to scale it to user needs
-		small infrastructure class to ease timings of scopes with whatever resolution you like.it uses highest resolution timing apis defined on the platform
-		\param resolution the number of ticks you want measure per second; 0 means system dependent clock ticks, 1 means second resolution, 1000 means millisecond resolution etc */
+	  small infrastructure class to ease timings of scopes with whatever resolution you like.it uses highest resolution timing
+	  apis defined on the platform
+	  \param resolution the number of ticks you want measure per second; 0 means system dependent clock ticks, 1 means second resolution, 1000 means millisecond resolution etc */
 	TestTimer(tTimeType resolution = 1000);
 
-	//!copy constructor for difftimers
+	//! copy constructor for difftimers
 	TestTimer(const TestTimer &dt);
 
-	//!assignement operator for difftimers
+	//! assignement operator for difftimers
 	TestTimer &operator=(const TestTimer &dt);
 
-	//!destructor
-	~TestTimer() { }
+	//! destructor
+	~TestTimer() {}
 
 	/*! difference in ticks per seconds since last start; timer is not reset
-		\param simulatedValue defines return value for predictable testcases
-		\return time difference in requested resolution */
+	  \param simulatedValue defines return value for predictable testcases
+	  \return time difference in requested resolution */
 	tTimeType Diff(tTimeType simulatedValue = -1);
 
-	//!resets timer to a new start value
+	//! resets timer to a new start value
 	void Start();
 
-	//!resets timer to a new start value and returns the elapsed ticks since last start
+	//! resets timer to a new start value and returns the elapsed ticks since last start
 	tTimeType Reset();
 
 	/*! Get back the tTimeType value since Start() or Reset() was called. Does not touch fStart.
-		\return difference from now to start */
-	tTimeType RawDiff() const {
-		return ( GetHRTESTTIME() - fStart );
-	}
+	  \return difference from now to start */
+	tTimeType RawDiff() const { return (GetHRTESTTIME() - fStart); }
 
 	/*! Get platform dependent ticks per second
-		\return ticks per second */
+	  \return ticks per second */
 	static tTimeType TicksPerSecond();
 
 	/*! Calculate relative difference of two values, eg. a percentage value
-		\param hrReference reference value, which is the 100% reference mark
-		\param hrCurrent value to compare reference with
-		\return relative difference */
+	  \param hrReference reference value, which is the 100% reference mark
+	  \param hrCurrent value to compare reference with
+	  \return relative difference */
 	static double RelativeChange(tTimeType hrReference, tTimeType hrCurrent, double precision = 100.0) {
 		return std::floor(precision * double(hrReference) / double(hrCurrent)) / precision;
 	}
 
-	//!scales the system dependent raw clock tick difference to the resolution defined in the constructor
+	//! scales the system dependent raw clock tick difference to the resolution defined in the constructor
 	static tTimeType Scale(tTimeType rawDiff, tTimeType resolution);
 
 protected:
 	friend class TestTimerTest;
 
-	//!keeps last startvalue in system dependent ticks
+	//! keeps last startvalue in system dependent ticks
 	tTimeType fStart;
 
-	//!stores resolution in ticks per second
+	//! stores resolution in ticks per second
 	tTimeType fResolution;
 };
 

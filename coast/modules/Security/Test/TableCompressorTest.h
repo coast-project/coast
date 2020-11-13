@@ -13,22 +13,20 @@
 
 class TableCompressor;
 
-class TableCompressorTest: public testframework::TestCase {
+class TableCompressorTest : public testframework::TestCase {
 public:
-	TableCompressorTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	TableCompressorTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 
-	//!test working of configuration
+	//! test working of configuration
 	void InitTest();
-	//!test working of configuration
+	//! test working of configuration
 	void InitWithExpansionTest();
-	//!test working of compression/expansion
+	//! test working of compression/expansion
 	void CompressExpandTest();
-	//!test working of compression/expansion in case of misconfiguration
+	//! test working of compression/expansion in case of misconfiguration
 	void CompressExpandWithEmptyConfigTest();
-	//!test the utilities
+	//! test the utilities
 	void CalcAtTest();
 	void CalcKeyTest();
 	void MakeTableTest();

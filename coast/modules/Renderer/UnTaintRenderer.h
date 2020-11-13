@@ -16,11 +16,11 @@
 \par Configuration
 \code
 {
-	/UnTaintRenderer
-	{
-		/ToClean	Rendererspec	mandatory, content to untaint
-		/BadChars	Rendererspec	optional, characters you want to remove from /ToClean (default is "<>")
-	}
+  /UnTaintRenderer
+  {
+	/ToClean	Rendererspec	mandatory, content to untaint
+	/BadChars	Rendererspec	optional, characters you want to remove from /ToClean (default is "<>")
+  }
 }
 \endcode
 This renderer unescapes the following escape sequences until there is nothing left to unescape:\n
@@ -31,11 +31,10 @@ Escaped values > xFF are considered invalid (they might be potentially harmful u
 The characters given in /BadChars are removed from the unescaped string. Under any circumstances, \%\&\<\> are removed.
 This renderer may be used whenever input from a client (user) is rendered into a html page.
 */
-class UnTaintRenderer: public Renderer {
+class UnTaintRenderer : public Renderer {
 public:
-	UnTaintRenderer(const char *name) :
-		Renderer(name) {
-	}
+	UnTaintRenderer(const char *name) : Renderer(name) {}
+
 protected:
 	//! URL unescapes a string an cleans it from dangerous characters.
 	//! \param reply out - the stream where the rendered output is written on.

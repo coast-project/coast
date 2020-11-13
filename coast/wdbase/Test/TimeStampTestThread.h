@@ -11,8 +11,7 @@
 
 #include "ThreadPools.h"
 
-class TestWorker : public WorkerThread
-{
+class TestWorker : public WorkerThread {
 public:
 	TestWorker();
 	~TestWorker();
@@ -38,8 +37,7 @@ protected:
 };
 
 //! this class demonstrates how to properly subclass WorkerPoolManager
-class SamplePoolManager : public WorkerPoolManager
-{
+class SamplePoolManager : public WorkerPoolManager {
 public:
 	SamplePoolManager(const String &name);
 	~SamplePoolManager();
@@ -47,13 +45,14 @@ public:
 protected:
 	friend class WorkerPoolManagerTest;
 
-	//!allocate the handle request thread pool
+	//! allocate the handle request thread pool
 	virtual void DoAllocPool(ROAnything args);
 
-	//!cleanup hook for re-initialization of pool
+	//! cleanup hook for re-initialization of pool
 	virtual void DoDeletePool(ROAnything args);
 
 	virtual WorkerThread *DoGetWorker(long i);
+
 private:
 	// block the following default elements of this class
 	// because they're not allowed to be used
@@ -61,7 +60,7 @@ private:
 	SamplePoolManager &operator=(const SamplePoolManager &);
 
 protected:
-	TestWorker *fRequests;				// vector storing all request thread objects
+	TestWorker *fRequests;	// vector storing all request thread objects
 };
 
 #endif

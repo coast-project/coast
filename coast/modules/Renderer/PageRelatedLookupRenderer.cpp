@@ -6,22 +6,21 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "PageRelatedLookupRenderer.h"
+
 #include "Anything.h"
 #include "Context.h"
 #include "Page.h"
-#include "PageRelatedLookupRenderer.h"
 
 //---- PageRelatedLookupRenderer ----------------------------------------------------------------
 RegisterRenderer(PageRelatedLookupRenderer);
 
-PageRelatedLookupRenderer::PageRelatedLookupRenderer(const char *name) : LookupRenderer(name)
-{}
+PageRelatedLookupRenderer::PageRelatedLookupRenderer(const char *name) : LookupRenderer(name) {}
 
-ROAnything PageRelatedLookupRenderer::DoLookup(Context &context, const char *name, char delim, char indexdelim)
-{
+ROAnything PageRelatedLookupRenderer::DoLookup(Context &context, const char *name, char delim, char indexdelim) {
 	ROAnything a;
 	Page *page = context.GetPage();
-	if (page) {
+	if (page != 0) {
 		// lookup in page specific array
 		ROAnything config;
 		String pName;

@@ -11,22 +11,20 @@
 
 //-*-Mode: C++;-*-
 
-#include "RendererTest.h"
 #include "FieldRendererTest.h"
+#include "RendererTest.h"
 
 //---- RadioButtonRendererTest -----------------------------------------------------------
 
-class RadioButtonRendererTest : public FieldRendererTest
-{
+class RadioButtonRendererTest : public FieldRendererTest {
 public:
 	RadioButtonRendererTest(TString tstrName);
 	virtual ~RadioButtonRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
 
 protected:
-
 	void TestCaseEmptyConf();
 	void TestCase0();
 	void TestCase1();

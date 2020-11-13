@@ -9,22 +9,24 @@
  */
 
 #include "StringLengthResultMapper.h"
+
+#include "Context.h"
 #include "StringStream.h"
 #include "utf8.h"
-#include "Context.h"
 
 namespace {
 	long getStringLength(String const &str) {
 		long len = 0L;
 		try {
 			len = utf8::distance(str.begin(), str.end());
-		} catch (utf8::invalid_utf8& e) {
+		} catch (utf8::invalid_utf8 &e) {
 			len = str.Length();
 		}
-		StatTrace(StringLengthResultMapper.getStringLength, "len: " << len << " str [" << str << "]", coast::storage::Current());
+		StatTrace(StringLengthResultMapper.getStringLength, "len: " << len << " str [" << str << "]",
+				  coast::storage::Current());
 		return len;
 	}
-}
+}  // namespace
 RegisterResultMapper(StringLengthResultMapper);
 
 bool StringLengthResultMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything script) {
@@ -38,13 +40,12 @@ bool StringLengthResultMapper::DoPutAny(const char *key, Anything &value, Contex
 	return ResultMapper::DoPutAny(key, value, ctx, script);
 }
 
-bool StringLengthResultMapper::DoPutStream(const char *key, std::istream & is, Context & ctx, ROAnything script) {
+bool StringLengthResultMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, ROAnything script) {
 	StartTrace1(StringLengthResultMapper.DoPutStream, "key [" << NotNull(key) << "]");
 	OStringStream content;
 	long lRecv = 0, lToRecv = 2048;
 	l_long lTotalReceived = 0LL;
-	while (NSStringStream::PlainCopyStream2Stream(&is, content, lRecv, lToRecv) && lRecv == lToRecv)
-		lTotalReceived += lRecv;
+	while (NSStringStream::PlainCopyStream2Stream(&is, content, lRecv, lToRecv) && lRecv == lToRecv) lTotalReceived += lRecv;
 	lTotalReceived += lRecv;
 	Trace("total characters read: " << lTotalReceived);
 	Anything value = content.str();

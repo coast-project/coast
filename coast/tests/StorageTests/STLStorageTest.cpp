@@ -7,41 +7,39 @@
  */
 
 #include "STLStorageTest.h"
-#include "TestSuite.h"
-#include "STLStorage.h"
-#include "PoolAllocator.h"
-#include "MemHeader.h"
-#include "Tracer.h"
+
 #include "ITOStorage.h"
-#include <vector>
-#include <list>
+#include "MemHeader.h"
+#include "PoolAllocator.h"
+#include "STLStorage.h"
+#include "TestSuite.h"
+#include "Tracer.h"
+
 #include <deque>
+#include <list>
+#include <vector>
 
 //---- STLStorageTest ----------------------------------------------------------------
-STLStorageTest::STLStorageTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+STLStorageTest::STLStorageTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(STLStorageTest.Ctor);
 }
 
-STLStorageTest::~STLStorageTest()
-{
+STLStorageTest::~STLStorageTest() {
 	StartTrace(STLStorageTest.Dtor);
 }
 
 // uncomment if something special needs to be done which isnt already done in base class
-//void STLStorageTest::setUp ()
+// void STLStorageTest::setUp ()
 //{
 //	StartTrace(STLStorageTest.setUp);
 //}
 //
-//void STLStorageTest::tearDown ()
+// void STLStorageTest::tearDown ()
 //{
 //	StartTrace(STLStorageTest.tearDown);
 //}
 
-void STLStorageTest::GlobalStorageTest()
-{
+void STLStorageTest::GlobalStorageTest() {
 	StartTrace(STLStorageTest.GlobalStorageTest);
 	// create a vector, using STLAllocator<> as allocator using coast::storage::Global()
 	MemChecker aChecker("STLStorageTest.GlobalStorageTest", coast::storage::Global());
@@ -61,8 +59,7 @@ void STLStorageTest::GlobalStorageTest()
 	aChecker.TraceDelta("mem change after test");
 }
 
-void STLStorageTest::PoolStorageTest()
-{
+void STLStorageTest::PoolStorageTest() {
 	StartTrace(STLStorageTest.PoolStorageTest);
 	// create a vector, using MyAlloc<> as allocator
 	PoolAllocator pa(1, 1024, 12);
@@ -126,43 +123,40 @@ struct something {
 	long fLong;
 };
 
-void STLStorageTest::AllocatorUsingSMartPtrTest()
-{
+void STLStorageTest::AllocatorUsingSMartPtrTest() {
 	StartTrace(STLStorageTest.AllocatorUsingSMartPtrTest);
 	typedef something listType;
-//	typedef Teststorage::pool_allocator<listType, stlstorage::BoostPoolUserAllocatorCurrent> blaType;
-//	typedef stlstorage::pool_allocator<listType, stlstorage::BoostPoolUserAllocatorGlobal> blaType;
+	//	typedef Teststorage::pool_allocator<listType, stlstorage::BoostPoolUserAllocatorCurrent> blaType;
+	//	typedef stlstorage::pool_allocator<listType, stlstorage::BoostPoolUserAllocatorGlobal> blaType;
 	typedef stlstorage::fast_pool_allocator<listType, itostorage::BoostPoolUserAllocatorGlobal> blaType;
 	MemChecker aChecker("STLStorageTest.AllocatorUsingSMartPtrTest", coast::storage::Current());
-	{
-		blaType pool1;
-	}
+	{ blaType pool1; }
 	assertComparem(0LL, equal_to, aChecker.CheckDelta(), "expected no unfreed memory");
 	Trace("========================== deque tests 1 ==========================");
 	{
-		std::deque<listType, blaType > v;
+		std::deque<listType, blaType> v;
 		// insert elements
-		listType elt1 = { 1, 1 };
+		listType elt1 = {1, 1};
 		Trace("adding element");
 		v.push_back(elt1);
 	}
 	assertComparem(0LL, equal_to, aChecker.CheckDelta(), "expected no unfreed memory");
 	Trace("========================== list test 1 ==========================");
 	{
-		std::list<listType, blaType > v;
+		std::list<listType, blaType> v;
 		// insert elements
-		listType elt1 = { 1, 1 };
+		listType elt1 = {1, 1};
 		Trace("adding element");
 		v.push_back(elt1);
 	}
 	assertComparem(0LL, equal_to, aChecker.CheckDelta(), "expected no unfreed memory");
 	Trace("========================== list test 3 ==========================");
 	{
-		std::list<listType, blaType > v;
+		std::list<listType, blaType> v;
 		// insert elements
-		listType elt1 = { 1, 1 };
-		listType elt2 = { 1, 2 };
-		listType elt3 = { 3, 1 };
+		listType elt1 = {1, 1};
+		listType elt2 = {1, 2};
+		listType elt3 = {3, 1};
 		Trace("adding element");
 		v.push_back(elt1);
 		Trace("adding element");
@@ -173,11 +167,11 @@ void STLStorageTest::AllocatorUsingSMartPtrTest()
 	assertComparem(0LL, equal_to, aChecker.CheckDelta(), "expected no unfreed memory");
 	Trace("========================== vector tests ==========================");
 	{
-		std::vector<listType, blaType > v;
+		std::vector<listType, blaType> v;
 		// insert elements
-		listType elt1 = { 1, 1 };
-		listType elt2 = { 1, 2 };
-		listType elt3 = { 3, 1 };
+		listType elt1 = {1, 1};
+		listType elt2 = {1, 2};
+		listType elt3 = {3, 1};
 		Trace("adding element");
 		v.push_back(elt1);
 		Trace("adding element");
@@ -188,10 +182,10 @@ void STLStorageTest::AllocatorUsingSMartPtrTest()
 	assertComparem(0LL, equal_to, aChecker.CheckDelta(), "expected no unfreed memory");
 	Trace("========================== deque tests 2 ==========================");
 	{
-		std::deque<listType, blaType > v;
+		std::deque<listType, blaType> v;
 		// insert elements
-		listType elt1 = { 1, 1 };
-		listType elt2 = { 1, 2 };
+		listType elt1 = {1, 1};
+		listType elt2 = {1, 2};
 		Trace("adding element");
 		v.push_back(elt1);
 		Trace("adding element");
@@ -200,11 +194,11 @@ void STLStorageTest::AllocatorUsingSMartPtrTest()
 	assertComparem(0LL, equal_to, aChecker.CheckDelta(), "expected no unfreed memory");
 	Trace("========================== deque tests 3 ==========================");
 	{
-		std::deque<listType, blaType > v;
+		std::deque<listType, blaType> v;
 		// insert elements
-		listType elt1 = { 1, 1 };
-		listType elt2 = { 1, 2 };
-		listType elt3 = { 3, 1 };
+		listType elt1 = {1, 1};
+		listType elt2 = {1, 2};
+		listType elt3 = {3, 1};
 		Trace("adding element");
 		v.push_back(elt1);
 		Trace("adding element");
@@ -215,11 +209,11 @@ void STLStorageTest::AllocatorUsingSMartPtrTest()
 	assertComparem(0LL, equal_to, aChecker.CheckDelta(), "expected no unfreed memory");
 	Trace("========================== two deque tests 3 ==========================");
 	{
-		std::deque<listType, blaType > v, w;
+		std::deque<listType, blaType> v, w;
 		// insert elements
-		listType elt1 = { 1, 1 };
-		listType elt2 = { 1, 2 };
-		listType elt3 = { 3, 1 };
+		listType elt1 = {1, 1};
+		listType elt2 = {1, 2};
+		listType elt3 = {3, 1};
 		Trace("adding element");
 		v.push_back(elt1);
 		w.push_back(elt1);
@@ -236,11 +230,11 @@ void STLStorageTest::AllocatorUsingSMartPtrTest()
 	assertComparem(0LL, equal_to, aChecker.CheckDelta(), "expected no unfreed memory");
 	Trace("========================== two list tests 3 ==========================");
 	{
-		std::list<listType, blaType > v, w;
+		std::list<listType, blaType> v, w;
 		// insert elements
-		listType elt1 = { 1, 1 };
-		listType elt2 = { 1, 2 };
-		listType elt3 = { 3, 1 };
+		listType elt1 = {1, 1};
+		listType elt2 = {1, 2};
+		listType elt3 = {3, 1};
 		Trace("adding element");
 		v.push_back(elt1);
 		w.push_back(elt1);
@@ -258,8 +252,7 @@ void STLStorageTest::AllocatorUsingSMartPtrTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *STLStorageTest::suite ()
-{
+Test *STLStorageTest::suite() {
 	StartTrace(STLStorageTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, STLStorageTest, GlobalStorageTest);

@@ -7,30 +7,30 @@
  */
 
 #include "SlotnameOutputMapper.h"
+
 #include "AnyIterators.h"
 #include "Timers.h"
 
 //---- SlotnameOutputMapper ------------------------------------------------------------------
 RegisterResultMapper(SlotnameOutputMapper);
 
-bool SlotnameOutputMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything config)
-{
+bool SlotnameOutputMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything config) {
 	StartTrace1(SlotnameOutputMapper.DoPutAny, "Key: " << NotNull(key));
 
 	DAAccessTimer(SlotnameOutputMapper.DoPutAny, value.GetSize() << " entries processed", ctx);
 	Anything dest = GetDestination(ctx, config);
 	AnyExtensions::Iterator<Anything> aRowIter(value);
-	Anything anyRow( value.GetAllocator() );
+	Anything anyRow(value.GetAllocator());
 	String strDestPath(128L);
-	while ( aRowIter(anyRow) ) {
+	while (aRowIter(anyRow)) {
 		SubTraceAny(PerRow, anyRow, "entry");
 		strDestPath.Trim(0);
 		AnyExtensions::Iterator<ROAnything> aSlotnameIter(config["SlotnameSlots"]);
 		ROAnything roaSNEntry;
-		while ( aSlotnameIter(roaSNEntry) ) {
+		while (aSlotnameIter(roaSNEntry)) {
 			String strKey = ((ROAnything)anyRow)[roaSNEntry.AsCharPtr()].AsString();
-			if ( strKey.Length() ) {
-				if ( strDestPath.Length() ) {
+			if (strKey.Length() != 0) {
+				if (strDestPath.Length() != 0) {
 					strDestPath << '.';
 				}
 				strDestPath << strKey;

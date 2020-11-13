@@ -6,8 +6,9 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "FlowControlDAStresser.h"
-#include "FlowController.h"
+
 #include "Application.h"
+#include "FlowController.h"
 RegisterStresser(FlowControlDAStresser);
 
 Anything FlowControlDAStresser::Run(long id) {
@@ -28,19 +29,19 @@ Anything FlowControlDAStresser::Run(long id) {
 
 	Trace("flowcontrolname is: " << flowCntrlName);
 
-	if (flowCntrlName != "") {
+	if (!flowCntrlName.empty()) {
 		FlowController *flowCntrl = FlowController::FindFlowController(flowCntrlName);
-		if (!flowCntrl) {
-			Trace("ERROR: flowcontrolname " << flowCntrlName << " not found" );
+		if (flowCntrl == 0) {
+			Trace("ERROR: flowcontrolname " << flowCntrlName << " not found");
 			String errorMsg = "FlowController ";
 			errorMsg << flowCntrlName << " not found";
 			result["ErrorMsg"][errorMsg] = "";
 			return result;
-		} else {
-			// make unique instance name
-			flowCntrlName << "_of_DAStresser";
-			flowCntrl = (FlowController *) flowCntrl->ConfiguredClone("FlowController", flowCntrlName, true);
 		}
+		// make unique instance name
+		flowCntrlName << "_of_DAStresser";
+		flowCntrl = (FlowController *)flowCntrl->ConfiguredClone("FlowController", flowCntrlName, true);
+
 		Anything env;
 		env["Id"] = id - 1;
 
@@ -51,8 +52,8 @@ Anything FlowControlDAStresser::Run(long id) {
 		// perhaps hooks for mike specific stuff here later...
 		Anything tmpStore = ctx.GetTmpStore();
 		tmpStore["result"].Remove("InfoMessageCtr");
-		tmpStore["result"].Remove("ErrorMessage"); // init error messages...and set in ctx to be manipulated there,
-		tmpStore["result"]["ConfigStep"] = 1; // sending this info down into app, for use when eMsgs are built..
+		tmpStore["result"].Remove("ErrorMessage");	// init error messages...and set in ctx to be manipulated there,
+		tmpStore["result"]["ConfigStep"] = 1;		// sending this info down into app, for use when eMsgs are built..
 		tmpStore["result"].Remove("StepsWithErrors");
 		bool noBreakCondition = true;
 
@@ -69,17 +70,17 @@ Anything FlowControlDAStresser::Run(long id) {
 			End = fConfig["UserList"][id - 1]["End"].AsLong();
 		}
 
-		Trace("find application StressApp" );
+		Trace("find application StressApp");
 
 		long currentOffset = 0;
 		String appName;
 		Application *application = Application::GetGlobalApplication(appName);
 		long idAndCurrentOffset = 0;
-		if (application) {
+		if (application != 0) {
 			currentOffset = application->Lookup("OFFSET", 0L);
 			idAndCurrentOffset = currentOffset + id - 1;
 			env["IdAndCurrentOffset"] = idAndCurrentOffset;
-			Trace(appName << " application found" );
+			Trace(appName << " application found");
 		}
 
 		Start += currentOffset;
@@ -94,21 +95,21 @@ Anything FlowControlDAStresser::Run(long id) {
 			Diff = 1;
 		}
 
-		Trace("id: [" << id << "] IdAndCurrentOffset: [" << idAndCurrentOffset << "] Range: [" <<
-				Range << "] Start: [" << Start << "] End: [" << End << "] Diff: [" << Diff << "]");
+		Trace("id: [" << id << "] IdAndCurrentOffset: [" << idAndCurrentOffset << "] Range: [" << Range << "] Start: [" << Start
+					  << "] End: [" << End << "] Diff: [" << Diff << "]");
 		while (true) {
-			Trace("PrepareRequest" );
-			bool bPrepareRequestSucceeded;
+			Trace("PrepareRequest");
+			bool bPrepareRequestSucceeded = false;
 			noBreakCondition = flowCntrl->PrepareRequest(ctx, bPrepareRequestSucceeded);
 
 			// break condition check was here -----
 			if (!noBreakCondition || !bPrepareRequestSucceeded) {
-				Trace("break condition-return" );
+				Trace("break condition-return");
 				if (!bPrepareRequestSucceeded) {
 					nError++;
-					Trace("Errorcount1:" << nError );
+					Trace("Errorcount1:" << nError);
 				}
-				if (flowCntrl) {
+				if (flowCntrl != 0) {
 					flowCntrl->Finalize();
 					delete flowCntrl;
 				}
@@ -122,7 +123,7 @@ Anything FlowControlDAStresser::Run(long id) {
 			String strStepNr;
 			strStepNr << nrSteps;
 
-			TraceAny( ctx.GetQuery(), "state of query after PrepareRequest is" );
+			TraceAny(ctx.GetQuery(), "state of query after PrepareRequest is");
 			currentReqNr = tmpStore["FlowState"]["RunNr"].AsLong();
 			currentNumber = (currentReqNr % Diff) + Start;
 			tmpStore["CurrentNumber"] = currentNumber;
@@ -134,7 +135,7 @@ Anything FlowControlDAStresser::Run(long id) {
 				if (ctx.Lookup("PrepareRequestFail", roa) && roa.AsBool(false)) {
 				} else {
 					nError++;
-					Trace("Errorcount2:" << nError );
+					Trace("Errorcount2:" << nError);
 				}
 			} else {
 				// prepare DataAccess, possible to overwrite default of config with slot in query
@@ -146,7 +147,7 @@ Anything FlowControlDAStresser::Run(long id) {
 				TraceAny(ctx.GetTmpStore(), "Tempstore");
 
 				// connect to server and place request and extract reply...
-				long accessTime;
+				long accessTime = 0;
 				if (!flowCntrl->ExecDataAccess(ctx, accessTime)) {
 					Trace("ExecDataAccess failed!");
 					// check if we wanted da.StdExec(ctx) to fail
@@ -154,7 +155,7 @@ Anything FlowControlDAStresser::Run(long id) {
 					if (ctx.Lookup("StdExecFail", roa) && roa.AsBool(false)) {
 					} else {
 						nError++;
-						Trace("Errorcount3:" << nError );
+						Trace("Errorcount3:" << nError);
 					}
 				} else {
 					Trace("AccessTime " << accessTime);
@@ -166,7 +167,7 @@ Anything FlowControlDAStresser::Run(long id) {
 						} else {
 							nError++;
 							Trace("AnalyseReply returned false");
-							Trace("Errorcount4:" << nError );
+							Trace("Errorcount4:" << nError);
 						}
 					}
 					if (tmpStore["result"].IsDefined("Bytes")) {
@@ -199,18 +200,18 @@ Anything FlowControlDAStresser::Run(long id) {
 			CheckCopyErrorMessage(result, ctx.GetTmpStore(), nrSteps, (lastErrors != nError));
 			lastErrors = nError;
 			tmpStore["result"]["ConfigStep"] = nrSteps + 1;
-			SystemLog::WriteToStderr(".", 1); // progress indication
+			SystemLog::WriteToStderr(".", 1);  // progress indication
 			// remove slots which should not stay persistent between requests
 			// enable FlowController to cleanup its own mess
 			flowCntrl->CleanupAfterStep(ctx);
 		}
 
-		if (tmpStore["result"].IsDefined("InfoMessageCtr")) { // info (trace) msgs
+		if (tmpStore["result"].IsDefined("InfoMessageCtr")) {  // info (trace) msgs
 			result["InfoMessageCtr"] = tmpStore["result"]["InfoMessageCtr"];
 		}
 
 		tmpStore["result"].Remove("StepsWithErrors");
-		TraceAny(tmpStore["result"], "temp store" );
+		TraceAny(tmpStore["result"], "temp store");
 		result["Details"] = tmpStore["result"]["Details"];
 	}
 
@@ -222,7 +223,7 @@ Anything FlowControlDAStresser::Run(long id) {
 	result["Min"] = itopia_min;
 	result["Bytes"] = nrBytes;
 
-	TraceAny(result, "Result (transactions include relocate/refresh)" );
+	TraceAny(result, "Result (transactions include relocate/refresh)");
 	Anything anyResult;
 	anyResult.Append(result);
 	return anyResult;

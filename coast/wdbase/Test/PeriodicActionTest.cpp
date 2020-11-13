@@ -7,16 +7,17 @@
  */
 
 #include "PeriodicActionTest.h"
-#include "DiffTimer.h"
+
 #include "Action.h"
-#include "TestSuite.h"
+#include "DiffTimer.h"
+#include "LockUnlockEntry.h"
 #include "PeriodicAction.h"
+#include "TestSuite.h"
 
 Condition PeriodicActionTest::fgCalledCond;
 Mutex PeriodicActionTest::fgCalledMutex("PeriodicActionTest");
 
-class PeriodicTestAction : public Action
-{
+class PeriodicTestAction : public Action {
 public:
 	//--- constructors
 	PeriodicTestAction(const char *name);
@@ -28,18 +29,15 @@ public:
 
 long PeriodicActionTest::fgCalled = 0;
 
-PeriodicActionTest::PeriodicActionTest(TString tname) : TestCaseType(tname)
-{
+PeriodicActionTest::PeriodicActionTest(TString tname) : TestCaseType(tname) {
 	StartTrace(PeriodicActionTest.Ctor);
 }
 
-PeriodicActionTest::~PeriodicActionTest()
-{
+PeriodicActionTest::~PeriodicActionTest() {
 	StartTrace(PeriodicActionTest.Dtor);
 }
 
-void PeriodicActionTest::PeriodicTest()
-{
+void PeriodicActionTest::PeriodicTest() {
 	StartTrace(PeriodicActionTest.PeriodicTest);
 
 	PeriodicAction pa("PeriodicTestAction", 1L);
@@ -63,8 +61,7 @@ void PeriodicActionTest::PeriodicTest()
 	t_assertm(fgCalled > 1, "expected periodic action to be called several times");
 }
 
-void PeriodicActionTest::ActionCalled(Context &ctx)
-{
+void PeriodicActionTest::ActionCalled(Context &ctx) {
 	StartTrace(PeriodicActionTest.ActionCalled);
 	LockUnlockEntry me(fgCalledMutex);
 	fgCalled++;
@@ -73,8 +70,7 @@ void PeriodicActionTest::ActionCalled(Context &ctx)
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *PeriodicActionTest::suite ()
-{
+Test *PeriodicActionTest::suite() {
 	StartTrace(PeriodicActionTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, PeriodicActionTest, PeriodicTest);
@@ -83,12 +79,11 @@ Test *PeriodicActionTest::suite ()
 
 RegisterAction(PeriodicTestAction);
 
-PeriodicTestAction::PeriodicTestAction(const char *name) : Action(name) { }
+PeriodicTestAction::PeriodicTestAction(const char *name) : Action(name) {}
 
-PeriodicTestAction::~PeriodicTestAction() { }
+PeriodicTestAction::~PeriodicTestAction() {}
 
-bool PeriodicTestAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool PeriodicTestAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(PeriodicTestAction.DoExecAction);
 	PeriodicActionTest::ActionCalled(ctx);
 	return true;

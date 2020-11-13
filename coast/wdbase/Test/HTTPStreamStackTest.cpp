@@ -7,25 +7,23 @@
  */
 
 #include "HTTPStreamStackTest.h"
-#include "TestSuite.h"
-#include "HTTPStreamStack.h"
-#include "Tracer.h"
+
 #include "HTTPChunkedOStream.h"
+#include "HTTPStreamStack.h"
+#include "TestSuite.h"
+#include "Tracer.h"
 #include "ZipStream.h"
 
-HTTPStreamStackTest::HTTPStreamStackTest(TString tstrName) : TestCaseType(tstrName)
-{
+HTTPStreamStackTest::HTTPStreamStackTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(HTTPStreamStackTest.Ctor);
 }
 
-HTTPStreamStackTest::~HTTPStreamStackTest()
-{
+HTTPStreamStackTest::~HTTPStreamStackTest() {
 	StartTrace(HTTPStreamStackTest.Dtor);
 }
 
 //! Test with no special encoding
-void HTTPStreamStackTest::NoEncoding()
-{
+void HTTPStreamStackTest::NoEncoding() {
 	StartTrace(HTTPStreamStackTest.NoEncoding);
 
 	StringStream out;
@@ -40,8 +38,7 @@ void HTTPStreamStackTest::NoEncoding()
 }
 
 //! Test with chunked encoding only
-void HTTPStreamStackTest::ChunkedOnlyEncoding()
-{
+void HTTPStreamStackTest::ChunkedOnlyEncoding() {
 	StartTrace(HTTPStreamStackTest.CunkedOnlyEncoding);
 
 	StringStream out;
@@ -62,8 +59,7 @@ void HTTPStreamStackTest::ChunkedOnlyEncoding()
 }
 
 //! Test with gzip encoding only
-void HTTPStreamStackTest::GzipOnlyEncoding()
-{
+void HTTPStreamStackTest::GzipOnlyEncoding() {
 	StartTrace(HTTPStreamStackTest.GzipOnlyEncoding);
 
 	StringStream out;
@@ -84,8 +80,7 @@ void HTTPStreamStackTest::GzipOnlyEncoding()
 }
 
 //! Test with chunked and gzip encoding
-void HTTPStreamStackTest::ChunkedGzipEncoding()
-{
+void HTTPStreamStackTest::ChunkedGzipEncoding() {
 	StartTrace(HTTPStreamStackTest.CunkedGzipEncoding);
 
 	StringStream out;
@@ -108,8 +103,7 @@ void HTTPStreamStackTest::ChunkedGzipEncoding()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *HTTPStreamStackTest::suite ()
-{
+Test *HTTPStreamStackTest::suite() {
 	StartTrace(HTTPStreamStackTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, HTTPStreamStackTest, NoEncoding);

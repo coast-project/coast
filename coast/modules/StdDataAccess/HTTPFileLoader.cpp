@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "HTTPFileLoader.h"
-#include "StringStream.h"
-#include "Renderer.h"
+
 #include "HTTPConstants.h"
+#include "Renderer.h"
+#include "StringStream.h"
 RegisterDataAccessImpl(HTTPFileLoader);
 
 bool HTTPFileLoader::GenReplyStatus(Context &context, ParameterMapper *in, ResultMapper *out) {
@@ -67,7 +68,8 @@ bool HTTPFileLoader::Exec(Context &context, ParameterMapper *in, ResultMapper *o
 	SubTrace(FileName, "FileName:<" << filename << ">");
 
 	retVal = GenReplyHeader(context, in, out) && retVal;
-	retVal = out->Put(coast::http::constants::protocolVersionSlotname, String("HTTP/1.1"), context) && retVal; // PS Fix binary &
+	retVal =
+		out->Put(coast::http::constants::protocolVersionSlotname, String("HTTP/1.1"), context) && retVal;  // PS Fix binary &
 
 	if (retVal) {
 		retVal = ProcessFile(filename, context, in, out);
@@ -100,8 +102,8 @@ void HTTPFileLoader::ProduceErrorReply(const String &filename, Context &context,
 	errorReply << "<address>Coast 2.0 Server</address>\n";
 	errorReply << "</body></html>\n";
 
-	Trace("errorCode :" << errorCode );
-	Trace("errorMsg :" << errormsg );
+	Trace("errorCode :" << errorCode);
+	Trace("errorMsg :" << errormsg);
 
 	out->Put(coast::http::constants::protocolCodeSlotname, errorCode, context);
 	out->Put(coast::http::constants::protocolMsgSlotname, errormsg, context);
@@ -119,7 +121,7 @@ bool HTTPFileLoader::ProcessFile(const String &filename, Context &context, Param
 	std::iostream *Ios = 0;
 	String ext;
 	Ios = coast::system::OpenStream(filename, ext, std::ios::in | std::ios::binary);
-	if (Ios) {
+	if (Ios != 0) {
 		Trace("Stream opened ok");
 		retVal = out->Put(coast::http::constants::protocolCodeSlotname, 200L, context) && retVal;
 		retVal = out->Put(coast::http::constants::protocolMsgSlotname, String("Ok"), context) && retVal;
@@ -135,9 +137,9 @@ bool HTTPFileLoader::ProcessFile(const String &filename, Context &context, Param
 		ul_long ulFileSize = 0ULL;
 		if (coast::system::GetFileSize(filename, ulFileSize)) {
 			Trace("file [" << filename << "] has size (stat): " << (l_long)ulFileSize);
-			retVal = out->Put("content-length", (long) ulFileSize, context) && retVal;
+			retVal = out->Put("content-length", (long)ulFileSize, context) && retVal;
 		}
-		retVal = out->Put("HTTPBody", (*(std::istream *) Ios), context) && retVal;
+		retVal = out->Put("HTTPBody", (*(std::istream *)Ios), context) && retVal;
 		delete Ios;
 	} else {
 		retVal = false;

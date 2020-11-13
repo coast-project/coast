@@ -7,21 +7,19 @@
  */
 
 #include "RendererDispatcherTest.h"
-#include "TestSuite.h"
-#include "ServiceDispatcher.h"
 
-RendererDispatcherTest::RendererDispatcherTest(TString tname) : TestCaseType(tname)
-{
+#include "ServiceDispatcher.h"
+#include "TestSuite.h"
+
+RendererDispatcherTest::RendererDispatcherTest(TString tname) : TestCaseType(tname) {
 	StartTrace(RendererDispatcherTest.Ctor);
 }
 
-RendererDispatcherTest::~RendererDispatcherTest()
-{
+RendererDispatcherTest::~RendererDispatcherTest() {
 	StartTrace(RendererDispatcherTest.Dtor);
 }
 
-void RendererDispatcherTest::FindServiceNameTest()
-{
+void RendererDispatcherTest::FindServiceNameTest() {
 	StartTrace(RendererDispatcherTest.FindServiceNameTest);
 	{
 		// test with no configuration should behave like superclass
@@ -65,8 +63,7 @@ void RendererDispatcherTest::FindServiceNameTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *RendererDispatcherTest::suite ()
-{
+Test *RendererDispatcherTest::suite() {
 	StartTrace(RendererDispatcherTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

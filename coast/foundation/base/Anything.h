@@ -9,9 +9,11 @@
 #ifndef _ANYTHING_H
 #define _ANYTHING_H
 
-#include "ITOString.h"
 #include "AnyImplTypes.h"
-#include "AnythingIterator.h" // new version of STL compliant iterators
+#include "AnythingIterator.h"  // new version of STL compliant iterators
+#include "ITOString.h"
+
+#include <iosfwd>
 
 class AnyImpl;
 class ROAnything;
@@ -49,13 +51,12 @@ will use a copy of the source Anything but not of a reference to the source Anyt
 returned Anythings. For documentation purposes instead of a regular Anything a TrickyThing should
 be used.
 */
-class Anything
-{
+class Anything {
 public:
 	//! Type information, can be retrieved with GetType().
 
 	//! Constructs an Anything of type eNull (without allocator info... allocator is only used for impls)
-	Anything( Allocator *a = coast::storage::Current());
+	Anything(Allocator *a = coast::storage::Current());
 
 	//! Constructs an Anything of type eLong
 	Anything(int, Allocator *a = coast::storage::Current());
@@ -86,9 +87,9 @@ public:
 	//! Constructs an Anything of type eObject
 	Anything(IFAObject *, Allocator *a = coast::storage::Current());
 
-	struct ArrayMarker{};
+	struct ArrayMarker {};
 	//! constructs an ArrayImpl Anything by using a marker type together with the allocator
-	Anything(ArrayMarker m,Allocator *a = coast::storage::Current());
+	Anything(ArrayMarker m, Allocator *a = coast::storage::Current());
 
 	//! Copy constructor
 	Anything(const Anything &any, Allocator *a = coast::storage::Current());
@@ -114,8 +115,8 @@ public:
 		\return The number of slots in this Anything */
 	long GetSize() const;
 
-	//!assignment operator creates Anything of type a.GetType() returns
-	Anything &operator= (const Anything &a);
+	//! assignment operator creates Anything of type a.GetType() returns
+	Anything &operator=(const Anything &a);
 
 	/*! Appends a new slot and stores <I>a</I> in it.
 		\param a the Anything added at the end of this Anything.
@@ -131,13 +132,13 @@ public:
 	//! comparison of this Anything.AsCharPtr("") against other
 	bool IsEqual(const char *other) const;
 
-	friend inline bool operator== (const Anything &a1, const Anything &a2);
-	friend inline bool operator!= (const Anything &a1, const Anything &a2);
+	friend inline bool operator==(const Anything &a1, const Anything &a2);
+	friend inline bool operator!=(const Anything &a1, const Anything &a2);
 
-	friend inline bool operator== (const Anything &a1, const char *a2);
-	friend inline bool operator!= (const Anything &a1, const char *a2);
-	friend inline bool operator== (const char *a1, const Anything &a2);
-	friend inline bool operator!= (const char *a1, const Anything &a2);
+	friend inline bool operator==(const Anything &a1, const char *a2);
+	friend inline bool operator!=(const Anything &a1, const char *a2);
+	friend inline bool operator==(const char *a1, const Anything &a2);
+	friend inline bool operator!=(const char *a1, const Anything &a2);
 
 	/*! Checks if the string <I>k</I> is stored in this Anything.
 		A <I>strcmp</I> with k and the slots content AsCharPtr() is performed for all slots, until
@@ -155,7 +156,8 @@ public:
 		\return the index of the slot that contains <I>k</I> if this Anything contains <I>k</I>, -1 if not. */
 	long FindValue(const char *k) const;
 
-	/*! Remove a slot by index from this Anything. If it is not an array anything, Remove(0L) will remove the current content and initialize with an empty Anything().
+	/*! Remove a slot by index from this Anything. If it is not an array anything, Remove(0L) will remove the current content
+	   and initialize with an empty Anything().
 		\param slot the index of the slot that is going to be removed.
 		\return true in case a slot was removed, false otherwise */
 	bool Remove(long slot);
@@ -188,7 +190,7 @@ public:
 		\return true if index is defined */
 	bool IsDefined(const long lIdx) const;
 
-	//!returns name of slot (if any)
+	//! returns name of slot (if any)
 	const char *SlotName(long slot) const;
 
 	/*! accesses element slot in array allocates all elements up to slot if not there
@@ -224,7 +226,7 @@ public:
 	//! shorthand for At(long slot)
 	Anything &operator[](int slot);
 
-	//!shorthand for At(const char *slotname)
+	//! shorthand for At(const char *slotname)
 	Anything &operator[](const char *slotname);
 
 	/*! Tries to retrieve a sub Anything at the given path into the result Anything.
@@ -264,8 +266,8 @@ public:
 		\param os ostream to write to
 		\param pretty if true creates output with newlines */
 	std::ostream &PrintOn(std::ostream &os, bool pretty = true) const;
-	friend inline std::ostream &operator<< (std::ostream &os, const Anything &a);
-	friend inline std::istream &operator>> (std::istream &is, Anything &a);
+	friend inline std::ostream &operator<<(std::ostream &os, const Anything &a);
+	friend inline std::istream &operator>>(std::istream &is, Anything &a);
 
 	/*! serialize content to ostream in external format
 		\param os ostream to write to
@@ -278,10 +280,10 @@ public:
 		\return true if the reading was successful, false if an syntax error occurred */
 	bool Import(std::istream &is, const char *fname = 0);
 
-	//!RefCount accessor for debugging
+	//! RefCount accessor for debugging
 	long RefCount() const;
 
-	//!return the allocator that is used by this Anything (once set the allocator cannot be changed)
+	//! return the allocator that is used by this Anything (once set the allocator cannot be changed)
 	Allocator *GetAllocator() const;
 	//! manually set the allocator (should not usually be used...)
 	bool SetAllocator(Allocator *a);
@@ -295,18 +297,18 @@ public:
 	static void EnsureArrayImpl(Anything &anyToEnsure);
 
 	void Accept(AnyVisitor &v, long lIdx = -1, const char *slotname = 0) const;
-	//!in-core sort of Anything by its keys, fast!
+	//! in-core sort of Anything by its keys, fast!
 	void SortByKey();
-	//!legacy variant only useful for SlotnameSorter legacy behavior.
+	//! legacy variant only useful for SlotnameSorter legacy behavior.
 	/*! we do not need to sort in descending order,
 		since we can always iterate from the end (GetSize()-1) */
 	void SortReverseByKey();
-	//!in-core sort of Anything by String values, temporary, will provide comparer interface
+	//! in-core sort of Anything by String values, temporary, will provide comparer interface
 	void SortByStringValues();
-	//!in-core sort of Anything by String values, temporary, will provide comparer interface
+	//! in-core sort of Anything by String values, temporary, will provide comparer interface
 	void SortByAnyComparer(const AnyComparer &comparer);
 
-//------ support STL compliant container behavior
+	//------ support STL compliant container behavior
 	typedef Anything_iterator iterator;
 	typedef Anything_const_iterator const_iterator;
 	typedef std::reverse_iterator<Anything_iterator> reverse_iterator;
@@ -318,56 +320,34 @@ public:
 	typedef Anything value_type;
 	iterator begin();
 	iterator end();
-	const_iterator begin()const;
+	const_iterator begin() const;
 	const_iterator end() const;
 	reverse_iterator rbegin();
 	reverse_iterator rend();
-	const_reverse_iterator rbegin()const;
+	const_reverse_iterator rbegin() const;
 	const_reverse_iterator rend() const;
 	void clear();
 	bool empty() const {
-		return 0 == size();   // an empty array is not IsNull()
+		return 0 == size();	 // an empty array is not IsNull()
 	}
 	iterator erase(iterator pos);
 	iterator erase(iterator from, iterator to);
 	size_type max_size() const {
-		return 0;   //SOP: determine max size...
+		return 0;  // SOP: determine max size...
 	}
-	size_type size() const {
-		return GetSize();
-	}
+	size_type size() const { return GetSize(); }
 	void swap(Anything &that);
-	reference at(size_type n) {
-		return At(n);
-	}
-	const_reference at(size_type n) const {
-		return At(n);
-	}
-	reference back() {
-		return at(size() - 1);
-	}
-	const_reference back() const {
-		return at(size() - 1);
-	}
-	reference front() {
-		return at(0);
-	}
-	const_reference front() const {
-		return at(0);
-	}
+	reference at(size_type n) { return At(n); }
+	const_reference at(size_type n) const { return At(n); }
+	reference back() { return at(size() - 1); }
+	const_reference back() const { return at(size() - 1); }
+	reference front() { return at(0); }
+	const_reference front() const { return at(0); }
 	// operator [] already defined
-	void pop_back() {
-		erase(end() - 1);
-	}
-	void pop_front() {
-		erase(begin());
-	}
-	void push_back(const value_type &a) {
-		Append(a);
-	}
-	void push_front(const value_type &a) {
-		insert(begin(), a);
-	}
+	void pop_back() { erase(end() - 1); }
+	void pop_front() { erase(begin()); }
+	void push_back(const value_type &a) { Append(a); }
+	void push_front(const value_type &a) { insert(begin(), a); }
 	template <typename InputIterator>
 	void assign(InputIterator first, InputIterator last) {
 		clear();
@@ -382,12 +362,9 @@ public:
 		}
 	}
 	// deal with case where an integral value is assigned n times
-	void assign(size_type n, size_type val) {
-		assign(n, value_type(val));
-	}
+	void assign(size_type n, size_type val) { assign(n, value_type(val)); }
 	// sequence ctors:
-	Anything(size_type n, const value_type &v, Allocator *a = coast::storage::Current())
-		: fAnyImp(0) {
+	Anything(size_type n, const value_type &v, Allocator *a = coast::storage::Current()) : fAnyImp(0) {
 		SetAllocator(a);
 		for (; n > 0; --n) {
 			Append(v);
@@ -395,7 +372,7 @@ public:
 	}
 
 	template <typename InputIterator>
-	Anything(InputIterator first, InputIterator last): fAnyImp(0) {
+	Anything(InputIterator first, InputIterator last) : fAnyImp(0) {
 		SetAllocator(coast::storage::Current());
 		for (; first != last; ++first) {
 			Append(*first);
@@ -403,7 +380,7 @@ public:
 	}
 
 	template <typename InputIterator>
-	Anything(InputIterator first, InputIterator last, Allocator *a): fAnyImp(0) {
+	Anything(InputIterator first, InputIterator last, Allocator *a) : fAnyImp(0) {
 		SetAllocator(a);
 		for (; first != last; ++first) {
 			Append(*first);
@@ -412,26 +389,22 @@ public:
 	// special case for size_type integral assignment, sorry not DRY,
 	// because of unavailable constructor chaining in C++
 	// and because of inability to use default arguments in specialized templates
-	Anything(size_type n, size_type v): fAnyImp(0) {
+	Anything(size_type n, size_type v) : fAnyImp(0) {
 		SetAllocator(coast::storage::Current());
 		for (; n > 0; --n) {
 			Append(v);
 		}
 	}
 
-	Anything(size_type n, size_type v, Allocator *a): fAnyImp(0) {
+	Anything(size_type n, size_type v, Allocator *a) : fAnyImp(0) {
 		SetAllocator(a);
 		for (; n > 0; --n) {
 			Append(v);
 		}
 	}
 
-	iterator insert(iterator pos, const value_type &v) {
-		return do_insert(pos, 1, v);
-	}
-	void insert(iterator pos, size_type n, const value_type &v) {
-		do_insert(pos, n, v);
-	}
+	iterator insert(iterator pos, const value_type &v) { return do_insert(pos, 1, v); }
+	void insert(iterator pos, size_type n, const value_type &v) { do_insert(pos, n, v); }
 	template <typename InputIterator>
 	void insert(iterator pos, InputIterator first, InputIterator last) {
 		// first a naive impl, could be more efficient for Random-access iterators, but... see stl impl of vector::insert():
@@ -440,78 +413,71 @@ public:
 		}
 	}
 	// specialize for integral types to mean non-template insert of above
-	void insert(iterator pos, size_type first, long last) {
-		do_insert(pos, first, last);
-	}
+	void insert(iterator pos, size_type first, long last) { do_insert(pos, first, last); }
 	// additional methods close to STL's associative (hashed) containers
 	typedef const char *key_type;
-	size_type erase(key_type k) {
-		return Remove(k);
-	}
+	size_type erase(key_type k) { return static_cast<Anything::size_type>(Remove(k)); }
 	iterator find(key_type k) {
 		long found = FindIndex(k);
 		return (found < 0 ? end() : iterator(*this, found));
 	}
-	const_iterator find(key_type k)const {
+	const_iterator find(key_type k) const {
 		long found = FindIndex(k);
 		return (found < 0 ? end() : const_iterator(*this, found));
 	}
-	size_type count(key_type k)const {
-		return IsDefined(k) ? 1 : 0;
-	}
+	size_type count(key_type k) const { return IsDefined(k) ? 1 : 0; }
 	typedef std::pair<iterator, iterator> range;
 	range equal_range(key_type k) {
 		long found = FindIndex(k);
-		return (found < 0 ? range(end(), end())
-				: range(iterator(*this, found), iterator(*this, found + 1)));
+		return (found < 0 ? range(end(), end()) : range(iterator(*this, found), iterator(*this, found + 1)));
 	}
 	typedef std::pair<const_iterator, const_iterator> const_range;
-	const_range equal_range(key_type k)const {
+	const_range equal_range(key_type k) const {
 		long found = FindIndex(k);
 		return (found < 0 ? const_range(end(), end())
-				: const_range(const_iterator(*this, found), const_iterator(*this, found + 1)));
+						  : const_range(const_iterator(*this, found), const_iterator(*this, found + 1)));
 	}
 
 protected:
 	// same impl for both value inserts
 	iterator do_insert(iterator pos, size_type n, const value_type &v);
-	//!changes fAnyImp from simple type to array
+	//! changes fAnyImp from simple type to array
 	void Expand();
-	//!makes room for insert() implementation, moves elements eventually from slot to slot+size
+	//! makes room for insert() implementation, moves elements eventually from slot to slot+size
 	void InsertReserve(long slot, long sz);
 
-	//!get Anything at i; create necessary entries if i is out of range
-	Anything& DoAt(long i);
+	//! get Anything at i; create necessary entries if i is out of range
+	Anything &DoAt(long i);
 
-	//!get Anything at i after check that i is a valid index
-	Anything& DoGetAt(long i);
+	//! get Anything at i after check that i is a valid index
+	Anything &DoGetAt(long i);
 
-	//!get Anything at s create entry if necessary
-	Anything& DoAt(const char *s);
+	//! get Anything at s create entry if necessary
+	Anything &DoAt(const char *s);
 
-	//!get Anything at i; return dummy in case of non-existance
+	//! get Anything at i; return dummy in case of non-existance
 	Anything const &DoAt(long i) const;
 
-	//!get Anything at i after check that i is a valid index
+	//! get Anything at i after check that i is a valid index
 	Anything const &DoGetAt(long i) const;
 
-	//!get Anything at s return dummy if not found
+	//! get Anything at s return dummy if not found
 	Anything const &DoAt(const char *s) const;
 
 	/*! Clones this Anything and all its content recursively.
 		\return the copy of this Anything */
 	Anything DeepClone(Allocator *a, Anything &xref) const;
 
-	friend class AnyArrayImpl; //!@FIXME: needed because of DeepClone(Allocator,Anything) above from within AnyArrayImpl
+	friend class AnyArrayImpl;	//!@FIXME: needed because of DeepClone(Allocator,Anything) above from within AnyArrayImpl
 	friend class ROAnything;
 	friend struct Sorter;
 	friend class AnyImpl;
 
 	Anything(AnyImpl *);
-	//!TODO: this is a loophole that discards const-ness
+	//! TODO: this is a loophole that discards const-ness
 	AnyImpl *GetImpl();
-	AnyImpl const *GetImpl()const;
-	Allocator *GetImplAllocator() const ;
+	AnyImpl const *GetImpl() const;
+	Allocator *GetImplAllocator() const;
 	union {
 		AnyImpl *fAnyImp;
 		Allocator *fAlloc;
@@ -536,8 +502,7 @@ The config Anything should have the form
 You can specify the Slotname as a dot/colon separated list of names to retrieve slots from any
 hierarchy level (e.g fields.System).
 */
-class SlotFinder
-{
+class SlotFinder {
 public:
 	/*! looks up the slot in the given Anything, creates it if not found.
 		\param source The source Anything in which the slot should be found
@@ -560,9 +525,10 @@ public:
 		\param delim LookupPath slot delimiter
 		\param indexdelim LookupPath index delimiter
 		\post dest = source.LookupPath(destSlotname, delim, indexdelim) */
-	static void Operate(Anything &source, Anything &dest, String destSlotname, char delim = '.', char indexdelim = ':' );
+	static void Operate(Anything &source, Anything &dest, String destSlotname, char delim = '.', char indexdelim = ':');
 
-	/*! returns the source Anything in such way that an assignment can be made in the form dest[destSlotname] = xxx; or dest[destIdx] = xxx;
+	/*! returns the source Anything in such way that an assignment can be made in the form dest[destSlotname] = xxx; or
+	   dest[destIdx] = xxx;
 		\param dest resulting Anything, one level below for easy assignment operations
 		\param destSlotname last segment of config[Slot] or empty if it is an index
 		\param destIdx last segment of config[Slot] as index or -1 if not an index
@@ -584,8 +550,7 @@ You can specify the Slotname as a dot separated list of names to retrieve slots 
 hierarchy level (e.g fields.System).
 If /Slot contains an empty string ("") nothing will happen
 */
-class SlotPutter
-{
+class SlotPutter {
 public:
 	/*! puts the Anything source into dest using a <I>LookupPath</I>-like slot specification in config /Slot
 		\param source The Anything that provides the data, remains unchanged
@@ -609,7 +574,8 @@ public:
 		\param delim LookupPath slot delimiter
 		\param indexdelim LookupPath index delimiter
 		\post dest.LookupPath(destSlotname, delim, delimIdx)[.Append] = source */
-	static void Operate(Anything &source, Anything &dest, String destSlotname, bool append = false, char delim = '.', char indexdelim = ':');
+	static void Operate(Anything &source, Anything &dest, String destSlotname, bool append = false, char delim = '.',
+						char indexdelim = ':');
 };
 /*! Use this class to remove a slot from a Anything using lookup-syntax
 To use this class call Operate on it.
@@ -617,16 +583,15 @@ The config Anything should have the form
 <PRE>
 {
 	/Slot	Level1.Level2	mandatory, spec producing the Slot that is assigned to source - if it does not exists it is created
-	/RemoveLast				optional, bool(0L|1L), default false(0L), remove last slot in given path otherwise the whole Anything at path will be removed
-	/Delim   				optional, default ".", first char is taken as delimiter for named slots
+	/RemoveLast				optional, bool(0L|1L), default false(0L), remove last slot in given path otherwise the whole
+Anything at path will be removed /Delim   				optional, default ".", first char is taken as delimiter for named slots
 	/IndexDelim				optional, default ":", first char is taken as delimiter for indexed slots
 }</PRE>
 You can specify the Slotname as a dot separated list of names to retrieve slots from any
 hierarchy level (e.g fields.System).
 If /Slot contains an empty string ("") nothing will happen
 */
-class SlotCleaner
-{
+class SlotCleaner {
 public:
 	/*! removes the Anything from dest using a <I>LookupPath</I>-like slot specification in config /Slot
 		\param dest The Anything that is updated
@@ -662,8 +627,7 @@ it is copied into dest[DestinationSlotName].<BR>
 Note, you can specify SourceSlotName as a dot/colon separated list of slotnames to retrieve slots from any
 hierarchy level (e.g fields.System). The result is always copied into toplevel slot of dest.
 */
-class SlotCopier
-{
+class SlotCopier {
 public:
 	/*! Copies slots from source to dest accoring to config
 		\param source The Anything that provides the data, remains unchanged
@@ -684,19 +648,17 @@ public:
 /*! Interface for comparing Anythings. Subclasses may be used to sort Any-Arrays by value
  * see AnyComparers.h
  */
-class AnyComparer
-{
+class AnyComparer {
 public:
 	//! compare left and right, return <0 when left is smaller, >0 when left is greater, 0 on equality
-	virtual int Compare(const Anything &left, const Anything &right)const = 0;
+	virtual int Compare(const Anything &left, const Anything &right) const = 0;
 	//! virtual dtor for subclass convenience
 	virtual ~AnyComparer() {}
 };
 
-//!Sorts the slots of an Anything by Slotname, legacy (SOP)
+//! Sorts the slots of an Anything by Slotname, legacy (SOP)
 /*! bad api design, should better use bool for reverse */
-class SlotnameSorter
-{
+class SlotnameSorter {
 public:
 	enum EMode { asc, desc };
 	/*! Sorts the Anything <I>toSort</I> by slotname
@@ -739,14 +701,11 @@ public:
 	tt["baz"] = t["bar"]; // no deep copy
 </pre>
  */
-class TrickyThing : public Anything
-{
+class TrickyThing : public Anything {
 public:
 	/*! constructor used for tricky member variables of long-lived classes
 		typically those using global allocators */
-	TrickyThing(Allocator *a = coast::storage::Current()) :
-		Anything(Anything::ArrayMarker(),a) {
-	}
+	TrickyThing(Allocator *a = coast::storage::Current()) : Anything(Anything::ArrayMarker(), a) {}
 
 	/*! constructor used for tricky Anything using potentially a different allocator
 		be careful if the memory of the tricky thing is short lived!!!
@@ -760,8 +719,7 @@ public:
 	threads. It is read only and prohibits writing. An ROAnything is empty or has
 	an underlying Anything that manages the memory
  */
-class ROAnything
-{
+class ROAnything {
 public:
 	ROAnything();
 	ROAnything(const Anything &a);
@@ -782,8 +740,8 @@ public:
 		\return The number of slots in this ROAnything */
 	long GetSize() const;
 
-	ROAnything &operator= (const ROAnything &a);
-	ROAnything &operator= (const Anything &a);
+	ROAnything &operator=(const ROAnything &a);
+	ROAnything &operator=(const Anything &a);
 
 public:
 	// comparison
@@ -791,13 +749,13 @@ public:
 	bool IsEqual(const Anything &other) const;
 	bool IsEqual(const char *other) const;
 
-	friend inline bool operator== (const ROAnything &a1, const ROAnything &a2);
-	friend inline bool operator!= (const ROAnything &a1, const ROAnything &a2);
+	friend inline bool operator==(const ROAnything &a1, const ROAnything &a2);
+	friend inline bool operator!=(const ROAnything &a1, const ROAnything &a2);
 
-	friend inline bool operator== (const ROAnything &a1, const char *a2);
-	friend inline bool operator!= (const ROAnything &a1, const char *a2);
-	friend inline bool operator== (const char *a1, const ROAnything &a2);
-	friend inline bool operator!= (const char *a1, const ROAnything &a2);
+	friend inline bool operator==(const ROAnything &a1, const char *a2);
+	friend inline bool operator!=(const ROAnything &a1, const char *a2);
+	friend inline bool operator==(const char *a1, const ROAnything &a2);
+	friend inline bool operator!=(const char *a1, const ROAnything &a2);
 
 	/*! Checks if the string <I>k</I> is stored in this Anything.
 		A <I>strcmp</I> with k and the slots content AsCharPtr() is performed for all slots, until
@@ -846,7 +804,7 @@ public:
 
 	// output only
 	std::ostream &PrintOn(std::ostream &os, bool pretty = true) const;
-	friend inline std::ostream &operator<< (std::ostream &os, const ROAnything &a);
+	friend inline std::ostream &operator<<(std::ostream &os, const ROAnything &a);
 
 	void Export(std::ostream &fp, int level = 0) const;
 
@@ -856,18 +814,15 @@ protected:
 	long AssertRange(long) const;
 	long AssertRange(const char *) const;
 
-	//hack for visitor...
+	// hack for visitor...
 	friend class AnyArrayImpl;
-	ROAnything(AnyImpl const *imp)
-		: fAnyImp( imp )
-	{}
+	ROAnything(AnyImpl const *imp) : fAnyImp(imp) {}
 
 	AnyImpl const *GetImpl() const {
-		if ((bits & 0x01) || !bits) {
+		if (((bits & 0x01) != 0) || (bits == 0)) {
 			return 0;
-		} else {
-			return fAnyImp;
 		}
+		return fAnyImp;
 	}
 	union {
 		AnyImpl const *fAnyImp;
@@ -876,134 +831,104 @@ protected:
 	};
 };
 
-inline const Anything &Anything::operator[](long slot) const
-{
+inline const Anything &Anything::operator[](long slot) const {
 	return At(slot);
 }
-inline const Anything &Anything::operator[](int slot) const
-{
+inline const Anything &Anything::operator[](int slot) const {
 	return At(long(slot));
 }
-inline const Anything &Anything::operator[](const char *slotname) const
-{
+inline const Anything &Anything::operator[](const char *slotname) const {
 	return At(slotname);
 }
 
-inline Anything &Anything::operator[](long slot)
-{
+inline Anything &Anything::operator[](long slot) {
 	return At(slot);
 }
-inline Anything &Anything::operator[](int slot)
-{
+inline Anything &Anything::operator[](int slot) {
 	return At(long(slot));
 }
-inline Anything &Anything::operator[](const char *slotname)
-{
+inline Anything &Anything::operator[](const char *slotname) {
 	return At(slotname);
 }
 
-inline bool Anything::IsDefined(const long lIdx) const
-{
+inline bool Anything::IsDefined(const long lIdx) const {
 	return FindIndex(lIdx) >= 0;
 }
-inline bool Anything::IsDefined(const char *k) const
-{
+inline bool Anything::IsDefined(const char *k) const {
 	return FindIndex(k) >= 0;
 }
-inline bool Anything::IsNull() const
-{
+inline bool Anything::IsNull() const {
 	return (GetImpl() == 0);
 }
-inline std::ostream &operator<< (std::ostream &os, const Anything &a)
-{
+inline std::ostream &operator<<(std::ostream &os, const Anything &a) {
 	return a.PrintOn(os);
 }
-inline std::istream &operator>> (std::istream &is, Anything &a)
-{
+inline std::istream &operator>>(std::istream &is, Anything &a) {
 	a.Import(is);
 	return is;
 }
 
-inline bool operator== (const Anything &a1, const Anything &a2)
-{
+inline bool operator==(const Anything &a1, const Anything &a2) {
 	return a1.IsEqual(a2);
 }
-inline bool operator!= (const Anything &a1, const Anything &a2)
-{
+inline bool operator!=(const Anything &a1, const Anything &a2) {
 	return !a1.IsEqual(a2);
 }
 
-inline bool operator== (const Anything &a, const char *s)
-{
+inline bool operator==(const Anything &a, const char *s) {
 	return a.IsEqual(s);
 }
-inline bool operator!= (const Anything &a, const char *s)
-{
+inline bool operator!=(const Anything &a, const char *s) {
 	return !a.IsEqual(s);
 }
-inline bool operator== (const char *s, const Anything &a)
-{
+inline bool operator==(const char *s, const Anything &a) {
 	return a.IsEqual(s);
 }
-inline bool operator!= (const char *s, const Anything &a)
-{
+inline bool operator!=(const char *s, const Anything &a) {
 	return !a.IsEqual(s);
 }
 
-inline const ROAnything ROAnything::operator[](long slot) const
-{
+inline const ROAnything ROAnything::operator[](long slot) const {
 	return At(slot);
 }
-inline const ROAnything ROAnything::operator[](int slot) const
-{
+inline const ROAnything ROAnything::operator[](int slot) const {
 	return At(long(slot));
 }
-inline const ROAnything ROAnything::operator[](const char *slotname) const
-{
+inline const ROAnything ROAnything::operator[](const char *slotname) const {
 	return At(slotname);
 }
 
-inline bool ROAnything::IsDefined(const char *k) const
-{
+inline bool ROAnything::IsDefined(const char *k) const {
 	return FindIndex(k) >= 0;
 }
-inline bool ROAnything::IsDefined(const long lIdx) const
-{
+inline bool ROAnything::IsDefined(const long lIdx) const {
 	return FindIndex(lIdx) >= 0;
 }
-inline bool ROAnything::IsNull() const
-{
+inline bool ROAnything::IsNull() const {
 	return (fAnyImp == 0);
 }
 
-inline std::ostream &operator<< (std::ostream &os, const ROAnything &a)
-{
+inline std::ostream &operator<<(std::ostream &os, const ROAnything &a) {
 	return a.PrintOn(os);
 }
 
-inline bool operator== (const ROAnything &a1, const ROAnything &a2)
-{
+inline bool operator==(const ROAnything &a1, const ROAnything &a2) {
 	return a1.IsEqual(a2);
 }
-inline bool operator!= (const ROAnything &a1, const ROAnything &a2)
-{
+inline bool operator!=(const ROAnything &a1, const ROAnything &a2) {
 	return !a1.IsEqual(a2);
 }
 
-inline bool operator== (const ROAnything &a, const char *s)
-{
+inline bool operator==(const ROAnything &a, const char *s) {
 	return a.IsEqual(s);
 }
-inline bool operator!= (const ROAnything &a, const char *s)
-{
+inline bool operator!=(const ROAnything &a, const char *s) {
 	return !a.IsEqual(s);
 }
-inline bool operator== (const char *s, const ROAnything &a)
-{
+inline bool operator==(const char *s, const ROAnything &a) {
 	return a.IsEqual(s);
 }
-inline bool operator!= (const char *s, const ROAnything &a)
-{
+inline bool operator!=(const char *s, const ROAnything &a) {
 	return !a.IsEqual(s);
 }
 

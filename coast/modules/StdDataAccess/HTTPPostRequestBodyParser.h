@@ -13,7 +13,7 @@
 
 class MIMEHeader;
 
-//!decode a mime body, even multipart. special treatment for POST requests
+//! decode a mime body, even multipart. special treatment for POST requests
 //! where content-disposition gives us a hint for decoding
 //! decodes bodies according to normal browser POST requests
 //! only works for multipart-form data
@@ -22,22 +22,17 @@ class HTTPPostRequestBodyParser {
 	MIMEHeader &fHeader;
 	Anything fContent;
 	String fUnparsedContent;
+
 public:
 	//! ctor requires a header for parameters on length and decoding
-	HTTPPostRequestBodyParser(MIMEHeader &mainheader) :
-		fHeader(mainheader) {
-	}
+	HTTPPostRequestBodyParser(MIMEHeader &mainheader) : fHeader(mainheader) {}
 	virtual ~HTTPPostRequestBodyParser() {}
 	//! do the parsing, read everything
 	bool Parse(std::istream &input);
 	//! return the decoded result after parsing
-	Anything &GetContent() {
-		return fContent;
-	}
+	Anything &GetContent() { return fContent; }
 	//! return the unparsed body of the request
-	String &GetUnparsedContent() {
-		return fUnparsedContent;
-	}
+	String &GetUnparsedContent() { return fUnparsedContent; }
 
 protected:
 	// operational methods

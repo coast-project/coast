@@ -7,32 +7,27 @@
  */
 
 #include "ThreadedTimeStampTest.h"
-#include "TimeStamp.h"
-#include "TestSuite.h"
-#include "TimeStampTestThread.h"
+
 #include "AnyUtils.h"
 #include "SystemLog.h"
+#include "TestSuite.h"
+#include "TimeStamp.h"
+#include "TimeStampTestThread.h"
 
-ThreadedTimeStampTest::ThreadedTimeStampTest(TString tstrName)
-	: TestCaseType(tstrName)
-	, fCheckMutex("ThreadedTimeStampTest")
-{
+ThreadedTimeStampTest::ThreadedTimeStampTest(TString tstrName) : TestCaseType(tstrName), fCheckMutex("ThreadedTimeStampTest") {
 	StartTrace(ThreadedTimeStampTest.ThreadedTimeStampTest);
 }
 
-TString ThreadedTimeStampTest::getConfigFileName()
-{
+TString ThreadedTimeStampTest::getConfigFileName() {
 	return "ThreadedTimeStampTestConfig";
 }
 
-ThreadedTimeStampTest::~ThreadedTimeStampTest()
-{
+ThreadedTimeStampTest::~ThreadedTimeStampTest() {
 	StartTrace(ThreadedTimeStampTest.Dtor);
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *ThreadedTimeStampTest::suite ()
-{
+Test *ThreadedTimeStampTest::suite() {
 	StartTrace(ThreadedTimeStampTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, ThreadedTimeStampTest, TimestampConcurrencyTest);
@@ -40,12 +35,11 @@ Test *ThreadedTimeStampTest::suite ()
 	return testSuite;
 }
 
-void ThreadedTimeStampTest::TimestampConcurrencyTest()
-{
+void ThreadedTimeStampTest::TimestampConcurrencyTest() {
 	StartTrace(ThreadedTimeStampTest.TimestampConcurrencyTest);
 	ROAnything roaConfig;
 	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(roaConfig) ) {
+	while (aEntryIterator.Next(roaConfig)) {
 		long numberOfRuns(roaConfig["NumberOfRuns"].AsLong());
 		long numberOfThreads(roaConfig["NumberOfThreads"].AsLong());
 		long concurrencyFactor(roaConfig["ConcurrencyFactor"].AsLong());
@@ -53,8 +47,8 @@ void ThreadedTimeStampTest::TimestampConcurrencyTest()
 	}
 }
 
-void ThreadedTimeStampTest::DoTimeStampConcurrencyTest(long numberOfRuns, long numberOfThreads, long concurrencyFactor, ROAnything roaConfig)
-{
+void ThreadedTimeStampTest::DoTimeStampConcurrencyTest(long numberOfRuns, long numberOfThreads, long concurrencyFactor,
+													   ROAnything roaConfig) {
 	StartTrace(ThreadedTimeStampTest.DoTimeStampConcurrencyTest);
 	SamplePoolManager wpm("InitTestPool");
 	Anything config;
@@ -67,11 +61,17 @@ void ThreadedTimeStampTest::DoTimeStampConcurrencyTest(long numberOfRuns, long n
 	t_assert(wpm.GetPoolSize() == numberOfThreads);
 	t_assert(wpm.ResourcesUsed() == 0);
 	String strRemainder;
-	strRemainder << "Threads: " << (numberOfThreads > 9 ? "" : " ") << numberOfThreads << " Concurrency: " << concurrencyFactor << " Runs: " << numberOfRuns << " UTC-Test: " << (roaConfig["UTCCtorTest"].AsBool(false) ? "true " : "false") << " Compare: " << (roaConfig["CompareStamps"].AsBool(false) ? "true " : "false") << "\n";
+	strRemainder << "Threads: " << (numberOfThreads > 9 ? "" : " ") << numberOfThreads << " Concurrency: " << concurrencyFactor
+				 << " Runs: " << numberOfRuns << " UTC-Test: " << (roaConfig["UTCCtorTest"].AsBool(false) ? "true " : "false")
+				 << " Compare: " << (roaConfig["CompareStamps"].AsBool(false) ? "true " : "false") << "\n";
 	Trace(TimeStamp().AsString() << " Start    " << strRemainder);
 	SystemLog::WriteToStderr(strRemainder);
 	{
-		CatchTimeType aTimer(TString("TimeStampConcurrencyTest/") << numberOfThreads << "t/" << (roaConfig["CompareStamps"].AsBool(false) ? "Compare" : "NoCompare") << "/" << (roaConfig["UTCCtorTest"].AsBool(false) ? "UTC/" : "Local/") << numberOfRuns, this);
+		CatchTimeType aTimer(TString("TimeStampConcurrencyTest/")
+								 << numberOfThreads << "t/"
+								 << (roaConfig["CompareStamps"].AsBool(false) ? "Compare" : "NoCompare") << "/"
+								 << (roaConfig["UTCCtorTest"].AsBool(false) ? "UTC/" : "Local/") << numberOfRuns,
+							 this);
 		for (long i = 0; i < numberOfThreads * concurrencyFactor; i++) {
 			wpm.Enter(config, -1L);
 		}
@@ -88,11 +88,8 @@ void ThreadedTimeStampTest::DoTimeStampConcurrencyTest(long numberOfRuns, long n
 	assertAnyCompareEqual(expected, statistic, "Expected", '.', ':');
 }
 
-void ThreadedTimeStampTest::CheckNumberOfRuns(long numberOfRuns, long doneRuns, String threadName)
-{
+void ThreadedTimeStampTest::CheckNumberOfRuns(long numberOfRuns, long doneRuns, String threadName) {
 	t_assert(numberOfRuns == doneRuns);
 }
 
-void ThreadedTimeStampTest::CheckProcessWorkload(bool isWorking, bool wasPrepared)
-{
-}
+void ThreadedTimeStampTest::CheckProcessWorkload(bool isWorking, bool wasPrepared) {}

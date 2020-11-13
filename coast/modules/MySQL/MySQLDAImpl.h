@@ -10,11 +10,11 @@
 #define _MySQLDAImpl_H
 
 #include "DataAccessImpl.h"
+
 #include <mysql/mysql.h>
 
 //! DataAccess for
-class MySQLDAImpl: public DataAccessImpl
-{
+class MySQLDAImpl : public DataAccessImpl {
 public:
 	MySQLDAImpl(const char *name);
 	~MySQLDAImpl();
@@ -28,15 +28,15 @@ public:
 
 protected:
 	//! Helper method to report errors
-	void SetErrorMsg(const char *msg, MYSQL *mysql, Context &context, ResultMapper *out );
+	void SetErrorMsg(const char *msg, MYSQL *mysql, Context &context, ResultMapper *out);
 
 private:
-	//constructor
+	// constructor
 	MySQLDAImpl();
 	MySQLDAImpl(const MySQLDAImpl &);
-	//assignement
+	// assignement
 	MySQLDAImpl &operator=(const MySQLDAImpl &);
 };
 
 /* Don't add stuff after this #endif */
-#endif		//not defined _MySQLDAImpl_H
+#endif	// not defined _MySQLDAImpl_H

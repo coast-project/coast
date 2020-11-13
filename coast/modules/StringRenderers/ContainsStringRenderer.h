@@ -13,16 +13,17 @@
 
 //---- ContainsStringRenderer ----------------------------------------------------------
 //! Search string within another string.
-/*! Search \c /Contains within \c /String and either render the position where the \c /Contains string was found within \c /String or render \c /True or \c /False spec if given.
+/*! Search \c /Contains within \c /String and either render the position where the \c /Contains string was found within \c
+/String or render \c /True or \c /False spec if given.
  * In case of empty \c /Contains and/or  \c /String slots, render \c /Error contents.
  * @section cosr1 Renderer configuration
 \code
 {
-	/String
-	/Contains
-	/True
-	/False
-	/Error
+  /String
+  /Contains
+  /True
+  /False
+  /Error
 }
 \endcode
  * @par \c String
@@ -43,13 +44,14 @@
  *
  * @par \c Error
  * Optional, default: ""\n
- * Rendererspec resulting in a string value to be rendered when either /String or /Contains rendering resulted in an empty string
+ * Rendererspec resulting in a string value to be rendered when either /String or /Contains rendering resulted in an empty
+string
  *
  * @par Example1:
 \code
 { /ContainsStringRenderer {
-	/String		"fooBar, gagaGugus"
-	/Contains	"gaga"
+  /String		"fooBar, gagaGugus"
+  /Contains	"gaga"
 } }
 \endcode
 
@@ -58,9 +60,9 @@ Renders : "8"
 \par Example2:
 \code
 { /ContainsStringRenderer {
-	/String		"fooBar, gagaGugus"
-	/Contains	"blabla"
-	/False		"Oops!"
+  /String		"fooBar, gagaGugus"
+  /Contains	"blabla"
+  /False		"Oops!"
 } }
 \endcode
 
@@ -68,12 +70,11 @@ Renders : "Oops!"
 */
 class ContainsStringRenderer : public Renderer {
 	ContainsStringRenderer();
+
 public:
 	/*! Default constructor for NamedObject
 	 * @param name defines the name of the Renderer */
-	ContainsStringRenderer(const char *name) :
-		Renderer(name) {
-	}
+	ContainsStringRenderer(const char *name) : Renderer(name) {}
 
 protected:
 	/*! Renders the corresponding result based on a String::Contains() check

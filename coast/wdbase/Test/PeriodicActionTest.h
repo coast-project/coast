@@ -9,33 +9,33 @@
 #ifndef _PeriodicActionTest_H
 #define _PeriodicActionTest_H
 
+#include "Condition.h"
+#include "Mutex.h"
 #include "TestCase.h"
-#include "Threads.h"
 
 class Context;
 
-//!tests for PeriodicAction thread
-class PeriodicActionTest : public testframework::TestCase
-{
+//! tests for PeriodicAction thread
+class PeriodicActionTest : public testframework::TestCase {
 public:
 	//--- constructors
 
-	//!TestCase constructor
+	//! TestCase constructor
 	//! \param name name of the test
 	PeriodicActionTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~PeriodicActionTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!test periodic action thread
+	//! test periodic action thread
 	void PeriodicTest();
 
-	//!keep it simple just increment counter
+	//! keep it simple just increment counter
 	static void ActionCalled(Context &ctx);
 
 protected:

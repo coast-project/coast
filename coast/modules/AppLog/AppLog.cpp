@@ -7,22 +7,26 @@
  */
 
 #include "AppLog.h"
-#include "Server.h"
-#include "Renderer.h"
+
 #include "Registry.h"
+#include "Renderer.h"
+#include "Server.h"
 #include "SystemBase.h"
 #include "SystemFile.h"
-#include <errno.h>
+
 #include <cstdio>
+#include <istream>
+#include <ostream>
+
+#include <errno.h>
+
 using namespace coast;
 
-RegisterModule (AppLogModule);
+RegisterModule(AppLogModule);
 
 AppLogModule *AppLogModule::fgAppLogModule = 0;
 
-AppLogModule::AppLogModule(const char *name) :
-		WDModule(name), fRotator(0), fFlusher(0) {
-}
+AppLogModule::AppLogModule(const char *name) : WDModule(name), fRotator(0), fFlusher(0) {}
 
 bool AppLogModule::Init(const ROAnything config) {
 	// initialization of application logging tries a socket connection
@@ -32,7 +36,7 @@ bool AppLogModule::Init(const ROAnything config) {
 	ROAnything appLogConfig;
 	StartTrace(AppLogModule.Init);
 
-	if (config.LookupPath(appLogConfig, "AppLogModule") && appLogConfig["Servers"].GetSize()) {
+	if (config.LookupPath(appLogConfig, "AppLogModule") && (appLogConfig["Servers"].GetSize() != 0)) {
 		TraceAny(appLogConfig, "AppLogConfig:");
 		ROAnything servers(appLogConfig["Servers"]);
 		long numOfServers = servers.GetSize();
@@ -48,8 +52,8 @@ bool AppLogModule::Init(const ROAnything config) {
 		// generate for each server its respective logchannels
 		for (long i = 0; i < numOfServers; ++i) {
 			const char *servername = servers.SlotName(i);
-			Server *s;
-			if (servername && (s = Server::FindServer(servername))) {
+			Server *s = NULL;
+			if ((servername != 0) && ((s = Server::FindServer(servername)) != 0)) {
 				Anything cfg;
 				cfg["Channels"] = servers[i].DeepClone();
 				cfg["LogDir"] = strLogDir;
@@ -59,12 +63,12 @@ bool AppLogModule::Init(const ROAnything config) {
 			SystemLog::WriteToStderr(".", 1);
 		}
 		TraceAny(fLogConnections, "LogConnections: ");
-		if (retCode
-		        && StartLogRotator(appLogConfig["RotateTime"].AsCharPtr("24:00"),
-		                appLogConfig["RotateSecond"].AsLong(0L),
-		                appLogConfig["RotateEveryNSecondsTime"].AsCharPtr("00:00:00"),
-		                appLogConfig["RotateEveryNSeconds"].AsLong(0L), appLogConfig["RotateTimeIsGmTime"].AsLong(0L))
-		        && StartLogFlusher(appLogConfig["FlushEveryNSeconds"].AsLong(60L))) {
+		if (retCode &&
+			StartLogRotator(appLogConfig["RotateTime"].AsCharPtr("24:00"), appLogConfig["RotateSecond"].AsLong(0L),
+							appLogConfig["RotateEveryNSecondsTime"].AsCharPtr("00:00:00"),
+							appLogConfig["RotateEveryNSeconds"].AsLong(0L),
+							appLogConfig["RotateTimeIsGmTime"].AsLong(0L) != 0) &&
+			StartLogFlusher(appLogConfig["FlushEveryNSeconds"].AsLong(60L))) {
 			fgAppLogModule = this;
 			fROLogConnections = fLogConnections;
 			SystemLog::WriteToStderr(" done\n");
@@ -90,9 +94,9 @@ bool AppLogModule::Finis() {
 			for (long j = 0, szj = fLogConnections[i].GetSize(); j < szj; ++j) {
 				Trace("finishing channel [" << fLogConnections[i].SlotName(j) << "]");
 				IFAObject *logchannel = fLogConnections[i][j][0L].AsIFAObject(0);
-				if (logchannel) {
-					delete logchannel;
-				}
+
+				delete logchannel;
+
 				fLogConnections[i][j] = 0L;
 			}
 		}
@@ -113,7 +117,7 @@ bool AppLogModule::MakeChannels(const char *servername, const Anything &config) 
 		// has its own definition of logging
 		for (long i = 0; i < numOfChannels; ++i) {
 			String strChannelName = anyChannels.SlotName(i);
-			if (strChannelName.Length()) {
+			if (strChannelName.Length() != 0) {
 				Anything channel = anyChannels[i];
 				TraceAny(channel, "config of channel [" << strChannelName << "]");
 				if (!channel.IsDefined("LogDir")) {
@@ -122,15 +126,16 @@ bool AppLogModule::MakeChannels(const char *servername, const Anything &config) 
 				if (!channel.IsDefined("RotateDir")) {
 					channel["RotateDir"] = config["RotateDir"];
 				}
-				AppLogChannel *pChannel = NULL, *pCloneChannel = AppLogChannel::FindAppLogChannel(
-				        channel["ChannelClass"].AsString("AppLogChannel"));
-				if (pCloneChannel) {
+				AppLogChannel *pChannel = NULL,
+							  *pCloneChannel =
+								  AppLogChannel::FindAppLogChannel(channel["ChannelClass"].AsString("AppLogChannel"));
+				if (pCloneChannel != 0) {
 					pChannel = SafeCast(pCloneChannel->Clone(coast::storage::Global()), AppLogChannel);
-					if (pChannel) {
+					if (pChannel != 0) {
 						pChannel->InitClone(strChannelName, channel);
 					}
 				}
-				if (!pChannel || !pChannel->Rotate()) {
+				if ((pChannel == 0) || !pChannel->Rotate()) {
 					SystemLog::Error(String("AppLogChannel [") << strChannelName << "] failed to initialize.");
 					return false;
 				}
@@ -143,7 +148,7 @@ bool AppLogModule::MakeChannels(const char *servername, const Anything &config) 
 		bool configured = false;
 
 		Server *server = Server::FindServer(servername);
-		while (server && !configured) {
+		while ((server != 0) && !configured) {
 			String serverName;
 			server->GetName(serverName);
 			Trace("testing <" << serverName << "> for connections");
@@ -157,7 +162,7 @@ bool AppLogModule::MakeChannels(const char *servername, const Anything &config) 
 				configured = true;
 			} else {
 				Trace("no config for <" << serverName << ">, using super");
-				server = (Server *) server->GetSuper();
+				server = (Server *)server->GetSuper();
 			}
 		}
 	}
@@ -165,18 +170,18 @@ bool AppLogModule::MakeChannels(const char *servername, const Anything &config) 
 }
 
 bool AppLogModule::FlushLogs() {
-	return (fgAppLogModule && fgAppLogModule->DoFlushLogs());
+	return ((fgAppLogModule != 0) && fgAppLogModule->DoFlushLogs());
 }
 
 bool AppLogModule::RotateLogs() {
-	return (fgAppLogModule && fgAppLogModule->DoRotateLogs());
+	return ((fgAppLogModule != 0) && fgAppLogModule->DoRotateLogs());
 }
 
 bool AppLogModule::RotateSpecificLog(Context &ctx, const char *channelName) {
 	StartTrace(AppLogModule.RotateSpecificLog);
 	AppLogChannel *logChannel = FindLogger(ctx, channelName);
 	bool ret = false;
-	if (logChannel) {
+	if (logChannel != 0) {
 		ret = logChannel->Rotate(true);
 	}
 	return ret;
@@ -191,9 +196,9 @@ bool AppLogModule::DoFlushLogs() {
 		long roaLogChannelsSz = roaLogChannels.GetSize();
 		for (long j = 0; j < roaLogChannelsSz; ++j) {
 			const char *channelname = roaLogChannels.SlotName(j);
-			if (channelname && servername) {
+			if ((channelname != 0) && (servername != 0)) {
 				AppLogChannel *logChannel = GetLogChannel(servername, channelname);
-				if (logChannel) {
+				if (logChannel != 0) {
 					logChannel->FlushItems();
 				}
 			}
@@ -211,9 +216,9 @@ bool AppLogModule::DoRotateLogs() {
 		long roaLogChannelsSz = roaLogChannels.GetSize();
 		for (long j = 0; j < roaLogChannelsSz; ++j) {
 			const char *channelname = roaLogChannels.SlotName(j);
-			if (channelname && servername) {
+			if ((channelname != 0) && (servername != 0)) {
 				AppLogChannel *logChannel = GetLogChannel(servername, channelname);
-				if (logChannel) {
+				if (logChannel != 0) {
 					logChannel->Rotate();
 				}
 			}
@@ -223,17 +228,17 @@ bool AppLogModule::DoRotateLogs() {
 }
 
 bool AppLogModule::StartLogRotator(const char *rotateTime, long lRotateSecond, const char *everyNSecondsTime,
-        long lEveryNSeconds, bool isGmTime) {
-	fRotator = new (coast::storage::Global()) LogRotator(rotateTime, everyNSecondsTime, lRotateSecond, lEveryNSeconds,
-	        isGmTime);
-	if (fRotator) {
+								   long lEveryNSeconds, bool isGmTime) {
+	fRotator =
+		new (coast::storage::Global()) LogRotator(rotateTime, everyNSecondsTime, lRotateSecond, lEveryNSeconds, isGmTime);
+	if (fRotator != 0) {
 		return fRotator->Start();
 	}
 	return false;
 }
 
 bool AppLogModule::TerminateLogRotator() {
-	if (fRotator) {
+	if (fRotator != 0) {
 		fRotator->Terminate(10);
 		delete fRotator;
 		fRotator = 0;
@@ -244,14 +249,14 @@ bool AppLogModule::TerminateLogRotator() {
 
 bool AppLogModule::StartLogFlusher(long lEveryNSeconds) {
 	fFlusher = new (coast::storage::Global()) LogFlusher(lEveryNSeconds);
-	if (fFlusher) {
+	if (fFlusher != 0) {
 		return fFlusher->Start();
 	}
 	return false;
 }
 
 bool AppLogModule::TerminateLogFlusher() {
-	if (fFlusher) {
+	if (fFlusher != 0) {
 		fFlusher->Terminate(10);
 		delete fFlusher;
 		fFlusher = 0;
@@ -261,14 +266,13 @@ bool AppLogModule::TerminateLogFlusher() {
 }
 
 AppLogChannel *AppLogModule::GetLogChannel(const char *servername, const char *logChannel) {
-	StartTrace1(AppLogModule.GetLogChannel,
-	        "server [" << servername << "] AppLogChannel [" << NotNull(logChannel) << "]");
+	StartTrace1(AppLogModule.GetLogChannel, "server [" << servername << "] AppLogChannel [" << NotNull(logChannel) << "]");
 	AppLogChannel *logger = NULL;
 	ROAnything loggerConfig;
-	if (servername && logChannel && fROLogConnections.LookupPath(loggerConfig, servername)
-	        && loggerConfig.IsDefined(logChannel)) {
+	if ((servername != 0) && (logChannel != 0) && fROLogConnections.LookupPath(loggerConfig, servername) &&
+		loggerConfig.IsDefined(logChannel)) {
 		logger = SafeCast(loggerConfig[logChannel].AsIFAObject(0), AppLogChannel);
-		if (logger) {
+		if (logger != 0) {
 			return logger;
 		}
 		SystemLog::Error(String("AppLogChannel [") << servername << "." << NotNull(logChannel) << "] not valid.");
@@ -280,22 +284,21 @@ AppLogChannel *AppLogModule::GetLogChannel(const char *servername, const char *l
 
 AppLogChannel *AppLogModule::FindLogger(Context &ctx, const char *logChannel) {
 	StartTrace1(AppLogModule.FindLogger, "AppLogChannel [" << NotNull(logChannel) << "]");
-	if (fgAppLogModule) {
+	if (fgAppLogModule != 0) {
 		Server *s = ctx.GetServer();
 		String servername;
-		if (s && s->GetName(servername)) {
+		if ((s != 0) && s->GetName(servername)) {
 			return fgAppLogModule->GetLogChannel(servername, logChannel);
 		}
-		SystemLog::Error(
-		        String("AppLogChannel [") << NotNull(logChannel) << "]: Server could not be retrieved from Context.");
+		SystemLog::Error(String("AppLogChannel [") << NotNull(logChannel) << "]: Server could not be retrieved from Context.");
 	}
 	return 0;
 }
 
 bool AppLogModule::Log(Context &ctx, const char *logChannel, eLogLevel iLevel) {
-	StartTrace1(AppLogModule.Log, "AppLogChannel [" << NotNull(logChannel) << "], Severity:" << (long) iLevel);
+	StartTrace1(AppLogModule.Log, "AppLogChannel [" << NotNull(logChannel) << "], Severity:" << (long)iLevel);
 	AppLogChannel *logger = FindLogger(ctx, logChannel);
-	if (logger) {
+	if (logger != 0) {
 		Trace("logger found");
 		return logger->Log(ctx, iLevel);
 	}
@@ -304,10 +307,10 @@ bool AppLogModule::Log(Context &ctx, const char *logChannel, eLogLevel iLevel) {
 }
 
 bool AppLogModule::Log(Context &ctx, const char *logChannel, const ROAnything &config, eLogLevel iLevel) {
-	StartTrace1(AppLogModule.Log, "(config) AppLogChannel [" << NotNull(logChannel) << "], Severity:" << (long) iLevel);
+	StartTrace1(AppLogModule.Log, "(config) AppLogChannel [" << NotNull(logChannel) << "], Severity:" << (long)iLevel);
 	TraceAny(config, "Config: ");
 	AppLogChannel *logger = FindLogger(ctx, logChannel);
-	if (logger) {
+	if (logger != 0) {
 		Trace("logger found");
 		return logger->LogAll(ctx, iLevel, config);
 	}
@@ -315,8 +318,7 @@ bool AppLogModule::Log(Context &ctx, const char *logChannel, const ROAnything &c
 }
 
 bool AppLogModule::Log(Context &ctx, const char *logChannel, const String &strMessage, eLogLevel iLevel) {
-	StartTrace1(AppLogModule.Log,
-	        "(message) AppLogChannel [" << NotNull(logChannel) << "], Severity:" << (long) iLevel);
+	StartTrace1(AppLogModule.Log, "(message) AppLogChannel [" << NotNull(logChannel) << "], Severity:" << (long)iLevel);
 	Anything anyMessage(strMessage);
 	return Log(ctx, logChannel, anyMessage, iLevel);
 }
@@ -363,19 +365,29 @@ String AppLogModule::GetSeverityText(eLogLevel iLevel) {
 }
 
 RegisterObject(AppLogChannel, AppLogChannel);
-RegCacheImpl (AppLogChannel);
+RegCacheImpl(AppLogChannel);
 
-AppLogChannel::AppLogChannel(const char *name) :
-		RegisterableObject(name), fLogStream(NULL), fChannelInfo(coast::storage::Global()), fSuppressEmptyLines(false),
-		fRendering(true), fLogMsgSizeHint(128L), fDoNotRotate(false), fNoLogItemsWrite(false),
-		fFormat(coast::storage::Global()), fChannelMutex(name, coast::storage::Global()), fItemsToBuffer(1L),
-		fBuffer(coast::storage::Global()), fItemsInBuffer(0L), fSeverity(AppLogModule::eALL) {
+AppLogChannel::AppLogChannel(const char *name)
+	: RegisterableObject(name),
+	  fLogStream(NULL),
+	  fChannelInfo(coast::storage::Global()),
+	  fSuppressEmptyLines(false),
+	  fRendering(true),
+	  fLogMsgSizeHint(128L),
+	  fDoNotRotate(false),
+	  fNoLogItemsWrite(false),
+	  fFormat(coast::storage::Global()),
+	  fChannelMutex(name, coast::storage::Global()),
+	  fItemsToBuffer(1L),
+	  fBuffer(coast::storage::Global()),
+	  fItemsInBuffer(0L),
+	  fSeverity(AppLogModule::eALL) {
 	StartTrace(AppLogChannel.AppLogChannel);
 }
 
 AppLogChannel::~AppLogChannel() {
 	StartTrace(AppLogChannel.~AppLogChannel);
-	if (fLogStream) {
+	if (fLogStream != 0) {
 		FlushItems();
 		LockUnlockEntry me(fChannelMutex);
 		delete fLogStream;
@@ -390,7 +402,7 @@ void AppLogChannel::FlushItems() {
 		if (fItemsInBuffer > 0) {
 			String msg;
 			msg << " AppLogChannel: [" << fName << "] flushing [" << fItemsInBuffer << "] "
-			        << "buffered messages to log [" << fChannelInfo["FileName"].AsString() << "]\n";
+				<< "buffered messages to log [" << fChannelInfo["FileName"].AsString() << "]\n";
 			SystemLog::Info(msg);
 			DoFlushItems();
 		}
@@ -399,10 +411,10 @@ void AppLogChannel::FlushItems() {
 
 void AppLogChannel::DoFlushItems() {
 	StartTrace(AppLogChannel.DoFlushItems);
-	if (fLogStream && (fItemsToBuffer >= 1L) && (fItemsInBuffer > 0L)) {
-		Trace("fLogStream state before logging: " << (long) fLogStream->rdstate());
+	if ((fLogStream != 0) && (fItemsToBuffer >= 1L) && (fItemsInBuffer > 0L)) {
+		Trace("fLogStream state before logging: " << (long)fLogStream->rdstate());
 		(*fLogStream) << fBuffer << std::flush;
-		Trace("fLogStream state after logging: " << (long) fLogStream->rdstate());
+		Trace("fLogStream state after logging: " << (long)fLogStream->rdstate());
 		fBuffer.Trim(0L);
 		fItemsInBuffer = 0L;
 	}
@@ -424,8 +436,7 @@ bool AppLogChannel::DoInitClone(const char *name, const Anything &channel) {
 	fNoLogItemsWrite = fChannelInfo["NoLogItemsWrite"].AsBool(false);
 	fFormat = fChannelInfo["Format"];
 	fItemsToBuffer = fChannelInfo["BufferItems"].AsLong(1L);
-	fSeverity = static_cast<AppLogModule::eLogLevel>(fChannelInfo["Severity"].AsLong(
-	        static_cast<long>(AppLogModule::eALL)));
+	fSeverity = static_cast<AppLogModule::eLogLevel>(fChannelInfo["Severity"].AsLong(static_cast<long>(AppLogModule::eALL)));
 	if (fItemsToBuffer <= 0L) {
 		// Avoid zero division in mod operation
 		fItemsToBuffer = 1L;
@@ -441,7 +452,7 @@ bool AppLogChannel::Log(Context &ctx, AppLogModule::eLogLevel iLevel) {
 
 bool AppLogChannel::LogAll(Context &ctx, AppLogModule::eLogLevel iLevel, const ROAnything &config) {
 	StartTrace(AppLogChannel.LogAll);
-	if (fLogStream && fLogStream->good()) {
+	if ((fLogStream != 0) && fLogStream->good()) {
 		if (fNoLogItemsWrite) {
 			return true;
 		}
@@ -450,16 +461,16 @@ bool AppLogChannel::LogAll(Context &ctx, AppLogModule::eLogLevel iLevel, const R
 			Anything anyLogSev;
 			anyLogSev["LogSeverity"] = static_cast<long>(iLevel);
 			anyLogSev["LogSeverityText"] = AppLogModule::GetSeverityText(iLevel);
-			Context::PushPopEntry < Anything > aEntry(ctx, "LogSeverity", anyLogSev);
+			Context::PushPopEntry<Anything> aEntry(ctx, "LogSeverity", anyLogSev);
 			String logMsg(fLogMsgSizeHint);
 			DoCreateLogMsg(ctx, iLevel, logMsg, config);
-			if (!fSuppressEmptyLines || logMsg.Length()) {
+			if (!fSuppressEmptyLines || (logMsg.Length() != 0)) {
 				logMsg << "\n";
 				LockUnlockEntry me(fChannelMutex);
 				{
 					fBuffer.Append(logMsg);
 					++fItemsInBuffer;
-					if (fItemsInBuffer % fItemsToBuffer) {
+					if ((fItemsInBuffer % fItemsToBuffer) != 0) {
 						return true;
 					}
 					DoFlushItems();
@@ -472,8 +483,7 @@ bool AppLogChannel::LogAll(Context &ctx, AppLogModule::eLogLevel iLevel, const R
 	return false;
 }
 
-void AppLogChannel::DoCreateLogMsg(Context &ctx, AppLogModule::eLogLevel iLevel, String &logMsg,
-        const ROAnything &config) {
+void AppLogChannel::DoCreateLogMsg(Context &ctx, AppLogModule::eLogLevel iLevel, String &logMsg, const ROAnything &config) {
 	StartTrace(AppLogChannel.DoCreateLogMsg);
 	if (fRendering) {
 		Trace("rendered log part");
@@ -485,7 +495,7 @@ void AppLogChannel::DoCreateLogMsg(Context &ctx, AppLogModule::eLogLevel iLevel,
 	Trace("message to log [" << logMsg << "]");
 }
 
-String AppLogChannel::GetAbsoluteLogPathIfExisting(String const& absOrRelLogpath) const {
+String AppLogChannel::GetAbsoluteLogPathIfExisting(String const &absOrRelLogpath) const {
 	StartTrace(AppLogChannel.GetAbsoluteLogPathIfExisting);
 	String logdir = absOrRelLogpath;
 	if (!system::IsAbsolutePath(logdir)) {
@@ -500,22 +510,22 @@ String AppLogChannel::GetAbsoluteLogPathIfExisting(String const& absOrRelLogpath
 	return logdir;
 }
 
-bool AppLogChannel::GetLogDirectories(ROAnything channel, String& logdir, String& rotatedir) {
+bool AppLogChannel::GetLogDirectories(ROAnything channel, String &logdir, String &rotatedir) {
 	StartTrace(AppLogChannel.GetLogDirectories);
 	logdir = GetAbsoluteLogPathIfExisting(channel["LogDir"].AsString());
 	Trace("current logfile-path [" << logdir << "]");
 	if (logdir.empty()) {
-		SystemLog::Error(
-		        String("Log directory [") << logdir
-		                << "] does not exist!\nPlease create it first having the correct ownership and permissions set.");
+		SystemLog::Error(String("Log directory [")
+						 << logdir
+						 << "] does not exist!\nPlease create it first having the correct ownership and permissions set.");
 		return false;
 	}
 	rotatedir = GetAbsoluteLogPathIfExisting(channel["RotateDir"].AsString());
 	Trace("current rotate-path [" << rotatedir << "]");
 	if (rotatedir.empty()) {
-		SystemLog::Error(
-		        String("Rotate directory [") << rotatedir
-		                << "] does not exist!\nPlease create it first having the correct ownership and permissions set.");
+		SystemLog::Error(String("Rotate directory [")
+						 << rotatedir
+						 << "] does not exist!\nPlease create it first having the correct ownership and permissions set.");
 		return false;
 	}
 	return true;
@@ -524,7 +534,7 @@ bool AppLogChannel::GetLogDirectories(ROAnything channel, String& logdir, String
 std::ostream *AppLogChannel::OpenLogStream(ROAnything channel, String &logfileName) {
 	StartTrace(AppLogChannel.OpenLogStream);
 	String logdir, rotatedir;
-	bool bGoAhead;
+	bool bGoAhead = false;
 
 	bGoAhead = GetLogDirectories(channel, logdir, rotatedir);
 
@@ -572,9 +582,8 @@ bool AppLogChannel::RotateLog(const String &logdirName, const String &rotatedirN
 		}
 		retCode = ::rename(oldLogFileName, newLogFileName);
 		if (retCode != 0) {
-			SYSWARNING(
-			        "rotate of [" << oldLogFileName << "] with [" << newLogFileName << "] failed! (" << (long) errno
-			                << ") " << SystemLog::LastSysError());
+			SYSWARNING("rotate of [" << oldLogFileName << "] with [" << newLogFileName << "] failed! (" << (long)errno << ") "
+									 << SystemLog::LastSysError());
 		}
 	}
 	// assign full filename of log to use
@@ -592,17 +601,17 @@ bool AppLogChannel::Rotate(bool overrideDoNotRotateLogs) {
 		pStream = fLogStream;
 	}
 	// must enter here in case the logfile does not exist yet
-	if (!pStream || (overrideDoNotRotateLogs || (fDoNotRotate == false))) {
+	if ((pStream == 0) || (overrideDoNotRotateLogs || (fDoNotRotate == false))) {
 		LockUnlockEntry me(fChannelMutex);
-		if (fLogStream) {
+		if (fLogStream != 0) {
 			DoFlushItems();
 			delete fLogStream;
 			fLogStream = 0;
 		}
 		String logfileName;
 		fLogStream = OpenLogStream(GetChannelInfo(), logfileName);
-		if (fLogStream) {
-			WriteHeader (*fLogStream);
+		if (fLogStream != 0) {
+			WriteHeader(*fLogStream);
 		} else {
 			SystemLog::Error(String("Could not open logfile [") << logfileName << "] for writing.");
 		}
@@ -615,7 +624,7 @@ void AppLogChannel::WriteHeader(std::ostream &os) {
 	StartTrace(AppLogChannel.WriteHeader);
 	ROAnything header = GetChannelInfo()["Header"];
 
-	Trace("os state before writing header: " << (long) os.rdstate());
+	Trace("os state before writing header: " << (long)os.rdstate());
 	long szh = header.GetSize();
 	for (long i = 0; i < szh; ++i) {
 		os << header[i].AsCharPtr("");
@@ -627,7 +636,7 @@ void AppLogChannel::WriteHeader(std::ostream &os) {
 	if (szh > 0) {
 		os << std::endl;
 	}
-	Trace("os state " << (long) os.rdstate());
+	Trace("os state " << (long)os.rdstate());
 }
 
 String AppLogChannel::GenTimeStamp(const String &format) {
@@ -636,8 +645,8 @@ String AppLogChannel::GenTimeStamp(const String &format) {
 }
 
 AppLogModule::LogRotator::LogRotator(const char *rotateTime, const char *everyNSecondsTime, long lRotateSecond,
-        long leveryNSeconds, bool isGmTime) :
-		Thread("LogRotator"), fRotateSecond(lRotateSecond), fEveryNSeconds(leveryNSeconds), fIsGmTime(isGmTime) {
+									 long leveryNSeconds, bool isGmTime)
+	: Thread("LogRotator"), fRotateSecond(lRotateSecond), fEveryNSeconds(leveryNSeconds), fIsGmTime(isGmTime) {
 	StartTrace(LogRotator.LogRotator);
 	if (fEveryNSeconds == 0) {
 		long rotateSecond = ParseTimeString(everyNSecondsTime);
@@ -680,13 +689,12 @@ long AppLogModule::LogRotator::GetSecondsToWait() {
 	} else {
 		time_t now = time(0);
 
-		struct tm res, *tt;
+		struct tm res, *tt = NULL;
 		tt = ((fIsGmTime == false) ? (system::LocalTime(&now, &res)) : (system::GmTime(&now, &res)));
 
 		long lCurrentSecondInDay = ((((tt->tm_hour * 60) + tt->tm_min) * 60) + tt->tm_sec) % 86400;
-		Trace(
-		        "fRotateSecond: [" << fRotateSecond << "] lCurrentSecondInDay: [" << lCurrentSecondInDay
-		                << "] fIsGmTime: [" << fIsGmTime << "]");
+		Trace("fRotateSecond: [" << fRotateSecond << "] lCurrentSecondInDay: [" << lCurrentSecondInDay << "] fIsGmTime: ["
+								 << fIsGmTime << "]");
 		lSecondsToWait = fRotateSecond - lCurrentSecondInDay;
 		if (lSecondsToWait <= 0) {
 			lSecondsToWait += 86400;

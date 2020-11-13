@@ -25,6 +25,7 @@ if os.path.exists(_project_tool_dir):
     SCons.Tool.DefaultToolpath.append(_project_tool_dir)
 
 _project_tools = [
+    "install",
     "coast_options",
     "ThirdParty",
     "DoxygenBuilder",

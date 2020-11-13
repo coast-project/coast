@@ -17,7 +17,7 @@
  * @section rffrm Mapper configuration
 \code
 {
-	/Normalize		String
+  /Normalize		String
 }
 \endcode
  *
@@ -27,16 +27,12 @@
  * Check \ref coast::urlutils::NormalizeTag for valid values
  *
  */
-class MimeHeaderResultMapper: public ResultMapper {
+class MimeHeaderResultMapper : public ResultMapper {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	MimeHeaderResultMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	MimeHeaderResultMapper(const char *name) : ResultMapper(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) MimeHeaderResultMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) MimeHeaderResultMapper(fName); }
 
 protected:
 	//! Reads from std::istream the MIME headers and Put them with the given key

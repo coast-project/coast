@@ -9,8 +9,9 @@
 #ifndef _SybCTnewDA_H
 #define _SybCTnewDA_H
 
-#include "Threads.h"
 #include "Mapper.h"
+#include "Threads.h"
+
 #include <ctpublic.h>
 
 //---- SybCTnewDA ----------------------------------------------------------
@@ -19,42 +20,38 @@
 // this may contain <B>HTML-Tags</B>
 // ...
 
-#define	CTLIB_VERSION	CS_VERSION_125
-#define	BLK_VERSION		BLK_VERSION_125
+#define CTLIB_VERSION CS_VERSION_125
+#define BLK_VERSION BLK_VERSION_125
 
 // Maximum character buffer for displaying a column
-#define MAX_CHAR_BUF	4096
+#define MAX_CHAR_BUF 4096
 // Maximum size of memory block to be used during array binding
-#define MAX_MEM_BLOCK_SIZE	50000
+#define MAX_MEM_BLOCK_SIZE 50000
 // MEM_ALIGN_BOUNDARY - memory alignment boundary
-#define MEM_ALIGN_BOUNDARY	8
+#define MEM_ALIGN_BOUNDARY 8
 // MEM_ALIGN_SIZE - Align size to nearest higher multiple  of MEM_ALIGN_BOUNDARY
-#define MEM_ALIGN_SIZE(blocksize)	((((blocksize)+MEM_ALIGN_BOUNDARY-1)/MEM_ALIGN_BOUNDARY)*MEM_ALIGN_BOUNDARY)
+#define MEM_ALIGN_SIZE(blocksize) ((((blocksize) + MEM_ALIGN_BOUNDARY - 1) / MEM_ALIGN_BOUNDARY) * MEM_ALIGN_BOUNDARY)
 // EX_GET_COLUMNVALUE - calculate column value pointer given the row number
-#define EX_GET_COLUMN_VALUE(coldata, row, col, colfmt) \
-	(coldata[col].value + ((row) * (colfmt[col].maxlength)))
+#define EX_GET_COLUMN_VALUE(coldata, row, col, colfmt) ((coldata)[col].value + ((row) * ((colfmt)[col].maxlength)))
 
-class SybCTnewDA : public IFAObject, public coast::AllocatorNewDelete
-{
+class SybCTnewDA : public IFAObject, public coast::AllocatorNewDelete {
 	// Define structure where row data is bound.
 	// Allow for column arrays - for array binding.
 	typedef struct ColumnData : public coast::AllocatorNewDelete {
 		ColumnData(Allocator *a = coast::storage::Current());
 		~ColumnData();
-		CS_SMALLINT	*indicator;
-		CS_CHAR		*value;
-		CS_INT		*valuelen;
+		CS_SMALLINT *indicator;
+		CS_CHAR *value;
+		CS_INT *valuelen;
 		CS_RETCODE AllocateValue(size_t lSize);
 		CS_RETCODE AllocateValuelen(CS_INT num_rows);
 		CS_RETCODE AllocateIndicator(CS_INT num_rows);
 
-		Allocator	*fAllocator;
+		Allocator *fAllocator;
 	} EX_COLUMN_DATA;
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return NULL;
-	};
+	IFAObject *Clone(Allocator *a) const { return NULL; };
 
 public:
 	//--- constructors
@@ -66,16 +63,18 @@ public:
 	// further explanation of the purpose of the method
 	// this may contain <B>HTML-Tags</B>
 	// ...
-	//!param: aParam - explanation of aParam (important : paramname - explanation )
-	//!retv: explanation of return value
-	//!prec: explanation of precondition for the method call
-	//!postc: explanation of postcondition for the method call
-	static CS_RETCODE Init(CS_CONTEXT **context, Anything *pMessages, const String &strInterfacesPathName, CS_INT iNumberOfConns);
+	//! param: aParam - explanation of aParam (important : paramname - explanation )
+	//! retv: explanation of return value
+	//! prec: explanation of precondition for the method call
+	//! postc: explanation of postcondition for the method call
+	static CS_RETCODE Init(CS_CONTEXT **context, Anything *pMessages, const String &strInterfacesPathName,
+						   CS_INT iNumberOfConns);
 	static CS_RETCODE Finis(CS_CONTEXT *context);
 
 	struct DaParams {
-		DaParams() : fpContext(NULL), fpIn(NULL), fpOut(NULL), fpDAName(NULL) {};
-		DaParams(Context *context, ParameterMapper *in, ResultMapper *out, String *pDAName) : fpContext(context), fpIn(in), fpOut(out), fpDAName(pDAName) {};
+		DaParams() : fpContext(NULL), fpIn(NULL), fpOut(NULL), fpDAName(NULL){};
+		DaParams(Context *context, ParameterMapper *in, ResultMapper *out, String *pDAName)
+			: fpContext(context), fpIn(in), fpOut(out), fpDAName(pDAName){};
 		Context *fpContext;
 		ParameterMapper *fpIn;
 		ResultMapper *fpOut;
@@ -86,7 +85,8 @@ public:
 
 	bool Open(DaParams &params, String user, String password, String server, String appl);
 	// use either TitlesAlways or TitlesOnce as second param
-	bool SqlExec(DaParams &params, String cmd, String resultformat = "TitlesAlways", const long lMaxResultSize = 0L, const long lMaxRows = -1L);
+	bool SqlExec(DaParams &params, String cmd, String resultformat = "TitlesAlways", const long lMaxResultSize = 0L,
+				 const long lMaxRows = -1L);
 	bool Close(bool bForce = false);
 
 	static bool GetMessageAny(CS_CONTEXT *context, Anything **anyMessage);
@@ -97,15 +97,17 @@ public:
 
 protected:
 	//--- subclass api
-	void	Warning(DaParams &params, String str);
-	void	Error(DaParams &params, String str);
-	CS_RETCODE	DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_INT res_type, const String &resultformat, const long lMaxResultSize, const long lParMaxRows, long &lRowsReceived);
-	CS_INT 		DisplayDlen(CS_DATAFMT *column);
-	bool	DoFillResults(DaParams &params, CS_INT totalrows, CS_INT numrows, CS_INT numcols, CS_DATAFMT *colfmt, EX_COLUMN_DATA *coldata, bool bTitlesOnce );
+	void Warning(DaParams &params, String str);
+	void Error(DaParams &params, String str);
+	CS_RETCODE DoFetchData(DaParams &params, CS_COMMAND *cmd, const CS_INT res_type, const String &resultformat,
+						   const long lMaxResultSize, const long lParMaxRows, long &lRowsReceived);
+	CS_INT DisplayDlen(CS_DATAFMT *column);
+	bool DoFillResults(DaParams &params, CS_INT totalrows, CS_INT numrows, CS_INT numcols, CS_DATAFMT *colfmt,
+					   EX_COLUMN_DATA *coldata, bool bTitlesOnce);
 	static bool IntGetConProps(CS_CONNECTION *connection, CS_INT property, CS_VOID **propvalue, CS_INT propsize);
 
 	//--- member variables declaration
-	CS_CONTEXT	*fContext;
+	CS_CONTEXT *fContext;
 	CS_CONNECTION *fConnection;
 
 private:

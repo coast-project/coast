@@ -7,6 +7,7 @@
  */
 
 #include "MySQLDAImpl.h"
+
 #include "StringStream.h"
 #include "SystemLog.h"
 #include "Tracer.h"
@@ -14,25 +15,19 @@
 //--- MySQLDAImpl -----------------------------------------------------
 RegisterDataAccessImpl(MySQLDAImpl);
 
-MySQLDAImpl::MySQLDAImpl(const char *name) : DataAccessImpl(name)
-{
-}
+MySQLDAImpl::MySQLDAImpl(const char *name) : DataAccessImpl(name) {}
 
-MySQLDAImpl::~MySQLDAImpl()
-{
-}
+MySQLDAImpl::~MySQLDAImpl() {}
 
-IFAObject *MySQLDAImpl::Clone(Allocator *a) const
-{
+IFAObject *MySQLDAImpl::Clone(Allocator *a) const {
 	return new (a) MySQLDAImpl(fName);
 }
 
-bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out)
-{
+bool MySQLDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out) {
 	StartTrace(MySQLDAImpl.Exec);
 
-	MYSQL mysql, *sock;
-	MYSQL_RES *res;
+	MYSQL mysql, *sock = NULL;
+	MYSQL_RES *res = NULL;
 
 	mysql_init(&mysql);
 
@@ -53,8 +48,9 @@ bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out
 	long port = 3306L;
 	in->Get("Port", port, context);
 
-	Trace("trying connect to DB:[" << dataBase << "], with user@host:port [" << user << "@" << host << ":" << port << "], and pass:[" << pw << "]");
-	if (!(sock = mysql_real_connect(&mysql, host, user, pw, dataBase, port, NULL, 0))) {
+	Trace("trying connect to DB:[" << dataBase << "], with user@host:port [" << user << "@" << host << ":" << port
+								   << "], and pass:[" << pw << "]");
+	if ((sock = mysql_real_connect(&mysql, host, user, pw, dataBase, port, NULL, 0)) == 0) {
 		SetErrorMsg("Couldn't connect to mySQL engine!", &mysql, context, out);
 		return false;
 	}
@@ -64,14 +60,14 @@ bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out
 	OStringStream os(theQuery);
 	in->Get("SQL", os, context);
 	os.flush();
-	SubTrace (Query, "QUERY IS:" << theQuery );
+	SubTrace(Query, "QUERY IS:" << theQuery);
 
 	bool result = true;
-	if (mysql_query(sock, theQuery)) {
+	if (mysql_query(sock, theQuery) != 0) {
 		SetErrorMsg("Query failed", sock, context, out);
 		result = false;
 	} else {
-		if (!(res = mysql_store_result(sock))) {
+		if ((res = mysql_store_result(sock)) == 0) {
 			// No results -- was INSERT or UPDATE etc
 			Anything queryResults;
 			out->Put("QueryResult", queryResults, context);
@@ -83,14 +79,14 @@ bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out
 
 			// fill rows
 			Anything theSet;
-			MYSQL_ROW myRow;
+			MYSQL_ROW myRow = NULL;
 			long rowNum = 0;
-			while ( (myRow = mysql_fetch_row(res) ) ) {
+			while ((myRow = mysql_fetch_row(res)) != 0) {
 				Anything newRow;
 
 				for (long i = 0; i < num_fields; i++) {
 					String fieldName = fields[i].name;
-					newRow[fieldName] = myRow[i];					// assume only char *
+					newRow[fieldName] = myRow[i];  // assume only char *
 				}
 				TraceAny(newRow, "Row");
 				Anything rowNumber = rowNum++;
@@ -98,7 +94,7 @@ bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out
 			}
 			TraceAny(theSet, "The Set");
 
-			if (!Lookup("NoQueryCount", 0L)) {
+			if (Lookup("NoQueryCount", 0L) == 0) {
 				out->Put("QueryCount", rowNum, context);
 			}
 			out->Put("QueryResult", theSet, context);
@@ -107,7 +103,7 @@ bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out
 	}
 
 	mysql_close(sock);
-	if (mysql_errno(sock)) {
+	if (mysql_errno(sock) != 0U) {
 		SetErrorMsg("close failed !", sock, context, out);
 		result = false;
 	}
@@ -115,8 +111,7 @@ bool MySQLDAImpl::Exec( Context &context, ParameterMapper *in, ResultMapper *out
 	return result;
 }
 
-void MySQLDAImpl::SetErrorMsg(const char *msg, MYSQL *mysql, Context &context, ResultMapper *out )
-{
+void MySQLDAImpl::SetErrorMsg(const char *msg, MYSQL *mysql, Context &context, ResultMapper *out) {
 	StartTrace(MySQLDAImpl.SetErrorMsg);
 
 	String errorMsg(msg);

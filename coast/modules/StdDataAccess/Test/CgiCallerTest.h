@@ -12,22 +12,20 @@
 #include "WDBaseTestPolicies.h"
 class Context;
 //---- CgiCallerTest ----------------------------------------------------------
-//!Tests the cgi caller
-class CgiCallerTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+//! Tests the cgi caller
+class CgiCallerTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	CgiCallerTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	CgiCallerTest(TString tstrName) : TestCaseType(tstrName) {}
 
-	//!builds up a suite of testcases for this test
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!call a CGI program created with PrepareScript
+	//! call a CGI program created with PrepareScript
 	void ExecOkTests();
 	void TestSplitPath();
 
 protected:
-	//!call a CGI program created with the context
+	//! call a CGI program created with the context
 	void DoExecTest(Context &ctx);
 };
 

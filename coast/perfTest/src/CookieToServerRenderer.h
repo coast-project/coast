@@ -26,15 +26,13 @@
  * /NoEndTag      If defined, suppresses the        optional
  *                renderering of the end tag
  */
-class CookieToServerRenderer: public Renderer {
+class CookieToServerRenderer : public Renderer {
 public:
-	CookieToServerRenderer(const char *name) :
-		Renderer(name) {
-	}
+	CookieToServerRenderer(const char *name) : Renderer(name) {}
 	virtual void RenderAll(std::ostream &reply, Context &c, const ROAnything &config);
 
 private:
 	void OutputCookies(const String &explicitDomainName, std::ostream &reply, Context &c);
 };
 
-#endif		//ifndef _CookieToServerRenderer_H
+#endif	// ifndef _CookieToServerRenderer_H

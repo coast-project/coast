@@ -7,26 +7,20 @@
  */
 
 #include "PeriodicAction.h"
+
 #include "Context.h"
 
 PeriodicAction::PeriodicAction(const String &action, long waitTime)
-	: Thread((const char *)action, true)
-	, fAction(action)
-	, fWaitTime(waitTime)
-{
-}
+	: Thread((const char *)action, true), fAction(action), fWaitTime(waitTime) {}
 
-PeriodicAction::~PeriodicAction()
-{
-}
+PeriodicAction::~PeriodicAction() {}
 
-void PeriodicAction::Run()
-{
+void PeriodicAction::Run() {
 	StartTrace(PeriodicAction.Run);
 	Context ctx;
 	Anything anyConfig;
 	anyConfig["PeriodicActionTimeout"] = fWaitTime;
-	while ( CheckState( eRunning, 0, 1 ) ) {
+	while (CheckState(eRunning, 0, 1)) {
 		Trace("Waiting " << fWaitTime << "s for next period");
 		// we will never reach eWorking, but the function will return when entering termination
 		CheckRunningState(eWorking, fWaitTime);
@@ -34,7 +28,7 @@ void PeriodicAction::Run()
 		// execute only if we are still running and not already in termination sequence
 		// never try to call CheckState() without at least a nanosecond to wait
 		// -> otherwise we will block until program termination...
-		if ( CheckState( eRunning, 0, 1 ) && !CheckState(eTerminationRequested, 0, 1) ) {
+		if (CheckState(eRunning, 0, 1) && !CheckState(eTerminationRequested, 0, 1)) {
 			Trace("Starting work and calling Action [" << fAction << "]");
 			Context::PushPopEntry<Anything> aEntry(ctx, "PeriodicActionContent", anyConfig);
 			ctx.Process(fAction);

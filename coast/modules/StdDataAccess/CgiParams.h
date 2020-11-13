@@ -13,8 +13,7 @@
 
 //---- CgiParams ----------------------------------------------------------
 //! obtain CGI parameters
-class CgiParams : public URI2FileNameMapper
-{
+class CgiParams : public URI2FileNameMapper {
 public:
 	//--- constructors
 	CgiParams(const char *name);
@@ -29,7 +28,7 @@ public:
 	//! \param ctx the thread context of the invocation
 	//! \param info current mapper configuration as ROAnything
 	//! \return returns true if the mapping was successful otherwise false
-	virtual bool DoGetAny(const char *key, Anything &value, Context &ctx,  ROAnything config);
+	virtual bool DoGetAny(const char *key, Anything &value, Context &ctx, ROAnything config);
 
 	//! streams parameter "WHOLE_REQUEST_BODY" on key "stdin"
 	//! \param key the name defines kind of values to write
@@ -37,7 +36,7 @@ public:
 	//! \param ctx the thread context of the invocation
 	//! \param config current mapper configuration as ROAnything
 	//! \return returns true if the mapping was successful otherwise false
-	virtual bool DoGetStream(const char *key, std::ostream &os, Context &ctx,  ROAnything config);
+	virtual bool DoGetStream(const char *key, std::ostream &os, Context &ctx, ROAnything config);
 
 protected:
 	virtual bool ResolveInvalidFile(String &path, String &uri, String &value, Context &ctx);

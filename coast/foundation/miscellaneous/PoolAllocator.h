@@ -13,8 +13,7 @@
 
 struct PoolBucket;
 
-class ExcessTrackerElt
-{
+class ExcessTrackerElt {
 	friend class PoolAllocatorTest;
 
 	Allocator::MemTrackerPtr fTracker;
@@ -55,17 +54,17 @@ public:
 	static void operator delete(void *d);
 };
 
-//!an allocator that uses a bucketing strategy with pre-allocated memory
+//! an allocator that uses a bucketing strategy with pre-allocated memory
 //! within Coast to be used as thread-specific allocator
 //! is definitely <B>not</B> thread-safe
-class PoolAllocator: public Allocator
-{
+class PoolAllocator : public Allocator {
 	friend class PoolAllocatorTest;
+
 public:
 	/*! create and initialize a pool allocator
-		\param poolid use poolid to distinguish more than one pool
-		\param poolSize size of pre-allocated pool in kBytes, default 1MByte
-		\param maxKindOfBucket number of different allocation units within PoolAllocator, starts at 16 bytes and doubles the size for maxKindOfBucket times. So maxKindOfBucket=10 will give a max usable size of 8192 bytes. */
+	  \param poolid use poolid to distinguish more than one pool
+	  \param poolSize size of pre-allocated pool in kBytes, default 1MByte
+	  \param maxKindOfBucket number of different allocation units within PoolAllocator, starts at 16 bytes and doubles the size for maxKindOfBucket times. So maxKindOfBucket=10 will give a max usable size of 8192 bytes. */
 	PoolAllocator(long poolid, size_t poolSize = 1024, size_t maxKindOfBucket = 10);
 	//! destroy a pool only if its empty, i.e. all allocated bytes are freed
 	virtual ~PoolAllocator();
@@ -75,18 +74,18 @@ public:
 	virtual void Free(void *vp, size_t sz);
 
 	/*! Hook to allow allocators to optimize allocation of string buffers for example.
-		\param size requested memory size
-		\return optimal (maximum) number of bytes which fit into the internal bucket */
+	  \param size requested memory size
+	  \return optimal (maximum) number of bytes which fit into the internal bucket */
 	virtual size_t SizeHint(size_t size);
 
 	/*! set an identification for this pool
-		\param lId identification for pool
-		\return old identifier */
+	  \param lId identification for pool
+	  \return old identifier */
 	virtual long SetId(long lId);
 
 	virtual void PrintStatistic(long lLevel = -1);
 
-	ul_long  CurrentlyAllocated();
+	ul_long CurrentlyAllocated();
 	//! apply this to an empty pool only, rebuilds bucket structure from
 	//! ground up, used for request threads after a request is handled
 	virtual void Refresh();
@@ -99,10 +98,10 @@ protected:
 	size_t fNumOfPoolBucketSizes;
 	PoolBucket *fPoolBuckets;
 
-	//!implement hook for allocating memory using bucketing
+	//! implement hook for allocating memory using bucketing
 	virtual void *Alloc(size_t allocSize);
 
-	//auxiliary methods for bucket handling
+	// auxiliary methods for bucket handling
 	MemoryHeader *RemoveHeaderFromBucket(PoolBucket *bucket);
 	MemoryHeader *MakeHeaderFromBucket(PoolBucket *bucket, void *lastFree);
 	void InsertFreeHeaderIntoBucket(MemoryHeader *mh, PoolBucket *bucket);

@@ -7,21 +7,18 @@
  */
 
 #include "GetEnvRenderer.h"
+
 #include "SystemBase.h"
 #include "Tracer.h"
 
 //---- GetEnvRenderer ---------------------------------------------------------------
 RegisterRenderer(GetEnvRenderer);
 
-GetEnvRenderer::GetEnvRenderer(const char *name)
-	: LookupRenderer(name)
-{
-}
+GetEnvRenderer::GetEnvRenderer(const char *name) : LookupRenderer(name) {}
 
-GetEnvRenderer::~GetEnvRenderer() { }
+GetEnvRenderer::~GetEnvRenderer() {}
 
-ROAnything GetEnvRenderer::DoLookup(Context &context, const char *name, char delim, char indexdelim)
-{
+ROAnything GetEnvRenderer::DoLookup(Context &context, const char *name, char delim, char indexdelim) {
 	StartTrace1(GetEnvRenderer.DoLookup, "LookupName [" << NotNull(name) << "]");
 	Anything anyEnv;
 	coast::system::GetProcessEnvironment(anyEnv);

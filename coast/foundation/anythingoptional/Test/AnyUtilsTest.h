@@ -9,13 +9,11 @@
 #ifndef _AnyUtilsTest_h_
 #define _AnyUtilsTest_h_
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnyUtilsTest: public testframework::TestCase {
+#include "TestCase.h"
+class AnyUtilsTest : public testframework::TestCase {
 public:
-	AnyUtilsTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	AnyUtilsTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void CompareTest();
 	void printEmptyXmlTest();

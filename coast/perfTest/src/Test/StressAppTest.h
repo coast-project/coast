@@ -13,11 +13,9 @@
 
 class ROAnything;
 
-class StressAppTest: public testframework::TestCase {
+class StressAppTest : public testframework::TestCase {
 public:
-	StressAppTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	StressAppTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void AppRunTest();
 	void DataAccessStresserTest();

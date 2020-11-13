@@ -13,27 +13,26 @@
 
 class Socket;
 
-//!TestClass for Acceptor functionality
+//! TestClass for Acceptor functionality
 //! further explanation of the purpose of the class
 //! this may contain <B>HTML-Tags</B>
 //! ...
-class AcceptorTest : public testframework::TestCaseWithConfig
-{
+class AcceptorTest : public testframework::TestCaseWithConfig {
 public:
 	//--- constructors
 	AcceptorTest(TString tstrName);
 	~AcceptorTest();
 
 	//--- public api
-	//!generate Acceptor test suite
+	//! generate Acceptor test suite
 	//! this method generates the tests for the Acceptor classed
 	//! \return a new test is created by this method
-	static Test *suite ();
+	static Test *suite();
 
-	//!tests setting of ephemeral port by os
+	//! tests setting of ephemeral port by os
 	void getPort();
 
-	//!tests accept once functionality single threaded
+	//! tests accept once functionality single threaded
 	//! caution don't try to use accept loop single threaded without once flag
 	void acceptOnceTest();
 

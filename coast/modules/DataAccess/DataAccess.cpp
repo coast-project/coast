@@ -7,42 +7,37 @@
  */
 
 #include "DataAccess.h"
+
 #include "Timers.h"
 
 //---- DataAccess ----------------------------------------------------------------------
-DataAccess::DataAccess(const char *trxName)
-	: fName(trxName)
-{
+DataAccess::DataAccess(const char *trxName) : fName(trxName) {
 	StartTrace1(DataAccess.DataAccess, "trxName: [" << trxName << "]");
 }
 
-DataAccess::~DataAccess()
-{
-}
+DataAccess::~DataAccess() {}
 
-DataAccessImpl *DataAccess::GetImpl(const char *trxName, Context &context)
-{
+DataAccessImpl *DataAccess::GetImpl(const char *trxName, Context &context) {
 	StartTrace(DataAccess.GetImpl);
 	Trace("Trx name is [" << trxName << "]");
-	Assert(trxName); // precondition
+	Assert(trxName);  // precondition
 	DataAccessImpl *trxImpl = DataAccessImpl::FindDataAccessImpl(trxName);
 	// handling error or misconfiguration, keep on same line for clearness reason of output message
 	Assert(trxImpl);
-	if (!trxImpl) {
+	if (trxImpl == 0) {
 		HandleError(context, trxName, __FILE__, __LINE__, "DataAccess::GetImpl returned 0");
 	}
 	return trxImpl;
 }
 
-bool DataAccess::StdExec(Context &trxContext)
-{
+bool DataAccess::StdExec(Context &trxContext) {
 	StartTrace(DataAccess.StdExec);
 	DAAccessTimer(DataAccess.StdExec, fName, trxContext);
 
 	DataAccessImpl *trx = GetImpl(fName, trxContext);
 	bool result = false;
 
-	if (trx) {
+	if (trx != 0) {
 		trxContext.Push("DataAccess", trx);
 		ParameterMapper *params = 0;
 		bool pIsTemp = GetMyParameterMapper(trxContext, params);
@@ -65,19 +60,18 @@ bool DataAccess::StdExec(Context &trxContext)
 	return result;
 }
 
-bool DataAccess::Exec(ParameterMapper *params, ResultMapper *results, Context &trxContext)
-{
+bool DataAccess::Exec(ParameterMapper *params, ResultMapper *results, Context &trxContext) {
 	StartTrace(DataAccess.Exec);
 	DAAccessTimer(DataAccess.Exec, fName, trxContext);
 
 	// if we don't have a complete triple, return immediately
 	DataAccessImpl *trx = GetImpl(fName, trxContext);
 	Assert(trx && params && results);
-	if ( !(trx && params && results) ) {
+	if (!((trx != 0) && (params != 0) && (results != 0))) {
 		return false;
 	}
 
-	//SOP: check if we can speed up responsiveness by unlocking the session during IO
+	// SOP: check if we can speed up responsiveness by unlocking the session during IO
 	SessionReleaser slr(trxContext);
 	slr.Use();
 
@@ -88,10 +82,9 @@ bool DataAccess::Exec(ParameterMapper *params, ResultMapper *results, Context &t
 	return ret;
 }
 
-bool DataAccess::GetMyParameterMapper(Context &c, ParameterMapper *&pm)
-{
+bool DataAccess::GetMyParameterMapper(Context &c, ParameterMapper *&pm) {
 	StartTrace(DataAccess.GetMyParameterMapper);
-	bool isScriptInterpreter;
+	bool isScriptInterpreter = false;
 
 	// look into own config
 	ROAnything script = c.Lookup("ParameterMapperScript");
@@ -106,14 +99,14 @@ bool DataAccess::GetMyParameterMapper(Context &c, ParameterMapper *&pm)
 
 		String name(script.AsString(fName));
 		pm = ParameterMapper::FindParameterMapper(name);
-		if (pm) {
+		if (pm != 0) {
 			Trace("Using specified ParameterMapper: " << name);
 		} else {
 			// is there a fallback mapper defined?
 			String fallback = c.Lookup("FallbackParameterMapper", "");
 
 			pm = ParameterMapper::FindParameterMapper(fallback);
-			if (pm) {
+			if (pm != 0) {
 				Trace("Using fallback ParameterMapper: " << fallback);
 			} else {
 				Trace("ERROR: No mapper with name [" << name << "] found.");
@@ -124,10 +117,9 @@ bool DataAccess::GetMyParameterMapper(Context &c, ParameterMapper *&pm)
 	return isScriptInterpreter;
 }
 
-bool DataAccess::GetMyResultMapper(Context &c, ResultMapper *&rm)
-{
+bool DataAccess::GetMyResultMapper(Context &c, ResultMapper *&rm) {
 	StartTrace(DataAccess.GetMyResultMapper);
-	bool isScriptInterpreter;
+	bool isScriptInterpreter = false;
 
 	// look into own config
 	ROAnything script = c.Lookup("ResultMapperScript");
@@ -142,14 +134,14 @@ bool DataAccess::GetMyResultMapper(Context &c, ResultMapper *&rm)
 
 		String name(script.AsString(fName));
 		rm = ResultMapper::FindResultMapper(name);
-		if (rm) {
+		if (rm != 0) {
 			Trace("Using specified ResultMapper: " << name);
 		} else {
 			// is there a fallback mapper defined?
 			String fallback = c.Lookup("FallbackResultMapper", "");
 
 			rm = ResultMapper::FindResultMapper(fallback);
-			if (rm) {
+			if (rm != 0) {
 				Trace("Using fallback ResultMapper: " << fallback);
 			} else {
 				Trace("ERROR: No mapper with name [" << name << "] found.");
@@ -160,14 +152,13 @@ bool DataAccess::GetMyResultMapper(Context &c, ResultMapper *&rm)
 	return isScriptInterpreter;
 }
 
-void DataAccess::HandleError(Context &context, String mapperName, const char *file, long line, String msg)
-{
+void DataAccess::HandleError(Context &context, String mapperName, const char *file, long line, String msg) {
 	StartTrace(DataAccess.HandleError);
 	// cut off path in file string (only output file)
 	String filePath(file);
-	long pos = filePath.StrRChr('\\');			// windows path?
+	long pos = filePath.StrRChr('\\');	// windows path?
 	if (pos < 0) {
-		pos = filePath.StrRChr('/');    // unix path?
+		pos = filePath.StrRChr('/');  // unix path?
 	}
 
 	String logMsg = (pos < 0) ? filePath : filePath.SubString(pos + 1);

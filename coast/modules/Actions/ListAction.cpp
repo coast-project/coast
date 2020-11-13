@@ -7,9 +7,10 @@
  */
 
 #include "ListAction.h"
+
+#include "AnyIterators.h"
 #include "Renderer.h"
 #include "Tracer.h"
-#include "AnyIterators.h"
 
 namespace {
 	const String ENRTYACTION_STORE_NAME_DEFAULT("EntryData", -1, coast::storage::Global());
@@ -66,7 +67,8 @@ bool ListAction::DoExecAction(String &transitionToken, Context &ctx, const ROAny
 			SubTraceAny(TraceEntry, roaEntry, "data at index:" << i);
 			if (i < start) {
 				continue;
-			} else if (i > end) {
+			}
+			if (i > end) {
 				break;
 			}
 
@@ -97,5 +99,5 @@ bool ListAction::GetList(Context &ctx, const ROAnything &config, ROAnything &roa
 	StartTrace(ListAction.GetList);
 	String strListDataName;
 	Renderer::RenderOnString(strListDataName, ctx, config["ListName"]);
-	return (strListDataName.Length() && ctx.Lookup(strListDataName, roaList));
+	return ((strListDataName.Length() != 0) && ctx.Lookup(strListDataName, roaList));
 }

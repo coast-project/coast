@@ -6,24 +6,23 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "Anything.h"
-#include "StringStream.h"
-#include "Context.h"
-#include "Renderer.h"
-#include "TestSuite.h"
-#include "LocalizedRenderers.h"
 #include "StringRendererTest.h"
 
-StringRendererTest::StringRendererTest (TString tname) : RendererTest(tname),
-	fStringRenderer("StringRendererTest") {};
+#include "Anything.h"
+#include "Context.h"
+#include "LocalizedRenderers.h"
+#include "Renderer.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
-StringRendererTest::~StringRendererTest() {};
+StringRendererTest::StringRendererTest(TString tname) : RendererTest(tname), fStringRenderer("StringRendererTest"){};
+
+StringRendererTest::~StringRendererTest(){};
 
 /*=================================================================================*/
 /*      Suite init                                                                 */
 /*=================================================================================*/
-Test *StringRendererTest::suite ()
-{
+Test *StringRendererTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, StringRendererTest, langGE);
@@ -53,11 +52,9 @@ Test *StringRendererTest::suite ()
 	ADD_CASE(testSuite, StringRendererTest, noText);
 
 	return testSuite;
-
 }
 
-void StringRendererTest::setUp ()
-{
+void StringRendererTest::setUp() {
 	RendererTest::setUp();
 	fConfig["D"] = "Deutsch";
 	fConfig["F"] = "Francais";
@@ -69,8 +66,7 @@ void StringRendererTest::setUp ()
 /*=================================================================================*/
 /*      Tests for language == German                                               */
 /*=================================================================================*/
-void StringRendererTest::langGE()
-{
+void StringRendererTest::langGE() {
 	// set up the configuration
 	fContext.SetLanguage("D");
 
@@ -79,67 +75,63 @@ void StringRendererTest::langGE()
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["D"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["D"].AsCharPtr(), fReply.str());
 }
 
-void StringRendererTest::langGEWithoutText()
-{
+void StringRendererTest::langGEWithoutText() {
 	// set up the configuration
 	fContext.SetLanguage("D");
 	fConfig.Remove("D");
-	t_assert( fConfig.IsDefined("D") == 0 );
+	t_assert(fConfig.IsDefined("D") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Default"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Default"].AsCharPtr(), fReply.str());
 }
 
-void StringRendererTest::langGEDefaultWithoutText()
-{
+void StringRendererTest::langGEDefaultWithoutText() {
 	// set up the configuration
 	fContext.SetLanguage("D");
 	fConfig.Remove("D");
-	t_assert( fConfig.IsDefined("D") == 0 );
+	t_assert(fConfig.IsDefined("D") == 0);
 	fConfig.Remove("Default");
-	t_assert( fConfig.IsDefined("Default") == 0 );
+	t_assert(fConfig.IsDefined("Default") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
+	assertCharPtrEqual("", fReply.str());
 }
 
-void StringRendererTest::langGEalone()
-{
+void StringRendererTest::langGEalone() {
 	// set up the configuration
 	fContext.SetLanguage("D");
 	fConfig.Remove("F");
 	fConfig.Remove("I");
 	fConfig.Remove("E");
 	fConfig.Remove("Default");
-	t_assert( fConfig.IsDefined("F") == 0 );
-	t_assert( fConfig.IsDefined("I") == 0 );
-	t_assert( fConfig.IsDefined("E") == 0 );
-	t_assert( fConfig.IsDefined("Default") == 0 );
+	t_assert(fConfig.IsDefined("F") == 0);
+	t_assert(fConfig.IsDefined("I") == 0);
+	t_assert(fConfig.IsDefined("E") == 0);
+	t_assert(fConfig.IsDefined("Default") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["D"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["D"].AsCharPtr(), fReply.str());
 }
 
 /*=================================================================================*/
 /*      Tests for language == French                                               */
 /*=================================================================================*/
-void StringRendererTest::langFR()
-{
+void StringRendererTest::langFR() {
 	// set up the configuration
 	fContext.SetLanguage("F");
 
@@ -148,68 +140,64 @@ void StringRendererTest::langFR()
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["F"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["F"].AsCharPtr(), fReply.str());
 }
 
-void StringRendererTest::langFRWithoutText()
-{
+void StringRendererTest::langFRWithoutText() {
 	// set up the configuration
 	fContext.SetLanguage("F");
 	fConfig.Remove("F");
-	t_assert( fConfig.IsDefined("F") == 0 );
+	t_assert(fConfig.IsDefined("F") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Default"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Default"].AsCharPtr(), fReply.str());
 }
 
-void StringRendererTest::langFRDefaultWithoutText()
-{
+void StringRendererTest::langFRDefaultWithoutText() {
 	// set up the configuration
 	fContext.SetLanguage("F");
 	fConfig.Remove("F");
 	fConfig.Remove("Default");
-	t_assert( fConfig.IsDefined("F") == 0 );
-	t_assert( fConfig.IsDefined("Default") == 0 );
+	t_assert(fConfig.IsDefined("F") == 0);
+	t_assert(fConfig.IsDefined("Default") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertEqual(0, fReply.str().Length() );
-	assertCharPtrEqual( "", (const char *)fReply.str());
+	assertEqual(0, fReply.str().Length());
+	assertCharPtrEqual("", (const char *)fReply.str());
 }
 
-void StringRendererTest::langFRalone()
-{
+void StringRendererTest::langFRalone() {
 	// set up the configuration
 	fContext.SetLanguage("F");
 	fConfig.Remove("D");
 	fConfig.Remove("I");
 	fConfig.Remove("E");
 	fConfig.Remove("Default");
-	t_assert( fConfig.IsDefined("D") == 0 );
-	t_assert( fConfig.IsDefined("I") == 0 );
-	t_assert( fConfig.IsDefined("E") == 0 );
-	t_assert( fConfig.IsDefined("Default") == 0 );
+	t_assert(fConfig.IsDefined("D") == 0);
+	t_assert(fConfig.IsDefined("I") == 0);
+	t_assert(fConfig.IsDefined("E") == 0);
+	t_assert(fConfig.IsDefined("Default") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["F"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["F"].AsCharPtr(), fReply.str());
 }
 
 /*=================================================================================*/
 /*      Tests for language == English                                              */
 /*=================================================================================*/
-void StringRendererTest::langEN()
-{
+void StringRendererTest::langEN() {
 	// set up the configuration
 	fContext.SetLanguage("E");
 
@@ -218,67 +206,63 @@ void StringRendererTest::langEN()
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["E"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["E"].AsCharPtr(), fReply.str());
 }
 
-void StringRendererTest::langENWithoutText()
-{
+void StringRendererTest::langENWithoutText() {
 	// set up the configuration
 	fContext.SetLanguage("E");
 	fConfig.Remove("E");
-	t_assert( fConfig.IsDefined("E") == 0 );
+	t_assert(fConfig.IsDefined("E") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Default"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Default"].AsCharPtr(), fReply.str());
 }
 
-void StringRendererTest::langENDefaultWithoutText()
-{
+void StringRendererTest::langENDefaultWithoutText() {
 	// set up the configuration
 	fContext.SetLanguage("E");
 	fConfig.Remove("E");
 	fConfig.Remove("Default");
-	t_assert( fConfig.IsDefined("E") == 0 );
-	t_assert( fConfig.IsDefined("Default") == 0 );
+	t_assert(fConfig.IsDefined("E") == 0);
+	t_assert(fConfig.IsDefined("Default") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
+	assertCharPtrEqual("", fReply.str());
 }
 
-void StringRendererTest::langENalone()
-{
+void StringRendererTest::langENalone() {
 	// set up the configuration
 	fContext.SetLanguage("E");
 	fConfig.Remove("D");
 	fConfig.Remove("I");
 	fConfig.Remove("F");
 	fConfig.Remove("Default");
-	t_assert( fConfig.IsDefined("D") == 0 );
-	t_assert( fConfig.IsDefined("I") == 0 );
-	t_assert( fConfig.IsDefined("F") == 0 );
-	t_assert( fConfig.IsDefined("Default") == 0 );
+	t_assert(fConfig.IsDefined("D") == 0);
+	t_assert(fConfig.IsDefined("I") == 0);
+	t_assert(fConfig.IsDefined("F") == 0);
+	t_assert(fConfig.IsDefined("Default") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["E"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["E"].AsCharPtr(), fReply.str());
 }
 
 /*=================================================================================*/
 /*      Tests for language == Italian                                              */
 /*=================================================================================*/
-void StringRendererTest::langIT()
-{
+void StringRendererTest::langIT() {
 	// set up the configuration
 	fContext.SetLanguage("I");
 
@@ -287,67 +271,63 @@ void StringRendererTest::langIT()
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["I"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["I"].AsCharPtr(), fReply.str());
 }
 
-void StringRendererTest::langITWithoutText()
-{
+void StringRendererTest::langITWithoutText() {
 	// set up the configuration
 	fContext.SetLanguage("I");
 	fConfig.Remove("I");
-	t_assert( fConfig.IsDefined("I") == 0 );
+	t_assert(fConfig.IsDefined("I") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Default"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Default"].AsCharPtr(), fReply.str());
 }
 
-void StringRendererTest::langITDefaultWithoutText()
-{
+void StringRendererTest::langITDefaultWithoutText() {
 	// set up the configuration
 	fContext.SetLanguage("I");
 	fConfig.Remove("I");
 	fConfig.Remove("Default");
-	t_assert( fConfig.IsDefined("Default") == 0 );
-	t_assert( fConfig.IsDefined("I") == 0 );
+	t_assert(fConfig.IsDefined("Default") == 0);
+	t_assert(fConfig.IsDefined("I") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
+	assertCharPtrEqual("", fReply.str());
 }
 
-void StringRendererTest::langITalone()
-{
+void StringRendererTest::langITalone() {
 	// set up the configuration
 	fContext.SetLanguage("I");
 	fConfig.Remove("D");
 	fConfig.Remove("F");
 	fConfig.Remove("E");
 	fConfig.Remove("Default");
-	t_assert( fConfig.IsDefined("D") == 0 );
-	t_assert( fConfig.IsDefined("F") == 0 );
-	t_assert( fConfig.IsDefined("E") == 0 );
-	t_assert( fConfig.IsDefined("Default") == 0 );
+	t_assert(fConfig.IsDefined("D") == 0);
+	t_assert(fConfig.IsDefined("F") == 0);
+	t_assert(fConfig.IsDefined("E") == 0);
+	t_assert(fConfig.IsDefined("Default") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["I"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["I"].AsCharPtr(), fReply.str());
 }
 
 /*=================================================================================*/
 /*      Tests for language == Default                                              */
 /*=================================================================================*/
-void StringRendererTest::langDefault()
-{
+void StringRendererTest::langDefault() {
 	// set up the configuration
 	fContext.SetLanguage("*");
 
@@ -356,50 +336,47 @@ void StringRendererTest::langDefault()
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Default"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Default"].AsCharPtr(), fReply.str());
 }
 
-void StringRendererTest::langDefaultWithoutText()
-{
+void StringRendererTest::langDefaultWithoutText() {
 	// set up the configuration
 	fContext.SetLanguage("Default");
 	fConfig.Remove("Default");
-	t_assert( fConfig.IsDefined("Default") == 0 );
+	t_assert(fConfig.IsDefined("Default") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
+	assertCharPtrEqual("", fReply.str());
 }
 
-void StringRendererTest::langDefaultalone()
-{
+void StringRendererTest::langDefaultalone() {
 	// set up the configuration
 	fContext.SetLanguage("Default");
 	fConfig.Remove("D");
 	fConfig.Remove("I");
 	fConfig.Remove("E");
 	fConfig.Remove("F");
-	t_assert( fConfig.IsDefined("F") == 0 );
-	t_assert( fConfig.IsDefined("I") == 0 );
-	t_assert( fConfig.IsDefined("E") == 0 );
-	t_assert( fConfig.IsDefined("D") == 0 );
+	t_assert(fConfig.IsDefined("F") == 0);
+	t_assert(fConfig.IsDefined("I") == 0);
+	t_assert(fConfig.IsDefined("E") == 0);
+	t_assert(fConfig.IsDefined("D") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( fConfig["Default"].AsCharPtr(), fReply.str());
+	assertCharPtrEqual(fConfig["Default"].AsCharPtr(), fReply.str());
 }
 
 /*=================================================================================*/
 /*     Miscellaneous                                                               */
 /*=================================================================================*/
-void StringRendererTest::noText()
-{
+void StringRendererTest::noText() {
 	// set up the configuration
 	fContext.SetLanguage("Default");
 	fConfig.Remove("Default");
@@ -407,17 +384,16 @@ void StringRendererTest::noText()
 	fConfig.Remove("I");
 	fConfig.Remove("E");
 	fConfig.Remove("F");
-	t_assert( fConfig.IsDefined("F") == 0 );
-	t_assert( fConfig.IsDefined("I") == 0 );
-	t_assert( fConfig.IsDefined("E") == 0 );
-	t_assert( fConfig.IsDefined("D") == 0 );
-	t_assert( fConfig.IsDefined("Default") == 0 );
+	t_assert(fConfig.IsDefined("F") == 0);
+	t_assert(fConfig.IsDefined("I") == 0);
+	t_assert(fConfig.IsDefined("E") == 0);
+	t_assert(fConfig.IsDefined("D") == 0);
+	t_assert(fConfig.IsDefined("Default") == 0);
 
 	// render the configuration
 	ROAnything roConfig = fConfig;
 	fStringRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual( "", fReply.str());
+	assertCharPtrEqual("", fReply.str());
 }
-

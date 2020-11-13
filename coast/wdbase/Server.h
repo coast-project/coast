@@ -10,6 +10,7 @@
 #define _SERVER_H
 
 #include "Application.h"
+#include "Threads.h"
 #include "WDModule.h"
 
 #if defined(WIN32)
@@ -23,7 +24,7 @@ class StatObserver;
 class StatGatherer;
 class ServerPoolsManagerInterface;
 
-class ServersModule: public WDModule {
+class ServersModule : public WDModule {
 public:
 	ServersModule(const char *);
 	virtual bool Init(const ROAnything config);
@@ -31,44 +32,36 @@ public:
 	virtual bool ResetInit(const ROAnything);
 	virtual bool ResetFinis(const ROAnything);
 	// access implicitely protected by Server::fgReInitMutex
-	static Server *GetServerForReInit() {
-		return fgServerForReInit;
-	}
-	static void SetServerForReInit(Server *runningGlobalReInit) {
-		fgServerForReInit = runningGlobalReInit;
-	}
+	static Server *GetServerForReInit() { return fgServerForReInit; }
+	static void SetServerForReInit(Server *runningGlobalReInit) { fgServerForReInit = runningGlobalReInit; }
 
 protected:
 	static Server *fgServerForReInit;
 };
 
-//!manages the components of the process
-//!manages the life-cycle of the server: init run terminate
-//!the server initializes SystemLog, sets RootDir and Path and initializes the global modules using WDModule::Install(fgConfig)<p>
-//!handles service requests as a session based service handler<p>
-//!filters and verifies requests
-class Server : public Application
-{
+//! manages the components of the process
+//! manages the life-cycle of the server: init run terminate
+//! the server initializes SystemLog, sets RootDir and Path and initializes the global modules using
+//! WDModule::Install(fgConfig)<p> handles service requests as a session based service handler<p> filters and verifies requests
+class Server : public Application {
 public:
-	//!support for named object
+	//! support for named object
 	//! \param serverName name of the server
 	Server(const char *serverName);
 	virtual ~Server();
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) Server(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) Server(fName); }
 
-	//!setup blocking and calls DoGlobalReinit
+	//! setup blocking and calls DoGlobalReinit
 	int GlobalReinit();
 
-	//!reintialization of the servers Thread Pool for request processing (RequestThreadsManager) and Acceptors (ListenerPool)
+	//! reintialization of the servers Thread Pool for request processing (RequestThreadsManager) and Acceptors (ListenerPool)
 	virtual int ReInit(const ROAnything config);
 	//! service handling in its own thread
 	/*! @param reply stream to generate the requests output on
-		@param ctx the context of this request, containing the request and all necessary configurable objects
-		@return true in case processing was successful */
+	  @param ctx the context of this request, containing the request and all necessary configurable objects
+	  @return true in case processing was successful */
 	virtual bool ProcessRequest(std::ostream &reply, Context &ctx);
 
 	void PrepareShutdown(int retCode = 0);
@@ -78,7 +71,7 @@ public:
 	virtual int QuitRunLoop();
 
 	//! looking up default global application if name left 0
-	RegCacheDef(Server);	// FindServer()
+	RegCacheDef(Server);  // FindServer()
 
 	//! Register a StatObserver on the WorkerPoolManager of this server
 	void RegisterServerStatObserver(StatObserver *observer);
@@ -89,9 +82,9 @@ public:
 	//! factory method to create a custom request processor that processes events
 	RequestProcessor *MakeProcessor();
 
-	RequestProcessor* GetRequestProcessor();
+	RequestProcessor *GetRequestProcessor();
 
-	//!check if server is ready and running
+	//! check if server is ready and running
 	bool IsReady(bool ready, long timeout);
 
 	//! Check if server termination is requested by signal (SIGINT)
@@ -103,28 +96,28 @@ public:
 	//! Helper method to set uid, only done when no MasterServer configured
 	int SetUid();
 
-	//!returns the pid for this server
+	//! returns the pid for this server
 	int GetPid();
 
 	static bool IsInReInit();
 
 protected:
-	//!intialization of the servers Thread Pool for request processing (RequestThreadsManager) and Acceptors (ListenerPool)
+	//! intialization of the servers Thread Pool for request processing (RequestThreadsManager) and Acceptors (ListenerPool)
 	virtual int DoInit();
 
-	//!starts the session cleaner thread and the ListenerPool, waits for termination
+	//! starts the session cleaner thread and the ListenerPool, waits for termination
 	virtual int DoRun();
 
-	//!initialization of the Server and its modules
+	//! initialization of the Server and its modules
 	virtual int DoGlobalInit(int argc, const char *argv[], const ROAnything config);
 
-	//!inner method doing the reinit
+	//! inner method doing the reinit
 	virtual int DoGlobalReinit();
 
-	//!starts up the server; an InterruptHandler is set up to catch signals for shutdown, reset etc.
+	//! starts up the server; an InterruptHandler is set up to catch signals for shutdown, reset etc.
 	virtual int DoGlobalRun();
 
-	//!stops the ListenerPool and waits for requests to terminate; server is shutdown
+	//! stops the ListenerPool and waits for requests to terminate; server is shutdown
 	virtual int DoTerminate(int val);
 
 	//! overridable hook which gets called by the signal handler to initiate shutdown
@@ -134,22 +127,22 @@ protected:
 	friend class InterruptHandlerTest;
 	friend class ServerTest;
 
-	//!implementation of the LookupInterface
+	//! implementation of the LookupInterface
 	virtual bool DoLookup(const char *key, ROAnything &result, char delim, char indexdelim) const;
 
-	//!initialisation of the dispatcher
+	//! initialisation of the dispatcher
 	virtual int SetupDispatcher();
 
-	//!writes pid file if configured to use pid information to configured location
-	int WritePIDFile(pid_t lPid = (pid_t) - 1);
-	//!removes pid file when server is shutdown
+	//! writes pid file if configured to use pid information to configured location
+	int WritePIDFile(pid_t lPid = (pid_t)-1);
+	//! removes pid file when server is shutdown
 	int RemovePIDFile();
 
-	//!writes pid information to file; contains platform dependent code
+	//! writes pid information to file; contains platform dependent code
 	virtual int DoWritePIDFile(const String &pidFilePath, pid_t lPid);
-	//!removes pid information from file; contains platform dependent code
+	//! removes pid information from file; contains platform dependent code
 	virtual int DoDeletePIDFile(const String &pidFilePath);
-	//!generates configured filename for pid information file
+	//! generates configured filename for pid information file
 	void PIDFileName(String &pidFileName);
 
 private:
@@ -161,31 +154,31 @@ private:
 	Server &operator=(const Server &);
 
 protected:
-	//!stores the return value set in prepare shutdown
+	//! stores the return value set in prepare shutdown
 	long fRetVal;
 
-	//!manager of thread pools
+	//! manager of thread pools
 	ServerPoolsManagerInterface *fPoolManager;
 
 	//! guard for fInReInit
 	static Mutex fgReInitMutex;
-	//!state to flag reinit is in process
+	//! state to flag reinit is in process
 	static bool fgInReInit;
 
-	//!guard access to fPidFileName and fPid
+	//! guard access to fPidFileName and fPid
 	Mutex fPidFileNameMutex;
 	//! name of the pid file if any is written
 	String fPidFileName;
 	//! pid of this server
 	int fPid;
 
-	Mutex fStoreMutex;				// the guard for fStore
-	Anything fStore;				// the server's store
+	Mutex fStoreMutex;	// the guard for fStore
+	Anything fStore;	// the server's store
 
-	//!dispatcher for this server
+	//! dispatcher for this server
 	ServiceDispatcher *fDispatcher;
 
-	//!statistic observer
+	//! statistic observer
 	StatObserver *fStatisticObserver;
 };
 
@@ -198,30 +191,27 @@ class ServerThread;
 \par Configuration
 \code
 {
-	/ServerModules {
-		{
-			/ServerName				MyRegisteredServer	# mandatory, name of server instance to run
-			/UsePoolStorage			1					# optional, [0|1], default 0, use preallocated memory pool for storage of Queue elements
-			/PoolStorageSize		22001				# optional, [kB], default 10240, pool storage size in kbytes
-			/NumOfPoolBucketSizes	16					# optional, default 10, number of different allocation units within PoolStorage, starts at 16 bytes and always doubles the size so 16 << 10 will give a max usable size of 8192 bytes
-		}
-		...
+  /ServerModules {
+	{
+	  /ServerName				MyRegisteredServer	# mandatory, name of server instance to run
+	  /UsePoolStorage			1					# optional, [0|1], default 0, use preallocated memory pool for storage of Queue elements
+	  /PoolStorageSize		22001				# optional, [kB], default 10240, pool storage size in kbytes
+	  /NumOfPoolBucketSizes	16					# optional, default 10, number of different allocation units within PoolStorage, starts at 16 bytes and always doubles the size so 16 << 10 will give a max usable size of 8192 bytes
 	}
+	...
+  }
 }
 \endcode
 
-The MasterServer manages several servers as configured within ServerModules. Each server has its own thread of control. This allows having an own memory pool for the server instance to optimize for performance.
-The Server methods Init() and Terminate() will be called in DoStartedHook and DoTerminatedRunMethodHook respectively which allows usage of pool memory from within Init().
+The MasterServer manages several servers as configured within ServerModules. Each server has its own thread of control. This
+allows having an own memory pool for the server instance to optimize for performance. The Server methods Init() and Terminate()
+will be called in DoStartedHook and DoTerminatedRunMethodHook respectively which allows usage of pool memory from within Init().
 */
-class MasterServer: public Server {
+class MasterServer : public Server {
 public:
-	MasterServer(const char *name) :
-		Server(name), fNumServers(0), fServerThreads(0) {
-	}
+	MasterServer(const char *name) : Server(name), fNumServers(0), fServerThreads(0) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) MasterServer(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) MasterServer(fName); }
 
 	//! life-cycle of the server init run terminate
 	//!: intialization of the Server and its modules
@@ -231,7 +221,7 @@ public:
 
 	bool StartServers();
 
-	//!check if server is ready and running
+	//! check if server is ready and running
 	bool IsReady(bool ready, long timeout);
 
 protected:
@@ -250,9 +240,8 @@ protected:
 	ServerThread *fServerThreads;
 };
 
-//!thread wrapper for a server started by the MasterServer
-class ServerThread: public Thread
-{
+//! thread wrapper for a server started by the MasterServer
+class ServerThread : public Thread {
 public:
 	ServerThread();
 	ServerThread(Server *aServer);
@@ -264,11 +253,9 @@ public:
 	int UnblockRequests();
 	int ReInit(const ROAnything config);
 
-	bool serverIsInitialized() {
-		return fbServerIsInitialized;
-	}
+	bool serverIsInitialized() { return fbServerIsInitialized; }
 
-	//!check if server is ready and running
+	//! check if server is ready and running
 	bool IsReady(bool ready, long timeout);
 
 private:

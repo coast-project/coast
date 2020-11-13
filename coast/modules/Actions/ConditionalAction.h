@@ -23,16 +23,15 @@
  * @subsection ConditionalActionConfiguration Configuration
  * @code
 {
-	/Call 	Actionscript	mandatory, is called and the result is used to decide
-	/True	Actionscript	optional, is called if the /Call Action results true
-							returns the result of the Actionscript or true if not specified
-	/False	Actionscript	optional, is called if the /Call Action results false
-							returns the result of the Actionscript or true if not specified
+  /Call 	Actionscript	mandatory, is called and the result is used to decide
+  /True	Actionscript	optional, is called if the /Call Action results true
+			  returns the result of the Actionscript or true if not specified
+  /False	Actionscript	optional, is called if the /Call Action results false
+			  returns the result of the Actionscript or true if not specified
 }
  * @endcode
 */
-class ConditionalAction : public Action
-{
+class ConditionalAction : public Action {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	ConditionalAction(const char *name) : Action(name) {}

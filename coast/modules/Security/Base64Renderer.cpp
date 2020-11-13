@@ -7,18 +7,18 @@
  */
 
 #include "Base64Renderer.h"
+
 #include "Base64.h"
 #include "Tracer.h"
 
 //---- Base64Renderer ---------------------------------------------------------------
 RegisterRenderer(Base64Renderer);
 
-Base64Renderer::Base64Renderer(const char *name) : Renderer(name) { }
+Base64Renderer::Base64Renderer(const char *name) : Renderer(name) {}
 
-Base64Renderer::~Base64Renderer() { }
+Base64Renderer::~Base64Renderer() {}
 
-void Base64Renderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void Base64Renderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(Base64Renderer.RenderAll);
 	String clearText, b64EncodedText;
 	Renderer::RenderOnString(clearText, ctx, config);

@@ -11,19 +11,19 @@
 
 //-*-Mode: C++;-*-
 
-#include "RendererTest.h"
 #include "LocalizedRenderers.h"
+#include "RendererTest.h"
 
 //---- StringRendererTest -----------------------------------------------------------
 
-class StringRendererTest : public RendererTest
-{
+class StringRendererTest : public RendererTest {
 public:
 	StringRendererTest(TString tstrName);
 	virtual ~StringRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
+
 protected:
 	void langGE();
 	void langGEWithoutText();

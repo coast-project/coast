@@ -20,8 +20,7 @@ this may contain <B>HTML-Tags</B>
 /*!
 construct an anything representation of DOM parsing the XML
 */
-class GenericXMLParser
-{
+class GenericXMLParser {
 public:
 	virtual ~GenericXMLParser() {}
 	//! do the parsing,
@@ -30,7 +29,9 @@ public:
 	//! \param filename for giving convenient error messages when reading from a real file
 	//! \param startline the line number when starting the parsing for convenient error messages
 	//! \param a the allocator to use, provide coast::storage::Global() for config data
-	Anything Parse(std::istream &reader, const char *filename = "NO_FILE", long startline = 1L, Allocator *a = coast::storage::Current());
+	Anything Parse(std::istream &reader, const char *filename = "NO_FILE", long startline = 1L,
+				   Allocator *a = coast::storage::Current());
+
 protected:
 	virtual void DoParse(String endTag, Anything &tag);
 	virtual Anything ParseComment();
@@ -56,7 +57,7 @@ protected:
 
 	virtual String ParseName();
 	virtual String ParseQuotedString();
-	virtual	String ParseToSemicolon();
+	virtual String ParseToSemicolon();
 
 	virtual void SkipWhitespace();
 	virtual bool IsValidNameChar(int c);
@@ -67,12 +68,11 @@ protected:
 	virtual void PutBack(char c);
 	Anything fParseTree;
 	std::istream *fReader;
-	String	fFileName;
-	long	fLine;
+	String fFileName;
+	long fLine;
 };
 
-class GenericXMLPrinter
-{
+class GenericXMLPrinter {
 public:
 	static void PrintXml(std::ostream &os, ROAnything domany);
 	static void DoPrintXml(std::ostream &os, ROAnything domany);

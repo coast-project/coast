@@ -9,18 +9,13 @@
 #ifndef IT_TESTFW_TString_H
 #define IT_TESTFW_TString_H
 
-#if __GNUC__ >= 3
-#include <string.h>
-#endif
-
+#include <cstring>
 #include <iosfwd>
-typedef int Unicode;
 
 //---- TString --------------------------------------------------------------
 //! trivial implementation of a string class
-class TString
-{
-	void alloc(long capacity); // factor out mem alloc for ctors
+class TString {
+	void alloc(long capacity);	// factor out mem alloc for ctors
 public:
 	TString();
 	TString(long capacity);
@@ -28,11 +23,11 @@ public:
 	TString(const TString &s);
 	~TString();
 
-	TString &operator= (const char *s);
-	TString &operator= (const TString &s);
+	TString &operator=(const char *s);
+	TString &operator=(const TString &s);
 
 	bool IsEqual(const char *other) const;
-	int  Compare(const char *other) const;
+	int Compare(const char *other) const;
 
 	void ToUpper();
 
@@ -50,9 +45,7 @@ public:
 	TString &Append(const TString &s);
 
 	// Abfrage-Methode
-	inline long Length() const				{
-		return fLength;
-	}
+	inline long Length() const { return fLength; }
 
 	// the following three may allow us to get rid of
 	// sprintfs completely
@@ -66,24 +59,12 @@ public:
 	TString &AppendTwoHexAsChar(const char *cc);
 
 	// stream operators
-	TString &operator << (char c)				{
-		return Append(c);
-	}
-	TString &operator << (long l)				{
-		return Append(l);
-	}
-	TString &operator << (double d)				{
-		return Append(d);
-	}
-	TString &operator << (bool b)				{
-		return Append((long)b);
-	}
-	TString &operator << (const char *s)		{
-		return Append(s);
-	}
-	TString &operator << (const TString &s)		{
-		return Append(s);
-	}
+	TString &operator<<(char c) { return Append(c); }
+	TString &operator<<(long l) { return Append(l); }
+	TString &operator<<(double d) { return Append(d); }
+	TString &operator<<(bool b) { return Append((long)b); }
+	TString &operator<<(const char *s) { return Append(s); }
+	TString &operator<<(const TString &s) { return Append(s); }
 
 	friend inline bool operator==(const TString &s1, const TString &s2);
 	friend inline bool operator==(const char *s1, const TString &s2);
@@ -98,9 +79,9 @@ public:
 
 protected:
 	friend std::istream &operator>>(std::istream &is, TString &s);
-	friend std::ostream  &operator<<(std::ostream &os, const TString &s);
+	friend std::ostream &operator<<(std::ostream &os, const TString &s);
 
-	friend std::istream  &getline(std::istream &is, TString &s, char c);
+	friend std::istream &getline(std::istream &is, TString &s, char c);
 
 	void Set(long start, const char *s, long l);
 
@@ -111,58 +92,49 @@ protected:
 };
 
 // inlines
-inline TString::operator const char *() const
-{
-	return (fCont) ? fCont : "";
+inline TString::operator const char *() const {
+	return (fCont) != 0 ? fCont : "";
 }
 
-inline int TString::Compare(const char *other) const
-{
-	if (fCont && other) {
+inline int TString::Compare(const char *other) const {
+	if ((fCont != 0) && (other != 0)) {
 		return strcmp(fCont, other);
-	} else if ((fCont && *fCont) && ! other ) {
-		return 1;
-	} else if (! fCont && (other && *other) ) {
-		return -1;
-	} else {
-		return 0;    // both are empty
 	}
+	if (((fCont != 0) && (*fCont != 0)) && (other == 0)) {
+		return 1;
+	}
+	if ((fCont == 0) && ((other != 0) && (*other != 0))) {
+		return -1;
+	}
+	return 0;  // both are empty
 }
 
-inline bool TString::IsEqual(const char *other) const
-{
-	return ! this->Compare(other);
+inline bool TString::IsEqual(const char *other) const {
+	return this->Compare(other) == 0;
 }
 
-bool operator==(const TString &s1, const TString &s2)
-{
+bool operator==(const TString &s1, const TString &s2) {
 	return s1.IsEqual(s2);
 }
-bool operator==(const char *s1, const TString &s2)
-{
+bool operator==(const char *s1, const TString &s2) {
 	return s2.IsEqual(s1);
 }
-bool operator==(const TString &s1, const char *s2)
-{
+bool operator==(const TString &s1, const char *s2) {
 	return s1.IsEqual(s2);
 }
-bool operator!=(const TString &s1, const TString &s2)
-{
+bool operator!=(const TString &s1, const TString &s2) {
 	return !s1.IsEqual(s2);
 }
-bool operator!=(const char *s1, const TString &s2)
-{
+bool operator!=(const char *s1, const TString &s2) {
 	return !s2.IsEqual(s1);
 }
-bool operator!=(const TString &s1, const char *s2)
-{
+bool operator!=(const TString &s1, const char *s2) {
 	return !s1.IsEqual(s2);
 }
 
 //! small hack to replace missing toupper system function
 //!  (could be done faster with a table)
-inline void TString::ToUpper()
-{
+inline void TString::ToUpper() {
 	for (long i = 0, sz = Length(); i < sz; ++i) {
 		if (('a' <= fCont[i]) && (fCont[i] <= 'z')) {
 			fCont[i] = fCont[i] - 'a' + 'A';

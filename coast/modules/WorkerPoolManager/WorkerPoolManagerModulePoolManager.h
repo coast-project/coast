@@ -12,8 +12,7 @@
 #include "ThreadPools.h"
 
 //---- WorkerPoolManagerModuleWorker -----------------------------------------------
-class WorkerPoolManagerModuleWorker : public WorkerThread
-{
+class WorkerPoolManagerModuleWorker : public WorkerThread {
 public:
 	WorkerPoolManagerModuleWorker(const char *name = "WorkerPoolManagerModuleWorker");
 	~WorkerPoolManagerModuleWorker();
@@ -36,15 +35,14 @@ protected:
 	virtual void DoTerminatedHook();
 
 private:
-	Anything	fWork;
-	Anything	fWorkerInitCfg;
+	Anything fWork;
+	Anything fWorkerInitCfg;
 };
 
 //---- SybCTPoolManager ------------------------------------------------
 // this class demonstrates how to properly subclass WorkerPoolManager
 
-class WorkerPoolManagerModulePoolManager : public WorkerPoolManager
-{
+class WorkerPoolManagerModulePoolManager : public WorkerPoolManager {
 public:
 	WorkerPoolManagerModulePoolManager(String name);
 	virtual ~WorkerPoolManagerModulePoolManager();
@@ -53,7 +51,7 @@ public:
 	void Enter(Anything &args);
 
 protected:
-//	friend WorkerPoolManagerTest;
+	//	friend WorkerPoolManagerTest;
 
 	//:allocate the handle request thread pool
 	virtual void DoAllocPool(ROAnything args);
@@ -70,7 +68,7 @@ private:
 	WorkerPoolManagerModulePoolManager &operator=(const WorkerPoolManagerModulePoolManager &);
 
 protected:
-	WorkerPoolManagerModuleWorker *fRequests;				// vector storing all request thread objects
+	WorkerPoolManagerModuleWorker *fRequests;  // vector storing all request thread objects
 };
 
 #endif

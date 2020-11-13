@@ -15,7 +15,7 @@ import os
 import shlex
 from stat import *
 import Anything
-from SomeUtils import runCommand, replaceRegexInFile, multiple_replace, getFlatENV, listFiles, findFiles
+from SomeUtils import runCommand, getFlatENV, listFiles, findFiles
 from RunBuilder import SkipTest
 
 Import('*')
@@ -37,17 +37,17 @@ if _sconsider_dist < pkg_resources.parse_version("0.3.11"):
     if not hasattr(registry, 'getRealTarget'):
         registry.getRealTarget = getRealTarget
 
+configDir = 'config'
 
-def ModifyConfigFiles(env, searchReplace=[], files=[]):
-    for file in files:
-        fname = file.abspath
-        if os.path.isfile(fname):
-            oldmode = os.stat(fname).st_mode
-            # set writable
-            os.chmod(fname, oldmode | S_IWUSR)
-            # replace tokens in file
-            replaceRegexInFile(fname, searchReplace)
-            os.chmod(fname, oldmode)
+searchReplaceDict = {
+    'USERNAME': 'coast_user',
+    'PASSWORD': 'coast_pwd',
+    'SERVER': 'SIFSCOAST1',
+    'HOSTNAME': 'sifs-coast1.hsr.ch',
+    'PORT': '5000',
+    'DATABASE': 'coast_test',
+    'INTERFACESFILE': os.path.join(configDir, 'interfaces'),
+}
 
 
 def setUp(target, source, env):
@@ -55,48 +55,39 @@ def setUp(target, source, env):
     if not target:
         raise SkipTest('required ' + _helperscript_target + ' target/executable not found, skipping test')
 
+    env['ENV']['COAST_PATH'] = configDir
+    # env['ENV']['COAST_TRACE_INITFINIS'] = 1
+    # env['ENV']['COAST_LOGONCERR'] = 3
     relDir = env.getTargetBaseInstallDir()
-    logDir = env.getLogInstallDir()
-    configdir = relDir.Dir('config')
-    Anything.setLocalEnv(env={}, COAST_ROOT=relDir.abspath)
+    Anything.setLocalEnv(env={}, COAST_ROOT=relDir.abspath, COAST_PATH=configDir)
+
     global defaults
     try:
         defaults = Anything.loadFromFile('Defaults.any')
     except IOError:
         pass
     if not defaults or not defaults.has_key('Sybase'):
-        raise SkipTest('sybase backend not configured')
+        raise SkipTest('sybase backend not configured or disabled')
 
-    searchreplacespec = [
-        ('##database##', str(defaults['Sybase']['Database'])),
-        ('##server##', str(defaults['Sybase']['Server'])),
-        ('##hostname##', str(defaults['Sybase']['Hostname'])),
-        ('##port##', str(defaults['Sybase']['Port'])),
-        ('##username##', str(defaults['Sybase']['Username'])),
-        ('##password##', str(defaults['Sybase']['Password'])),
-    ]
+    logDir = env.getLogInstallDir()
+    path = relDir.Dir(configDir)
 
-    ModifyConfigFiles(env, searchreplacespec, findFiles([configdir], matchfiles=['interfaces']))
-
+    connectstring = "{Username!s} -P {Password!s} -S {Server!s}".format(**defaults['Sybase'])
     command = [target.abspath]
-    command.extend(
-        shlex.split(_helperscript_argument_separator +
-                    " -U {Username!s} -P {Password!s} -S {Server!s}".format(**defaults['Sybase'])))
-    command.extend(['-I', configdir.File('interfaces').abspath])
+    command.extend(shlex.split(_helperscript_argument_separator + ' -U ' + connectstring))
+    command.extend(['-I', path.File('interfaces').abspath])
     res = runCommand(command,
                      logpath=logDir.abspath,
-                     filename=configdir.File('dropPub2.sql').abspath,
-                     filter=lambda string: multiple_replace(searchreplacespec, string),
+                     filename=path.File('dropPub2.sql').abspath,
                      env=getFlatENV(env),
                      timeout=10.0)
     if res != 0:
         raise SkipTest('failed to drop test database (rc=' + str(res) + '), check error log')
     res = runCommand(command,
                      logpath=logDir.abspath,
-                     filename=configdir.File('createPub2.sql').abspath,
-                     filter=lambda string: multiple_replace(searchreplacespec, string),
+                     filename=path.File('createPub2.sql').abspath,
                      env=getFlatENV(env),
-                     timeout=30.0)
+                     timeout=20.0)
     if res != 0:
         raise SkipTest('failed to create test database (rc=' + str(res) + '), check error log')
 
@@ -115,7 +106,8 @@ scriptRequireNodes = [
 ]
 sourceFiles = listFiles(['*.cpp'])
 copyFiles = [
-    (listFiles(['config/*.any', 'config/*.sql', 'config/interfaces']), S_IRUSR | S_IRGRP | S_IROTH),
+    (findFiles([configDir], extensions=['.any', '.sql'],
+               matchfiles=['interfaces']), S_IRUSR | S_IRGRP | S_IROTH, searchReplaceDict),
 ]
 runConfig = {
     'setUp': setUp,
@@ -169,7 +161,6 @@ elif _sconsider_dist >= pkg_resources.parse_version("0.5"):
                                                                               targetname='scripts')
 
     testTarget = createPackageTestTarget(packagename, bin_name, scriptTarget, settings=runConfig)
-
     createAlias('backendtests', testTarget)
 
     EnvBuilder().depend(bins, scripts).build().RegisterPackageTarget(packagename=packagename,

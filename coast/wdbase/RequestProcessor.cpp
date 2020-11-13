@@ -7,18 +7,20 @@
  */
 
 #include "RequestProcessor.h"
-#include "Socket.h"
+
+#include "AnythingUtils.h"
 #include "Registry.h"
 #include "Server.h"
 #include "ServerUtils.h"
-#include "AnythingUtils.h"
+#include "Socket.h"
 
-RegCacheImpl(RequestProcessor)
-; // FindRequestProcessor()
+#include <iostream>
+#include <ostream>
+
+RegCacheImpl(RequestProcessor);	 // FindRequestProcessor()
 RegisterRequestProcessor(RequestProcessor);
 
-RequestProcessor::RequestProcessor(const char *processorName) :
-	RegisterableObject(processorName), fServer(0) {
+RequestProcessor::RequestProcessor(const char *processorName) : RegisterableObject(processorName), fServer(0) {
 	StartTrace(RequestProcessor.RequestProcessor);
 }
 
@@ -33,7 +35,7 @@ void RequestProcessor::ProcessRequest(Context &ctx) {
 	Socket *socket = ctx.GetSocket();
 	std::iostream *Ios = 0;
 
-	if (socket != (Socket *) NULL) {
+	if (socket != (Socket *)NULL) {
 		ROAnything timeout;
 		ctx.Lookup("SocketReadTimeout", timeout);
 		socket->SetTimeout(timeout.AsLong(10 * 1000L));
@@ -41,12 +43,11 @@ void RequestProcessor::ProcessRequest(Context &ctx) {
 		Ios = socket->GetStream();
 	}
 
-	if (Ios && socket->IsReadyForReading()) {
+	if ((Ios != 0) && socket->IsReadyForReading()) {
 		// disable nagle algorithm
 		socket->SetNoDelay();
 		if (ReadInput(*Ios, ctx) && !!(*Ios)) {
-
-			KeepConnectionAlive(ctx); //!@FIXME: should not be a feature of a non-HTTP request
+			KeepConnectionAlive(ctx);  //!@FIXME: should not be a feature of a non-HTTP request
 
 			if (socket->IsReadyForWriting()) {
 				if (VerifyRequest(*Ios, ctx)) {
@@ -60,9 +61,10 @@ void RequestProcessor::ProcessRequest(Context &ctx) {
 	} else {
 		String logMsg("Cannot read from client socket");
 		SystemLog::eLogLevel level(SystemLog::eWARNING);
-		if (socket) {
-			logMsg << ", fd:" << ((socket) ? socket->GetFd() : -1L);
-			logMsg << ", from " << socket->ClientInfo()["REMOTE_ADDR"].AsString() << ':' << socket->ClientInfo()["REMOTE_PORT"].AsString();
+		if (socket != 0) {
+			logMsg << ", fd:" << ((socket) != 0 ? socket->GetFd() : -1L);
+			logMsg << ", from " << socket->ClientInfo()["REMOTE_ADDR"].AsString() << ':'
+				   << socket->ClientInfo()["REMOTE_PORT"].AsString();
 			if (socket->HadTimeout()) {
 				logMsg << ", had timeout (" << socket->GetTimeout() << "ms)";
 				level = SystemLog::eINFO;
@@ -75,12 +77,12 @@ void RequestProcessor::ProcessRequest(Context &ctx) {
 namespace {
 	RequestProcessor *GetCurrentRequestProcessor(Context &ctx) {
 		RequestProcessor *pProc = 0;
-		((ctx.GetServer() && (pProc = ctx.GetServer()->GetRequestProcessor())) || (pProc = RequestProcessor::FindRequestProcessor(
-				ctx.Lookup("RequestProcessor", "RequestProcessor")))
-				|| (pProc = RequestProcessor::FindRequestProcessor("RequestProcessor")));
+		(((ctx.GetServer() != 0) && ((pProc = ctx.GetServer()->GetRequestProcessor()) != 0)) ||
+		 ((pProc = RequestProcessor::FindRequestProcessor(ctx.Lookup("RequestProcessor", "RequestProcessor"))) != 0) ||
+		 ((pProc = RequestProcessor::FindRequestProcessor("RequestProcessor")) != 0));
 		return pProc;
 	}
-}
+}  // namespace
 
 bool RequestProcessor::DoVerifyRequest(Context &ctx) {
 	StartTrace(RequestProcessor.DoVerifyRequest);
@@ -113,7 +115,9 @@ void RequestProcessor::ForceConnectionClose(Context &ctx) {
 
 bool RequestProcessor::KeepConnectionAlive(Context &ctx) {
 	bool retVal = false;
-	StatTrace(RequestProcessor.KeepConnectionAlive, "PersistentConnections:" << (ctx.Lookup("PersistentConnections").AsBool(false) ? "true" : "false"), coast::storage::Current());
+	StatTrace(RequestProcessor.KeepConnectionAlive,
+			  "PersistentConnections:" << (ctx.Lookup("PersistentConnections").AsBool(false) ? "true" : "false"),
+			  coast::storage::Current());
 	if (ctx.Lookup("PersistentConnections").AsBool(false)) {
 		// first check if we already know the result
 		ROAnything lookupAny;
@@ -136,14 +140,15 @@ bool RequestProcessor::DoKeepConnectionAlive(Context &ctx) {
 
 void RequestProcessor::RenderProtocolStatus(std::ostream &os, Context &ctx) {
 	StartTrace(RequestProcessor.RenderProtocolStatus);
-	GetCurrentRequestProcessor(ctx)->DoRenderProtocolStatus(os, ctx); //!@FIXME: remove as soon as static members are not required anymore
+	GetCurrentRequestProcessor(ctx)->DoRenderProtocolStatus(
+		os, ctx);  //!@FIXME: remove as soon as static members are not required anymore
 }
 
 bool RequestProcessor::ReadInput(std::iostream &Ios, Context &ctx) {
 	StartTrace(RequestProcessor.ReadInput);
 	Anything anyValue = "ReadInput.Error";
 	Context::PushPopEntry<Anything> aEntry(ctx, "RequestProcessorErrorSlot", anyValue, "RequestProcessorErrorSlot");
-	if ( !DoReadInput(Ios, ctx) ) {
+	if (!DoReadInput(Ios, ctx)) {
 		return DoHandleReadInputError(Ios, ctx);
 	}
 	return true;
@@ -153,18 +158,18 @@ bool RequestProcessor::VerifyRequest(std::iostream &Ios, Context &ctx) {
 	StartTrace(RequestProcessor.VerifyRequest);
 	Anything anyValue = "VerifyRequest.Error";
 	Context::PushPopEntry<Anything> aEntry(ctx, "RequestProcessorErrorSlot", anyValue, "RequestProcessorErrorSlot");
-	if ( !DoVerifyRequest(ctx) ) {
+	if (!DoVerifyRequest(ctx)) {
 		return DoHandleVerifyRequestError(Ios, ctx);
 	}
 	return true;
 }
 
-//!process the arguments and generate a reply
+//! process the arguments and generate a reply
 bool RequestProcessor::IntProcessRequest(std::iostream &Ios, Context &ctx) {
 	StartTrace(RequestProcessor.IntProcessRequest);
 	Anything anyValue = "ProcessRequest.Error";
 	Context::PushPopEntry<Anything> aEntry(ctx, "RequestProcessorErrorSlot", anyValue, "RequestProcessorErrorSlot");
-	if ( !DoProcessRequest(Ios, ctx) ) {
+	if (!DoProcessRequest(Ios, ctx)) {
 		return DoHandleProcessRequestError(Ios, ctx);
 	}
 	return true;
@@ -173,7 +178,8 @@ bool RequestProcessor::IntProcessRequest(std::iostream &Ios, Context &ctx) {
 bool RequestProcessor::DoReadInput(std::iostream &Ios, Context &ctx) {
 	Anything args;
 	bool anyImportSuccessful = args.Import(Ios);
-	StatTraceAny(RequestProcessor.DoReadInput, args, "request anything" << (anyImportSuccessful?"":" import failed!"), coast::storage::Current());
+	StatTraceAny(RequestProcessor.DoReadInput, args, "request anything" << (anyImportSuccessful ? "" : " import failed!"),
+				 coast::storage::Current());
 	if (not anyImportSuccessful) {
 		return false;
 	}
@@ -184,7 +190,7 @@ bool RequestProcessor::DoReadInput(std::iostream &Ios, Context &ctx) {
 bool RequestProcessor::DoProcessRequest(std::ostream &reply, Context &ctx) {
 	StartTrace(RequestProcessor.DoProcessRequest);
 	Server *pServer = 0;
-	if ( ( pServer = GetServer()) || ( pServer = ctx.GetServer() ) ) {
+	if (((pServer = GetServer()) != 0) || ((pServer = ctx.GetServer()) != 0)) {
 		return pServer->ProcessRequest(reply, ctx);
 	}
 	return false;

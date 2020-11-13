@@ -7,18 +7,18 @@
  */
 
 #include "XMLBodyMapper.h"
+
 #include "Tracer.h"
+
+#include <istream>
 
 class TagToken {
 	String fTag;
-public:
-	TagToken(String Tag) :
-		fTag(Tag) {
-	}
 
-	bool IsValid() {
-		return (fTag.Length() != 0);
-	}
+public:
+	TagToken(String Tag) : fTag(Tag) {}
+
+	bool IsValid() { return (fTag.Length() != 0); }
 	bool IsEndTag() {
 		if (!IsValid()) {
 			return false;
@@ -45,6 +45,7 @@ class XMLTagParser {
 	TagToken ReadNextTag(std::istream &Is, String &LeadingText);
 	bool ParseTag(std::istream &Is, String &Tag);
 	bool ReadToExpectedChar(char ExpectedChar, std::istream &Is, String &Content);
+
 public:
 	Anything DoParse(std::istream &Is);
 };
@@ -69,7 +70,7 @@ void XMLTagParser::ProcessElement(std::istream &Is, TagToken &Tag, Anything Resu
 	Anything content = ProcessContent(Is, Tag);
 	String tag = Tag.GetTag();
 	if (Result.IsDefined(tag)) {
-		if (Result[tag].SlotName(0)) {
+		if (Result[tag].SlotName(0) != 0) {
 			// pack first item
 			Anything firstItem = Result[tag];
 			Anything dummy;
@@ -97,7 +98,7 @@ Anything XMLTagParser::ProcessContent(std::istream &Is, TagToken &Tag) {
 		}
 
 		if (nextToken.IsEndTag()) {
-			if (content.Length() && result.IsNull()) {
+			if ((content.Length() != 0) && result.IsNull()) {
 				result = content;
 			}
 		} else {
@@ -139,7 +140,7 @@ bool XMLTagParser::ParseTag(std::istream &Is, String &Tag) {
 
 bool XMLTagParser::ReadToExpectedChar(char ExpectedChar, std::istream &Is, String &Content) {
 	StartTrace(XMLTagParser.ReadToExpectedChar);
-	char c;
+	char c = 0;
 
 	while (Is.get(c).good()) {
 		if (c == ExpectedChar) {

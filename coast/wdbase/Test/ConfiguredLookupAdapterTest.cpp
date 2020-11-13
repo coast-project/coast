@@ -7,31 +7,27 @@
  */
 
 #include "ConfiguredLookupAdapterTest.h"
+
 #include "ConfiguredLookupAdapter.h"
 #include "TestSuite.h"
 
-ConfiguredLookupAdapterTest::ConfiguredLookupAdapterTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+ConfiguredLookupAdapterTest::ConfiguredLookupAdapterTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(ConfiguredLookupAdapterTest.ConfiguredLookupAdapterTest);
 }
 
-TString ConfiguredLookupAdapterTest::getConfigFileName()
-{
+TString ConfiguredLookupAdapterTest::getConfigFileName() {
 	return "ConfiguredLookupAdapterTestConfig";
 }
 
-ConfiguredLookupAdapterTest::~ConfiguredLookupAdapterTest()
-{
+ConfiguredLookupAdapterTest::~ConfiguredLookupAdapterTest() {
 	StartTrace(ConfiguredLookupAdapterTest.Dtor);
 }
 
-void ConfiguredLookupAdapterTest::LookupTest()
-{
+void ConfiguredLookupAdapterTest::LookupTest() {
 	StartTrace(ConfiguredLookupAdapterTest.LookupTest);
 	ROAnything caseConfig;
 	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(caseConfig) ) {
+	while (aEntryIterator.Next(caseConfig)) {
 		ROAnything conf(caseConfig["Config"]);
 		ROAnything def(caseConfig["Default"]);
 		ConfiguredLookupAdapter cla(conf, def);
@@ -41,8 +37,7 @@ void ConfiguredLookupAdapterTest::LookupTest()
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *ConfiguredLookupAdapterTest::suite ()
-{
+Test *ConfiguredLookupAdapterTest::suite() {
 	StartTrace(ConfiguredLookupAdapterTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, ConfiguredLookupAdapterTest, LookupTest);

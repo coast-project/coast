@@ -7,22 +7,17 @@
  */
 
 #include "StringReplaceRenderer.h"
+
 #include "Tracer.h"
 
 //---- StringReplaceRenderer ---------------------------------------------------------------
 RegisterRenderer(StringReplaceRenderer);
 
-StringReplaceRenderer::StringReplaceRenderer(const char *name)
-	: Renderer(name)
-{
-}
+StringReplaceRenderer::StringReplaceRenderer(const char *name) : Renderer(name) {}
 
-StringReplaceRenderer::~StringReplaceRenderer()
-{
-}
+StringReplaceRenderer::~StringReplaceRenderer() {}
 
-void StringReplaceRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void StringReplaceRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(StringReplaceRenderer.RenderAll);
 
 	TraceAny(config, "config");
@@ -30,19 +25,20 @@ void StringReplaceRenderer::RenderAll(std::ostream &reply, Context &c, const ROA
 	String strDestination, strSource;
 	RenderOnString(strSource, c, config["String"]);
 	ROAnything roaMapAny;
-	if ( config.LookupPath(roaMapAny, "ReplaceConfig") ) {
+	if (config.LookupPath(roaMapAny, "ReplaceConfig")) {
 		TraceAny(roaMapAny, " config");
 		String strTmpSource = strSource;
-		for ( long cfgIdx = 0L, lSize = roaMapAny.GetSize(); cfgIdx < lSize; ++cfgIdx ) {
+		for (long cfgIdx = 0L, lSize = roaMapAny.GetSize(); cfgIdx < lSize; ++cfgIdx) {
 			strDestination.Trim(0);
 			String sString = roaMapAny.SlotName(cfgIdx);
 			String rString = roaMapAny[sString].AsString();
-			//TODO: prevent loop for each replacestring -> RegExpRenderer
+			// TODO: prevent loop for each replacestring -> RegExpRenderer
 			long startIdx = 0L;
 			// returns -1 if there no sString can be found
-			while ( ( startIdx = strTmpSource.Contains(sString) ) >= 0L ) {
+			while ((startIdx = strTmpSource.Contains(sString)) >= 0L) {
 				String tmpString = strTmpSource.SubString(0, startIdx);
-				Trace("search string [" << sString << "] at index:" << startIdx << " segment up to sString [" << tmpString << "]");
+				Trace("search string [" << sString << "] at index:" << startIdx << " segment up to sString [" << tmpString
+										<< "]");
 				strDestination.Append(tmpString);
 				strDestination.Append(rString);
 				strTmpSource.TrimFront(startIdx + sString.Length());

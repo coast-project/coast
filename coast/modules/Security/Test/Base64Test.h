@@ -12,25 +12,24 @@
 #include "TestCase.h"
 
 //---- Base64Test ----------------------------------------------------------
-//!single line description of the class
+//! single line description of the class
 //! further explanation of the purpose of the class
 //! this may contain <B>HTML-Tags</B>
 //! ...
-class Base64Test : public testframework::TestCase
-{
+class Base64Test : public testframework::TestCase {
 public:
 	//--- constructors
 	Base64Test(TString tstrName);
 	~Base64Test();
 
-	static Test *suite ();
+	static Test *suite();
 
 	void EncodeDecodeTest();
 	void EncodeDecodeOriginalTest();
 
 protected:
 	//--- subclass api
-	int CalcEncodedLength( int Decodedlength );
+	int CalcEncodedLength(int Decodedlength);
 };
 
 #endif

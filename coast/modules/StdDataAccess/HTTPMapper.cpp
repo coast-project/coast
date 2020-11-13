@@ -6,18 +6,22 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "HTTPMapper.h"
-#include "Timers.h"
-#include "CacheHandler.h"
+
 #include "AnyIterators.h"
+#include "CacheHandler.h"
 #include "HTTPConstants.h"
+#include "Timers.h"
+
+#include <istream>
+#include <ostream>
 
 RegisterParameterMapper(HTTPHeaderParameterMapper);
 
 namespace {
 	namespace constants {
-		const char * const groupName = "HeaderMapperCache";
-		const char * const suppressName = "Suppress";
-	}
+		const char *const groupName = "HeaderMapperCache";
+		const char *const suppressName = "Suppress";
+	}  // namespace constants
 
 	void SuppressListToUpper(ROAnything suppressList, Anything &suppressListToUpper) {
 		const long size = suppressList.GetSize();
@@ -29,7 +33,7 @@ namespace {
 			}
 		}
 	}
-}
+}  // namespace
 
 bool HTTPHeaderParameterMapper::DoInitialize() {
 	StartTrace1(HTTPHeaderParameterMapper.DoInitialize, "cat <" << fCategory << "> name <" << fName << ">");
@@ -126,7 +130,7 @@ void HTTPBodyResultMapper::ReadBody(String &body, std::istream &is, Context &ctx
 	if (contentLength > -1) {
 		body.Append(is, contentLength);
 	} else {
-		char c;
+		char c = 0;
 		while (is.get(c).good()) {
 			body.Append(c);
 		}
@@ -139,16 +143,16 @@ RegisterParameterMapperAlias(HTTPBodyMapper, HTTPBodyParameterMapper);
 bool HTTPBodyParameterMapper::DoFinalGetStream(const char *key, std::ostream &os, Context &ctx) {
 	StartTrace1(HTTPBodyParameterMapper.DoFinalGetStream, NotNull(key));
 	bool mapSuccess = true;
-	ROAnything params(ctx.Lookup(key)); //!@FIXME ??: use Get(key,any,ctx) instead?
+	ROAnything params(ctx.Lookup(key));	 //!@FIXME ??: use Get(key,any,ctx) instead?
 	if (!params.IsNull()) {
 		long bPSz = params.GetSize();
 		String value;
 		for (long i = 0; i < bPSz; ++i) {
 			const char *lookupVal = params.SlotName(i);
-			if (!lookupVal) {
+			if (lookupVal == 0) {
 				lookupVal = params[i].AsCharPtr("");
 			}
-			if (lookupVal && (mapSuccess = Get(lookupVal, value, ctx))) {
+			if ((lookupVal != 0) && (mapSuccess = Get(lookupVal, value, ctx))) {
 				Trace("Param[" << lookupVal << "]=<" << value << ">");
 				os << lookupVal << "=" << value;
 				if (i < (bPSz - 1)) {

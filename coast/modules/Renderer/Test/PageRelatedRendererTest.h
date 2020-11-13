@@ -12,16 +12,15 @@
 #include "TestCase.h"
 
 //---- PageRelatedRendererTest ----------------------------------------------------------
-//!Test driver for tracing facility
-class PageRelatedRendererTest : public testframework::TestCase
-{
+//! Test driver for tracing facility
+class PageRelatedRendererTest : public testframework::TestCase {
 public:
-	//!constructors
+	//! constructors
 	PageRelatedRendererTest(TString tstrName);
 	~PageRelatedRendererTest();
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
 protected:
 	void trivialTest();

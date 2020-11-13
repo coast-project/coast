@@ -7,16 +7,18 @@
  */
 
 #include "QueueTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "Queue.h"
-#include "PoolAllocator.h"
-#include "SystemBase.h"
+
 #include "DiffTimer.h"
-#include "ThreadPools.h"
-#include "StringStream.h"
-#include "MT_Storage.h"
+#include "FoundationTestTypes.h"
 #include "ITOTypeTraits.h"
+#include "MT_Storage.h"
+#include "PoolAllocator.h"
+#include "Queue.h"
+#include "StringStream.h"
+#include "SystemBase.h"
+#include "TestSuite.h"
+#include "ThreadPools.h"
+
 #include <typeinfo>
 
 using namespace coast;
@@ -27,61 +29,46 @@ public:
 
 	// events
 	struct ev_ReloadMarketCodeFilter {
-		ev_ReloadMarketCodeFilter(Anything &anyElement) :
-			fanyElement(anyElement), froaElement(fanyElement) {
-		}
+		ev_ReloadMarketCodeFilter(Anything &anyElement) : fanyElement(anyElement), froaElement(fanyElement) {}
 		Anything fanyElement;
 		ROAnything froaElement;
 	};
 };
 
-template<class theDCDStateMachine>
+template <class theDCDStateMachine>
 class dcd_event {
-	template<typename ValueType>
+	template <typename ValueType>
 	dcd_event &operator=(const ValueType &);
 	dcd_event &operator=(const dcd_event &);
 
 public:
-	dcd_event(const dcd_event &other) :
-		content(other.content ? other.content->clone() : 0) {
-	}
-	dcd_event() :
-		content(0) {
-	}
+	dcd_event(const dcd_event &other) : content(other.content ? other.content->clone() : 0) {}
+	dcd_event() : content(0) {}
 
-	template<typename ValueType>
-	dcd_event(const ValueType &value) :
-		content(new holder<ValueType> (value)) {
-	}
+	template <typename ValueType>
+	dcd_event(const ValueType &value) : content(new holder<ValueType>(value)) {}
 
-	~dcd_event() {
-		delete content;
-	}
+	~dcd_event() { delete content; }
 
 public:
 	// queries
 
-	bool empty() const {
-		return !content;
-	}
+	bool empty() const { return !content; }
 
-	const std::type_info &type() const {
-		return content ? content->type() : typeid(void);
-	}
+	const std::type_info &type() const { return content ? content->type() : typeid(void); }
 
 #ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
 private:
 	// types
 #else
-public: // types (public so any_cast can be non-friend)
+public:	 // types (public so any_cast can be non-friend)
 #endif
 
 	class placeholder {
 	public:
 		// structors
 
-		virtual ~placeholder() {
-		}
+		virtual ~placeholder() {}
 
 	public:
 		// queries
@@ -91,17 +78,14 @@ public: // types (public so any_cast can be non-friend)
 		virtual const std::type_info &type() const = 0;
 
 		virtual placeholder *clone() const = 0;
-
 	};
 
-	template<typename ValueType>
-	class holder: public placeholder {
+	template <typename ValueType>
+	class holder : public placeholder {
 	public:
 		// structors
 
-		holder(const ValueType &value) :
-			held(value) {
-		}
+		holder(const ValueType &value) : held(value) {}
 
 	public:
 		// queries
@@ -111,37 +95,36 @@ public: // types (public so any_cast can be non-friend)
 			return false;
 		}
 
-		virtual const std::type_info &type() const {
-			return typeid(ValueType);
-		}
+		virtual const std::type_info &type() const { return typeid(ValueType); }
 
-		virtual placeholder *clone() const {
-			return new holder(held);
-		}
+		virtual placeholder *clone() const { return new holder(held); }
 
 	public:
 		// representation
 
 		ValueType held;
-
 	};
 
 	placeholder *content;
 };
 
-template<typename QueueType, bool StoreConsumedProducts = true>
-class TestConsumer : public Thread
-{
+template <typename QueueType, bool StoreConsumedProducts = true>
+class TestConsumer : public Thread {
 	friend class QueueTest;
+
 public:
-	typedef QueueType& QueueTypeRef;
+	typedef QueueType &QueueTypeRef;
 	typedef typename QueueType::ElementType QElement;
 
 	TestConsumer(QueueTypeRef aQueue, long lHowManyConsumes, long lWaitTimeMicroSec = 0L)
-	: Thread("TestConsumer"), fQueue(aQueue), fWaitTimeMicroSec(lWaitTimeMicroSec), fToConsume(lHowManyConsumes), fConsumed(0L), fWork(), fProducts(Anything::ArrayMarker(), coast::storage::Global())
-	{}
-	bool DoStartRequestedHook(ROAnything roaWork)
-	{
+		: Thread("TestConsumer"),
+		  fQueue(aQueue),
+		  fWaitTimeMicroSec(lWaitTimeMicroSec),
+		  fToConsume(lHowManyConsumes),
+		  fConsumed(0L),
+
+		  fProducts(Anything::ArrayMarker(), coast::storage::Global()) {}
+	bool DoStartRequestedHook(ROAnything roaWork) {
 		fWork = roaWork.DeepClone();
 		return true;
 	}
@@ -149,12 +132,11 @@ public:
 		StartTrace(TestConsumer.Run);
 		long lProductCount = 0L;
 		bool bTryLock = fWork["TryLock"].AsBool(false);
-		while ( lProductCount < fToConsume ) {
+		while (lProductCount < fToConsume) {
 			QElement aProduct;
-			if ( fQueue.Get(aProduct, bTryLock) == QueueType::eSuccess )
-			{
-				TraceAny(aProduct,"consumed product");
-				if ( StoreConsumedProducts )
+			if (fQueue.Get(aProduct, bTryLock) == QueueType::eSuccess) {
+				TraceAny(aProduct, "consumed product");
+				if (StoreConsumedProducts)
 					fProducts[lProductCount] = aProduct;
 				if (fWaitTimeMicroSec > 0L)
 					system::MicroSleep(fWaitTimeMicroSec);
@@ -169,18 +151,19 @@ private:
 	Anything fWork, fProducts;
 };
 
-template<typename QueueType>
-class TestProducer : public Thread
-{
+template <typename QueueType>
+class TestProducer : public Thread {
 public:
-	typedef QueueType& QueueTypeRef;
+	typedef QueueType &QueueTypeRef;
 	typedef typename QueueType::ElementType QElement;
 
 	TestProducer(QueueTypeRef aQueue, long lHowManyProduces, long lWaitTimeMicroSec = 0L)
-	: Thread("TestProducer"), fQueue(aQueue), fWaitTimeMicroSec(lWaitTimeMicroSec), fToProduce(lHowManyProduces), fProduced(0L), fWork()
-	{}
-	bool DoStartRequestedHook(ROAnything roaWork)
-	{
+		: Thread("TestProducer"),
+		  fQueue(aQueue),
+		  fWaitTimeMicroSec(lWaitTimeMicroSec),
+		  fToProduce(lHowManyProduces),
+		  fProduced(0L) {}
+	bool DoStartRequestedHook(ROAnything roaWork) {
 		fWork = roaWork.DeepClone();
 		return true;
 	}
@@ -188,14 +171,13 @@ public:
 		StartTrace(TestProducer.Run);
 		long lProductCount = 0L;
 		bool bTryLock = fWork["TryLock"].AsBool(false);
-		while ( lProductCount < fToProduce ) {
+		while (lProductCount < fToProduce) {
 			QElement aProduct(fWork["Product"].DeepClone());
 			aProduct["ThreadId"] = GetId();
 			aProduct["ProductNumber"] = lProductCount;
-			if ( fQueue.Put(aProduct, bTryLock) == QueueType::eSuccess )
-			{
+			if (fQueue.Put(aProduct, bTryLock) == QueueType::eSuccess) {
 				TraceAny(aProduct, "produced product");
-				if (fWaitTimeMicroSec)
+				if (fWaitTimeMicroSec != 0)
 					system::MicroSleep(fWaitTimeMicroSec);
 				++lProductCount;
 			}
@@ -208,19 +190,16 @@ private:
 	Anything fWork;
 };
 
-template<typename QueueType>
-class ConsumerTerminationThread : public Thread
-{
+template <typename QueueType>
+class ConsumerTerminationThread : public Thread {
 	friend class QueueTest;
+
 public:
-	typedef QueueType& QueueTypeRef;
+	typedef QueueType &QueueTypeRef;
 	typedef typename QueueType::ElementType QElement;
 
-	ConsumerTerminationThread(QueueTypeRef aQueue)
-	: Thread("ConsumerTerminationThread"), fQueue(aQueue), fConsumed(0L)
-	{}
-	void Run()
-	{
+	ConsumerTerminationThread(QueueTypeRef aQueue) : Thread("ConsumerTerminationThread"), fQueue(aQueue), fConsumed(0L) {}
+	void Run() {
 		StartTrace(ConsumerTerminationThread.Run);
 		// signal start using working state
 		Trace("before CheckRunningState(eWorking)");
@@ -228,9 +207,8 @@ public:
 			CheckRunningState(eWorking);
 			Trace("now working");
 			QElement aProduct;
-			if ( fQueue.Get(aProduct, false) == QueueType::eSuccess )
-			{
-				TraceAny(aProduct,"consumed product");
+			if (fQueue.Get(aProduct, false) == QueueType::eSuccess) {
+				TraceAny(aProduct, "consumed product");
 				++fConsumed;
 			}
 		}
@@ -242,15 +220,12 @@ private:
 };
 
 //---- QueueTest ----------------------------------------------------------------
-QueueTest::QueueTest(TString tstrName) :
-	TestCaseType(tstrName) {
-	StartTrace(QueueTest.Ctor)
-	;
+QueueTest::QueueTest(TString tstrName) : TestCaseType(tstrName) {
+	StartTrace(QueueTest.Ctor);
 }
 
 QueueTest::~QueueTest() {
-	StartTrace(QueueTest.Dtor)
-	;
+	StartTrace(QueueTest.Dtor);
 }
 
 void QueueTest::BlockingSideTest() {
@@ -296,7 +271,8 @@ void QueueTest::PutGetStatusTest() {
 	assertAnyEqual(anyTest1, anyOut);
 	t_assert(Q1.GetSize() == 0L);
 	anyOut = Anything();
-	assertEqualm((QueueType::eEmpty|QueueType::eError), Q1.DoGet(anyOut, coast::typetraits::Type2Type<Anything>()), "second get should fail because of empty queue");
+	assertEqualm((QueueType::eEmpty | QueueType::eError), Q1.DoGet(anyOut, coast::typetraits::Type2Type<Anything>()),
+				 "second get should fail because of empty queue");
 }
 
 void QueueTest::SimplePutGetTest() {
@@ -331,7 +307,8 @@ void QueueTest::DoMultiProducerSingleConsumerTest(int lQueueSize) {
 	{
 		typedef AnyQueueType QueueType;
 		QueueType aProductQueue("aProductQueue", lQueueSize);
-		TestProducer<QueueType> aProd4(aProductQueue, 4L, 1500L), aProd5(aProductQueue, 5L, 2000L), aProd10(aProductQueue, 10L, 1000L);
+		TestProducer<QueueType> aProd4(aProductQueue, 4L, 1500L), aProd5(aProductQueue, 5L, 2000L),
+			aProd10(aProductQueue, 10L, 1000L);
 		TestConsumer<QueueType> aConsumer(aProductQueue, 19L);
 		Anything anyCons, anyProd;
 		anyCons["TryLock"] = false;
@@ -388,7 +365,8 @@ void QueueTest::DoSingleProducerMultiConsumerTest(int lQueueSize) {
 	{
 		typedef AnyQueueType QueueType;
 		QueueType aProductQueue("aProductQueue", lQueueSize);
-		TestConsumer<QueueType> aCons4(aProductQueue, 4L, 1500L), aCons5(aProductQueue, 5L, 2000L), aCons10(aProductQueue, 10L, 1000L);
+		TestConsumer<QueueType> aCons4(aProductQueue, 4L, 1500L), aCons5(aProductQueue, 5L, 2000L),
+			aCons10(aProductQueue, 10L, 1000L);
 		TestProducer<QueueType> aProducer(aProductQueue, 19L);
 		Anything anyCons, anyProd;
 		anyCons["TryLock"] = false;
@@ -528,11 +506,11 @@ void QueueTest::SimpleTypeAnyStorageQueueTest() {
 
 typedef dcd_event<DCDStateMachine> EventType;
 typedef EventType *EventTypePtr;
-#if defined(__GNUG__)  && ( __GNUC__ >= 4 )
+#if defined(__GNUG__) && (__GNUC__ >= 4)
 typedef stlstorage::fast_pool_allocator_global<EventTypePtr> EvtAllocType;
 typedef Queue<EventTypePtr, std::list<EventTypePtr, EvtAllocType> > EventQueueType;
 #else
-typedef Queue< EventTypePtr, std::list<EventTypePtr > > EventQueueType;
+typedef Queue<EventTypePtr, std::list<EventTypePtr> > EventQueueType;
 #endif
 void QueueTest::SimpleTypeListStorageQueueTest() {
 	StartTrace(QueueTest.SimpleTypeListStorageQueueTest);
@@ -583,7 +561,8 @@ void QueueTest::QueueWithAllocatorTest() {
 			t_assert(Q1.GetSize() == 1L);
 
 			if (coast::storage::GetStatisticLevel() >= 1) {
-				assertComparem(lAllocMark, less, aPoolAlloc.CurrentlyAllocated(), "expected PoolAllocator having had some allocations");
+				assertComparem(lAllocMark, less, aPoolAlloc.CurrentlyAllocated(),
+							   "expected PoolAllocator having had some allocations");
 			}
 
 			Anything anyOut;
@@ -600,7 +579,8 @@ void QueueTest::QueueWithAllocatorTest() {
 			TraceAny(anyOut, "statistics");
 		}
 		if (coast::storage::GetStatisticLevel() >= 1) {
-			assertComparem(lAllocMark, equal_to, aPoolAlloc.CurrentlyAllocated(), "expected PoolAllocator to have allocated its memory on coast::storage::Global()");
+			assertComparem(lAllocMark, equal_to, aPoolAlloc.CurrentlyAllocated(),
+						   "expected PoolAllocator to have allocated its memory on coast::storage::Global()");
 		}
 	}
 	{
@@ -624,7 +604,8 @@ void QueueTest::QueueWithAllocatorTest() {
 			assertEqualm(2L, Q1.GetSize(), "expected queue to contain 2 elements");
 
 			if (coast::storage::GetStatisticLevel() >= 1) {
-				assertComparem(lAllocMark, equal_to, aPoolAlloc.CurrentlyAllocated(), "expected PoolAllocator to not have allocations");
+				assertComparem(lAllocMark, equal_to, aPoolAlloc.CurrentlyAllocated(),
+							   "expected PoolAllocator to not have allocations");
 			}
 
 			Q1.Get(pEventWrapperOut2);
@@ -635,20 +616,22 @@ void QueueTest::QueueWithAllocatorTest() {
 			assertEqualm(0L, Q1.GetSize(), "expected queue to be empty");
 			delete pEventWrapperOut2;
 		}
-		if ( storage::GetStatisticLevel() >= 1 )
-		{
-			assertComparem(lAllocMark, equal_to, aPoolAlloc.CurrentlyAllocated(), "expected PoolAllocator to have allocated its memory on storage::Global()");
+		if (storage::GetStatisticLevel() >= 1) {
+			assertComparem(lAllocMark, equal_to, aPoolAlloc.CurrentlyAllocated(),
+						   "expected PoolAllocator to have allocated its memory on storage::Global()");
 		}
 	}
 }
 
 namespace {
-	String const testString100B = String("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", storage::Global());
+	String const testString100B =
+		String("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",
+			   storage::Global());
 }
 
-using namespace coast::utility;	// for demangle
+using namespace coast::utility;	 // for demangle
 
-template<typename ElementType, typename StorageType, long LoopCount, int aResolution>
+template <typename ElementType, typename StorageType, long LoopCount, int aResolution>
 void MeasurePutGetForQueueType() {
 	StartTrace(QueueTest.MeasurePutGetForQueueType);
 	typedef Queue<ElementType, StorageType> myQueueType;
@@ -657,25 +640,48 @@ void MeasurePutGetForQueueType() {
 	ElementType elementToPut = ElementType(testString100B);
 	DiffTimer myTimer(static_cast<DiffTimer::eResolution>(aResolution));
 	DiffTimer::tTimeType elapsedPutTime = 0;
-	for (long idx=0; idx < LoopCount; ++idx) {
+	for (long idx = 0; idx < LoopCount; ++idx) {
 		myTimer.Start();
 		theQueue.Put(elementToPut);
 		elapsedPutTime += myTimer.Diff();
 	}
 	ElementType elementToGet;
 	DiffTimer::tTimeType elapsedGetTime = 0;
-	for (long idx=0; idx < LoopCount; ++idx) {
+	for (long idx = 0; idx < LoopCount; ++idx) {
 		myTimer.Start();
 		theQueue.Get(elementToGet);
 		elapsedGetTime += myTimer.Diff();
 	}
-	String resolutionSuffix = ( aResolution == DiffTimer::eMilliseconds ? "ms" : ( aResolution == DiffTimer::eMicroseconds ? "us" : ( aResolution == DiffTimer::eNanoseconds ? "ns" : "s" ) ) );
+	String resolutionSuffix =
+		(aResolution == DiffTimer::eMilliseconds
+			 ? "ms"
+			 : (aResolution == DiffTimer::eMicroseconds ? "us" : (aResolution == DiffTimer::eNanoseconds ? "ns" : "s")));
 
-	SystemLog::WriteToStderr(String("\nPut   time for ").Append(LoopCount).Append(" elts: ").Append(static_cast<l_long>(elapsedPutTime)).Append(resolutionSuffix).Append(" avg: ").Append(static_cast<l_long>(elapsedPutTime/LoopCount)).Append(resolutionSuffix).Append(' ').Append(queueTypeString).Append('\n'));
-	SystemLog::WriteToStderr(String("Get   time for ").Append(LoopCount).Append(" elts: ").Append(static_cast<l_long>(elapsedGetTime)).Append(resolutionSuffix).Append(" avg: ").Append(static_cast<l_long>(elapsedGetTime/LoopCount)).Append(resolutionSuffix).Append(' ').Append(queueTypeString).Append('\n'));
+	SystemLog::WriteToStderr(String("\nPut   time for ")
+								 .Append(LoopCount)
+								 .Append(" elts: ")
+								 .Append(static_cast<l_long>(elapsedPutTime))
+								 .Append(resolutionSuffix)
+								 .Append(" avg: ")
+								 .Append(static_cast<l_long>(elapsedPutTime / LoopCount))
+								 .Append(resolutionSuffix)
+								 .Append(' ')
+								 .Append(queueTypeString)
+								 .Append('\n'));
+	SystemLog::WriteToStderr(String("Get   time for ")
+								 .Append(LoopCount)
+								 .Append(" elts: ")
+								 .Append(static_cast<l_long>(elapsedGetTime))
+								 .Append(resolutionSuffix)
+								 .Append(" avg: ")
+								 .Append(static_cast<l_long>(elapsedGetTime / LoopCount))
+								 .Append(resolutionSuffix)
+								 .Append(' ')
+								 .Append(queueTypeString)
+								 .Append('\n'));
 }
 
-template<typename ElementType, typename StorageType, long LoopCount, int aResolution>
+template <typename ElementType, typename StorageType, long LoopCount, int aResolution>
 void MeasurePutFlushForQueueType() {
 	StartTrace(QueueTest.MeasurePutFlushForQueueType);
 	typedef Queue<ElementType, StorageType> myQueueType;
@@ -684,7 +690,7 @@ void MeasurePutFlushForQueueType() {
 	ElementType elementToPut = ElementType(testString100B);
 	DiffTimer myTimer(static_cast<DiffTimer::eResolution>(aResolution));
 	DiffTimer::tTimeType elapsedPutTime = 0;
-	for (long idx=0; idx < LoopCount; ++idx) {
+	for (long idx = 0; idx < LoopCount; ++idx) {
 		myTimer.Start();
 		theQueue.Put(elementToPut);
 		elapsedPutTime += myTimer.Diff();
@@ -696,72 +702,91 @@ void MeasurePutFlushForQueueType() {
 		theQueue.EmptyQueue(flushedElements);
 		elapsedFlushTime += myTimer.Diff();
 	}
-	String resolutionSuffix = ( aResolution == DiffTimer::eMilliseconds ? "ms" : ( aResolution == DiffTimer::eMicroseconds ? "us" : ( aResolution == DiffTimer::eNanoseconds ? "ns" : "s" ) ) );
-	SystemLog::WriteToStderr(String("\nPut   time for ").Append(LoopCount).Append(" elts: ").Append(static_cast<l_long>(elapsedPutTime)).Append(resolutionSuffix).Append(" avg: ").Append(static_cast<l_long>(elapsedPutTime/LoopCount)).Append(resolutionSuffix).Append(' ').Append(queueTypeString).Append('\n'));
-	SystemLog::WriteToStderr(String("Flush time for ").Append(LoopCount).Append(" elts: ").Append(static_cast<l_long>(elapsedFlushTime)).Append(resolutionSuffix).Append(" avg: ").Append(static_cast<l_long>(elapsedFlushTime/LoopCount)).Append(resolutionSuffix).Append(' ').Append(queueTypeString).Append('\n'));
+	String resolutionSuffix =
+		(aResolution == DiffTimer::eMilliseconds
+			 ? "ms"
+			 : (aResolution == DiffTimer::eMicroseconds ? "us" : (aResolution == DiffTimer::eNanoseconds ? "ns" : "s")));
+	SystemLog::WriteToStderr(String("\nPut   time for ")
+								 .Append(LoopCount)
+								 .Append(" elts: ")
+								 .Append(static_cast<l_long>(elapsedPutTime))
+								 .Append(resolutionSuffix)
+								 .Append(" avg: ")
+								 .Append(static_cast<l_long>(elapsedPutTime / LoopCount))
+								 .Append(resolutionSuffix)
+								 .Append(' ')
+								 .Append(queueTypeString)
+								 .Append('\n'));
+	SystemLog::WriteToStderr(String("Flush time for ")
+								 .Append(LoopCount)
+								 .Append(" elts: ")
+								 .Append(static_cast<l_long>(elapsedFlushTime))
+								 .Append(resolutionSuffix)
+								 .Append(" avg: ")
+								 .Append(static_cast<l_long>(elapsedFlushTime / LoopCount))
+								 .Append(resolutionSuffix)
+								 .Append(' ')
+								 .Append(queueTypeString)
+								 .Append('\n'));
 }
 
 #include <deque>
 
 void QueueTest::QueueTypePerfTest() {
 	StartTrace(QueueTest.QueueTypePerfTest);
-	DiffTimer::eResolution const testResolution=DiffTimer::eMicroseconds;
+	DiffTimer::eResolution const testResolution = DiffTimer::eMicroseconds;
 	MeasurePutGetForQueueType<Anything, Anything, 100, testResolution>();
 	MeasurePutGetForQueueType<Anything, Anything, 1000, testResolution>();
 	MeasurePutGetForQueueType<Anything, Anything, 10000, testResolution>();
 	{
 		typedef Anything eltType;
-		typedef stlstorage::fast_pool_allocator_global< eltType > QAllocType;
-		typedef std::deque<eltType, QAllocType > myStorageType;
+		typedef stlstorage::fast_pool_allocator_global<eltType> QAllocType;
+		typedef std::deque<eltType, QAllocType> myStorageType;
 		MeasurePutGetForQueueType<eltType, myStorageType, 100, testResolution>();
 		MeasurePutGetForQueueType<eltType, myStorageType, 1000, testResolution>();
 		MeasurePutGetForQueueType<eltType, myStorageType, 10000, testResolution>();
 	}
 }
 
-template<typename QueueType>
-class PoolConsumer : public Thread
-{
+template <typename QueueType>
+class PoolConsumer : public Thread {
 	friend class QueueTest;
+
 public:
-	typedef QueueType* QueueTypePtr;
+	typedef QueueType *QueueTypePtr;
 	typedef typename QueueType::ElementType QElement;
 
-	PoolConsumer(const char* name, ROAnything roaArgs)
-	: Thread(name), fConsumed(0L), fWork(storage::Global())
-	{}
+	PoolConsumer(const char *name, ROAnything roaArgs) : Thread(name), fConsumed(0L), fWork(storage::Global()) {}
 	bool DoStartRequestedHook(ROAnything roaArgs) {
 		StartTrace(PoolConsumer.DoStartRequestedHook);
 		TraceAny(roaArgs, "arguments");
 		fWork = roaArgs.DeepClone();
 		return true;
 	}
-	void Run()
-	{
+	void Run() {
 		StartTrace(PoolConsumer.Run);
 		TraceAny(fWork, "work arguments");
 		bool bTryLock = fWork["TryLock"].AsBool(false);
 		bool bContinue = true;
 		QueueTypePtr fQueue = SafeCast(fWork["Queue"].AsIFAObject(), QueueType);
-		if ( !fQueue ) return;
+		if (!fQueue)
+			return;
 		Trace("entering while loop");
-		while ( CheckState( eRunning, 0, 1 ) && bContinue )
-		{
+		while (CheckState(eRunning, 0, 1) && bContinue) {
 			QElement aProduct;
-			typename QueueType::StatusCode eRet= fQueue->Get(aProduct, bTryLock);
-			switch ( eRet )
-			{
+			typename QueueType::StatusCode eRet = fQueue->Get(aProduct, bTryLock);
+			switch (eRet) {
 				case QueueType::eSuccess:
 					SetWorking();
-					TraceAny(aProduct,"consumed product id:" << MyId());
+					TraceAny(aProduct, "consumed product id:" << MyId());
 					++fConsumed;
 					SetReady();
-				break;
+					break;
 				case QueueType::eBlocked:
 					bContinue = false;
-				break;
+					break;
 				default:
-				break;
+					break;
 			};
 		}
 	}
@@ -771,12 +796,12 @@ private:
 	Anything fWork;
 };
 
-template<typename ThreadType>
+template <typename ThreadType>
 class ConsumerThreadPool : public ThreadPoolManager {
 	typedef ThreadPoolManager BaseClass;
+
 public:
-	ConsumerThreadPool() : BaseClass("ConsumerThreadPool")
-	{}
+	ConsumerThreadPool() : BaseClass("ConsumerThreadPool") {}
 	void CleanupPool() {
 		Join(20);
 		DoDeletePool();
@@ -804,7 +829,7 @@ protected:
 	}
 };
 
-template<typename QueueType, long LoopCount, long NumThreads, int aResolution>
+template <typename QueueType, long LoopCount, long NumThreads, int aResolution>
 void ExecuteSingleProducerMultiConsumerQTypeTest() {
 	StartTrace(QueueTest.ExecuteSingleProducerMultiConsumerQTypeTest);
 
@@ -817,7 +842,7 @@ void ExecuteSingleProducerMultiConsumerQTypeTest() {
 		QueueType aProductQueue("aProductQueue", lQueueSize, poolAlloc);
 
 		Anything anyArgs;
-		anyArgs["Queue"] = dynamic_cast<IFAObject*>(&aProductQueue);
+		anyArgs["Queue"] = dynamic_cast<IFAObject *>(&aProductQueue);
 		anyArgs["TryLock"] = false;
 		Anything anyProd;
 		anyProd["TryLock"] = false;
@@ -827,21 +852,21 @@ void ExecuteSingleProducerMultiConsumerQTypeTest() {
 
 		TestProducer<QueueType> aProducer(aProductQueue, LoopCount);
 		aProducer.Start(MT_Storage::MakePoolAllocator(10, 26), anyProd);
-		while ( aProductQueue.GetSize() < (LoopCount/(NumThreads+1)*NumThreads) ) {
-			Thread::Wait(0,1000000);
+		while (aProductQueue.GetSize() < (LoopCount / (NumThreads + 1) * NumThreads)) {
+			Thread::Wait(0, 1000000);
 		}
 
 		ConsumerThreadPool<PoolConsumerThread> fThreadPool;
-		if ( fThreadPool.Init(NumThreads, anyArgs) ) {
-			if ( fThreadPool.Start(true, 10, 26, anyArgs) < 0 ) {
+		if (fThreadPool.Init(NumThreads, anyArgs)) {
+			if (fThreadPool.Start(true, 10, 26, anyArgs) < 0) {
 				SYSWARNING("not all thread could be started!");
 				return;
 			}
 		}
 
 		aProducer.CheckState(Thread::eTerminated, 1000);
-		while ( aProductQueue.GetSize() > 0 ) {
-			Thread::Wait(0,10000000);
+		while (aProductQueue.GetSize() > 0) {
+			Thread::Wait(0, 10000000);
 		}
 
 		{
@@ -857,23 +882,22 @@ void ExecuteSingleProducerMultiConsumerQTypeTest() {
 		aProductQueue.Block(QueueType::eGetSide);
 
 		// wait on terminated threads and cleanup pool
-		long lNumberOfWaits = 10, lPendingThreads=0;
-		while ( ( lPendingThreads = fThreadPool.Terminate(1, 10) ) > 0 && (--lNumberOfWaits >= 0) ) {
+		long lNumberOfWaits = 10, lPendingThreads = 0;
+		while ((lPendingThreads = fThreadPool.Terminate(1, 10)) > 0 && (--lNumberOfWaits >= 0)) {
 			SYSWARNING("still " << lPendingThreads << " pending threads, waiting again");
 		}
 	}
 	MT_Storage::UnrefAllocator(poolAlloc);
 }
 
-void QueueTest::SingleProducerMultiConsumerQTypeTest()
-{
+void QueueTest::SingleProducerMultiConsumerQTypeTest() {
 	StartTrace(QueueTest.SingleProducerMultiConsumerQTypeTest);
-	DiffTimer::eResolution const testResolution=DiffTimer::eMicroseconds;
+	DiffTimer::eResolution const testResolution = DiffTimer::eMicroseconds;
 	ExecuteSingleProducerMultiConsumerQTypeTest<AnyQueueType, 10000, 8, testResolution>();
 	{
 		typedef Anything eltType;
-		typedef stlstorage::fast_pool_allocator_global< eltType > QAllocType;
-		typedef std::deque<eltType, QAllocType > myStorageType;
+		typedef stlstorage::fast_pool_allocator_global<eltType> QAllocType;
+		typedef std::deque<eltType, QAllocType> myStorageType;
 		typedef Queue<eltType, myStorageType> myQType;
 		ExecuteSingleProducerMultiConsumerQTypeTest<myQType, 10000, 8, testResolution>();
 	}

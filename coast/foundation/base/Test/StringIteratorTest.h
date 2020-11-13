@@ -1,16 +1,14 @@
 #ifndef StringIteratorTest_H
 #define StringIteratorTest_H
 
-#include "TestCase.h"
 #include "ITOString.h"
+#include "TestCase.h"
 
-class StringIteratorTest: public testframework::TestCase {
+class StringIteratorTest : public testframework::TestCase {
 protected:
-	String fStr5; // string with 5 elements set-up in setUp
+	String fStr5;  // string with 5 elements set-up in setUp
 public:
-	StringIteratorTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	StringIteratorTest(TString tname) : TestCaseType(tname) {}
 
 	virtual void setUp();
 	static Test *suite();

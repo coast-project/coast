@@ -9,8 +9,8 @@
 #ifndef _ConfiguredActionTest_H
 #define _ConfiguredActionTest_H
 
-#include "WDBaseTestPolicies.h"
 #include "Action.h"
+#include "WDBaseTestPolicies.h"
 
 //---- ConfiguredActionTest ----------------------------------------------------------
 //! generic test case for configured action testing
@@ -56,10 +56,10 @@
  /NextTestCaseName { ......}
  }
  </PRE>
- Example for /Result case in config. <i>lazy</i> means that only the slots listed recursively below /Result will get tested in the given store.
- Therefore the slot /NotResult was also invented to allow explicit testing of non-existent slots.
- The special name <b>ignore</b> can be used to check for slot existence but not its content. This is especially useful when results can vary.
- <pre>
+ Example for /Result case in config. <i>lazy</i> means that only the slots listed recursively below /Result will get tested in
+ the given store. Therefore the slot /NotResult was also invented to allow explicit testing of non-existent slots. The special
+ name <b>ignore</b> can be used to check for slot existence but not its content. This is especially useful when results can
+ vary. <pre>
  /Result {
  /SessionStore {
  /SlotX {
@@ -101,17 +101,13 @@
  </pre>
  \note You can only check for absence of named slots (so far). Values are not checked, thus * must be provided as leaf (or any other dummy) for correct syntax.
  */
-class ConfiguredActionTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class ConfiguredActionTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	/*! TestCase constructor
 	 \param name name of the test */
-	ConfiguredActionTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	ConfiguredActionTest(TString tname) : TestCaseType(tname) {}
 
-	TString getConfigFileName() {
-		return "ConfiguredActionTestConfig";
-	}
+	TString getConfigFileName() { return "ConfiguredActionTestConfig"; }
 
 	//! sets the environment for this test
 	void setUp();

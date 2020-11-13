@@ -17,14 +17,12 @@
 //<PRE>	{
 //		/Value		Rendererspec	String to be rendered
 //	}</PRE>
-class FormattedDateRenderer : public Renderer
-{
+class FormattedDateRenderer : public Renderer {
 public:
 	//--- constructors
 	FormattedDateRenderer(const char *name);
 	~FormattedDateRenderer();
 	virtual void RenderAll(std::ostream &reply, Context &c, const ROAnything &config);
-
 };
 
 #endif

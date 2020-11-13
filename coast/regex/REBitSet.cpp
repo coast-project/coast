@@ -7,47 +7,41 @@
  */
 
 #include "REBitSet.h"
+
 #include "Anything.h"
 #include "Tracer.h"
 
-REBitSet::REBitSet(bool setall)
-{
+REBitSet::REBitSet(bool setall) {
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		fSet[i] = setall ? ~0 : 0;
 	}
 }
-REBitSet::REBitSet(const REBitSet &b)
-{
+REBitSet::REBitSet(const REBitSet &b) {
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		fSet[i] = b.fSet[i];
 	}
 }
-REBitSet::REBitSet(const uint32_t s[fgcSize])
-{
+REBitSet::REBitSet(const uint32_t s[fgcSize]) {
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		fSet[i] = s[i];
 	}
 }
 
-bool REBitSet::IsEqual(const REBitSet &b)const
-{
+bool REBitSet::IsEqual(const REBitSet &b) const {
 	bool res = true;
 	for (unsigned i = 0; res && i < fgcSize; ++i) {
 		res = (fSet[i] == b.fSet[i]) && res;
 	}
 	return res;
 }
-bool REBitSet::IsSubSet(const REBitSet &b)const
-{
+bool REBitSet::IsSubSet(const REBitSet &b) const {
 	bool res = true;
 	for (unsigned i = 0; res && i < fgcSize; ++i) {
 		res = ((fSet[i] & b.fSet[i]) == fSet[i]) && res;
 	}
 	return res;
-
 }
-REBitSet REBitSet::operator~() const
-{
+REBitSet REBitSet::operator~() const {
 	REBitSet res;
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		res.fSet[i] = ~fSet[i];
@@ -55,52 +49,45 @@ REBitSet REBitSet::operator~() const
 	return res;
 }
 
-REBitSet &REBitSet::Complement()
-{
+REBitSet &REBitSet::Complement() {
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		fSet[i] = ~fSet[i];
 	}
 	return *this;
 }
-REBitSet &REBitSet::operator=(const REBitSet &b)
-{
+REBitSet &REBitSet::operator=(const REBitSet &b) {
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		fSet[i] = b.fSet[i];
 	}
 	return *this;
 }
-REBitSet &REBitSet::operator|=(const REBitSet &b)
-{
+REBitSet &REBitSet::operator|=(const REBitSet &b) {
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		fSet[i] |= b.fSet[i];
 	}
 	return *this;
 }
-REBitSet &REBitSet::operator&=(const REBitSet &b)
-{
+REBitSet &REBitSet::operator&=(const REBitSet &b) {
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		fSet[i] &= b.fSet[i];
 	}
 	return *this;
 }
 
-REBitSet &REBitSet::operator^=(const REBitSet &b)
-{
+REBitSet &REBitSet::operator^=(const REBitSet &b) {
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		fSet[i] ^= b.fSet[i];
 	}
 	return *this;
 }
-REBitSet &REBitSet::operator-=(const REBitSet &b)
-{
+REBitSet &REBitSet::operator-=(const REBitSet &b) {
 	for (unsigned i = 0; i < fgcSize; ++i) {
 		fSet[i] &= ~b.fSet[i];
 	}
 	return *this;
 }
 
-REBitSet &REBitSet::Set(unsigned char from, unsigned char to)
-{
+REBitSet &REBitSet::Set(unsigned char from, unsigned char to) {
 	unsigned toidx = to;
 	for (unsigned c = from; c <= toidx; ++c) {
 		this->Set((unsigned char)c);
@@ -109,10 +96,9 @@ REBitSet &REBitSet::Set(unsigned char from, unsigned char to)
 	return *this;
 }
 
-REBitSet &REBitSet::Set(Predicate p)
-{
+REBitSet &REBitSet::Set(Predicate p) {
 	for (unsigned c = 0; c < fgcNofBits; ++c) {
-		if ((*p)((unsigned char)c)) {
+		if ((*p)((unsigned char)c) != 0) {
 			this->Set((unsigned char)c);
 		} else {
 			this->Unset((unsigned char)c);
@@ -122,8 +108,7 @@ REBitSet &REBitSet::Set(Predicate p)
 	return *this;
 }
 
-std::ostream &operator<<(std::ostream &os, const REBitSet &s)
-{
+std::ostream &operator<<(std::ostream &os, const REBitSet &s) {
 	for (uint32_t i = 0; i < REBitSet::fgcSize; ++i) {
 		os << std::hex << "0x" << s.fSet[i] << "U ,";
 	}
@@ -131,37 +116,6 @@ std::ostream &operator<<(std::ostream &os, const REBitSet &s)
 }
 
 const uint32_t REBitSet::fgcSingletons[fgcSubSetBits] = {
-	0x1,
-	0x2,
-	0x4,
-	0x8,
-	0x10,
-	0x20,
-	0x40,
-	0x80,
-	0x100,
-	0x200,
-	0x400,
-	0x800,
-	0x1000,
-	0x2000,
-	0x4000,
-	0x8000,
-	0x10000,
-	0x20000,
-	0x40000,
-	0x80000,
-	0x100000,
-	0x200000,
-	0x400000,
-	0x800000,
-	0x1000000,
-	0x2000000,
-	0x4000000,
-	0x8000000,
-	0x10000000,
-	0x20000000,
-	0x40000000,
-	0x80000000
-};
-
+	0x1,	  0x2,		0x4,	   0x8,		  0x10,		 0x20,		0x40,		0x80,		0x100,		0x200,	   0x400,
+	0x800,	  0x1000,	0x2000,	   0x4000,	  0x8000,	 0x10000,	0x20000,	0x40000,	0x80000,	0x100000,  0x200000,
+	0x400000, 0x800000, 0x1000000, 0x2000000, 0x4000000, 0x8000000, 0x10000000, 0x20000000, 0x40000000, 0x80000000};

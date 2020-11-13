@@ -16,16 +16,15 @@
 /*!
 <B>Inputmapper-Configuration:</B><PRE>
 {
-	/DocumentRoot	Mapperspec		optional, if specified, this path will be prepended to the given filename
-	/Filename		Mapperspec		mandatory, path and name of file
-	/Extension		Mapperspec		optional, extension of the file if not already specified in Filename slot
-	/Mode			Mapperspec		optional, [text|binary] (all lowercase!), default text, mode to open file
-	/ResultSlotName	Mapperspec		optional, store the parsed XML in this slot, default is ParsedXMLAsAny
+  /DocumentRoot	Mapperspec		optional, if specified, this path will be prepended to the given filename
+  /Filename		Mapperspec		mandatory, path and name of file
+  /Extension		Mapperspec		optional, extension of the file if not already specified in Filename slot
+  /Mode			Mapperspec		optional, [text|binary] (all lowercase!), default text, mode to open file
+  /ResultSlotName	Mapperspec		optional, store the parsed XML in this slot, default is ParsedXMLAsAny
 }
 </PRE>
 */
-class ReadXMLFileDAImpl: public ReadFileDAImpl
-{
+class ReadXMLFileDAImpl : public ReadFileDAImpl {
 public:
 	ReadXMLFileDAImpl(const char *name);
 	~ReadXMLFileDAImpl();
@@ -47,4 +46,4 @@ private:
 	friend class ReadXMLFileDAImplTest;
 };
 
-#endif		//not defined _ReadXMLFileDAImpl_H
+#endif	// not defined _ReadXMLFileDAImpl_H

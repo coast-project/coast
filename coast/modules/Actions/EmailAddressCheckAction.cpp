@@ -6,19 +6,19 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "EmailAddressCheckAction.h"
+
 #include "Anything.h"
 #include "Tracer.h"
-#include "EmailAddressCheckAction.h"
 
 //---- EmailAddressCheckAction ---------------------------------------------------------------
 RegisterAction(EmailAddressCheckAction);
 
-EmailAddressCheckAction::EmailAddressCheckAction(const char *name) : NotEmptyCheckAction(name) { }
+EmailAddressCheckAction::EmailAddressCheckAction(const char *name) : NotEmptyCheckAction(name) {}
 
-EmailAddressCheckAction::~EmailAddressCheckAction() { }
+EmailAddressCheckAction::~EmailAddressCheckAction() {}
 
-bool EmailAddressCheckAction::DoCheck(String &fieldToCheck, Context &ctx, const ROAnything &config)
-{
+bool EmailAddressCheckAction::DoCheck(String &fieldToCheck, Context &ctx, const ROAnything &config) {
 	StartTrace1(EmailAddressCheckAction.DoCheck, "String to check <" << fieldToCheck << ">");
 	long pos = fieldToCheck.StrChr('@');
 	Trace("At pos: " << pos);

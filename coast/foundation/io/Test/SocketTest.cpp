@@ -7,24 +7,26 @@
  */
 
 #include "SocketTest.h"
+
+#include "PoolAllocator.h"
 #include "Socket.h"
 #include "TestSuite.h"
-#include "PoolAllocator.h"
 #if !defined(WIN32)
-#include <netinet/in.h>		// for INADDR_ANY
 #include <fcntl.h>
+#include <netinet/in.h>	 // for INADDR_ANY
 #endif
 
 void SocketTest::simpleConstructorTest() {
-	Connector connector(GetConfig()["SocketConnectSuccessHost"]["ip"].AsString(), GetConfig()["SocketConnectSuccessHost"]["port"].AsLong());
+	Connector connector(GetConfig()["SocketConnectSuccessHost"]["ip"].AsString(),
+						GetConfig()["SocketConnectSuccessHost"]["port"].AsLong());
 	Socket *socket = connector.MakeSocket();
 
-	if (t_assertm( socket != NULL, (const char *)connector.GetAddress() )) {
+	if (t_assertm(socket != NULL, (const char *)connector.GetAddress())) {
 		long socketfd = socket->GetFd();
-		t_assert( socketfd > 0);
+		t_assert(socketfd > 0);
 
 		std::iostream *Ios = socket->GetStream();
-		t_assert( Ios != NULL);
+		t_assert(Ios != NULL);
 	}
 	delete socket;
 }
@@ -33,16 +35,17 @@ void SocketTest::allocatorConstructorTest() {
 	PoolAllocator pa(1, 8 * 1024, 21);
 	TestStorageHooks tsh(&pa);
 
-	Connector connector(GetConfig()["SocketConnectSuccessHost"]["ip"].AsString(), GetConfig()["SocketConnectSuccessHost"]["port"].AsLong());
+	Connector connector(GetConfig()["SocketConnectSuccessHost"]["ip"].AsString(),
+						GetConfig()["SocketConnectSuccessHost"]["port"].AsLong());
 	connector.SetThreadLocal();
 	Socket *socket = connector.MakeSocket();
 
-	if (t_assertm( socket != NULL, (const char *)connector.GetAddress() )) {
+	if (t_assertm(socket != NULL, (const char *)connector.GetAddress())) {
 		long socketfd = socket->GetFd();
-		t_assert( socketfd > 0);
+		t_assert(socketfd > 0);
 
 		std::iostream *Ios = socket->GetStream();
-		t_assert( Ios != NULL);
+		t_assert(Ios != NULL);
 	}
 	delete socket;
 }
@@ -54,47 +57,51 @@ void SocketTest::faultyConstructorTest() {
 	assertEqual(-1, socketfd);
 
 	std::iostream *Ios = socket1.GetStream();
-	assertEqual( (long)NULL, (long)Ios);
+	assertEqual((long)NULL, (long)Ios);
 
-	assertEqual( false, socket1.IsReadyForWriting());
+	assertEqual(false, socket1.IsReadyForWriting());
 
-	assertEqual( false, socket1.IsReadyForReading());
+	assertEqual(false, socket1.IsReadyForReading());
 
-	assertEqual( false, socket1.ShutDown());
-	assertEqual( false, socket1.ShutDownReading());
-	assertEqual( false, socket1.ShutDownWriting());
-	assertEqual( false, socket1.SetNoDelay());
+	assertEqual(false, socket1.ShutDown());
+	assertEqual(false, socket1.ShutDownReading());
+	assertEqual(false, socket1.ShutDownWriting());
+	assertEqual(false, socket1.SetNoDelay());
 }
 
 void SocketTest::httpClientTest() {
 	Connector connector(GetConfig()["HTTPReplyHost"]["ip"].AsString(), GetConfig()["HTTPReplyHost"]["port"].AsLong());
 	Socket *socket = connector.MakeSocket();
 
-	assertEqual( GetConfig()["HTTPReplyHost"]["ip"].AsString(), connector.GetAddress());
-	assertEqual( GetConfig()["HTTPReplyHost"]["port"].AsLong(), connector.fPort);
-	assertEqual( (long)NULL, (long)connector.fSocket);
+	assertEqual(GetConfig()["HTTPReplyHost"]["ip"].AsString(), connector.GetAddress());
+	assertEqual(GetConfig()["HTTPReplyHost"]["port"].AsLong(), connector.fPort);
+	assertEqual((long)NULL, (long)connector.fSocket);
 
-	if (t_assertm( socket != NULL, (const char *)connector.GetAddress() )) { // fails without HTTP Server
+	if (t_assertm(socket != NULL, (const char *)connector.GetAddress())) {	// fails without HTTP Server
 		long socketfd = socket->GetFd();
-		t_assert( socketfd > 0L);
+		t_assert(socketfd > 0L);
 
 		// this one sets the connect timeout
 		socket->SetTimeout(GetConfig()["GetStreamTimeout"].AsLong(5000L));
 		std::iostream *Ios = socket->GetStream();
-		t_assert( Ios != NULL);
-		if (Ios) {
+		t_assert(Ios != NULL);
+		if (Ios != 0) {
 			String query("GET / HTTP/1.0");
 			String reply;
-			long lRetCode;
-			if (t_assertm(socket->IsReadyForWriting(GetConfig()["ReadyForWritingTimeout"].AsLong(5000L), lRetCode), TString("expected no timeout for sending http request to [") << connector.GetAddress() << ':' << connector.fPort << "]")
-					&& t_assert(lRetCode > 0)) {
+			long lRetCode = 0;
+			if (t_assertm(socket->IsReadyForWriting(GetConfig()["ReadyForWritingTimeout"].AsLong(5000L), lRetCode),
+						  TString("expected no timeout for sending http request to [")
+							  << connector.GetAddress() << ':' << connector.fPort << "]") &&
+				t_assert(lRetCode > 0)) {
 				(*Ios) << query << std::endl << std::endl;
 				t_assert(!!(*Ios));
 				// make sure Ios is valid
-				if (t_assertm(socket->IsReadyForReading(GetConfig()["ReadyForReadingTimeout"].AsLong(5000L), lRetCode), TString("expected no timeout for reading HTTP reply [") << connector.GetAddress() << ':' << connector.fPort << "]")
-						&& t_assert(lRetCode > 0)) {
+				if (t_assertm(socket->IsReadyForReading(GetConfig()["ReadyForReadingTimeout"].AsLong(5000L), lRetCode),
+							  TString("expected no timeout for reading HTTP reply [")
+								  << connector.GetAddress() << ':' << connector.fPort << "]") &&
+					t_assert(lRetCode > 0)) {
 					(*Ios) >> reply;
-					assertEqual( "HTTP", reply.SubString(0, 4));
+					assertEqual("HTTP", reply.SubString(0, 4));
 					// test first line of reply by http server
 					t_assert(!!(*Ios));
 				}
@@ -102,20 +109,21 @@ void SocketTest::httpClientTest() {
 		}
 		delete socket;
 		socket = 0;
-		assertEqual( -1L, ::closeSocket(socketfd));
+		assertEqual(-1L, ::closeSocket(socketfd));
 		// did we really close the socket??
 	}
 }
 
 void SocketTest::faultyClientTest() {
-	Connector connector(GetConfig()["SocketNotAcceptingHost"]["ip"].AsString(), GetConfig()["SocketNotAcceptingHost"]["port"].AsLong(),
-			GetConfig()["SocketNotAcceptingHost"]["timeout"].AsLong(5000L));
+	Connector connector(GetConfig()["SocketNotAcceptingHost"]["ip"].AsString(),
+						GetConfig()["SocketNotAcceptingHost"]["port"].AsLong(),
+						GetConfig()["SocketNotAcceptingHost"]["timeout"].AsLong(5000L));
 	Socket *socket = connector.MakeSocket();
 
-	assertEqual( GetConfig()["SocketNotAcceptingHost"]["ip"].AsString(), connector.GetAddress());
-	assertEqual( GetConfig()["SocketNotAcceptingHost"]["port"].AsLong(), connector.fPort);
+	assertEqual(GetConfig()["SocketNotAcceptingHost"]["ip"].AsString(), connector.GetAddress());
+	assertEqual(GetConfig()["SocketNotAcceptingHost"]["port"].AsLong(), connector.fPort);
 
-	t_assert( socket == NULL);
+	t_assert(socket == NULL);
 	delete socket;
 }
 
@@ -123,11 +131,11 @@ void SocketTest::MakeInetAddrTest() {
 	ROAnything roTestConfig = GetConfig()["MakeInetAddrTest"]["IpAddr"];
 	for (long i = 0; i < roTestConfig.GetSize(); i++) {
 		assertEqualm(static_cast<uint32_t>(roTestConfig[i].AsLong()), ntohl(EndPoint::MakeInetAddr(roTestConfig.SlotName(i))),
-				TString("Failed at Addr [") << roTestConfig.SlotName(i) << "]");
+					 TString("Failed at Addr [") << roTestConfig.SlotName(i) << "]");
 	}
 	unsigned long localInetAddr(GetConfig()["MakeInetAddrTest"]["LocalHost"].AsLong(0L));
-	assertEqualm( localInetAddr, ntohl(EndPoint::MakeInetAddr("")), "Expected localhosts addr");
-	assertEqualm( INADDR_ANY, EndPoint::MakeInetAddr("", true), "Expected any ip addr");
+	assertEqualm(localInetAddr, ntohl(EndPoint::MakeInetAddr("")), "Expected localhosts addr");
+	assertEqualm(INADDR_ANY, EndPoint::MakeInetAddr("", true), "Expected any ip addr");
 }
 
 void SocketTest::AppendToClientInfoTest() {
@@ -144,7 +152,7 @@ bool SocketTest::IsNonBlocking(int fd) {
 #if defined(WIN32)
 	return true;
 #else
-	int flags;
+	int flags = 0;
 	if (fd >= 0 && (flags = fcntl(fd, F_GETFL, 0)) >= 0) {
 		return 0 != (flags & O_NONBLOCK);
 	}

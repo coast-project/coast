@@ -7,6 +7,7 @@
  */
 
 #include "StresserThread.h"
+
 #include "Stresser.h"
 #include "Timers.h"
 
@@ -25,7 +26,7 @@ void StresserThread::Run() {
 
 	DiffTimer dt;
 	fResult = Stresser::RunStresser(fStresserName, fMyId);
-	Trace ("Finished " << fMyId << " : " << (String)(dt.Diff() / 1000) );
+	Trace("Finished " << fMyId << " : " << (String)(dt.Diff() / 1000));
 }
 
 void StresserThread::DoTerminatedHook() {

@@ -10,11 +10,9 @@
 #define _StrSpecialTest_h_
 
 #include "TestCase.h"
-class StrSpecialTest: public testframework::TestCase {
+class StrSpecialTest : public testframework::TestCase {
 public:
-	StrSpecialTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	StrSpecialTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 	void simpleAppendTest();
 	void umlauteTest();

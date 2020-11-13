@@ -9,10 +9,11 @@
 #ifndef _LDAPConnectionManager_H
 #define _LDAPConnectionManager_H
 
+#include "SimpleMutex.h"
 #include "WDModule.h"
-#include "Threads.h"
 #include "ldap.h"
 
+class Semaphore;
 //---- LDAPConnectionManager ----------------------------------------------------------
 //! Manages LDAP connections represented by binding handles.
 /*!
@@ -39,56 +40,55 @@ On termination, all allocated structures are freed.
 \code
 /fLdapConnectionStore
 {
-	/poolid
+  /poolid
+  {
+	/Sema	<ptr to sema>
+	/Mutexes
 	{
-		/Sema	<ptr to sema>
-		/Mutexes
-		{
-			<ptr to mutex>
-			...
-		}
-		/HandleInfo
-		{
-			{
-				/Handle 		<ldap connection handle>
-				/MustRebind		<bool>
-				/LastRebind		<TimeStamp>
-			}
-			....
-		}
+	  <ptr to mutex>
+	  ...
 	}
+	/HandleInfo
+	{
+	  {
+		/Handle 		<ldap connection handle>
+		/MustRebind		<bool>
+		/LastRebind		<TimeStamp>
+	  }
+	  ....
+	}
+  }
 }
 \endcode
 \par Parameters meaningful to LDAPConnectionManager
 \code
 {
-	/PooledConnections
-		Use persistent ldap connections (creates PersistentLDAPConnection objects). Default is not to use pooled
-		connections.
-	/MaxConnections
-		Every tuple consisting of /Server /Port /ConnectionTimeout /BindName /BindPW is considered as
-		a connection pool. /MaxConnections defines the maximum number of allowed connections. Default is 5
-		connections per pool.
-	/TryAutoRebind
-		In the case the stored (persistent) ldap connection is no more valid (ldap server reboot, firewall "cuts"
-		the open connection) the LDAPAbstractDAI attempts a "on the fly" rebind.
-		Default is not to attempt "on the fly" rebinds.
-	/RebindTimeout
-		If set to 0, this setting is ignored. Otherwise a connection is re-established after the /RebindTimeout
-		second. Evaluation of this value takes place every time a LDAP operation on this connection is executed.
-		Default is to ignore this setting.
+  /PooledConnections
+	Use persistent ldap connections (creates PersistentLDAPConnection objects). Default is not to use pooled
+	connections.
+  /MaxConnections
+	Every tuple consisting of /Server /Port /ConnectionTimeout /BindName /BindPW is considered as
+	a connection pool. /MaxConnections defines the maximum number of allowed connections. Default is 5
+	connections per pool.
+  /TryAutoRebind
+	In the case the stored (persistent) ldap connection is no more valid (ldap server reboot, firewall "cuts"
+	the open connection) the LDAPAbstractDAI attempts a "on the fly" rebind.
+	Default is not to attempt "on the fly" rebinds.
+  /RebindTimeout
+	If set to 0, this setting is ignored. Otherwise a connection is re-established after the /RebindTimeout
+	second. Evaluation of this value takes place every time a LDAP operation on this connection is executed.
+	Default is to ignore this setting.
 }
 \endcode
 */
-class LDAPConnectionManager: public WDModule
-{
+class LDAPConnectionManager : public WDModule {
 public:
 	static THREADKEY fgErrnoKey;
 
-	//!it exists only one since it is a not cloned
+	//! it exists only one since it is a not cloned
 	LDAPConnectionManager(const char *name);
 
-	//!does nothing since everything should be done in Finis
+	//! does nothing since everything should be done in Finis
 	~LDAPConnectionManager();
 
 	static LDAPConnectionManager *LDAPCONNMGR();
@@ -103,18 +103,18 @@ public:
 	virtual bool ReleaseHandleInfo(long maxConnections, const String &poolId);
 
 	//--- module initialization termination ---
-	//!initialize
+	//! initialize
 	virtual bool Init(const ROAnything config);
-	//!finalize
+	//! finalize
 	virtual bool Finis();
-	//!terminate LDAPConnectionManager for reset
-	virtual bool ResetFinis(const ROAnything );
-	//!reinitializes
+	//! terminate LDAPConnectionManager for reset
+	virtual bool ResetFinis(const ROAnything);
+	//! reinitializes
 	virtual bool ResetInit(const ROAnything config);
 
-	//!support reinit
+	//! support reinit
 	virtual void EnterReInit();
-	//!support reinit
+	//! support reinit
 	virtual void LeaveReInit();
 
 	friend class LDAPConnectionManagerTest;
@@ -123,16 +123,16 @@ protected:
 	// Only used by LDAPConnectionManagerTest
 	void EmptyLdapConnectionStore();
 
-	//!The mutex that protects the ldap connection pools structure
+	//! The mutex that protects the ldap connection pools structure
 	SimpleMutex fLdapConnectionStoreMutex;
 
-	//!The mutex that protects the free list structure
+	//! The mutex that protects the free list structure
 	SimpleMutex fFreeListMutex;
 
-	//!The connection pools structure
+	//! The connection pools structure
 	Anything fLdapConnectionStore;
 
-	//!The freelist - reduce time we spend locked iterating over fLdapConnectionStore
+	//! The freelist - reduce time we spend locked iterating over fLdapConnectionStore
 	Anything fFreeList;
 
 	//! The maximum number of connections per connection "type"

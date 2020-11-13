@@ -9,17 +9,15 @@
 #ifndef _ROAnyConfNamedObjectLookupAdapterTest_H
 #define _ROAnyConfNamedObjectLookupAdapterTest_H
 
-#include "TestCase.h"
-
 #include "Registry.h"
+#include "TestCase.h"
 
 //! <B>really brief class description</B>
 /*!
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class ROAnyConfNamedObjectLookupAdapterTest : public testframework::TestCase
-{
+class ROAnyConfNamedObjectLookupAdapterTest : public testframework::TestCase {
 public:
 	//--- constructors
 
@@ -33,22 +31,21 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	void LookupTest();
 	void NoConfNamedObjectTest();
 	void NothingAtAllTest();
 };
 
-class TestConfNamedObj : public ConfNamedObject
-{
+class TestConfNamedObj : public ConfNamedObject {
 public:
 	//--- constructors
 	TestConfNamedObj(const char *name);
-	~TestConfNamedObj() {} ;
+	~TestConfNamedObj(){};
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const ;
+	IFAObject *Clone(Allocator *a) const;
 	RegCacheDef(TestConfNamedObj);	// FindTestConfNamedObj()
 
 protected:

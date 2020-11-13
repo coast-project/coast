@@ -16,18 +16,17 @@
 \par Configuration
 \code
 {
-	/String		Rendererspec	mandatory, String from which to get the substring
-	/Start		Rendererspec	optional, default 0, index of first character of substring
-	/Length		Rendererspec	optional, default -1, length of substring, -1 means all remaining chars
+  /String		Rendererspec	mandatory, String from which to get the substring
+  /Start		Rendererspec	optional, default 0, index of first character of substring
+  /Length		Rendererspec	optional, default -1, length of substring, -1 means all remaining chars
 }
 \endcode
 */
-class SubStringRenderer: public Renderer {
+class SubStringRenderer : public Renderer {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	SubStringRenderer(const char *name) :
-		Renderer(name) {
-	}
+	SubStringRenderer(const char *name) : Renderer(name) {}
+
 protected:
 	//! Renders String.SubString() from \c Start with length \c Length onto \em reply
 	/*! @copydetails Renderer::RenderAll(std::ostream &, Context &, const ROAnything &) */

@@ -7,19 +7,19 @@
  */
 
 #include "BasicAuthenticationRenderer.h"
+
 #include "Base64.h"
-#include "Tracer.h"
 #include "SystemLog.h"
+#include "Tracer.h"
 
 //---- BasicAuthenticationRenderer ---------------------------------------------------------------
 RegisterRenderer(BasicAuthenticationRenderer);
 
-BasicAuthenticationRenderer::BasicAuthenticationRenderer(const char *name) : Renderer(name) { }
+BasicAuthenticationRenderer::BasicAuthenticationRenderer(const char *name) : Renderer(name) {}
 
-BasicAuthenticationRenderer::~BasicAuthenticationRenderer() { }
+BasicAuthenticationRenderer::~BasicAuthenticationRenderer() {}
 
-void BasicAuthenticationRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void BasicAuthenticationRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(BasicAuthenticationRenderer.RenderAll);
 	// see RFC 2617 for details
 	String user, password, scheme, proxy;
@@ -27,19 +27,19 @@ void BasicAuthenticationRenderer::RenderAll(std::ostream &reply, Context &ctx, c
 	Renderer::RenderOnString(password, ctx, config["Password"]);
 	Renderer::RenderOnString(scheme, ctx, config["Scheme"]);
 	Renderer::RenderOnString(proxy, ctx, config["Proxy"]);
-	if ( (user.Length() == 0L) || (password.Length() == 0L) ) {
+	if ((user.Length() == 0L) || (password.Length() == 0L)) {
 		String msg;
 		msg.Append("Authorization: Missing userid/password");
 		SystemLog::Error(msg);
 		Trace(msg);
 		reply << msg;
 	}
-	if ( proxy.AsLong(0L) == false ) {
+	if (proxy.AsLong(0L) == 0) {
 		proxy = "Authorization";
 	} else {
 		proxy = "Proxy-Authorization";
 	}
-	if ( scheme.Length() == 0L ) {
+	if (scheme.Length() == 0L) {
 		scheme = "Basic";
 	}
 	String userPass;

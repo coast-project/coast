@@ -12,27 +12,26 @@
 #include "ConfiguredActionTest.h"
 
 //---- WriteFileDAImplTest ----------------------------------------------------------
-//!Tests the WriteFileDAImpl
-class WriteFileDAImplTest : public ConfiguredActionTest
-{
+//! Tests the WriteFileDAImpl
+class WriteFileDAImplTest : public ConfiguredActionTest {
 public:
 	//--- constructors
 
-	//!constructor
+	//! constructor
 	//! \param name name of the test
 	WriteFileDAImplTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~WriteFileDAImplTest();
 
 	//--- public api
 
-	//!builds up a suite of Tests for this test
-	static Test *suite ();
+	//! builds up a suite of Tests for this test
+	static Test *suite();
 
 	TString getConfigFileName();
 
-	//!describe this Test
+	//! describe this Test
 	void WriteFileTest();
 
 protected:

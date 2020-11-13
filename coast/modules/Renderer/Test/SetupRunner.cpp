@@ -9,36 +9,34 @@
 #include "TestRunner.h"
 
 //--- test cases ---------------------------------------------------------------
-#include "DateRendererTest.h"
-#include "FormRendererTest.h"
-#include "StringRendererTest.h"
-#include "ConditionalRendererTest.h"
-#include "SwitchRendererTest.h"
-#include "URLRendererTest.h"
-#include "ResetButtonRendererTest.h"
+#include "AnyToXMLTest.h"
+#include "BasicTableRendererTest.h"
 #include "ButtonRendererTest.h"
+#include "CallRendererTest.h"
 #include "CheckBoxRendererTest.h"
+#include "ConditionalRendererTest.h"
+#include "DateRendererTest.h"
+#include "FileBrowseRendererTest.h"
+#include "FirstNonEmptyRendererTest.h"
+#include "FormRendererTest.h"
+#include "GetEnvRendererTest.h"
+#include "HTMLCacheLoaderTest.h"
 #include "HiddenFieldRendererTest.h"
 #include "ImageButtonRendererTest.h"
-#include "RadioButtonRendererTest.h"
-#include "PulldownMenuRendererTest.h"
-#include "SelectBoxRendererTest.h"
-#include "TextAreaRendererTest.h"
-#include "PulldownMenuRendererTest.h"
-#include "BasicTableRendererTest.h"
-#include "FileBrowseRendererTest.h"
-#include "AnyToXMLTest.h"
-#include "PageRelatedRendererTest.h"
-#include "HTMLCacheLoaderTest.h"
-#include "CallRendererTest.h"
-#include "FirstNonEmptyRendererTest.h"
-#include "TemplateParserTest.h"
 #include "NewRendererTest.h"
-#include "GetEnvRendererTest.h"
+#include "PageRelatedRendererTest.h"
+#include "PulldownMenuRendererTest.h"
+#include "RadioButtonRendererTest.h"
+#include "ResetButtonRendererTest.h"
+#include "SelectBoxRendererTest.h"
+#include "StringRendererTest.h"
+#include "SwitchRendererTest.h"
+#include "TemplateParserTest.h"
+#include "TextAreaRendererTest.h"
+#include "URLRendererTest.h"
 #include "UTF8RendererTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	// add a whole suite with the ADD_SUITE(runner,"Suites's Classname") macro
 	ADD_SUITE(runner, NewRendererTest);
 	ADD_SUITE(runner, PageRelatedRendererTest);
@@ -69,4 +67,4 @@ void setupRunner(TestRunner &runner)
 	ADD_SUITE(runner, TemplateParserTest);
 	ADD_SUITE(runner, GetEnvRendererTest);
 	ADD_SUITE(runner, UTF8RendererTest);
-} // setupRunner
+}  // setupRunner

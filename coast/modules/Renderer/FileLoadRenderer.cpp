@@ -7,18 +7,21 @@
  */
 
 #include "FileLoadRenderer.h"
+
 #include "SystemFile.h"
 #include "Tracer.h"
+
+#include <istream>
+#include <ostream>
 
 //---- FileLoadRenderer ---------------------------------------------------------------
 RegisterRenderer(FileLoadRenderer);
 
-FileLoadRenderer::FileLoadRenderer(const char *name) : Renderer(name) { }
+FileLoadRenderer::FileLoadRenderer(const char *name) : Renderer(name) {}
 
-FileLoadRenderer::~FileLoadRenderer() { }
+FileLoadRenderer::~FileLoadRenderer() {}
 
-void FileLoadRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void FileLoadRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(FileLoadRenderer.RenderAll);
 
 	String fileName;
@@ -29,18 +32,18 @@ void FileLoadRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnyt
 	quiet = (quietRendered == "yes") ? true : false;
 
 	if (fileName.Length() == 0) {
-		if ( !quiet ) {
+		if (!quiet) {
 			reply << "FileLoadRenderer: File2Load Param missing.";
 		}
 		return;
 	}
 	std::iostream *is = coast::system::OpenStream(fileName, String(), std::ios::in | std::ios::binary);
-	if (!is ) {
-		if ( !quiet ) {
+	if (is == 0) {
+		if (!quiet) {
 			reply << "FileLoadRenderer: File " << fileName << " not found.";
 		}
 	} else {
 		reply << is->rdbuf();
-		delete(is);
+		delete (is);
 	}
 }

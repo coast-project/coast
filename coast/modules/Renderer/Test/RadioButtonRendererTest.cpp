@@ -6,37 +6,33 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "Anything.h"
-#include "Context.h"
-#include "StringStream.h"
-#include "Renderer.h"
-#include "TestSuite.h"
-#include "FormRenderer.h"
 #include "RadioButtonRendererTest.h"
 
-RadioButtonRendererTest::RadioButtonRendererTest (TString tname) : FieldRendererTest(tname)
-{
+#include "Anything.h"
+#include "Context.h"
+#include "FormRenderer.h"
+#include "Renderer.h"
+#include "StringStream.h"
+#include "TestSuite.h"
+
+RadioButtonRendererTest::RadioButtonRendererTest(TString tname) : FieldRendererTest(tname) {
 	fFieldRenderer = new (coast::storage::Global()) RadioButtonRenderer("RadioButtonRenderer");
 };
 
-RadioButtonRendererTest::~RadioButtonRendererTest()
-{
-	if (fFieldRenderer) {
-		delete fFieldRenderer;
-	}
+RadioButtonRendererTest::~RadioButtonRendererTest() {
+	delete fFieldRenderer;
+
 	fFieldRenderer = 0;
 };
 
 /*===============================================================*/
 /*     Init                                                      */
 /*===============================================================*/
-void RadioButtonRendererTest::setUp ()
-{
+void RadioButtonRendererTest::setUp() {
 	FieldRendererTest::setUp();
 }
 
-Test *RadioButtonRendererTest::suite ()
-{
+Test *RadioButtonRendererTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, RadioButtonRendererTest, TestCaseEmptyConf);
@@ -63,131 +59,141 @@ Test *RadioButtonRendererTest::suite ()
 /*===============================================================*/
 /*     Check where all is correctly defined                      */
 /*===============================================================*/
-void RadioButtonRendererTest::TestCase0()
-{
+void RadioButtonRendererTest::TestCase0() {
 	fCurrentTestMethod = "RadioButton-TestCase0";
 	this->TestField0();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestCase1()
-{
+void RadioButtonRendererTest::TestCase1() {
 	fCurrentTestMethod = "RadioButton-TestCase1";
 	this->TestField1();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED 0="the option nr. 0 of field" 1="the option nr. 1 of field" 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestCase2()
-{
+void RadioButtonRendererTest::TestCase2() {
 	fCurrentTestMethod = "RadioButton-TestCase2";
 	this->TestField2();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED 0="the option nr. 0 of field" the option nr. 1 of field 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestCase3()
-{
+void RadioButtonRendererTest::TestCase3() {
 	fCurrentTestMethod = "RadioButton-TestCase3";
 	this->TestField3();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED 0="the option nr. 0 of field" the option nr. 1 of field 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
 /*===============================================================*/
 /*     Check where not all is correctly defined                  */
 /*===============================================================*/
-void RadioButtonRendererTest::TestCaseEmptyConf()
-{
+void RadioButtonRendererTest::TestCaseEmptyConf() {
 	fCurrentTestMethod = "RadioButton-TestCaseEmptyConf";
 	this->TestFieldWithoutName();
-	assertCharPtrEqual( "", fReply.str() );
+	assertCharPtrEqual("", fReply.str());
 }
 
-void RadioButtonRendererTest::TestCaseWithoutName()
-{
+void RadioButtonRendererTest::TestCaseWithoutName() {
 	fCurrentTestMethod = "RadioButton-TestCaseWithoutName";
 	this->TestFieldWithoutName();
-	assertCharPtrEqual( "", fReply.str() );
+	assertCharPtrEqual("", fReply.str());
 }
 
-void RadioButtonRendererTest::TestCaseWithoutLabel()
-{
+void RadioButtonRendererTest::TestCaseWithoutLabel() {
 	fCurrentTestMethod = "RadioButton-TestCaseWithoutLabel";
 	this->TestFieldWithoutLabel();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestCaseWithoutValue()
-{
+void RadioButtonRendererTest::TestCaseWithoutValue() {
 	fCurrentTestMethod = "RadioButton-TestFieldWithoutValue";
 	this->TestFieldWithoutValue();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" CHECKED the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestCaseWithoutSource()
-{
+void RadioButtonRendererTest::TestCaseWithoutSource() {
 	fCurrentTestMethod = "RadioButton-TestFieldWithoutSource";
 	this->TestFieldWithoutSource();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" CHECKED the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestCaseWithoutMultiple()
-{
+void RadioButtonRendererTest::TestCaseWithoutMultiple() {
 	fCurrentTestMethod = "RadioButton-TestFieldWithoutMultiple";
 	this->TestFieldWithoutMultiple();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestCaseWithoutChecked()
-{
+void RadioButtonRendererTest::TestCaseWithoutChecked() {
 	fCurrentTestMethod = "RadioButton-TestFieldWithoutChecked";
 	this->TestFieldWithoutChecked();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" the options of field>), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestCaseWithoutOptions()
-{
+void RadioButtonRendererTest::TestCaseWithoutOptions() {
 	fCurrentTestMethod = "RadioButton-TestFieldWithoutOptions";
 	this->TestFieldWithoutOptions();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED>), fReply.str() );
+	// clang-format on
 }
 
 /*===============================================================*/
 /*     Check where there is a fault fConfig                      */
 /*===============================================================*/
-void RadioButtonRendererTest::TestCaseWrong()
-{
+void RadioButtonRendererTest::TestCaseWrong() {
 	fCurrentTestMethod = "RadioButton-TestCaseWrong";
 	this->TestFieldWithoutName();
-	assertCharPtrEqual( "", fReply.str() );
+	assertCharPtrEqual("", fReply.str());
 }
 
 /*===============================================================*/
 /*     Check the indirection                                     */
 /*===============================================================*/
-void RadioButtonRendererTest::TestOptionRendererOld()
-{
+void RadioButtonRendererTest::TestOptionRendererOld() {
 	fCurrentTestMethod = "RadioButtonRendererTest-TestOptionRendererOld";
 	this->TestFieldOptionRendererOld();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED 0="the option nr. 0 of field" 1="07.08.97" 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestFaultOptionRendererOld()
-{
+void RadioButtonRendererTest::TestFaultOptionRendererOld() {
 	fCurrentTestMethod = "RadioButtonRendererTest-TestFaultOptionRendererOld";
 	this->TestFieldFaultOptionRendererOld();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED 0="the option nr. 0 of field" 1="" 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestOptionRenderer()
-{
+void RadioButtonRendererTest::TestOptionRenderer() {
 	fCurrentTestMethod = "RadioButtonRendererTest-TestOptionRenderer";
 	this->TestFieldOptionRenderer();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED 0="the option nr. 0 of field" 1="07.08.97" 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
 
-void RadioButtonRendererTest::TestFaultOptionRenderer()
-{
+void RadioButtonRendererTest::TestFaultOptionRenderer() {
 	fCurrentTestMethod = "RadioButtonRendererTest-TestFaultOptionRenderer";
 	this->TestFieldFaultOptionRenderer();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="RADIO" NAME="fld_the name of field" VALUE="the value of field" CHECKED 0="the option nr. 0 of field" 1="%d.%m.%y870912000" 2="the option nr. 2 of field">), fReply.str() );
+	// clang-format on
 }
-

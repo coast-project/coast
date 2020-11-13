@@ -15,39 +15,29 @@ class Test;
 /*!
  see TestResult and TestSuite
 */
-class TestLocation
-{
+class TestLocation {
 protected:
 	TString fMessage;
-	long 	fLineNumber;
+	long fLineNumber;
 	TString fFileName;
 	TString fTestName;
 
 public:
-	TestLocation (Test *aTest, TString &cause, TString &fileName,
-				  long lineNumber, TString &message);
+	TestLocation(Test *aTest, TString &cause, TString &fileName, long lineNumber, TString &message);
 
 	// We do not own the test ...
-	~TestLocation () {};
+	~TestLocation(){};
 
-	TString	toString ();
+	TString toString();
 
-	TString	&getMessage() {
-		return(fMessage);
-	};
-	long	getLineNumber() {
-		return(fLineNumber);
-	};
-	TString	&getFileName() {
-		return(fFileName);
-	};
-	TString	&getTestName() {
-		return(fTestName);
-	};
+	TString &getMessage() { return (fMessage); };
+	long getLineNumber() { return (fLineNumber); };
+	TString &getFileName() { return (fFileName); };
+	TString &getTestName() { return (fTestName); };
 
 	// TestLocation		operator = (TestLocation);
 private:
-	TestLocation();		// not implemented, must not be used
+	TestLocation();	 // not implemented, must not be used
 };
 
 #endif

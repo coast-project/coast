@@ -11,11 +11,9 @@
 
 #include "FoundationTestTypes.h"
 
-class TimeStampTest: public testframework::TestCaseWithConfigAndStatistics {
+class TimeStampTest : public testframework::TestCaseWithConfigAndStatistics {
 public:
-	TimeStampTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	TimeStampTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void BasicOperatorsTest();
 	void ArithmeticOperatorsTest();

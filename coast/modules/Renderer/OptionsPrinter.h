@@ -17,9 +17,9 @@
 \par Configuration
 \code
 {
-	/Key    Value	Rendererspec	optional, produces attributes like KEY=VALUE
-	Value			Rendererspec	optional, produces attribute like VALUE
-	...
+  /Key    Value	Rendererspec	optional, produces attributes like KEY=VALUE
+  Value			Rendererspec	optional, produces attribute like VALUE
+  ...
 }
 \endcode
 
@@ -32,8 +32,7 @@ It iterates over all slots in the config
 If the slot has a name  Slotname=Render(Value)  is rendered
 If the slot does not have a name  Render(Value)    is produced
 */
-class OptionsPrinter : public Renderer
-{
+class OptionsPrinter : public Renderer {
 public:
 	//! use this for direct call of this renderer
 	OptionsPrinter();
@@ -43,4 +42,4 @@ public:
 	void RenderAll(std::ostream &reply, Context &c, const ROAnything &data);
 };
 
-#endif		//ifndef _OPTIONSPRINTER_H
+#endif	// ifndef _OPTIONSPRINTER_H

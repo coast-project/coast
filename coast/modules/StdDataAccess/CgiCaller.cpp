@@ -6,9 +6,10 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "CgiCaller.h"
-#include "PipeExecutor.h"
+
 #include "Context.h"
 #include "HTTPConstants.h"
+#include "PipeExecutor.h"
 RegisterDataAccessImpl(CgiCaller);
 
 namespace {
@@ -31,13 +32,13 @@ namespace {
 		return ext;
 	}
 
-}
+}  // namespace
 
 bool CgiCaller::GenReplyHeader(Context &context, ParameterMapper *in, ResultMapper *out) {
 	StartTrace(HTTPFileLoader.GenReplyHeader);
 	GenReplyStatus(context, in, out);
 	Anything headerSpec;
-	headerSpec[0L] = ""; // cgi provides its own header and ENDL ENDL
+	headerSpec[0L] = "";  // cgi provides its own header and ENDL ENDL
 	SubTraceAny(HTTPHeader, headerSpec, "HTTPHeader:");
 	return out->Put("HTTPHeader", headerSpec, context);
 }
@@ -68,16 +69,16 @@ bool CgiCaller::ProcessFile(const String &filename, Context &context, ParameterM
 		Trace("calling in path [" << path << "] program [" << file << "]");
 		PipeExecutor cgi(filename, cgienviron, path, timeout);
 		std::iostream *ioStream = 0;
-		if (cgi.Start() && (ioStream = cgi.GetStream())) {
+		if (cgi.Start() && ((ioStream = cgi.GetStream()) != 0)) {
 			// the following is tricky, because of potential pipe blocking
 			// if something large is passed, we do not check for now.
-			in->Get("stdin", *(std::ostream *) ioStream, context); // provide cgi's stdin
+			in->Get("stdin", *(std::ostream *)ioStream, context);  // provide cgi's stdin
 			cgi.ShutDownWriting();
 			retVal = out->Put(coast::http::constants::protocolCodeSlotname, 200L, context) && retVal;
 			retVal = out->Put(coast::http::constants::protocolMsgSlotname, String("Ok"), context) && retVal;
 			// call HTTPHeader rendering ?
-			retVal = out->Put("HTTPBody", *(std::istream *) ioStream, context) && retVal; // return cgi's output
-			long exitStatus = (long) cgi.TerminateChild();
+			retVal = out->Put("HTTPBody", *(std::istream *)ioStream, context) && retVal;  // return cgi's output
+			long exitStatus = (long)cgi.TerminateChild();
 			Trace("cgi terminated exit status was " << exitStatus);
 			// we ignore the childs exit status as the response code has already been set
 		} else {

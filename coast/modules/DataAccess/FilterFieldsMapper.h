@@ -17,25 +17,21 @@
 \par Configuration
 \code
 {
-	/FieldList	{				optional, default all slots, define subset of slots to put with mapper
-		...			String
-	}
-	/Filters {
+  /FieldList	{				optional, default all slots, define subset of slots to put with mapper
+	...			String
+  }
+  /Filters {
 
-	}
+  }
 }
 \endcode
 */
-class FilterFieldsMapper: public ResultMapper {
+class FilterFieldsMapper : public ResultMapper {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	FilterFieldsMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	FilterFieldsMapper(const char *name) : ResultMapper(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) FilterFieldsMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) FilterFieldsMapper(fName); }
 
 protected:
 	/*! @copydoc ResultMapper::DoPutAny(const char *, Anything &, Context &, ROAnything) */

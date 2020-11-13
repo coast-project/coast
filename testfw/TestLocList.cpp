@@ -8,36 +8,33 @@
  */
 
 #include "TestLocList.h"
+
 #include "TestLocation.h"
 
-TestLocElt::~TestLocElt()
-{
-	if (fValue) {
-		delete fValue;
-	}
+TestLocElt::~TestLocElt() {
+	delete fValue;
+
 	fValue = 0;
 }
 
 //---- TestLocList ------------------------------------------------------
 
-TestLocList::~TestLocList( void )
-{
-	while ( fList ) {
+TestLocList::~TestLocList(void) {
+	while (fList != 0) {
 		TestLocElt *tmp = fList;
 		fList = fList->fNext;
 		delete tmp;
 	}
 }
 
-void TestLocList::push_back( TestLocation *aValue )
-{
+void TestLocList::push_back(TestLocation *aValue) {
 	// create a new element of the list
-	TestLocElt *tmp = new TestLocElt( aValue );
+	TestLocElt *tmp = new TestLocElt(aValue);
 	// if the list already exists, bind the new element at the end of it
-	if ( fList ) {
+	if (fList != 0) {
 		fIn->fNext = tmp;
 	} else
-		// if the list does not yet exist, the new element is the start point of the list
+	// if the list does not yet exist, the new element is the start point of the list
 	{
 		fList = tmp;
 	}
@@ -47,30 +44,26 @@ void TestLocList::push_back( TestLocation *aValue )
 	fSize += 1;
 }
 
-TestLocation *TestLocList::first()
-{
-	if ( fList ) {
+TestLocation *TestLocList::first() {
+	if (fList != 0) {
 		// go the the first element
 		fIt = fList;
 		// return the result
-		return( fIt->fValue );
-	} else {
-		// return an empty result
-		return 0;
+		return (fIt->fValue);
 	}
+	// return an empty result
+	return 0;
 }
 
-TestLocation *TestLocList::next()
-{
-	if ( ( fIt ) && ( fIt->fNext ) ) {
+TestLocation *TestLocList::next() {
+	if (((fIt) != 0) && ((fIt->fNext) != 0)) {
 		// go the the next element
 		fIt = fIt->fNext;
 		// return the result
-		return( fIt->fValue );
-	} else {
-		// go the the first element
-		fIt = fList;
-		// return an empty result
-		return 0;
+		return (fIt->fValue);
 	}
+	// go the the first element
+	fIt = fList;
+	// return an empty result
+	return 0;
 }

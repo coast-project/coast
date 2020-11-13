@@ -16,8 +16,7 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class ConnectorArgsTest : public testframework::TestCase
-{
+class ConnectorArgsTest : public testframework::TestCase {
 public:
 	//--- constructors
 
@@ -30,7 +29,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of tests
-	static Test *suite ();
+	static Test *suite();
 
 	//! describe this Test
 	void ArgsTest();

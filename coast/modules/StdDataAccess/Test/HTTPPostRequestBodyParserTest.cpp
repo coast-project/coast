@@ -7,21 +7,20 @@
  */
 
 #include "HTTPPostRequestBodyParserTest.h"
-#include "TestSuite.h"
+
+#include "HTTPConstants.h"
 #include "HTTPPostRequestBodyParser.h"
 #include "MIMEHeader.h"
-#include "SystemFile.h"
-#include "Tracer.h"
 #include "Renderer.h"
+#include "SystemFile.h"
 #include "SystemLog.h"
-#include "HTTPConstants.h"
+#include "TestSuite.h"
+#include "Tracer.h"
 
 namespace {
 	// allow access to protected methods for testing
-	struct TestPostRequestBodyParser: public HTTPPostRequestBodyParser {
-		TestPostRequestBodyParser(MIMEHeader &mainheader) :
-				HTTPPostRequestBodyParser(mainheader) {
-		}
+	struct TestPostRequestBodyParser : public HTTPPostRequestBodyParser {
+		TestPostRequestBodyParser(MIMEHeader &mainheader) : HTTPPostRequestBodyParser(mainheader) {}
 		virtual bool DoParseMultiPart(std::istream &input, const String &bound) {
 			return HTTPPostRequestBodyParser::DoParseMultiPart(input, bound);
 		}
@@ -29,10 +28,9 @@ namespace {
 			return HTTPPostRequestBodyParser::DoReadToBoundary(input, bound, body);
 		}
 	};
-}
+}  // namespace
 
-HTTPPostRequestBodyParserTest::HTTPPostRequestBodyParserTest(TString tname) :
-		TestCaseType(tname) {
+HTTPPostRequestBodyParserTest::HTTPPostRequestBodyParserTest(TString tname) : TestCaseType(tname) {
 	StartTrace(HTTPPostRequestBodyParserTest.HTTPPostRequestBodyParserTest);
 }
 
@@ -45,7 +43,7 @@ void HTTPPostRequestBodyParserTest::ReadMultiPartPost() {
 	std::iostream *is = coast::system::OpenStream("MultiPartBody.txt", 0);
 
 	t_assertm(is != 0, "expected 'MultiPartBody.txt' to be there");
-	if (is) {
+	if (is != 0) {
 		MIMEHeader mh;
 		t_assertm(mh.ParseHeaders(*is, 4096, 4096), "expected global header parsing to succeed");
 		assertEqual(586L, mh.GetParsedHeaderLength());
@@ -66,7 +64,7 @@ void HTTPPostRequestBodyParserTest::ReadMultiPartPost() {
 	// which we would use to verify the results.
 
 	is = coast::system::OpenStream("MultiPartBody.txt", 0);
-	if (is) {
+	if (is != 0) {
 		MIMEHeader mh;
 		t_assertm(mh.ParseHeaders(*is, 4096, 4096), "expected global header parsing to succeed");
 		assertEqual(586L, mh.GetParsedHeaderLength());
@@ -76,8 +74,8 @@ void HTTPPostRequestBodyParserTest::ReadMultiPartPost() {
 		delete is;
 
 		is = coast::system::OpenStream("MultiPartBody.txt", 0);
-		if (is) {
-			char c;
+		if (is != 0) {
+			char c = 0;
 			String tmp;
 			while ((!!(*is).get(c))) {
 				tmp.Append(c);
@@ -141,7 +139,7 @@ void HTTPPostRequestBodyParserTest::ReadToBoundaryTestWithStreamFailure() {
 		// clean tests
 		res = sm.DoReadToBoundary(tiss, cConfig["Boundary"].AsCharPtr(), result);
 		assertEqualm(cConfig["ExpectedResult"].AsCharPtr(), result, cName);
-		assertEqualm(cConfig["ExpectedEndReached"].AsLong(), (long ) res, cName);
+		assertEqualm(cConfig["ExpectedEndReached"].AsLong(), (long)res, cName);
 		assertEqualm(cConfig["ExpectedUnparsedContent"].AsCharPtr(), sm.GetUnparsedContent(), cName);
 	}
 }
@@ -160,14 +158,13 @@ void HTTPPostRequestBodyParserTest::ReadToBoundaryTest() {
 
 		bool res = sm.DoReadToBoundary(tiss, cConfig["Boundary"].AsString(), result);
 		assertEqualm(Renderer::RenderToString(ctx, cConfig["ExpectedResult"]), result, cName);
-		assertEqualm(cConfig["ExpectedEndReached"].AsLong(), (long ) res, cName);
+		assertEqualm(cConfig["ExpectedEndReached"].AsLong(), (long)res, cName);
 
 		String expUnparsed(Renderer::RenderToString(ctx, cConfig["ExpectedUnparsedContent"]));
 		String realUnparsed(sm.GetUnparsedContent());
 		if (!assertEqualm(expUnparsed, realUnparsed, cName)) {
 			for (long ii = 0; ii < expUnparsed.Length() && ii < realUnparsed.Length(); ii++) {
-				if (!assertEqualm(expUnparsed[ii], realUnparsed[ii],
-						TString("Position: ") << ii << " " << expUnparsed[ii])) {
+				if (!assertEqualm(expUnparsed[ii], realUnparsed[ii], TString("Position: ") << ii << " " << expUnparsed[ii])) {
 					break;
 				}
 			}
@@ -255,25 +252,27 @@ void HTTPPostRequestBodyParserTest::ParseMultiPartTest() {
 	String expected;
 
 	testinput =
-			"-----------------------------210003122518197\r\n"
-					"Content-Disposition: form-data; name=\"Datei3\"; filename=\"G:\\DEVELOP\\coast\\foundation\\Test\\config\\len5.tst\"\r\n"
-					"\r\n"
-					"01234\r\n"
-					"-----------------------------210003122518197--";
+		"-----------------------------210003122518197\r\n"
+		"Content-Disposition: form-data; name=\"Datei3\"; "
+		"filename=\"G:\\DEVELOP\\coast\\foundation\\Test\\config\\len5.tst\"\r\n"
+		"\r\n"
+		"01234\r\n"
+		"-----------------------------210003122518197--";
 
 	// The newlines are "\n", in the test above they where "\r\n" because they where compared
 	// to an anything
 
-	testinput1 = "-----------------------------210003122518197\n"
-			"Content-Disposition: inline; name=\"kimdojo1\"; filename=\"C:\\karate\\pics\\hank.gif\"\n"
-			"\n"
-			"A492993f39393939f393939393f393939r393\n"
-			"-----------------------------210003122518197--\n";
+	testinput1 =
+		"-----------------------------210003122518197\n"
+		"Content-Disposition: inline; name=\"kimdojo1\"; filename=\"C:\\karate\\pics\\hank.gif\"\n"
+		"\n"
+		"A492993f39393939f393939393f393939r393\n"
+		"-----------------------------210003122518197--\n";
 
 	result[0L]["header"][coast::http::constants::contentDispositionSlotname][0L] = "form-data";
 	result[0L]["header"][coast::http::constants::contentDispositionSlotname]["NAME"] = "Datei3";
 	result[0L]["header"][coast::http::constants::contentDispositionSlotname]["FILENAME"] =
-			"G:\\DEVELOP\\coast\\foundation\\Test\\config\\len5.tst";
+		"G:\\DEVELOP\\coast\\foundation\\Test\\config\\len5.tst";
 	result[0L]["header"][coast::http::constants::contentTypeSlotname] = coast::http::constants::contentTypeMultipart;
 	result[0L]["body"].Append("01234");
 	{
@@ -314,7 +313,7 @@ void HTTPPostRequestBodyParserTest::ReadMultiPartPostBody() {
 		String strIn(Renderer::RenderToString(ctx, cConfig["Filename"]));
 		std::iostream *is = coast::system::OpenStream(strIn, 0);
 		t_assertm(is != 0, "expected 'MultiPartBody.txt' to be there");
-		if (is) {
+		if (is != 0) {
 			MIMEHeader mh;
 			t_assertm(mh.ParseHeaders(*is, 4096, 4096), "expected global header parsing to succeed");
 			long parsedHeaderLength = cConfig["ParsedHeaderLength"].AsLong(-1);

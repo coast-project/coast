@@ -13,44 +13,42 @@
 
 class Socket;
 
-class LeaderFollowerPoolTest: public testframework::TestCaseWithConfig {
+class LeaderFollowerPoolTest : public testframework::TestCaseWithConfig {
 public:
-	LeaderFollowerPoolTest(TString tstrName) :
-		TestCaseType(tstrName), fEvents(0) {
-	}
+	LeaderFollowerPoolTest(TString tstrName) : TestCaseType(tstrName), fEvents(0) {}
 	static Test *suite();
 
-	//!test pool without acceptors
+	//! test pool without acceptors
 	void NoReactorTest();
 
-	//!test pool without acceptors
+	//! test pool without acceptors
 	void NoAcceptorsTest();
 
-	//!test pool with one acceptor
+	//! test pool with one acceptor
 	void OneAcceptorTest();
 
-	//!test pool with two acceptors
+	//! test pool with two acceptors
 	void TwoAcceptorsTest();
 
-	//!test pool with two acceptors
+	//! test pool with two acceptors
 	void ManyAcceptorsTest();
 
-	//!test pool with one invalid acceptor
+	//! test pool with one invalid acceptor
 	void InvalidAcceptorTest();
 
-	//!test pool with one invalid acceptor but several configured
+	//! test pool with one invalid acceptor but several configured
 	void InvalidAcceptorsTest();
 
-	//!connect to one acceptor and process event
+	//! connect to one acceptor and process event
 	virtual void ProcessOneEvent();
 
-	//!connec to two acceptors and process events
+	//! connec to two acceptors and process events
 	void ProcessTwoEvents();
 
-	//!connect to several acceptors and process events
+	//! connect to several acceptors and process events
 	void ProcessManyEvents();
 
-	//!reactor callback
+	//! reactor callback
 	virtual bool EventProcessed(Socket *);
 
 protected:

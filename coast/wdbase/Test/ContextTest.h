@@ -13,32 +13,30 @@
 
 class Registry;
 
-class ContextTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class ContextTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	ContextTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	ContextTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void setUp();
 
-	//!test constructor with an anything containing request infos
+	//! test constructor with an anything containing request infos
 	void RequestConstructorTest();
 
-	//!test constructor with a socket
+	//! test constructor with a socket
 	void SocketCtorTests();
 
-	//!test the empty constructor
+	//! test the empty constructor
 	void EmptyConstructorTest();
 
-	//!test the lookup functionality
+	//! test the lookup functionality
 	void LookupTests();
 	void SimplePushNoPop();
 	void SimpleNamedPushPop();
 	void VerySimplePush();
-	//!test the lookup functionality
+	//! test the lookup functionality
 	void RequestSettingTest();
 
-	//!test the push/pop functionality of stores
+	//! test the push/pop functionality of stores
 	void StoreTests();
 	void SimplePushPop();
 	void SimplePushWithEmptyStore();
@@ -46,31 +44,31 @@ public:
 	void MoreThanOnePushWithSameKey();
 	void MoreThanOnePushWithSameKeyPrefix();
 
-	//!test the replace of named lookupables functionality
+	//! test the replace of named lookupables functionality
 	void FindReplace();
 
-	//!test the remove of named lookupables
+	//! test the remove of named lookupables
 	void RemoveTest();
 
-	//!test the session push/lookup functionality
+	//! test the session push/lookup functionality
 	void SessionPushTest();
 
-	//!test working of session store using more than one context
+	//! test working of session store using more than one context
 	void SessionStoreTest();
 
-	//!test working of role store using more than one context
+	//! test working of role store using more than one context
 	void RoleStoreTest();
 
-	//!test access to pushed named objects
+	//! test access to pushed named objects
 	void ObjectAccessTests();
 
-	//!Test the canonical Setters and Getters
+	//! Test the canonical Setters and Getters
 	void SetNGetPage();
 	void SetNGetRole();
 
-	//!Test the Session refcounting maintained by context
+	//! Test the Session refcounting maintained by context
 	void RefCountTest();
-	//!Test the Session unlocking mechanism within Page Rendering
+	//! Test the Session unlocking mechanism within Page Rendering
 	void SessionUnlockingTest();
 };
 

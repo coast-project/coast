@@ -13,8 +13,7 @@
 
 //---- LDAPConnectionTest ----------------------------------------------------------
 //! Tests LDAPConnecton and LDAPErrorHandler
-class LDAPConnectionTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading
-{
+class LDAPConnectionTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
@@ -27,7 +26,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of tests
-	static Test *suite ();
+	static Test *suite();
 
 	TString getConfigFileName();
 

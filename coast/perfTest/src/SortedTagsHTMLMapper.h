@@ -11,18 +11,16 @@
 
 #include "Mapper.h"
 
-class SortedTagsHTMLMapper: public ResultMapper {
+class SortedTagsHTMLMapper : public ResultMapper {
 	SortedTagsHTMLMapper();
 	SortedTagsHTMLMapper(const SortedTagsHTMLMapper &);
 	SortedTagsHTMLMapper &operator=(const SortedTagsHTMLMapper &);
+
 public:
-	SortedTagsHTMLMapper(const char *SortedTagsHTMLMapperName) :
-		ResultMapper(SortedTagsHTMLMapperName) {
-	}
+	SortedTagsHTMLMapper(const char *SortedTagsHTMLMapperName) : ResultMapper(SortedTagsHTMLMapperName) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) SortedTagsHTMLMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) SortedTagsHTMLMapper(fName); }
+
 protected:
 	//! The HTML is parsed and the tags are put into an Anything, which is then stored in [MapperName][key]
 	/*! @copydoc ResultMapper::DoPutAny() */

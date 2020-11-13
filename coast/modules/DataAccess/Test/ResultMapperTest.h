@@ -9,25 +9,18 @@
 #ifndef _ResultMapperTest_H
 #define _ResultMapperTest_H
 
-#include "WDBaseTestPolicies.h"
 #include "Mapper.h"
+#include "WDBaseTestPolicies.h"
 
-class PathTestMapper: public ResultMapper {
+class PathTestMapper : public ResultMapper {
 public:
-	PathTestMapper(const char *name) :
-		ResultMapper(name) {
-	}
-	virtual ~PathTestMapper() {
-	}
+	PathTestMapper(const char *name) : ResultMapper(name) {}
+	virtual ~PathTestMapper() {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) PathTestMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) PathTestMapper(fName); }
 
 protected:
-	String DoGetDestinationSlot(Context &ctx, const char *pcDefault) {
-		return "Mapper.x.y.z";
-	}
+	String DoGetDestinationSlot(Context &ctx, const char *pcDefault) { return "Mapper.x.y.z"; }
 };
 
 //! Tests functionality of ResultMapper and EagerResultMapper.
@@ -35,11 +28,9 @@ protected:
  To understand the results of those tests, you should additionally
  consult "OutputMapperMeta.any"
  */
-class ResultMapperTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class ResultMapperTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	ResultMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	ResultMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 
 	void DoSelectScriptTest();

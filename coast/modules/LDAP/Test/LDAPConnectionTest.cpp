@@ -7,49 +7,45 @@
  */
 
 #include "LDAPConnectionTest.h"
-#include "LDAPConnection.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
+
 #include "AnyIterators.h"
 #include "AnyUtils.h"
-#include "StringStream.h"
 #include "Context.h"
+#include "FoundationTestTypes.h"
+#include "LDAPConnection.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
 //---- LDAPConnectionTest ----------------------------------------------------------------
-LDAPConnectionTest::LDAPConnectionTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+LDAPConnectionTest::LDAPConnectionTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(LDAPConnectionTest.LDAPConnectionTest);
 }
 
-TString LDAPConnectionTest::getConfigFileName()
-{
+TString LDAPConnectionTest::getConfigFileName() {
 	return "LDAPConnectionTestConfig";
 }
 
-LDAPConnectionTest::~LDAPConnectionTest()
-{
+LDAPConnectionTest::~LDAPConnectionTest() {
 	StartTrace(LDAPConnectionTest.Dtor);
 }
 
-void LDAPConnectionTest::ConnectionTest()
-{
+void LDAPConnectionTest::ConnectionTest() {
 	StartTrace(LDAPConnectionTest.ConnectionTest);
 	ROAnything cConfig;
 	AnyExtensions::Iterator<ROAnything> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(cConfig) ) {
-		for ( long l = 0; l < cConfig["NumberOfConnects"].AsLong(1); l++ ) {
+	while (aEntryIterator.Next(cConfig)) {
+		for (long l = 0; l < cConfig["NumberOfConnects"].AsLong(1); l++) {
 			Anything params;
-			params["Server"] 			= cConfig["LDAPServer"].AsString();
-			params["Port"] 				= cConfig["LDAPPort"].AsLong();
-			params["Timeout"] 			= cConfig["LDAPTimeout"].AsLong();
+			params["Server"] = cConfig["LDAPServer"].AsString();
+			params["Port"] = cConfig["LDAPPort"].AsLong();
+			params["Timeout"] = cConfig["LDAPTimeout"].AsLong();
 			params["ConnectionTimeout"] = cConfig["LDAPConnectionTimeout"].AsLong(0);
-			params["BindName"] 			= cConfig["LDAPBindName"].AsString();
-			params["BindPW"] 			= cConfig["LDAPBindPW"].AsString();
-			params["PooledConnections"]	= cConfig["LDAPPooledConnections"].AsLong(0L);
-			params["RebindTimeout"]		= cConfig["LDAPRebindTimeout"].AsLong(3600L);
-			params["TryAutoRebind"]		= cConfig["LDAPTryAutoRebind"].AsLong(0L);
-			params["MaxConnections"]	= cConfig["LDAPMaxConnections"].AsLong(2L);
+			params["BindName"] = cConfig["LDAPBindName"].AsString();
+			params["BindPW"] = cConfig["LDAPBindPW"].AsString();
+			params["PooledConnections"] = cConfig["LDAPPooledConnections"].AsLong(0L);
+			params["RebindTimeout"] = cConfig["LDAPRebindTimeout"].AsLong(3600L);
+			params["TryAutoRebind"] = cConfig["LDAPTryAutoRebind"].AsLong(0L);
+			params["MaxConnections"] = cConfig["LDAPMaxConnections"].AsLong(2L);
 
 			Context ctx;
 			ParameterMapper pm("ConnectionTestParameterMapper");
@@ -69,7 +65,7 @@ void LDAPConnectionTest::ConnectionTest()
 			Trace("Connect result: " << result);
 			// check for errors
 			Anything error;
-			if ( !eh.GetLDAPError(error) ) {
+			if (!eh.GetLDAPError(error)) {
 				Trace("No error reported.");
 			} else {
 				TraceAny(error, "Error description:");
@@ -82,7 +78,7 @@ void LDAPConnectionTest::ConnectionTest()
 			if (!ret) {
 				String where;
 				aEntryIterator.SlotName(where);
-				assertAnyCompareEqual(cConfig["Error"], error, String(getConfigFileName()) << ":" << where, '.',':');
+				assertAnyCompareEqual(cConfig["Error"], error, String(getConfigFileName()) << ":" << where, '.', ':');
 			}
 			// now release sema and lock
 			lc.ReleaseHandleInfo();
@@ -91,8 +87,7 @@ void LDAPConnectionTest::ConnectionTest()
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *LDAPConnectionTest::suite ()
-{
+Test *LDAPConnectionTest::suite() {
 	StartTrace(LDAPConnectionTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, LDAPConnectionTest, ConnectionTest);

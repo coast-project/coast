@@ -22,18 +22,17 @@ class Context;
 //		/Slot1	....
 //      ...
 //	}</PRE>
-class CompareValuesAction : public Action
-{
+class CompareValuesAction : public Action {
 public:
 	//--- constructors
 	CompareValuesAction(const char *name);
 	~CompareValuesAction();
 
 	//:DoSomething method for configured Actions
-	//!param: transitionToken - (in/out) the event passed by the caller, can be modified.
-	//!param: ctx - the context the action runs within.
-	//!param: config - the configuration of the action.
-	//!retv: true if the action run successfully, false if an error occurred.
+	//! param: transitionToken - (in/out) the event passed by the caller, can be modified.
+	//! param: ctx - the context the action runs within.
+	//! param: config - the configuration of the action.
+	//! retv: true if the action run successfully, false if an error occurred.
 	virtual bool DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
 };
 

@@ -11,18 +11,17 @@
 
 #include "TestCase.h"
 
-//!single line description of the class
+//! single line description of the class
 //! further explanation of the purpose of the class
 //! this may contain <B>HTML-Tags</B>
 //! ...
-class URLEncoderTest : public testframework::TestCase
-{
+class URLEncoderTest : public testframework::TestCase {
 public:
 	//--- constructors
 	URLEncoderTest(TString tstrName);
 	~URLEncoderTest();
 
-	static Test *suite ();
+	static Test *suite();
 
 	void EncodeDecodeTest();
 	void EncodeTest();

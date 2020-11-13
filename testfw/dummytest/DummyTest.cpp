@@ -7,17 +7,14 @@
  */
 
 #include "DummyTest.h"
+
 #include "TestSuite.h"
 
-DummyTest::DummyTest(TString tstrName)
-	: TestCaseType(tstrName)
-{}
+DummyTest::DummyTest(TString tstrName) : TestCaseType(tstrName) {}
 
-DummyTest::~DummyTest()
-{}
+DummyTest::~DummyTest() {}
 
-void DummyTest::dummyTest ()
-{
+void DummyTest::dummyTest() {
 	// Just a few test cases to show how it works
 	t_assert(1);
 	assertEqual(1, 1);
@@ -31,8 +28,7 @@ void DummyTest::dummyTest ()
 	assertEqualm("Null", "Eins", "Hi, I just wanted to fail");
 }
 
-Test *DummyTest::suite ()
-{
+Test *DummyTest::suite() {
 	// what: return the whole suite of tests for DummyTest, add all top level test functions here.
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, DummyTest, dummyTest);

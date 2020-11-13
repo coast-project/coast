@@ -13,8 +13,7 @@
 
 //! Use this class to copy item from Context to an Anything
 //! To use this class; create an instance and call Operate on it.
-class StoreCopier
-{
+class StoreCopier {
 public:
 	//! Copies slots from context to dest according to config
 	//! The config Anything should have the form
@@ -27,23 +26,22 @@ public:
 	//! Note, you can specify ContextLookupName as a dot/colon separated list of slotnames to retrieve slots from any
 	//! hierarchy level (e.g fields.System). The result is always copied into toplevel slot of dest.
 
-	//!param: c - context, source that provides the data
-	//!param: dest - The Anything that is updated.
-	//!param: config - Contains the list of source and destination slotnames.
-	//!param: delim - delimiting character for named slots
-	//!param: indexdelim - delimiting character for indexed slots
+	//! param: c - context, source that provides the data
+	//! param: dest - The Anything that is updated.
+	//! param: config - Contains the list of source and destination slotnames.
+	//! param: delim - delimiting character for named slots
+	//! param: indexdelim - delimiting character for indexed slots
 	static void Operate(Context &c, Anything &dest, const Anything &config, char delim = '.', char indexdelim = ':');
 	static void Operate(Context &c, Anything &dest, const ROAnything &config, char delim = '.', char indexdelim = ':');
 
 private:
-	//!deprecated use static API
+	//! deprecated use static API
 	StoreCopier();
 };
 
 //! Use this class to get a slot from a context store according to configuration
 //! To use this class; create an instance and call Operate on it.
-class StoreFinder
-{
+class StoreFinder {
 public:
 	//! looks up the slot in the store, creates it if not found.
 	//! The config Anything should have the form
@@ -70,7 +68,7 @@ public:
 	static Anything &FindStore(Context &c, String &storeName);
 
 private:
-	//!deprecated use static API
+	//! deprecated use static API
 	StoreFinder();
 };
 
@@ -97,8 +95,7 @@ private:
  * \b optional, default ":"\n
  * First character is taken as delimiter for indexed slots
  */
-class StorePutter
-{
+class StorePutter {
 public:
 	/*! Store source Anything into Context using the specification given in config
 	 * @param source The Anything that provides the data, remains unchanged
@@ -109,19 +106,20 @@ public:
 	static void Operate(Anything &source, Context &c, const ROAnything &config);
 
 	/*! puts the Anything source into context using a Anything.LookupPath() like slot specification
-		\param source The Anything that provides the data, remains unchanged
-		\param c Context to operate on
-		\param strStoreName name of store in Context to put destination Anything into
-		\param destSlotname slotname to put destination Anything into
-		\param append set to true if the source anything should be appended to existing content
-		\param delim LookupPath slot delimiter
-		\param indexdelim LookupPath index delimiter
-		\post dest.LookupPath(destSlotname, delim, delimIdx)[.Append] = source */
-	static void Operate(Anything &source, Context &c, String strStoreName, String destSlotname, bool append = false, char delim = '.', char indexdelim = ':');
+	  \param source The Anything that provides the data, remains unchanged
+	  \param c Context to operate on
+	  \param strStoreName name of store in Context to put destination Anything into
+	  \param destSlotname slotname to put destination Anything into
+	  \param append set to true if the source anything should be appended to existing content
+	  \param delim LookupPath slot delimiter
+	  \param indexdelim LookupPath index delimiter
+	  \post dest.LookupPath(destSlotname, delim, delimIdx)[.Append] = source */
+	static void Operate(Anything &source, Context &c, String strStoreName, String destSlotname, bool append = false,
+						char delim = '.', char indexdelim = ':');
 
 private:
-	//!deprecated use static API
+	//! deprecated use static API
 	StorePutter();
 };
 
-#endif		//ifndef _ANYTHINGUTILS_H
+#endif	// ifndef _ANYTHINGUTILS_H

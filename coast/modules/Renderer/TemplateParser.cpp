@@ -7,16 +7,18 @@
  */
 
 #include "TemplateParser.h"
-#include "Renderer.h"
+
 #include "Page.h"
-#include "Role.h"
 #include "Registry.h"
+#include "Renderer.h"
+#include "Role.h"
 #include "Session.h" /* for field prefixes, may be should be refactored, i.e. to Renderer */
 #include "StringStream.h"
+
 #include <cstring>
 
-Anything TemplateParser::Parse(std::istream &reader, const char *filename, long startline, Allocator *a, const ROAnything roaParserConfig)
-{
+Anything TemplateParser::Parse(std::istream &reader, const char *filename, long startline, Allocator *a,
+							   const ROAnything roaParserConfig) {
 	StartTrace(TemplateParser.Parse);
 	fReader = &reader;
 	fFileName = filename;
@@ -30,10 +32,9 @@ Anything TemplateParser::Parse(std::istream &reader, const char *filename, long 
 	return fCache;
 }
 
-void TemplateParser::DoParse()
-{
+void TemplateParser::DoParse() {
 	StartTrace(TemplateParser.DoParse);
-	int c, lookahead;
+	int c = 0, lookahead = 0;
 	String reply;
 	Anything tag;
 
@@ -49,7 +50,7 @@ void TemplateParser::DoParse()
 						Trace("currently at <" << (char)cE << (char)cN);
 						PutBack(cE);
 						// do not parse DOCTYPE tag as comment!
-						if ( cN == '-' ) {
+						if (cN == '-') {
 							Store(reply);
 							Store(OldStyleComment());
 						} else {
@@ -74,12 +75,12 @@ void TemplateParser::DoParse()
 						break;
 					}
 					case '?':
-					case '%' : {
+					case '%': {
 						int cT = Get();
 						if (IsEmptyOrWd()) {
 							ParseAnything(cT);
 							break;
-						} // else fall through, it was a unknown tag...
+						}  // else fall through, it was a unknown tag...
 						PutBack(cT);
 					}
 					default:
@@ -88,10 +89,10 @@ void TemplateParser::DoParse()
 							Anything attributes;
 							bool mustrender = ParseTag(tagname, attributes);
 							if (IsSpecialTag(tagname, attributes)) {
-								Store (ProcessSpecialTag(tagname, attributes, mustrender));
+								Store(ProcessSpecialTag(tagname, attributes, mustrender));
 							} else {
 								if (mustrender) {
-									Store (ProcessTag(tagname, attributes));
+									Store(ProcessTag(tagname, attributes));
 								} else {
 									Store(RenderTagAsLiteral(tagname, attributes));
 								}
@@ -104,7 +105,7 @@ void TemplateParser::DoParse()
 				break;
 			case '[':
 				lookahead = Peek();
-				if ( lookahead == '[' ) {
+				if (lookahead == '[') {
 					Store(reply);
 					Store(Macro());
 					break;
@@ -116,13 +117,12 @@ void TemplateParser::DoParse()
 	Store(reply);
 }
 
-Anything TemplateParser::OldStyleComment()
-{
+Anything TemplateParser::OldStyleComment() {
 	StartTrace(TemplateParser::OldStyleComment);
-	int c;
+	int c = 0;
 	// keep comments for test cases relying on them
 	String comment("<");
-#define GSR ((c = Get()),comment.Append(char(c)))
+#define GSR ((c = Get()), comment.Append(char(c)))
 
 	GSR;
 	if (c == '!') {
@@ -135,7 +135,7 @@ Anything TemplateParser::OldStyleComment()
 				// skip whitespace
 				for (;;) {
 					GSR;
-					if (!isspace( (unsigned char) c)) {
+					if (isspace((unsigned char)c) == 0) {
 						break;
 					}
 				}
@@ -144,26 +144,26 @@ Anything TemplateParser::OldStyleComment()
 				if (c == '#') {
 					for (;;) {
 						GSR;
-						if (!isalnum( (unsigned char) c)) {
+						if (isalnum((unsigned char)c) == 0) {
 							break;
 						}
 						macro.Append((char)c);
 					}
 				}
 
-				if ( macro == "wd" ) {	// our format ?
+				if (macro == "wd") {  // our format ?
 					String key, args;
 
 					for (;;) {
 						GSR;
-						if (!isalnum( (unsigned char) c)) {
+						if (isalnum((unsigned char)c) == 0) {
 							break;
 						}
 						key.Append((char)c);
 					}
 
 					// skip whitespace
-					while (isspace( (unsigned char) c)) {
+					while (isspace((unsigned char)c) != 0) {
 						GSR;
 					}
 
@@ -179,7 +179,7 @@ Anything TemplateParser::OldStyleComment()
 							if (c == '-') {
 								GSR;
 								args.Append((char)c);
-								while ( c == '-' ) {
+								while (c == '-') {
 									GSR;
 									args.Append(char(c));
 								}
@@ -193,27 +193,25 @@ Anything TemplateParser::OldStyleComment()
 					}
 					Error("Old style macro comment used");
 					return ProcessArgs(key, args);
-				} else {
-					// skip comment
-					for (;;) {
-						if (c == EOF || c == 0) {
-							break;
-						}
+				}  // skip comment
+				for (;;) {
+					if (c == EOF || c == 0) {
+						break;
+					}
+					if (c == '-') {
+						GSR;
 						if (c == '-') {
 							GSR;
-							if (c == '-') {
+							while (c == '-') {
 								GSR;
-								while ( c == '-' ) {
-									GSR;
-								}
-								if (c == '>') {
-									// end of comment
-									break;
-								}
+							}
+							if (c == '>') {
+								// end of comment
+								break;
 							}
 						}
-						GSR;
 					}
+					GSR;
 				}
 			}
 		}
@@ -221,8 +219,7 @@ Anything TemplateParser::OldStyleComment()
 	return Anything(comment);
 }
 
-Anything TemplateParser::ProcessArgs(const String &renderer, const String &args)
-{
+Anything TemplateParser::ProcessArgs(const String &renderer, const String &args) {
 	StartTrace1(TemplateParser.ProcessArgs, "renderer: <" << renderer << ">");
 	Anything aargs;
 	Anything result;
@@ -242,10 +239,10 @@ Anything TemplateParser::ProcessArgs(const String &renderer, const String &args)
 	// might be too strict, if we intend to use [[#wd foo bar]] to create an anything within a tag further interpreted
 	// but, in the moment keep it as simple as possible
 	Renderer *r = Renderer::FindRenderer(renderer);
-	if (r) { // all is OK
+	if (r != 0) {  // all is OK
 		result[renderer] = aargs;
 	} else {
-		if (renderer.Length() == 0) { // allow for anonymous anythings to be rendered later on by Renderer
+		if (renderer.Length() == 0) {  // allow for anonymous anythings to be rendered later on by Renderer
 			result.Append(aargs);
 		} else {
 			// produce an error message analogous to Renderer::Render
@@ -259,11 +256,10 @@ Anything TemplateParser::ProcessArgs(const String &renderer, const String &args)
 	return result;
 }
 
-Anything TemplateParser::Macro( )
-{
+Anything TemplateParser::Macro() {
 	StartTrace(TemplateParser.Macro);
 	String reply("[");
-	int c;
+	int c = 0;
 	c = Get();
 	reply << char(c);
 	if (c == '[') {
@@ -278,39 +274,34 @@ Anything TemplateParser::Macro( )
 
 				SkipWhitespace();
 				if ('/' == Peek()) {
-					Get();    // convenience, allow for / like in all other places
+					Get();	// convenience, allow for / like in all other places
 				}
-				key = ParseUpToWhitespaceOrMacroEnd(); // ParseName might be too stringent
+				key = ParseUpToWhitespaceOrMacroEnd();	// ParseName might be too stringent
 				SkipWhitespace();
 				// read arguments into buffer, look unconditionally for ]]
 				while (!IsGood() && (c = Get()) != 0 && c != EOF) {
 					if (c == ']' && ']' == Peek()) {
 						c = Get();
 						break;
-					} else {
-						args.Append((char)c);
 					}
+					args.Append((char)c);
 				}
-				return ProcessArgs( key, args);
-			} else {
-				String msg("Unknown macro interpreter <");
-				msg.Append(interpreter).Append("> expected [[#wd ");
-				Error(msg);
-				reply  << interpreter ;
+				return ProcessArgs(key, args);
 			}
+			String msg("Unknown macro interpreter <");
+			msg.Append(interpreter).Append("> expected [[#wd ");
+			Error(msg);
+			reply << interpreter;
 		}
 	}
 	return reply;
-
 }
 
-void TemplateParser::Store(String &literal)
-{
+void TemplateParser::Store(String &literal) {
 	StoreInto(fCache, literal);
 }
 
-void TemplateParser::StoreInto(Anything &cache, String &literal)
-{
+void TemplateParser::StoreInto(Anything &cache, String &literal) {
 	StartTrace1(TemplateParser.StoreInto, "literal [" << literal << "]");
 	if (literal.Length() > 0) {
 		cache.Append(Anything(literal));
@@ -318,16 +309,14 @@ void TemplateParser::StoreInto(Anything &cache, String &literal)
 	}
 }
 
-void TemplateParser::Store(const Anything &rendererspec)
-{
+void TemplateParser::Store(const Anything &rendererspec) {
 	StartTrace(TemplateParser.StoreAny);
 	if (!rendererspec.IsNull()) {
 		fCache.Append(rendererspec);
 	}
 }
 
-void TemplateParser::CompactHTMLBlocks(Anything &cache)
-{
+void TemplateParser::CompactHTMLBlocks(Anything &cache) {
 	StartTrace(TemplateParser.CompactHTMLBlocks);
 	TraceAny(cache, "Cache:");
 	Anything a(cache.GetAllocator());
@@ -339,45 +328,42 @@ void TemplateParser::CompactHTMLBlocks(Anything &cache)
 			htmlBlock.Append(a.AsCharPtr(""));
 		} else {
 			// otherwise it is a renderer spec in an AnyArray
-			StoreInto( compactedCache, htmlBlock );
+			StoreInto(compactedCache, htmlBlock);
 			htmlBlock = "";
 			compactedCache.Append(a);
 		}
 	}
-	if ( htmlBlock.Length() > 0) {
-		StoreInto( compactedCache, htmlBlock );
+	if (htmlBlock.Length() > 0) {
+		StoreInto(compactedCache, htmlBlock);
 	}
 
 	TraceAny(compactedCache, "Compacted:");
 	cache = compactedCache;
 }
 
-void TemplateParser::SkipWhitespace()
-{
+void TemplateParser::SkipWhitespace() {
 	StartTrace(TemplateParser.SkipWhitespace);
-	int c;
+	int c = 0;
 	while (!IsGood() && (c = Peek()) != 0 && c != EOF) {
-		if (!isspace(c)) {
+		if (isspace(c) == 0) {
 			return;
 		}
 		c = Get();
 	}
 }
 
-bool TemplateParser::IsValidNameChar(int c)
-{
-	bool bIsValid = (isalpha(c) || '-' == c || '_' == c || '.' == c || ':' == c);
+bool TemplateParser::IsValidNameChar(int c) {
+	bool bIsValid = ((isalpha(c) != 0) || '-' == c || '_' == c || '.' == c || ':' == c);
 	StatTrace(TemplateParser.IsValidNameChar, "is " << (bIsValid ? "" : "not ") << "valid", coast::storage::Current());
 	return bIsValid;
 }
 
-String TemplateParser::ParseName()
-{
+String TemplateParser::ParseName() {
 	StartTrace(TemplateParser.ParseName);
 	String theName;
-	int c; // Unicode?
+	int c = 0;	// Unicode?
 	while (!IsGood() && (c = Peek()) != EOF && c != 0) {
-		if ( IsValidNameChar(c) || (isdigit(c) && theName.Length() > 0) ) {
+		if (IsValidNameChar(c) || ((isdigit(c) != 0) && theName.Length() > 0)) {
 			theName.Append((char)Get());
 		} else {
 			break;
@@ -385,12 +371,11 @@ String TemplateParser::ParseName()
 	}
 	return theName;
 }
-String TemplateParser::ParseUpToWhitespaceOrMacroEnd()
-{
+String TemplateParser::ParseUpToWhitespaceOrMacroEnd() {
 	StartTrace(TemplateParser.ParseUpToWhitespaceOrMacroEnd);
 	String theName;
-	int c;
-	while (!IsGood() && (c = Peek()) != EOF && c != 0 && !isspace(c)) {
+	int c = 0;
+	while (!IsGood() && (c = Peek()) != EOF && c != 0 && (isspace(c) == 0)) {
 		if (']' == c) {
 			c = Get();
 			if (']' == Peek()) {
@@ -404,10 +389,9 @@ String TemplateParser::ParseUpToWhitespaceOrMacroEnd()
 	return theName;
 }
 
-int TemplateParser::Get()
-{
+int TemplateParser::Get() {
 	int c = 0;
-	if (fReader && fReader->good()) {
+	if ((fReader != 0) && fReader->good()) {
 		c = fReader->get();
 		if ('\n' == c) {
 			++fLine;
@@ -417,20 +401,18 @@ int TemplateParser::Get()
 	return c;
 }
 
-int TemplateParser::Peek()
-{
+int TemplateParser::Peek() {
 	int c = 0;
-	if (fReader && fReader->good()) {
+	if ((fReader != 0) && fReader->good()) {
 		c = fReader->peek();
 	}
 	StatTrace(TemplateParser.Peek, "char [" << (c ? (char)c : ' ') << "]", coast::storage::Current());
 	return c;
 }
 
-void TemplateParser::PutBack(char c)
-{
+void TemplateParser::PutBack(char c) {
 	StatTrace(TemplateParser.PutBack, "char [" << (char)c << "]", coast::storage::Current());
-	if (fReader) {
+	if (fReader != 0) {
 		fReader->putback(c);
 	}
 	if ('\n' == c) {
@@ -438,13 +420,11 @@ void TemplateParser::PutBack(char c)
 	}
 }
 
-bool TemplateParser::IsGood()
-{
-	return !(fReader && fReader->good());
+bool TemplateParser::IsGood() {
+	return !((fReader != 0) && fReader->good());
 }
 
-bool TemplateParser::ParseTag(String &tagName, Anything &tagAttributes)
-{
+bool TemplateParser::ParseTag(String &tagName, Anything &tagAttributes) {
 	StartTrace(TemplateParser.ParseTag);
 	bool needsrendering = false;
 	tagName = ParseName();
@@ -453,7 +433,7 @@ bool TemplateParser::ParseTag(String &tagName, Anything &tagAttributes)
 		SkipWhitespace();
 		int c = Peek();
 		switch (c) {
-			case '[' : {
+			case '[': {
 				Get();
 				Anything a = Macro();
 				needsrendering = true;
@@ -464,16 +444,15 @@ bool TemplateParser::ParseTag(String &tagName, Anything &tagAttributes)
 					a.Append(ParseValue());
 				}
 				tagAttributes.Append(a);
-			}
-			break;
-			case '>': // done with tag
+			} break;
+			case '>':  // done with tag
 				c = Get();
 				return needsrendering;
-			case '/': // an empty tag? i.e. <br />
+			case '/':  // an empty tag? i.e. <br />
 				c = Get();
 				if ('>' == Peek()) {
 					c = Get();
-					tagAttributes.Append("/");//tagAttributes[WASEMPTYTAG] = 1L;
+					tagAttributes.Append("/");	// tagAttributes[WASEMPTYTAG] = 1L;
 					// should remember /> as closing...
 					return needsrendering;
 				}
@@ -482,7 +461,7 @@ bool TemplateParser::ParseTag(String &tagName, Anything &tagAttributes)
 			default: {
 				String name;
 				Anything value;
-				if ( ParseAttribute(tagName, name, value) ) {
+				if (ParseAttribute(tagName, name, value)) {
 					// found "attr=value"
 					if (AnyArrayType == value.GetType()) {
 						needsrendering = true;
@@ -506,26 +485,25 @@ bool TemplateParser::ParseTag(String &tagName, Anything &tagAttributes)
 	return needsrendering;
 }
 
-bool TemplateParser::ParseAttribute(const String &tagName, String &name, Anything &value)
-{
+bool TemplateParser::ParseAttribute(const String &tagName, String &name, Anything &value) {
 	StartTrace(TemplateParser.ParseAttribute);
 	ROAnything roaTagsConfig;
 	name = ParseName();
 	Trace("non  adjusted name [" << name << "]");
-	if ( froaConfig.LookupPath(roaTagsConfig, "Tags") ) {
+	if (froaConfig.LookupPath(roaTagsConfig, "Tags")) {
 		TraceAny(roaTagsConfig, "Tags configuration");
 		// check if tag specific settings are defined, otherwise use global settings
 		// LookupPath preserves roaTagsConfig if not found
-		if ( roaTagsConfig.LookupPath(roaTagsConfig, tagName) ) {
+		if (roaTagsConfig.LookupPath(roaTagsConfig, tagName)) {
 			TraceAny(roaTagsConfig, String(tagName) << " configuration");
 		}
 	}
 	// found specific tag settings
 	String strCase = roaTagsConfig["AttrNameCase"].AsString("lower").ToLower();
-	if ( !strCase.Length() || strCase.IsEqual("lower") ) {
+	if ((strCase.Length() == 0) || strCase.IsEqual("lower")) {
 		// default, XHTML conformance all attribute names are lower case
 		name.ToLower();
-	} else if ( strCase.IsEqual("upper") ) {
+	} else if (strCase.IsEqual("upper")) {
 		name.ToUpper();
 	}
 	// else preserve case
@@ -542,16 +520,16 @@ bool TemplateParser::ParseAttribute(const String &tagName, String &name, Anythin
 	// otherwise it is a syntax error, we just ignore silently for now.
 }
 
-Anything TemplateParser::ParseValue()
-{
+Anything TemplateParser::ParseValue() {
 	StartTrace(TemplateParser.ParseValue);
 	String value;
 	int c = Peek();
-	if ('[' == c) { // a wd macro
+	if ('[' == c) {	 // a wd macro
 		Get();
 		return Macro();
-	} else if ('\'' == c || '\"' == c) { // a quoted value
-		int	quote = Get();
+	}
+	if ('\'' == c || '\"' == c) {  // a quoted value
+		int quote = Get();
 		Anything result;
 		while (!IsGood() && (c = Get()) != quote) {
 			if ('[' == c && '[' == Peek()) {
@@ -564,7 +542,7 @@ Anything TemplateParser::ParseValue()
 					StoreInto(result, value);
 					Anything subvalue = ParseAnythingAndReturn(cT);
 					result.Append(subvalue);
-				} else { // else fall through, it was a unknown tag...
+				} else {  // else fall through, it was a unknown tag...
 					PutBack(cT);
 				}
 			} else {
@@ -572,28 +550,27 @@ Anything TemplateParser::ParseValue()
 			}
 			// should we allow for macros within quotes to please HTML editors?
 		}
-		if (!result.IsNull()) { // we had a macro
+		if (!result.IsNull()) {	 // we had a macro
 			StoreInto(result, value);
 			return result;
 		}
-	} else if (IsValidNameChar(c)) { // a legacy non-quoted value
+	} else if (IsValidNameChar(c)) {  // a legacy non-quoted value
 		value = ParseName();
-	} else if (isdigit(c)) {
+	} else if (isdigit(c) != 0) {
 		do {
 			value.Append(char(Get()));
 			c = Peek();
-		} while (isdigit(c) || '%' == c); // allow for legacy percentage values, without quotes
-	} else if ('#' == c) { // allow for legacy color attributes without quotes
+		} while ((isdigit(c) != 0) || '%' == c);  // allow for legacy percentage values, without quotes
+	} else if ('#' == c) {						  // allow for legacy color attributes without quotes
 		do {
 			value.Append(char(Get()));
-		} while (isxdigit(Peek()));
+		} while (isxdigit(Peek()) != 0);
 	}
 	return value;
 }
 
 //--- processing of tags
-Anything TemplateParser::ProcessTag(const String &tagName, Anything &tagAttributes)
-{
+Anything TemplateParser::ProcessTag(const String &tagName, Anything &tagAttributes) {
 	StartTrace(TemplateParser.ProcessTag);
 	// this is a tag that needs to be rendered
 	Anything result;
@@ -604,27 +581,24 @@ Anything TemplateParser::ProcessTag(const String &tagName, Anything &tagAttribut
 	result.Append(">");
 	return result;
 }
-Anything TemplateParser::ProcessSpecialTag(String &tagName, Anything &tagAttributes, bool mustrender)
-{
+Anything TemplateParser::ProcessSpecialTag(String &tagName, Anything &tagAttributes, bool mustrender) {
 	StartTrace(TemplateParser.ProcessSpecialTag);
 	// for now, only <form> is special
 	long startline = fLine;
 	tagName.ToLower();
 	if (tagName == "script") {
 		return ProcessScriptTag(tagName, tagAttributes, ParseAsStringUpToEndTag(tagName), startline);
-	} else {
-		return ProcessFormTag(tagName, tagAttributes, ParseAsStringUpToEndTag(tagName), startline);
 	}
+	return ProcessFormTag(tagName, tagAttributes, ParseAsStringUpToEndTag(tagName), startline);
 }
-Anything TemplateParser::RenderTagAsLiteral(String &tagName, Anything &tagAttributes)
-{
+Anything TemplateParser::RenderTagAsLiteral(String &tagName, Anything &tagAttributes) {
 	StartTrace(TemplateParser.RenderTagAsLiteral);
 	// otherwise, we can place it literally
 	String tag("<");
 	tag.Append(tagName);
 	for (long i = 0, sz = tagAttributes.GetSize(); i < sz; ++i) {
 		tag.Append(' ');
-		if (tagAttributes.SlotName(i)) {
+		if (tagAttributes.SlotName(i) != 0) {
 			tag.Append(tagAttributes.SlotName(i));
 			if (AnyCharPtrType == tagAttributes[i].GetType()) {
 				tag.Append("=\"");
@@ -632,7 +606,7 @@ Anything TemplateParser::RenderTagAsLiteral(String &tagName, Anything &tagAttrib
 				tag.Append('"');
 			}
 		} else {
-			tag.Append(tagAttributes[i].AsCharPtr("")); // just take the value
+			tag.Append(tagAttributes[i].AsCharPtr(""));	 // just take the value
 		}
 	}
 	tag.Append('>');
@@ -640,24 +614,22 @@ Anything TemplateParser::RenderTagAsLiteral(String &tagName, Anything &tagAttrib
 	return tag;
 }
 
-Anything TemplateParser::ProcessFormTag(const String &tagName, Anything &tagAttributes, const String &body, long startline)
-{
+Anything TemplateParser::ProcessFormTag(const String &tagName, Anything &tagAttributes, const String &body, long startline) {
 	StartTrace(TemplateParser.ProcessFormTag);
 	Anything result = Anything(Anything::ArrayMarker());
 	Anything &formrenderer = result["FormRenderer"];
 	TraceAny(tagAttributes, "given attributes");
-#define MVATTR(name,def) \
-	{ String lowername(#name); lowername.ToLower();\
-		if (tagAttributes.IsDefined(lowername))\
-		{\
-			formrenderer[#name]=tagAttributes[lowername];\
-			tagAttributes.Remove(lowername);\
-		}\
-		else if (strlen(def)>0)\
-		{\
-			formrenderer[#name]=def;\
-			tagAttributes.Remove(lowername);\
-		}\
+#define MVATTR(name, def)                                   \
+	{                                                       \
+		String lowername(#name);                            \
+		lowername.ToLower();                                \
+		if (tagAttributes.IsDefined(lowername)) {           \
+			formrenderer[#name] = tagAttributes[lowername]; \
+			tagAttributes.Remove(lowername);                \
+		} else if (strlen(def) > 0) {                       \
+			formrenderer[#name] = def;                      \
+			tagAttributes.Remove(lowername);                \
+		}                                                   \
 	}
 	MVATTR(Method, "GET");
 	MVATTR(Action, "");
@@ -669,93 +641,93 @@ Anything TemplateParser::ProcessFormTag(const String &tagName, Anything &tagAttr
 	}
 	FormTemplateParser fp;
 	IStringStream is(body);
-	formrenderer["Layout"] = fp.Parse(is, fFileName, startline, result.GetAllocator()); // parse separately, use /Layout, if preprocessed...
+	formrenderer["Layout"] =
+		fp.Parse(is, fFileName, startline, result.GetAllocator());	// parse separately, use /Layout, if preprocessed...
 	return result;
 }
-Anything TemplateParser::ProcessScriptTag(const String &tagName, Anything &tagAttributes, const String &body, long startline)
-{
+Anything TemplateParser::ProcessScriptTag(const String &tagName, Anything &tagAttributes, const String &body, long startline) {
 	StartTrace(TemplateParser.ProcessScriptTag);
 	ScriptTemplateParser sp;
 	IStringStream is(body);
 	Anything result = ProcessTag(tagName, tagAttributes);
-	result.Append(sp.Parse(is, fFileName, startline)); // parse separately
+	result.Append(sp.Parse(is, fFileName, startline));	// parse separately
 	String endtag("</");
 	endtag.Append(tagName).Append('>');
 	result.Append(endtag);
 	return result;
 }
 
-bool TemplateParser::IsSpecialTag(String &tagName, Anything &tagAttributes)
-{
+bool TemplateParser::IsSpecialTag(String &tagName, Anything &tagAttributes) {
 	StartTrace(TemplateParser.IsSpecialTag);
-	if ( String::CaselessCompare(tagName, "script") == 0 ) {
+	if (String::CaselessCompare(tagName, "script") == 0) {
 		return true;
-	} else {
-		if ( (String::CaselessCompare(tagName, "form") == 0) && tagAttributes.IsDefined("action") && tagAttributes["action"].AsString().Length() ) {
-			// several locations to check for a valid 'action'
-			// 1. Real registered Action
-			// 2. Role-Page-Token-Map entry in Role.any
-			// 3. Page specific slot defined -> transitionToken
-			// case 1:
-			const char *pAction = tagAttributes["action"].AsCharPtr(0);
-			Trace("given action [" << pAction << "]");
-			if ( Action::FindAction(pAction) ) {
-				Trace("found valid real Action");
-				return true;
-			}
-			Trace("Filename of template is [" << fFileName << "]");
-			// returns -1 if no match so the following if should work
-			long lLastSlashIdx = fFileName.StrRChr('/') + 1L;
-			if ( lLastSlashIdx > 0L ) {
-				String strPageName = fFileName.SubString(lLastSlashIdx);
-				// case 2:
-				// because we do not know the correct Role at the moment of parsing this file (startup)
-				// we need to iterate over all registered roles to find a possible match although this
-				// could lead to misinterpretations
-				Registry *reg = MetaRegistry::instance().GetRegistry("Role");
-				RegistryIterator ri(reg);
-				while ( ri.HasMore() ) {
-					String roleName("null");
-					Role *pRole = (Role *)ri.Next(roleName);
-					Trace("role found <" << roleName << ">");
-					if (pRole) {
-						String transition(pAction);
-						Trace("checking for entry in [" << roleName << "]");
-						ROAnything roaEntry;
-						if ( pRole->GetNextActionConfig( roaEntry, transition, strPageName) || pRole->IsStayOnSamePageToken(transition) ) {
-							Trace("matching action-token found");
-							return true;
-						}
-					}
-				}
-
-				// case 3:
-				Trace("Trying to find page with name [" << strPageName << "]");
-				Page *pPage = Page::FindPage(strPageName);
-				if ( pPage ) {
-					Trace("Page found, now checking for slot which could match");
-					ROAnything roaConfig;
-					if ( pPage->Lookup(pAction, roaConfig) ) {
-						TraceAny(roaConfig, "Config of actionscript on page");
+	}
+	if ((String::CaselessCompare(tagName, "form") == 0) && tagAttributes.IsDefined("action") &&
+		(tagAttributes["action"].AsString().Length() != 0)) {
+		// several locations to check for a valid 'action'
+		// 1. Real registered Action
+		// 2. Role-Page-Token-Map entry in Role.any
+		// 3. Page specific slot defined -> transitionToken
+		// case 1:
+		const char *pAction = tagAttributes["action"].AsCharPtr(0);
+		Trace("given action [" << pAction << "]");
+		if (Action::FindAction(pAction) != 0) {
+			Trace("found valid real Action");
+			return true;
+		}
+		Trace("Filename of template is [" << fFileName << "]");
+		// returns -1 if no match so the following if should work
+		long lLastSlashIdx = fFileName.StrRChr('/') + 1L;
+		if (lLastSlashIdx > 0L) {
+			String strPageName = fFileName.SubString(lLastSlashIdx);
+			// case 2:
+			// because we do not know the correct Role at the moment of parsing this file (startup)
+			// we need to iterate over all registered roles to find a possible match although this
+			// could lead to misinterpretations
+			Registry *reg = MetaRegistry::instance().GetRegistry("Role");
+			RegistryIterator ri(reg);
+			while (ri.HasMore()) {
+				String roleName("null");
+				Role *pRole = (Role *)ri.Next(roleName);
+				Trace("role found <" << roleName << ">");
+				if (pRole != 0) {
+					String transition(pAction);
+					Trace("checking for entry in [" << roleName << "]");
+					ROAnything roaEntry;
+					if (pRole->GetNextActionConfig(roaEntry, transition, strPageName) ||
+						pRole->IsStayOnSamePageToken(transition)) {
+						Trace("matching action-token found");
 						return true;
 					}
 				}
 			}
+
+			// case 3:
+			Trace("Trying to find page with name [" << strPageName << "]");
+			Page *pPage = Page::FindPage(strPageName);
+			if (pPage != 0) {
+				Trace("Page found, now checking for slot which could match");
+				ROAnything roaConfig;
+				if (pPage->Lookup(pAction, roaConfig)) {
+					TraceAny(roaConfig, "Config of actionscript on page");
+					return true;
+				}
+			}
 		}
 	}
+
 	return false;
 }
 
-bool TemplateParser::IsEmptyOrWd()
-{
+bool TemplateParser::IsEmptyOrWd() {
 	int c = Peek();
 	StatTrace(TemplateParser.IsEmptyOrWd, "char [" << (char)c << "]", coast::storage::Current());
-	if (!isspace(c)) {
+	if (isspace(c) == 0) {
 		if (tolower(c) == 'w') {
 			Get();
 			if (tolower(Peek()) == 'd') {
 				Get();
-				if (isspace(Peek())) {
+				if (isspace(Peek()) != 0) {
 					return true;
 				}
 				PutBack('d');
@@ -767,10 +739,9 @@ bool TemplateParser::IsEmptyOrWd()
 	return true;
 }
 
-Anything TemplateParser::ParseAnythingAndReturn(int endChar)
-{
+Anything TemplateParser::ParseAnythingAndReturn(int endChar) {
 	StartTrace(TemplateParser.ParseAnythingAndReturn);
-	int c;
+	int c = 0;
 	long bl = 0;
 	String collectany("{");
 	while (!IsGood() && (c = Get()) != 0) {
@@ -778,16 +749,16 @@ Anything TemplateParser::ParseAnythingAndReturn(int endChar)
 			Get();
 			if (0 == bl) {
 				break;
-			} else if (bl > 0) {
+			}
+			if (bl > 0) {
 				String res = ReadHTMLAsString(endChar);
-				OStringStream os;// make sub-expr a string
-				res.IntPrintOn(os, '"'); // take care of anything conformant masking
+				OStringStream os;		  // make sub-expr a string
+				res.IntPrintOn(os, '"');  // take care of anything conformant masking
 				collectany.Append(os.str());
 				continue;
-			} else {
-				Error("Too many closing }");
-				break;
 			}
+			Error("Too many closing }");
+			break;
 		}
 		switch (c) {
 			case '{':
@@ -796,7 +767,7 @@ Anything TemplateParser::ParseAnythingAndReturn(int endChar)
 			case '}':
 				--bl;
 				break;
-			case '"': // skip string without considering braces
+			case '"':  // skip string without considering braces
 				collectany.Append(char(c));
 				while (!IsGood() && (c = Get()) != 0 && '"' != c) {
 					collectany.Append(char(c));
@@ -805,7 +776,7 @@ Anything TemplateParser::ParseAnythingAndReturn(int endChar)
 					}
 				}
 				break;
-			case '#': // skip comment to eol
+			case '#':  // skip comment to eol
 				collectany.Append(char(c));
 				while (!IsGood() && (c = Get()) != 0 && '\n' != c) {
 					collectany.Append(char(c));
@@ -821,17 +792,15 @@ Anything TemplateParser::ParseAnythingAndReturn(int endChar)
 	return result;
 }
 
-void TemplateParser::ParseAnything(int endChar)
-{
+void TemplateParser::ParseAnything(int endChar) {
 	StartTrace(TemplateParser.ParseAnything);
 	Store(ParseAnythingAndReturn(endChar));
 }
 
-String TemplateParser::ReadHTMLAsString(int &endChar)
-{
+String TemplateParser::ReadHTMLAsString(int &endChar) {
 	StartTrace(TemplateParser.ReadHTMLAsString);
 	String result;
-	int c;
+	int c = 0;
 	while (!IsGood() && (c = Get()) != 0 && c != EOF) {
 		if ('<' == c) {
 			int lookahead = Peek();
@@ -851,11 +820,10 @@ String TemplateParser::ReadHTMLAsString(int &endChar)
 	Error("unexpected EOF");
 	return result;
 }
-String TemplateParser::ParseAsStringUpToEndTag(String &tagName)
-{
+String TemplateParser::ParseAsStringUpToEndTag(String &tagName) {
 	StartTrace(TemplateParser.ParseAsStringUpToEndTag);
 	String result;
-	int c;
+	int c = 0;
 	while (!IsGood() && (c = Get()) != 0) {
 		if ('<' == c) {
 			if ('/' == Peek()) {
@@ -876,8 +844,7 @@ String TemplateParser::ParseAsStringUpToEndTag(String &tagName)
 	return result;
 }
 
-void TemplateParser::Error(const char *msg)
-{
+void TemplateParser::Error(const char *msg) {
 	StartTrace(TemplateParser.Error);
 	String m(" ");
 	m.Append(fFileName).Append(".html:").Append(fLine).Append(" ").Append(msg);
@@ -888,34 +855,30 @@ void TemplateParser::Error(const char *msg)
 }
 
 // --- FormTemplateParser ---
-bool FormTemplateParser::IsSpecialTag(String &tagName, Anything &tagAttributes)
-{
+bool FormTemplateParser::IsSpecialTag(String &tagName, Anything &tagAttributes) {
 	StartTrace(FormTemplateParser.IsSpecialTag);
 	String tag = tagName;
 	tag.ToLower();
-	return tag == "input"
-		   || tag == "textarea"
-		   || tag == "select"
-		   || tag == "button";
+	return tag == "input" || tag == "textarea" || tag == "select" || tag == "button";
 }
-Anything FormTemplateParser::ProcessSpecialTag(String &tagName, Anything &tagAttributes, bool mustrender)
-{
+Anything FormTemplateParser::ProcessSpecialTag(String &tagName, Anything &tagAttributes, bool mustrender) {
 	StartTrace(FormTemplateParser.ProcessSpecialTag);
 	String tag = tagName;
 	tag.ToLower();
-	if ((tag == "input" || tag == "textarea" || tag == "select" ) &&
-		tagAttributes.IsDefined("name") && 0 != tagAttributes["name"].AsString().Contains(Session::FR_FIELDPREFIX)) {
+	if ((tag == "input" || tag == "textarea" || tag == "select") && tagAttributes.IsDefined("name") &&
+		0 != tagAttributes["name"].AsString().Contains(Session::FR_FIELDPREFIX)) {
 		String theName(Session::FR_FIELDPREFIX);
 		if (tagAttributes.IsDefined("type")) {
 			if (tagAttributes["type"].AsString().ToLower() == "submit") {
 				theName = Session::FR_BUTTONPREFIX;
 			} else if (tagAttributes["type"].AsString().ToLower() == "image") {
-				theName = Session::FR_IMAGEPREFIX;    // check why and where that is needed? -> .x.y coordinates
+				theName = Session::FR_IMAGEPREFIX;	// check why and where that is needed? -> .x.y coordinates
 			}
 		}
 		theName.Append(tagAttributes["name"].AsString());
 		tagAttributes["name"] = theName;
-	} else if (tag == "button" && tagAttributes.IsDefined("name") && 0 != tagAttributes["name"].AsString().Contains(Session::FR_BUTTONPREFIX)) {
+	} else if (tag == "button" && tagAttributes.IsDefined("name") &&
+			   0 != tagAttributes["name"].AsString().Contains(Session::FR_BUTTONPREFIX)) {
 		String theName(Session::FR_BUTTONPREFIX);
 		theName.Append(tagAttributes["name"].AsString());
 		tagAttributes["name"] = theName;
@@ -923,10 +886,9 @@ Anything FormTemplateParser::ProcessSpecialTag(String &tagName, Anything &tagAtt
 	return mustrender ? ProcessTag(tag, tagAttributes) : RenderTagAsLiteral(tag, tagAttributes);
 }
 
-void ScriptTemplateParser::DoParse()
-{
+void ScriptTemplateParser::DoParse() {
 	StartTrace(ScriptTemplateParser.DoParse);
-	int c, lookahead;
+	int c = 0, lookahead = 0;
 	String reply;
 	Anything tag;
 
@@ -937,12 +899,12 @@ void ScriptTemplateParser::DoParse()
 				lookahead = Peek();
 				switch (lookahead) {
 					case '?':
-					case '%' : {
+					case '%': {
 						int cT = Get();
 						if (IsEmptyOrWd()) {
 							ParseAnything(cT);
 							break;
-						} // else fall through, it was a unknown tag...
+						}  // else fall through, it was a unknown tag...
 						PutBack(cT);
 					}
 					default:
@@ -952,7 +914,7 @@ void ScriptTemplateParser::DoParse()
 				break;
 			case '[':
 				lookahead = Peek();
-				if ( lookahead == '[' ) {
+				if (lookahead == '[') {
 					Store(reply);
 					Store(Macro());
 					break;

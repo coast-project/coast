@@ -14,17 +14,21 @@
 //---- RendererDispatchAction ----------------------------------------------------------
 //! Executes the result of a Context.Lookup() on the rendered String as an Action
 /*! @section RendererDispatchActionDescription Description
- * This action is useful to let a Renderer script decide what to execute next. Let the various Renderers define the flow of control.
+ * This action is useful to let a Renderer script decide what to execute next. Let the various Renderers define the flow of
+control.
  * The resulting token of the rendering process is used as Context.Lookup() to get the corresponding Action script and
- * execute it with the initial transition token. If the Context.Lookup() fails, the transition token will be set to the resulting
+ * execute it with the initial transition token. If the Context.Lookup() fails, the transition token will be set to the
+resulting
  * token and an Action.ExecAction() call wil be issued with an empty script.
  * If the resulting token is empty, the Action returns true.
  * @subsection RendererDispatchActionConfiguration Configuration
- * There are different ways to configure this Action, either specify the Renderer specification using the \c Renderer slot or just pass
+ * There are different ways to configure this Action, either specify the Renderer specification using the \c Renderer slot or
+just pass
  * it as a whole. See \ref RendererDispatchActionExamples for examples.
  * @par \c Renderer
  * \b optional, default is to not execute anything but return true\n
- * Pass in the Renderer specification to use as Context.Lookup() to get the corresponding Action script for the next Action.ExecAction() call.
+ * Pass in the Renderer specification to use as Context.Lookup() to get the corresponding Action script for the next
+Action.ExecAction() call.
  * @subsection RendererDispatchActionExamples Examples
  * Full specification:
  * @code
@@ -39,8 +43,7 @@
 { ActionToDispatch }
  * @endcode
 */
-class RendererDispatchAction : public Action
-{
+class RendererDispatchAction : public Action {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	RendererDispatchAction(const char *name) : Action(name) {}

@@ -12,7 +12,7 @@
 #include "WDBaseTestPolicies.h"
 
 //---- NewRendererTest ----------------------------------------------------------
-//!TestClass for Renderers
+//! TestClass for Renderers
 //! Rendererspecifications are defined in NewRendererTestConfig.any
 //! To add a new TestCase append a new Entry to the <B>/TestCases</B> slot.
 //! Testcase entry specification :
@@ -23,23 +23,19 @@
 //! }</PRE>
 //! There is also a Toplevel slot <B>/EnvForAllCases</B> specifing an Anything that serves
 //! as Context for all TestCases
-//class NewRendererTest : public testframework::TestCaseWithConfig
-class NewRendererTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+// class NewRendererTest : public testframework::TestCaseWithConfig
+class NewRendererTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	NewRendererTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	NewRendererTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//--- public api
-	//!generate NewRendererTest test suite
+	//! generate NewRendererTest test suite
 	//! \return a new test is created by this method
 	static Test *suite();
 
-	TString getConfigFileName() {
-		return "NewRendererTestConfig";
-	}
+	TString getConfigFileName() { return "NewRendererTestConfig"; }
 
-	//!Testcase runs all configured RendererSpecs
+	//! Testcase runs all configured RendererSpecs
 	void TestCases();
 };
 

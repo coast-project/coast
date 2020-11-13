@@ -9,48 +9,47 @@
 #ifndef _ThreadsTest_H
 #define _ThreadsTest_H
 
-#include "TestCase.h"
-#include "Threads.h"
+#include "Anything.h"
 #include "DiffTimer.h"
+#include "Mutex.h"
+#include "TestCase.h"
 
-class ThreadsTest: public testframework::TestCase {
+class ThreadsTest : public testframework::TestCase {
 public:
-	ThreadsTest(TString tname) :
-		TestCaseType(tname), fMutex(tname) {
-	}
-	//!builds up a suite of testcases for this test
+	ThreadsTest(TString tname) : TestCaseType(tname), fMutex(tname) {}
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	//!tests for argument passing in hooks
+	//! tests for argument passing in hooks
 	void ThreadHookArgsTest();
-	//!tests for thread reuse
+	//! tests for thread reuse
 	void ThreadObjectReuseTest();
-	//!tests for thread state handling
+	//! tests for thread state handling
 	void ThreadStateTransitionTest();
-	//!tests for thread running state handling
+	//! tests for thread running state handling
 	void ThreadRunningStateTransitionTest();
-	//!locks a mutex a thousand times
+	//! locks a mutex a thousand times
 	void MutexLockIterationTest();
-	//!checks if the waited time is at least the expected amount
+	//! checks if the waited time is at least the expected amount
 	void TimedRunTest();
 	void CheckTime(long time);
 	void SimpleLockedAccess(long i);
 
-	//!test mutex behaviour
+	//! test mutex behaviour
 	void SimpleMutexTest();
-	//!test Semaphore behaviour
+	//! test Semaphore behaviour
 	void SimpleSemaphoreTest();
-	//!test Semaphore behaviour with multiple resources
+	//! test Semaphore behaviour with multiple resources
 	void MultiSemaphoreTest();
-    //!test recursive mutex behaviour
+	//! test recursive mutex behaviour
 	void RecursiveMutexTest();
-	//!simple nested mutexes in one thread
+	//! simple nested mutexes in one thread
 	void SimpleRecursiveTest();
-	//!simple nested mutexes in one thread
+	//! simple nested mutexes in one thread
 	void SimpleRecursiveTryLockTest();
-	//!two thread nested mutexes test with signalling
+	//! two thread nested mutexes test with signalling
 	void TwoThreadRecursiveTest();
-	//!two thread nested mutexes test with signalling
+	//! two thread nested mutexes test with signalling
 	void TwoThreadRecursiveTryLockTest();
 
 protected:

@@ -6,25 +6,27 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "Anything.h"
+
+#include "AnyComparers.h"
 #include "AnyImpls.h"
+#include "AnyVisitor.h"
+#include "StringStream.h"
 #include "SystemBase.h"
 #include "SystemFile.h"
 #include "SystemLog.h"
-#include "StringStream.h"
 #include "Tracer.h"
-#include "AnyVisitor.h"
-#include "AnyComparers.h"
 
 using namespace coast;
 
-#include <cstring>
 #include <algorithm>
+#include <cstring>
 #if defined(COAST_TRACE)
-#define anyStatTrace(trigger, msg, allocator) 	StatTrace(trigger, msg, allocator)
-#define anyStartTrace(trigger)					StartTrace(trigger)
-#define anyStartTrace1(trigger, msg)			StartTrace1(trigger, msg)
-#define anyTrace(msg)							Trace(msg);
-#define anyTraceAny(any, msg)					TraceAny(any, msg);
+#define anyStatTrace(trigger, msg, allocator) StatTrace(trigger, msg, allocator)
+#define anyStartTrace(trigger) StartTrace(trigger)
+#define anyStartTrace1(trigger, msg) StartTrace1(trigger, msg)
+#define anyTrace(msg) Trace(msg);
+#define anyTraceAny(any, msg) TraceAny(any, msg);
 #else
 #define anyStatTrace(trigger, msg, allocator)
 #define anyStartTrace(trigger)
@@ -36,20 +38,20 @@ using namespace coast;
 namespace {
 	//!< avoid temporary
 	const String fgStrEmpty(coast::storage::Global());
-}
+}  // namespace
 
 //--- auxiliary calculating hash value and the length of the key
 long IFAHash(const char *key, long &len, char stop1, char stop2)
-//long DoIFAHash(const unsigned char *key, long &len, unsigned char stop1, unsigned char stop2)
+// long DoIFAHash(const unsigned char *key, long &len, unsigned char stop1, unsigned char stop2)
 {
 	long h = 0;
-	u_long g;
+	u_long g = 0;
 	const unsigned char *const keyp = reinterpret_cast<const unsigned char *>(key);
 	const unsigned char *p = keyp;
-	if (key) {
-		while (*p && *p != stop1 && *p != stop2) {
+	if (key != 0) {
+		while ((*p != 0U) && *p != stop1 && *p != stop2) {
 			h = (h << 4) + *p++;
-			if ((g = (h & 0xf0000000))) {
+			if ((g = (h & 0xf0000000)) != 0U) {
 				h = (h ^ (g >> 24)) ^ g;
 			}
 		}
@@ -58,40 +60,24 @@ long IFAHash(const char *key, long &len, char stop1, char stop2)
 	return h;
 }
 
-class InputContext
-{
+class InputContext {
 public:
 	// constructor
-	InputContext(std::istream &is, const char *fname = 0)
-		: fIs(is)
-		, fLine(1)
-		, fFileName(fname) { }
+	InputContext(std::istream &is, const char *fname = 0) : fIs(is), fLine(1), fFileName(fname) {}
 
 	// destructor
 	~InputContext() {}
 
 	// input
-	void SkipToEOL();    // for reading comments by parser
-	bool Get(char &c)				{
-		return (fIs.get(c).good()) || (c = 0);
-	}
+	void SkipToEOL();  // for reading comments by parser
+	bool Get(char &c) { return (fIs.get(c).good()) || ((c = 0) != 0); }
 	// the last assignment is a trick for sunCC weakness of storing EOF(-1) in c
-	void Putback(char c)			{
-		fIs.putback(c);
-	}
-	bool IsGood() 					{
-		return fIs.good();
-	}
+	void Putback(char c) { fIs.putback(c); }
+	bool IsGood() { return fIs.good(); }
 
-	long &LineRef() {
-		return fLine;
-	}
-	std::istream &StreamRef() {
-		return fIs;
-	}
-	const String &FileName() {
-		return fFileName;
-	}
+	long &LineRef() { return fLine; }
+	std::istream &StreamRef() { return fIs; }
+	const String &FileName() { return fFileName; }
 
 private:
 	std::istream &fIs;
@@ -102,51 +88,54 @@ private:
 //---- the following class is used for lexical analysis of
 //---- any-files or input. It will represent the next
 //---- character or symbol read from the stream
-class AnythingToken
-{
+class AnythingToken {
 public:
-	enum Tok { eNullSym = 256, // this means no valid stuff found or eof
-			   // numeric values
-			   eDecimalNumber, eOctalNumber, eHexNumber, eFloatNumber,
-			   // string or names or arrayindex or ifaobject
-			   eString, eBinaryBuf, eIndex, eRef, eInclude, eObject,
-			   // we have found a lexical or syntax error
-			   eStringError, eError
-			 };
-	AnythingToken(InputContext &context); // read next token from is
-	static bool isNameDelimiter(char c); // implement single place where we check for delims
+	enum Tok {
+		eNullSym = 256,	 // this means no valid stuff found or eof
+		// numeric values
+		eDecimalNumber,
+		eOctalNumber,
+		eHexNumber,
+		eFloatNumber,
+		// string or names or arrayindex or ifaobject
+		eString,
+		eBinaryBuf,
+		eIndex,
+		eRef,
+		eInclude,
+		eObject,
+		// we have found a lexical or syntax error
+		eStringError,
+		eError
+	};
+	AnythingToken(InputContext &context);  // read next token from is
+	static bool isNameDelimiter(char c);   // implement single place where we check for delims
 
-	const int &Token() {
-		return fToken;
-	}
-	const String &Text() {
-		return fText;
-	}
+	const int &Token() { return fToken; }
+	const String &Text() { return fText; }
 
 private:
-	int       fToken; // enum above or character value
-	String    fText; // the characters that form the token, lex would say yytext[]
+	int fToken;	   // enum above or character value
+	String fText;  // the characters that form the token, lex would say yytext[]
 
-	char    DoReadOctalOrHex(InputContext &context);
-	char    DoReadNumber(InputContext &context, char firstchar);
-	char    DoReadDigits(InputContext &context);
-	void    DoReadString(InputContext &context, char firstchar);
-	char    DoReadName(InputContext &context, char firstchar);
-	void    DoReadBinBuf(InputContext &context);
+	char DoReadOctalOrHex(InputContext &context);
+	char DoReadNumber(InputContext &context, char firstchar);
+	char DoReadDigits(InputContext &context);
+	void DoReadString(InputContext &context, char firstchar);
+	char DoReadName(InputContext &context, char firstchar);
+	void DoReadBinBuf(InputContext &context);
 };
 
-bool AnythingToken::isNameDelimiter(char c)
-{
+bool AnythingToken::isNameDelimiter(char c) {
 	// alternative Impl: return strchr(" \t\n\r\v\"/#{}[&*",c) != 0;
 	// isprint( static_cast<unsigned char>(c)) shouldn't be used because of umlauts äüö and signed chars
 	// may be double quotes " should also be considered delimiters
-	return isspace(static_cast<unsigned char>(c)) || '/' == c || '#' == c || '&' == c || '*' == c
-		   || '{' == c || '}' == c || '[' == c //|| ']' == c
+	return (isspace(static_cast<unsigned char>(c)) != 0) || '/' == c || '#' == c || '&' == c || '*' == c || '{' == c ||
+		   '}' == c || '[' == c	 //|| ']' == c
 		   || '\"' == c || 0 == c || '%' == c || '!' == c;
 }
 
-AnythingToken::AnythingToken(InputContext &context) : fToken(0)
-{
+AnythingToken::AnythingToken(InputContext &context) : fToken(0) {
 	char c = 0;
 	do {
 		if (!context.Get(c)) {
@@ -155,150 +144,146 @@ AnythingToken::AnythingToken(InputContext &context) : fToken(0)
 				fToken = AnythingToken::eNullSym;
 			}
 			break;
-		} else {
-			switch (c) {
-					// single character tokens
-				case '{': // an lbrace,
-				case '}': // an rbrace,
-				case '*': // a null Anything indicator
-					fText.Append(c);
-					fToken = c;
-					return;
-				case '&': // a object indicator a number must follow
-					while (context.Get(c) && isspace(static_cast<unsigned char>(c))) {// consume spaces
-						// adjust line count!
-						if ('\n' == c || '\r' == c) {
-							++context.LineRef();
-						}
-						c = 0;
-					}
-					c = DoReadNumber(context, c);
-					if (fToken == AnythingToken::eDecimalNumber) {
-						fToken = AnythingToken::eObject;
-						context.Putback(c);
-						return;
-					}
-					// consume invalid characters up to a whitespace
-					do {
-						fText.Append(c);
-					} while (!isspace( static_cast<unsigned char>(c)) && context.Get(c));
+		}
+		switch (c) {
+				// single character tokens
+			case '{':  // an lbrace,
+			case '}':  // an rbrace,
+			case '*':  // a null Anything indicator
+				fText.Append(c);
+				fToken = c;
+				return;
+			case '&':  // a object indicator, a number must follow
+				while (context.Get(c) && (isspace(static_cast<unsigned char>(c)) != 0)) {  // consume spaces
+					// adjust line count!
 					if ('\n' == c || '\r' == c) {
 						++context.LineRef();
 					}
-					fToken = AnythingToken::eError;
-					return;
-				case '/': // a key indicator : string or name follows
-				case '%': // a Ref indicator : string with reference follows
-				case '!': { // a Include indicator : string with url to include follows
-					Tok theToken = ('/' == c) ? eIndex : ('%' == c) ? eRef : eInclude;
 					c = 0;
-					if (context.Get(c)) {
-						if ('"' == c) {
-							DoReadString(context, c);
-						} else if (!isNameDelimiter(c)) {
-							//                      if (isalnum( static_cast<unsigned char>(c)) || '_' == c || '-' == c) {
-							// should we allow more? YES! Note this code corresponts to
-							// DoReadName below
-							c = DoReadName(context, c);
-							if (c) {
-								context.Putback(c);
-							}
-						}  else {
-							if (c) {
-								context.Putback(c);    // re-interpret delimiters
-							}
-						}
-						// ignore string errors here
-						if ((AnythingToken::eStringError == fToken ||
-							 AnythingToken::eString == fToken) && fText.Length() > 0) {
-							fToken = theToken;
-							return;
-						}
-					} // anything else  is an error.
-					fToken = AnythingToken::eError;
+				}
+				c = DoReadNumber(context, c);
+				if (fToken == AnythingToken::eDecimalNumber) {
+					fToken = AnythingToken::eObject;
+					context.Putback(c);
 					return;
 				}
-				case '"': // a string value, read it
-					DoReadString(context, c);
-					return;
-				case '[': // a binary buff impl, read it
-					DoReadBinBuf(context);
-					// should not occur in config files but might occur in ipc
-					break;
-					// numeric values:
-				case '0': // need to check octal or hex
-					c = DoReadOctalOrHex(context);
-					// should check if c is a delimiter = ( WS / & { } [ ] " )
-					if (!isNameDelimiter(c)) {
-						// PT: used the same delimiter list as below
-						// if it is no delimiter assume a strangely formatted number
-						// this is treated as a AnyStringimpl.
+				// consume invalid characters up to a whitespace
+				do {
+					fText.Append(c);
+				} while ((isspace(static_cast<unsigned char>(c)) == 0) && context.Get(c));
+				if ('\n' == c || '\r' == c) {
+					++context.LineRef();
+				}
+				fToken = AnythingToken::eError;
+				return;
+			case '/':	 // a key indicator : string or name follows
+			case '%':	 // a Ref indicator : string with reference follows
+			case '!': {	 // a Include indicator : string with url to include follows
+				Tok theToken = ('/' == c) ? eIndex : ('%' == c) ? eRef : eInclude;
+				c = 0;
+				if (context.Get(c)) {
+					if ('"' == c) {
+						DoReadString(context, c);
+					} else if (!isNameDelimiter(c)) {
+						// should we allow more? YES! Note this code corresponts to
+						// DoReadName below
 						c = DoReadName(context, c);
-					}
-					if (c) {
-						context.Putback(c);    // putback a single char should be always supported.
-					}
-					return;
-				case '+':
-				case '-': // a signed number
-				case '.': // a decimal number
-				case '1':
-				case '2':
-				case '3':
-				case '4':
-				case '5':
-				case '6':
-				case '7':
-				case '8':
-				case '9':
-					// read a decimal number
-					c = DoReadNumber(context, c);
-					// should check if c is a delimiter = ( WS # / & { } [ ] " ) PT: added # in comment
-					if (!isNameDelimiter(c)
-						// PT: added '/', '&' and '}' to condition to account for packed Anythings
-						|| fToken == AnythingToken::eError) {
-						// if it is no delimiter assume a strangely formatted number
-						// this is treated as a AnyStringimpl.
-						c = DoReadName(context, c);
-					}
-					if (c) {
-						context.Putback(c);
-					}
-					return;
-				case '#': // start of a comment skip to eol
-					context.SkipToEOL();
-					break;
-				default:
-					if (isalnum( static_cast<unsigned char>(c)) || '_' == c) { // do we need to allow more?
-						// a name or string read it
-						c = DoReadName(context, c);
-						// should check for delimiter
-						// this character should be ignored safely
-						if (c) {
+						if (c != 0) {
 							context.Putback(c);
 						}
-					} else if (isspace( static_cast<unsigned char>(c))) {
-						// ignore it but count line changes
-						if ('\n' == c || '\r' == c) {
-							++context.LineRef();
-						}
 					} else {
-						// this is a lexical error
-						fText.Append(c);
-						fToken = AnythingToken::eError;
-						// ignore character
+						if (c != 0) {
+							context.Putback(c);	 // re-interpret delimiters
+						}
 					}
-			} // switch
-		} // if
+					// ignore string errors here
+					if ((AnythingToken::eStringError == fToken || AnythingToken::eString == fToken) && fText.Length() > 0) {
+						fToken = theToken;
+						return;
+					}
+				}  // anything else  is an error.
+				fToken = AnythingToken::eError;
+				return;
+			}
+			case '"':  // a string value, read it
+				DoReadString(context, c);
+				return;
+			case '[':  // a binary buff impl, read it
+				DoReadBinBuf(context);
+				// should not occur in config files but might occur in ipc
+				break;
+				// numeric values:
+			case '0':  // need to check octal or hex
+				c = DoReadOctalOrHex(context);
+				// should check if c is a delimiter = ( WS / & { } [ ] " )
+				if (!isNameDelimiter(c)) {
+					// PT: used the same delimiter list as below
+					// if it is no delimiter assume a strangely formatted number
+					// this is treated as a AnyStringimpl.
+					c = DoReadName(context, c);
+				}
+				if (c != 0) {
+					context.Putback(c);	 // putback a single char should be always supported.
+				}
+				return;
+			case '+':
+			case '-':  // a signed number
+			case '.':  // a decimal number
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				// read a decimal number
+				c = DoReadNumber(context, c);
+				// should check if c is a delimiter = ( WS # / & { } [ ] " ) PT: added # in comment
+				if (!isNameDelimiter(c)
+					// PT: added '/', '&' and '}' to condition to account for packed Anythings
+					|| fToken == AnythingToken::eError) {
+					// if it is no delimiter assume a strangely formatted number
+					// this is treated as a AnyStringimpl.
+					c = DoReadName(context, c);
+				}
+				if (c != 0) {
+					context.Putback(c);
+				}
+				return;
+			case '#':  // start of a comment skip to eol
+				context.SkipToEOL();
+				break;
+			default:
+				if ((isalnum(static_cast<unsigned char>(c)) != 0) || '_' == c) {  // do we need to allow more?
+					// a name or string read it
+					c = DoReadName(context, c);
+					// should check for delimiter
+					// this character should be ignored safely
+					if (c != 0) {
+						context.Putback(c);
+					}
+				} else if (isspace(static_cast<unsigned char>(c)) != 0) {
+					// ignore it but count line changes
+					if ('\n' == c || '\r' == c) {
+						++context.LineRef();
+					}
+				} else {
+					// this is a lexical error
+					fText.Append(c);
+					fToken = AnythingToken::eError;
+					// ignore character
+				}
+		}
 	} while (0 == fToken);
 }
 
-void AnythingToken::DoReadString(InputContext &context, char firstchar)
-{
-	if (firstchar) {
-		context.Putback(firstchar); // leave double quote on the stream
+void AnythingToken::DoReadString(InputContext &context, char firstchar) {
+	if (firstchar != 0) {
+		context.Putback(firstchar);	 // leave double quote on the stream
 	}
-	long linebreakswithinstring =  fText.IntReadFrom(context.StreamRef(), firstchar);
+	long linebreakswithinstring = fText.IntReadFrom(context.StreamRef(), firstchar);
 	if (linebreakswithinstring < 0) {
 		// if someone puts "hello""
 		// in an any file the mismatched double quote opens a string only
@@ -315,40 +300,39 @@ void AnythingToken::DoReadString(InputContext &context, char firstchar)
 	context.LineRef() += linebreakswithinstring;
 }
 
-void AnythingToken::DoReadBinBuf(InputContext &context)
-{
+void AnythingToken::DoReadBinBuf(InputContext &context) {
 	// context's line count is not adjusted in the case of binary buffers
 	// first read in the length of the buffer
 	long length = 0;
-	context.StreamRef() >> length; // we do not need DoReadNumber here.
+	context.StreamRef() >> length;	// we do not need DoReadNumber here.
 	// we need to check a formatting error on the stream here!
-	if ( !context.StreamRef().good() ) {
+	if (!context.StreamRef().good()) {
 		// a syntax error
 		fToken = AnythingToken::eError;
-		context.StreamRef().clear(); // try again
+		context.StreamRef().clear();  // try again
 	}
 	// now we read ';' as a separator
 	char c = 0;
 	context.Get(c);
-	if ( ';' != c ) {
+	if (';' != c) {
 		// this is an error
 		// skip to ] or eof and set token to eError
 		fToken = AnythingToken::eError;
-		while ( ']' != c && context.Get(c) ) {
+		while (']' != c && context.Get(c)) {
 		}
 		return;
 	}
 	// now read in the binary buffer, this can be done via fText
-	fText.Trim(0); // to ensure nothing nasty happens
+	fText.Trim(0);	// to ensure nothing nasty happens
 	fText.Append(context.StreamRef(), length);
-	if ( fText.Length() != length ) {
+	if (fText.Length() != length) {
 		// we have a premature EOF.
 		fToken = AnythingToken::eError;
 	}
 	context.Get(c);
-	if ( ']' != c ) {
+	if (']' != c) {
 		fToken = AnythingToken::eError;
-		while ( ']' != c && context.Get(c) ) {
+		while (']' != c && context.Get(c)) {
 		}
 	}
 	if (fToken != AnythingToken::eError) {
@@ -356,8 +340,7 @@ void AnythingToken::DoReadBinBuf(InputContext &context)
 	}
 }
 
-char AnythingToken::DoReadName(InputContext &context, char firstchar)
-{
+char AnythingToken::DoReadName(InputContext &context, char firstchar) {
 	// reads letters and digits of a name and collects them in fText
 	// returns 0 in case of eof or the delimiting character instead
 	char c = 0;
@@ -369,34 +352,32 @@ char AnythingToken::DoReadName(InputContext &context, char firstchar)
 			// collect almost all printable chars except comments and nested anys
 			fText.Append(c);
 		} else {
-			return c; // we are done
+			return c;  // we are done
 		}
-		c = 0; // to mask non-read chars in case eof condition is not determined safely
+		c = 0;	// to mask non-read chars in case eof condition is not determined safely
 	}
 	// huh eof, but not critical
 	return 0;
 }
 
-char AnythingToken::DoReadDigits(InputContext &context)
-{
+char AnythingToken::DoReadDigits(InputContext &context) {
 	// reads decimal digits returns character that follows last digit
 	// collects digits in fText
 	// returns 0 in case of eof
 	char c = 0;
 	while (context.Get(c)) {
-		if (isdigit( static_cast<unsigned char>(c))) {
+		if (isdigit(static_cast<unsigned char>(c)) != 0) {
 			fText.Append(c);
 		} else {
-			return c; // we are done
+			return c;  // we are done
 		}
-		c = 0; // to mask non-read chars in case eof condition is not determined safely
+		c = 0;	// to mask non-read chars in case eof condition is not determined safely
 	}
 	// huh eof, but not critical
 	return 0;
 }
 
-char AnythingToken::DoReadOctalOrHex(InputContext &context)
-{
+char AnythingToken::DoReadOctalOrHex(InputContext &context) {
 	// determines octal or hex number and then
 	// reads decimal digits returns character that follows last digit
 	// collects digits in fText
@@ -412,7 +393,7 @@ char AnythingToken::DoReadOctalOrHex(InputContext &context)
 			char saveXcase = c;
 			fToken = AnythingToken::eHexNumber;
 			while (context.Get(c)) {
-				if (isxdigit( static_cast<unsigned char>(c))) {
+				if (isxdigit(static_cast<unsigned char>(c)) != 0) {
 					fText.Append(c);
 				} else if (!isNameDelimiter(c)) {
 					// we might have some problem here if c is not a delim
@@ -421,30 +402,30 @@ char AnythingToken::DoReadOctalOrHex(InputContext &context)
 					fText = String("0") << saveXcase << fText;
 					return c;
 				} else {
-					return c; // we are done
+					return c;  // we are done
 				}
-				c = 0; // to mask non-read chars in case eof condition is not determined safely
+				c = 0;	// to mask non-read chars in case eof condition is not determined safely
 			}
 		} else if ('0' <= c && '7' >= c) {
 			// assume for now it is an octal number
-			fText.Append('0'); // save 0
-			do { // collect the octal digits
+			fText.Append('0');	// save 0
+			do {				// collect the octal digits
 				fText.Append(c);
 				c = 0;
 				if (context.Get(c)) {
-					if ('8' == c || '9' == c || '.' == c || 'E' == toupper(c) ) {
+					if ('8' == c || '9' == c || '.' == c || 'E' == toupper(c)) {
 						// oops we found a decimal instead of octal
 						// this might lead to an error if we input 007.
 						// because the int-part might be already parsed
 						return DoReadNumber(context, c);
-					} // else assume its OK and a valid octal number
-					// or a delimiter.
+					}  // else assume its OK and a valid octal number
+					   // or a delimiter.
 				} else {
-					return 0; // we have reached EOF.
+					return 0;  // we have reached EOF.
 				}
 			} while ('0' <= c && '7' >= c);
 			return c;
-		} else if ('8' == c || '9' == c || '.' == c || 'E' == toupper(c) ) {
+		} else if ('8' == c || '9' == c || '.' == c || 'E' == toupper(c)) {
 			// oops we found a decimal instead of octal
 			// this might lead to an error if we input "0."
 			// because the int-part might be already parsed
@@ -453,27 +434,25 @@ char AnythingToken::DoReadOctalOrHex(InputContext &context)
 			// should be considered a syntax error, but we accept them now.
 			context.Putback(c);
 			return DoReadNumber(context, '0');
-		} else { // we have found '0', therefore fall through down below:
-			fText.Append('0'); // save 0
+		} else {				// we have found '0', therefore fall through down below:
+			fText.Append('0');	// save 0
 		}
 	} else {
-		c = 0; // solve sunCCs problem of passing EOF through a char
-		// definitely set c to 0 if we fail to Get
+		c = 0;	// solve sunCCs problem of passing EOF through a char
+				// definitely set c to 0 if we fail to Get
 	}
 	// we have found 0 or some other error
 	// should check that c is a valid delimiter in the outside part
 	return c;
 }
 
-char AnythingToken::DoReadNumber(InputContext &context, char firstchar)
-{
+char AnythingToken::DoReadNumber(InputContext &context, char firstchar) {
 	// collect numeric characters from context input and look if it might
 	// be a floating point number
 	// this code is a little bit tricky, since we have a multi-state automaton
 	// determining lexically correct floating point numbers
-	fToken = AnythingToken::eDecimalNumber; // might become eFloatNumber
-	bool intpart = false, fraction = false,
-		 exponent = false, echar = false;
+	fToken = AnythingToken::eDecimalNumber;	 // might become eFloatNumber
+	bool intpart = false, fraction = false, exponent = false, echar = false;
 	if (context.IsGood()) {
 		if ('+' == firstchar || '-' == firstchar) {
 			// found optional sign character :
@@ -481,7 +460,7 @@ char AnythingToken::DoReadNumber(InputContext &context, char firstchar)
 			context.Get(firstchar);
 		}
 		// processed [+-]? follow: [0-9]*\.?[0-9]*([eE][+-]?[0-9]+)?
-		if (isdigit( static_cast<unsigned char>(firstchar))) {
+		if (isdigit(static_cast<unsigned char>(firstchar)) != 0) {
 			// collect decimal digits
 			intpart = true;
 			fText.Append(firstchar);
@@ -507,7 +486,7 @@ char AnythingToken::DoReadNumber(InputContext &context, char firstchar)
 				context.Get(firstchar);
 			}
 			// processed [+-]?[0-9]*\.?[0-9]*([eE][+-]? follow: [0-9]+)?
-			if (isdigit( static_cast<unsigned char>(firstchar))) {
+			if (isdigit(static_cast<unsigned char>(firstchar)) != 0) {
 				exponent = true;
 				fText.Append(firstchar);
 				firstchar = DoReadDigits(context);
@@ -516,7 +495,7 @@ char AnythingToken::DoReadNumber(InputContext &context, char firstchar)
 	} else {
 		// special case one digit number
 		fText.Append(firstchar);
-		if (isdigit( static_cast<unsigned char>(firstchar))) {
+		if (isdigit(static_cast<unsigned char>(firstchar)) != 0) {
 			intpart = true;
 		} else {
 			fToken = AnythingToken::eError;
@@ -524,11 +503,11 @@ char AnythingToken::DoReadNumber(InputContext &context, char firstchar)
 		firstchar = 0;
 	}
 	// now we check our bools for valid numbers
-	if ((! intpart && !fraction && !exponent) || (echar && !exponent)) {
+	if ((!intpart && !fraction && !exponent) || (echar && !exponent)) {
 		fToken = AnythingToken::eError;
 	} else if (fraction || exponent) {
 		fToken = AnythingToken::eFloatNumber;
-	} // otherwise it should be a decimal number
+	}  // otherwise it should be a decimal number
 	return firstchar;
 }
 
@@ -538,16 +517,14 @@ namespace {
 	char const fgEscapeChar = '\\';
 
 	bool leftCharNotEscape(char const l, char const r) {
-		return ( l != fgEscapeChar && ( r == fgPathDelim || r == fgIndexDelim ) );
+		return (l != fgEscapeChar && (r == fgPathDelim || r == fgIndexDelim));
 	}
-	bool leftCharEscape(char const l, char const r) {
-		return ( l == fgEscapeChar && ( r == fgPathDelim || r == fgIndexDelim ) );
-	}
+	bool leftCharEscape(char const l, char const r) { return (l == fgEscapeChar && (r == fgPathDelim || r == fgIndexDelim)); }
 	struct unescapeString {
 		String result;
 		void operator()(const char c) {
-			if ( result.Length() && leftCharEscape(result[result.Length()-1L], c) ) {
-				result.Trim(result.Length()-1L);
+			if ((result.Length() != 0) && leftCharEscape(result[result.Length() - 1L], c)) {
+				result.Trim(result.Length() - 1L);
 			}
 			result.Append(c);
 		}
@@ -555,40 +532,43 @@ namespace {
 	struct escapeString {
 		String result;
 		void operator()(const char c) {
-			if ( c == fgPathDelim || c == fgIndexDelim ) {
+			if (c == fgPathDelim || c == fgIndexDelim) {
 				result.Append(fgEscapeChar);
 			}
 			result.Append(c);
 		}
 	};
 
-	struct appendAnyLevelToString : public std::unary_function<Anything const&,void> {
+	struct appendAnyLevelToString : public std::unary_function<Anything const &, void> {
 		String fStr;
-		void operator()(Anything const& anyValue) {
-			if ( anyValue.GetType() == AnyCharPtrType ) {
-				if ( fStr.Length() ) fStr.Append(fgPathDelim);
-			} else if ( anyValue.GetType() == AnyLongType ) {
+		void operator()(Anything const &anyValue) {
+			if (anyValue.GetType() == AnyCharPtrType) {
+				if (fStr.Length() != 0) {
+					fStr.Append(fgPathDelim);
+				}
+			} else if (anyValue.GetType() == AnyLongType) {
 				fStr.Append(fgIndexDelim);
 			}
 			String strTok = anyValue.AsString();
-			fStr.Append(std::for_each(strTok.cstr(), strTok.cstr()+strTok.Length(),escapeString()).result);
+			fStr.Append(std::for_each(strTok.cstr(), strTok.cstr() + strTok.Length(), escapeString()).result);
 		}
 	};
-	struct resolveToAnyLevel : public std::unary_function<Anything const&,void> {
+	struct resolveToAnyLevel : public std::unary_function<Anything const &, void> {
 		Anything result;
-		resolveToAnyLevel(Anything const& anySource) : result(anySource) {}
-		void operator()(Anything const& anyValue) {
-			anyStartTrace1(resolveToAnyLevel.operator, "key [" << anyValue.AsString() << "], success: " << (result.IsNull()?"false":"true"));
-			if ( !result.IsNull() ) {
+		resolveToAnyLevel(Anything const &anySource) : result(anySource) {}
+		void operator()(Anything const &anyValue) {
+			anyStartTrace1(resolveToAnyLevel.operator, "key [" << anyValue.AsString()
+														   << "], success: " << (result.IsNull() ? "false" : "true"));
+			if (!result.IsNull()) {
 				long lIdx = -1L;
-				if ( anyValue.GetType() == AnyCharPtrType ) {
+				if (anyValue.GetType() == AnyCharPtrType) {
 					lIdx = result.FindIndex(anyValue.AsString());
 					anyTrace("char key to idx: " << lIdx);
-				} else if ( anyValue.GetType() == AnyLongType ) {
+				} else if (anyValue.GetType() == AnyLongType) {
 					lIdx = result.FindIndex(anyValue.AsLong(-1L));
 					anyTrace("long key to idx: " << lIdx);
 				}
-				if ( lIdx == -1L ) {
+				if (lIdx == -1L) {
 					result = Anything();
 					return;
 				}
@@ -597,78 +577,62 @@ namespace {
 			}
 		}
 	};
-	Anything escapedQueryStringToAny(String const& query) {
+	Anything escapedQueryStringToAny(String const &query) {
 		anyStartTrace(AnythingParser.escapedQueryStringToAny);
 		char const *pStart = query.cstr(), *pEnd = pStart + query.Length(), *pPos = pStart;
 		Anything anyLevel;
-		for (; pPos != pEnd; ) {
+		for (; pPos != pEnd;) {
 			pPos = std::adjacent_find(pStart, pEnd, leftCharNotEscape);
-			long lLen = pPos-pStart;
-			if ( pPos != pEnd ) ++lLen;
+			long lLen = pPos - pStart;
+			if (pPos != pEnd) {
+				++lLen;
+			}
 			String strTok(pStart, lLen);
-			if ( *pStart == fgIndexDelim || *pStart == fgPathDelim ) {
+			if (*pStart == fgIndexDelim || *pStart == fgPathDelim) {
 				strTok.TrimFront(1);
 			}
-			if ( *pStart == fgIndexDelim ) {
-				anyTrace("indextoken [" << strTok << "]")
-				anyLevel.Append(strTok.AsLong(-1L));
+			if (*pStart == fgIndexDelim) {
+				anyTrace("indextoken [" << strTok << "]") anyLevel.Append(strTok.AsLong(-1L));
 			} else {
 				anyTrace("pathtoken [" << strTok << "]")
-				anyLevel.Append(std::for_each(strTok.cstr(), strTok.cstr()+strTok.Length(),unescapeString()).result);
+					anyLevel.Append(std::for_each(strTok.cstr(), strTok.cstr() + strTok.Length(), unescapeString()).result);
 			}
-			if ( pPos != pEnd ) {
+			if (pPos != pEnd) {
 				pStart = ++pPos;
 			}
 		}
 		anyTraceAny(anyLevel, "sequence");
 		return anyLevel;
 	}
-}
+}  // namespace
 
 class AnyXrefHandler {
 	Anything fParseLevel;
+
 protected:
 	Anything fXrefs;
+
 public:
-	Anything ParseLevel() const {
-		return fParseLevel.DeepClone();
-	}
-	String ParseLevelAsString() {
-		return std::for_each(fParseLevel.begin(), fParseLevel.end(), appendAnyLevelToString()).fStr;
-	}
-	void ResetLevel(Anything const &any) {
-		fParseLevel = any;
-	}
-	void PushKey(const String &key) {
-		fParseLevel.Append(key);
-	}
-	void PushIndex(long lIdx) {
-		fParseLevel.Append(lIdx);
-	}
-	void Pop() {
-		fParseLevel.Remove(fParseLevel.GetSize() - 1);
-	}
+	Anything ParseLevel() const { return fParseLevel.DeepClone(); }
+	String ParseLevelAsString() { return std::for_each(fParseLevel.begin(), fParseLevel.end(), appendAnyLevelToString()).fStr; }
+	void ResetLevel(Anything const &any) { fParseLevel = any; }
+	void PushKey(const String &key) { fParseLevel.Append(key); }
+	void PushIndex(long lIdx) { fParseLevel.Append(lIdx); }
+	void Pop() { fParseLevel.Remove(fParseLevel.GetSize() - 1); }
 };
 
-class PrinterXrefHandler: public AnyXrefHandler {
-	String ToId(long id) const {
-		return String().Append(id);
-	}
+class PrinterXrefHandler : public AnyXrefHandler {
+	String ToId(long id) const { return String().Append(id); }
+
 public:
-	bool IsDefined(long id) const {
-		return fXrefs.IsDefined(ToId(id));
-	}
-	void DefineBackRef(long id) {
-		fXrefs[ToId(id)] = ParseLevel();
-	}
+	bool IsDefined(long id) const { return fXrefs.IsDefined(ToId(id)); }
+	void DefineBackRef(long id) { fXrefs[ToId(id)] = ParseLevel(); }
 	String GetBackRef(long id) {
 		return std::for_each(fXrefs[ToId(id)].begin(), fXrefs[ToId(id)].end(), appendAnyLevelToString()).fStr;
 	}
 };
 
-
-class ParserXrefHandler : public AnyXrefHandler
-{
+class ParserXrefHandler : public AnyXrefHandler {
 public:
 	void DefinePatchRef(long lIdx) {
 		anyStartTrace1(ParserXrefHandler.DefinePatchRef, "parseLevel:" << ParseLevelAsString() << " idx:" << lIdx);
@@ -690,16 +654,19 @@ public:
 		for (long i = 0, lSize = fXrefs.GetSize(); i < lSize; ++i) {
 			anyLevel = fXrefs[i][0L];
 			anyIdx = fXrefs[i][1L];
-			anyTraceAny(anyLevel, "strLevel [" << std::for_each(anyLevel.begin(), anyLevel.end(), appendAnyLevelToString()).fStr << "] for reference [" << anyIdx.AsString() << "]");
-			if (anyLevel.IsNull()) { // root level node
+			anyTraceAny(anyLevel, "strLevel [" << std::for_each(anyLevel.begin(), anyLevel.end(), appendAnyLevelToString()).fStr
+											   << "] for reference [" << anyIdx.AsString() << "]");
+			if (anyLevel.IsNull()) {  // root level node
 				preslot = any;
 			} else {
 				preslot = std::for_each(anyLevel.begin(), anyLevel.end(), resolveToAnyLevel(any)).result;
 			}
 			anyTraceAny(preslot, "replacement reference");
-			if ( preslot.IsNull() ) {
+			if (preslot.IsNull()) {
 				String m;
-				m << "lookup of slotname [" << std::for_each(anyLevel.begin(), anyLevel.end(), appendAnyLevelToString()).fStr << "] failed!" << "\n";
+				m << "lookup of slotname [" << std::for_each(anyLevel.begin(), anyLevel.end(), appendAnyLevelToString()).fStr
+				  << "] failed!"
+				  << "\n";
 				SystemLog::WriteToStderr(m);
 			} else {
 				if (anyIdx.GetType() == AnyLongType) {
@@ -708,10 +675,14 @@ public:
 					anyReferenced = preslot[anyIdx.AsString()];
 				}
 				ref = std::for_each(anyReferenced.begin(), anyReferenced.end(), resolveToAnyLevel(any)).result;
-				anyTraceAny(ref, "referenced any as string [" << std::for_each(anyReferenced.begin(), anyReferenced.end(), appendAnyLevelToString()).fStr << "]");
-				if ( ref.IsNull() ) {
+				anyTraceAny(ref, "referenced any as string ["
+									 << std::for_each(anyReferenced.begin(), anyReferenced.end(), appendAnyLevelToString()).fStr
+									 << "]");
+				if (ref.IsNull()) {
 					String m;
-					m << "lookup of reference [" << std::for_each(anyReferenced.begin(), anyReferenced.end(), appendAnyLevelToString()).fStr << "] failed!" << "\n";
+					m << "lookup of reference ["
+					  << std::for_each(anyReferenced.begin(), anyReferenced.end(), appendAnyLevelToString()).fStr << "] failed!"
+					  << "\n";
 					SystemLog::WriteToStderr(m);
 				} else {
 					if (anyIdx.GetType() == AnyLongType) {
@@ -729,10 +700,8 @@ class AnythingParser {
 	// really implement the grammar of Anythings
 	// needs to be friend of Anything to set Anything's internals
 public:
-	AnythingParser(InputContext &c) :
-			fContext(c) {
-	}
-	bool DoParse(Anything &a); // returns false if there was a syntax error
+	AnythingParser(InputContext &c) : fContext(c) {}
+	bool DoParse(Anything &a);	// returns false if there was a syntax error
 	bool DoParseSequence(Anything &a, ParserXrefHandler &xrefs);
 	bool MakeSimpleAny(AnythingToken &tok, Anything &a);
 
@@ -742,122 +711,106 @@ private:
 	InputContext &fContext;
 };
 
-Anything::Anything(Allocator *a) :
-		fAnyImp(0) {
+Anything::Anything(Allocator *a) : fAnyImp(0) {
 	SetAllocator(a);
 }
-Anything::Anything(AnyImpl *ai) :
-		fAnyImp(ai) {
-	SetAllocator(ai ? ai->MyAllocator() : coast::storage::Current());
+Anything::Anything(AnyImpl *ai) : fAnyImp(ai) {
+	SetAllocator(ai != 0 ? ai->MyAllocator() : coast::storage::Current());
 }
-Anything::Anything(int i, Allocator *a) :
-		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(i, a)) {
+Anything::Anything(int i, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyLongImpl(i, a)) {
 	SetAllocator(a);
 }
 #if !defined(BOOL_NOT_SUPPORTED)
-Anything::Anything(bool b, Allocator *a) :
-		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(b, a)) {
+Anything::Anything(bool b, Allocator *a)
+	: fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyLongImpl(static_cast<long>(b), a)) {
 	SetAllocator(a);
 }
 #endif
-Anything::Anything(long i, Allocator *a) :
-		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyLongImpl(i, a)) {
+Anything::Anything(long i, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyLongImpl(i, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(float f, Allocator *a) :
-		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyDoubleImpl(f, a)) {
+Anything::Anything(float f, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyDoubleImpl(f, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(double d, Allocator *a) :
-		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyDoubleImpl(d, a)) {
+Anything::Anything(double d, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyDoubleImpl(d, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(IFAObject *o, Allocator *a) :
-		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyObjectImpl(o, a)) {
-	SetAllocator(a);   // PS: Only for transient pointers NO checking!!
+Anything::Anything(IFAObject *o, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyObjectImpl(o, a)) {
+	SetAllocator(a);  // PS: Only for transient pointers NO checking!!
 }
-Anything::Anything(const String &s, Allocator *a) :
-		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyStringImpl(s, a)) {
+Anything::Anything(const String &s, Allocator *a)
+	: fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyStringImpl(s, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(const char *s, long len, Allocator *a) :
-		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyStringImpl(s, len, a)) {
+Anything::Anything(const char *s, long len, Allocator *a)
+	: fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyStringImpl(s, len, a)) {
 	SetAllocator(a);
 }
-Anything::Anything(void *buf, long len, Allocator *a) :
-		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyBinaryBufImpl(buf, len, a)) {
+Anything::Anything(void *buf, long len, Allocator *a)
+	: fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyBinaryBufImpl(buf, len, a)) {
 	SetAllocator(a);
 }
 
-Anything::Anything(const Anything &any, Allocator *a) :
-		fAnyImp(0) {
+Anything::Anything(const Anything &any, Allocator *a) : fAnyImp(0) {
 	SetAllocator(a);
 	if (GetAllocator() == any.GetAllocator()) {
 		// add reference
-		fAnyImp = const_cast<AnyImpl*>(any.GetImpl());
-		if (GetImpl()) {
+		fAnyImp = const_cast<AnyImpl *>(any.GetImpl());
+		if (GetImpl() != 0) {
 			GetImpl()->Ref();
 		}
 	} else {
 		// copy memory
 		Anything xref;
-		if (any.GetImpl()) {
+		if (any.GetImpl() != 0) {
 			fAnyImp = any.GetImpl()->DeepClone(GetAllocator(), xref);
 		}
 	}
-	if (!GetImpl()) {
-		SetAllocator(a);    // remember allocator or make it sane in case of errors
+	if (GetImpl() == 0) {
+		SetAllocator(a);  // remember allocator or make it sane in case of errors
 	}
 }
-Anything::Anything(ArrayMarker m, Allocator *a) :
-		fAnyImp(new ((a) ? a : coast::storage::Current()) AnyArrayImpl(a)) {
+Anything::Anything(ArrayMarker m, Allocator *a) : fAnyImp(new ((a) != 0 ? a : coast::storage::Current()) AnyArrayImpl(a)) {
 	SetAllocator(a);
 }
 
 Anything::~Anything() {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		GetImpl()->Unref();
 		fAnyImp = 0;
 	}
 }
 
-Anything Anything::DeepClone(Allocator *a) const
-{
+Anything Anything::DeepClone(Allocator *a) const {
 	Anything xref(a);
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->DeepClone(a, xref);
-	} else {
-		return Anything(a);    // just set the allocator
 	}
+	return Anything(a);	 // just set the allocator
 }
 
-Anything Anything::DeepClone(Allocator *a, Anything &xref) const
-{
-	if (GetImpl()) {
+Anything Anything::DeepClone(Allocator *a, Anything &xref) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->DeepClone(a, xref);
-	} else {
-		return Anything(a);    // just set the allocator
 	}
+	return Anything(a);	 // just set the allocator
 }
 
-long Anything::GetSize() const
-{
-	return GetImpl() ? GetImpl()->GetSize() : 0L;
+long Anything::GetSize() const {
+	return GetImpl() != 0 ? GetImpl()->GetSize() : 0L;
 }
 
-AnyImplType Anything::GetType() const
-{
-	return GetImpl() ? GetImpl()->GetType() : AnyNullType;
+AnyImplType Anything::GetType() const {
+	return GetImpl() != 0 ? GetImpl()->GetType() : AnyNullType;
 }
 
-void Anything::EnsureArrayImpl(Anything &anyToEnsure)
-{
+void Anything::EnsureArrayImpl(Anything &anyToEnsure) {
 	anyStartTrace(Anything.EnsureArrayImpl);
-	if ( anyToEnsure.GetType() != AnyArrayType ) {
+	if (anyToEnsure.GetType() != AnyArrayType) {
 		anyTrace("is not array");
 		// behave friendly if current slot is not an array impl, eg don't lose current entry
-		Anything expander = Anything(Anything::ArrayMarker(),anyToEnsure.GetAllocator());
-		if ( !anyToEnsure.IsNull() ) {
+		Anything expander = Anything(Anything::ArrayMarker(), anyToEnsure.GetAllocator());
+		if (!anyToEnsure.IsNull()) {
 			anyTrace("was not Null");
 			expander.Append(anyToEnsure);
 		}
@@ -865,106 +818,92 @@ void Anything::EnsureArrayImpl(Anything &anyToEnsure)
 	}
 }
 
-long Anything::AsLong(long dflt) const
-{
-	if (GetImpl()) {
+long Anything::AsLong(long dflt) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsLong(dflt);
 	}
 	return dflt;
 }
 
-bool Anything::AsBool(bool dflt) const
-{
-	if IsLongImpl(GetImpl()) {
-		return (LongImpl(GetImpl())->AsLong(static_cast<long>(dflt)) != 0);
-	}
+bool Anything::AsBool(bool dflt) const {
+	if
+		IsLongImpl(GetImpl()) { return (LongImpl(GetImpl())->AsLong(static_cast<long>(dflt)) != 0); }
 	return dflt;
 }
 
-double Anything::AsDouble(double dflt) const
-{
-	if (GetImpl()) {
+double Anything::AsDouble(double dflt) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsDouble(dflt);
 	}
 	return dflt;
 }
 
-IFAObject *Anything::AsIFAObject(IFAObject *dflt) const
-{
+IFAObject *Anything::AsIFAObject(IFAObject *dflt) const {
 	if (IsObjectImpl(GetImpl())) {
 		return ObjectImpl(GetImpl())->AsIFAObject(dflt);
 	}
 	return dflt;
 }
 
-const char *Anything::AsCharPtr(const char *dflt) const
-{
-	if (GetImpl()) {
+const char *Anything::AsCharPtr(const char *dflt) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsCharPtr(dflt);
 	}
 	return dflt;
 }
 
-const char *Anything::AsCharPtr(const char *dflt, long &buflen) const
-{
-	if (GetImpl()) {
+const char *Anything::AsCharPtr(const char *dflt, long &buflen) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsCharPtr(dflt, buflen);
 	}
-	if (dflt) {
+	if (dflt != 0) {
 		buflen = strlen(dflt);
 	}
 	return dflt;
 }
 
-String Anything::AsString(const char *dflt) const
-{
-	if (GetImpl()) {
+String Anything::AsString(const char *dflt) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsString(dflt);
 	}
 	return dflt;
 }
 
-void Anything::Expand()
-{
+void Anything::Expand() {
 	if (GetType() != AnyArrayType) {
 		Allocator *al = GetAllocator();
 		Assert(al != 0);
-		AnyArrayImpl *a = new ((al) ? al : coast::storage::Current()) AnyArrayImpl(al);
-		if ( a && GetType() != AnyNullType ) {
-			a->At(0L) = *this; // this semantic is different from the Java version
+		AnyArrayImpl *a = new ((al) != 0 ? al : coast::storage::Current()) AnyArrayImpl(al);
+		if ((a != 0) && GetType() != AnyNullType) {
+			a->At(0L) = *this;	// this semantic is different from the Java version
 		}
-		if (GetImpl()) {
+		if (GetImpl() != 0) {
 			GetImpl()->Unref();
 		}
 		fAnyImp = a;
 		if (0 == a) {
-			SetAllocator(al); // remember allocator in case of insanity or no memory
+			SetAllocator(al);  // remember allocator in case of insanity or no memory
 		}
 	}
 }
 
-const Anything &Anything::At(long i) const
-{
+const Anything &Anything::At(long i) const {
 	return DoAt(i);
 }
 
-Anything &Anything::At(long i)
-{
+Anything &Anything::At(long i) {
 	return DoAt(i);
 }
-Anything &Anything::At(const char *k)
-{
+Anything &Anything::At(const char *k) {
 	return DoAt(k);
 }
-const Anything &Anything::At(const char *k) const
-{
+const Anything &Anything::At(const char *k) const {
 	return DoAt(k);
 }
 
-Anything  &Anything::DoAt(long i)
-{
+Anything &Anything::DoAt(long i) {
 	Assert(i >= 0);
-	if ( i > 0 || GetType() == AnyNullType ) {
+	if (i > 0 || GetType() == AnyNullType) {
 		// check whether Expansion really needed
 		// Expand if simple type and index > 0
 		// or type is still null
@@ -972,15 +911,13 @@ Anything  &Anything::DoAt(long i)
 	}
 	return DoGetAt(i);
 }
-Anything const &Anything::DoAt(long i) const
-{
+Anything const &Anything::DoAt(long i) const {
 	Assert(i >= 0);
 	return DoGetAt(i);
 }
 
-Anything  &Anything::DoGetAt(long i)
-{
-	if ( GetType() != AnyArrayType ) {
+Anything &Anything::DoGetAt(long i) {
+	if (GetType() != AnyArrayType) {
 		// if the type is not an AnyArrayType
 		// just return this
 		return *this;
@@ -989,9 +926,8 @@ Anything  &Anything::DoGetAt(long i)
 	// Assert does expand to nothing --> should use size_t instead of long for indices
 	return ArrayImpl(GetImpl())->At((i >= 0) ? i : 0);
 }
-Anything const &Anything::DoGetAt(long i) const
-{
-	if ( GetType() != AnyArrayType ) {
+Anything const &Anything::DoGetAt(long i) const {
+	if (GetType() != AnyArrayType) {
 		// if the type is not an AnyArrayType
 		// just return this
 		return *this;
@@ -1001,53 +937,48 @@ Anything const &Anything::DoGetAt(long i) const
 	return ArrayImpl(GetImpl())->At((i >= 0) ? i : 0);
 }
 
-Anything &Anything::DoAt(const char *k)
-{
-	long i;
-	if (k && (*k != 0)) {
-		if ( (i = FindIndex(k)) == -1L) {
+Anything &Anything::DoAt(const char *k) {
+	long i = 0;
+	if ((k != 0) && (*k != 0)) {
+		if ((i = FindIndex(k)) == -1L) {
 			Expand();
 			Assert(AnyArrayType == GetImpl()->GetType());
 			return ArrayImpl(GetImpl())->At(k);
-		} else {
-			return DoAt(i);
 		}
+		return DoAt(i);
 	}
 	return DoAt(GetSize());
 }
-Anything const &Anything::DoAt(const char *k)const
-{
-	long i;
-	if (k && (*k != 0)) {
-		if ( (i = FindIndex(k)) != -1L) {
+Anything const &Anything::DoAt(const char *k) const {
+	long i = 0;
+	if ((k != 0) && (*k != 0)) {
+		if ((i = FindIndex(k)) != -1L) {
 			return DoAt(i);
 		}
 	}
 	return DoAt(GetSize());
 }
 
-const char *Anything::SlotName(long slot) const
-{
+const char *Anything::SlotName(long slot) const {
 	if (IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->SlotName(slot);
 	}
 	return 0;
 }
 
-bool Anything::Remove(long slot)
-{
+bool Anything::Remove(long slot) {
 	if (IsArrayImpl(GetImpl())) {
 		ArrayImpl(GetImpl())->Remove(slot);
 		return true;
-	} else if ( slot == 0 && !IsNull() ) {
+	}
+	if (slot == 0 && !IsNull()) {
 		clear();
 		return true;
 	}
 	return false;
 }
 
-bool Anything::Remove(const char *k)
-{
+bool Anything::Remove(const char *k) {
 	if (IsArrayImpl(GetImpl())) {
 		long slot = FindIndex(k);
 		if (slot >= 0) {
@@ -1058,38 +989,34 @@ bool Anything::Remove(const char *k)
 	return false;
 }
 
-void Anything::InsertReserve(long slot, long sz)
-{
+void Anything::InsertReserve(long slot, long sz) {
 	if (IsArrayImpl(GetImpl())) {
 		ArrayImpl(GetImpl())->InsertReserve(slot, sz);
 	}
 }
 
-bool Anything::IsEqual(const Anything &other) const
-{
+bool Anything::IsEqual(const Anything &other) const {
 	if (GetImpl() == other.GetImpl()) {
 		return true;
 	}
-	if (GetImpl() && other.GetImpl()) {
+	if ((GetImpl() != 0) && (other.GetImpl() != 0)) {
 		return GetImpl()->IsEqual(other.GetImpl());
 	}
 	return false;
 }
 
-bool Anything::IsEqual(const char *other) const
-{
-	if (GetImpl()) {
-		if (other) {
+bool Anything::IsEqual(const char *other) const {
+	if (GetImpl() != 0) {
+		if (other != 0) {
 			return (strcmp(AsCharPtr(""), other) == 0);
 		}
-	} else if (!other) {
+	} else if (other == 0) {
 		return true;
 	}
 	return false;
 }
 
-long Anything::FindIndex(const char *k, long sizehint, u_long hashhint) const
-{
+long Anything::FindIndex(const char *k, long sizehint, u_long hashhint) const {
 	Assert(k);
 	if (IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->FindIndex(k, sizehint, hashhint);
@@ -1097,8 +1024,7 @@ long Anything::FindIndex(const char *k, long sizehint, u_long hashhint) const
 	return -1L;
 }
 
-long Anything::FindIndex(const long lIdx) const
-{
+long Anything::FindIndex(const long lIdx) const {
 	Assert(lIdx >= 0);
 	if (IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->FindIndex(lIdx);
@@ -1106,99 +1032,90 @@ long Anything::FindIndex(const long lIdx) const
 	return -1L;
 }
 
-long Anything::FindValue(const char *k) const
-{
-	if (GetImpl()) {
+long Anything::FindValue(const char *k) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->Contains(k);
 	}
 	return -1L;
 }
 
-bool Anything::Contains(const char *k) const
-{
-	if (GetImpl()) {
+bool Anything::Contains(const char *k) const {
+	if (GetImpl() != 0) {
 		return (GetImpl()->Contains(k) >= 0);
 	}
 	return false;
 }
 
-long Anything::Append(const Anything &a)
-{
+long Anything::Append(const Anything &a) {
 	long s = GetSize();
 	At(s) = a;
 	return s;
 }
 
-Anything &Anything::operator= (const Anything &a)
-{
+Anything &Anything::operator=(const Anything &a) {
 	if (GetImpl() != a.GetImpl()) {
 		Allocator *al = GetAllocator();
 		// do a deepclone if allocators don't match
 		AnyImpl *oldImpl = GetImpl();
 		if (a.GetAllocator() == al) {
-			fAnyImp = const_cast<AnyImpl*>(a.GetImpl());
-			if (GetImpl()) {
+			fAnyImp = const_cast<AnyImpl *>(a.GetImpl());
+			if (GetImpl() != 0) {
 				GetImpl()->Ref();
 			}
-		} else if (a.GetImpl()) {
+		} else if (a.GetImpl() != 0) {
 			Assert(al != 0);
 			Anything xref;
 			fAnyImp = a.GetImpl()->DeepClone(al, xref);
-		} else {// empty any
+		} else {  // empty any
 			fAnyImp = 0;
 		}
-		if (!GetImpl()) {
+		if (GetImpl() == 0) {
 			SetAllocator(al);
 		}
 		// make it sane if we remain empty
-		if (oldImpl) {
+		if (oldImpl != 0) {
 			oldImpl->Unref();
 		}
 	}
 	return *this;
 }
 
-void Anything::SortByKey()
-{
+void Anything::SortByKey() {
 	if (IsArrayImpl(GetImpl())) {
 		ArrayImpl(GetImpl())->SortByKey();
 	}
 }
 
-void Anything::SortReverseByKey()
-{
+void Anything::SortReverseByKey() {
 	if (IsArrayImpl(GetImpl())) {
 		ArrayImpl(GetImpl())->SortReverseByKey();
 	}
 }
 
-void Anything::SortByStringValues()
-{
+void Anything::SortByStringValues() {
 	if (IsArrayImpl(GetImpl())) {
 		ArrayImpl(GetImpl())->SortByAnyComparer(AnyStringValueComparer());
 	}
 }
 
-void Anything::SortByAnyComparer(const AnyComparer &ac)
-{
+void Anything::SortByAnyComparer(const AnyComparer &ac) {
 	if (IsArrayImpl(GetImpl())) {
 		ArrayImpl(GetImpl())->SortByAnyComparer(ac);
 	}
 }
 
-class SimpleAnyPrinter: public AnyVisitor
-{
+class SimpleAnyPrinter : public AnyVisitor {
 protected:
 	std::ostream &fOs;
-	void PrintKey(const String &s) { // no copy for efficiency
+	void PrintKey(const String &s) {  // no copy for efficiency
 		bool needquote = false;
 
 		fOs << '/';
 
-		if (isdigit( static_cast<unsigned char>(s[0L]))) {
-			needquote = true;	// quote all numbers
+		if (isdigit(static_cast<unsigned char>(s[0L])) != 0) {
+			needquote = true;  // quote all numbers
 		} else {
-			for (long i = s.Length(); --i >= 0 && !needquote; ) {
+			for (long i = s.Length(); --i >= 0 && !needquote;) {
 				needquote = AnythingToken::isNameDelimiter(s[i]);
 			}
 		}
@@ -1206,41 +1123,35 @@ protected:
 		if (needquote) {
 			s.IntPrintOn(fOs, '\"');
 		} else {
-			fOs << s ;
+			fOs << s;
 		}
 		fOs << ' ';
 	}
-	void ArrayBefore(const ROAnything , const AnyImpl *, long , const char *) {
-		fOs << '{';
-	}
+	void ArrayBefore(const ROAnything, const AnyImpl *, long, const char *) { fOs << '{'; }
 	void ArrayBeforeElement(long lIdx, const String &key) {
 		if (key.Length() > 0) {
 			PrintKey(key);
 		}
 	}
-	//void ArrayAfterElement(long index, const String &key){}
-	void ArrayAfter(const ROAnything, const AnyImpl *, long , const char *) {
-		fOs << '}';
-	}
+	// void ArrayAfterElement(long index, const String &key){}
+	void ArrayAfter(const ROAnything, const AnyImpl *, long, const char *) { fOs << '}'; }
 
 public:
-	SimpleAnyPrinter(std::ostream &os): fOs(os) {}
-	virtual void	VisitNull(long lIdx, const char *slotname) {
-		fOs.put('*');
-	}
-	virtual void	VisitCharPtr(const String &value, const AnyImpl *id, long lIdx, const char *slotname) {
+	SimpleAnyPrinter(std::ostream &os) : fOs(os) {}
+	virtual void VisitNull(long lIdx, const char *slotname) { fOs.put('*'); }
+	virtual void VisitCharPtr(const String &value, const AnyImpl *id, long lIdx, const char *slotname) {
 		value.IntPrintOn(fOs);
 	}
-	virtual void	VisitLong(long value, const AnyImpl *id, long lIdx, const char *slotname) {
-		if ( id->GetType() == AnyLongType ) {
+	virtual void VisitLong(long value, const AnyImpl *id, long lIdx, const char *slotname) {
+		if (id->GetType() == AnyLongType) {
 			fOs << id->AsString("");
 		} else {
 			// this section is just for the impossible case where...
 			fOs << value;
 		}
 	}
-	virtual void	VisitDouble(double value, const AnyImpl *id, long lIdx, const char *slotname) {
-		if ( id->GetType() == AnyDoubleType ) {
+	virtual void VisitDouble(double value, const AnyImpl *id, long lIdx, const char *slotname) {
+		if (id->GetType() == AnyDoubleType) {
 			fOs << id->AsString("");
 		} else {
 			// this section is just for the impossible case where...
@@ -1251,59 +1162,52 @@ public:
 			fOs << strBuf;
 		}
 	}
-	virtual void	VisitVoidBuf(const String &value, const AnyImpl *, long lIdx, const char *slotname) {
-		fOs << '[' << value.Length() << ';'; // separator
+	virtual void VisitVoidBuf(const String &value, const AnyImpl *, long lIdx, const char *slotname) {
+		fOs << '[' << value.Length() << ';';  // separator
 		fOs.write(value.cstr(), value.Length());
 		fOs << ']';
-
 	}
-	virtual void	VisitObject(IFAObject *value, const AnyImpl *id, long lIdx, const char *slotname) {
+	virtual void VisitObject(IFAObject *value, const AnyImpl *id, long lIdx, const char *slotname) {
 		fOs << '&' << reinterpret_cast<unsigned long>(value);
 	}
 };
 
-class PrettyAnyPrinter: public SimpleAnyPrinter
-{
+class PrettyAnyPrinter : public SimpleAnyPrinter {
 protected:
-	long	fLevel;
+	long fLevel;
 	void Tab() {
 		for (long i = 0; i < fLevel; ++i) {
 			fOs.put(' ').put(' ');
 		}
 	}
-	void ArrayBefore(const ROAnything , const AnyImpl *, long , const char *) {
-		fOs << "{\n"; // } trick sniff
+	void ArrayBefore(const ROAnything, const AnyImpl *, long, const char *) {
+		fOs << "{\n";  // } trick sniff
 		++fLevel;
 	}
 	void ArrayBeforeElement(long lIdx, const String &key) {
 		Tab();
 		SimpleAnyPrinter::ArrayBeforeElement(lIdx, key);
 	}
-	void ArrayAfterElement(long lIdx, const String &key) {
-		fOs << '\n';
-	}
-	void ArrayAfter(const ROAnything , const AnyImpl *, long , const char *) {
+	void ArrayAfterElement(long lIdx, const String &key) { fOs << '\n'; }
+	void ArrayAfter(const ROAnything, const AnyImpl *, long, const char *) {
 		--fLevel;
-		Tab(); // { trick sniff
+		Tab();	// { trick sniff
 		fOs << '}';
 	}
 
 public:
-	PrettyAnyPrinter(std::ostream &os, long level = 0): SimpleAnyPrinter(os), fLevel(level) {}
+	PrettyAnyPrinter(std::ostream &os, long level = 0) : SimpleAnyPrinter(os), fLevel(level) {}
 };
-class XrefAnyPrinter : public PrettyAnyPrinter
-{
+class XrefAnyPrinter : public PrettyAnyPrinter {
 protected:
 	PrinterXrefHandler fXref;
 	bool PrintAsXref(const AnyImpl *ai) {
 		if (!fXref.IsDefined(reinterpret_cast<long>(ai))) {
-			fXref.DefineBackRef(reinterpret_cast<long>(ai)); // remember symbolic slot name
+			fXref.DefineBackRef(reinterpret_cast<long>(ai));  // remember symbolic slot name
 			return false;
-		} else {
-			fOs << "%\"" << fXref.GetBackRef(reinterpret_cast<long>(ai)) << "\"";
-			return true;
 		}
-
+		fOs << "%\"" << fXref.GetBackRef(reinterpret_cast<long>(ai)) << "\"";
+		return true;
 	}
 	void ArrayBeforeElement(long lIdx, const String &key) {
 		PrettyAnyPrinter::ArrayBeforeElement(lIdx, key);
@@ -1319,43 +1223,41 @@ protected:
 	}
 
 public:
-	XrefAnyPrinter(std::ostream &os, long level = 0): PrettyAnyPrinter(os, level) {
-	}
+	XrefAnyPrinter(std::ostream &os, long level = 0) : PrettyAnyPrinter(os, level) {}
 	//!@FIXME take mechanics from IntPrintOnWithRef to this class.
-	virtual void	VisitCharPtr(const String &value, const AnyImpl *id, long lIdx, const char *slotname) {
+	virtual void VisitCharPtr(const String &value, const AnyImpl *id, long lIdx, const char *slotname) {
 		if (!PrintAsXref(id)) {
 			PrettyAnyPrinter::VisitCharPtr(value, id, lIdx, slotname);
 		}
 	}
-	//!trick to avoid leaking AnyArrayImpl class to the outside use ROAnything instead
-	virtual void	VisitArray(const ROAnything value, const AnyImpl *id, long lIdx, const char *slotname) {
+	//! trick to avoid leaking AnyArrayImpl class to the outside use ROAnything instead
+	virtual void VisitArray(const ROAnything value, const AnyImpl *id, long lIdx, const char *slotname) {
 		if (!PrintAsXref(id)) {
 			PrettyAnyPrinter::VisitArray(value, id, lIdx, slotname);
 		}
 	}
-	virtual void	VisitLong(long value, const AnyImpl *id, long lIdx, const char *slotname) {
+	virtual void VisitLong(long value, const AnyImpl *id, long lIdx, const char *slotname) {
 		if (!PrintAsXref(id)) {
 			PrettyAnyPrinter::VisitLong(value, id, lIdx, slotname);
 		}
 	}
-	virtual void	VisitDouble(double value, const AnyImpl *id, long lIdx, const char *slotname) {
+	virtual void VisitDouble(double value, const AnyImpl *id, long lIdx, const char *slotname) {
 		if (!PrintAsXref(id)) {
 			PrettyAnyPrinter::VisitDouble(value, id, lIdx, slotname);
 		}
 	}
-	virtual void	VisitVoidBuf(const String &value, const AnyImpl *id, long lIdx, const char *slotname) {
+	virtual void VisitVoidBuf(const String &value, const AnyImpl *id, long lIdx, const char *slotname) {
 		if (!PrintAsXref(id)) {
 			PrettyAnyPrinter::VisitVoidBuf(value, id, lIdx, slotname);
 		}
 	}
-	virtual void	VisitObject(IFAObject *value, const AnyImpl *id, long lIdx, const char *slotname) {
+	virtual void VisitObject(IFAObject *value, const AnyImpl *id, long lIdx, const char *slotname) {
 		if (!PrintAsXref(id)) {
 			PrettyAnyPrinter::VisitObject(value, id, lIdx, slotname);
 		}
 	}
 };
-std::ostream &Anything::PrintOn(std::ostream &os, bool pretty) const
-{
+std::ostream &Anything::PrintOn(std::ostream &os, bool pretty) const {
 	if (pretty) {
 		PrettyAnyPrinter p(os);
 		Accept(p);
@@ -1366,30 +1268,27 @@ std::ostream &Anything::PrintOn(std::ostream &os, bool pretty) const
 	return os;
 }
 
-void Anything::Export(std::ostream &os, int level) const
-{
-	if (! ! os) {
+void Anything::Export(std::ostream &os, int level) const {
+	if (!!os) {
 		XrefAnyPrinter pp(os, level);
 		Accept(pp);
-		os.flush(); // export should really flush it.
+		os.flush();	 // export should really flush it.
 	}
 }
 
-long Anything::RefCount() const
-{
-	return (GetImpl()) ? GetImpl()->RefCount() : 0L;
+long Anything::RefCount() const {
+	return (GetImpl()) != 0 ? GetImpl()->RefCount() : 0L;
 }
 
-bool Anything::Import(std::istream &is, const char *fname)
-{
-	if (! !is) {
+bool Anything::Import(std::istream &is, const char *fname) {
+	if (!!is) {
 		InputContext context(is, fname);
 		AnythingParser p(context);
-		if ( !p.DoParse(*this) ) {
+		if (!p.DoParse(*this)) {
 			// there has been a syntax error
 			String m("Anything::Import "), strFName(context.FileName());
 			bool bHasExt = true;
-			if ( !strFName.Length() && fname != NULL ) {
+			if ((strFName.Length() == 0) && fname != NULL) {
 				strFName << fname;
 				bHasExt = (strFName.SubString(strFName.Length() - 4L) == ".any");
 			} else {
@@ -1404,20 +1303,20 @@ bool Anything::Import(std::istream &is, const char *fname)
 	} else {
 		Allocator *a = GetAllocator();
 
-		if (GetImpl()) {
+		if (GetImpl() != 0) {
 			GetImpl()->Unref();
 		}
 		fAnyImp = 0;
-		SetAllocator(a); // remember allocator
+		SetAllocator(a);  // remember allocator
 		return false;
 	}
 	return true;
 }
 
-bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, char delimIdx) const
-{
+bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, char delimIdx) const {
 	// do some shortcut if delimSlot does not exist in path
-	if (delimSlot == '\000' || delimIdx == '\000' || (!strchr(NotNull(path), delimSlot) && !strchr(NotNull(path), delimIdx)) ) {
+	if (delimSlot == '\000' || delimIdx == '\000' ||
+		((strchr(NotNull(path), delimSlot) == 0) && (strchr(NotNull(path), delimIdx) == 0))) {
 		// '\000' is not a valid delimiter, we do not use it, fast special case
 		long lIdx = FindIndex(path);
 		if (lIdx >= 0) {
@@ -1428,29 +1327,29 @@ bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, ch
 		// calculate key values into anything; cache hash values and size information
 		// assume we have at least one delimSlot in path
 		const char *tokPtr = path;
-		if (!tokPtr || *tokPtr == delimSlot) {
+		if ((tokPtr == 0) || *tokPtr == delimSlot) {
 			return false;
 		}
 		Anything c = *this;
 		do {
 			long lIdx = -1;
 			if (*tokPtr == delimIdx) {
-				if (! *++tokPtr || *tokPtr == delimIdx || *tokPtr == delimSlot) {
+				if ((*++tokPtr == 0) || *tokPtr == delimIdx || *tokPtr == delimSlot) {
 					return false;
 				}
 				lIdx = 0;
-				while (isdigit(*tokPtr)) { //*tokPtr != '\0' &&  *tokPtr != delimSlot && *tokPtr != delimIdx)
+				while (isdigit(*tokPtr) != 0) {	 //*tokPtr != '\0' &&  *tokPtr != delimSlot && *tokPtr != delimIdx)
 					lIdx *= 10;
-					lIdx += (*tokPtr++ -'0');
+					lIdx += (*tokPtr++ - '0');
 				}
-				if (*tokPtr != '\0' &&  *tokPtr != delimSlot && *tokPtr != delimIdx) {
-					return false; // not a valid number
+				if (*tokPtr != '\0' && *tokPtr != delimSlot && *tokPtr != delimIdx) {
+					return false;  // not a valid number
 				}
 				// check if index is defined
 				if (lIdx >= c.GetSize() || c[lIdx].IsNull()) {
 					return false;
 				}
-			} else if (*tokPtr) {
+			} else if (*tokPtr != 0) {
 				if (*tokPtr == delimSlot) {
 					++tokPtr;
 					if (*tokPtr == '\0' || *tokPtr == delimSlot || *tokPtr == delimIdx) {
@@ -1478,15 +1377,15 @@ bool Anything::LookupPath(Anything &result, const char *path, char delimSlot, ch
 }
 
 Allocator *Anything::GetAllocator() const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImplAllocator();
 	}
 	return reinterpret_cast<Allocator *>(bits & ~0x01);
 }
 
 bool Anything::SetAllocator(Allocator *a) {
-	if (!GetImpl() || !fAlloc) {
-		fAlloc = (a) ? a : coast::storage::Current();
+	if ((GetImpl() == 0) || (fAlloc == 0)) {
+		fAlloc = (a) != 0 ? a : coast::storage::Current();
 		bits |= 0x01;
 		return (a != 0);
 	}
@@ -1494,31 +1393,28 @@ bool Anything::SetAllocator(Allocator *a) {
 }
 
 Allocator *Anything::GetImplAllocator() const {
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->MyAllocator();
 	}
 	return 0;
 }
 
 AnyImpl const *Anything::GetImpl() const {
-	if (bits & 0x01) {
+	if ((bits & 0x01) != 0) {
 		return 0;
-	} else {
-		return fAnyImp;
 	}
+	return fAnyImp;
 }
 AnyImpl *Anything::GetImpl() {
-	if (bits & 0x01) {
+	if ((bits & 0x01) != 0) {
 		return 0;
-	} else {
-		//!TODO: silently throws away constness!!!!
-		return const_cast<AnyImpl*>(fAnyImp);
 	}
+	//! TODO: silently throws away constness!!!!
+	return const_cast<AnyImpl *>(fAnyImp);
 }
 
-void Anything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const
-{
-	if (GetImpl()) {
+void Anything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const {
+	if (GetImpl() != 0) {
 		GetImpl()->Accept(v, lIdx, slotname);
 	} else {
 		v.VisitNull(lIdx, slotname);
@@ -1527,56 +1423,45 @@ void Anything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const
 
 //-- implement STL support functionality of class Anything
 
-Anything::iterator Anything::begin()
-{
+Anything::iterator Anything::begin() {
 	return Anything_iterator(*this, 0);
 }
-Anything::iterator Anything::end()
-{
+Anything::iterator Anything::end() {
 	return Anything_iterator(*this, GetSize());
 }
-Anything::const_iterator Anything::begin()const
-{
+Anything::const_iterator Anything::begin() const {
 	return Anything_const_iterator(*this, 0);
 }
-Anything::const_iterator Anything::end() const
-{
+Anything::const_iterator Anything::end() const {
 	return Anything_const_iterator(*this, GetSize());
 }
 
-Anything::reverse_iterator Anything::rbegin()
-{
+Anything::reverse_iterator Anything::rbegin() {
 	return reverse_iterator(end());
 }
-Anything::reverse_iterator Anything::rend()
-{
+Anything::reverse_iterator Anything::rend() {
 	return reverse_iterator(begin());
 }
-Anything::const_reverse_iterator Anything::rbegin()const
-{
+Anything::const_reverse_iterator Anything::rbegin() const {
 	return const_reverse_iterator(end());
 }
-Anything::const_reverse_iterator Anything::rend() const
-{
+Anything::const_reverse_iterator Anything::rend() const {
 	return const_reverse_iterator(begin());
 }
-void Anything::clear()
-{
+void Anything::clear() {
 	// may be not most efficient, but working
 	*this = Anything(GetAllocator());
 }
-Anything::iterator Anything::erase(Anything::iterator pos)
-{
+Anything::iterator Anything::erase(Anything::iterator pos) {
 	if (&pos.a == this) {
 		if (pos.position >= 0 && pos.position < GetSize()) {
 			Remove(pos.position);
 			return pos;
 		}
 	}
-	return end(); // should throw, but stay robust
+	return end();  // should throw, but stay robust
 }
-Anything::iterator Anything::erase(Anything::iterator from, Anything::iterator to)
-{
+Anything::iterator Anything::erase(Anything::iterator from, Anything::iterator to) {
 	if (&from.a == this && &to.a == this) {
 		if (from.position >= 0 && from.position <= to.position && to.position <= GetSize()) {
 			while (--to >= from) {
@@ -1585,20 +1470,18 @@ Anything::iterator Anything::erase(Anything::iterator from, Anything::iterator t
 			return from;
 		}
 	}
-	return end(); // should throw, but stay robust
+	return end();  // should throw, but stay robust
 }
-void Anything::swap(Anything &that)
-{
+void Anything::swap(Anything &that) {
 	// we use an anonymous union of pointers and bits. this could be dangerous....
 	Assert(sizeof(bits) == sizeof(fAnyImp));
 	Assert(sizeof(fAnyImp) == sizeof(fAlloc));
-	std::swap(fAnyImp,that.fAnyImp);
+	std::swap(fAnyImp, that.fAnyImp);
 }
 
-Anything::iterator Anything::do_insert(iterator pos, size_type n, const value_type &v)
-{
+Anything::iterator Anything::do_insert(iterator pos, size_type n, const value_type &v) {
 	if (&(pos.a) != this || pos > end()) {
-		return end();    // no op
+		return end();  // no op
 	}
 	// handles empty Anything as well as appending, where no adjustment is needed
 	// need to deal with a special case of inserting 1 element into a null anything
@@ -1614,7 +1497,7 @@ Anything::iterator Anything::do_insert(iterator pos, size_type n, const value_ty
 		return Anything::iterator(*this, res);
 	}
 	// handles simple Anythings with insertion in the front
-	if ( GetType() != AnyArrayType ) {
+	if (GetType() != AnyArrayType) {
 		Expand();
 		*(pos + n) = *pos;
 	} else {
@@ -1629,142 +1512,119 @@ Anything::iterator Anything::do_insert(iterator pos, size_type n, const value_ty
 	return pos;
 }
 
-ROAnything::ROAnything() : fAnyImp(0)
-{
-}
+ROAnything::ROAnything() : fAnyImp(0) {}
 
-ROAnything::ROAnything(const Anything &a)
-	: fAnyImp(a.GetImpl())
-{
+ROAnything::ROAnything(const Anything &a) : fAnyImp(a.GetImpl()) {
 	// no ref necessary
 	// ROAnything don't do any
 	// ref counting
 }
 
-ROAnything::ROAnything(const ROAnything &a)
-	: fAnyImp(a.fAnyImp)
-{
+ROAnything::ROAnything(const ROAnything &a) : fAnyImp(a.fAnyImp) {
 	// no ref necessary
 	// ROAnything don't do any
 	// ref counting
 }
 
-Anything ROAnything::DeepClone(Allocator *a) const
-{
+Anything ROAnything::DeepClone(Allocator *a) const {
 	anyStartTrace(ROAnything.DeepClone);
 	Anything xref(a);
-	if (GetImpl()) {
+	if (GetImpl() != 0) {
 		return GetImpl()->DeepClone(a, xref);
-	} else {
-		return Anything(a);
 	}
+	return Anything(a);
 }
 
-long ROAnything::GetSize() const
-{
-	if (GetImpl()) {
+long ROAnything::GetSize() const {
+	if (GetImpl() != 0) {
 		return GetImpl()->GetSize();
 	}
 	return 0L;
 }
 
-ROAnything &ROAnything::operator= (const ROAnything &a)
-{
+ROAnything &ROAnything::operator=(const ROAnything &a) {
 	fAnyImp = a.fAnyImp;
 	return *this;
 }
 
-ROAnything &ROAnything::operator= (const Anything &a)
-{
+ROAnything &ROAnything::operator=(const Anything &a) {
 	fAnyImp = a.GetImpl();
 	return *this;
 }
 
-AnyImplType ROAnything::GetType() const
-{
-	if (GetImpl()) {
+AnyImplType ROAnything::GetType() const {
+	if (GetImpl() != 0) {
 		return GetImpl()->GetType();
-	} else {
-		return AnyNullType;
 	}
+	return AnyNullType;
 }
 
-long ROAnything::AsLong(long dflt) const
-{
-	if (GetImpl()) {
+long ROAnything::AsLong(long dflt) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsLong(dflt);
 	}
 	return dflt;
 }
 
-bool ROAnything::AsBool(bool dflt) const
-{
+bool ROAnything::AsBool(bool dflt) const {
 	if (IsLongImpl(GetImpl())) {
 		return (LongImpl(GetImpl())->AsLong(static_cast<long>(dflt)) != 0);
 	}
 	return dflt;
 }
 
-double ROAnything::AsDouble(double dflt) const
-{
-	if (GetImpl()) {
+double ROAnything::AsDouble(double dflt) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsDouble(dflt);
 	}
 	return dflt;
 }
 
-IFAObject *ROAnything::AsIFAObject(IFAObject *dflt) const
-{
+IFAObject *ROAnything::AsIFAObject(IFAObject *dflt) const {
 	if (IsObjectImpl(GetImpl())) {
 		return ObjectImpl(GetImpl())->AsIFAObject(dflt);
 	}
 	return dflt;
 }
 
-const char *ROAnything::AsCharPtr(const char *dflt) const
-{
-	if (GetImpl()) {
+const char *ROAnything::AsCharPtr(const char *dflt) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsCharPtr(dflt);
 	}
 	return dflt;
 }
 
-const char *ROAnything::AsCharPtr(const char *dflt, long &buflen) const
-{
-	if (GetImpl()) {
+const char *ROAnything::AsCharPtr(const char *dflt, long &buflen) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsCharPtr(dflt, buflen);
 	}
-	if (dflt) {
+	if (dflt != 0) {
 		buflen = strlen(dflt);
 	}
 	return dflt;
 }
 
-String ROAnything::AsString(const char *dflt) const
-{
-	if (GetImpl()) {
+String ROAnything::AsString(const char *dflt) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->AsString(dflt);
 	}
 	return dflt;
 }
 
-long ROAnything::AssertRange(long i) const
-{
-	if ( (i < 0)  || (i >= GetSize()) ) {
+long ROAnything::AssertRange(long i) const {
+	if ((i < 0) || (i >= GetSize())) {
 		return -1;
 	}
 	return i;
 }
 
-long ROAnything::AssertRange(const char *k) const
-{
+long ROAnything::AssertRange(const char *k) const {
 	return AssertRange(FindIndex(k));
 }
 
-const ROAnything ROAnything::At(long i) const
-{
-	if ( AssertRange(i) != -1 && GetImpl()) {
-		if ( GetType() != AnyArrayType ) {
+const ROAnything ROAnything::At(long i) const {
+	if (AssertRange(i) != -1 && (GetImpl() != 0)) {
+		if (GetType() != AnyArrayType) {
 			// if the type is not an AnyArrayType
 			// just return this
 			return *this;
@@ -1774,100 +1634,89 @@ const ROAnything ROAnything::At(long i) const
 	return ROAnything();
 }
 
-const ROAnything ROAnything::At(const char *k) const
-{
-	long lIdx;
-	if ( (lIdx = AssertRange(k)) != -1 ) {
+const ROAnything ROAnything::At(const char *k) const {
+	long lIdx = 0;
+	if ((lIdx = AssertRange(k)) != -1) {
 		return At(lIdx);
 	}
 	return ROAnything();
 }
 
-const char *ROAnything::SlotName(long slot) const
-{
-	if (GetImpl() && IsArrayImpl(GetImpl())) {
+const char *ROAnything::SlotName(long slot) const {
+	if ((GetImpl() != 0) && IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->SlotName(slot);
 	}
 	return 0;
 }
-const String &ROAnything::VisitSlotName(long slot) const
-{
-	if (GetImpl() && IsArrayImpl(GetImpl())) {
+const String &ROAnything::VisitSlotName(long slot) const {
+	if ((GetImpl() != 0) && IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->VisitSlotName(slot);
 	}
 	return fgStrEmpty;
 }
 
-bool ROAnything::IsEqual(const ROAnything &other) const
-{
+bool ROAnything::IsEqual(const ROAnything &other) const {
 	if (fAnyImp == other.fAnyImp) {
 		return true;
 	}
-	if (GetImpl() && other.GetImpl()) {
+	if ((GetImpl() != 0) && (other.GetImpl() != 0)) {
 		return GetImpl()->IsEqual(other.GetImpl());
 	}
 	return false;
 }
 
-bool ROAnything::IsEqual(const Anything &other) const
-{
+bool ROAnything::IsEqual(const Anything &other) const {
 	if (GetImpl() == other.GetImpl()) {
 		return true;
 	}
-	if (GetImpl() && other.GetImpl()) {
+	if ((GetImpl() != 0) && (other.GetImpl() != 0)) {
 		return GetImpl()->IsEqual(other.GetImpl());
 	}
 	return false;
 }
 
-bool ROAnything::IsEqual(const char *other) const
-{
-	if (GetImpl()) {
-		if (other) {
+bool ROAnything::IsEqual(const char *other) const {
+	if (GetImpl() != 0) {
+		if (other != 0) {
 			return (strcmp(AsCharPtr(""), other) == 0);
 		}
-	} else if (!other) {
+	} else if (other == 0) {
 		return true;
 	}
 	return false;
 }
 
-long ROAnything::FindIndex(const char *k, long sizehint, u_long hashhint) const
-{
+long ROAnything::FindIndex(const char *k, long sizehint, u_long hashhint) const {
 	Assert(k);
-	if (GetImpl() && IsArrayImpl(GetImpl())) {
+	if ((GetImpl() != 0) && IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->FindIndex(k, sizehint, hashhint);
 	}
 	return -1L;
 }
 
-long ROAnything::FindIndex(const long lIdx) const
-{
+long ROAnything::FindIndex(const long lIdx) const {
 	Assert(lIdx >= 0);
-	if (GetImpl() && IsArrayImpl(GetImpl())) {
+	if ((GetImpl() != 0) && IsArrayImpl(GetImpl())) {
 		return ArrayImpl(GetImpl())->FindIndex(lIdx);
 	}
 	return -1L;
 }
 
-long ROAnything::FindValue(const char *k) const
-{
-	if (GetImpl()) {
+long ROAnything::FindValue(const char *k) const {
+	if (GetImpl() != 0) {
 		return GetImpl()->Contains(k);
 	}
 	return -1L;
 }
 
-bool ROAnything::Contains(const char *k) const
-{
-	if (GetImpl()) {
+bool ROAnything::Contains(const char *k) const {
+	if (GetImpl() != 0) {
 		return (GetImpl()->Contains(k) >= 0);
 	}
 	return false;
 }
 
-std::ostream &ROAnything::PrintOn(std::ostream &os, bool pretty) const
-{
+std::ostream &ROAnything::PrintOn(std::ostream &os, bool pretty) const {
 	if (pretty) {
 		PrettyAnyPrinter p(os);
 		Accept(p);
@@ -1878,19 +1727,18 @@ std::ostream &ROAnything::PrintOn(std::ostream &os, bool pretty) const
 	return os;
 }
 
-void ROAnything::Export(std::ostream &os, int level) const
-{
-	if (! ! os) {
+void ROAnything::Export(std::ostream &os, int level) const {
+	if (!!os) {
 		XrefAnyPrinter pp(os, level);
 		Accept(pp);
-		os.flush(); // export should really flush it.
+		os.flush();	 // export should really flush it.
 	}
 }
 
-bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot, char delimIdx) const
-{
+bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot, char delimIdx) const {
 	// do some shortcut if delimSlot does not exist in path
-	if (delimSlot == '\000' || delimIdx == '\000' || (!strchr(NotNull(path), delimSlot) && !strchr(NotNull(path), delimIdx)) ) {
+	if (delimSlot == '\000' || delimIdx == '\000' ||
+		((strchr(NotNull(path), delimSlot) == 0) && (strchr(NotNull(path), delimIdx) == 0))) {
 		// '\000' is not a valid delimiter, we do not use it, fast special case
 		long lIdx = FindIndex(path);
 		if (lIdx >= 0) {
@@ -1900,32 +1748,32 @@ bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot
 	} else {
 		// calculate key values into anything; cache hasvalues and size information
 		// assume we have at least one delimSlot in path
-		//String key(path); // do not need global allocator here!
-		const char *tokPtr = path; //(const unsigned char *)(const char*)key;
-		if (!tokPtr || *tokPtr == delimSlot) {
+		// String key(path); // do not need global allocator here!
+		const char *tokPtr = path;	//(const unsigned char *)(const char*)key;
+		if ((tokPtr == 0) || *tokPtr == delimSlot) {
 			return false;
 		}
 
-		ROAnything c(*this); // pointers are faster! but ROAnythings are pointers...
+		ROAnything c(*this);  // pointers are faster! but ROAnythings are pointers...
 		do {
 			long lIdx = -1;
 			if (*tokPtr == delimIdx) {
-				if (! *++tokPtr || *tokPtr == delimIdx || *tokPtr == delimSlot) {
+				if ((*++tokPtr == 0) || *tokPtr == delimIdx || *tokPtr == delimSlot) {
 					return false;
 				}
 				lIdx = 0;
-				while (isdigit(*tokPtr)) { //*tokPtr != '\0' &&  *tokPtr != delimSlot && *tokPtr != delimIdx)
+				while (isdigit(*tokPtr) != 0) {	 //*tokPtr != '\0' &&  *tokPtr != delimSlot && *tokPtr != delimIdx)
 					lIdx *= 10;
-					lIdx += (*tokPtr++ -'0');
+					lIdx += (*tokPtr++ - '0');
 				}
-				if (*tokPtr != '\0' &&  *tokPtr != delimSlot && *tokPtr != delimIdx) {
-					return false; // not a valid number
+				if (*tokPtr != '\0' && *tokPtr != delimSlot && *tokPtr != delimIdx) {
+					return false;  // not a valid number
 				}
 				// check if index is defined
-				if (lIdx >= c.GetSize() || c[lIdx].IsNull()) { // caution: auto-enlargement!
+				if (lIdx >= c.GetSize() || c[lIdx].IsNull()) {	// caution: auto-enlargement!
 					return false;
 				}
-			} else if (*tokPtr) {
+			} else if (*tokPtr != 0) {
 				if (*tokPtr == delimSlot) {
 					++tokPtr;
 					if (*tokPtr == '\0' || *tokPtr == delimSlot || *tokPtr == delimIdx) {
@@ -1952,47 +1800,43 @@ bool ROAnything::LookupPath(ROAnything &result, const char *path, char delimSlot
 	return false;
 }
 
-void ROAnything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const
-{
-	if (GetImpl()) {
+void ROAnything::Accept(AnyVisitor &v, long lIdx, const char *slotname) const {
+	if (GetImpl() != 0) {
 		GetImpl()->Accept(v, lIdx, slotname);
 	} else {
 		v.VisitNull(lIdx, slotname);
 	}
 }
 
-void InputContext::SkipToEOL()
-{
+void InputContext::SkipToEOL() {
 	char c = ' ';
 
-	while (Get(c) && c != '\n' && c != '\r') { }
+	while (Get(c) && c != '\n' && c != '\r') {
+	}
 	if (c == '\n' || c == '\r') {
-		++fLine; // count contexts lines
+		++fLine;  // count contexts lines
 		// we should treat DOS-convention of CRLF nicely by reading it
-		char crnl;
-		if (Get(crnl) &&
-			((crnl != '\r' && c == '\n') ||
-			 (c == '\r' && crnl != '\n')) ) {
-			Putback(crnl); // no crlf lfcr sequence
+		char crnl = 0;
+		if (Get(crnl) && ((crnl != '\r' && c == '\n') || (c == '\r' && crnl != '\n'))) {
+			Putback(crnl);	// no crlf lfcr sequence
 		}
-	} // we have reached EOF just do nothing
+	}  // we have reached EOF just do nothing
 }
 
 // expect
 // Any:     '{' sequence_including_}
 //     |    eString | eDecimalNumber | eOctalNumber | eHexNumber | eFloatNumber
 //     |  '*' | '&' eDecimalNumber | eBinaryBufImpl | eError
-bool AnythingParser::DoParse(Anything &any)
-{
+bool AnythingParser::DoParse(Anything &any) {
 	anyStartTrace(AnythingParser.DoParse);
 	// free old impl
 	Allocator *a = any.GetAllocator();
-	any = Anything((a) ? a : coast::storage::Current()); // assignment should be OK, but we keep it safe
+	any = Anything((a) != 0 ? a : coast::storage::Current());  // assignment should be OK, but we keep it safe
 
 	ParserXrefHandler xrefs;
 	AnythingToken tok(fContext);
 	bool ok = false;
-	if ( '{' == tok.Token()) {
+	if ('{' == tok.Token()) {
 		ok = DoParseSequence(any, xrefs);
 	} else {
 		ok = MakeSimpleAny(tok, any);
@@ -2002,33 +1846,32 @@ bool AnythingParser::DoParse(Anything &any)
 	// but reading from a socket blocks us here. This check won't work.
 	// it might be possible to only check it if we are reading a file
 	// this is the case if fContext.fIs && fContext.fFileName != ""
-//    tok = AnythingToken(fContext);
-//    if (tok.fToken != AnythingToken::eNullSym) {
-//        Error("too much input:",tok.fText);
-//        ok = false;
-//    }
+	//    tok = AnythingToken(fContext);
+	//    if (tok.fToken != AnythingToken::eNullSym) {
+	//        Error("too much input:",tok.fText);
+	//        ok = false;
+	//    }
 	return ok;
 }
 
-bool AnythingParser::DoParseSequence(Anything &any, ParserXrefHandler &xrefs)
-{
+bool AnythingParser::DoParseSequence(Anything &any, ParserXrefHandler &xrefs) {
 	anyStartTrace(AnythingParser.DoParseSequence);
-	Allocator *a = (any.GetAllocator()) ? any.GetAllocator() : coast::storage::Current();
+	Allocator *a = (any.GetAllocator()) != 0 ? any.GetAllocator() : coast::storage::Current();
 	bool ok = true;
 	// we need to make it an array
-	any = Anything(Anything::ArrayMarker(),a);
+	any = Anything(Anything::ArrayMarker(), a);
 	do {
 		Anything element(a);
 		String key;
 		bool lastok = true;
 		AnythingToken tok(fContext);
 		anyTrace("Token [" << tok.Token() << "] Text [" << tok.Text() << "]");
-	restart:    // for behaving nicely in case of a syntax error
+	restart:  // for behaving nicely in case of a syntax error
 		switch (tok.Token()) {
-			case '}' : // '{' this is to cheat sniff
-				return ok; // we are done...
+			case '}':		// '{' this is to cheat sniff
+				return ok;	// we are done...
 			case AnythingToken::eError: {
-				lastok = false; // try to resync
+				lastok = false;	 // try to resync
 				String strError("syntax error invalid token:");
 				strError.Append(static_cast<long>(tok.Token()));
 				Error(strError, tok.Text().DumpAsHex(tok.Text().Length()));
@@ -2038,27 +1881,27 @@ bool AnythingParser::DoParseSequence(Anything &any, ParserXrefHandler &xrefs)
 				Error("premature EOF token encountered", tok.Text());
 				return false;
 
-			case AnythingToken::eInclude : {
+			case AnythingToken::eInclude: {
 				ImportIncludeAny(element, tok.Text());
 				any.Append(element);
 				break;
 			}
-			case AnythingToken::eRef : {
+			case AnythingToken::eRef: {
 				// a unnamed slot with a reference
 				anyTrace("AnythingToken::eRef");
 				// we use '%' to divide the slotNamePath and the index of the unnamed slot
 				// to keep the order of the inserted slots as requested we need
 				// to add a dummy slot which will be linked in a second step
 				element = escapedQueryStringToAny(tok.Text());
-				anyTraceAny(element,"eRef");
+				anyTraceAny(element, "eRef");
 				long lIdx = any.Append(element);
 				// add temporary for resolving reference after anything is fully parsed
 				xrefs.DefinePatchRef(lIdx);
 				break;
 			}
-			case AnythingToken::eIndex :
+			case AnythingToken::eIndex:
 				anyTrace("AnythingToken::eIndex");
-				key = tok.Text(); // remember index
+				key = tok.Text();  // remember index
 				anyTrace("key:" << key);
 				if (key.Length() > 0) {
 					if (any.IsDefined(key)) {
@@ -2068,11 +1911,11 @@ bool AnythingParser::DoParseSequence(Anything &any, ParserXrefHandler &xrefs)
 						// leave ok OK, because we haven't ok = false;
 					}
 				}
-				tok = AnythingToken(fContext); // get next one
-				if ( AnythingToken::eRef == tok.Token() ) {
+				tok = AnythingToken(fContext);	// get next one
+				if (AnythingToken::eRef == tok.Token()) {
 					// link it to the given slotname (must exist)
 					element = escapedQueryStringToAny(tok.Text());
-					anyTraceAny(element,"eRef within eIndex");
+					anyTraceAny(element, "eRef within eIndex");
 					any[key] = element;
 
 					// add temporary for resolving reference after anything is fully parsed
@@ -2080,23 +1923,25 @@ bool AnythingParser::DoParseSequence(Anything &any, ParserXrefHandler &xrefs)
 					// to keep the order of the inserted slots as requested we need
 					// to add a dummy slot which will be linked in a second step
 					break;
-				} else if (AnythingToken::eInclude == tok.Token()) {
+				}
+				if (AnythingToken::eInclude == tok.Token()) {
 					ImportIncludeAny(element, tok.Text());
 					any[key] = element;
 					break;
-				} else if (AnythingToken::eIndex == tok.Token()) {
+				}
+				if (AnythingToken::eIndex == tok.Token()) {
 					// this is an error
 					Error("missing Anything at index ", key);
 					if (key.Length() > 0) {
-						any[key] = Anything(a); // behave fault tolerant
-						key.Trim(0); // forget key
+						any[key] = Anything(a);	 // behave fault tolerant
+						key.Trim(0);			 // forget key
 					}
 					// we need a goto here to behave friendly
 					goto restart;
 				}
 				// No break here! Fall through, read simple Anything
 			default:
-				if ( '{' == tok.Token() ) {
+				if ('{' == tok.Token()) {
 					long lIdx = 0;
 					Anything marklevel = xrefs.ParseLevel();
 					if (key.Length() > 0) {
@@ -2118,21 +1963,20 @@ bool AnythingParser::DoParseSequence(Anything &any, ParserXrefHandler &xrefs)
 					any[key] = element;
 				} else if (element.GetType() != AnyNullType || lastok) {
 					any.Append(element);
-				} // do not append empty anything in case of a syntax error
-		} // switch
+				}  // do not append empty anything in case of a syntax error
+		}		   // switch
 		ok = ok && lastok;
-	} while (fContext.IsGood()) ; // may be we should check for i < somemaximum
+	} while (fContext.IsGood());  // may be we should check for i < somemaximum
 	// we have a premature EOF...
 	return false;
 }
 
 // sets a.fAnyImp according to tok for simple values
-bool AnythingParser::MakeSimpleAny(AnythingToken &tok, Anything &any)
-{
-	Allocator *a = (any.GetAllocator()) ? any.GetAllocator() : coast::storage::Current();
+bool AnythingParser::MakeSimpleAny(AnythingToken &tok, Anything &any) {
+	Allocator *a = (any.GetAllocator()) != 0 ? any.GetAllocator() : coast::storage::Current();
 	Assert(a != 0);
-	switch ( tok.Token() ) {
-		case '*' :
+	switch (tok.Token()) {
+		case '*':
 			any = Anything(a);
 			break;
 		case AnythingToken::eStringError:
@@ -2142,57 +1986,51 @@ bool AnythingParser::MakeSimpleAny(AnythingToken &tok, Anything &any)
 				// ignore empty strings otherwise fall through!
 				return false;
 			}
-			//fall through
-		case AnythingToken::eString: // string impl
+			// fall through
+		case AnythingToken::eString:  // string impl
 			any = tok.Text();
 			break;
 			// long impl.
-		case AnythingToken::eDecimalNumber:
-			{
-				long number = 0;
-				if ( coast::system::StrToL(number, tok.Text().cstr()) ) {
-					any = number;
-				}
-				break;
-			}
-		case AnythingToken::eOctalNumber:
-			{
-				unsigned long number = 0;
-				if ( coast::system::StrToUL(number, tok.Text().cstr(), 8) ) {
-					any = static_cast<long>(number);
-				}
-				break;
-			}
-		case AnythingToken::eHexNumber:
-			{
-				unsigned long number = 0;
-				if ( coast::system::StrToUL(number, tok.Text().cstr(), 16) ) {
-					any = static_cast<long>(number);
-				}
-				break;
-			}
-		case AnythingToken::eFloatNumber:
-			{
-				double number = 0.0;
-				if ( coast::system::StrToD(number, tok.Text().cstr()) ) {
-					any = number;
-				}
-				break;
+		case AnythingToken::eDecimalNumber: {
+			long number = 0;
+			if (coast::system::StrToL(number, tok.Text().cstr())) {
+				any = number;
 			}
 			break;
+		}
+		case AnythingToken::eOctalNumber: {
+			unsigned long number = 0;
+			if (coast::system::StrToUL(number, tok.Text().cstr(), 8)) {
+				any = static_cast<long>(number);
+			}
+			break;
+		}
+		case AnythingToken::eHexNumber: {
+			unsigned long number = 0;
+			if (coast::system::StrToUL(number, tok.Text().cstr(), 16)) {
+				any = static_cast<long>(number);
+			}
+			break;
+		}
+		case AnythingToken::eFloatNumber: {
+			double number = 0.0;
+			if (coast::system::StrToD(number, tok.Text().cstr())) {
+				any = number;
+			}
+			break;
+		}
 		case AnythingToken::eBinaryBuf:
 			// oops we cannot yet assign a binary-buf impl ?
 			// but a temporary anything should be sufficient
 			any = Anything(reinterpret_cast<void *>(const_cast<char *>(tok.Text().cstr())), tok.Text().Length(), a);
 			break;
-		case AnythingToken::eObject:
-			{
-				unsigned long number = 0;
-				if ( coast::system::StrToUL(number, tok.Text().cstr(), 10) ) {
-					any = Anything(reinterpret_cast<IFAObject *>(number), a);
-				}
-				break;
+		case AnythingToken::eObject: {
+			unsigned long number = 0;
+			if (coast::system::StrToUL(number, tok.Text().cstr(), 10)) {
+				any = Anything(reinterpret_cast<IFAObject *>(number), a);
 			}
+			break;
+		}
 		case AnythingToken::eNullSym:
 			Error("unexpected EOF token encountered", "");
 			return false;
@@ -2207,8 +2045,7 @@ bool AnythingParser::MakeSimpleAny(AnythingToken &tok, Anything &any)
 	return true;
 }
 
-void AnythingParser::ImportIncludeAny(Anything &element, const String &url)
-{
+void AnythingParser::ImportIncludeAny(Anything &element, const String &url) {
 	anyStartTrace(AnythingParser.ImportIncludeAny);
 	Anything query;
 
@@ -2220,10 +2057,10 @@ void AnythingParser::ImportIncludeAny(Anything &element, const String &url)
 	// we support only file protocol
 	if (0 == protocol.Length() || protocol == "FILE") {
 		// look for a query
-		long 	queryIdx    = fileName.StrChr('?');
-		String  queryString;
+		long queryIdx = fileName.StrChr('?');
+		String queryString;
 
-		if ( queryIdx >= 0 ) {
+		if (queryIdx >= 0) {
 			queryString = fileName.SubString(queryIdx + 1);
 			fileName.Trim(queryIdx);
 		}
@@ -2233,13 +2070,15 @@ void AnythingParser::ImportIncludeAny(Anything &element, const String &url)
 		}
 
 		std::iostream *pStream = system::OpenStream(fileName, "");
-		if (pStream) {
-			if ( element.Import(*pStream, fileName) && queryString.Length() > 0 ) {
+		if (pStream != 0) {
+			if (element.Import(*pStream, fileName) && queryString.Length() > 0) {
 				Anything anyLevel = escapedQueryStringToAny(queryString);
 				element = std::for_each(anyLevel.begin(), anyLevel.end(), resolveToAnyLevel(element)).result;
-				if ( element.IsNull() ) {
+				if (element.IsNull()) {
 					String m;
-					m << "lookup of " << fileName << " slotname [" << std::for_each(anyLevel.begin(), anyLevel.end(), appendAnyLevelToString()).fStr << "] failed!" << "\n";
+					m << "lookup of " << fileName << " slotname ["
+					  << std::for_each(anyLevel.begin(), anyLevel.end(), appendAnyLevelToString()).fStr << "] failed!"
+					  << "\n";
 					SystemLog::WriteToStderr(m);
 				}
 			}
@@ -2252,12 +2091,11 @@ void AnythingParser::ImportIncludeAny(Anything &element, const String &url)
 	}
 }
 
-void AnythingParser::Error(String const &msg, String const &toktext)
-{
+void AnythingParser::Error(String const &msg, String const &toktext) {
 	// put a space in front to give poor Sniff a chance
 	String m(fContext.FileName());
 	bool bHasExt = true;
-	if ( !m.Length() ) {
+	if (m.Length() == 0) {
 		m << "<NoName>";
 	} else {
 		bHasExt = (m.SubString(m.Length() - 4L) == ".any");
@@ -2266,13 +2104,12 @@ void AnythingParser::Error(String const &msg, String const &toktext)
 	SYSWARNING(m);
 }
 
-String Anything::CompareForTestCases(const ROAnything &expected, const ROAnything &actual, bool &result)
-{
+String Anything::CompareForTestCases(const ROAnything &expected, const ROAnything &actual, bool &result) {
 	String sexp, act;
 	String retval;
 	OStringStream oexp(&sexp), oact(&act);
-	expected.Export(oexp, false);
-	actual.Export(oact, false);
+	expected.Export(oexp, 0);
+	actual.Export(oact, 0);
 	result = (sexp == act);
 	if (!result) {
 		retval << "expected: " << sexp << " but was: " << act;
@@ -2280,57 +2117,54 @@ String Anything::CompareForTestCases(const ROAnything &expected, const ROAnythin
 	return retval;
 }
 
-void SlotFinder::Operate(Anything &source, Anything &dest, const Anything &config)
-{
+void SlotFinder::Operate(Anything &source, Anything &dest, const Anything &config) {
 	StartTrace(SlotFinder.Operate);
 	ROAnything ROconfig(config);
 	Operate(source, dest, ROconfig);
 }
 
-void SlotFinder::Operate(Anything &source, Anything &dest, const ROAnything &config)
-{
+void SlotFinder::Operate(Anything &source, Anything &dest, const ROAnything &config) {
 	StartTrace(SlotFinder.Operate);
 	TraceAny(config, "Config");
-	Operate(source, dest, config["Slot"].AsString(""), config["Delim"].AsCharPtr(".")[0L], config["IndexDelim"].AsCharPtr(":")[0L]);
+	Operate(source, dest, config["Slot"].AsString(""), config["Delim"].AsCharPtr(".")[0L],
+			config["IndexDelim"].AsCharPtr(":")[0L]);
 }
-void SlotFinder::Operate(Anything &source, Anything &dest, String destSlotname, char delim, char indexdelim )
-{
+void SlotFinder::Operate(Anything &source, Anything &dest, String destSlotname, char delim, char indexdelim) {
 	StartTrace(SlotFinder.Operate);
 	Trace("Destination slotname [" << destSlotname << "]");
 	SubTraceAny(TraceAny, source, "Source");
 	dest = source;
 	long destIdx = -1L;
-	if ( IntOperate(dest, destSlotname, destIdx, delim, indexdelim) ) {
-		if (destSlotname.Length()) {
-			if ( !dest.IsDefined(destSlotname) || dest[destSlotname].IsNull() ) {
+	if (IntOperate(dest, destSlotname, destIdx, delim, indexdelim)) {
+		if (destSlotname.Length() != 0) {
+			if (!dest.IsDefined(destSlotname) || dest[destSlotname].IsNull()) {
 				Trace("adding slot [" << destSlotname << "]");
-				dest[destSlotname] = Anything(Anything::ArrayMarker(),dest.GetAllocator());
+				dest[destSlotname] = Anything(Anything::ArrayMarker(), dest.GetAllocator());
 			}
 			dest = dest[destSlotname];
 		} else {
 			if (!dest.IsDefined(destIdx)) {
 				Trace("adding indexslot [" << destIdx << "]");
-				dest[destIdx] = Anything(Anything::ArrayMarker(),dest.GetAllocator());
+				dest[destIdx] = Anything(Anything::ArrayMarker(), dest.GetAllocator());
 			}
 			dest = dest.At(destIdx);
 		}
 	}
 	SubTraceAny(TraceAny, dest, "Destination is finally:");
 }
-bool SlotFinder::IntOperate(Anything &dest, String &destSlotname, long &destIdx, char delim, char indexdelim)
-{
+bool SlotFinder::IntOperate(Anything &dest, String &destSlotname, long &destIdx, char delim, char indexdelim) {
 	StartTrace(SlotFinder.IntOperate);
 	Trace("processing[" << destSlotname << "]");
-	long lIdxDelim;
+	long lIdxDelim = 0;
 	String s;
-	if ( (lIdxDelim = destSlotname.StrChr(indexdelim)) != -1 ) {
+	if ((lIdxDelim = destSlotname.StrChr(indexdelim)) != -1) {
 		s = destSlotname.SubString(0, lIdxDelim);
-		if (s.Length()) {
+		if (s.Length() != 0) {
 			Trace("part before index[" << s << "]");
-			if ( IntOperate(dest, s, destIdx, delim, indexdelim) ) {
+			if (IntOperate(dest, s, destIdx, delim, indexdelim)) {
 				// ensure that we have a valid anything
 				if (dest[s].GetType() == AnyNullType) {
-					dest[s] = Anything(Anything::ArrayMarker(),dest.GetAllocator());
+					dest[s] = Anything(Anything::ArrayMarker(), dest.GetAllocator());
 				}
 				dest = dest[s];
 				SubTraceAny(TraceAny, dest, "dest so far");
@@ -2347,25 +2181,24 @@ bool SlotFinder::IntOperate(Anything &dest, String &destSlotname, long &destIdx,
 			destIdx = s.AsLong(-1L);
 			Trace("index:" << destIdx);
 			destSlotname = tokenizer.GetRemainder(true);
-			if (destSlotname.Length() && destSlotname[0L] == delim) {
+			if ((destSlotname.Length() != 0) && destSlotname[0L] == delim) {
 				destSlotname.TrimFront(1);
 			}
 		}
 		Trace("remaining string[" << destSlotname << "]");
-		if (destSlotname.Length()) {
+		if (destSlotname.Length() != 0) {
 			// ensure that we have a valid anything
 			if (dest[destIdx].GetType() == AnyNullType) {
-				dest[destIdx] = Anything(Anything::ArrayMarker(),dest.GetAllocator());
+				dest[destIdx] = Anything(Anything::ArrayMarker(), dest.GetAllocator());
 			}
 			// adjusting dest anything with slotindex
 			dest = dest[destIdx];
 			SubTraceAny(TraceAny, dest, "dest so far");
 			Trace("calling IntOperate(" << destSlotname << ")");
 			return IntOperate(dest, destSlotname, destIdx, delim, indexdelim);
-		} else {
-			// we are done, no more slots to resolve
-			return true;
 		}
+		// we are done, no more slots to resolve
+		return true;
 	}
 	StringTokenizer st(destSlotname, delim);
 	bool keepOn = st.NextToken(s);
@@ -2375,9 +2208,9 @@ bool SlotFinder::IntOperate(Anything &dest, String &destSlotname, long &destIdx,
 		keepOn = st.NextToken(s);
 		Trace("k is " << k);
 		if (keepOn) {
-			if ( !dest.IsDefined(k) || dest[k].IsNull() ) {
+			if (!dest.IsDefined(k) || dest[k].IsNull()) {
 				// insert non-existing slots on the fly
-				dest[k] = Anything(Anything::ArrayMarker(),dest.GetAllocator());
+				dest[k] = Anything(Anything::ArrayMarker(), dest.GetAllocator());
 			}
 		} else {
 			destSlotname = k;
@@ -2389,28 +2222,27 @@ bool SlotFinder::IntOperate(Anything &dest, String &destSlotname, long &destIdx,
 	return false;
 }
 
-void SlotPutter::Operate(Anything &source, Anything &dest, const Anything &config)
-{
+void SlotPutter::Operate(Anything &source, Anything &dest, const Anything &config) {
 	StartTrace(SlotPutter.Operate);
 	ROAnything ROconfig(config);
 	Operate(source, dest, ROconfig);
 }
 
-void SlotPutter::Operate(Anything &source, Anything &dest, const ROAnything &config)
-{
+void SlotPutter::Operate(Anything &source, Anything &dest, const ROAnything &config) {
 	StartTrace(SlotPutter.Operate);
 	TraceAny(config, "Config");
 	TraceAny(source, "Source");
 	SubTraceAny(TraceAny, dest, "Destination");
-	Operate(source, dest, config["Slot"].AsString(""), config["Append"].AsBool(false), config["Delim"].AsCharPtr(".")[0L], config["IndexDelim"].AsCharPtr(":")[0L] );
+	Operate(source, dest, config["Slot"].AsString(""), config["Append"].AsBool(false), config["Delim"].AsCharPtr(".")[0L],
+			config["IndexDelim"].AsCharPtr(":")[0L]);
 }
 
-void SlotPutter::Operate(Anything &source, Anything &dest, String destSlotname, bool append, char delim, char indexdelim )
-{
+void SlotPutter::Operate(Anything &source, Anything &dest, String destSlotname, bool append, char delim, char indexdelim) {
 	StartTrace(SlotPutter.Operate);
 	Trace("Destination slotname[" << destSlotname << "]");
 	Trace("sourceImpl:" << static_cast<long>(source.GetType()) << " destImpl:" << static_cast<long>(dest.GetType()));
-	Trace("source any alloc:" << reinterpret_cast<long>(source.GetAllocator()) << " dest.alloc:" << reinterpret_cast<long>(dest.GetAllocator()));
+	Trace("source any alloc:" << reinterpret_cast<long>(source.GetAllocator())
+							  << " dest.alloc:" << reinterpret_cast<long>(dest.GetAllocator()));
 	SubTraceAny(TraceAny, source, "source");
 	// ensure that the destination anything is real
 	Anything::EnsureArrayImpl(dest);
@@ -2419,7 +2251,7 @@ void SlotPutter::Operate(Anything &source, Anything &dest, String destSlotname, 
 	long destIdx = -1L;
 	if (SlotFinder::IntOperate(work, destSlotname, destIdx, delim, indexdelim)) {
 		if (append) {
-			if (destSlotname.Length()) {
+			if (destSlotname.Length() != 0) {
 				Trace("appending source to dest[" << destSlotname << "]");
 				work[destSlotname].Append(source);
 			} else {
@@ -2427,7 +2259,7 @@ void SlotPutter::Operate(Anything &source, Anything &dest, String destSlotname, 
 				work[destIdx].Append(source);
 			}
 		} else {
-			if (destSlotname.Length()) {
+			if (destSlotname.Length() != 0) {
 				Trace("replacing dest[" << destSlotname << "] with source");
 				work[destSlotname] = source;
 			} else {
@@ -2439,24 +2271,22 @@ void SlotPutter::Operate(Anything &source, Anything &dest, String destSlotname, 
 	SubTraceAny(TraceAny, dest, "destination after");
 }
 
-void SlotCleaner::Operate(Anything &dest, const Anything &config)
-{
+void SlotCleaner::Operate(Anything &dest, const Anything &config) {
 	StartTrace(SlotCleaner.Operate);
 	Operate(dest, ROAnything(config));
 }
 
-void SlotCleaner::Operate(Anything &dest, const ROAnything &config)
-{
+void SlotCleaner::Operate(Anything &dest, const ROAnything &config) {
 	StartTrace(SlotCleaner.Operate);
 	TraceAny(config, "Config");
-	Operate(dest, config["Slot"].AsString(""), (config["RemoveLast"].AsLong(0L) == 1L), config["Delim"].AsCharPtr(".")[0L], config["IndexDelim"].AsCharPtr(":")[0L]);
+	Operate(dest, config["Slot"].AsString(""), (config["RemoveLast"].AsLong(0L) == 1L), config["Delim"].AsCharPtr(".")[0L],
+			config["IndexDelim"].AsCharPtr(":")[0L]);
 }
 
-void SlotCleaner::Operate(Anything &dest, String slotName, bool removeLast, char delim, char indexdelim)
-{
+void SlotCleaner::Operate(Anything &dest, String slotName, bool removeLast, char delim, char indexdelim) {
 	StartTrace(SlotCleaner.Operate);
 
-	if (slotName.Length()) {
+	if (slotName.Length() != 0) {
 		Trace("Destination slotname [" << slotName << "]");
 		// first of all, get the correct store
 		Anything anyParent(dest, dest.GetAllocator());
@@ -2468,7 +2298,7 @@ void SlotCleaner::Operate(Anything &dest, String slotName, bool removeLast, char
 			// to remove from
 			long slotIndex = -1L;
 			if (SlotFinder::IntOperate(anyParent, slotName, slotIndex, delim, indexdelim)) {
-				if (slotName.Length()) {
+				if (slotName.Length() != 0) {
 					long sz = anyParent[slotName].GetSize();
 					if (removeLast && sz > 1) {
 						TraceAny(anyParent[slotName], "removing slot in this any");
@@ -2499,15 +2329,13 @@ void SlotCleaner::Operate(Anything &dest, String slotName, bool removeLast, char
 	}
 }
 
-void SlotCopier::Operate(Anything &source, Anything &dest, const Anything &config, char delim, char indexdelim)
-{
+void SlotCopier::Operate(Anything &source, Anything &dest, const Anything &config, char delim, char indexdelim) {
 	StartTrace(SlotCopier.Operate);
 	ROAnything ROconfig(config);
 	Operate(source, dest, ROconfig, delim, indexdelim);
 }
 
-void SlotCopier::Operate(Anything &source, Anything &dest, const ROAnything &config, char delim, char indexdelim)
-{
+void SlotCopier::Operate(Anything &source, Anything &dest, const ROAnything &config, char delim, char indexdelim) {
 	StartTrace(SlotCopier.Operate);
 	TraceAny(config, "Config");
 
@@ -2516,14 +2344,13 @@ void SlotCopier::Operate(Anything &source, Anything &dest, const ROAnything &con
 		String destSlot = config[i].AsCharPtr(0);
 		Trace("copying [" << sourceSlot << "] to [" << destSlot << "]");
 		Anything content(dest.GetAllocator());
-		if ( sourceSlot && destSlot && source.LookupPath(content, sourceSlot, delim, indexdelim ) ) {
+		if ((sourceSlot != 0) && (destSlot != 0) && source.LookupPath(content, sourceSlot, delim, indexdelim)) {
 			dest[destSlot] = content;
 		}
 	}
 }
 
-void SlotnameSorter::Sort(Anything &toSort, EMode mode)
-{
+void SlotnameSorter::Sort(Anything &toSort, EMode mode) {
 	StartTrace(SlotnameSorter.Sort);
 
 	if (mode == SlotnameSorter::asc) {

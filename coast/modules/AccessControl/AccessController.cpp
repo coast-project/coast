@@ -7,17 +7,18 @@
  */
 
 #include "AccessController.h"
-#include "Tracer.h"
+
 #include "Registry.h"
+#include "Tracer.h"
 
 // ------ UserDataAccessController -----------------------------------
 
-RegCacheImpl(UserDataAccessController);		// creates FindUserDataAccessController()
+RegCacheImpl(UserDataAccessController);	 // creates FindUserDataAccessController()
 
 // ------ TokenDataAccessController -----------------------------------
 
-RegCacheImpl(TokenDataAccessController);	// creates FindTokenDataAccessController()
+RegCacheImpl(TokenDataAccessController);  // creates FindTokenDataAccessController()
 
 // ------ EntityDataAccessController -----------------------------------
 
-RegCacheImpl(EntityDataAccessController);	// creates FindEntityDataAccessController()
+RegCacheImpl(EntityDataAccessController);  // creates FindEntityDataAccessController()

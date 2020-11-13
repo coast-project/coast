@@ -6,14 +6,14 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "RendererDispatchAction.h"
+
 #include "Renderer.h"
 //---- RendererDispatchAction ---------------------------------------------------------------
 RegisterAction(RendererDispatchAction);
 
 bool RendererDispatchAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(RendererDispatchAction.DoExecAction);
-	TraceAny(config, "Configuration")
-	ROAnything rendererSpec;
+	TraceAny(config, "Configuration") ROAnything rendererSpec;
 	if (!config.LookupPath(rendererSpec, "Renderer", '\000')) {
 		rendererSpec = config;
 	}
@@ -21,7 +21,7 @@ bool RendererDispatchAction::DoExecAction(String &transitionToken, Context &ctx,
 	Renderer::RenderOnString(nextAction, ctx, rendererSpec);
 	TraceAny(rendererSpec, "RendererSpec resulted in Action <" << nextAction << ">");
 
-	if ( nextAction.Length() ) {
+	if (nextAction.Length() != 0) {
 		ROAnything nextActionConfig = ctx.Lookup(nextAction);
 		TraceAny(nextActionConfig, "nextActionConfig");
 		if (nextActionConfig.IsNull()) {

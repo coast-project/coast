@@ -6,22 +6,22 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "Anything.h"
-#include "StringStream.h"
-#include "Context.h"
-#include "Renderer.h"
-#include "TestSuite.h"
-#include "URLRenderers.h"
 #include "URLRendererTest.h"
 
-URLRendererTest::URLRendererTest (TString tname) : RendererTest(tname) {};
-URLRendererTest::~URLRendererTest() {};
+#include "Anything.h"
+#include "Context.h"
+#include "Renderer.h"
+#include "StringStream.h"
+#include "TestSuite.h"
+#include "URLRenderers.h"
+
+URLRendererTest::URLRendererTest(TString tname) : RendererTest(tname){};
+URLRendererTest::~URLRendererTest(){};
 
 /*===============================================================*/
 /*     Init                                                      */
 /*===============================================================*/
-void URLRendererTest::setUp ()
-{
+void URLRendererTest::setUp() {
 	RendererTest::setUp();
 
 	fConfig["Action"] = "StandardAction";
@@ -29,11 +29,9 @@ void URLRendererTest::setUp ()
 	fConfig["Params"]["p1"] = "Par1";
 	fConfig["Params"]["p2"] = "Par2";
 	fConfig["Params"]["p3"] = "Par3";
-
 }
 
-Test *URLRendererTest::suite ()
-{
+Test *URLRendererTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 
 	ADD_CASE(testSuite, URLRendererTest, Standard);
@@ -42,15 +40,13 @@ Test *URLRendererTest::suite ()
 	ADD_CASE(testSuite, URLRendererTest, IntraPage);
 
 	return testSuite;
-
 }
 
 /*===============================================================*/
 /*     Check found cases where all is correctly defined          */
 /*===============================================================*/
 
-void URLRendererTest::Standard()
-{
+void URLRendererTest::Standard() {
 	URLRenderer urlRenderer("TestURLRenderer");
 
 	// render the configuration
@@ -59,11 +55,14 @@ void URLRendererTest::Standard()
 
 	// assert the result
 
-	assertCharPtrEqual("wdgateway?X=Encoder-Scrambler-Signer-Compressor-%7B%2Faction%20%22StandardAction%22%2Fp0%20%22Par0%22%2Fp1%20%22Par1%22%2Fp2%20%22Par2%22%2Fp3%20%22Par3%22%7D", fReply.str());
+	assertCharPtrEqual(
+		"wdgateway?X=Encoder-Scrambler-Signer-Compressor-%7B%2Faction%20%22StandardAction%22%2Fp0%20%22Par0%22%2Fp1%20%22Par1%"
+		"22%"
+		"2Fp2%20%22Par2%22%2Fp3%20%22Par3%22%7D",
+		fReply.str());
 }
 
-void URLRendererTest::BaseURL()
-{
+void URLRendererTest::BaseURL() {
 	URLRenderer urlRenderer("TestURLRenderer");
 
 	fContext.GetTmpStore()["UseBaseURL"] = 1;
@@ -73,15 +72,18 @@ void URLRendererTest::BaseURL()
 	urlRenderer.RenderAll(fReply, fContext, roConfig);
 
 	// assert the result
-	assertCharPtrEqual("X2=Encoder-Scrambler-Signer-Compressor-%7B%2Faction%20%22StandardAction%22%2Fp0%20%22Par0%22%2Fp1%20%22Par1%22%2Fp2%20%22Par2%22%2Fp3%20%22Par3%22%7D", fReply.str());
+	assertCharPtrEqual(
+		"X2=Encoder-Scrambler-Signer-Compressor-%7B%2Faction%20%22StandardAction%22%2Fp0%20%22Par0%22%2Fp1%20%22Par1%22%2Fp2%"
+		"20%"
+		"22Par2%22%2Fp3%20%22Par3%22%7D",
+		fReply.str());
 }
 
-void URLRendererTest::BaseR3SSL()
-{
+void URLRendererTest::BaseR3SSL() {
 	BaseURLRenderer baseUrlRenderer("TestBaseURLRenderer");
 	Anything env, dummy;
 
-	env["header"]["USER-AGENT"] = "R3SSLV2.0";		// need this in env
+	env["header"]["USER-AGENT"] = "R3SSLV2.0";	// need this in env
 	Context context(env, dummy, 0, 0, 0, 0);
 	// therefore I generate my own context
 
@@ -93,15 +95,15 @@ void URLRendererTest::BaseR3SSL()
 
 	config["BaseAddr"]["ContextLookupRenderer"] = "R3BaseAddress";
 	baseUrlRenderer.RenderAll(fReply, context, config);
-
+	// clang-format off
 	assertEqual(_QUOTE_(<base href="test.r3.base.address/wdgateway/X1=Encoder-Scrambler-Signer-Compressor-*/"/>\n), fReply.str());
-} // R3SSL
+	// clang-format on
+}
 
-void URLRendererTest::IntraPage()
-{
+void URLRendererTest::IntraPage() {
 	Anything env, dummy;
 
-	env["header"]["USER-AGENT"] = "R3SSLV2.0";		// obsoleted
+	env["header"]["USER-AGENT"] = "R3SSLV2.0";	// obsoleted
 	Context context(env, dummy, 0, 0, 0, 0);
 	// therefore I generate my own context
 
@@ -113,4 +115,4 @@ void URLRendererTest::IntraPage()
 	assertEqual("test.r3.base.address//wdgateway#TestIntra", result);
 	// well, actually I doubt that this is still of any use, but that it is
 
-} // IntraPage
+}  // IntraPage

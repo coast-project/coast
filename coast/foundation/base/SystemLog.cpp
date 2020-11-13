@@ -7,19 +7,23 @@
  */
 
 #include "SystemLog.h"
+
+#include "InitFinisManager.h"
 #include "SystemBase.h"
-#include <errno.h>
+#include "singleton.hpp"
+
 #include <cstdio>
 #include <cstring>
+
+#include <errno.h>
 #if defined(WIN32)
 #include <windows.h>
 #define IOSTREAM_IS_THREADSAFE
 #include <iostream>
 #else
 #include <syslog.h>
+#include <unistd.h>
 #endif
-#include "singleton.hpp"
-#include "InitFinisManager.h"
 
 #if defined(WIN32)
 //! implementation of SystemLog api for WIN32
@@ -27,16 +31,18 @@ class Win32SysLog : public SystemLog {
 public:
 	Win32SysLog(const char *appId);
 	~Win32SysLog();
+
 protected:
 	virtual void DoSystemLevelLog(eLogLevel level, const char *msg);
 	HANDLE fLogHandle;
 };
 #else
 //! implementation for Unix syslog api
-class UnixSysLog: public SystemLog {
+class UnixSysLog : public SystemLog {
 public:
 	UnixSysLog(const char *appId);
 	~UnixSysLog();
+
 protected:
 	virtual void DoSystemLevelLog(eLogLevel level, const char *msg);
 };
@@ -56,9 +62,9 @@ namespace coast {
 				finalMessage.Append(level).Append(msg).Append('\n');
 				return finalMessage;
 			}
-		}
-	}
-}
+		}  // namespace log
+	}	   // namespace system
+}  // namespace coast
 
 namespace {
 	class SystemLogInitializer {
@@ -67,8 +73,12 @@ namespace {
 		SystemLog::eLogLevel fDoSystemLevelLog;
 		SystemLog::eLogLevel fDoLogOnCerr;
 		SystemLog::messageFormatterFunctionType currentMessageFormatter;
+
 	public:
-		SystemLogInitializer() : fSysLog(), fDoSystemLevelLog(SystemLog::eALERT), fDoLogOnCerr(SystemLog::eERR), currentMessageFormatter(&coast::system::log::formatMessage) {
+		SystemLogInitializer()
+			: fDoSystemLevelLog(SystemLog::eALERT),
+			  fDoLogOnCerr(SystemLog::eERR),
+			  currentMessageFormatter(&coast::system::log::formatMessage) {
 			Init(0);
 			InitFinisManager::IFMTrace("SystemLog::Initialized\n");
 		}
@@ -78,7 +88,7 @@ namespace {
 		}
 		void Init(const char *appId) {
 			// beware this is not thread safe since logging takes place before the server object exists we have to take care
-			if (appId) {
+			if (appId != 0) {
 				Terminate();
 			} else {
 				appId = "Coast";
@@ -94,7 +104,7 @@ namespace {
 				fDoLogOnCerr = static_cast<SystemLog::eLogLevel>(iValue);
 			}
 			strValue = coast::system::EnvGet(coast::system::log::envnameLogonCerrWithTimestamp);
-			if (strValue.AsLong(0L)) {
+			if (strValue.AsLong(0L) != 0) {
 				currentMessageFormatter = &coast::system::log::formatMessageTimeStamp;
 			} else {
 				currentMessageFormatter = &coast::system::log::formatMessage;
@@ -107,11 +117,9 @@ namespace {
 			fSysLog = SystemLogPtr(new UnixSysLog(appId));
 #endif
 		}
-		void Terminate() {
-			fSysLog.reset();
-		}
-		SystemLog* getSysLog() {
-			if ( not fSysLog.get() ) {
+		void Terminate() { fSysLog.reset(); }
+		SystemLog *getSysLog() {
+			if (fSysLog.get() == 0) {
 				Init(0);
 			}
 			return fSysLog.get();
@@ -121,23 +129,17 @@ namespace {
 			fSysLog = newLogger;
 			return oldLogger;
 		}
-		bool doLogToSystem(SystemLog::eLogLevel const &level) const {
-			return level >= fDoSystemLevelLog;
-		}
-		bool doLogToCerr(SystemLog::eLogLevel const &level) const {
-			return level >= fDoLogOnCerr;
-		}
-		SystemLog::messageFormatterFunctionType getCurrentMessageFormatter() {
-			return currentMessageFormatter;
-		}
+		bool doLogToSystem(SystemLog::eLogLevel const &level) const { return level >= fDoSystemLevelLog; }
+		bool doLogToCerr(SystemLog::eLogLevel const &level) const { return level >= fDoLogOnCerr; }
+		SystemLog::messageFormatterFunctionType getCurrentMessageFormatter() { return currentMessageFormatter; }
 		SystemLog::messageFormatterFunctionType replaceMessageFormatter(SystemLog::messageFormatterFunctionType newFormatter) {
 			SystemLog::messageFormatterFunctionType oldFormatter = currentMessageFormatter;
 			currentMessageFormatter = newFormatter;
 			return oldFormatter;
 		}
 	};
-    typedef coast::utility::singleton_default<SystemLogInitializer> SystemLogInitializerSingleton;
-}
+	typedef coast::utility::singleton_default<SystemLogInitializer> SystemLogInitializerSingleton;
+}  // namespace
 
 SystemLog::SystemLogPtr SystemLog::replaceSysLog(SystemLog::SystemLogPtr newLogger) {
 	return SystemLogInitializerSingleton::instance().replaceSysLog(newLogger);
@@ -192,7 +194,7 @@ void SystemLog::Log(eLogLevel level, const char *msg) {
 	SystemLog::getSysLog()->DoLog(level, msg);
 }
 
-SystemLog* SystemLog::getSysLog() {
+SystemLog *SystemLog::getSysLog() {
 	return SystemLogInitializerSingleton::instance().getSysLog();
 }
 // const char *SysErrorMsg(long errnum) maps the error number in errnum
@@ -203,19 +205,13 @@ String SystemLog::SysErrorMsg(long errnum) {
 #if defined(WIN32)
 	LPTSTR lpMsgBuf = 0;
 
-	DWORD len = FormatMessage(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL,
-			errnum,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-			(LPTSTR) &lpMsgBuf,
-			0,
-			NULL
-	);
+	DWORD len = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, errnum,
+							  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),  // Default language
+							  (LPTSTR)&lpMsgBuf, 0, NULL);
 
 	String msg(static_cast<const char *>(lpMsgBuf), len);
 	// Free the buffer.
-	LocalFree( lpMsgBuf );
+	LocalFree(lpMsgBuf);
 	return msg;
 #else
 	String theError;
@@ -238,7 +234,7 @@ String SystemLog::LastSysError() {
 	return String().Append(static_cast<long>(iError)).Append(": no system-error");
 }
 
-//magic function to be used by Assert macro to avoid dependency to class SystemLog and SystemLog.h
+// magic function to be used by Assert macro to avoid dependency to class SystemLog and SystemLog.h
 int syslog_assert(const char *file, long line, const char *assertion) {
 	return SystemLog::LogAssert(file, line, assertion);
 }
@@ -248,7 +244,7 @@ int SystemLog::LogAssert(const char *file, long line, const char *assertion) {
 	char buf[bufSize] = {0};
 	int charsStoredOrRequired = coast::system::SnPrintf(buf, bufSize, "%s:%ld\n Assert(%s) failed\n", file, line, assertion);
 	// SnPrintf might return size required to convert, e.g. truncated output
-	SystemLog::WriteToStderr(buf, charsStoredOrRequired>=bufSize?-1:charsStoredOrRequired);
+	SystemLog::WriteToStderr(buf, charsStoredOrRequired >= bufSize ? -1 : charsStoredOrRequired);
 	return 0;
 }
 
@@ -257,7 +253,7 @@ void SystemLog::WriteToStderr(const String &msg) {
 }
 
 void SystemLog::WriteToStderr(const char *msg, long length) {
-	if (msg) {
+	if (msg != 0) {
 		long sLen = length;
 		if (sLen < 0) {
 			sLen = strlen(msg);
@@ -266,7 +262,7 @@ void SystemLog::WriteToStderr(const char *msg, long length) {
 		std::cerr.write(msg, sLen).flush();
 #else
 		ssize_t written = ::write(2, msg, sLen);
-		(void) written;
+		(void)written;
 #endif
 	}
 }
@@ -276,7 +272,7 @@ void SystemLog::WriteToStdout(const String &msg) {
 }
 
 void SystemLog::WriteToStdout(const char *msg, long length) {
-	if (msg) {
+	if (msg != 0) {
 		long sLen = length;
 		if (sLen < 0) {
 			sLen = strlen(msg);
@@ -285,7 +281,7 @@ void SystemLog::WriteToStdout(const char *msg, long length) {
 		std::cout.write(msg, sLen).flush();
 #else
 		ssize_t written = write(1, msg, sLen);
-		(void) written;
+		(void)written;
 #endif
 	}
 }
@@ -309,7 +305,8 @@ void SystemLog::DoTraceLevel(const char *level, const char *msg) {
 	SystemLog::WriteToStderr(DoFormatTraceLevelMessage(level, msg));
 }
 
-SystemLog::messageFormatterFunctionType	SystemLog::replaceMessageFormatter(SystemLog::messageFormatterFunctionType newFormatter) {
+SystemLog::messageFormatterFunctionType SystemLog::replaceMessageFormatter(
+	SystemLog::messageFormatterFunctionType newFormatter) {
 	return SystemLogInitializerSingleton::instance().replaceMessageFormatter(newFormatter);
 }
 
@@ -342,7 +339,7 @@ Win32SysLog::Win32SysLog(const char *appId) {
 }
 
 Win32SysLog::~Win32SysLog() {
-	::DeregisterEventSource( fLogHandle );
+	::DeregisterEventSource(fLogHandle);
 }
 
 void Win32SysLog::DoSystemLevelLog(eLogLevel level, const char *logMsg) {

@@ -7,25 +7,27 @@
  */
 
 #include "CharReplaceRenderer.h"
+
 #include "Tracer.h"
+
+#include <ostream>
 
 //---- CharReplaceRenderer ---------------------------------------------------------------
 RegisterRenderer(CharReplaceRenderer);
 
-CharReplaceRenderer::CharReplaceRenderer(const char *name) : Renderer(name) { }
+CharReplaceRenderer::CharReplaceRenderer(const char *name) : Renderer(name) {}
 
-CharReplaceRenderer::~CharReplaceRenderer() { }
+CharReplaceRenderer::~CharReplaceRenderer() {}
 
-void CharReplaceRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void CharReplaceRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(CharReplaceRenderer.RenderAll);
 
 	String charsToReplace = config["CharsToReplace"].AsString();
 	String replaceChar = config["ReplaceChar"].AsString("_");
-	if ( charsToReplace != "" ) {
+	if (!charsToReplace.empty()) {
 		String original;
 		RenderOnString(original, c, config["String"]);
-		if (replaceChar != "") {
+		if (!replaceChar.empty()) {
 			// replace characters
 			char rChar = replaceChar[0L];
 			long sz = charsToReplace.Length();

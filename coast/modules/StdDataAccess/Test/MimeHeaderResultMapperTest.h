@@ -12,13 +12,11 @@
 #include "FoundationTestTypes.h"
 
 //---- MimeHeaderResultMapperTest ----------------------------------------------------------
-class MimeHeaderResultMapperTest: public testframework::TestCaseWithConfig {
+class MimeHeaderResultMapperTest : public testframework::TestCaseWithConfig {
 public:
 	//! ConfiguredTestCase constructor
 	//! \param name name of the test
-	MimeHeaderResultMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	MimeHeaderResultMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//! builds up a suite of tests
 	static Test *suite();

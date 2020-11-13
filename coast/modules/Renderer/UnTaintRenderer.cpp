@@ -7,8 +7,9 @@
  */
 
 #include "UnTaintRenderer.h"
-#include "URLUtils.h"
+
 #include "Tracer.h"
+#include "URLUtils.h"
 
 RegisterRenderer(UnTaintRenderer);
 

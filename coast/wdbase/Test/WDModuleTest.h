@@ -13,32 +13,31 @@
 
 class Registry;
 
-class WDModuleTest : public testframework::TestCase
-{
+class WDModuleTest : public testframework::TestCase {
 public:
-	//!TestCases
+	//! TestCases
 	//! \param name name of the test
 	WDModuleTest(TString tstrName);
 
-	//!destroys the test case
+	//! destroys the test case
 	~WDModuleTest();
 
 	//--- public api
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!sets the environment for this test
-	void setUp ();
+	//! sets the environment for this test
+	void setUp();
 
-	//!deletes the environment for this test
-	void tearDown ();
+	//! deletes the environment for this test
+	void tearDown();
 
-	void InstallTest ();
-	void Install2Test ();
-	void ResetTest ();
-	void TerminateTest ();
-	void ResetWithDiffConfigsTest ();
+	void InstallTest();
+	void Install2Test();
+	void ResetTest();
+	void TerminateTest();
+	void ResetWithDiffConfigsTest();
 
 protected:
 	Registry *fOrigWDModuleRegistry;

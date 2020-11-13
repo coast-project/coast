@@ -17,27 +17,26 @@
 \par Configuration
 \code
 {
-	/PathName	Rendererspec		mandatory, Rendered result is the path to the Anything of which the name of the slot to the given Index will be output
-	/Index		Rendererspec		mandatory, Rendered result defines the index of the array entry whose slotname will be output. Will not output anything in case of an out of bound index.
+  /PathName	Rendererspec		mandatory, Rendered result is the path to the Anything of which the name of the slot to the given Index will be output
+  /Index		Rendererspec		mandatory, Rendered result defines the index of the array entry whose slotname will be output. Will not output anything in case of an out of bound index.
 }
 \endcode
 \par Example:
 \code
 /MyAny {
-	/A01	First
-	/B01	Second
-	/C01	Last
+  /A01	First
+  /B01	Second
+  /C01	Last
 }
 { /SlotNameRenderer {
-	/PathName	MyAny
-	/Index		1
+  /PathName	MyAny
+  /Index		1
 } }
 \endcode
 
 Renders : "B01"
 */
-class SlotNameRenderer : public Renderer
-{
+class SlotNameRenderer : public Renderer {
 public:
 	//--- constructors
 	SlotNameRenderer(const char *name);
@@ -45,8 +44,8 @@ public:
 
 	//! Render the requested slotname
 	/*! \param reply stream to generate output on
-		\param c Context used for output generation
-		\param config configuration which drives the output generation */
+	  \param c Context used for output generation
+	  \param config configuration which drives the output generation */
 	virtual void RenderAll(std::ostream &reply, Context &c, const ROAnything &config);
 };
 

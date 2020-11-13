@@ -14,16 +14,12 @@
 //! transfer stream of DataAccessImpl to the stream in the context
 //! future versions might incorporate post processing which we ignore
 //! in the moment
-class StreamTransferMapper: public ResultMapper {
+class StreamTransferMapper : public ResultMapper {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	StreamTransferMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	StreamTransferMapper(const char *name) : ResultMapper(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) StreamTransferMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) StreamTransferMapper(fName); }
 
 protected:
 	/*! @copydoc ResultMapper::DoPutStream(const char *, std::istream &, Context &, ROAnything) */

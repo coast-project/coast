@@ -7,34 +7,31 @@
  */
 
 #include "LocalizedRenderers.h"
+
 #include "LocalizationUtils.h"
 #include "Tracer.h"
+
+#include <ostream>
 
 //---- StringRenderer ----------------------------------------------------------------
 RegisterRenderer(StringRenderer);
 
-StringRenderer::StringRenderer(const char *name) : Renderer(name)
-{
-}
-void StringRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+StringRenderer::StringRenderer(const char *name) : Renderer(name) {}
+void StringRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(StringRenderer.Render);
 	TraceAny(config, "config");
 	const char *res = LocalizationUtils::Eval(c.Language(), config);
-	Trace ("res is" << res );
-	reply << (res ? res : ""); // fix null ptr behavior of ostream::operator<<(const char *)
-	// otherwise we would output "(null)" instead
+	Trace("res is" << res);
+	reply << (res != 0 ? res : "");	 // fix null ptr behavior of ostream::operator<<(const char *)
+									 // otherwise we would output "(null)" instead
 }
 
 //---- LanguageSwitchRenderer ----------------------------------------------------------------
 
 RegisterRenderer(LanguageSwitchRenderer);
 
-LanguageSwitchRenderer::LanguageSwitchRenderer(const char *name) : Renderer(name)
-{
-}
-void LanguageSwitchRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+LanguageSwitchRenderer::LanguageSwitchRenderer(const char *name) : Renderer(name) {}
+void LanguageSwitchRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(LanguageSwitchRenderer.Render);
 	TraceAny(config, "config");
 

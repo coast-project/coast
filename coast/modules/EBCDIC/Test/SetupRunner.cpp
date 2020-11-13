@@ -13,9 +13,8 @@
 #include "ConnectorAcceptorTest.h"
 #include "EBCDICTableTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	// add a whole suite with the ADD_SUITE(runner,"Suites's Classname") macro
 	ADD_SUITE(runner, ConnectorAcceptorTest);
 	ADD_SUITE(runner, EBCDICTableTest);
-} // setupRunner
+}  // setupRunner

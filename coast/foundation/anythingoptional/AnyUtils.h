@@ -18,25 +18,24 @@ Compare two anythings along a complete hierarchy.
 To compare two anythings, the master anything contains only the slots to be checked for, the input any may
 contain more slots, but these are ignored. Any leaves are compared as strings.
 Slots without names are nevertheless checked for exact matches only
-If you ARE interested in the presence of a slot but not in its contents (for example if you know that the slot contents will be different),
-use the string \b ignore as the slot value in the master any.
-Example configuration:
+If you ARE interested in the presence of a slot but not in its contents (for example if you know that the slot contents will be
+different), use the string \b ignore as the slot value in the master any. Example configuration:
 \code
 inputAny
 {
-	/Test2 { Hallo }
-	/Test { Hallo }
-	/Test3 "fda=dkveklrjtijijckd MON 10 Mar. 2000"
-	/Test4 { { /B 4 } { /A 3 } }
+  /Test2 { Hallo }
+  /Test { Hallo }
+  /Test3 "fda=dkveklrjtijijckd MON 10 Mar. 2000"
+  /Test4 { { /B 4 } { /A 3 } }
 }
 
 masterAny
 {
-	{ Hallo }
-	/Test2 { Hallo }
-	/Test { Hallo }
-	/Test3 ignore
-	/Test4:1.A	3
+  { Hallo }
+  /Test2 { Hallo }
+  /Test { Hallo }
+  /Test3 ignore
+  /Test4:1.A	3
 }
 \endcode
 \note In slots without names, comparison are not shown at the leaf level but from the point at which the slotname free entries began. This is because we attempt to match slots without name by recursive comparison, and verbose is turned off during this matchmaking.
@@ -45,11 +44,11 @@ masterAny
 Recursively merge the content of two anythings.
 There are four different merging strategies:
 -# Named simple valued slot\n
-If it does not exist in the master anything, the slot simply gets copied from the roaToMerge anything. Only if the slot exists and the overwrite flag is set,
-the value will be overwritten.
+If it does not exist in the master anything, the slot simply gets copied from the roaToMerge anything. Only if the slot exists
+and the overwrite flag is set, the value will be overwritten.
 -# Named array slot\n
-If the named array does not exist it will be created. If it exists, only the non-existing parts will be inserted. You can <b>not</b> overwrite a named array from
-top-level.
+If the named array does not exist it will be created. If it exists, only the non-existing parts will be inserted. You can
+<b>not</b> overwrite a named array from top-level.
 
 \note Slots get only replaced - when overwrite flag is set and value is unequal - for simple valued entries.
 
@@ -63,49 +62,48 @@ Example configuration:
 \code
 anyMaster
 {
-	{
-		Already
-	}
-	/Whatever {
-		abc
-	}
-	{
-		Here
-	}
+  {
+	Already
+  }
+  /Whatever {
+	abc
+  }
+  {
+	Here
+  }
 }
 
 roaToMerge
 {
-	{					<-- unnamed array slot
-		Here			<-- unnamed simple value
-		Me
-	}
-	/Whatever {			<-- named array slot
-		Jup
-		/ASubSlot	345	<-- named simple value
-	}
+  {					<-- unnamed array slot
+	Here			<-- unnamed simple value
+	Me
+  }
+  /Whatever {			<-- named array slot
+	Jup
+	/ASubSlot	345	<-- named simple value
+  }
 }
 
 modified anyMaster
 {
-	{
-		Already
-	}
-	/Whatever {
-		abc
-		Jup
-		/ASubSlot	345
-	}
-	{
-		Here
-		Me
-	}
+  {
+	Already
+  }
+  /Whatever {
+	abc
+	Jup
+	/ASubSlot	345
+  }
+  {
+	Here
+	Me
+  }
 }
 \endcode
 \note For more realistic examples see AnyMergeTest.any in Test/config directory
 */
-class AnyUtils
-{
+class AnyUtils {
 public:
 	//! Compare two anythings at content match level. Only compare the slots given in masterAny.
 	//! \param inputAny the anything we want to be compared against a master
@@ -115,15 +113,16 @@ public:
 	//! \param delimSlot slot delimiter for LookupPath
 	//! \param delimIdx index delimiter for LookupPath
 	//! \return overall match of all wanted slots, if a single slot fails, comparison fails, if verbose flag is set details of failure are output to cerr
-	static bool AnyCompareEqual( const ROAnything &inputAny, const ROAnything &masterAny, String pathSoFar, std::ostream *verbose, char delimSlot = '.', char delimIdx = ':');
+	static bool AnyCompareEqual(const ROAnything &inputAny, const ROAnything &masterAny, String pathSoFar,
+								std::ostream *verbose, char delimSlot = '.', char delimIdx = ':');
 
 	//! render an anything to simple XML representation
 	/*! namespace \b any:seq will be used for array entries, \b any:elt for anonymous (value only) entries<br>
-		Anything \code {} \endcode would be converted into:
-		\code <any:seq></any:seq> \endcode
-		Anything \code { foo /bar baz } \endcode would be converted into:
-		\code <any:seq><any:elt>foo</any:elt><bar>baz</bar></any:seq> \endcode */
-	static void PrintSimpleXML( std::ostream &os, ROAnything output);
+	  Anything \code {} \endcode would be converted into:
+	  \code <any:seq></any:seq> \endcode
+	  Anything \code { foo /bar baz } \endcode would be converted into:
+	  \code <any:seq><any:elt>foo</any:elt><bar>baz</bar></any:seq> \endcode */
+	static void PrintSimpleXML(std::ostream &os, ROAnything output);
 
 	//! Merge the content of two anythings. The master anything gets modified using the specification from roaToMerge
 	//! non-array entries can also be overwritten
@@ -132,46 +131,48 @@ public:
 	//! \param bOverwriteSlots if true, non-array-slots will be replaced by the content of the equivalent roaToMerge slot
 	//! \param delimSlot slot delimiter for LookupPath
 	//! \param delimIdx index delimiter for LookupPath
-	static void AnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, bool bOverwriteSlots = false, const char &delimSlot = '.', const char &delimIdx = ':');
+	static void AnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, bool bOverwriteSlots = false,
+						 const char &delimSlot = '.', const char &delimIdx = ':');
 
 protected:
-	//!helper method to dump cerr output with additional message and information
-	static void Dump(const char *message, const ROAnything &inputAny, const ROAnything &masterAny, const String &masterSlotName, const String &pathSoFar, std::ostream *verbose);
+	//! helper method to dump cerr output with additional message and information
+	static void Dump(const char *message, const ROAnything &inputAny, const ROAnything &masterAny, const String &masterSlotName,
+					 const String &pathSoFar, std::ostream *verbose);
 
-	//!helper method to spot differences in long anythings more easily; internal use only
+	//! helper method to spot differences in long anythings more easily; internal use only
 	//! \param masterString contents that should be
 	//! \param inputString actual content
 	//! \param verbose output stream used for comparison contains the result
-	static void ShowDifferences( String &masterString, String &inputString, std::ostream *verbose );
+	static void ShowDifferences(String &masterString, String &inputString, std::ostream *verbose);
 
-	//!helper method to do the merging work; internal use only
+	//! helper method to do the merging work; internal use only
 	//! \param anyMaster master anything which gets modified by the content of roaToMerge
 	//! \param roaToMerge parts to merge into anyMaster
 	//! \param bOverwriteSlots if true, non-array-slots will be replaced by the content of the equivalent roaToMerge slot
 	//! \param bTest if true, do only test for match count instead of modifying
 	//! \param delimSlot slot delimiter for LookupPath
 	//! \param delimIdx index delimiter for LookupPath
-	static long DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, bool bOverwriteSlots, bool bTest, const char &delimSlot, const char &delimIdx);
+	static long DoAnyMerge(Anything &anyMaster, const ROAnything &roaToMerge, bool bOverwriteSlots, bool bTest,
+						   const char &delimSlot, const char &delimIdx);
 };
 
 //! read and write anythings as testrun input
 /*!
 Defines a recorder api to read in and write out an anything containing activities for testruns
 */
-class Recording
-{
+class Recording {
 public:
 	//! used to read recordings of activities for use as input for subsequent test runs
 	//! \param fileName The filename to write to
 	//! \param recording The contents of the recording
 	//! \return true if file can be opened else false
-	static bool ReadinRecording(const String &fileName, Anything &recording );
+	static bool ReadinRecording(const String &fileName, Anything &recording);
 
 	//! used to write recordings of activities for use as input for subsequent test runs
 	//! \param fileName The filename to write to
 	//! \param recording The contents of the recording
 	//! \return true if file can be opened else false
-	static bool WriteoutRecording(const String &fileName, Anything &recording );
+	static bool WriteoutRecording(const String &fileName, Anything &recording);
 };
 
 #endif

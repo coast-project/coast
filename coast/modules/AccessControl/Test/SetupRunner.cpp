@@ -9,14 +9,13 @@
 #include "TestRunner.h"
 
 //--- test cases ---------------------------------------------------------------
+#include "AccessManagerModuleTest.h"
+#include "AccessManagerTest.h"
 #include "FileAccessControllerTests.h"
 #include "MockAccessControllerTests.h"
-#include "AccessManagerTest.h"
-#include "AccessManagerModuleTest.h"
 #include "OTPListTest.h"
 
-void setupRunner(TestRunner &runner)
-{
+void setupRunner(TestRunner &runner) {
 	// add a whole suite with the ADD_SUITE(runner,"Suites's Classname") macro
 	ADD_SUITE(runner, FileAccessControllerTests);
 	ADD_SUITE(runner, MockAccessControllerTests);
@@ -24,4 +23,3 @@ void setupRunner(TestRunner &runner)
 	ADD_SUITE(runner, AccessManagerModuleTest);
 	ADD_SUITE(runner, OTPListTest);
 }
-

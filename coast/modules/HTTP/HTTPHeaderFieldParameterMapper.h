@@ -24,31 +24,31 @@ namespace coast {
 		 * @subsection httphfmexampleconfig Configuration (InputMapperMeta.any)
 		 * \code
 		/MyMapperAlias {
-			/header {
-				/USER-AGENT {
-					/RendererMapper {
-						/SubStringRenderer {
-							/String	{ /ContextLookupRenderer header.USER-AGENT }
-							/Length 7
-						}
-					}
+		  /header {
+			/USER-AGENT {
+			  /RendererMapper {
+				/SubStringRenderer {
+				  /String	{ /ContextLookupRenderer header.USER-AGENT }
+				  /Length 7
 				}
+			  }
 			}
+		  }
 		}
 		 * \endcode
 		 * @subsection httphfmexampletmpstore Prepared content of TmpStore
 		 * Assume the configured DataAccess will issue a ParameterMapper::Get("Header", ...)
 		 * \code
 		/TmpStore {
-			/Header {
-				/HOST "my.host.dom"
-				/USER-AGENT "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.6) Gecko/20100629 Ubuntu/10.10 (maverick) Firefox/3.6.6 GTB7.0"
-				/ACCEPT {
-				  "text/html"
-				  "application/xhtml+xml"
-				  "application/xml;q=0.9"
-				}
+		  /Header {
+			/HOST "my.host.dom"
+			/USER-AGENT "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.6) Gecko/20100629 Ubuntu/10.10 (maverick) Firefox/3.6.6 GTB7.0"
+			/ACCEPT {
+			  "text/html"
+			  "application/xhtml+xml"
+			  "application/xml;q=0.9"
 			}
+		  }
 		}
 		 * \endcode
 		 * @subsection httphfmexampleoutput Returned content on stream
@@ -57,19 +57,17 @@ namespace coast {
 		 * \endcode
 		 * \see HTTPHeaderFieldParameterMapperTest.any for more examples
 		 */
-		class HTTPHeaderFieldParameterMapper: public ParameterMapper {
+		class HTTPHeaderFieldParameterMapper : public ParameterMapper {
 			HTTPHeaderFieldParameterMapper();
 			HTTPHeaderFieldParameterMapper(const HTTPHeaderFieldParameterMapper &);
 			HTTPHeaderFieldParameterMapper &operator=(const HTTPHeaderFieldParameterMapper &);
+
 		public:
-			HTTPHeaderFieldParameterMapper(const char *name) :
-					ParameterMapper(name) {
-			}
+			HTTPHeaderFieldParameterMapper(const char *name) : ParameterMapper(name) {}
 
 			/*! @copydoc IFAObject::Clone(Allocator *) const */
-			IFAObject *Clone(Allocator *a) const {
-				return new (a) HTTPHeaderFieldParameterMapper(fName);
-			}
+			IFAObject *Clone(Allocator *a) const { return new (a) HTTPHeaderFieldParameterMapper(fName); }
+
 		protected:
 			//! Render http header field, look'd up using Get(key,...) and rendered onto os
 			/*! @copydoc ParameterMapper::DoGetStream(const char *, std::ostream &, Context &, ROAnything) */
@@ -79,7 +77,7 @@ namespace coast {
 			/*! @copydoc ParameterMapper::DoGetAny(const char *, Anything &, Context &, ROAnything) */
 			virtual bool DoGetAny(const char *key, Anything &value, Context &ctx, ROAnything info);
 		};
-	}
-}
+	}  // namespace http
+}  // namespace coast
 
 #endif

@@ -19,17 +19,16 @@
 //		/ReplaceChar	Character		replacement character, default is '_'
 //		/String			Rendererspec	String which will be affected
 //	}</PRE>
-class CharReplaceRenderer : public Renderer
-{
+class CharReplaceRenderer : public Renderer {
 public:
 	//--- constructors
 	CharReplaceRenderer(const char *name);
 	~CharReplaceRenderer();
 
 	//:Renders ?? on <I>reply </I>
-	//!param: reply - out - the stream where the rendered output is written on.
-	//!param: c - the context the renderer runs within.
-	//!param: config - the configuration of the renderer.
+	//! param: reply - out - the stream where the rendered output is written on.
+	//! param: c - the context the renderer runs within.
+	//! param: config - the configuration of the renderer.
 	virtual void RenderAll(std::ostream &reply, Context &c, const ROAnything &config);
 };
 

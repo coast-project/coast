@@ -7,25 +7,25 @@
  */
 
 #include "CopyActions.h"
-#include "Renderer.h"
+
 #include "AnythingUtils.h"
+#include "Renderer.h"
 #include "Tracer.h"
 
 //---- CopyAction ----------------------------------------------------------------
 // abstract base class - Not registered
-CopyAction::CopyAction(const char *name) : Action(name)  { }
+CopyAction::CopyAction(const char *name) : Action(name) {}
 
-CopyAction::~CopyAction() { }
+CopyAction::~CopyAction() {}
 
-bool CopyAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool CopyAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(CopyAction.DoExecAction);
 
 	TraceAny(config, "config");
-	//check mandatory configuration slot
+	// check mandatory configuration slot
 	ROAnything destConfig;
 	ROAnything copyList;
-	if (! (config.LookupPath(destConfig, "Destination") && config.LookupPath(copyList, "CopyList")) ) {
+	if (!(config.LookupPath(destConfig, "Destination") && config.LookupPath(copyList, "CopyList"))) {
 		return false;
 	}
 
@@ -51,8 +51,7 @@ bool CopyAction::DoExecAction(String &transitionToken, Context &ctx, const ROAny
 	return true;
 }
 
-void CopyAction::GetDestination(Anything &dest, const ROAnything &destConfig, Context &ctx)
-{
+void CopyAction::GetDestination(Anything &dest, const ROAnything &destConfig, Context &ctx) {
 	StartTrace(CopyContextAction.GetDestination);
 	StoreFinder::Operate(ctx, dest, destConfig);
 }
@@ -60,30 +59,30 @@ void CopyAction::GetDestination(Anything &dest, const ROAnything &destConfig, Co
 //---- CopyContextAction ----------------------------------------------------------------
 RegisterAction(CopyContextAction);
 
-CopyContextAction::CopyContextAction(const char *name) : CopyAction(name) { }
+CopyContextAction::CopyContextAction(const char *name) : CopyAction(name) {}
 
-CopyContextAction::~CopyContextAction() { }
+CopyContextAction::~CopyContextAction() {}
 
-void CopyContextAction::Copy(Anything &dest, const ROAnything &copyList, const ROAnything &config, Context &ctx)
-{
+void CopyContextAction::Copy(Anything &dest, const ROAnything &copyList, const ROAnything &config, Context &ctx) {
 	StartTrace(CopyContextAction.Copy);
 
-	Trace("delim [" << config["Delim"].AsCharPtr(".")[0L] << "], indexdelim [" << config["IndexDelim"].AsCharPtr(":")[0L] << "]");
+	Trace("delim [" << config["Delim"].AsCharPtr(".")[0L] << "], indexdelim [" << config["IndexDelim"].AsCharPtr(":")[0L]
+					<< "]");
 	StoreCopier::Operate(ctx, dest, copyList, config["Delim"].AsCharPtr(".")[0L], config["IndexDelim"].AsCharPtr(":")[0L]);
 }
 
 //---- CopyQueryAction ----------------------------------------------------------------
 RegisterAction(CopyQueryAction);
 
-CopyQueryAction::CopyQueryAction(const char *name) : CopyContextAction(name) { }
+CopyQueryAction::CopyQueryAction(const char *name) : CopyContextAction(name) {}
 
-CopyQueryAction::~CopyQueryAction() { }
+CopyQueryAction::~CopyQueryAction() {}
 
-void CopyQueryAction::Copy(Anything &dest, const ROAnything &copyList, const ROAnything &config, Context &ctx)
-{
+void CopyQueryAction::Copy(Anything &dest, const ROAnything &copyList, const ROAnything &config, Context &ctx) {
 	StartTrace(CopyQueryAction.Copy);
 
-	Trace("delim [" << config["Delim"].AsCharPtr(".")[0L] << "], indexdelim [" << config["IndexDelim"].AsCharPtr(":")[0L] << "]");
+	Trace("delim [" << config["Delim"].AsCharPtr(".")[0L] << "], indexdelim [" << config["IndexDelim"].AsCharPtr(":")[0L]
+					<< "]");
 	Anything &query = ctx.GetQuery();
 
 	SlotCopier::Operate(query, dest, copyList, config["Delim"].AsCharPtr(".")[0L], config["IndexDelim"].AsCharPtr(":")[0L]);
@@ -92,17 +91,16 @@ void CopyQueryAction::Copy(Anything &dest, const ROAnything &copyList, const ROA
 //---- CopyQueryIfNotEmptyAction ----------------------------------------------------------------
 RegisterAction(CopyQueryIfNotEmptyAction);
 
-CopyQueryIfNotEmptyAction::CopyQueryIfNotEmptyAction(const char *name) : CopyQueryAction(name) { }
+CopyQueryIfNotEmptyAction::CopyQueryIfNotEmptyAction(const char *name) : CopyQueryAction(name) {}
 
-CopyQueryIfNotEmptyAction::~CopyQueryIfNotEmptyAction() { }
+CopyQueryIfNotEmptyAction::~CopyQueryIfNotEmptyAction() {}
 
-bool CopyQueryIfNotEmptyAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool CopyQueryIfNotEmptyAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(CopyQueryIfNotEmptyAction.DoExecAction);
 
-	//check mandatory configuration slot
+	// check mandatory configuration slot
 	ROAnything copyList;
-	if (! config.LookupPath(copyList, "CopyList") ) {
+	if (!config.LookupPath(copyList, "CopyList")) {
 		return false;
 	}
 
@@ -114,7 +112,8 @@ bool CopyQueryIfNotEmptyAction::DoExecAction(String &transitionToken, Context &c
 	for (long i = 0; i < sz; ++i) {
 		String sourceSlot = copyList.SlotName(i);
 		Anything content;
-		if ( sourceSlot && query.LookupPath(content, sourceSlot, delim, indexdelim) && content.AsString().Length() ) {
+		if ((sourceSlot != 0) && query.LookupPath(content, sourceSlot, delim, indexdelim) &&
+			(content.AsString().Length() != 0)) {
 			Trace("Not empty slot: " << sourceSlot << " contains >" << content.AsCharPtr("") << "<");
 			return CopyQueryAction::DoExecAction(transitionToken, ctx, config);
 		}

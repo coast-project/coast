@@ -9,19 +9,18 @@
 #ifndef _LoopBackDAImplTest_H
 #define _LoopBackDAImplTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
+#include "TestCase.h"
 
 //---- LoopBackDAImplTest ----------------------------------------------------------
-//!testcases for LoopBackDAImpl
-class LoopBackDAImplTest : public testframework::TestCase
-{
+//! testcases for LoopBackDAImpl
+class LoopBackDAImplTest : public testframework::TestCase {
 public:
 	//--- constructors
 	LoopBackDAImplTest(TString tstrName);
 	~LoopBackDAImplTest();
 
-	static Test *suite ();
+	static Test *suite();
 
 	void setUp();
 

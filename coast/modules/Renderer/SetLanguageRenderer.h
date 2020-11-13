@@ -17,10 +17,10 @@
 \par Configuration
 \code
 {
-	/TempLang	String			optional, temporary language setting
-	/Content {	Anything
-		...		Rendererspec
-	}
+  /TempLang	String			optional, temporary language setting
+  /Content {	Anything
+	...		Rendererspec
+  }
 }
 \endcode
 
@@ -31,23 +31,22 @@ anything respresenting string (temporary!).
 /Lookup InfoText_L # -> text is in german
 \code
 /Switch {
-	/SetLanguageRenderer {
-		/TempLang F
-		/Content {
-			/Lookup InfoText_L  # now this text is in french
-		}
+  /SetLanguageRenderer {
+	/TempLang F
+	/Content {
+	  /Lookup InfoText_L  # now this text is in french
 	}
+  }
 }
 \endcode
 */
-class SetLanguageRenderer : public Renderer
-{
+class SetLanguageRenderer : public Renderer {
 public:
 	//--- constructors
 	SetLanguageRenderer(const char *name);
 	~SetLanguageRenderer();
 
-	//!Renders ?? on <I>reply </I>
+	//! Renders ?? on <I>reply </I>
 	//! \param reply out - the stream where the rendered output is written on.
 	//! \param c the context the renderer runs within.
 	//! \param config the configuration of the renderer.

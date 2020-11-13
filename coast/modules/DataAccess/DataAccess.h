@@ -15,8 +15,7 @@
 //! Monomorph DataAccess entry point, minimal easy to use client api
 //! this class supports a flexible data access mechanism through composition of its
 //! parameter objects inputMapper, outputMapper and dataAccessImpl
-class DataAccess
-{
+class DataAccess {
 public:
 	//! daName configures the data access that should take place
 	DataAccess(const char *daName);
@@ -49,4 +48,4 @@ private:
 	void HandleError(Context &c, String name, const char *file, long line, String msg);
 };
 
-#endif		//not defined _DataAccess_H
+#endif	// not defined _DataAccess_H

@@ -6,24 +6,23 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestSuite.h"
 #include "Page.h"
+
 #include "PageTest.h"
 #include "TestAction.h"
+#include "TestSuite.h"
+
 #include <iostream>
 
-PageTest::PageTest(TString tname) : TestCaseType(tname)
-{
+PageTest::PageTest(TString tname) : TestCaseType(tname) {
 	StartTrace(PageTest.Ctor);
 }
 
-PageTest::~PageTest()
-{
+PageTest::~PageTest() {
 	StartTrace(PageTest.Dtor);
 }
 
-void PageTest::setUp ()
-{
+void PageTest::setUp() {
 	StartTrace(PageTest.setUp);
 	Action *testAction = Action::FindAction("TestAction");
 	if (testAction != 0) {
@@ -41,8 +40,7 @@ void PageTest::setUp ()
 	}
 }
 
-void PageTest::FinishTest()
-{
+void PageTest::FinishTest() {
 	StartTrace(PageTest.FinishTest);
 
 	Page p("test");
@@ -81,8 +79,7 @@ void PageTest::FinishTest()
 	assertEqual("DoTest", tmpStore["ConfiguredTestAction"].AsString("x"));
 }
 
-void PageTest::PrepareTest()
-{
+void PageTest::PrepareTest() {
 	StartTrace(PageTest.PrepareTest);
 
 	Page p("test");
@@ -120,12 +117,10 @@ void PageTest::PrepareTest()
 	// Check if both actions took place
 	assertEqual("DoTest", tmpStore["TestAction"].AsString("x"));
 	assertEqual("DoTest", tmpStore["ConfiguredTestAction"].AsString("x"));
-
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *PageTest::suite ()
-{
+Test *PageTest::suite() {
 	StartTrace(PageTest.suite);
 	TestSuite *testSuite = new TestSuite;
 
@@ -133,5 +128,4 @@ Test *PageTest::suite ()
 	ADD_CASE(testSuite, PageTest, PrepareTest);
 
 	return testSuite;
-
 }

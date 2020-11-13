@@ -7,6 +7,7 @@
  */
 
 #include "MultifunctionListBoxRenderer.h"
+
 #include "StringStream.h"
 #include "utf8.h"
 
@@ -15,17 +16,19 @@ namespace {
 		long len = 0L;
 		try {
 			len = utf8::distance(str.begin(), str.end());
-		} catch (utf8::invalid_utf8& e) {
+		} catch (utf8::invalid_utf8 &e) {
 			len = str.Length();
 		}
-		StatTrace(MultifunctionListBoxRenderer.getStringLength, "len: " << len << " str [" << str << "]", coast::storage::Current());
+		StatTrace(MultifunctionListBoxRenderer.getStringLength, "len: " << len << " str [" << str << "]",
+				  coast::storage::Current());
 		return len;
 	}
-}
+}  // namespace
 
 RegisterRenderer(HeaderListRenderer);
-void HeaderListRenderer::RenderEntry(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &entryRendererConfig, const ROAnything &listItem, Anything &anyRenderState)
-{
+void HeaderListRenderer::RenderEntry(std::ostream &reply, Context &c, const ROAnything &config,
+									 const ROAnything &entryRendererConfig, const ROAnything &listItem,
+									 Anything &anyRenderState) {
 	StartTrace(HeaderListRenderer.RenderEntry);
 	TraceAny(entryRendererConfig, "entryRendererConfig");
 	TraceAny(listItem, "listItem");
@@ -37,7 +40,7 @@ void HeaderListRenderer::RenderEntry(std::ostream &reply, Context &c, const ROAn
 		}
 		reply << ">";
 		static Renderer *pRenderer = Renderer::FindRenderer("FormattedStringRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything formatConfig;
 			String strName;
 			Renderer::RenderOnString(strName, c, listItem["Name"]);
@@ -67,7 +70,7 @@ void HeaderListRenderer::RenderEntry(std::ostream &reply, Context &c, const ROAn
 					lWidth = lWidth - 2;
 
 					// we have to check if the width isn't minus
-					if ( lWidth < 0 ) {
+					if (lWidth < 0) {
 						lWidth = nameLen;
 					}
 				}
@@ -93,8 +96,8 @@ void HeaderListRenderer::RenderEntry(std::ostream &reply, Context &c, const ROAn
 	}
 }
 
-void HeaderListRenderer::DoRenderSortIcons(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem)
-{
+void HeaderListRenderer::DoRenderSortIcons(std::ostream &reply, Context &c, const ROAnything &config,
+										   const ROAnything &listItem) {
 	ROAnything roSortIcon = config["SortIcon"];
 	if (!roSortIcon.IsNull()) {
 		String strSortOrderAsc, strSortOrderDesc, strTmpSort;
@@ -117,8 +120,8 @@ void HeaderListRenderer::DoRenderSortIcons(std::ostream &reply, Context &c, cons
 			ROAnything imageAscConfig;
 			ROAnything imageDescConfig;
 			// Is already a sortorder chosen
-			if ( lCurrentColumn == lSortColumn ) {
-				if ( strTmpSort.IsEqual("asc") ) {
+			if (lCurrentColumn == lSortColumn) {
+				if (strTmpSort.IsEqual("asc")) {
 					if (roSortIcon.LookupPath(imageAscConfig, "ImageAscChosen")) {
 						RenderSortIcon(reply, c, config, strSortOrderAsc, "asc", imageAscConfig);
 					}
@@ -127,7 +130,7 @@ void HeaderListRenderer::DoRenderSortIcons(std::ostream &reply, Context &c, cons
 						RenderSortIcon(reply, c, config, strSortOrderAsc, "asc", imageAscConfig);
 					}
 				}
-				if ( strTmpSort.IsEqual("desc") ) {
+				if (strTmpSort.IsEqual("desc")) {
 					if (roSortIcon.LookupPath(imageDescConfig, "ImageDescChosen")) {
 						RenderSortIcon(reply, c, config, strSortOrderDesc, "desc", imageDescConfig);
 					}
@@ -151,8 +154,8 @@ void HeaderListRenderer::DoRenderSortIcons(std::ostream &reply, Context &c, cons
 	}
 }
 
-void HeaderListRenderer::RenderSortIcon(std::ostream &reply, Context &c, const ROAnything &config, String strSortString, String strSortOrder, const ROAnything &imageConfig)
-{
+void HeaderListRenderer::RenderSortIcon(std::ostream &reply, Context &c, const ROAnything &config, String strSortString,
+										String strSortOrder, const ROAnything &imageConfig) {
 	StartTrace(MultifunctionListBoxRenderer.RenderSortIcons);
 
 	String strActionName, strFormName;
@@ -161,16 +164,17 @@ void HeaderListRenderer::RenderSortIcon(std::ostream &reply, Context &c, const R
 	ROAnything roSortIcon = config["SortIcon"];
 	if (!roSortIcon.IsNull()) {
 		String strStyle;
-		if ( roSortIcon.IsDefined("LinkStyle") ) {
+		if (roSortIcon.IsDefined("LinkStyle")) {
 			strStyle << "class=\"" << roSortIcon["LinkStyle"].AsString() << "\" ";
 		}
 		reply << "<a " << strStyle << "href=\"#\" onClick=\" document.forms[" << strFormName << "].action='";
 
 		static Renderer *pRenderer = Renderer::FindRenderer("URLRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything urlConfig;
 			if (roSortIcon.IsDefined("Action")) {
-				urlConfig["Action"] = roSortIcon["Action"].DeepClone();;
+				urlConfig["Action"] = roSortIcon["Action"].DeepClone();
+				;
 			}
 			if (roSortIcon.IsDefined("Params")) {
 				// take the configured values
@@ -192,15 +196,14 @@ void HeaderListRenderer::RenderSortIcon(std::ostream &reply, Context &c, const R
 }
 
 //-- diese methode liefert zurück, ob eine column sortierbar ist oder nicht -- ist ein helpermethode
-bool HeaderListRenderer::IsSortableColumn(Context &c, const ROAnything &toCheckConfig)
-{
+bool HeaderListRenderer::IsSortableColumn(Context &c, const ROAnything &toCheckConfig) {
 	StartTrace(MultifunctionListBoxRenderer.IsSortableColumn);
 	ROAnything anySort;
 	bool bSortable = false;
 	if (toCheckConfig.LookupPath(anySort, "Sortable")) {
 		String strSortable;
 		RenderOnString(strSortable, c, anySort);
-		if ( strSortable.Length() > 0 ) {
+		if (strSortable.Length() > 0) {
 			bSortable = true;
 		}
 		Trace("Column is " << (bSortable ? "" : "not ") << "sortable");
@@ -212,12 +215,12 @@ bool HeaderListRenderer::IsSortableColumn(Context &c, const ROAnything &toCheckC
 
 RegisterRenderer(MultifunctionListBoxRenderer);
 
-MultifunctionListBoxRenderer::MultifunctionListBoxRenderer(const char *name) : SelectBoxRenderer(name) { }
+MultifunctionListBoxRenderer::MultifunctionListBoxRenderer(const char *name) : SelectBoxRenderer(name) {}
 
-MultifunctionListBoxRenderer::~MultifunctionListBoxRenderer() { }
+MultifunctionListBoxRenderer::~MultifunctionListBoxRenderer() {}
 
-bool MultifunctionListBoxRenderer::Lookup(const ROAnything &nameConfig, Context &c, const ROAnything &config, Anything &result)
-{
+bool MultifunctionListBoxRenderer::Lookup(const ROAnything &nameConfig, Context &c, const ROAnything &config,
+										  Anything &result) {
 	StartTrace(MultifunctionListBoxRenderer.Lookup);
 	bool found(false);
 	String name;
@@ -225,19 +228,19 @@ bool MultifunctionListBoxRenderer::Lookup(const ROAnything &nameConfig, Context 
 
 	Anything tempStore = c.GetTmpStore();
 	// Check first within config - prevents us from DeepCloning
-	if ( config.IsDefined(name) ) {
+	if (config.IsDefined(name)) {
 		// data is found in config
 		Trace("[" << name << "] found in config");
 		result = config[name].DeepClone();
 		found = true;
-	} else if ( tempStore.IsDefined(name) ) {
+	} else if (tempStore.IsDefined(name)) {
 		// data is found in tempStore
 		Trace("[" << name << "] found in tempStore");
 		result = tempStore[name];
 		found = true;
 	} else {
 		ROAnything ROlist = c.Lookup(name);
-		if ( ! ROlist.IsNull() ) {
+		if (!ROlist.IsNull()) {
 			// data is found in Context
 			Trace("[" << name << "] found in Context");
 			result = ROlist.DeepClone();
@@ -248,92 +251,84 @@ bool MultifunctionListBoxRenderer::Lookup(const ROAnything &nameConfig, Context 
 	return found;
 }
 
-bool MultifunctionListBoxRenderer::IsHiddenField(Context &c, const ROAnything &toCheckConfig)
-{
+bool MultifunctionListBoxRenderer::IsHiddenField(Context &c, const ROAnything &toCheckConfig) {
 	StartTrace(MultifunctionListBoxRenderer.IsHiddenField);
 	ROAnything anyHide;
 	bool boHide = false;
 	if (toCheckConfig.LookupPath(anyHide, "Hide")) {
 		String strHide;
 		RenderOnString(strHide, c, anyHide);
-		boHide = strHide.AsLong(0L);
+		boHide = (strHide.AsLong(0L) != 0);
 		Trace("Field is " << (boHide ? "hidden" : "visible"));
 	}
 	return boHide;
 }
 
-bool MultifunctionListBoxRenderer::IsEditableField(Context &c, const ROAnything &toCheckConfig)
-{
+bool MultifunctionListBoxRenderer::IsEditableField(Context &c, const ROAnything &toCheckConfig) {
 	StartTrace(MultifunctionListBoxRenderer.IsEditableField);
 	ROAnything anyEdit;
 	bool bEditable = false;
 	if (toCheckConfig.LookupPath(anyEdit, "Editable")) {
 		String strEditable;
 		RenderOnString(strEditable, c, anyEdit);
-		bEditable = strEditable.AsLong(0L);
+		bEditable = (strEditable.AsLong(0L) != 0);
 		Trace("Field is " << (bEditable ? "" : "not ") << "editable");
 	}
 	return bEditable;
 }
 
-bool MultifunctionListBoxRenderer::IsPulldownField(Context &c, const ROAnything &toCheckConfig)
-{
+bool MultifunctionListBoxRenderer::IsPulldownField(Context &c, const ROAnything &toCheckConfig) {
 	StartTrace(MultifunctionListBoxRenderer.IsPulldownField);
 	bool bPulldown = toCheckConfig.IsDefined("Pulldown");
 	Trace("Field is " << (bPulldown ? "" : "not ") << "pulldown");
 	return bPulldown;
 }
 
-bool MultifunctionListBoxRenderer::IsChangeableField(Context &c, const ROAnything &toCheckConfig)
-{
+bool MultifunctionListBoxRenderer::IsChangeableField(Context &c, const ROAnything &toCheckConfig) {
 	StartTrace(MultifunctionListBoxRenderer.IsChangeableField);
 	ROAnything anyChangeable;
 	bool bChangeable = true;
 	if (toCheckConfig.LookupPath(anyChangeable, "Changeable")) {
 		String strChangeable;
 		RenderOnString(strChangeable, c, anyChangeable);
-		bChangeable = strChangeable.AsLong(0L);
+		bChangeable = (strChangeable.AsLong(0L) != 0);
 		Trace("Field is " << (bChangeable ? "" : "not ") << "changeable");
 	}
 	return bChangeable;
 }
 
-bool MultifunctionListBoxRenderer::IsDataTypeDefined(Context &c, const ROAnything &toCheckConfig)
-{
+bool MultifunctionListBoxRenderer::IsDataTypeDefined(Context &c, const ROAnything &toCheckConfig) {
 	StartTrace(MultifunctionListBoxRenderer.IsDataTypeDefined);
 	bool bIsDataTypeDefined = toCheckConfig.IsDefined("DataType");
 	Trace("Datatype is " << (bIsDataTypeDefined ? "" : "not ") << "defined");
 	return bIsDataTypeDefined;
 }
 
-void MultifunctionListBoxRenderer::RenderCellName(String &cellName, Context &c, const ROAnything &cellItem)
-{
+void MultifunctionListBoxRenderer::RenderCellName(String &cellName, Context &c, const ROAnything &cellItem) {
 	StartTrace(MultifunctionListBoxRenderer.RenderCellName);
 	static Renderer *pCharReplRenderer = Renderer::FindRenderer("CharReplaceRenderer");
-	if (pCharReplRenderer) {
+	if (pCharReplRenderer != 0) {
 		Anything charReplaceConfig;
 
 		charReplaceConfig["CharsToReplace"] = "/+-* ";
 		ROAnything roaName;
-		if ( !cellItem.LookupPath(roaName, "IntName") ) {
+		if (!cellItem.LookupPath(roaName, "IntName")) {
 			cellItem.LookupPath(roaName, "Name");
 		}
 		charReplaceConfig["String"] = roaName.DeepClone();
 
 		OStringStream os(cellName);
 		pCharReplRenderer->RenderAll(os, c, charReplaceConfig);
-
 	}
 	Trace("Cellname:[" << cellName << "]");
 }
 
-void MultifunctionListBoxRenderer::RenderBoxName(String &boxName, Context &c, const ROAnything &config)
-{
+void MultifunctionListBoxRenderer::RenderBoxName(String &boxName, Context &c, const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderBoxName);
 	ROAnything n = config["Name"];
-	if ( ! n.IsNull() ) {
+	if (!n.IsNull()) {
 		static Renderer *pCharReplRenderer = Renderer::FindRenderer("CharReplaceRenderer");
-		if (pCharReplRenderer) {
+		if (pCharReplRenderer != 0) {
 			Anything charReplaceConfig;
 
 			charReplaceConfig["CharsToReplace"] = "/+-* ";
@@ -341,23 +336,20 @@ void MultifunctionListBoxRenderer::RenderBoxName(String &boxName, Context &c, co
 
 			OStringStream os(boxName);
 			pCharReplRenderer->RenderAll(os, c, charReplaceConfig);
-
 		}
 	}
 	Trace("Boxname:[" << boxName << "]");
 	c.GetTmpStore()["MultifunctionListBoxName"] = boxName;
 }
 
-void MultifunctionListBoxRenderer::GetBoxName(String &boxName, Context &c)
-{
+void MultifunctionListBoxRenderer::GetBoxName(String &boxName, Context &c) {
 	ROAnything roaValue;
-	if ( c.Lookup("MultifunctionListBoxName", roaValue) ) {
+	if (c.Lookup("MultifunctionListBoxName", roaValue)) {
 		boxName = roaValue.AsString();
 	}
 }
 
-void MultifunctionListBoxRenderer::RenderFormName(String &formName, Context &c, const ROAnything &config)
-{
+void MultifunctionListBoxRenderer::RenderFormName(String &formName, Context &c, const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderFormName);
 	ROAnything roFormCfg;
 	if (config.LookupPath(roFormCfg, "FormName")) {
@@ -373,18 +365,16 @@ void MultifunctionListBoxRenderer::RenderFormName(String &formName, Context &c, 
 	c.GetTmpStore()["MultifunctionFormName"] = formName;
 }
 
-void MultifunctionListBoxRenderer::GetFormName(String &formName, Context &c)
-{
+void MultifunctionListBoxRenderer::GetFormName(String &formName, Context &c) {
 	ROAnything roaValue;
-	if ( c.Lookup("MultifunctionFormName", roaValue) ) {
+	if (c.Lookup("MultifunctionFormName", roaValue)) {
 		formName = roaValue.AsString();
 	} else {
 		formName = "0";
 	}
 }
 
-void MultifunctionListBoxRenderer::GetDataType(String &dataType, Context &c, const ROAnything &config)
-{
+void MultifunctionListBoxRenderer::GetDataType(String &dataType, Context &c, const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.GetDataType);
 	ROAnything roDataType;
 	dataType = "";
@@ -396,8 +386,7 @@ void MultifunctionListBoxRenderer::GetDataType(String &dataType, Context &c, con
 	}
 }
 
-void MultifunctionListBoxRenderer::GetTagStyle(String &tagStyle, Context &ctx)
-{
+void MultifunctionListBoxRenderer::GetTagStyle(String &tagStyle, Context &ctx) {
 	if (ctx.GetTmpStore().IsDefined("TagStyle")) {
 		tagStyle = ctx.GetTmpStore()["TagStyle"].AsString();
 	} else {
@@ -405,12 +394,11 @@ void MultifunctionListBoxRenderer::GetTagStyle(String &tagStyle, Context &ctx)
 	}
 }
 
-void MultifunctionListBoxRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void MultifunctionListBoxRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderAll);
 	TraceAny(config, "config");
 	ROAnything n = config["Name"];
-	if ( ! n.IsNull() ) {
+	if (!n.IsNull()) {
 		String strBoxName, strFormName;
 		MultifunctionListBoxRenderer::RenderBoxName(strBoxName, c, config);
 		MultifunctionListBoxRenderer::RenderFormName(strFormName, c, config);
@@ -432,7 +420,8 @@ void MultifunctionListBoxRenderer::RenderAll(std::ostream &reply, Context &c, co
 		{
 			reply << "<tr><td>\n";
 			reply << "<!-- begin of innertable -->\n";
-			reply << "<table width=\"10%\" border=" << config["InnerTable"]["BorderWidth"].AsLong(0L) << " cellspacing=\"2\" cellpadding=\"1\">\n";
+			reply << "<table width=\"10%\" border=" << config["InnerTable"]["BorderWidth"].AsLong(0L)
+				  << " cellspacing=\"2\" cellpadding=\"1\">\n";
 			{
 				c.GetTmpStore().Remove("VisibleColumns");
 				long lColumns = 0L;
@@ -475,8 +464,7 @@ void MultifunctionListBoxRenderer::RenderAll(std::ostream &reply, Context &c, co
 	}
 }
 
-void MultifunctionListBoxRenderer::RenderStyleSheet(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void MultifunctionListBoxRenderer::RenderStyleSheet(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderStyleSheet);
 	reply << "\n<style type=\"text/css\">\n<!--\n";
 	reply << ".SelectBoxHeader {\n";
@@ -488,12 +476,11 @@ void MultifunctionListBoxRenderer::RenderStyleSheet(std::ostream &reply, Context
 	reply << "//-->\n</style>\n";
 }
 
-void MultifunctionListBoxRenderer::RenderHeader(std::ostream &reply, Context &c, const ROAnything &config, long &nColumns)
-{
+void MultifunctionListBoxRenderer::RenderHeader(std::ostream &reply, Context &c, const ROAnything &config, long &nColumns) {
 	StartTrace(MultifunctionListBoxRenderer.RenderHeader);
 	static Renderer *pRenderer = Renderer::FindRenderer("HeaderListRenderer");
 
-	if (pRenderer) {
+	if (pRenderer != 0) {
 		ROAnything theList;
 		if (config.LookupPath(theList, "ColList")) {
 			// column list slots:
@@ -529,14 +516,14 @@ void MultifunctionListBoxRenderer::RenderHeader(std::ostream &reply, Context &c,
 
 			// we fill in the SortIcon Slot
 			ROAnything roSortIcons;
-			if ( config.LookupPath(roSortIcons, "SortIcon")) {
+			if (config.LookupPath(roSortIcons, "SortIcon")) {
 				rendererConfig["SortIcon"] = roSortIcons.DeepClone();
 			}
 			if (config.IsDefined("ListName")) {
 				String strListName;
 				Renderer::RenderOnString(strListName, c, config["ListName"]);
 				ROAnything roaPlainList;
-				if (strListName.Length() && c.Lookup(strListName, roaPlainList)) {
+				if ((strListName.Length() != 0) && c.Lookup(strListName, roaPlainList)) {
 					rendererConfig["ListDataSize"] = roaPlainList.GetSize();
 				}
 			}
@@ -559,8 +546,8 @@ void MultifunctionListBoxRenderer::RenderHeader(std::ostream &reply, Context &c,
 	}
 }
 
-void MultifunctionListBoxRenderer::RenderBoxRow(std::ostream &reply, Context &c, const ROAnything &config, const long &nColumns)
-{
+void MultifunctionListBoxRenderer::RenderBoxRow(std::ostream &reply, Context &c, const ROAnything &config,
+												const long &nColumns) {
 	StartTrace(MultifunctionListBoxRenderer.RenderBoxRow);
 	if (config.IsDefined("ColList")) {
 		reply << "<tr";
@@ -628,7 +615,7 @@ void MultifunctionListBoxRenderer::RenderBoxRow(std::ostream &reply, Context &c,
 
 					// add the options slot
 					// we need the OnChange script as soon as we have the box editable
-					if ( ( RenderToString(c, config["EditableList"]).AsLong(0L) == 1L ) || config.IsDefined("OnChangeScript") ) {
+					if ((RenderToString(c, config["EditableList"]).AsLong(0L) == 1L) || config.IsDefined("OnChangeScript")) {
 						rendererConfig["Options"]["OnChange"][0L] = String("OnChange") << strBoxName << "(this)";
 					}
 					if (bHasOptions) {
@@ -653,12 +640,12 @@ void MultifunctionListBoxRenderer::RenderBoxRow(std::ostream &reply, Context &c,
 	}
 }
 
-void MultifunctionListBoxRenderer::RenderColumnInputFields(std::ostream &reply, Context &c, const ROAnything &config, const long &nColumns)
-{
+void MultifunctionListBoxRenderer::RenderColumnInputFields(std::ostream &reply, Context &c, const ROAnything &config,
+														   const long &nColumns) {
 	StartTrace(MultifunctionListBoxRenderer.RenderColumnInputFields);
 	static Renderer *pRenderer = Renderer::FindRenderer("ColumnInputFieldRenderer");
 
-	if (pRenderer) {
+	if (pRenderer != 0) {
 		TraceAny(config, "config");
 		Anything theList;
 		if (config.IsDefined("ColList") && Lookup(config["ColList"], c, config, theList)) {
@@ -667,10 +654,11 @@ void MultifunctionListBoxRenderer::RenderColumnInputFields(std::ostream &reply, 
 			for (long lx = 0L, sz = theList.GetSize(); lx < sz; ++lx) {
 				bool bHidden = MultifunctionListBoxRenderer::IsHiddenField(c, theList[lx]);
 				bool bEditable = MultifunctionListBoxRenderer::IsEditableField(c, theList[lx]);
-				bool bPulldown =  MultifunctionListBoxRenderer::IsPulldownField(c, theList[lx]);
+				bool bPulldown = MultifunctionListBoxRenderer::IsPulldownField(c, theList[lx]);
 				TraceAny(theList[lx], "checking:");
-				Trace("hidden:" << (bHidden ? "true" : "false") << " editable:" << (bEditable ? "true" : "false")   << " pulldown:" << (bPulldown ? "true" : "false"));
-				if ( !bHidden && ( bEditable || bPulldown) ) {
+				Trace("hidden:" << (bHidden ? "true" : "false") << " editable:" << (bEditable ? "true" : "false")
+								<< " pulldown:" << (bPulldown ? "true" : "false"));
+				if (!bHidden && (bEditable || bPulldown)) {
 					Trace("found an editable item");
 					bExist = true;
 					break;
@@ -711,8 +699,8 @@ void MultifunctionListBoxRenderer::RenderColumnInputFields(std::ostream &reply, 
 	}
 }
 
-void MultifunctionListBoxRenderer::RenderAdditionalFilters(std::ostream &reply, Context &c, const ROAnything &config, const long &nColumns)
-{
+void MultifunctionListBoxRenderer::RenderAdditionalFilters(std::ostream &reply, Context &c, const ROAnything &config,
+														   const long &nColumns) {
 	StartTrace(MultifunctionListBoxRenderer.RenderAdditionalFilters);
 
 	ROAnything filterConfig;
@@ -723,8 +711,8 @@ void MultifunctionListBoxRenderer::RenderAdditionalFilters(std::ostream &reply, 
 	}
 }
 
-bool MultifunctionListBoxRenderer::RenderPrintButton(std::ostream &reply, Context &c, const ROAnything &navConfig, const ROAnything &config)
-{
+bool MultifunctionListBoxRenderer::RenderPrintButton(std::ostream &reply, Context &c, const ROAnything &navConfig,
+													 const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderPrintButton);
 	bool bRet = false;
 	String strBoxName, strButtonName, strOnClick, strFormName;
@@ -737,7 +725,7 @@ bool MultifunctionListBoxRenderer::RenderPrintButton(std::ostream &reply, Contex
 	ROAnything roButton = navConfig["PrintButton"];
 	if (!roButton.IsNull()) {
 		static Renderer *pRenderer = Renderer::FindRenderer("ButtonRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
@@ -751,7 +739,6 @@ bool MultifunctionListBoxRenderer::RenderPrintButton(std::ostream &reply, Contex
 				buttonConfig["Options"] = roButton["Options"].DeepClone();
 			} else {
 				buttonConfig["Options"]["OnClick"] = strOnClick << "return false;";
-
 			}
 			buttonConfig["Options"]["class"] = "FormButton";
 			pRenderer->RenderAll(reply, c, buttonConfig);
@@ -764,8 +751,8 @@ bool MultifunctionListBoxRenderer::RenderPrintButton(std::ostream &reply, Contex
 	return bRet;
 }
 
-bool MultifunctionListBoxRenderer::RenderExportButton(std::ostream &reply, Context &ctx, const ROAnything &navConfig, const ROAnything &config)
-{
+bool MultifunctionListBoxRenderer::RenderExportButton(std::ostream &reply, Context &ctx, const ROAnything &navConfig,
+													  const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderExportButton);
 	bool bRet = false;
 	String strBoxName, strButtonName, strOnClick, strFormName;
@@ -782,10 +769,11 @@ bool MultifunctionListBoxRenderer::RenderExportButton(std::ostream &reply, Conte
 	ROAnything roButton = navConfig["ExportButton"];
 	if (!roButton.IsNull()) {
 		ROAnything actionConfig, paramsConfig;
-		bool isButtonLinked = ( (roButton.LookupPath(actionConfig, "Action")) && (roButton.LookupPath(paramsConfig, "Params")) );
+		bool isButtonLinked = ((roButton.LookupPath(actionConfig, "Action")) && (roButton.LookupPath(paramsConfig, "Params")));
 		Trace("Button is a " << ((isButtonLinked) ? "Linked button" : "Normal Button"));
-		Renderer *pRenderer = ((isButtonLinked) ? Renderer::FindRenderer("DownloadLinkRenderer") : Renderer::FindRenderer("ButtonRenderer"));
-		if (pRenderer) {
+		Renderer *pRenderer =
+			((isButtonLinked) ? Renderer::FindRenderer("DownloadLinkRenderer") : Renderer::FindRenderer("ButtonRenderer"));
+		if (pRenderer != 0) {
 			Anything buttonConfig, buttonStyleConfig;
 			String strAction, strTableDataBeginTag, strEndParagraphTag, strButtonStyle, strButtonTableLinkStyle;
 			strButtonStyle = "FormButton";
@@ -842,8 +830,8 @@ bool MultifunctionListBoxRenderer::RenderExportButton(std::ostream &reply, Conte
 	return bRet;
 }
 
-bool MultifunctionListBoxRenderer::RenderPrevButton(std::ostream &reply, Context &c, const ROAnything &navConfig, const ROAnything &config)
-{
+bool MultifunctionListBoxRenderer::RenderPrevButton(std::ostream &reply, Context &c, const ROAnything &navConfig,
+													const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderPrevButton);
 	bool bRet = false;
 	String strBoxName, strButtonName;
@@ -852,7 +840,7 @@ bool MultifunctionListBoxRenderer::RenderPrevButton(std::ostream &reply, Context
 	ROAnything roButton = navConfig["PrevButton"];
 	if (!roButton.IsNull()) {
 		static Renderer *pRenderer = Renderer::FindRenderer("ButtonRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
@@ -870,8 +858,8 @@ bool MultifunctionListBoxRenderer::RenderPrevButton(std::ostream &reply, Context
 	return bRet;
 }
 
-bool MultifunctionListBoxRenderer::RenderNextButton(std::ostream &reply, Context &c, const ROAnything &navConfig, const ROAnything &config)
-{
+bool MultifunctionListBoxRenderer::RenderNextButton(std::ostream &reply, Context &c, const ROAnything &navConfig,
+													const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderNextButton);
 	bool bRet = false;
 	String strBoxName, strButtonName;
@@ -880,7 +868,7 @@ bool MultifunctionListBoxRenderer::RenderNextButton(std::ostream &reply, Context
 	ROAnything roButton = navConfig["NextButton"];
 	if (!roButton.IsNull()) {
 		static Renderer *pRenderer = Renderer::FindRenderer("ButtonRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
@@ -897,19 +885,20 @@ bool MultifunctionListBoxRenderer::RenderNextButton(std::ostream &reply, Context
 	return bRet;
 }
 
-bool MultifunctionListBoxRenderer::RenderSearchButton(std::ostream &reply, Context &c, const ROAnything &navConfig, const ROAnything &config)
-{
+bool MultifunctionListBoxRenderer::RenderSearchButton(std::ostream &reply, Context &c, const ROAnything &navConfig,
+													  const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderSearchButton);
 	bool bRet = false;
 	String strBoxName, strButtonName, strOnClick, strFormName;
 	MultifunctionListBoxRenderer::GetBoxName(strBoxName, c);
 	MultifunctionListBoxRenderer::GetFormName(strFormName, c);
 	strButtonName << strBoxName << "_Search";
-	strOnClick << strBoxName << "_ProcessEditFieldScripts(" << "document.forms[" << strFormName << "])";
+	strOnClick << strBoxName << "_ProcessEditFieldScripts("
+			   << "document.forms[" << strFormName << "])";
 	ROAnything roButton = navConfig["SearchButton"];
 	if (!roButton.IsNull()) {
 		static Renderer *pRenderer = Renderer::FindRenderer("ButtonRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
@@ -930,19 +919,20 @@ bool MultifunctionListBoxRenderer::RenderSearchButton(std::ostream &reply, Conte
 	return bRet;
 }
 
-bool MultifunctionListBoxRenderer::RenderClearButton(std::ostream &reply, Context &c, const ROAnything &navConfig, const ROAnything &config)
-{
+bool MultifunctionListBoxRenderer::RenderClearButton(std::ostream &reply, Context &c, const ROAnything &navConfig,
+													 const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderClearButton);
 	bool bRet = false;
 	String strBoxName, strButtonName, strOnClick, strFormName;
 	MultifunctionListBoxRenderer::GetBoxName(strBoxName, c);
 	MultifunctionListBoxRenderer::GetFormName(strFormName, c);
 	strButtonName << strBoxName << "_Clear";
-	strOnClick << strBoxName << "_ClearEditFields(" << "document.forms[" << strFormName << "])";
+	strOnClick << strBoxName << "_ClearEditFields("
+			   << "document.forms[" << strFormName << "])";
 	ROAnything roButton = navConfig["ClearButton"];
 	if (!roButton.IsNull()) {
 		static Renderer *pRenderer = Renderer::FindRenderer("ButtonRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
@@ -963,8 +953,8 @@ bool MultifunctionListBoxRenderer::RenderClearButton(std::ostream &reply, Contex
 	return bRet;
 }
 
-bool MultifunctionListBoxRenderer::RenderSaveButton(std::ostream &reply, Context &c, const ROAnything &navConfig, const ROAnything &config)
-{
+bool MultifunctionListBoxRenderer::RenderSaveButton(std::ostream &reply, Context &c, const ROAnything &navConfig,
+													const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderSaveButton);
 	bool bRet = false;
 	String strBoxName, strButtonName, strFormName;
@@ -1011,15 +1001,22 @@ bool MultifunctionListBoxRenderer::RenderSaveButton(std::ostream &reply, Context
 
 	saveFunction << "	if (bIsModified) {" << ENDL;
 	if (bLineMode) {
-		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromRows(" << strProps << ", " << strProps << ".Changes.GetAddedRows());" << ENDL;
-		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromRows(" << strProps << ", " << strProps << ".Changes.GetChangedRows());" << ENDL;
-		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromRows(" << strProps << ", " << strProps << ".Changes.GetDeletedRows());" << ENDL;
+		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromRows(" << strProps
+					 << ", " << strProps << ".Changes.GetAddedRows());" << ENDL;
+		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromRows(" << strProps
+					 << ", " << strProps << ".Changes.GetChangedRows());" << ENDL;
+		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromRows(" << strProps
+					 << ", " << strProps << ".Changes.GetDeletedRows());" << ENDL;
 	} else {
-		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromFields(" << strProps << ", " << strProps << ".Changes.GetAddedFields());" << ENDL;
-		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromFields(" << strProps << ", " << strProps << ".Changes.GetChangedFields());" << ENDL;
-		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromFields(" << strProps << ", " << strProps << ".Changes.GetDeletedFields());" << ENDL;
+		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromFields(" << strProps
+					 << ", " << strProps << ".Changes.GetAddedFields());" << ENDL;
+		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromFields("
+					 << strProps << ", " << strProps << ".Changes.GetChangedFields());" << ENDL;
+		saveFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromFields("
+					 << strProps << ", " << strProps << ".Changes.GetDeletedFields());" << ENDL;
 	}
-	// krebs: kein clear beim saven! saveFunction << "		" << strBoxName << "_ClearEditFields(" << strFormPath << ");" << ENDL;
+	// krebs: kein clear beim saven! saveFunction << "		" << strBoxName << "_ClearEditFields(" << strFormPath << ");" <<
+	// ENDL;
 	saveFunction << "	};" << ENDL;
 	saveFunction << "	return bIsModified;" << ENDL;
 	saveFunction << "};" << ENDL;
@@ -1030,7 +1027,7 @@ bool MultifunctionListBoxRenderer::RenderSaveButton(std::ostream &reply, Context
 		strOnClick << "return " << strBoxName << "_SaveButtonClicked(this);";
 
 		static Renderer *pRenderer = Renderer::FindRenderer("ButtonRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
@@ -1054,8 +1051,8 @@ bool MultifunctionListBoxRenderer::RenderSaveButton(std::ostream &reply, Context
 	return bRet;
 }
 
-bool MultifunctionListBoxRenderer::RenderResetButton(std::ostream &reply, Context &c, const ROAnything &navConfig, const ROAnything &config)
-{
+bool MultifunctionListBoxRenderer::RenderResetButton(std::ostream &reply, Context &c, const ROAnything &navConfig,
+													 const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderResetButton);
 	bool bRet = false;
 	String strBoxName, strButtonName, strFormName;
@@ -1070,13 +1067,15 @@ bool MultifunctionListBoxRenderer::RenderResetButton(std::ostream &reply, Contex
 	strProps << "Properties";
 
 	String strOnClick;
-	strOnClick << "ResetDataAndRows(" << strProps << ", document.forms[" << strFormName << "].elements['fld_" << strBoxName << "']);";
-	strOnClick << strBoxName << "_ClearEditFields(" << "document.forms[" << strFormName << "]);";
+	strOnClick << "ResetDataAndRows(" << strProps << ", document.forms[" << strFormName << "].elements['fld_" << strBoxName
+			   << "']);";
+	strOnClick << strBoxName << "_ClearEditFields("
+			   << "document.forms[" << strFormName << "]);";
 
 	ROAnything roButton = navConfig["ResetButton"];
 	if (bHasNavigation && bBoxEditable && !roButton.IsNull()) {
 		static Renderer *pRenderer = Renderer::FindRenderer("ButtonRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
@@ -1098,8 +1097,8 @@ bool MultifunctionListBoxRenderer::RenderResetButton(std::ostream &reply, Contex
 	return bRet;
 }
 
-bool MultifunctionListBoxRenderer::RenderAddButton(std::ostream &reply, Context &c, const ROAnything &navConfig, const ROAnything &config)
-{
+bool MultifunctionListBoxRenderer::RenderAddButton(std::ostream &reply, Context &c, const ROAnything &navConfig,
+												   const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderAddButton);
 	bool bRet = false;
 	String strBoxName, strButtonName, strFormName;
@@ -1119,7 +1118,7 @@ bool MultifunctionListBoxRenderer::RenderAddButton(std::ostream &reply, Context 
 	String strFunction(1024L), strOnClick, strSpecifiedOnClick;
 	StringStream addFunction(strFunction);
 
-	if (bDoButton) { // if rendering this button is needed
+	if (bDoButton) {  // if rendering this button is needed
 		// if we are a form button we can use the secure way to get a reference to the parent form
 		strFormPath = "buttonObj.form";
 	} else {
@@ -1145,17 +1144,23 @@ bool MultifunctionListBoxRenderer::RenderAddButton(std::ostream &reply, Context 
 
 	addFunction << "    if (bIsAdded)" << ENDL;
 	addFunction << "    {" << ENDL;
-	if (bLineMode) { // if edit a complete line is desired
-		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromRows(" << strProps << ", " << strProps << ".Changes.GetAddedRows());" << ENDL;
-		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromRows(" << strProps << ", " << strProps << ".Changes.GetChangedRows());" << ENDL;
-		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromRows(" << strProps << ", " << strProps << ".Changes.GetDeletedRows());" << ENDL;
+	if (bLineMode) {  // if edit a complete line is desired
+		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromRows(" << strProps
+					<< ", " << strProps << ".Changes.GetAddedRows());" << ENDL;
+		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromRows(" << strProps
+					<< ", " << strProps << ".Changes.GetChangedRows());" << ENDL;
+		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromRows(" << strProps
+					<< ", " << strProps << ".Changes.GetDeletedRows());" << ENDL;
 	} else {
-		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromFields(" << strProps << ", " << strProps << ".Changes.GetAddedFields());" << ENDL;
-		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromFields(" << strProps << ", " << strProps << ".Changes.GetChangedFields());" << ENDL;
-		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromFields(" << strProps << ", " << strProps << ".Changes.GetDeletedFields());" << ENDL;
+		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromFields(" << strProps
+					<< ", " << strProps << ".Changes.GetAddedFields());" << ENDL;
+		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromFields(" << strProps
+					<< ", " << strProps << ".Changes.GetChangedFields());" << ENDL;
+		addFunction << "    " << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromFields(" << strProps
+					<< ", " << strProps << ".Changes.GetDeletedFields());" << ENDL;
 	}
 	addFunction << "    }" << ENDL;
-	if (bDoButton) { // if rendering this button is needed
+	if (bDoButton) {  // if rendering this button is needed
 		if (roButton.IsDefined("Options")) {
 			// no submit in any case is desired. submit of the current form is handled by an optional javascript
 			ROAnything optionsConfig = roButton["Options"];
@@ -1177,7 +1182,7 @@ bool MultifunctionListBoxRenderer::RenderAddButton(std::ostream &reply, Context 
 		strOnClick << "return " << strBoxName << "_AddButtonClicked(this);";
 		Trace("common strOnClick is : " << strOnClick);
 		static Renderer *pRenderer = Renderer::FindRenderer("ButtonRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
@@ -1201,8 +1206,8 @@ bool MultifunctionListBoxRenderer::RenderAddButton(std::ostream &reply, Context 
 	return bRet;
 }
 
-bool MultifunctionListBoxRenderer::RenderDeleteButton(std::ostream &reply, Context &c, const ROAnything &navConfig, const ROAnything &config)
-{
+bool MultifunctionListBoxRenderer::RenderDeleteButton(std::ostream &reply, Context &c, const ROAnything &navConfig,
+													  const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderDeleteButton);
 	bool bRet = false;
 	String strBoxName, strButtonName;
@@ -1245,7 +1250,8 @@ bool MultifunctionListBoxRenderer::RenderDeleteButton(std::ostream &reply, Conte
 	deleteFunction << "{" << ENDL;
 	deleteFunction << "	listbox=" << strFormPath << ".elements['fld_" << strBoxName << "'];" << ENDL;
 	deleteFunction << "	row=listbox.selectedIndex;" << ENDL;
-	deleteFunction << "	var bDoDelete = ((row>=0) && confirm('Wollen Sie die selektierte Zeile wirklich l&ouml;schen?') );" << ENDL;
+	deleteFunction << "	var bDoDelete = ((row>=0) && confirm('Wollen Sie die selektierte Zeile wirklich l&ouml;schen?') );"
+				   << ENDL;
 
 	if (bDoButton && roButton.IsDefined("PreDoScript")) {
 		Render(deleteFunction, c, roButton["PreDoScript"]);
@@ -1254,13 +1260,19 @@ bool MultifunctionListBoxRenderer::RenderDeleteButton(std::ostream &reply, Conte
 	deleteFunction << "	if ( bDoDelete ) {" << ENDL;
 	deleteFunction << "		" << strProps << ".DeleteRow(row, listbox);" << ENDL;
 	if (bLineMode) {
-		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromRows(" << strProps << ", " << strProps << ".Changes.GetAddedRows());" << ENDL;
-		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromRows(" << strProps << ", " << strProps << ".Changes.GetChangedRows());" << ENDL;
-		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromRows(" << strProps << ", " << strProps << ".Changes.GetDeletedRows());" << ENDL;
+		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromRows(" << strProps
+					   << ", " << strProps << ".Changes.GetAddedRows());" << ENDL;
+		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromRows(" << strProps
+					   << ", " << strProps << ".Changes.GetChangedRows());" << ENDL;
+		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromRows(" << strProps
+					   << ", " << strProps << ".Changes.GetDeletedRows());" << ENDL;
 	} else {
-		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromFields(" << strProps << ", " << strProps << ".Changes.GetAddedFields());" << ENDL;
-		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromFields(" << strProps << ", " << strProps << ".Changes.GetChangedFields());" << ENDL;
-		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromFields(" << strProps << ", " << strProps << ".Changes.GetDeletedFields());" << ENDL;
+		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Added.value = MakeAnyFromFields(" << strProps
+					   << ", " << strProps << ".Changes.GetAddedFields());" << ENDL;
+		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Changed.value = MakeAnyFromFields("
+					   << strProps << ", " << strProps << ".Changes.GetChangedFields());" << ENDL;
+		deleteFunction << "		" << strFormPath << ".fld_edt" << strBoxName << "_Deleted.value = MakeAnyFromFields("
+					   << strProps << ", " << strProps << ".Changes.GetDeletedFields());" << ENDL;
 	}
 	deleteFunction << "		" << strBoxName << "_ClearEditFields(" << strFormPath << ");" << ENDL;
 	deleteFunction << "		listbox.selectedIndex = row;" << ENDL;
@@ -1273,7 +1285,7 @@ bool MultifunctionListBoxRenderer::RenderDeleteButton(std::ostream &reply, Conte
 	if (bDoButton) {
 		strOnClick << "return " << strBoxName << "_DeleteButtonClicked(this);";
 		static Renderer *pRenderer = Renderer::FindRenderer("ButtonRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything buttonConfig;
 			reply << "<td align=center>";
 			buttonConfig["Name"] = strButtonName;
@@ -1297,8 +1309,8 @@ bool MultifunctionListBoxRenderer::RenderDeleteButton(std::ostream &reply, Conte
 	return bRet;
 }
 
-void MultifunctionListBoxRenderer::RenderStatusMessage(std::ostream &reply, Context &c, const ROAnything &config, const long &nColumns)
-{
+void MultifunctionListBoxRenderer::RenderStatusMessage(std::ostream &reply, Context &c, const ROAnything &config,
+													   const long &nColumns) {
 	StartTrace(MultifunctionListBoxRenderer.RenderStatusMessage);
 	ROAnything statusMessageConfig;
 	if (config.LookupPath(statusMessageConfig, "StatusMessage")) {
@@ -1308,8 +1320,7 @@ void MultifunctionListBoxRenderer::RenderStatusMessage(std::ostream &reply, Cont
 	}
 }
 
-void MultifunctionListBoxRenderer::RenderNavigation(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void MultifunctionListBoxRenderer::RenderNavigation(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderNavigation);
 
 	bool bBoxEditable = (RenderToString(c, config["EditableList"]).AsLong(0L) == 1L);
@@ -1341,24 +1352,27 @@ void MultifunctionListBoxRenderer::RenderNavigation(std::ostream &reply, Context
 			for (long szButtons = 0, szb = navigationConfig.GetSize(); szButtons < szb; ++szButtons) {
 				strButtonName = navigationConfig.SlotName(szButtons);
 				Trace("rendering specified button [" << strButtonName << "]");
-				bHasButtonsRendered = ( DoRenderButton(streamOut, c, navigationConfig, config, strButtonName) || bHasButtonsRendered );
+				bHasButtonsRendered =
+					(DoRenderButton(streamOut, c, navigationConfig, config, strButtonName) || bHasButtonsRendered);
 				if ((lIdx = anyAllButtonNames.FindValue(strButtonName)) >= 0L) {
 					anyAllButtonNames.Remove(lIdx);
 				}
 			}
 		}
-		Trace("ButtonsRendered:" << (bHasButtonsRendered ? "yes" : "no") << " length of temporary stream buffer:" << strButtonBuffer.Length());
+		Trace("ButtonsRendered:" << (bHasButtonsRendered ? "yes" : "no")
+								 << " length of temporary stream buffer:" << strButtonBuffer.Length());
 		TraceAny(anyAllButtonNames, "unused Buttons");
 		{
 			OStringStream streamOut(strScriptBuffer);
 			while (anyAllButtonNames.GetSize() > 0) {
-				Trace("force creation of replacement script for unrendered button [" << anyAllButtonNames[0L].AsString() << "]");
+				Trace("force creation of replacement script for unrendered button [" << anyAllButtonNames[0L].AsString()
+																					 << "]");
 				DoRenderButton(streamOut, c, navigationConfig, config, anyAllButtonNames[0L].AsString());
 				anyAllButtonNames.Remove(0L);
 			}
 		}
 		Trace("content of stream [" << strScriptBuffer << "]");
-		if ( bHasButtonsRendered ) {
+		if (bHasButtonsRendered) {
 			reply << "<table border=" << navigationConfig["BorderWidth"].AsLong(0L);
 			ROAnything roBgColor;
 			if (navigationConfig.LookupPath(roBgColor, "BgColor")) {
@@ -1375,8 +1389,8 @@ void MultifunctionListBoxRenderer::RenderNavigation(std::ostream &reply, Context
 	}
 }
 
-bool MultifunctionListBoxRenderer::DoRenderButton(std::ostream &reply, Context &c, const ROAnything &navConfig, const ROAnything &config, const String &strButtonName)
-{
+bool MultifunctionListBoxRenderer::DoRenderButton(std::ostream &reply, Context &c, const ROAnything &navConfig,
+												  const ROAnything &config, const String &strButtonName) {
 	StartTrace(MultifunctionListBoxRenderer.DoRenderButton);
 	bool bRet = false;
 	if (strButtonName == "PrevButton") {
@@ -1403,8 +1417,7 @@ bool MultifunctionListBoxRenderer::DoRenderButton(std::ostream &reply, Context &
 	return bRet;
 }
 
-void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderScripts);
 	TraceAny(config, "config");
 	Anything theList;
@@ -1503,7 +1516,8 @@ void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c
 					strProcessFields << "      return false;\n";
 				}
 
-				strOnChangeFields << "      document.forms[" << strFormName << "].fld_edt" << strBoxName << "_" << strCellName << ".value = (Column[" << lx << "] == undefined )?\"\":Column[" << lx << "];\n";
+				strOnChangeFields << "      document.forms[" << strFormName << "].fld_edt" << strBoxName << "_" << strCellName
+								  << ".value = (Column[" << lx << "] == undefined )?\"\":Column[" << lx << "];\n";
 			} else if (bPulldown) {
 				bFoundPulldownFields = true;
 				Trace("found a not hidden pulldown field");
@@ -1512,7 +1526,8 @@ void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c
 				strVarName << strFormName << "].fld_cbo" << strBoxName << "_" << strCellName;
 				// if we find a defaultSelected definition we use this index when clearing the fields else -1 (nothing selected)
 				strClearFields << "    var " << strCellName << "Idx = -1;\n";
-				strClearFields << "    for(var " << strCellName << " = 0; " << strCellName << " < " << strVarName << ".length; " << strCellName << "++)\n";
+				strClearFields << "    for(var " << strCellName << " = 0; " << strCellName << " < " << strVarName << ".length; "
+							   << strCellName << "++)\n";
 				strClearFields << "    {\n";
 				strClearFields << "      if (" << strVarName << ".options[" << strCellName << "].defaultSelected)\n";
 				strClearFields << "      {\n";
@@ -1523,9 +1538,11 @@ void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c
 				strClearFields << "    " << strVarName << ".selectedIndex = " << strCellName << "Idx;\n";
 
 				// compare the text in the column against the .text of the option to find the correct index
-				strOnChangeFields << "      for(var " << strCellName << " = 0; " << strCellName << " < " << strVarName << ".length; " << strCellName << "++)\n";
+				strOnChangeFields << "      for(var " << strCellName << " = 0; " << strCellName << " < " << strVarName
+								  << ".length; " << strCellName << "++)\n";
 				strOnChangeFields << "      {\n";
-				strOnChangeFields << "        if (" << strVarName << ".options[" << strCellName << "].text == Column[" << lx << "])\n";
+				strOnChangeFields << "        if (" << strVarName << ".options[" << strCellName << "].text == Column[" << lx
+								  << "])\n";
 				strOnChangeFields << "        {\n";
 				strOnChangeFields << "          " << strVarName << ".selectedIndex = " << strCellName << ";\n";
 				strOnChangeFields << "          break;\n";
@@ -1606,7 +1623,9 @@ void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c
 				reply << "    	          bDoChange = false; \n";
 				reply << "            } \n";
 
-				reply << "            if ((bDoChange == true && changeable == 1) && (row == -1 || listbox.options[row].value.length == 0)) \n";
+				reply << "            if ((bDoChange == true && changeable == 1) && (row == -1 || "
+						 "listbox.options[row].value.length == "
+						 "0)) \n";
 				reply << "            { \n";
 				reply << "    	          bDoChange = false; \n";
 				reply << "            } \n";
@@ -1618,8 +1637,10 @@ void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c
 				reply << "            {\n";
 
 				String strOnChangeValidation;
-				strOnChangeValidation << "                ChangeField( " << strBoxName << "Properties, row, column, field.value );\n";
-				strOnChangeValidation << "                UpdateField( " << strBoxName << "Properties, row, column, field.value, listbox);\n";
+				strOnChangeValidation << "                ChangeField( " << strBoxName
+									  << "Properties, row, column, field.value );\n";
+				strOnChangeValidation << "                UpdateField( " << strBoxName
+									  << "Properties, row, column, field.value, listbox);\n";
 				reply << strOnChangeValidation;
 				reply << "            }\n";
 
@@ -1648,7 +1669,9 @@ void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c
 				reply << "                bDoChange = false; \n";
 				reply << "            } \n";
 
-				reply << "            if ((bDoChange == true && changeable == 1) && (row == -1 || listbox.options[row].value.length == 0)) \n";
+				reply << "            if ((bDoChange == true && changeable == 1) && (row == -1 || "
+						 "listbox.options[row].value.length == "
+						 "0)) \n";
 				reply << "            { \n";
 				reply << "                bDoChange = false; \n";
 				reply << "            } \n";
@@ -1658,8 +1681,10 @@ void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c
 				}
 				reply << "            if (bDoChange)\n";
 				reply << "            {\n";
-				reply << "                ChangeField( " << strBoxName << "Properties, row, column, field.options[selectedPulldown].value );\n";
-				reply << "                UpdateField( " << strBoxName << "Properties, row, column, field.options[selectedPulldown].value, listbox);\n";
+				reply << "                ChangeField( " << strBoxName
+					  << "Properties, row, column, field.options[selectedPulldown].value );\n";
+				reply << "                UpdateField( " << strBoxName
+					  << "Properties, row, column, field.options[selectedPulldown].value, listbox);\n";
 				reply << "            }\n";
 				reply << "            listbox.options[i].selected = true;\n";
 				reply << "        }\n";
@@ -1684,7 +1709,7 @@ void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c
 				reply << "\");\n";
 
 				static Renderer *pListRenderer = FindRenderer("ListRenderer");
-				if (pListRenderer) {
+				if (pListRenderer != 0) {
 					Anything anyListSpec;
 					anyListSpec["ListName"] = config["ListName"].DeepClone();
 					anyListSpec["EntryStore"] = "SelectBoxOption";
@@ -1733,8 +1758,7 @@ void MultifunctionListBoxRenderer::RenderScripts(std::ostream &reply, Context &c
 	}
 }
 
-void MultifunctionListBoxRenderer::RenderPrintScripts(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void MultifunctionListBoxRenderer::RenderPrintScripts(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderPrintScripts);
 
 	String strBoxName, strFormName;
@@ -1763,18 +1787,22 @@ void MultifunctionListBoxRenderer::RenderPrintScripts(std::ostream &reply, Conte
 	reply << "  RenderPrintTitle(" << strBoxName << "Properties, winPrintPreview.document);\n";
 	// print header with db and print date
 	Anything theList;
-	if (config.IsDefined("PrintHeaderList") && Lookup(config["PrintHeaderList"], c, config, theList) ) {
+	if (config.IsDefined("PrintHeaderList") && Lookup(config["PrintHeaderList"], c, config, theList)) {
 		TraceAny(theList, "theList");
-		reply << "	winPrintPreview.document.writeln('<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"#000000\"><tr><td>');\n";
-		reply << "	winPrintPreview.document.writeln('<table border=\"0\" cellspacing=\"1\" cellpadding=\"3\" bgcolor=\"#FFFF99\" class=\"ListingHeaderBorder\"><tr>');\n";
+		reply << "	winPrintPreview.document.writeln('<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" "
+				 "bgcolor=\"#000000\"><tr><td>');\n";
+		reply << "	winPrintPreview.document.writeln('<table border=\"0\" cellspacing=\"1\" cellpadding=\"3\" "
+				 "bgcolor=\"#FFFF99\" "
+				 "class=\"ListingHeaderBorder\"><tr>');\n";
 		for (long lx = 0, sz = theList.GetSize(); lx < sz; ++lx) {
 			String strName;
 			RenderOnString(strName, c, theList[lx]["Name"]);
 			String strClass = (0 == lx) ? "\"ListingHeaderTableCellName\"" : "\"ListingHeaderTableCellNameLR\"";
-			reply << "	winPrintPreview.document.writeln('   <td class=" << strClass << ">" << strName  << "<\\/td>');\n";
+			reply << "	winPrintPreview.document.writeln('   <td class=" << strClass << ">" << strName << "<\\/td>');\n";
 			String strDesc;
 			RenderOnString(strDesc, c, theList[lx]["Desc"]);
-			reply << "	winPrintPreview.document.writeln('   <td class=\"ListingHeaderTableDetail\">" << strDesc  << "<\\/td>');\n";
+			reply << "	winPrintPreview.document.writeln('   <td class=\"ListingHeaderTableDetail\">" << strDesc
+				  << "<\\/td>');\n";
 		}
 		reply << "	winPrintPreview.document.writeln('<\\/tr><\\/table>');\n";
 		reply << "	winPrintPreview.document.writeln('<\\/td><\\/tr><\\/table>');\n";
@@ -1791,10 +1819,14 @@ void MultifunctionListBoxRenderer::RenderPrintScripts(std::ostream &reply, Conte
 
 	// render navigation
 	String strPrintWindowNavigation;
-	strPrintWindowNavigation << "	winPrintPreview.document.writeln('<FORM ACTION=\"\" METHOD=\"POST\" Name=\"" << strBoxName << "_PrintForm\">');\n";
-	strPrintWindowNavigation << "	winPrintPreview.document.writeln('<INPUT TYPE=\"HIDDEN\" NAME=\"fld_dummy\" VALUE=\"\">');\n";
-	strPrintWindowNavigation << "	winPrintPreview.document.writeln('<INPUT TYPE=\"SUBMIT\" NAME=\"" << strBoxName << "_Print\" VALUE=\"Drucken\" OnClick=\"print();return false;\" class=\"FormButton\">');\n";
-	strPrintWindowNavigation << "	winPrintPreview.document.writeln('<INPUT TYPE=\"BUTTON\" VALUE=\"Schliessen\" OnClick=\"self.close();return false;\" class=\"FormButton\">');\n";
+	strPrintWindowNavigation << "	winPrintPreview.document.writeln('<FORM ACTION=\"\" METHOD=\"POST\" Name=\"" << strBoxName
+							 << "_PrintForm\">');\n";
+	strPrintWindowNavigation << "	winPrintPreview.document.writeln('<INPUT TYPE=\"HIDDEN\" NAME=\"fld_dummy\" "
+								"VALUE=\"\">');\n";
+	strPrintWindowNavigation << "	winPrintPreview.document.writeln('<INPUT TYPE=\"SUBMIT\" NAME=\"" << strBoxName
+							 << "_Print\" VALUE=\"Drucken\" OnClick=\"print();return false;\" class=\"FormButton\">');\n";
+	strPrintWindowNavigation << "	winPrintPreview.document.writeln('<INPUT TYPE=\"BUTTON\" VALUE=\"Schliessen\" "
+								"OnClick=\"self.close();return false;\" class=\"FormButton\">');\n";
 	strPrintWindowNavigation << "	winPrintPreview.document.writeln('<\\/FORM>');\n";
 	reply << strPrintWindowNavigation;
 
@@ -1804,14 +1836,13 @@ void MultifunctionListBoxRenderer::RenderPrintScripts(std::ostream &reply, Conte
 	reply << "}\n";
 }
 
-void MultifunctionListBoxRenderer::RenderHiddenFieldsForEdit(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void MultifunctionListBoxRenderer::RenderHiddenFieldsForEdit(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(MultifunctionListBoxRenderer.RenderHiddenFieldsForEdit);
 
 	if (RenderToString(c, config["EditableList"]).AsLong(0L) == 1L) {
 		// add fields to submit added, deleted or changed fields
 		static Renderer *pRenderer = FindRenderer("HiddenFieldRenderer");
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			Anything anyHidden;
 			String strBoxName;
 			MultifunctionListBoxRenderer::GetBoxName(strBoxName, c);
@@ -1829,44 +1860,44 @@ void MultifunctionListBoxRenderer::RenderHiddenFieldsForEdit(std::ostream &reply
 }
 
 //---- MultiOptionListRenderer -----------------------------------------------------------
-class MultiOptionListRenderer : public OptionListRenderer
-{
+class MultiOptionListRenderer : public OptionListRenderer {
 public:
-	MultiOptionListRenderer(const char *name) : OptionListRenderer(name) {};
-	~MultiOptionListRenderer() {};
+	MultiOptionListRenderer(const char *name) : OptionListRenderer(name){};
+	~MultiOptionListRenderer(){};
 
 protected:
-	virtual void RenderText(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &textConfig, const ROAnything &listItem);
+	virtual void RenderText(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &textConfig,
+							const ROAnything &listItem);
 };
 
 RegisterRenderer(MultiOptionListRenderer);
 
-void MultiOptionListRenderer::RenderText(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &textConfig, const ROAnything &listItem)
-{
+void MultiOptionListRenderer::RenderText(std::ostream &reply, Context &c, const ROAnything &config,
+										 const ROAnything &textConfig, const ROAnything &listItem) {
 	StartTrace(MultiOptionListRenderer.RenderText);
 	static Renderer *pRenderer = Renderer::FindRenderer("MultiColumnRenderer");
-	if (pRenderer) {
+	if (pRenderer != 0) {
 		TraceAny(textConfig, "MultiColumnRenderer-Config");
 		pRenderer->RenderAll(reply, c, textConfig);
 	}
 }
 
 //---- MultiColumnRenderer -----------------------------------------------------------
-class MultiColumnRenderer : public ListRenderer
-{
+class MultiColumnRenderer : public ListRenderer {
 public:
-	MultiColumnRenderer(const char *name) : ListRenderer(name) {};
-	~MultiColumnRenderer() {};
+	MultiColumnRenderer(const char *name) : ListRenderer(name){};
+	~MultiColumnRenderer(){};
 
 protected:
-	void RenderEntry(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &entryRendererConfig, const ROAnything &listItem, Anything &anyRenderState);
-	void RenderEntryFooter(std::ostream &reply, Context &c, const ROAnything &entryFooter, const ROAnything &listItem, Anything &anyRenderState);
+	void RenderEntry(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &entryRendererConfig,
+					 const ROAnything &listItem, Anything &anyRenderState);
+	void RenderEntryFooter(std::ostream &reply, Context &c, const ROAnything &entryFooter, const ROAnything &listItem,
+						   Anything &anyRenderState);
 };
 
 RegisterRenderer(MultiColumnRenderer);
 
-static void CopyWithDefault(const ROAnything &source, Anything &destination, const char *slot, const String &deflt = "")
-{
+static void CopyWithDefault(const ROAnything &source, Anything &destination, const char *slot, const String &deflt = "") {
 	ROAnything valueAny;
 	if (source.LookupPath(valueAny, slot)) {
 		destination[slot] = valueAny.DeepClone();
@@ -1875,14 +1906,15 @@ static void CopyWithDefault(const ROAnything &source, Anything &destination, con
 	}
 }
 
-void MultiColumnRenderer::RenderEntry(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &entryRendererConfig, const ROAnything &listItem, Anything &anyRenderState)
-{
+void MultiColumnRenderer::RenderEntry(std::ostream &reply, Context &c, const ROAnything &config,
+									  const ROAnything &entryRendererConfig, const ROAnything &listItem,
+									  Anything &anyRenderState) {
 	StartTrace(MultiColumnRenderer.RenderEntry);
 	static Renderer *pRenderer = Renderer::FindRenderer("FormattedStringRenderer");
 
 	bool boHide = MultifunctionListBoxRenderer::IsHiddenField(c, listItem);
 	if (!boHide) {
-		if (pRenderer) {
+		if (pRenderer != 0) {
 			ROAnything valueAny;
 			if (listItem.LookupPath(valueAny, "Value")) {
 				Anything formatConfig;
@@ -1897,8 +1929,8 @@ void MultiColumnRenderer::RenderEntry(std::ostream &reply, Context &c, const ROA
 	}
 }
 
-void MultiColumnRenderer::RenderEntryFooter(std::ostream &reply, Context &c, const ROAnything &entryFooter, const ROAnything &listItem, Anything &anyRenderState)
-{
+void MultiColumnRenderer::RenderEntryFooter(std::ostream &reply, Context &c, const ROAnything &entryFooter,
+											const ROAnything &listItem, Anything &anyRenderState) {
 	StartTrace(MultiColumnRenderer.RenderEntryFooter);
 	bool boHide = MultifunctionListBoxRenderer::IsHiddenField(c, listItem);
 	if (!boHide) {
@@ -1909,14 +1941,14 @@ void MultiColumnRenderer::RenderEntryFooter(std::ostream &reply, Context &c, con
 }
 
 //---- ColumnInputFieldRenderer -----------------------------------------------------------
-class ColumnInputFieldRenderer : public ListRenderer
-{
+class ColumnInputFieldRenderer : public ListRenderer {
 public:
-	ColumnInputFieldRenderer(const char *name) : ListRenderer(name) {};
-	~ColumnInputFieldRenderer() {};
+	ColumnInputFieldRenderer(const char *name) : ListRenderer(name){};
+	~ColumnInputFieldRenderer(){};
 
 protected:
-	void RenderEntry(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &entryRendererConfig, const ROAnything &listItem, Anything &anyRenderState);
+	void RenderEntry(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &entryRendererConfig,
+					 const ROAnything &listItem, Anything &anyRenderState);
 	void RenderListHeader(std::ostream &reply, Context &c, const ROAnything &listHeader);
 
 private:
@@ -1924,21 +1956,22 @@ private:
 	void RenderCellOptions(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem);
 	void RenderCellBegin(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem);
 	void RenderCellEnd(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem);
-	void RenderEditField(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem, const long &lColumnIndex);
-	void RenderPulldownField(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem, const long &lColumnIndex);
+	void RenderEditField(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem,
+						 const long &lColumnIndex);
+	void RenderPulldownField(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem,
+							 const long &lColumnIndex);
 	void AppendAny(const ROAnything &roaSource, Anything &anyDest);
 };
 
 RegisterRenderer(ColumnInputFieldRenderer);
 
-void ColumnInputFieldRenderer::RenderListHeader(std::ostream &reply, Context &c, const ROAnything &listHeader)
-{
+void ColumnInputFieldRenderer::RenderListHeader(std::ostream &reply, Context &c, const ROAnything &listHeader) {
 	StartTrace(ColumnInputFieldRenderer.RenderListHeader);
 	ListRenderer::RenderListHeader(reply, c, listHeader);
 }
 
-void ColumnInputFieldRenderer::RenderBgColor(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem)
-{
+void ColumnInputFieldRenderer::RenderBgColor(std::ostream &reply, Context &c, const ROAnything &config,
+											 const ROAnything &listItem) {
 	StartTrace(ColumnInputFieldRenderer.RenderBgColor);
 	ROAnything anyBgColor;
 	String strBgColor;
@@ -1950,8 +1983,8 @@ void ColumnInputFieldRenderer::RenderBgColor(std::ostream &reply, Context &c, co
 	reply << strBgColor;
 }
 
-void ColumnInputFieldRenderer::RenderCellOptions(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem)
-{
+void ColumnInputFieldRenderer::RenderCellOptions(std::ostream &reply, Context &c, const ROAnything &config,
+												 const ROAnything &listItem) {
 	StartTrace(ColumnInputFieldRenderer.RenderCellOptions);
 	ROAnything roOptions;
 	Anything anyOptions;
@@ -1963,11 +1996,11 @@ void ColumnInputFieldRenderer::RenderCellOptions(std::ostream &reply, Context &c
 	PrintOptions3(reply, c, anyOptions);
 }
 
-void ColumnInputFieldRenderer::RenderCellBegin(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem)
-{
+void ColumnInputFieldRenderer::RenderCellBegin(std::ostream &reply, Context &c, const ROAnything &config,
+											   const ROAnything &listItem) {
 	StartTrace(ColumnInputFieldRenderer.RenderCellBegin);
 
-	if ( listItem.IsDefined("EditfieldTitle") ) {
+	if (listItem.IsDefined("EditfieldTitle")) {
 		reply << "<td title=\'";
 		Render(reply, c, listItem["EditfieldTitle"]);
 		reply << "\' align=";
@@ -1996,18 +2029,18 @@ void ColumnInputFieldRenderer::RenderCellBegin(std::ostream &reply, Context &c, 
 	reply << ">";
 }
 
-void ColumnInputFieldRenderer::RenderCellEnd(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem)
-{
+void ColumnInputFieldRenderer::RenderCellEnd(std::ostream &reply, Context &c, const ROAnything &config,
+											 const ROAnything &listItem) {
 	StartTrace(ColumnInputFieldRenderer.RenderCellEnd);
 	reply << "</span>";
 	reply << "</td>\n";
 }
 
-void ColumnInputFieldRenderer::RenderEditField(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem, const long &lColumnIndex)
-{
+void ColumnInputFieldRenderer::RenderEditField(std::ostream &reply, Context &c, const ROAnything &config,
+											   const ROAnything &listItem, const long &lColumnIndex) {
 	StartTrace(ColumnInputFieldRenderer.RenderEditField);
 	static Renderer *pRenderer = Renderer::FindRenderer("TextFieldRenderer");
-	if (pRenderer) {
+	if (pRenderer != 0) {
 		Anything textFieldConfig;
 		String strCellName, strBoxName, strFormName;
 		MultifunctionListBoxRenderer::RenderCellName(strCellName, c, listItem);
@@ -2017,7 +2050,8 @@ void ColumnInputFieldRenderer::RenderEditField(std::ostream &reply, Context &c, 
 
 		textFieldConfig["Name"] = String("edt") << strBoxName << "_" << strCellName;
 		textFieldConfig["Size"] = listItem["Width"].DeepClone();
-		textFieldConfig["Maxlength"] = listItem.IsDefined("Maxlength") ? listItem["Maxlength"].DeepClone() : listItem["Width"].DeepClone();
+		textFieldConfig["Maxlength"] =
+			listItem.IsDefined("Maxlength") ? listItem["Maxlength"].DeepClone() : listItem["Width"].DeepClone();
 
 		// check if we can re-use the value from the last request as default
 		ROAnything roField;
@@ -2070,7 +2104,7 @@ void ColumnInputFieldRenderer::RenderEditField(std::ostream &reply, Context &c, 
 			// render script for register and handle the keydownevent
 			strEventHandler << "\n<script type=\"text/javascript\">\n";
 			if (roDataType.IsDefined("Validate")) {
-				strEventHandler << "function Event_" << strFieldName <<  "(e)\n";
+				strEventHandler << "function Event_" << strFieldName << "(e)\n";
 				strEventHandler << "{\n";
 
 				strEventHandler << "	debugE('Event_" << strFieldName << "');\n";
@@ -2128,8 +2162,7 @@ void ColumnInputFieldRenderer::RenderEditField(std::ostream &reply, Context &c, 
 	}
 }
 
-void ColumnInputFieldRenderer::AppendAny(const ROAnything &roaSource, Anything &anyDest)
-{
+void ColumnInputFieldRenderer::AppendAny(const ROAnything &roaSource, Anything &anyDest) {
 	StartTrace(ColumnInputFieldRenderer.AppendAny);
 	TraceAny(anyDest, "anything before");
 	for (long i = 0, sz = roaSource.GetSize(); i < sz; ++i) {
@@ -2140,13 +2173,13 @@ void ColumnInputFieldRenderer::AppendAny(const ROAnything &roaSource, Anything &
 	TraceAny(anyDest, "anything after");
 }
 
-void ColumnInputFieldRenderer::RenderPulldownField(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &listItem, const long &lColumnIndex)
-{
+void ColumnInputFieldRenderer::RenderPulldownField(std::ostream &reply, Context &c, const ROAnything &config,
+												   const ROAnything &listItem, const long &lColumnIndex) {
 	StartTrace(ColumnInputFieldRenderer.RenderPulldownField);
 	ROAnything roaPulldown;
 
 	static Renderer *pRenderer = Renderer::FindRenderer("PulldownMenuRenderer");
-	if (pRenderer && listItem.LookupPath(roaPulldown, "Pulldown")) {
+	if ((pRenderer != 0) && listItem.LookupPath(roaPulldown, "Pulldown")) {
 		TraceAny(roaPulldown, "roaPulldown");
 		Anything pulldownConfig;
 		String strCellName, strBoxName;
@@ -2202,8 +2235,9 @@ void ColumnInputFieldRenderer::RenderPulldownField(std::ostream &reply, Context 
 	}
 }
 
-void ColumnInputFieldRenderer::RenderEntry(std::ostream &reply, Context &c, const ROAnything &config, const ROAnything &entryRendererConfig, const ROAnything &listItem, Anything &anyRenderState)
-{
+void ColumnInputFieldRenderer::RenderEntry(std::ostream &reply, Context &c, const ROAnything &config,
+										   const ROAnything &entryRendererConfig, const ROAnything &listItem,
+										   Anything &anyRenderState) {
 	StartTrace(ColumnInputFieldRenderer.RenderEntry);
 	bool boHide = MultifunctionListBoxRenderer::IsHiddenField(c, listItem);
 	if (!boHide) {
@@ -2216,9 +2250,9 @@ void ColumnInputFieldRenderer::RenderEntry(std::ostream &reply, Context &c, cons
 
 		RenderCellBegin(reply, c, config, listItem);
 
-		if ( MultifunctionListBoxRenderer::IsEditableField(c, listItem) ) {
+		if (MultifunctionListBoxRenderer::IsEditableField(c, listItem)) {
 			RenderEditField(reply, c, config, listItem, lColumnIndex);
-		} else if ( MultifunctionListBoxRenderer::IsPulldownField(c, listItem) ) {
+		} else if (MultifunctionListBoxRenderer::IsPulldownField(c, listItem)) {
 			RenderPulldownField(reply, c, config, listItem, lColumnIndex);
 		} else {
 			reply << "&nbsp;";

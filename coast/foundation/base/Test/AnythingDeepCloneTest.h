@@ -9,13 +9,11 @@
 #ifndef _AnythingDeepCloneTest_H
 #define _AnythingDeepCloneTest_H
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnythingDeepCloneTest: public testframework::TestCase {
+#include "TestCase.h"
+class AnythingDeepCloneTest : public testframework::TestCase {
 public:
-	AnythingDeepCloneTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	AnythingDeepCloneTest(TString tname) : TestCaseType(tname) {}
 	static Test *suite();
 
 	void DeepClone0Test();
@@ -27,9 +25,10 @@ public:
 	//-- new test check for ref integrity with deepclone
 	void DeepCloneWithRef();
 	void DeepCloneBug232Test();
+
 protected:
 	Anything init5DimArray(long);
 	bool check5DimArray(Anything &, Anything &, long);
 };
 
-#endif		//ifndef _AnythingDeepCloneTest_H
+#endif	// ifndef _AnythingDeepCloneTest_H

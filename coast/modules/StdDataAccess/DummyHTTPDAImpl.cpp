@@ -6,7 +6,8 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "DummyHTTPDAImpl.h"
-#include "ConnectorParams.h" // for ConnectorParams
+
+#include "ConnectorParams.h"  // for ConnectorParams
 RegisterDataAccessImpl(DummyHTTPDAImpl);
 
 bool DummyHTTPDAImpl::Exec(Context &context, ParameterMapper *in, ResultMapper *out) {

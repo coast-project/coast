@@ -7,28 +7,33 @@
  */
 
 #include "CacheHandler.h"
-#include "SystemFile.h"
-#include "SystemLog.h"
+
 #include "AnyUtils.h"
 #include "InitFinisManager.h"
+#include "SystemFile.h"
+#include "SystemLog.h"
+
+#include <istream>
 
 Anything SimpleAnyLoader::Load(const char *key) {
 	StartTrace1(SimpleAnyLoader.Load, "trying to load <" << NotNull(key) << ">");
 	Anything toLoad(coast::storage::Global());
 	std::istream *ifp = coast::system::OpenStream(key, "any");
 
-	if (ifp) {
+	if (ifp != 0) {
 		// found
 		toLoad.Import(*ifp, key);
-		Trace("loading of <" << NotNull(key) << "> succeeded" );
+		Trace("loading of <" << NotNull(key) << "> succeeded");
 		SubTraceAny(config, toLoad, "configuration for <" << key << ">");
 		delete ifp;
 	}
 	return toLoad;
 }
 
-CacheHandlerImpl::CacheHandlerImpl() :
-		NotCloned("CacheHandler"), fCache(Anything::ArrayMarker(), coast::storage::Global()), fCacheHandlerMutex("CacheHandlerMutex", coast::storage::Global()) {
+CacheHandlerImpl::CacheHandlerImpl()
+	: NotCloned("CacheHandler"),
+	  fCache(Anything::ArrayMarker(), coast::storage::Global()),
+	  fCacheHandlerMutex("CacheHandlerMutex", coast::storage::Global()) {
 	InitFinisManager::IFMTrace("CacheHandler::Initialized\n");
 }
 
@@ -71,7 +76,7 @@ bool CacheHandlerImpl::IsLoaded(const char *group, const char *key) {
 
 void CacheHandlerImpl::Unload(const char *group, const char *key) {
 	StartTrace1(CacheHandlerImpl.Unload, "group [" << NotNull(group) << "] key [" << NotNull(key) << "]");
-	if ( IsLoaded(group, key) ) {
+	if (IsLoaded(group, key)) {
 		LockUnlockEntry me(fCacheHandlerMutex);
 		SlotCleaner::Operate(fCache, String(group).Append('.').Append(key));
 	}

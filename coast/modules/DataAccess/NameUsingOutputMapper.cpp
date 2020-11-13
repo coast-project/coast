@@ -7,23 +7,20 @@
  */
 
 #include "NameUsingOutputMapper.h"
-#include "StringStream.h"
+
 #include "AnythingUtils.h"
+#include "StringStream.h"
 
 //---- NameUsingOutputMapper ------------------------------------------------------------------
 RegisterResultMapper(NameUsingOutputMapper);
 
-NameUsingOutputMapper::NameUsingOutputMapper(const char *name) : EagerResultMapper(name)
-{
-}
+NameUsingOutputMapper::NameUsingOutputMapper(const char *name) : EagerResultMapper(name) {}
 
-IFAObject *NameUsingOutputMapper::Clone(Allocator *a) const
-{
+IFAObject *NameUsingOutputMapper::Clone(Allocator *a) const {
 	return new (a) NameUsingOutputMapper(fName);
 }
 
-bool NameUsingOutputMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything config)
-{
+bool NameUsingOutputMapper::DoPutAny(const char *key, Anything &value, Context &ctx, ROAnything config) {
 	StartTrace(NameUsingOutputMapper.DoPutAny);
 	Anything dest = GetDestination(ctx, config);
 	TraceAny(dest, "destination, key [" << key << "]");
@@ -31,8 +28,7 @@ bool NameUsingOutputMapper::DoPutAny(const char *key, Anything &value, Context &
 	return true;
 }
 
-bool NameUsingOutputMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, ROAnything config)
-{
+bool NameUsingOutputMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, ROAnything config) {
 	String strBuf;
 	{
 		OStringStream input(strBuf);
@@ -42,8 +38,7 @@ bool NameUsingOutputMapper::DoPutStream(const char *key, std::istream &is, Conte
 	return DoPutAny(key, anyVal, ctx, config);
 }
 
-Anything NameUsingOutputMapper::GetDestination(Context &ctx, ROAnything config)
-{
+Anything NameUsingOutputMapper::GetDestination(Context &ctx, ROAnything config) {
 	StartTrace(NameUsingOutputMapper.GetDestination);
 
 	ROAnything destConfig = GetDestinationConfig(ctx, config);
@@ -60,8 +55,7 @@ Anything NameUsingOutputMapper::GetDestination(Context &ctx, ROAnything config)
 //				/Delim   	CharacterDelimitingSlots
 //				/IndexDelim	CharacterDelimitingIndexSlots
 //		}
-ROAnything NameUsingOutputMapper::GetDestinationConfig(Context &ctx, ROAnything config)
-{
+ROAnything NameUsingOutputMapper::GetDestinationConfig(Context &ctx, ROAnything config) {
 	StartTrace(NameUsingOutputMapper.GetDestinationConfig);
 	TraceAny(fConfig, "fConfig");
 	TraceAny(config, "config");

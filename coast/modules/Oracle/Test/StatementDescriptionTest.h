@@ -11,17 +11,16 @@
 
 #include "FoundationTestTypes.h"
 
-class StatementDescriptionTest : public testframework::TestCaseWithConfig
-{
+class StatementDescriptionTest : public testframework::TestCaseWithConfig {
 public:
-	//!constructors
+	//! constructors
 	StatementDescriptionTest(TString tstrName);
 	~StatementDescriptionTest();
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!tests pathlist accessor
+	//! tests pathlist accessor
 	void DescriptionElementConstructionTest();
 	void DescriptionElementShadowTest();
 	void DescriptionSimpleTest();

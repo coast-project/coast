@@ -7,17 +7,16 @@
  */
 
 #include "RequestListener.h"
-#include "SystemLog.h"
-#include "Registry.h"
+
 #include "Policy.h"
+#include "Registry.h"
 #include "Socket.h"
+#include "SystemLog.h"
 
 /*! alias installer installs the same object with different names in the registry */
-class AcceptorFactoriesReInitInstaller: public InstallerPolicy {
+class AcceptorFactoriesReInitInstaller : public InstallerPolicy {
 public:
-	AcceptorFactoriesReInitInstaller(const char *category) :
-		InstallerPolicy(category) {
-	}
+	AcceptorFactoriesReInitInstaller(const char *category) : InstallerPolicy(category) {}
 
 protected:
 	virtual bool DoInstall(const ROAnything installerSpec, Registry *r) {
@@ -27,11 +26,9 @@ protected:
 	}
 };
 
-class AcceptorFactoriesReInitTerminator: public TerminationPolicy {
+class AcceptorFactoriesReInitTerminator : public TerminationPolicy {
 public:
-	AcceptorFactoriesReInitTerminator(const char *category) :
-		TerminationPolicy(category) {
-	}
+	AcceptorFactoriesReInitTerminator(const char *category) : TerminationPolicy(category) {}
 
 protected:
 	virtual bool DoTerminate(Registry *r) {
@@ -42,8 +39,7 @@ protected:
 };
 RegisterModule(AcceptorFactoriesModule);
 
-AcceptorFactoriesModule::AcceptorFactoriesModule(const char *name) :
-	WDModule(name) {
+AcceptorFactoriesModule::AcceptorFactoriesModule(const char *name) : WDModule(name) {
 	StartTrace1(AcceptorFactoriesModule.Ctor, "Name: <" << NotNull(name) << ">");
 }
 
@@ -76,7 +72,7 @@ Acceptor *AcceptorFactory::MakeAcceptor(AcceptorCallBack *ac) {
 	Trace("fName: " << fName);
 	TraceAny(fConfig, "fConfig: ");
 
-	const char *address = Lookup("Address", (const char *) 0);
+	const char *address = Lookup("Address", (const char *)0);
 	long port = Lookup("Port", 80L);
 	long backlog = Lookup("Backlog", 50L);
 
@@ -95,8 +91,8 @@ bool AcceptorFactory::DoLoadConfig(const char *category) {
 		return (!fConfig.IsNull());
 	}
 	String cfgFilename = GetConfigName();
-	SystemLog::Info(
-			String("AcceptorFactory::DoLoadConfig: no specific config entry for <") << fName << "> found in " << cfgFilename << ".any");
+	SystemLog::Info(String("AcceptorFactory::DoLoadConfig: no specific config entry for <")
+					<< fName << "> found in " << cfgFilename << ".any");
 	fConfig = Anything();
 	// because these object are hierarchical, it can be that some of them do not have their own config
 	// so we must not fail here
@@ -104,13 +100,14 @@ bool AcceptorFactory::DoLoadConfig(const char *category) {
 }
 
 bool AcceptorFactory::DoGetConfigName(const char *category, const char *objName, String &configFileName) const {
-	StartTrace1(AcceptorFactory.DoGetConfigName, "category: <" << NotNull(category) << "> object: <" << NotNull(objName) << ">");
+	StartTrace1(AcceptorFactory.DoGetConfigName,
+				"category: <" << NotNull(category) << "> object: <" << NotNull(objName) << ">");
 	configFileName = "Config";
 	Trace("returning <" << configFileName << "> true");
 	return true;
 }
 
-RegCacheImpl(AcceptorFactory); // FindAcceptorFactory()
+RegCacheImpl(AcceptorFactory);	// FindAcceptorFactory()
 
 RegisterAcceptorFactory(AcceptorFactory);
 
@@ -128,7 +125,7 @@ int ListenerThread::Init(ROAnything args) {
 	Trace("Acceptor: " << fAcceptorName);
 
 	AcceptorFactory *acf = AcceptorFactory::FindAcceptorFactory(fAcceptorName);
-	if (!acf) {
+	if (acf == 0) {
 		String msg("AcceptorFactory: ");
 		msg << fAcceptorName << " not found!";
 		Trace(msg);
@@ -137,17 +134,17 @@ int ListenerThread::Init(ROAnything args) {
 	}
 
 	fAcceptor = acf->MakeAcceptor(fCallBack);
-	if (!fAcceptor) {
+	if (fAcceptor == 0) {
 		String logMsg;
 		SystemLog::Error(logMsg << "no acceptor created");
 		Trace(logMsg);
 		return -1;
 	}
-	int retVal;
+	int retVal = 0;
 	if ((retVal = fAcceptor->PrepareAcceptLoop()) != 0) {
 		String logMsg;
 		SystemLog::Error(logMsg << "server (" << fAcceptorName << ")  prepare accept failed");
-		Trace(logMsg << " with retVal " << (long)retVal );
+		Trace(logMsg << " with retVal " << (long)retVal);
 		return retVal;
 	}
 	// start the accept loop
@@ -160,7 +157,7 @@ int ListenerThread::Init(ROAnything args) {
 //:this method gets called from the threads callback function
 void ListenerThread::Run() {
 	StartTrace(ListenerThread.Run);
-	if (fAcceptor) {
+	if (fAcceptor != 0) {
 		fAcceptor->RunAcceptLoop();
 	}
 }
@@ -171,15 +168,16 @@ bool ListenerThread::DoStartRequestedHook(ROAnything args) {
 
 void ListenerThread::DoTerminationRequestHook(ROAnything args) {
 	StartTrace(ListenerThread.DoTerminationRequestHook);
-	if (fAcceptor && fAcceptor->StopAcceptLoop()) {
+	if ((fAcceptor != 0) && fAcceptor->StopAcceptLoop()) {
 		String m;
-		m << "\tQuitting Server::Run loop <" << fAcceptorName << ">" << "\n";
+		m << "\tQuitting Server::Run loop <" << fAcceptorName << ">"
+		  << "\n";
 		SystemLog::WriteToStderr(m);
 	}
 }
 
-ListenerPool::ListenerPool(CallBackFactory *callBackFactory) :
-	ThreadPoolManager("ListenerPool"), fCallBackFactory(callBackFactory) {
+ListenerPool::ListenerPool(CallBackFactory *callBackFactory)
+	: ThreadPoolManager("ListenerPool"), fCallBackFactory(callBackFactory) {
 	StartTrace(ListenerPool.Ctor);
 	Assert(fCallBackFactory);
 }
@@ -193,7 +191,7 @@ ListenerPool::~ListenerPool() {
 Thread *ListenerPool::DoAllocThread(long i, ROAnything args) {
 	StartTrace(ListenerPool.DoAllocThread);
 	TraceAny(args, "threads arguments");
-	if (!fCallBackFactory) {
+	if (fCallBackFactory == 0) {
 		return 0;
 	}
 	return new (coast::storage::Global()) ListenerThread(fCallBackFactory->MakeCallBack());

@@ -7,22 +7,22 @@
  */
 
 #include "CeilingRenderer.h"
+
 #include "Tracer.h"
 
 //---- CeilingRenderer ---------------------------------------------------------------
 RegisterRenderer(CeilingRenderer);
 
-CeilingRenderer::CeilingRenderer(const char *name) : ComparingRenderer(name) { }
+CeilingRenderer::CeilingRenderer(const char *name) : ComparingRenderer(name) {}
 
-CeilingRenderer::~CeilingRenderer() { }
+CeilingRenderer::~CeilingRenderer() {}
 
-long CeilingRenderer::FindSlot(String &key, const ROAnything &list)
-{
+long CeilingRenderer::FindSlot(String &key, const ROAnything &list) {
 	StartTrace(CeilingRenderer.FindSlot);
 
 	long i = 0;
 	long sz = list.GetSize();
-	while ((i < sz) && (key.Compare(list.SlotName(i)) > 0) ) {
+	while ((i < sz) && (key.Compare(list.SlotName(i)) > 0)) {
 		++i;
 	}
 

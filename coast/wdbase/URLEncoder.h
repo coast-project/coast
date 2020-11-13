@@ -11,21 +11,17 @@
 
 #include "SecurityModule.h"
 
-class URLEncoder : public Encoder
-{
+class URLEncoder : public Encoder {
 public:
 	URLEncoder(const char *name);
 	virtual ~URLEncoder();
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) URLEncoder(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) URLEncoder(fName); }
 
 	virtual void DoEncode(String &encodedText, const String &cleartext) const;
 	virtual bool DoDecode(String &cleartext, const String &scrambledText) const;
 
 protected:
-
 private:
 	URLEncoder();
 	URLEncoder(const URLEncoder &);

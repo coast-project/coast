@@ -12,11 +12,10 @@
 #include "Action.h"
 
 //---- TestAction ----------------------------------------------------------
-//!Action for testing purposes.
+//! Action for testing purposes.
 //! The only thing this action does is: it creates a slot with the actions name
 //! in the roleStore and stores 'OK' in it.
-class TestAction : public Action
-{
+class TestAction : public Action {
 public:
 	//--- constructors
 	TestAction(const char *name);
@@ -31,8 +30,7 @@ public:
 	virtual bool DoAction(String &name, Context &context);
 };
 
-class ConfiguredTestAction: public TestAction
-{
+class ConfiguredTestAction : public TestAction {
 public:
 	//--- constructors
 	ConfiguredTestAction(const char *name) : TestAction(name) {}
@@ -44,7 +42,7 @@ public:
 	//! \param context a context (unused)
 	//! \param config Configuration for Action performing
 	//! \return true or false according to config
-	//!config : <PRE> {
+	//! config : <PRE> {
 	//!		/ActionToken	"NewValue"	# String - unchanged if not defined
 	//!		/RetValue		0			# Bool
 	//!	}</PRE>

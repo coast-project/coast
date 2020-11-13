@@ -7,25 +7,27 @@
  */
 
 #include "Socket.h"
-#include "SystemBase.h"
-#include "SystemLog.h"
+
+#include "InitFinisManager.h"
 #include "Resolver.h"
 #include "SocketStream.h"
+#include "SystemBase.h"
+#include "SystemLog.h"
 #include "Tracer.h"
-#include "InitFinisManager.h"
 
 #include <cstring>
-#if defined (WIN32)
-#include <windows.h>
+#if defined(WIN32)
 #include <io.h>
+#include <windows.h>
 #else
-#include <errno.h> /* PS wg. SUNCC5 */
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <netinet/tcp.h>		/* TCP_NODELAY */
-#include <sys/poll.h>
+#include <errno.h> /* PS wg. SUNCC5 */
 #include <fcntl.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h> /* TCP_NODELAY */
+#include <sys/poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 #define socklen_type socklen_t
@@ -40,7 +42,7 @@
 int closeSocket(int sd) {
 	StartTrace1(Socket.closeSocket, "fd:" << static_cast<long>(sd));
 #if defined(WIN32)
-	return closesocket(sd);		// clean up socket structure
+	return closesocket(sd);	 // clean up socket structure
 #else
 	return close(sd);
 #endif
@@ -54,13 +56,13 @@ namespace {
 		SocketInitializer() {
 #if defined(WIN32)
 			WORD wVersionRequested;
-			WSADATA wsaData = { 0, 0, {0}, {0}, 0, 0, 0 };
+			WSADATA wsaData = {0, 0, {0}, {0}, 0, 0, 0};
 			int err;
 
-			wVersionRequested = MAKEWORD( 2, 0 );
+			wVersionRequested = MAKEWORD(2, 0);
 
-			err = WSAStartup( wVersionRequested, &wsaData );
-			if ( err != 0 ) {
+			err = WSAStartup(wVersionRequested, &wsaData);
+			if (err != 0) {
 				/* Tell the user that we couldn't find a useable */
 				/* WinSock DLL.                                  */
 				return;
@@ -72,11 +74,10 @@ namespace {
 			/* 2.0 in wVersion since that is the version we      */
 			/* requested.                                        */
 
-			if ( LOBYTE( wsaData.wVersion ) != 2 ||
-				 HIBYTE( wsaData.wVersion ) != 0 ) {
+			if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 0) {
 				/* Tell the user that we couldn't find a useable */
 				/* WinSock DLL.                                  */
-				WSACleanup( );
+				WSACleanup();
 				return;
 			}
 #endif
@@ -88,49 +89,44 @@ namespace {
 #endif
 			InitFinisManager::IFMTrace("Socket::Finalized\n");
 		}
-		int dummyInt() const {
-			return 0;
-		}
+		int dummyInt() const { return 0; }
 	};
-    typedef coast::utility::singleton_default<SocketInitializer> SocketInitializerSingleton;
-    int forceInitialize = SocketInitializerSingleton::instance().dummyInt();
-}
+	typedef coast::utility::singleton_default<SocketInitializer> SocketInitializerSingleton;
+	int forceInitialize = SocketInitializerSingleton::instance().dummyInt();
+}  // namespace
 
 Socket::Socket(int socketfd, const Anything &clientInfo, bool doClose, long timeout, Allocator *a)
-	: fSockFd(socketfd)
-	, fStream(0)
-	, fDoClose(doClose)
-	, fClientInfo(clientInfo)
-	, fTimeout(timeout)
-	, fHadTimeout(false)
-	, fAllocator((a) ? a : coast::storage::Global())
-{
+	: fSockFd(socketfd),
+	  fStream(0),
+	  fDoClose(doClose),
+	  fClientInfo(clientInfo),
+	  fTimeout(timeout),
+	  fHadTimeout(false),
+	  fAllocator((a) != 0 ? a : coast::storage::Global()) {
 	StartTrace1(Socket.Ctor, "fd:" << GetFd() << " using allocator: [" << reinterpret_cast<long>(fAllocator) << "]");
 	TraceAny(fClientInfo, "clientInfo");
 }
 
-Socket::~Socket()
-{
+Socket::~Socket() {
 	StartTrace1(Socket.Dtor, "fd:" << GetFd());
-	if ( fStream ) {
+	if (fStream != 0) {
 		Trace("Deleting stream");
 		delete fStream;
 		fStream = 0;
 	}
-	if ( fDoClose ) {
+	if (fDoClose) {
 		Trace("Closing socket: " << fSockFd);
-		long lRetCode;
-		if ( (fSockFd >= 0) && ( lRetCode = closeSocket(fSockFd) ) < 0 ) {
+		long lRetCode = 0;
+		if ((fSockFd >= 0) && (lRetCode = closeSocket(fSockFd)) < 0) {
 			LogError(fSockFd, "close() socket", lRetCode);
 		}
 	}
 }
 
-void Socket::AppendToClientInfo(const char *slot, const ROAnything &info)
-{
+void Socket::AppendToClientInfo(const char *slot, const ROAnything &info) {
 	StartTrace(Socket.AppendToClientInfo);
 	TraceAny(info, "info to append at slot:" << slot);
-	if (slot) {
+	if (slot != 0) {
 		fClientInfo[slot] = info.DeepClone(fClientInfo.GetAllocator());
 	} else {
 		fClientInfo.Append(info.DeepClone(fClientInfo.GetAllocator()));
@@ -138,35 +134,33 @@ void Socket::AppendToClientInfo(const char *slot, const ROAnything &info)
 	TraceAny(fClientInfo, "after appending");
 }
 
-std::iostream *Socket::GetStream()
-{
+std::iostream *Socket::GetStream() {
 	StartTrace1(Socket.GetStream, "fd:" << GetFd());
 
-	if ( !fStream ) {
+	if (fStream == 0) {
 		fStream = DoMakeStream();
 	}
 	return fStream;
 }
 
-std::iostream *Socket::DoMakeStream()
-{
+std::iostream *Socket::DoMakeStream() {
 	StartTrace1(Socket.DoMakeStream, "fd:" << GetFd());
 
-	if ( fSockFd >= 0 ) {
-		return new(fAllocator) SocketStream(this, GetTimeout());
+	if (fSockFd >= 0) {
+		return new (fAllocator) SocketStream(this, GetTimeout());
 	}
 	return 0;
 }
 
-bool Socket::IsReady(long fd, short event, long timeout, long &retCode)
-{
+bool Socket::IsReady(long fd, short event, long timeout, long &retCode) {
 	StartTrace1(Socket.IsReady, "fd:" << fd);
 	retCode = -1;
 	fHadTimeout = false;
-	if ( fd >= 0 ) {
+	if (fd >= 0) {
 		bool bRead = (event & POLLIN) > 0, bWrite = (event & POLLOUT) > 0;
 		retCode = coast::system::DoSingleSelect(fd, timeout, bRead, bWrite);
-		Trace("testing fd:" << fd << " for " << (bRead ? "reading" : "") << (bRead && bWrite ? "&" : "") << (bWrite ? "writing" : "") << " returned:" << retCode);
+		Trace("testing fd:" << fd << " for " << (bRead ? "reading" : "") << (bRead && bWrite ? "&" : "")
+							<< (bWrite ? "writing" : "") << " returned:" << retCode);
 		if (retCode > 0) {
 			return true;
 		}
@@ -180,28 +174,23 @@ bool Socket::IsReady(long fd, short event, long timeout, long &retCode)
 	return false;
 }
 
-bool Socket::IsReadyForReading(long timeout, long &retCode)
-{
+bool Socket::IsReadyForReading(long timeout, long &retCode) {
 	return IsReady(GetFd(), POLLIN, timeout, retCode);
 }
 
-bool Socket::IsReadyForWriting(long timeout, long &retCode)
-{
+bool Socket::IsReadyForWriting(long timeout, long &retCode) {
 	return IsReady(GetFd(), POLLOUT, timeout, retCode);
 }
 
-bool Socket::IsReadyForReading()
-{
+bool Socket::IsReadyForReading() {
 	return IsReady(true);
 }
 
-bool Socket::IsReadyForWriting()
-{
+bool Socket::IsReadyForWriting() {
 	return IsReady(false);
 }
 
-bool Socket::IsReady(bool forreading)
-{
+bool Socket::IsReady(bool forreading) {
 	StartTrace1(Socket.IsReady, "fd:" << GetFd() << (forreading ? " for reading" : " for writing"));
 	bool bRet = false;
 	int res = coast::system::DoSingleSelect(GetFd(), GetTimeout(), forreading, !forreading);
@@ -220,22 +209,21 @@ bool Socket::IsReady(bool forreading)
 #define SHUT_RDWR 2
 #endif
 
-bool Socket::ShutDown(long fd, long how)
-{
-//	how     Specifies the type of shutdown.
-//	The  values are as follows:
-//
-//  SHUT_RD       Disables    further    receive
-//                operations.
-//
-//  SHUT_WR       Disables further  send  opera-
-//                tions.
-//
-//  SHUT_RDWR     Disables  further   send   and
-//                receive operations.
-	if ( fd >= 0 ) {
-		long lRetCode;
-		if ( ( lRetCode = ::shutdown(fd, how)) >= 0 ) {
+bool Socket::ShutDown(long fd, long how) {
+	//	how     Specifies the type of shutdown.
+	//	The  values are as follows:
+	//
+	//  SHUT_RD       Disables    further    receive
+	//                operations.
+	//
+	//  SHUT_WR       Disables further  send  opera-
+	//                tions.
+	//
+	//  SHUT_RDWR     Disables  further   send   and
+	//                receive operations.
+	if (fd >= 0) {
+		long lRetCode = 0;
+		if ((lRetCode = ::shutdown(fd, how)) >= 0) {
 			return true;
 		}
 		LogError(fd, "shutdown()", lRetCode);
@@ -243,50 +231,44 @@ bool Socket::ShutDown(long fd, long how)
 	return false;
 }
 
-bool Socket::ShutDownReading()
-{
+bool Socket::ShutDownReading() {
 	return ShutDown(GetFd(), SHUT_RD);
 }
 
-bool Socket::ShutDownWriting()
-{
-	if ( fStream ) {
+bool Socket::ShutDownWriting() {
+	if (fStream != 0) {
 		fStream->flush();
 	}
 	return ShutDown(GetFd(), SHUT_WR);
 }
 
-bool Socket::ShutDown()
-{
+bool Socket::ShutDown() {
 	return ShutDown(GetFd(), SHUT_RDWR);
 }
 
-long Socket::GetReadCount() const
-{
+long Socket::GetReadCount() const {
 	StartTrace1(Socket.GetReadCount, "fd:" << GetFd());
-	if (fStream) {
+	if (fStream != 0) {
 		SocketStreamBuf *sbuf = ((SocketStream *)fStream)->rdbuf();
-		if (sbuf) {
+		if (sbuf != 0) {
 			return sbuf->GetReadCount();
 		}
 	}
 	return 0L;
 }
 
-long Socket::GetWriteCount() const
-{
+long Socket::GetWriteCount() const {
 	StartTrace1(Socket.GetWriteCount, "fd:" << GetFd());
-	if (fStream) {
+	if (fStream != 0) {
 		SocketStreamBuf *sbuf = ((SocketStream *)fStream)->rdbuf();
-		if (sbuf) {
+		if (sbuf != 0) {
 			return sbuf->GetWriteCount();
 		}
 	}
 	return 0L;
 }
 
-int Socket::read(int fd, char *buf, int len, int flags)
-{
+int Socket::read(int fd, char *buf, int len, int flags) {
 #if defined(WIN32)
 	return ::recv(fd, buf, len, flags);
 #else
@@ -294,8 +276,7 @@ int Socket::read(int fd, char *buf, int len, int flags)
 #endif
 }
 
-int Socket::write(int fd, const char *buf, int len, int flags)
-{
+int Socket::write(int fd, const char *buf, int len, int flags) {
 #if defined(WIN32)
 	return ::send(fd, buf, len, flags);
 #else
@@ -303,22 +284,20 @@ int Socket::write(int fd, const char *buf, int len, int flags)
 #endif
 }
 
-void Socket::LogError(int socketfd, const char *contextmessage, long lRetCode)
-{
+void Socket::LogError(int socketfd, const char *contextmessage, long lRetCode) {
 	StartTrace1(Socket.LogError, "fd:" << socketfd);
 	String logMsg(contextmessage);
-	logMsg << " of socket fd=" << socketfd
-		   << " failed with function retCode:" << lRetCode << " (#" << (long)coast::system::GetSystemError() << ") " << SystemLog::LastSysError();
+	logMsg << " of socket fd=" << socketfd << " failed with function retCode:" << lRetCode << " (#"
+		   << (long)coast::system::GetSystemError() << ") " << SystemLog::LastSysError();
 	Trace(logMsg);
 	SystemLog::Error(logMsg);
 }
 
-bool Socket::GetSockOptInt(int socketFd, int optionName, int &lValue)
-{
+bool Socket::GetSockOptInt(int socketFd, int optionName, int &lValue) {
 	StartTrace(Socket.GetSockOptInt);
 	bool boRet = true;
 	socklen_type len = sizeof(lValue);
-	if ( getsockopt(socketFd, SOL_SOCKET, optionName, (char *)&lValue, &len) < 0 ) {
+	if (getsockopt(socketFd, SOL_SOCKET, optionName, (char *)&lValue, &len) < 0) {
 		SYSWARNING("sockopt-error [" << SystemLog::LastSysError() << "]");
 		boRet = false;
 	}
@@ -326,15 +305,14 @@ bool Socket::GetSockOptInt(int socketFd, int optionName, int &lValue)
 	return boRet;
 }
 
-bool Socket::SetNoDelay(int socketfd, bool bNoDelay)
-{
+bool Socket::SetNoDelay(int socketfd, bool bNoDelay) {
 	StartTrace(Socket.SetNoDelay);
-	if ( socketfd >= 0 ) {
+	if (socketfd >= 0) {
 		// set bNoDelay to true to disable nagle algorithm, pass 1 to setsockopt
 		int val = (bNoDelay ? 1 : 0);
-		long lRetCode;
+		long lRetCode = 0;
 		// use of (char *) instead of (const char *) to make strange platforms happy (S370)
-		if ( (lRetCode = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY, (char *) &val, sizeof(val))) == 0) {
+		if ((lRetCode = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY, (char *)&val, sizeof(val))) == 0) {
 			return true;
 		}
 		LogError(socketfd, "setsockopt( TCP_NODELAY )", lRetCode);
@@ -342,14 +320,13 @@ bool Socket::SetNoDelay(int socketfd, bool bNoDelay)
 	return false;
 }
 
-bool Socket::SetSockoptReuseAddr(int socketfd, bool bReuse)
-{
+bool Socket::SetSockoptReuseAddr(int socketfd, bool bReuse) {
 	StartTrace(Socket.SetSockoptReuseAddr);
-	if ( socketfd >= 0 ) {
+	if (socketfd >= 0) {
 		// reuse socket.. (avoid 4 minutes timeout)
 		int val = (bReuse ? 1 : 0);
-		long lRetCode;
-		if ( (lRetCode = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val))) == 0) {
+		long lRetCode = 0;
+		if ((lRetCode = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val))) == 0) {
 			return true;
 		}
 		LogError(socketfd, "setsockopt( SO_REUSEADDR )", lRetCode);
@@ -357,13 +334,13 @@ bool Socket::SetSockoptReuseAddr(int socketfd, bool bReuse)
 	return false;
 }
 
-bool Socket::SetSockoptBufSize(int socketfd, long lBufSize, bool bWriteSide)
-{
+bool Socket::SetSockoptBufSize(int socketfd, long lBufSize, bool bWriteSide) {
 	StartTrace(Socket.SetSockoptBufSize);
-	if ( socketfd >= 0 ) {
+	if (socketfd >= 0) {
 		int val = lBufSize;
-		long lRetCode;
-		if ( (lRetCode = setsockopt(socketfd, SOL_SOCKET, (bWriteSide ? SO_SNDBUF : SO_RCVBUF), (char *)&val, sizeof(val))) == 0) {
+		long lRetCode = 0;
+		if ((lRetCode = setsockopt(socketfd, SOL_SOCKET, (bWriteSide ? SO_SNDBUF : SO_RCVBUF), (char *)&val, sizeof(val))) ==
+			0) {
 			return true;
 		}
 		LogError(socketfd, String("setsockopt( ") << (bWriteSide ? "SO_SNDBUF" : "SO_RCVBUF") << " )", lRetCode);
@@ -371,8 +348,7 @@ bool Socket::SetSockoptBufSize(int socketfd, long lBufSize, bool bWriteSide)
 	return false;
 }
 
-bool Socket::SetToNonBlocking(int fd, bool dontblock)
-{
+bool Socket::SetToNonBlocking(int fd, bool dontblock) {
 	StartTrace1(Socket.SetToNonBlocking, "fd:" << fd << (dontblock ? " dont" : "") << " block");
 	if (fd < 0) {
 		return false;
@@ -380,19 +356,19 @@ bool Socket::SetToNonBlocking(int fd, bool dontblock)
 #if defined(WIN32)
 	u_long nNonBlocking = dontblock ? 1 : 0;
 	Trace("argument to pass:" << nNonBlocking);
-	if ( 0 == ioctlsocket(fd, FIONBIO, &nNonBlocking) ) {
+	if (0 == ioctlsocket(fd, FIONBIO, &nNonBlocking)) {
 		Trace("was successful");
 		return true;
 	}
 #else
-	int flags;
+	int flags = 0;
 	if ((flags = fcntl(fd, F_GETFL, 0)) >= 0) {
 		if (dontblock) {
 			flags |= O_NONBLOCK;
 		} else {
 			flags &= ~O_NONBLOCK;
 		}
-		if ( fcntl(fd, F_SETFL, flags) >= 0 ) {
+		if (fcntl(fd, F_SETFL, flags) >= 0) {
 			return true;
 		}
 	}
@@ -407,39 +383,35 @@ bool Socket::SetToNonBlocking(int fd, bool dontblock)
 #ifdef SOCK_TRACE
 #include "DiffTimer.h"
 
-class ConnectStat
-{
+class ConnectStat {
 public:
 	ConnectStat(String usage);
 	~ConnectStat();
 
-	void Use() { }
+	void Use() {}
 
 	String fUsage;
 	DiffTimer fTimer;
 };
 #endif
 
-void EndPoint::LogError(const char *contextmessage, int sockerrno)
-{
+void EndPoint::LogError(const char *contextmessage, int sockerrno) {
 	StartTrace(EndPoint.LogError);
 	String logMsg(contextmessage);
-	logMsg << " of socket " << (long)GetFd()
-		   << " with address: " << fIPAddress << " port: " << fPort
-		   << " failed (#" << (long)coast::system::GetSystemError() << ") " << SystemLog::LastSysError();
-	if (sockerrno!=0) {
+	logMsg << " of socket " << (long)GetFd() << " with address: " << fIPAddress << " port: " << fPort << " failed (#"
+		   << (long)coast::system::GetSystemError() << ") " << SystemLog::LastSysError();
+	if (sockerrno != 0) {
 		logMsg << ", last error [" << SystemLog::SysErrorMsg(sockerrno) << "]";
 	}
 	Trace(logMsg);
 	SystemLog::Error(logMsg);
 }
 
-bool EndPoint::CreateSocket()
-{
+bool EndPoint::CreateSocket() {
 	StartTrace(EndPoint.CreateSocket);
 #if defined(WIN32)
 	// creates socket for non-overlapped I/O (aka synchronous) to get handles which are compatible to file handles
-	if ((fSockFd = WSASocket(AF_INET,SOCK_STREAM,IPPROTO_TCP,0,0,0)) < 0) {
+	if ((fSockFd = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, 0)) < 0) {
 #else
 	if ((fSockFd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 #endif
@@ -449,15 +421,14 @@ bool EndPoint::CreateSocket()
 	return true;
 }
 
-long EndPoint::GetBoundPort()
-{
+long EndPoint::GetBoundPort() {
 	StartTrace(EndPoint.GetBoundPort);
 	long socketPort = 0;
 	// print out the Port we got from bind()
-	struct 	 sockaddr_in assignedAddr;
+	struct sockaddr_in assignedAddr;
 	socklen_type length = sizeof(assignedAddr);
 
-	if ( getsockname(GetFd(), (sockaddr *) &assignedAddr, &length) >= 0 ) {
+	if (getsockname(GetFd(), (sockaddr *)&assignedAddr, &length) >= 0) {
 		socketPort = (long)ntohs(assignedAddr.sin_port);
 		Trace("bound port: " << socketPort);
 	} else {
@@ -466,24 +437,23 @@ long EndPoint::GetBoundPort()
 	return socketPort;
 }
 
-bool EndPoint::BindToAddress(String &srcIpAdr, long srcPort)
-{
+bool EndPoint::BindToAddress(String &srcIpAdr, long srcPort) {
 	StartTrace(EndPoint.BindToAddress);
-	if (GetFd() < 0 ) {
+	if (GetFd() < 0) {
 		return false;
 	}
-	if ( ( srcIpAdr.Length() > 0 ) || (srcPort > 0) ) {
+	if ((srcIpAdr.Length() > 0) || (srcPort > 0)) {
 		Trace("creating endpoint address");
 		// use defined adress or fPort as source address
 		// create the source address
-		struct 	 sockaddr_in ip_addr;
+		struct sockaddr_in ip_addr;
 		if (PrepareSockAddrInet(ip_addr, MakeInetAddr(srcIpAdr, true), srcPort)) {
 			if (!Socket::SetSockoptReuseAddr(GetFd())) {
 				return false;
 			}
 
 			Trace("binding socket descriptor to ip");
-			if (bind(GetFd(), (struct sockaddr *) &ip_addr, sizeof(struct sockaddr_in)) < 0) {
+			if (bind(GetFd(), (struct sockaddr *)&ip_addr, sizeof(struct sockaddr_in)) < 0) {
 				LogError("bind()");
 				return false;
 			}
@@ -492,25 +462,23 @@ bool EndPoint::BindToAddress(String &srcIpAdr, long srcPort)
 	return true;
 }
 
-uint32_t EndPoint::MakeInetAddr(String ipAddr, bool anyipaddr)
-{
+uint32_t EndPoint::MakeInetAddr(String ipAddr, bool anyipaddr) {
 	if (ipAddr.Length() <= 0) {
 		if (anyipaddr) {
 			return INADDR_ANY;
 		}
-		ipAddr = GetLocalHost(); // for Servers ?
+		ipAddr = GetLocalHost();  // for Servers ?
 	}
-	uint32_t addr = inet_addr((char *)(const char *)ipAddr); // strange cast for 370 compatibility
+	uint32_t addr = inet_addr((char *)(const char *)ipAddr);  // strange cast for 370 compatibility
 	// workaround to simulate valid ip address when 255.255.255.255 is given
 	// which corresponds to -1L (INADDR_NONE) return code
-	if ( ipAddr != "255.255.255.255" || addr != INADDR_NONE ) {
+	if (ipAddr != "255.255.255.255" || addr != INADDR_NONE) {
 		Assert(addr != INADDR_NONE);
 	}
 	return addr;
 }
 
-bool EndPoint::PrepareSockAddrInet(struct sockaddr_in &socketaddr, uint32_t ipAddr, long port)
-{
+bool EndPoint::PrepareSockAddrInet(struct sockaddr_in &socketaddr, uint32_t ipAddr, long port) {
 	StartTrace1(EndPoint.PrepareSockAddrInet, "ip:" << static_cast<long>(ipAddr) << " port:" << port);
 #if defined(WIN32)
 	// port can be 0, this means NT assigns a port
@@ -519,10 +487,10 @@ bool EndPoint::PrepareSockAddrInet(struct sockaddr_in &socketaddr, uint32_t ipAd
 	if (ipAddr != INADDR_NONE && port > 0)
 #endif
 	{
-		memset((char *) &socketaddr, 0, sizeof(socketaddr));
-		socketaddr.sin_family      = AF_INET;
+		memset((char *)&socketaddr, 0, sizeof(socketaddr));
+		socketaddr.sin_family = AF_INET;
 		socketaddr.sin_addr.s_addr = ipAddr;
-		socketaddr.sin_port        = htons((unsigned short)port);
+		socketaddr.sin_port = htons((unsigned short)port);
 		return true;
 	}
 #if defined(WIN32)
@@ -533,93 +501,82 @@ bool EndPoint::PrepareSockAddrInet(struct sockaddr_in &socketaddr, uint32_t ipAd
 	return false;
 }
 
-Allocator *EndPoint::GetSocketAllocator()
-{
+Allocator *EndPoint::GetSocketAllocator() {
 	return fThreadLocal ? coast::storage::Current() : coast::storage::Global();
 }
 
-Socket *EndPoint::DoMakeSocket(int socketfd, Anything &clientInfo, bool doClose)
-{
+Socket *EndPoint::DoMakeSocket(int socketfd, Anything &clientInfo, bool doClose) {
 	StartTrace(EndPoint.DoMakeSocket);
 	clientInfo["HTTPS"] = false;
 	Allocator *a = GetSocketAllocator();
 
-	Trace("allocating with coast::storage::" << (fThreadLocal ? "Current" : "Global") << "(): [" << reinterpret_cast<long>(a) << "]");
+	Trace("allocating with coast::storage::" << (fThreadLocal ? "Current" : "Global") << "(): [" << reinterpret_cast<long>(a)
+											 << "]");
 	return new (a) Socket(socketfd, clientInfo, doClose, GetDefaultSocketTimeout(), a);
 }
 
-bool EndPoint::SockOptGetError()
-{
+bool EndPoint::SockOptGetError() {
 	StartTrace(EndPoint.SockOptGetError);
 	int error = 0;
 	bool bSuccess = Socket::GetSockOptInt(GetFd(), SO_ERROR, error);
-	if ( !bSuccess || error != 0 ) {
+	if (!bSuccess || error != 0) {
 		LogError("getsockopt(SO_ERROR) ", error);
 		return true;
 	}
 	return false;
 }
 
-ConnectorArgs::ConnectorArgs(const String &ipAddr, long port, long connectTimeout) :
-	fIPAddress(ipAddr),  fPort(port), fConnectTimeout(connectTimeout)
-{
+ConnectorArgs::ConnectorArgs(const String &ipAddr, long port, long connectTimeout)
+	: fIPAddress(ipAddr), fPort(port), fConnectTimeout(connectTimeout) {
 	StartTrace(ConnectorArgs.ConnectorArgs);
 }
 
-ConnectorArgs::ConnectorArgs()  :
-	fIPAddress("127.0.0.1"),  fPort(80), fConnectTimeout(0)
-{
-}
+ConnectorArgs::ConnectorArgs() : fIPAddress("127.0.0.1"), fPort(80), fConnectTimeout(0) {}
 
-ConnectorArgs::~ConnectorArgs()
-{
+ConnectorArgs::~ConnectorArgs() {
 	StartTrace(ConnectorArgs.~ConnectorArgs);
 }
 
-ConnectorArgs &ConnectorArgs::operator=(const ConnectorArgs &ca)
-{
-	StartTrace(ConnectorArgs.operator = );
+ConnectorArgs &ConnectorArgs::operator=(const ConnectorArgs &ca) {
+	StartTrace(ConnectorArgs.operator=);
 
-	if ( this == &ca ) {
+	if (this == &ca) {
 		return *this;
 	}
-	fIPAddress 				= ca.fIPAddress;
-	fPort 					= ca.fPort;
-	fConnectTimeout			= ca.fConnectTimeout;
+	fIPAddress = ca.fIPAddress;
+	fPort = ca.fPort;
+	fConnectTimeout = ca.fConnectTimeout;
 	return *this;
 }
 
-String ConnectorArgs::IPAddress()
-{
+String ConnectorArgs::IPAddress() {
 	StartTrace(ConnectorArgs.IPAddress);
 
 	return fIPAddress.Length() > 0 ? (const char *)fIPAddress : "127.0.0.1";
 }
 
-long ConnectorArgs::Port()
-{
+long ConnectorArgs::Port() {
 	StartTrace(ConnectorArgs.Port);
 	return fPort;
 }
 
-String ConnectorArgs::PortAsString()
-{
+String ConnectorArgs::PortAsString() {
 	StartTrace(ConnectorArgs.PortAsString);
 	return String().Append(fPort);
 }
 
-long ConnectorArgs::ConnectTimeout()
-{
+long ConnectorArgs::ConnectTimeout() {
 	StartTrace(ConnectorArgs.ConnectTimeout);
 	return fConnectTimeout;
 }
 
-Connector::Connector(String ipAdr, long port, long connectTimeout, String srcIPAdr, long srcPort, bool threadLocal) :
-	EndPoint(String(Resolver::DNS2IPAddress(ipAdr), -1, threadLocal ? coast::storage::Current() : coast::storage::Global()), port),
-	fConnectTimeout(connectTimeout),
-	fSrcIPAdress(Resolver::DNS2IPAddress(srcIPAdr), -1, threadLocal ? coast::storage::Current() : coast::storage::Global()),
-	fSrcPort(srcPort), fSocket(0)
-{
+Connector::Connector(String ipAdr, long port, long connectTimeout, String srcIPAdr, long srcPort, bool threadLocal)
+	: EndPoint(String(Resolver::DNS2IPAddress(ipAdr), -1, threadLocal ? coast::storage::Current() : coast::storage::Global()),
+			   port),
+	  fConnectTimeout(connectTimeout),
+	  fSrcIPAdress(Resolver::DNS2IPAddress(srcIPAdr), -1, threadLocal ? coast::storage::Current() : coast::storage::Global()),
+	  fSrcPort(srcPort),
+	  fSocket(0) {
 	StartTrace(Connector.Connector);
 	SetThreadLocal(threadLocal);
 	Trace("IPAddr: " << fIPAddress << ":" << fPort);
@@ -627,12 +584,14 @@ Connector::Connector(String ipAdr, long port, long connectTimeout, String srcIPA
 	Trace("srcIP : " << fSrcIPAdress << ":" << fSrcPort);
 }
 
-Connector::Connector(ConnectorArgs &connectorArgs, String srcIPAdr, long srcPort, bool threadLocal) :
-	EndPoint(String(Resolver::DNS2IPAddress(connectorArgs.IPAddress()), -1, threadLocal ? coast::storage::Current() : coast::storage::Global()), connectorArgs.Port()),
-	fConnectTimeout(connectorArgs.ConnectTimeout()),
-	fSrcIPAdress(Resolver::DNS2IPAddress(srcIPAdr), -1, threadLocal ? coast::storage::Current() : coast::storage::Global()),
-	fSrcPort(srcPort), fSocket(0)
-{
+Connector::Connector(ConnectorArgs &connectorArgs, String srcIPAdr, long srcPort, bool threadLocal)
+	: EndPoint(String(Resolver::DNS2IPAddress(connectorArgs.IPAddress()), -1,
+					  threadLocal ? coast::storage::Current() : coast::storage::Global()),
+			   connectorArgs.Port()),
+	  fConnectTimeout(connectorArgs.ConnectTimeout()),
+	  fSrcIPAdress(Resolver::DNS2IPAddress(srcIPAdr), -1, threadLocal ? coast::storage::Current() : coast::storage::Global()),
+	  fSrcPort(srcPort),
+	  fSocket(0) {
 	StartTrace(Connector.Connector);
 	SetThreadLocal(threadLocal);
 	Trace("IPAddr: " << fIPAddress << ":" << fPort);
@@ -640,26 +599,22 @@ Connector::Connector(ConnectorArgs &connectorArgs, String srcIPAdr, long srcPort
 	Trace("srcIP : " << fSrcIPAdress << ":" << fSrcPort);
 }
 
-Connector::~Connector()
-{
-	if ( fSocket ) {
-		delete fSocket;
-	}
+Connector::~Connector() {
+	delete fSocket;
 }
 
-Socket *Connector::MakeSocket(bool doClose)
-{
+Socket *Connector::MakeSocket(bool doClose) {
 	StartTrace(Connector.MakeSocket);
 	Socket *s = 0;
-	if ( (fSrcPort == 0) || (!fSocket) ) {
-		if ( DoConnect()) {
+	if ((fSrcPort == 0) || (fSocket == 0)) {
+		if (DoConnect()) {
 			Anything clientInfo;
 			clientInfo["REMOTE_ADDR"] = fIPAddress;
 			clientInfo["REMOTE_PORT"] = fPort;
 			coast::system::SetCloseOnExec(GetFd());
 			s = DoMakeSocket(GetFd(), clientInfo, doClose);
 		}
-		if (GetFd() >= 0 && ! s) {
+		if (GetFd() >= 0 && (s == 0)) {
 			closeSocket(GetFd());
 			fSockFd = -1;
 		}
@@ -667,48 +622,42 @@ Socket *Connector::MakeSocket(bool doClose)
 	return s;
 }
 
-Socket *Connector::Use()
-{
+Socket *Connector::Use() {
 	StartTrace(Connector.Use);
-	if ( !fSocket ) {
+	if (fSocket == 0) {
 		fSocket = MakeSocket();
 	}
 	return fSocket;
 }
 
-std::iostream *Connector::GetStream()
-{
+std::iostream *Connector::GetStream() {
 	StartTrace(Connector.GetStream);
 	Socket *psocket = Use();
-	if ( psocket ) {
+	if (psocket != 0) {
 		return psocket->GetStream();
 	}
 	return 0;
 }
 
-Anything Connector::ClientInfo()
-{
+Anything Connector::ClientInfo() {
 	StartTrace(Connector.ClientInfo);
-	if ( fSocket ) {
+	if (fSocket != 0) {
 		return fSocket->ClientInfo();
-	} else {
-		return Anything();
 	}
+	return Anything();
 }
 
-bool Connector::ConnectWouldBlock()
-{
+bool Connector::ConnectWouldBlock() {
 #if defined(WIN32)
-	long winerror = WSAGetLastError ();
+	long winerror = WSAGetLastError();
 	//	if ( winerror != WSAEINPROGRESS )
-	return ( winerror == WSAEWOULDBLOCK );
+	return (winerror == WSAEWOULDBLOCK);
 #else
-	return ( errno == EINPROGRESS );
+	return (errno == EINPROGRESS);
 #endif
 }
 
-bool Connector::DoConnect()
-{
+bool Connector::DoConnect() {
 	StartTrace(Connector.DoConnect);
 	Trace("IPAddr: " << fIPAddress << ":" << fPort);
 	Trace("TimeOut: " << fConnectTimeout);
@@ -726,17 +675,14 @@ bool Connector::DoConnect()
 		if (!BindToAddress(fSrcIPAdress, fSrcPort)) {
 			return false;
 		}
-		if ( !Socket::SetToNonBlocking(GetFd(), (fConnectTimeout > 0) ) ) {
+		if (!Socket::SetToNonBlocking(GetFd(), (fConnectTimeout > 0))) {
 			LogError(String("set socket to ") << (fConnectTimeout > 0 ? "non " : "") << "blocking mode failed: ");
 			return false;
 		}
-		Trace("connecting to: " << fIPAddress << ":" << fPort );
-		if ( (connect(GetFd(), (struct sockaddr *) &serv_addr, sizeof(serv_addr)) >= 0)
-			 || ( ConnectWouldBlock() &&
-				  coast::system::IsReadyForWriting(GetFd(), fConnectTimeout) &&
-				  !SockOptGetError() ) ) {
-			Trace("connect successfully done")
-			return true;
+		Trace("connecting to: " << fIPAddress << ":" << fPort);
+		if ((connect(GetFd(), (struct sockaddr *)&serv_addr, sizeof(serv_addr)) >= 0) ||
+			(ConnectWouldBlock() && coast::system::IsReadyForWriting(GetFd(), fConnectTimeout) && !SockOptGetError())) {
+			Trace("connect successfully done") return true;
 		}
 		LogError("connect() failed");
 	}
@@ -744,101 +690,91 @@ bool Connector::DoConnect()
 }
 
 #ifdef SOCK_TRACE
-ConnectStat::ConnectStat(String usage)
-	: fUsage(usage), fTimer()
-{
-}
+ConnectStat::ConnectStat(String usage) : fUsage(usage), fTimer() {}
 
-ConnectStat::~ConnectStat()
-{
-	SystemLog::WriteToStderr( fUsage << " " << fTimer.Diff() << " ms" << "\n" );
+ConnectStat::~ConnectStat() {
+	SystemLog::WriteToStderr(fUsage << " " << fTimer.Diff() << " ms"
+									<< "\n");
 }
 #endif
 
-class CallBackLocker
-{
+class CallBackLocker {
 public:
 	CallBackLocker(AcceptorCallBack *ac) : fCallBack(ac) {
-		if (fCallBack) {
+		if (fCallBack != 0) {
 			fCallBack->Lock();
 		}
 	}
-	~CallBackLocker()	{
-		if (fCallBack) {
+	~CallBackLocker() {
+		if (fCallBack != 0) {
 			fCallBack->Unlock();
 		}
 	}
 
-	void Use() { }
+	void Use() {}
+
 protected:
 	AcceptorCallBack *fCallBack;
 };
 
-class RevCallBackLocker
-{
+class RevCallBackLocker {
 public:
 	RevCallBackLocker(AcceptorCallBack *ac) : fCallBack(ac) {
-		if (fCallBack) {
+		if (fCallBack != 0) {
 			fCallBack->Unlock();
 		}
 	}
-	~RevCallBackLocker()	{
-		if (fCallBack) {
+	~RevCallBackLocker() {
+		if (fCallBack != 0) {
 			fCallBack->Lock();
 		}
 	}
 
-	void Use() { }
+	void Use() {}
+
 protected:
 	AcceptorCallBack *fCallBack;
 };
 
-class CallBackSynchronizer
-{
+class CallBackSynchronizer {
 public:
-	CallBackSynchronizer(AcceptorCallBack *ac) : fCallBack(ac) { }
+	CallBackSynchronizer(AcceptorCallBack *ac) : fCallBack(ac) {}
 
 	void Wait() {
-		if (fCallBack) {
+		if (fCallBack != 0) {
 			fCallBack->Wait();
 		}
 	}
 	void Signal() {
-		if (fCallBack) {
+		if (fCallBack != 0) {
 			fCallBack->Signal();
 		}
 	}
 
-	void Use() { }
+	void Use() {}
+
 protected:
 	AcceptorCallBack *fCallBack;
 };
 
 Acceptor::Acceptor(const char *ipadress, long port, long backlog, AcceptorCallBack *cb)
-	: EndPoint(Resolver::DNS2IPAddress(ipadress), port)
-	, fBackLog(backlog)
-	, fCallBack(cb)
-	, fAlive(false)
-	, fStopped(true)
-{
+	: EndPoint(Resolver::DNS2IPAddress(ipadress), port), fBackLog(backlog), fCallBack(cb), fAlive(false), fStopped(true) {
 	StartTrace(Acceptor.Ctor);
 }
 
-Acceptor::~Acceptor()
-{
+Acceptor::~Acceptor() {
 	StartTrace(Acceptor.Dtor);
 	Acceptor::StopAcceptLoop();
-	if (fCallBack) 		{
+	if (fCallBack != 0) {
 		delete fCallBack;
 		fCallBack = 0;
 	}
-	if ( fSockFd >= 0 ) {
+	if (fSockFd >= 0) {
 		closeSocket(fSockFd);
 	}
 }
 
-int Acceptor::PrepareAcceptLoop()
-{
+int Acceptor::PrepareAcceptLoop() {
 	StartTrace(Acceptor.PrepareAcceptLoop);
 	if (!CreateSocket()) {
 		return -1;
@@ -857,7 +793,7 @@ int Acceptor::PrepareAcceptLoop()
 		LogError("listen()");
 		return -1;
 	}
-	//NB: linux resolves address only correct after listen!
+	// NB: linux resolves address only correct after listen!
 	fPort = GetBoundPort();
 	{
 		CallBackLocker cb(fCallBack);
@@ -868,24 +804,23 @@ int Acceptor::PrepareAcceptLoop()
 	return 0;
 }
 
-Socket *Acceptor::DoAccept()
-{
+Socket *Acceptor::DoAccept() {
 	StartTrace(Acceptor.DoAccept);
-	struct 	 sockaddr_in clnt_addr;
-	int      newsock = -1;
-	socklen_type     clilen =  sizeof(clnt_addr);
+	struct sockaddr_in clnt_addr;
+	int newsock = -1;
+	socklen_type clilen = sizeof(clnt_addr);
 	{
 		RevCallBackLocker rcl(fCallBack);
 		rcl.Use();
 		// accept new connections, this call blocks
-		newsock = accept(fSockFd, (struct sockaddr *) &clnt_addr, &clilen);
+		newsock = accept(fSockFd, (struct sockaddr *)&clnt_addr, &clilen);
 	}
 	if (newsock < 0) {
 		LogError("accept()");
 		// SOP: check for stopper and set fAlive to false
 	} else {
 		Trace("accept fd:" << static_cast<long>(newsock));
-		if ( fAlive ) {
+		if (fAlive) {
 			Anything clnInfo;
 			clnInfo["REMOTE_ADDR"] = inet_ntoa(clnt_addr.sin_addr);
 			clnInfo["REMOTE_PORT"] = (long)ntohs(clnt_addr.sin_port);
@@ -899,21 +834,20 @@ Socket *Acceptor::DoAccept()
 	return 0;
 }
 
-int Acceptor::RunAcceptLoop(bool once)
-{
+int Acceptor::RunAcceptLoop(bool once) {
 	StartTrace(Acceptor.RunAcceptLoop);
 	{
 		CallBackLocker cb(fCallBack);
 		cb.Use();
 		fStopped = false;
 
-		while ( fAlive ) {
+		while (fAlive) {
 			Socket *psocket = DoAccept();
-			if ( psocket ) {
+			if (psocket != 0) {
 				DoCallBack(psocket);
 			}
 			if (once) {
-				fAlive = false; // leave loop after first accept
+				fAlive = false;	 // leave loop after first accept
 			}
 		}
 	}
@@ -922,18 +856,16 @@ int Acceptor::RunAcceptLoop(bool once)
 	return 0;
 }
 
-void Acceptor::DoCallBack(Socket *psocket)
-{
+void Acceptor::DoCallBack(Socket *psocket) {
 	StartTrace(Acceptor.DoCallBack);
-	if (fCallBack) {
+	if (fCallBack != 0) {
 		fCallBack->CallBack(psocket);
 	}
 }
 
-bool Acceptor::StopAcceptLoop(bool useConnect)
-{
+bool Acceptor::StopAcceptLoop(bool useConnect) {
 	StartTrace(Acceptor.StopAcceptLoop);
-	CallBackLocker cbl( fCallBack );
+	CallBackLocker cbl(fCallBack);
 	cbl.Use();
 	Trace("fAlive: [" << fAlive << "] fStopped: [" << fStopped << "] useConnect: [" << useConnect << "]");
 	if (fAlive && !fStopped && useConnect) {
@@ -954,14 +886,12 @@ bool Acceptor::StopAcceptLoop(bool useConnect)
 	return true;
 }
 
-long Acceptor::GetBacklog()
-{
+long Acceptor::GetBacklog() {
 	return fBackLog;
 }
 
 // BIA/RUM
-String Acceptor::GetAddress()
-{
+String Acceptor::GetAddress() {
 	if (fIPAddress.Length() == 0) {
 		return "any";
 	}

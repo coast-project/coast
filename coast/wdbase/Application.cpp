@@ -7,7 +7,9 @@
  */
 
 #include "Application.h"
+
 #include "AppBooter.h"
+#include "LockUnlockEntry.h"
 #include "Registry.h"
 #include "SystemLog.h"
 #include "Tracer.h"
@@ -22,52 +24,45 @@ Mutex Application::fgConfigMutex("ApplicationConfig");
 
 RegisterApplication(Application);
 
-Application::Application(const char *appName)
-	: HierarchConfNamed(appName)
-{
+Application::Application(const char *appName) : HierarchConfNamed(appName) {
 	StartTrace1(Application.Ctor, "Name:<" << NotNull(appName) << ">");
 }
 
-Application::~Application()
-{
+Application::~Application() {
 	StartTrace(Application.Dtor);
 }
 
-int Application::Init()
-{
+int Application::Init() {
 	StartTrace(Application.Init);
 	return DoInit();
 }
 
 // intialization - loads configuration based on instance's name
-int Application::DoInit()
-{
+int Application::DoInit() {
 	StartTrace(Application.DoInit);
 	return 0;
 }
 
 // doing the work
-int Application::Run()
-{
+int Application::Run() {
 	StartTrace(Application.Run);
 	return DoRun();
 }
 
 // doing the work
-int Application::DoRun()
-{
+int Application::DoRun() {
 	StartTrace(Application.DoRun);
 	SystemLog::WriteToStderr("That all I'm doing ;-)\n");
 	return 0;
 }
 
 // termination
-int Application::Terminate(int val)
-{
+int Application::Terminate(int val) {
 	StartTrace(Application.Terminate);
 
 	String m(50);
-	m << "\tTerminating <" << fName << ">" << "\n";
+	m << "\tTerminating <" << fName << ">"
+	  << "\n";
 	SystemLog::WriteToStderr(m);
 
 	int iRetVal = DoTerminate(val);
@@ -79,19 +74,17 @@ int Application::Terminate(int val)
 	return iRetVal;
 }
 
-int Application::DoTerminate(int val)
-{
+int Application::DoTerminate(int val) {
 	StartTrace(Application.DoTerminate);
 	return val;
 }
 
 // Looks up key in the instance's store then config and finally in the global config
-bool Application::DoLookup(const char *key, ROAnything &result, char delim, char indexdelim) const
-{
+bool Application::DoLookup(const char *key, ROAnything &result, char delim, char indexdelim) const {
 	StartTrace(Application.Lookup);
 
 	// have a lookup in the application config
-	if ( HierarchConfNamed::DoLookup(key, result, delim, indexdelim) ) {
+	if (HierarchConfNamed::DoLookup(key, result, delim, indexdelim)) {
 		return true;
 	}
 
@@ -100,21 +93,19 @@ bool Application::DoLookup(const char *key, ROAnything &result, char delim, char
 	return config.LookupPath(result, key, delim, indexdelim);
 }
 
-void Application::InitializeGlobalConfig(Anything theConfiguration)
-{
+void Application::InitializeGlobalConfig(Anything theConfiguration) {
 	StartTrace(Application.InitializeGlobalConfig);
 	LockUnlockEntry me(fgConfigMutex);
-	fgConfig = theConfiguration; // SOP: will deepclone if needed
+	fgConfig = theConfiguration;  // SOP: will deepclone if needed
 }
 
-ROAnything Application::GetConfig()
-{
+ROAnything Application::GetConfig() {
 	StartTrace(Application.GetConfig);
 
-	if ( fgConfig.IsNull() ) {
+	if (fgConfig.IsNull()) {
 		LockUnlockEntry me(fgConfigMutex);
 		static bool bootonce = false;
-		if ( !bootonce && fgConfig.IsNull() ) {
+		if (!bootonce && fgConfig.IsNull()) {
 			SystemLog::Info("implicit Application booting");
 
 			bootonce = true;
@@ -128,19 +119,20 @@ ROAnything Application::GetConfig()
 	return fgConfig;
 }
 
-Application *Application::GetGlobalApplication(String &applicationName)
-{
+Application *Application::GetGlobalApplication(String &applicationName) {
 	StartTrace(Application.GetGlobalApplication);
 	Application *application = 0;
 	if (!fgConfig.IsNull()) {
 		Anything applicationConf;
-		if (fgConfig.LookupPath(applicationConf, "Application") ) {
+		if (fgConfig.LookupPath(applicationConf, "Application")) {
 			TraceAny(applicationConf, "Iterating over application config");
-			for (long i = 0, sz = applicationConf.GetSize() && !application; i < sz; ++i) {
+			for (long i = 0,
+					  sz = static_cast<long>((static_cast<long>(applicationConf.GetSize() != 0) != 0) && (application) == 0);
+				 i < sz; ++i) {
 				// iterate over the applicationname list
 				applicationName = applicationConf[i].AsCharPtr(0);
 				Trace("testing for appname [" << applicationName << "]");
-				if ( applicationName.Length() > 0 ) {
+				if (applicationName.Length() > 0) {
 					// return the first application object found by name
 					application = Application::FindApplication(applicationName);
 					break;
@@ -151,18 +143,18 @@ Application *Application::GetGlobalApplication(String &applicationName)
 			// return the first in the list
 			Trace("Iterating over registered Application/Server entries");
 			RegistryIterator ri(MetaRegistry::instance().GetRegistry("Application"), false);
-			for ( ; ri.HasMore() && !application ; application = SafeCast(ri.Next(applicationName), Application));
+			for (; ri.HasMore() && (application == 0); application = SafeCast(ri.Next(applicationName), Application))
+				;
 		}
 	}
 	return application;
 }
 
 // GlobalInit: installs ressources shared among all instances
-int Application::GlobalInit(int argc, const char *argv[], const ROAnything config)
-{
+int Application::GlobalInit(int argc, const char *argv[], const ROAnything config) {
 	StartTrace(Application.GlobalInit);
 	int ret = DoGlobalInit(argc, argv, config);
-	if ( ret == 0 ) {
+	if (ret == 0) {
 		SYSINFO("Global init: succeeded");
 	} else {
 		SYSERROR("Global init: failed");
@@ -170,34 +162,29 @@ int Application::GlobalInit(int argc, const char *argv[], const ROAnything confi
 	return (ret);
 }
 
-int Application::DoGlobalInit(int argc, const char *argv[], const ROAnything config)
-{
+int Application::DoGlobalInit(int argc, const char *argv[], const ROAnything config) {
 	StartTrace(Application.DoGlobalInit);
 	return Init();	// Call instance init
 }
 
-int Application::GlobalRun()
-{
+int Application::GlobalRun() {
 	StartTrace(Application.GlobalRun);
 	return DoGlobalRun();
 }
 
-int Application::DoGlobalRun()
-{
+int Application::DoGlobalRun() {
 	StartTrace(Application.DoGlobalRun);
 	SystemLog::WriteToStderr("=> Have fun :-)\n");
 	return Run();
 }
 
 // GlobalTerminate: frees ressources shared among all instances
-int Application::GlobalTerminate(int val)
-{
+int Application::GlobalTerminate(int val) {
 	StartTrace(Application.GlobalTerminate);
 	return DoGlobalTerminate(val);
 }
 
-int Application::DoGlobalTerminate(int val)
-{
+int Application::DoGlobalTerminate(int val) {
 	StartTrace(Application.GlobalTerminate);
 	return Terminate(val);
 }

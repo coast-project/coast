@@ -6,56 +6,46 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestSuite.h"
-#include "RECompiler.h"
 #include "RECompilerTest.h"
+
 #include "Anything.h"
-#include "StringStream.h"
-#include "Tracer.h"
 #include "RE.h"
 #include "REBitSet.h"
+#include "RECompiler.h"
+#include "StringStream.h"
+#include "TestSuite.h"
+#include "Tracer.h"
 
 //---- RECompilerTest ----------------------------------------------------------------
-RECompilerTest::RECompilerTest(TString tstrName) : TestCaseType(tstrName)
-{
+RECompilerTest::RECompilerTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(RECompilerTest.Ctor);
 }
 
-RECompilerTest::~RECompilerTest()
-{
+RECompilerTest::~RECompilerTest() {
 	StartTrace(RECompilerTest.Dtor);
 }
 
-struct a_test {
-	long expected;
-	const char *pattern;
-	const /*unsigned*/ char *data;
-};
-
-struct a_test compilationTestCases[] = {
 #include "CompilationTestCases.h"
-	{ -1, 0, 0}
-};
 
-void RECompilerTest::RunACompilationTest (long id, struct a_test &t)
-{
+void RECompilerTest::RunACompilationTest(long id, struct a_test &t) {
 	StartTrace(RECompilerTest.RunACompilationTest);
 	t_assert(t.pattern != NULL);
-	if (!t.pattern) {
+	if (t.pattern == 0) {
 		return;
 	}
 
-	Trace("CompilationTestCases.h:" << id << "expecting " << t.expected
-		  << " with pattern >" << t.pattern << "< and data >"
-		  << t.data << "<\n");
+	Trace("CompilationTestCases.h:" << id << "expecting " << t.expected << " with pattern >" << t.pattern << "< and data >"
+									<< t.data << "<\n");
 	RECompiler rc;
 	Anything p = rc.compile(t.pattern);
 	if (t.expected >= 2) {
-		t_assertm(!p.IsDefined("program"), TString("expected RE compilation to fail at\nCompilationTestCases.h:") << id << " of >" << t.pattern << "<");
+		t_assertm(!p.IsDefined("program"), TString("expected RE compilation to fail at\nCompilationTestCases.h:")
+											   << id << " of >" << t.pattern << "<");
 		return;
-	} else {
-		t_assertm(p.IsDefined("program"), TString("expected successful compilation at\nCompilationTestCases.h:") << id << " of >" << t.pattern << "<");
 	}
+	t_assertm(p.IsDefined("program"), TString("expected successful compilation at\nCompilationTestCases.h:")
+										  << id << " of >" << t.pattern << "<");
+
 	if (!p.IsDefined("program")) {
 		return;
 	}
@@ -66,31 +56,29 @@ void RECompilerTest::RunACompilationTest (long id, struct a_test &t)
 	RE re(p);
 	t_assert(re.IsValid());
 	assertEqualm((bool)(t.expected == 0), re.ContainedIn(suspect),
-				 TString("failed match expectation at\nCompilationTestCases.h:") << id << " with pattern >" << t.pattern << "< and data >" << t.data << "<");
+				 TString("failed match expectation at\nCompilationTestCases.h:")
+					 << id << " with pattern >" << t.pattern << "< and data >" << t.data << "<");
 }
 
-void RECompilerTest::TestAllCompilationTests()
-{
+void RECompilerTest::TestAllCompilationTests() {
 	StartTrace(RECompilerTest.TestAllCompilationTests);
 	for (unsigned i = 1; i < sizeof(compilationTestCases) / sizeof(compilationTestCases[0]); i++) {
-		RunACompilationTest(i, compilationTestCases[i-1]);
+		RunACompilationTest(i, compilationTestCases[i - 1]);
 	}
 }
 
-void RECompilerTest::CheckInstr(RECompiler &rc, long index, long opcode, long opdata, long opnext = 0L)
-{
+void RECompilerTest::CheckInstr(RECompiler &rc, long index, long opcode, long opdata, long opnext = 0L) {
 	StartTrace(RECompilerTest.CheckInstr);
 	t_assert(index < rc.GetInstruction().GetSize());
 	Anything a = rc.GetInstruction()[index];
 	assertEqual(3L, a.GetSize());
-	assertEqualm(opcode, a[RE::offsetOpcode].AsLong(-1), TString("check opcode at ") << index << " when size is " << rc.GetInstruction().GetSize());
+	assertEqualm(opcode, a[RE::offsetOpcode].AsLong(-1),
+				 TString("check opcode at ") << index << " when size is " << rc.GetInstruction().GetSize());
 	assertEqual(opdata, a[RE::offsetOpdata].AsLong(-1));
 	assertEqual(opnext, a[RE::offsetNext].AsLong(-1));
-
 }
 
-void RECompilerTest::TestAppendNode()
-{
+void RECompilerTest::TestAppendNode() {
 	StartTrace(RECompilerTest.TestAppendNode);
 
 	RECompiler rc;
@@ -106,11 +94,9 @@ void RECompilerTest::TestAppendNode()
 	assertEqual(2L, len);
 	CheckInstr(rc, 0L, 1L, 2L);
 	CheckInstr(rc, len - 1, 3L, 4L);
-
 }
 
-void RECompilerTest::TestInsertNode()
-{
+void RECompilerTest::TestInsertNode() {
 	StartTrace(RECompilerTest.TestInsertNode);
 
 	RECompiler rc;
@@ -143,15 +129,13 @@ void RECompilerTest::TestInsertNode()
 	CheckInstr(rc, len - 1, 5L, 6L);
 }
 
-void RECompilerTest::TestSetNextOfEnd()
-{
+void RECompilerTest::TestSetNextOfEnd() {
 	StartTrace(RECompilerTest.TestSetNextOfEnd);
 
 	RECompiler rc;
 }
 
-void RECompilerTest::SimpleCompile()
-{
+void RECompilerTest::SimpleCompile() {
 	StartTrace(RECompilerTest.SimpleCompile);
 
 	RECompiler rc;
@@ -161,8 +145,7 @@ void RECompilerTest::SimpleCompile()
 	t_assert(r.ContainedIn("hallo peter"));
 }
 
-void RECompilerTest::SuspectedCompile()
-{
+void RECompilerTest::SuspectedCompile() {
 	StartTrace(RECompilerTest.SuspectedCompile);
 
 	RECompiler rc;
@@ -191,11 +174,9 @@ void RECompilerTest::SuspectedCompile()
 	t_assert(r.ContainedIn("ababcabab"));
 	t_assert(!r.ContainedIn("acb"));
 	t_assert(r.ContainedIn("abcab"));
-
 }
 
-void RECompilerTest::TestTerminal()
-{
+void RECompilerTest::TestTerminal() {
 	StartTrace(RECompilerTest.TestTerminal);
 
 	RECompiler rc;
@@ -208,11 +189,10 @@ void RECompilerTest::TestTerminal()
 	assertEqual('.', p["program"][2L][RE::offsetOpcode].AsLong(-1));
 	assertEqual('$', p["program"][3L][RE::offsetOpcode].AsLong(-1));
 
-// do not match yet...
+	// do not match yet...
 }
 
-void RECompilerTest::TestRepeatTerminal()
-{
+void RECompilerTest::TestRepeatTerminal() {
 	StartTrace(RECompilerTest.TestRepeatTerminal);
 
 	RECompiler rc;
@@ -228,11 +208,9 @@ void RECompilerTest::TestRepeatTerminal()
 	CheckInstr(rc, 1, 'A', 'a', 1);
 	CheckInstr(rc, 2, 'A', 'a', 1);
 	CheckInstr(rc, 3, 'A', 'a', 0);
-
 }
 
-void RECompilerTest::TestGenerateQuestion()
-{
+void RECompilerTest::TestGenerateQuestion() {
 	StartTrace(RECompilerTest.TestGenerateQuestion);
 
 	RECompiler rc;
@@ -247,8 +225,7 @@ void RECompilerTest::TestGenerateQuestion()
 	CheckInstr(rc, 3, RE::OP_NOTHING, 0, 0);
 }
 
-void RECompilerTest::TestClosure()
-{
+void RECompilerTest::TestClosure() {
 	StartTrace(RECompilerTest.TestClosure);
 
 	RECompiler rc;
@@ -278,7 +255,7 @@ void RECompilerTest::TestClosure()
 	p = rc.compile("f{4}");
 	t_assert(p.IsDefined("program"));
 
-	p = rc.compile("a+?"); // non-greedy closure
+	p = rc.compile("a+?");	// non-greedy closure
 	TraceAny(p, "program ");
 	t_assert(p.IsDefined("program"));
 
@@ -295,8 +272,7 @@ void RECompilerTest::TestClosure()
 	t_assert(!r.ContainedIn("abbc"));
 }
 
-void RECompilerTest::TestBranch()
-{
+void RECompilerTest::TestBranch() {
 	StartTrace(RECompilerTest.TestBranch);
 
 	RECompiler rc;
@@ -304,11 +280,10 @@ void RECompilerTest::TestBranch()
 	TraceAny(p, "program ");
 	assertEqual(RE::OP_BRANCH, p["program"][1L][RE::offsetOpcode].AsLong(-1));
 
-// do not match yet...
+	// do not match yet...
 }
 
-void RECompilerTest::TestExpr()
-{
+void RECompilerTest::TestExpr() {
 	StartTrace(RECompilerTest.TestBranch);
 
 	RECompiler rc;
@@ -316,11 +291,10 @@ void RECompilerTest::TestExpr()
 	TraceAny(p, "program ");
 	assertEqual(RE::OP_OPEN, p["program"][1L][RE::offsetOpcode].AsLong(-1));
 
-// do not match yet...
+	// do not match yet...
 }
 
-void RECompilerTest::TestEscape()
-{
+void RECompilerTest::TestEscape() {
 	StartTrace(RECompilerTest.TestBranch);
 
 	RECompiler rc;
@@ -340,13 +314,12 @@ void RECompilerTest::TestEscape()
 	p = rc.compile("(a+)\\1");
 	t_assert(p.GetSize() > 0);
 	long proglen = p["program"].GetSize() - 1;
-	assertEqual(RE::OP_BACKREF, p["program"][proglen-1][RE::offsetOpcode].AsLong(-1));
+	assertEqual(RE::OP_BACKREF, p["program"][proglen - 1][RE::offsetOpcode].AsLong(-1));
 
-// do not match yet...
+	// do not match yet...
 }
 
-void RECompilerTest::TestAtom()
-{
+void RECompilerTest::TestAtom() {
 	StartTrace(RECompilerTest.TestAtom);
 
 	RECompiler rc;
@@ -359,11 +332,10 @@ void RECompilerTest::TestAtom()
 	t_assert(p["program"][1L][RE::offsetOpdata].GetType() == AnyCharPtrType);
 	assertEqual("ab", p["program"][1L][RE::offsetOpdata].AsCharPtr());
 
-// do not match yet...
+	// do not match yet...
 }
 
-void RECompilerTest::TestCharClass()
-{
+void RECompilerTest::TestCharClass() {
 	StartTrace(RECompilerTest.TestCharClass);
 
 	RECompiler rc;
@@ -372,7 +344,7 @@ void RECompilerTest::TestCharClass()
 	t_assert(p["program"][1L][RE::offsetOpdata].GetType() == AnyVoidBufType);
 	REBitSet *s = (REBitSet *)(p["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(s != NULL);
-	if (s) {
+	if (s != 0) {
 		t_assert(s->IsMember('a'));
 		t_assert(!s->IsMember('b'));
 	}
@@ -381,10 +353,10 @@ void RECompilerTest::TestCharClass()
 
 	REBitSet *scp = (REBitSet *)(cp["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(scp != NULL);
-	if (scp) {
+	if (scp != 0) {
 		t_assert(!scp->IsMember('a'));
 		t_assert(scp->IsMember('b'));
-		if (s) {
+		if (s != 0) {
 			REBitSet bset(*s);
 			bset &= *scp;
 			t_assert(REBitSet().IsEqual(bset));
@@ -398,7 +370,7 @@ void RECompilerTest::TestCharClass()
 	t_assert(p["program"][1L][RE::offsetOpdata].GetType() == AnyVoidBufType);
 	s = (REBitSet *)(p["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(s != NULL);
-	if (s) {
+	if (s != 0) {
 		t_assert(s->IsMember('a'));
 		t_assert(s->IsMember('b'));
 		t_assert(s->IsMember('c'));
@@ -408,29 +380,28 @@ void RECompilerTest::TestCharClass()
 	t_assert(q["program"][1L][RE::offsetOpdata].GetType() == AnyVoidBufType);
 	REBitSet *qs = (REBitSet *)(q["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(qs != NULL);
-	if (qs && s) {
+	if ((qs != 0) && (s != 0)) {
 		t_assert(s->IsEqual(*qs));
 		t_assert(!qs->IsMember('-'));
 	}
 	p = rc.compile("[a-]");
-	assertCompare( 0L, less, p.GetSize() );
+	assertCompare(0L, less, p.GetSize());
 	t_assert(p["program"][1L][RE::offsetOpdata].GetType() == AnyVoidBufType);
 	s = (REBitSet *)(p["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(s != NULL);
-	if (s) {
+	if (s != 0) {
 		t_assert(s->IsMember('a'));
 		t_assert(s->IsMember('-'));
 		t_assert(!s->IsMember('b'));
 		t_assert(!s->IsMember('D'));
-
 	}
 
 	p = rc.compile("[\\s\\w]");
-	assertCompare( 0L, less, p.GetSize() );
+	assertCompare(0L, less, p.GetSize());
 	t_assert(p["program"][1L][RE::offsetOpdata].GetType() == AnyVoidBufType);
 	s = (REBitSet *)(p["program"][1L][RE::offsetOpdata].AsCharPtr(0));
 	t_assert(s != NULL);
-	if (s) {
+	if (s != 0) {
 		t_assert(s->IsMember('a'));
 		t_assert(!s->IsMember('-'));
 		t_assert(s->IsMember(' '));
@@ -438,8 +409,7 @@ void RECompilerTest::TestCharClass()
 	}
 }
 
-void RECompilerTest::TestBackRefMatch()
-{
+void RECompilerTest::TestBackRefMatch() {
 	StartTrace(RECompilerTest.TestBackRefMatch);
 
 	RECompiler rc;
@@ -454,12 +424,11 @@ void RECompilerTest::TestBackRefMatch()
 	t_assert(r.ContainedIn("aaab-a"));
 	t_assert(r.ContainedIn("bbbbbbbbbbb-bbbbbbbbbbb"));
 	t_assert(r.ContainedIn("abbbbbbbbbb-a"));
-// do not match yet...
+	// do not match yet...
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *RECompilerTest::suite ()
-{
+Test *RECompilerTest::suite() {
 	StartTrace(RECompilerTest.suite);
 	TestSuite *testSuite = new TestSuite;
 
@@ -481,5 +450,4 @@ Test *RECompilerTest::suite ()
 	ADD_CASE(testSuite, RECompilerTest, TestAllCompilationTests);
 
 	return testSuite;
-
 }

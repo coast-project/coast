@@ -13,21 +13,20 @@
 
 class Allocator;
 
-class MTStorageTest2 : public testframework::TestCase
-{
+class MTStorageTest2 : public testframework::TestCase {
 public:
-	//!constructors
+	//! constructors
 	MTStorageTest2(TString tstrName);
 	~MTStorageTest2();
 
-	//!builds up a suite of testcases for this test
-	static Test *suite ();
+	//! builds up a suite of testcases for this test
+	static Test *suite();
 
-	//!sets the environment for this test
-	void setUp ();
+	//! sets the environment for this test
+	void setUp();
 
-	//!deletes the environment for this test
-	void tearDown ();
+	//! deletes the environment for this test
+	void tearDown();
 
 	//--- subclass api
 

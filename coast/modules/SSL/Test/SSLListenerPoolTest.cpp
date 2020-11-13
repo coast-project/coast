@@ -7,25 +7,23 @@
  */
 
 #include "SSLListenerPoolTest.h"
-#include "RequestListener.h"
-#include "TestSuite.h"
-#include "SSLSocket.h"
-#include "SSLModule.h"
+
 #include "AnyIterators.h"
+#include "RequestListener.h"
+#include "SSLModule.h"
+#include "SSLSocket.h"
+#include "TestSuite.h"
 
 //---- SSLListenerPoolTest ----------------------------------------------------------------
-SSLListenerPoolTest::SSLListenerPoolTest(TString tname) : ListenerPoolTest(tname)
-{
+SSLListenerPoolTest::SSLListenerPoolTest(TString tname) : ListenerPoolTest(tname) {
 	StartTrace(SSLListenerPoolTest.Ctor);
 }
 
-SSLListenerPoolTest::~SSLListenerPoolTest()
-{
+SSLListenerPoolTest::~SSLListenerPoolTest() {
 	StartTrace(SSLListenerPoolTest.Dtor);
 }
 
-void SSLListenerPoolTest::PoolTest()
-{
+void SSLListenerPoolTest::PoolTest() {
 	StartTrace(SSLListenerPoolTest.PoolTest);
 	Anything config;
 	config.Append("TCP5010");
@@ -46,7 +44,8 @@ void SSLListenerPoolTest::PoolTest()
 	TestCallBackFactory *tcbf = new TestCallBackFactory;
 	ListenerPool lpToTest(tcbf);
 
-	if ( t_assertm( lpToTest.Init(config.GetSize(), config), "Init should work") && t_assertm(lpToTest.Start(false, 0, 0) == 0, "Start should work")) {
+	if (t_assertm(lpToTest.Init(config.GetSize(), config), "Init should work") &&
+		t_assertm(lpToTest.Start(false, 0, 0) == 0, "Start should work")) {
 		DoTestConnect();
 		if (t_assertm(lpToTest.Terminate(1, 10) == 0, "Terminate failed")) {
 			t_assertm(lpToTest.Join() == 0, "Join failed");
@@ -69,68 +68,68 @@ void SSLListenerPoolTest::PoolTest()
 	}
 	Anything failures = tcbf->GetFailures();
 	t_assertm(failures.GetSize() == 0, "Receivers encountered a least one error");
-	if (failures.GetSize()) {
+	if (failures.GetSize() != 0) {
 		TraceAny(failures, "EYECATCHER Receivers encountered the following errors");
 	}
 }
 
-void SSLListenerPoolTest::DoTestConnect()
-{
+void SSLListenerPoolTest::DoTestConnect() {
 	StartTrace(SSLListenerPoolTest.DoTestConnect);
 	ROAnything cConfig;
 	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetConfig()["SSLListenerPoolTest"]);
-	while ( aEntryIterator.Next(cConfig) ) {
+	while (aEntryIterator.Next(cConfig)) {
 		TString caseName;
-		if ( !aEntryIterator.SlotName(caseName) ) {
+		if (!aEntryIterator.SlotName(caseName)) {
 			caseName << "At index: " << aEntryIterator.Index();
 		}
 		TraceAny(cConfig, "cConfig");
 		Trace(cConfig["SSLConnector"].AsLong(1));
 		Anything data = cConfig["Data"].DeepClone();
 		long connectsToDo = cConfig["NumberOfConnects"].AsLong(1L);
-		for ( long l = 0; l < connectsToDo; l++ ) {
+		for (long l = 0; l < connectsToDo; l++) {
 			caseName << " @" << l;
 			Trace("At connect Nr.: " << l);
-			if ( ((connectsToDo - 1) == l) && data.IsDefined("LastChecksToDo") ) {
+			if (((connectsToDo - 1) == l) && data.IsDefined("LastChecksToDo")) {
 				data["ChecksToDo"] = data["LastChecksToDo"];
 			}
-			if ( cConfig["SSLConnector"].AsLong(1) == 1 ) {
-				if ( cConfig["ConnectorToUse"].AsString() != "" ) {
+			if (cConfig["SSLConnector"].AsLong(1) == 1) {
+				if (!cConfig["ConnectorToUse"].AsString().empty()) {
 					// deep clone, no side effect when adding Timeout
 					Anything connectorConfig = GetTestCaseConfig()[cConfig["ConnectorToUse"].AsString()].DeepClone();
-					if ( cConfig.IsDefined("TimeoutToUse") ) {
+					if (cConfig.IsDefined("TimeoutToUse")) {
 						connectorConfig["Timeout"] = cConfig["TimeoutToUse"].AsLong(0L);
 					}
-					if ( cConfig.IsDefined("UseThreadLocalMemory") ) {
+					if (cConfig.IsDefined("UseThreadLocalMemory")) {
 						connectorConfig["UseThreadLocalMemory"] = cConfig["UseThreadLocalMemory"].AsLong(0L);
 					}
 					SSLConnector sc(connectorConfig);
-					if ( cConfig["DoSendReceiveWithFailure"].AsLong(0) ) {
-						t_assertm(DoSendReceiveWithFailure(&sc, data,
-												 cConfig["IOSGoodAfterSend"].AsLong(0),
-												 cConfig["IOSGoodBeforeSend"].AsLong(1)), caseName);
+					if (cConfig["DoSendReceiveWithFailure"].AsLong(0) != 0) {
+						t_assertm(DoSendReceiveWithFailure(&sc, data, cConfig["IOSGoodAfterSend"].AsLong(0),
+														   cConfig["IOSGoodBeforeSend"].AsLong(1)),
+								  caseName);
 					} else {
 						DoSendReceive(&sc, data);
 					}
 				} else {
 					SSLConnector sc("localhost", cConfig["PortToUse"].AsLong(0), cConfig["TimeoutToUse"].AsLong(0),
-									(SSL_CTX *) NULL, (const char *) NULL, 0L, cConfig["UseThreadLocalMemory"].AsBool(0));
+									(SSL_CTX *)NULL, (const char *)NULL, 0L, cConfig["UseThreadLocalMemory"].AsBool(false));
 
-					if ( cConfig["DoSendReceiveWithFailure"].AsLong(0) ) {
-						t_assertm(DoSendReceiveWithFailure(&sc, data,
-												 cConfig["IOSGoodAfterSend"].AsLong(0),
-												 cConfig["IOSGoodBeforeSend"].AsLong(1)), caseName);
+					if (cConfig["DoSendReceiveWithFailure"].AsLong(0) != 0) {
+						t_assertm(DoSendReceiveWithFailure(&sc, data, cConfig["IOSGoodAfterSend"].AsLong(0),
+														   cConfig["IOSGoodBeforeSend"].AsLong(1)),
+								  caseName);
 					} else {
 						DoSendReceive(&sc, data);
 					}
 				}
 			} else {
 				Trace("Using configured NON SSL connector");
-				Connector c("localhost", cConfig["PortToUse"].AsLong(0L), cConfig["TimeoutToUse"].AsLong(0L), String(), 0L, cConfig["UseThreadLocalMemory"].AsBool(0));
-				if ( cConfig["DoSendReceiveWithFailure"].AsLong(0) ) {
-					t_assertm(DoSendReceiveWithFailure(&c, data,
-											 cConfig["IOSGoodAfterSend"].AsLong(0),
-											 cConfig["IOSGoodBeforeSend"].AsLong(1)), caseName);
+				Connector c("localhost", cConfig["PortToUse"].AsLong(0L), cConfig["TimeoutToUse"].AsLong(0L), String(), 0L,
+							cConfig["UseThreadLocalMemory"].AsBool(false));
+				if (cConfig["DoSendReceiveWithFailure"].AsLong(0) != 0) {
+					t_assertm(DoSendReceiveWithFailure(&c, data, cConfig["IOSGoodAfterSend"].AsLong(0),
+													   cConfig["IOSGoodBeforeSend"].AsLong(1)),
+							  caseName);
 				} else {
 					DoSendReceive(&c, data);
 				}
@@ -140,8 +139,7 @@ void SSLListenerPoolTest::DoTestConnect()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *SSLListenerPoolTest::suite ()
-{
+Test *SSLListenerPoolTest::suite() {
 	StartTrace(SSLListenerPoolTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, SSLListenerPoolTest, PoolTest);

@@ -17,8 +17,7 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class FirstNonEmptyRendererTest : public RendererTest
-{
+class FirstNonEmptyRendererTest : public RendererTest {
 public:
 	//--- constructors
 
@@ -32,7 +31,7 @@ public:
 	//--- public api
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//! render an empty list
 	void EmptyList();

@@ -11,16 +11,14 @@
 
 #include "WDModule.h"
 
-class BackendConfigLoaderModule: public WDModule {
-	bool RegisterBackend(const String& backendName, ROAnything roaBackendConfig);
+class BackendConfigLoaderModule : public WDModule {
+	bool RegisterBackend(const String &backendName, ROAnything roaBackendConfig);
 	Anything GetBackendList();
 	static Anything backendConfigurations;
 	friend class BackendConfigLoaderTest;
 
 public:
-	BackendConfigLoaderModule(const char *name) :
-		WDModule(name) {
-	}
+	BackendConfigLoaderModule(const char *name) : WDModule(name) {}
 	static ROAnything GetBackendConfig(const String &backendName);
 	static ROAnything GetBackendConfig();
 

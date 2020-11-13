@@ -18,8 +18,7 @@ class WorkerPoolManagerModule;
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class WorkerPoolManagerModuleTest : public testframework::TestCaseWithCaseConfigDllAndModuleLoading
-{
+class WorkerPoolManagerModuleTest : public testframework::TestCaseWithCaseConfigDllAndModuleLoading {
 public:
 	//--- constructors
 
@@ -32,11 +31,9 @@ public:
 	//--- public api
 
 	//! builds up a suite of tests
-	static Test *suite ();
+	static Test *suite();
 
-	TString getConfigFileName() {
-		return "WorkerPoolManagerModuleTestConfig";
-	}
+	TString getConfigFileName() { return "WorkerPoolManagerModuleTestConfig"; }
 
 	//! describe this Test
 	void TestWorkerOne();

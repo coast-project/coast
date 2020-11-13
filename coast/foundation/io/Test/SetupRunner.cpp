@@ -6,17 +6,17 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestRunner.h"
-#include "PipeTest.h"
-#include "PipeStreamTest.h"
-#include "PipeExecutorTest.h"
-#include "SocketTest.h"
-#include "SocketStreamTest.h"
-#include "ResolverTest.h"
-#include "URLUtilsTest.h"
-#include "ConnectorTest.h"
-#include "ConnectorArgsTest.h"
 #include "AcceptorTest.h"
+#include "ConnectorArgsTest.h"
+#include "ConnectorTest.h"
+#include "PipeExecutorTest.h"
+#include "PipeStreamTest.h"
+#include "PipeTest.h"
+#include "ResolverTest.h"
+#include "SocketStreamTest.h"
+#include "SocketTest.h"
+#include "TestRunner.h"
+#include "URLUtilsTest.h"
 
 void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, PipeTest);
@@ -29,4 +29,4 @@ void setupRunner(TestRunner &runner) {
 	ADD_SUITE(runner, ConnectorTest);
 	ADD_SUITE(runner, ConnectorArgsTest);
 	ADD_SUITE(runner, AcceptorTest);
-} // setupRunner
+}  // setupRunner

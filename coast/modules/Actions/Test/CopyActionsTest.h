@@ -14,15 +14,11 @@
 class Context;
 class String;
 
-class CopyActionsTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class CopyActionsTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	CopyActionsTest(TString tname) :
-		TestCaseType(tname) {
-	}
+	CopyActionsTest(TString tname) : TestCaseType(tname) {}
 
-	TString getConfigFileName() {
-		return "CopyActionsTestConfig";
-	}
+	TString getConfigFileName() { return "CopyActionsTestConfig"; }
 
 	static Test *suite();
 

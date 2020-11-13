@@ -7,12 +7,12 @@
  */
 
 #include "ActionCoreTest.h"
-#include "TestSuite.h"
-#include "Context.h"
-#include "Action.h"
 
-ActionCoreTest::ActionCoreTest(TString tname) :
-		TestCaseType(tname) {
+#include "Action.h"
+#include "Context.h"
+#include "TestSuite.h"
+
+ActionCoreTest::ActionCoreTest(TString tname) : TestCaseType(tname) {
 	StartTrace(ActionCoreTest.Ctor);
 }
 
@@ -32,7 +32,7 @@ void ActionCoreTest::ConsistentTransitionHandling() {
 
 	Action *testAction = Action::FindAction("TestAction");
 	t_assertm(testAction != 0, "TestAction not found");
-	if (testAction) {
+	if (testAction != 0) {
 		testAction->Register("ChangeMeTrue", "Action");
 		testAction->Register("ChangeMeFalse", "Action");
 		testAction->Register("ReturnFalse", "Action");
@@ -68,7 +68,7 @@ void ActionCoreTest::EmptyConfigurationTransitionHandling() {
 
 	Action *testAction = Action::FindAction("TestAction");
 	t_assertm(testAction != 0, "TestAction not found");
-	if (!testAction) {
+	if (testAction == 0) {
 		return;
 	}
 	testAction->Register("ChangeMeTrue", "Action");

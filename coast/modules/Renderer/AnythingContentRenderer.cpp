@@ -7,21 +7,19 @@
  */
 
 #include "AnythingContentRenderer.h"
+
 #include "Tracer.h"
+
+#include <ostream>
 
 //---- AnythingContentRenderer ---------------------------------------------------------
 RegisterRenderer(AnythingContentRenderer);
 
-AnythingContentRenderer::AnythingContentRenderer(const char *name) : Renderer(name)
-{
-}
+AnythingContentRenderer::AnythingContentRenderer(const char *name) : Renderer(name) {}
 
-AnythingContentRenderer::~AnythingContentRenderer()
-{
-}
+AnythingContentRenderer::~AnythingContentRenderer() {}
 
-void AnythingContentRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config)
-{
+void AnythingContentRenderer::RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config) {
 	StartTrace(AnythingContentRenderer.RenderAll);
 	TraceAny(config, "config");
 	String whatToPrint;
@@ -29,16 +27,16 @@ void AnythingContentRenderer::RenderAll(std::ostream &reply, Context &ctx, const
 	String cssTag(config["XmpTags"]["CSSTag"].AsString(""));
 	String preTag(config["XmpTags"]["PreTag"].AsString(""));
 	String postTag(config["XmpTags"]["PostTag"].AsString(""));
-	bool prettyPrint(config["Pretty"].AsBool(1));
+	bool prettyPrint(config["Pretty"].AsBool(true));
 	Renderer::RenderOnString(whatToPrint, ctx, config["Input"]);
 
 	if (addXmpTags) {
 		reply << "<br><pre";
-		if ( config["XmpTags"].IsDefined("CSSTag") ) {
+		if (config["XmpTags"].IsDefined("CSSTag")) {
 			reply << " " << cssTag;
 		}
 		reply << ">";
-		if ( config["XmpTags"].IsDefined("PreTag") ) {
+		if (config["XmpTags"].IsDefined("PreTag")) {
 			reply << preTag;
 		}
 	}
@@ -46,8 +44,7 @@ void AnythingContentRenderer::RenderAll(std::ostream &reply, Context &ctx, const
 	if (ctx.Lookup(whatToPrint, anyToPrint)) {
 		anyToPrint.PrintOn(reply, prettyPrint);
 	} else {
-		reply << fName << ": No Anything found for <" << whatToPrint << ">" <<
-			  (addXmpTags ? "<br>" : ENDL);
+		reply << fName << ": No Anything found for <" << whatToPrint << ">" << (addXmpTags ? "<br>" : ENDL);
 	}
 	Trace("Anything to print: " << whatToPrint);
 	TraceAny(anyToPrint, "Content of Anything to print");

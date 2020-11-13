@@ -9,8 +9,8 @@
 #ifndef _WorkerPoolManagerModule_H
 #define _WorkerPoolManagerModule_H
 
-#include "WDModule.h"
 #include "ThreadPools.h"
+#include "WDModule.h"
 class WorkerPoolManagerModulePoolManager;
 
 //---- WorkerPoolManagerModule ----------------------------------------------------------
@@ -32,8 +32,7 @@ class WorkerPoolManagerModulePoolManager;
 //		}
 //      ...
 //	}</PRE>
-class WorkerPoolManagerModule : public WDModule
-{
+class WorkerPoolManagerModule : public WDModule {
 public:
 	//--- constructors
 	WorkerPoolManagerModule(const char *name);
@@ -47,13 +46,13 @@ public:
 	// function to get workerpool for a server
 	WorkerPoolManagerModulePoolManager *GetPoolManager(const char *pPoolName);
 
-//    //:initializes module after termination for reinitialization; default uses Init; check if this applies
-//    virtual bool ResetInit(const ROAnything config);
-//    //:terminates module for reinitialization; default uses Finis; check if this applies
-//    virtual bool ResetFinis(const ROAnything config);
+	//    //:initializes module after termination for reinitialization; default uses Init; check if this applies
+	//    virtual bool ResetInit(const ROAnything config);
+	//    //:terminates module for reinitialization; default uses Finis; check if this applies
+	//    virtual bool ResetFinis(const ROAnything config);
 
 private:
-	Anything	fWorkerPools;
+	Anything fWorkerPools;
 };
 
 #endif

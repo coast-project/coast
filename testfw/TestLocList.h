@@ -12,13 +12,12 @@
 class TestLocation;
 
 //---- TestLocElt ------------------------------------------------------
-class TestLocElt
-{
+class TestLocElt {
 protected:
-	TestLocation	*fValue;
-	TestLocElt		*fNext;
+	TestLocation *fValue;
+	TestLocElt *fNext;
 
-	TestLocElt( TestLocation *aValue ): fValue(aValue),  fNext(0) { };
+	TestLocElt(TestLocation *aValue) : fValue(aValue), fNext(0){};
 	~TestLocElt();
 
 	friend class TestLocList;
@@ -26,23 +25,20 @@ protected:
 
 //---- TestLocList ------------------------------------------------------
 //! simple list of test locations to avoid the use of STL
-class TestLocList
-{
+class TestLocList {
 protected:
 	TestLocElt *fList;
 	TestLocElt *fIn;
 	TestLocElt *fIt;
-	long		fSize;
+	long fSize;
 
 public:
-	TestLocList(): fList(0), fIn(0), fIt(0), fSize(0) {};
+	TestLocList() : fList(0), fIn(0), fIt(0), fSize(0){};
 	~TestLocList();
 	TestLocation *first();
 	TestLocation *next();
-	void push_back( TestLocation *aValue );
-	long size() {
-		return fSize;
-	};
+	void push_back(TestLocation *aValue);
+	long size() { return fSize; };
 };
 
 #endif

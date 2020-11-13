@@ -6,18 +6,19 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "HttpFlowController.h"
+
+#include "HTTPConstants.h"
+#include "Renderer.h"
+#include "Resolver.h"
+#include "Scheduler.h"
+#include "StringStream.h"
+#include "SystemFile.h"
 #include "Threads.h"
 #include "URLUtils.h"
-#include "Resolver.h"
-#include "Renderer.h"
-#include "Scheduler.h"
-#include "SystemFile.h"
-#include "StringStream.h"
-#include "HTTPConstants.h"
 RegisterFlowController(HttpFlowController);
 
-HttpFlowController::HttpFlowController(const char *HttpFlowControllerName) :
-	FlowController(HttpFlowControllerName), fJmpTableInit(false), fDoRelocate(false) {
+HttpFlowController::HttpFlowController(const char *HttpFlowControllerName)
+	: FlowController(HttpFlowControllerName), fJmpTableInit(false), fDoRelocate(false) {
 	StartTrace1(HttpFlowController.HttpFlowController, "<" << HttpFlowControllerName << ">");
 }
 
@@ -37,18 +38,18 @@ void HttpFlowController::ProcessSetCookie(Context &ctx) {
 		}
 	} else {
 		cookieInfo = setCookie.AsString("");
-		if (cookieInfo != "") {
+		if (!cookieInfo.empty()) {
 			DoProcessSetCookie(cookieInfo, ctx);
 		}
 	}
-	TraceAny( tmpStore["Cookies"], "<-- latest cookie any" );
+	TraceAny(tmpStore["Cookies"], "<-- latest cookie any");
 }
 
 void HttpFlowController::DoProcessSetCookie(String &cookieInfo, Context &ctx) {
 	StartTrace(HttpFlowController.DoProcessSetCookie);
 
 	long Pos = cookieInfo.StrChr('=');
-	Trace( "pos = is->" << Pos << " in cookieString->" << cookieInfo );
+	Trace("pos = is->" << Pos << " in cookieString->" << cookieInfo);
 
 	if (Pos > 0) {
 		String cookieName = cookieInfo.SubString(0, Pos);
@@ -57,9 +58,9 @@ void HttpFlowController::DoProcessSetCookie(String &cookieInfo, Context &ctx) {
 		bool explicitDomainOrPortUsed = false;
 
 		long Pos2 = cookieInfo.StrChr(';');
-		Trace( "pos ; is->" << Pos2 << " cookie name is->" << cookieName );
+		Trace("pos ; is->" << Pos2 << " cookie name is->" << cookieName);
 		String cookieFull = cookieInfo.SubString(0, Pos2);
-		Trace( "CookieFull is-> " << cookieFull << "<- length is " << cookieFull.Length() );
+		Trace("CookieFull is-> " << cookieFull << "<- length is " << cookieFull.Length());
 
 		if (Pos2 > 0) {
 			String tempCookieInfo = cookieInfo;
@@ -67,30 +68,31 @@ void HttpFlowController::DoProcessSetCookie(String &cookieInfo, Context &ctx) {
 			long Pos3 = tempCookieInfo.Contains("DOMAIN");
 			if (Pos3 > 0) {
 				String domainInfo = cookieInfo.SubString(Pos3, cookieInfo.Length() - Pos3);
-				Trace( "Domain found->" << domainInfo);
+				Trace("Domain found->" << domainInfo);
 
 				long Pos4 = domainInfo.StrChr('=');
-				Trace( "= found at " << Pos4 );
+				Trace("= found at " << Pos4);
 
 				if (Pos4 > 0) {
 					Pos2 = domainInfo.StrChr(';', Pos4);
-					Trace( "; found at " << Pos2);
+					Trace("; found at " << Pos2);
 					long posEndOfDomain = (Pos2 > Pos4) ? Pos2 : domainInfo.Length() + 1;
 					long domainLen = posEndOfDomain - Pos4 - 1;
 					explicitDomainName = domainInfo.SubString(Pos4 + 1, domainLen);
-					Trace( "Explicit domain name set" << explicitDomainName );
+					Trace("Explicit domain name set" << explicitDomainName);
 					explicitDomainOrPortUsed = true;
 				}
 			}
 
 			if (!explicitDomainOrPortUsed) {
-				Trace( "No domain name set" );
+				Trace("No domain name set");
 				ROAnything roaName;
 				if (ctx.Lookup("CurrentServer.ServerName", roaName)) {
 					explicitDomainName = roaName.AsString("");
-					Trace( "Set Domain to->" << explicitDomainName);
+					Trace("Set Domain to->" << explicitDomainName);
 					// If the cookie contains no domain, we assign all cookies independent for what port they are intended
-					// to the same domain (localhost), because this is what we would expect to be done by the browser in this case.
+					// to the same domain (localhost), because this is what we would expect to be done by the browser in this
+					// case.
 				}
 			}
 			explicitDomainName.ToUpper();
@@ -104,10 +106,10 @@ void HttpFlowController::DoProcessSetCookie(String &cookieInfo, Context &ctx) {
 bool HttpFlowController::ResolveLabels(Anything &jmpTable, const ROAnything &runConfig, Anything &tmpStore) {
 	StartTrace(FlowController.DoPrepare);
 
-	long sz = runConfig.GetSize(); // size of whole config for the run
+	long sz = runConfig.GetSize();	// size of whole config for the run
 	for (long i = 0; i < sz; i++) {
 		ROAnything currentConfStep = runConfig[i];
-		long resNr = currentConfStep.FindIndex("Label"); // only first Label in each step is checked!
+		long resNr = currentConfStep.FindIndex("Label");  // only first Label in each step is checked!
 
 		if (resNr >= 0) {
 			String labelName = currentConfStep[resNr].AsString("no label name");
@@ -117,9 +119,8 @@ bool HttpFlowController::ResolveLabels(Anything &jmpTable, const ROAnything &run
 				eMsg << "Label name <" << labelName << "> already used";
 				HandleTheError(eMsg, tmpStore);
 				return false;
-			} else {
-				jmpTable[labelName] = i;
 			}
+			jmpTable[labelName] = i;
 		}
 	}
 	return true;
@@ -127,10 +128,10 @@ bool HttpFlowController::ResolveLabels(Anything &jmpTable, const ROAnything &run
 
 long HttpFlowController::FindJumpNr(String &jmpLabel) {
 	StartTrace(HttpFlowController.FindJumpNr);
-	TraceAny( fJmpTable, "the Jump Table" );
-	Trace( "and this is the label to find:" << jmpLabel );
+	TraceAny(fJmpTable, "the Jump Table");
+	Trace("and this is the label to find:" << jmpLabel);
 	for (int i = 0; i < fJmpTable.GetSize(); i++) {
-		Trace( "jmptable memberIndex is " << fJmpTable.SlotName(i) );
+		Trace("jmptable memberIndex is " << fJmpTable.SlotName(i));
 	}
 
 	long res = fJmpTable.FindIndex(jmpLabel);
@@ -141,8 +142,8 @@ long HttpFlowController::FindJumpNr(String &jmpLabel) {
 	return -1;
 }
 
-void HttpFlowController::CheckFuzzyMatch(Anything &containerToCheck, // Input only
-		String &strToLookFor // Input and Output
+void HttpFlowController::CheckFuzzyMatch(Anything &containerToCheck,  // Input only
+										 String &strToLookFor		  // Input and Output
 ) {
 	// checks slotnames of passed anything for the passed string,
 	// down shift both strings...
@@ -155,24 +156,21 @@ void HttpFlowController::CheckFuzzyMatch(Anything &containerToCheck, // Input on
 
 		if (containerSlotname.Contains(strToLookFor) >= 0) {
 			strToLookFor = containerToCheck[j].AsString("");
-			j = containerToCheck.GetSize() + 2; // leave loop
-			Trace( "CONTAINS INDIRECT MATCH FieldSlotName is->" << strToLookFor << " found in -" << containerSlotname );
+			j = containerToCheck.GetSize() + 2;	 // leave loop
+			Trace("CONTAINS INDIRECT MATCH FieldSlotName is->" << strToLookFor << " found in -" << containerSlotname);
 		}
-	} // for..
+	}  // for..
 }
 
 bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 	//--------------------------------------------------------------------------------
-	// can only follow one link, so this routing is only called once.... if you define more than one form or link or frame bad luck!
-	// Problem: Framework is modelled around HTTP possibilities. i.e. socket on which mappers and renderers
-	// subsequently work is opened before mapping and rendering.
-	// This means that rendering a link in a page can only influence the RequestURI and NOT the socket on which the
-	// request is made. i.e. a GET command can not influence itself the socket on which it works, this decision
-	// has already been made.
-	// Fortunately with the Stresser we know in advance which Link or Form/Action will be used and can assemble required info
-	// for socket creation in advance.
-	// Other (better) solution would be to render to an internal buffer which is passed to the appropriate socket once rendering is
-	// complete.
+	// can only follow one link, so this routing is only called once.... if you define more than one form or link or frame bad
+	// luck! Problem: Framework is modelled around HTTP possibilities. i.e. socket on which mappers and renderers subsequently
+	// work is opened before mapping and rendering. This means that rendering a link in a page can only influence the RequestURI
+	// and NOT the socket on which the request is made. i.e. a GET command can not influence itself the socket on which it
+	// works, this decision has already been made. Fortunately with the Stresser we know in advance which Link or Form/Action
+	// will be used and can assemble required info for socket creation in advance. Other (better) solution would be to render to
+	// an internal buffer which is passed to the appropriate socket once rendering is complete.
 	//
 	// if form or link specific in flow controller next step, then select the
 	// Server and Protocol etc. from the link in question so that the correct sockect is opened prior to
@@ -196,11 +194,11 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 		Anything formContentsConfig = resultAnything["formContents"];
 		String formButtonPressed = resultAnything["buttonPressed"].AsString("");
 		String formImageButtonPressed = resultAnything["imageButtonPressed"].AsString("");
-		TraceAny(formContentsConfig, "<----Fields in CONFIG" );
+		TraceAny(formContentsConfig, "<----Fields in CONFIG");
 
 		Anything formNameMapContents;
 		if (GetFormOrLinkInfo("Form", "NameMap", ctx, formNameMapContents) && !formNameMapContents.IsNull()) {
-			TraceAny(formNameMapContents, "<----NameMap in the incoming HTML Form" );
+			TraceAny(formNameMapContents, "<----NameMap in the incoming HTML Form");
 		}
 
 		// Check if multipart content:
@@ -215,8 +213,8 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 		// this is because I need to distinguish an error from a nonfound slot
 		if (GetFormOrLinkInfo("Form", "Fields", ctx, formContentsInitial)) {
 			if (!formContentsInitial.IsNull()) {
-				TraceAny(formContentsInitial, "<----Fields in the incoming HTML Form" );
-				Trace( "form contents config size is-" << formContentsConfig.GetSize() );
+				TraceAny(formContentsInitial, "<----Fields in the incoming HTML Form");
+				Trace("form contents config size is-" << formContentsConfig.GetSize());
 				// now add/merge in things from current Config anything
 				for (long i = 0; i < formContentsConfig.GetSize(); i++) {
 					// iterate through configuration
@@ -224,27 +222,27 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 					String fieldContent;
 
 					if (!isMultipartContent) {
-
-						Renderer::RenderOnString(fieldContent, ctx, formContentsConfig[i]); // i.e. can contain nested lookup..
+						Renderer::RenderOnString(fieldContent, ctx, formContentsConfig[i]);	 // i.e. can contain nested lookup..
 
 						Trace("field[" << i << "]:<" << fieldContent << ">");
 
 						// check magic word
 						if (fieldContent == "_DoNotSend_") {
-
 							formContentsInitial.Remove(fieldSlotName);
 
 						} else {
-							//if label matches immediately then apply, if not then could be symbolic name, so check that, 1st absolutely and then just contains...
+							// if label matches immediately then apply, if not then could be symbolic name, so check that, 1st
+							// absolutely and then just contains...
 							if (formContentsInitial.IsDefined(fieldSlotName)) {
 								formContentsInitial[fieldSlotName] = fieldContent;
-								Trace( "SIMPLE MATCH FieldSlotName is->" << fieldSlotName );
+								Trace("SIMPLE MATCH FieldSlotName is->" << fieldSlotName);
 							} else {
 								// not known, could be symbolic name - check the name map
-								if (formNameMapContents.IsDefined(fieldSlotName)) { //i.e. "Customer Number:"
-									fieldSlotName = formNameMapContents[formNameMapContents.FindIndex(fieldSlotName)].AsString("");
-									Trace( "SIMPLE INDIRECT MATCH FieldSlotName is->" << fieldSlotName );
-								} else { // less strigent test, just tests whether slotname contains the string in
+								if (formNameMapContents.IsDefined(fieldSlotName)) {	 // i.e. "Customer Number:"
+									fieldSlotName =
+										formNameMapContents[formNameMapContents.FindIndex(fieldSlotName)].AsString("");
+									Trace("SIMPLE INDIRECT MATCH FieldSlotName is->" << fieldSlotName);
+								} else {  // less strigent test, just tests whether slotname contains the string in
 									String tmpResult1;
 									// factor out later
 									CheckFuzzyMatch(formNameMapContents, fieldSlotName);
@@ -267,7 +265,8 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 				}
 				if (isMultipartContent) {
 					// Complete Multipart with last boundary:
-					multipartContents << "--" << boundary.AsString("") << "--" << "\r\n";
+					multipartContents << "--" << boundary.AsString("") << "--"
+									  << "\r\n";
 				}
 			}
 		} else {
@@ -280,10 +279,10 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 		// this is because I need to distinguish an error from a nonfound slot
 		if (GetFormOrLinkInfo("Form", "Buttons", ctx, formButtonContents)) {
 			if (!formButtonContents.IsNull()) {
-				TraceAny(formButtonContents, "<----Buttons in the incoming HTML Form" );
+				TraceAny(formButtonContents, "<----Buttons in the incoming HTML Form");
 
-				if ((formButtonPressed != "") && (formButtonContents.IsDefined(formButtonPressed))) {
-					Trace("True ->formButtonContents.IsDefined(formButtonPressed)" );
+				if ((!formButtonPressed.empty()) && (formButtonContents.IsDefined(formButtonPressed))) {
+					Trace("True ->formButtonContents.IsDefined(formButtonPressed)");
 					String tmpValue = formButtonContents[formButtonPressed].AsString("");
 
 					if (tmpValue.IsEqual("IMAGETYPE")) {
@@ -296,19 +295,19 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 					} else {
 						formContentsInitial[formButtonContents[formButtonPressed].AsString("")] = formButtonPressed;
 					}
-				} else if (formButtonPressed == "") {
+				} else if (formButtonPressed.empty()) {
 					// not an error...
 				} else {
-					Trace("False->formButtonContents.IsDefined(formButtonPressed)" );
+					Trace("False->formButtonContents.IsDefined(formButtonPressed)");
 					String eMsg = "";
 					eMsg << "Button in configuration <" << formButtonPressed
-							<< "> not known in incoming page, first button taken as default";
+						 << "> not known in incoming page, first button taken as default";
 					HandleTheError(eMsg, tmpStore);
 					////foo: should I return here ?
 					if (formButtonContents.GetSize() > 0) {
 						// first button from input (only) added to request...
 						formContentsInitial[formButtonContents[0L].AsString("")] = formButtonContents.SlotName(0L);
-					} // else ... no buttons on this form!
+					}  // else ... no buttons on this form!
 				}
 			}
 		} else {
@@ -321,23 +320,23 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 		// this is because I need to distinguish an error from a nonfound slot
 		if (GetFormOrLinkInfo("Form", "ImageButtons", ctx, formImageButtonContents)) {
 			if (!formImageButtonContents.IsNull()) {
-				TraceAny(formImageButtonContents, "<----ImageButtons in the incoming HTML Form" );
+				TraceAny(formImageButtonContents, "<----ImageButtons in the incoming HTML Form");
 
-				if ((formImageButtonPressed != "") && (formImageButtonContents.IsDefined(formImageButtonPressed))) {
-					Trace("True ->formImageButtonContents.IsDefined(formImageButtonPressed)" );
+				if ((!formImageButtonPressed.empty()) && (formImageButtonContents.IsDefined(formImageButtonPressed))) {
+					Trace("True ->formImageButtonContents.IsDefined(formImageButtonPressed)");
 					String Xcoord = formImageButtonPressed;
 					String Ycoord = formImageButtonPressed;
 					Xcoord << ".x";
 					Ycoord << ".y";
 					formContentsInitial[Xcoord] = "10";
 					formContentsInitial[Ycoord] = "10";
-				} else if (formImageButtonPressed == "") {
+				} else if (formImageButtonPressed.empty()) {
 					// not an error...
 				} else {
-					Trace("False->formImageButtonContents.IsDefined(formImageButtonPressed)" );
+					Trace("False->formImageButtonContents.IsDefined(formImageButtonPressed)");
 					String eMsg = "";
 					eMsg << "ImageButton in configuration <" << formImageButtonPressed
-							<< "> not known in incoming page, no navigation possible";
+						 << "> not known in incoming page, no navigation possible";
 					HandleTheError(eMsg, tmpStore);
 				}
 			}
@@ -346,7 +345,7 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 			return false;
 		}
 
-		TraceAny(formContentsInitial, "<----MERGED Fields from CONFIG and input FORM" );
+		TraceAny(formContentsInitial, "<----MERGED Fields from CONFIG and input FORM");
 
 		if (!isMultipartContent) {
 			tmpStore["CurrentServer"]["formContents"] = coast::urlutils::EncodeFormContent(formContentsInitial);
@@ -360,19 +359,20 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 		// this is because I need to distinguish an error from a nonfound slot
 		if (GetFormOrLinkInfo("Form", "method", ctx, resultAnything)) {
 			if (!resultAnything.IsNull()) {
-				Trace( "Form is requested" );
-				tmpStore["CurrentServer"]["Method"] = resultAnything.AsString(""); // Method i.e. GET or POST etc.
-				Trace( "Method found->" << resultAnything.AsString("") );
+				Trace("Form is requested");
+				tmpStore["CurrentServer"]["Method"] = resultAnything.AsString("");	// Method i.e. GET or POST etc.
+				Trace("Method found->" << resultAnything.AsString(""));
 				// empty existing any
 				resultAnything = Anything();
 				// success is when retval is true AND given anything is NOT NULL
 				// this is because I need to distinguish an error from a nonfound slot
 				if (GetFormOrLinkInfo("Form", "action", ctx, resultAnything)) {
 					if (!resultAnything.IsNull()) {
-						String resultString = resultAnything.AsString(""); // action URI
-						Trace ("Action URI is->" << resultString );
-						coast::urlutils::HandleURI2(tmpStore["CurrentServer"], resultString, tmpStore["PreviousPage"]["BASE"].AsCharPtr(""));
-						TraceAny( tmpStore["CurrentServer"], "<-Result of HandledURI" );
+						String resultString = resultAnything.AsString("");	// action URI
+						Trace("Action URI is->" << resultString);
+						coast::urlutils::HandleURI2(tmpStore["CurrentServer"], resultString,
+													tmpStore["PreviousPage"]["BASE"].AsCharPtr(""));
+						TraceAny(tmpStore["CurrentServer"], "<-Result of HandledURI");
 						// empty existing any
 						resultAnything = Anything();
 						// success is when retval is true AND given anything is NOT NULL
@@ -380,16 +380,17 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 						if (GetFormOrLinkInfo("Form", "enctype", ctx, resultAnything) && !resultAnything.IsNull()) {
 							// If boundary separation of form elements required for stresser
 							// insert given content of slot "boundarySeparated":
-							if ((resultAnything.AsString("").Contains("multipart/form-data") == 0) && tmpStore.LookupPath(boundary,
-									"Form.boundarySeparated")) {
-								tmpStore["CurrentServer"]["Enctype"] = resultAnything.AsString("") << "; boundary="
-										<< boundary.AsString("");
+							if ((resultAnything.AsString("").Contains("multipart/form-data") == 0) &&
+								tmpStore.LookupPath(boundary, "Form.boundarySeparated")) {
+								tmpStore["CurrentServer"]["Enctype"] = resultAnything.AsString("")
+																	   << "; boundary=" << boundary.AsString("");
 							}
 							// Otherwise:
 							else {
-								tmpStore["CurrentServer"]["Enctype"] = resultAnything.AsString(""); // Method i.e. GET or POST etc.
+								tmpStore["CurrentServer"]["Enctype"] =
+									resultAnything.AsString("");  // Method i.e. GET or POST etc.
 							}
-							Trace ("Encode type is ->" << resultAnything.AsString("") );
+							Trace("Encode type is ->" << resultAnything.AsString(""));
 						} else {
 							tmpStore["CurrentServer"]["Enctype"] = "application/x-www-form-urlencoded";
 						}
@@ -415,11 +416,11 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 	if (GetFormOrLinkInfo("Link", "href", ctx, resultAnything)) {
 		if (!resultAnything.IsNull()) {
 			// LINK
-			Trace( "Link is requested" );
-			tmpStore["CurrentServer"]["Method"] = "GET"; // Method i.e. GET or POST etc.
+			Trace("Link is requested");
+			tmpStore["CurrentServer"]["Method"] = "GET";  // Method i.e. GET or POST etc.
 			coast::urlutils::HandleURI2(tmpStore["CurrentServer"], resultAnything.AsString(""),
-					tmpStore["PreviousPage"]["BASE"].AsString(""));
-			TraceAny( tmpStore["CurrentServer"], "<-Result of HandledURI" );
+										tmpStore["PreviousPage"]["BASE"].AsString(""));
+			TraceAny(tmpStore["CurrentServer"], "<-Result of HandledURI");
 			tmpStore.Remove("Link");
 			return true;
 		}
@@ -435,11 +436,11 @@ bool HttpFlowController::DoProcessLinksFormsAndFrames(Context &ctx) {
 	if (GetFormOrLinkInfo("Frame", "src", ctx, resultAnything)) {
 		if (!resultAnything.IsNull()) {
 			// FRAME
-			Trace( "Frame is requested" );
-			tmpStore["CurrentServer"]["Method"] = "GET"; // Method i.e. GET or POST etc.
+			Trace("Frame is requested");
+			tmpStore["CurrentServer"]["Method"] = "GET";  // Method i.e. GET or POST etc.
 			coast::urlutils::HandleURI2(tmpStore["CurrentServer"], resultAnything.AsString(""),
-					tmpStore["PreviousPage"]["BASE"].AsString(""));
-			TraceAny( tmpStore["CurrentServer"], "<-Result of HandledURI" );
+										tmpStore["PreviousPage"]["BASE"].AsString(""));
+			TraceAny(tmpStore["CurrentServer"], "<-Result of HandledURI");
 			tmpStore.Remove("Frame");
 			return true;
 		}
@@ -458,26 +459,26 @@ bool HttpFlowController::DoProcessToken(Context &ctx, bool &boJump) {
 	bool noError = false;
 	Anything tokenConfig;
 	Anything tmpStore = ctx.GetTmpStore();
-	TraceAny( tmpStore, "Current tmp store" );
-	if (tmpStore.LookupPath(tokenConfig, "Token")) { // Token config incoming
-		//TOKEN - use same mechanism as for links etc. for now
-		Trace( "Token is requested" );
+	TraceAny(tmpStore, "Current tmp store");
+	if (tmpStore.LookupPath(tokenConfig, "Token")) {  // Token config incoming
+		// TOKEN - use same mechanism as for links etc. for now
+		Trace("Token is requested");
 		int mustBePresent = 0;
 		String jumpName = "";
 		long jumpNr = 0L;
-		TraceAny( tokenConfig, "token config is" );
+		TraceAny(tokenConfig, "token config is");
 
 		// process incoming config step.
 		for (long i = 0; i < tokenConfig.GetSize(); i++) {
 			SystemLog::WriteToStderr(".", 1);
 			String stringToFind = "";
 			jumpName = "";
-			jumpNr = -1L; // init
+			jumpNr = -1L;  // init
 			mustBePresent = 0;
 			noError = false;
 
 			Anything tokenDef = tokenConfig[i];
-			TraceAny( tokenDef, "specific token def is" );
+			TraceAny(tokenDef, "specific token def is");
 
 			for (long j = 0; j < tokenDef.GetSize(); j++) {
 				String theString = tokenDef.SlotName(j);
@@ -485,12 +486,12 @@ bool HttpFlowController::DoProcessToken(Context &ctx, bool &boJump) {
 
 				if (theString == "MUST") {
 					mustBePresent += 1;
-					//stringToFind= tokenDef[j].AsString(); // string to scan for in page
+					// stringToFind= tokenDef[j].AsString(); // string to scan for in page
 					Renderer::RenderOnString(stringToFind, ctx, tokenDef[j]);
 					stringToFind.ToLower();
 				} else if (theString == "MUSTNOT") {
 					mustBePresent += 2;
-					//stringToFind= tokenDef[j].AsString(); // string to scan for in page
+					// stringToFind= tokenDef[j].AsString(); // string to scan for in page
 					Renderer::RenderOnString(stringToFind, ctx, tokenDef[j]);
 					stringToFind.ToLower();
 				} else if (theString == "NOERROR") {
@@ -524,20 +525,20 @@ bool HttpFlowController::DoProcessToken(Context &ctx, bool &boJump) {
 
 			Anything outputLookupResult;
 			Trace("testing Mapper output for Tokens");
-			if (tmpStore.LookupPath(outputLookupResult, "Mapper.Output.Tokens")) { // extract slot number from NameMap
+			if (tmpStore.LookupPath(outputLookupResult, "Mapper.Output.Tokens")) {	// extract slot number from NameMap
 				String stringToBeSearched = outputLookupResult.AsString("");
 				stringToBeSearched.ToLower();
-				Trace( "TOKEN " << stringToFind << " searched for in" << stringToBeSearched );
+				Trace("TOKEN " << stringToFind << " searched for in" << stringToBeSearched);
 				if (stringToBeSearched.Contains(stringToFind) >= 0) {
-					Trace( "\nTOKEN " << stringToFind << "found in " << stringToBeSearched );
+					Trace("\nTOKEN " << stringToFind << "found in " << stringToBeSearched);
 
 					if (mustBePresent != 1) {
-
 						if (!noError) {
 							String eMsg = "";
-							eMsg << "Unwanted Token <" << stringToFind << "> DID occur in page:"
-									<< tmpStore["CurrentServer"]["ServerName"].AsString("Server/")
-									<< tmpStore["CurrentServer"]["Path"].AsString("Path") << "\r\r\nPage contained:" << stringToBeSearched;
+							eMsg << "Unwanted Token <" << stringToFind
+								 << "> DID occur in page:" << tmpStore["CurrentServer"]["ServerName"].AsString("Server/")
+								 << tmpStore["CurrentServer"]["Path"].AsString("Path")
+								 << "\r\r\nPage contained:" << stringToBeSearched;
 							HandleTheError(eMsg, tmpStore);
 							return false;
 						}
@@ -545,21 +546,22 @@ bool HttpFlowController::DoProcessToken(Context &ctx, bool &boJump) {
 						if (jumpNr >= 0) {
 							long nextStep = tmpStore["FlowState"]["RequestNr"].AsLong(0);
 
-							if ((nextStep - 1 != jumpNr) // jump to self not allowed
-									&& (nextStep != jumpNr)) { // jump to next done anyway
-								tmpStore["FlowState"]["RequestNr"] = jumpNr; // effect the Jump
+							if ((nextStep - 1 != jumpNr)					  // jump to self not allowed
+								&& (nextStep != jumpNr)) {					  // jump to next done anyway
+								tmpStore["FlowState"]["RequestNr"] = jumpNr;  // effect the Jump
 								boJump = true;
 							}
 						}
 					}
 				} else {
-					Trace( "\nTOKEN " << stringToFind << " not found in " << stringToBeSearched );
+					Trace("\nTOKEN " << stringToFind << " not found in " << stringToBeSearched);
 					if (mustBePresent == 1) {
 						if (!noError) {
 							String eMsg;
-							eMsg << "Wanted Token <" << stringToFind << "> not found in page:"
-									<< tmpStore["CurrentServer"]["ServerName"].AsString("Server/")
-									<< tmpStore["CurrentServer"]["Path"].AsString("Path") << "\r\r\nPage contained:" << stringToBeSearched;
+							eMsg << "Wanted Token <" << stringToFind
+								 << "> not found in page:" << tmpStore["CurrentServer"]["ServerName"].AsString("Server/")
+								 << tmpStore["CurrentServer"]["Path"].AsString("Path")
+								 << "\r\r\nPage contained:" << stringToBeSearched;
 							;
 							HandleTheError(eMsg, tmpStore);
 							return false;
@@ -568,9 +570,9 @@ bool HttpFlowController::DoProcessToken(Context &ctx, bool &boJump) {
 						if (jumpNr >= 0) {
 							long nextStep = tmpStore["FlowState"]["RequestNr"].AsLong(0);
 
-							if ((nextStep - 1 != jumpNr) // jump to self not allowed
-									&& (nextStep != jumpNr)) { // jump to next done anyway
-								tmpStore["FlowState"]["RequestNr"] = jumpNr; // effect the Jump
+							if ((nextStep - 1 != jumpNr)					  // jump to self not allowed
+								&& (nextStep != jumpNr)) {					  // jump to next done anyway
+								tmpStore["FlowState"]["RequestNr"] = jumpNr;  // effect the Jump
 								boJump = true;
 							}
 						}
@@ -582,10 +584,10 @@ bool HttpFlowController::DoProcessToken(Context &ctx, bool &boJump) {
 				HandleTheError(eMsg, tmpStore);
 				return false;
 			}
-		} // end for
-	} // if token check in config
+		}  // end for
+	}	   // if token check in config
 
-	tmpStore.Remove("Token"); // from current Page config
+	tmpStore.Remove("Token");  // from current Page config
 	return res;
 }
 
@@ -640,8 +642,8 @@ bool HttpFlowController::PrepareRequest(Context &ctx) {
 bool HttpFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucceeded) {
 	StartTrace(HttpFlowController.PrepareRequest);
 	Anything tmpStore = ctx.GetTmpStore();
-	TraceAny(tmpStore, "tmp store" );
-	TraceAny(fConfig, "fConfig" );
+	TraceAny(tmpStore, "tmp store");
+	TraceAny(fConfig, "fConfig");
 
 	ROAnything stepConfig = GetStepConfig(ctx);
 	////foo: testing with delay
@@ -656,7 +658,7 @@ bool HttpFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucce
 		}
 	}
 
-	if (lDelay) {
+	if (lDelay != 0) {
 		{
 			String strbuf;
 			StringStream stream(strbuf);
@@ -726,7 +728,7 @@ bool HttpFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucce
 	// perhaps put in explicit method.
 	//__________________________________________________________________________________________________________________________
 	tmpStore["LastValidCurrentServer"] = tmpStore["CurrentServer"];
-	TraceAny( tmpStore["LastValidCurrentServer"], "LastValidCurrentServer" );
+	TraceAny(tmpStore["LastValidCurrentServer"], "LastValidCurrentServer");
 
 	tmpStore.Remove("CurrentServer");
 	// but save path across...
@@ -740,11 +742,11 @@ bool HttpFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucce
 		}
 
 		// "current config now read in...
-		TraceAny( tmpStore["CurrentServer"], "NEW ? ValidCurrentServer" );
+		TraceAny(tmpStore["CurrentServer"], "NEW ? ValidCurrentServer");
 
 		bool windowClosed = true;
 
-		while (windowClosed) { // loop because step we move on to could also be outside window...
+		while (windowClosed) {	// loop because step we move on to could also be outside window...
 
 			if (!SingleScheduling(ctx) || !PeriodicalScheduling(ctx)) {
 				// go to next config step....
@@ -755,7 +757,7 @@ bool HttpFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucce
 				tmpStore.Remove("Token");
 				tmpStore.Remove("ClosePeriodically");
 				tmpStore.Remove("CloseSingleTime");
-				tmpStore.Remove("Label"); // actually ignored at run time...
+				tmpStore.Remove("Label");  // actually ignored at run time...
 				tmpStore["CurrentServer"] = tmpStore["LastValidCurrentServer"];
 
 				// call superclassto move to jumped step
@@ -766,7 +768,7 @@ bool HttpFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucce
 				windowClosed = false;
 			}
 		}
-		TraceAny( tmpStore["CurrentServer"], "NEW - 2- ? ValidCurrentServer" );
+		TraceAny(tmpStore["CurrentServer"], "NEW - 2- ? ValidCurrentServer");
 	}
 	//__________________________________________________________________________________________________________________________
 
@@ -797,8 +799,8 @@ bool HttpFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucce
 	// remove slots which are  only valid one time inside CurrentServer
 	tmpStore["CurrentServer"].Remove("formContents");
 
-	TraceAny(tmpStore, "<----tmp store is" );
-	if (ctx.Lookup("IsAbsPath", 0L) && !fDoRelocate) {
+	TraceAny(tmpStore, "<----tmp store is");
+	if ((ctx.Lookup("IsAbsPath", 0L) != 0) && !fDoRelocate) {
 		ROAnything rendererSpec;
 		ctx.Lookup("AbsPath", rendererSpec);
 		String absPath = Renderer::RenderToString(ctx, rendererSpec);
@@ -808,7 +810,7 @@ bool HttpFlowController::PrepareRequest(Context &ctx, bool &bPrepareRequestSucce
 		Trace("absPath: " << absPath);
 		coast::urlutils::HandleURI2(tmpStore["CurrentServer"], absPath, tmpStore["PreviousPage"]["BASE"].AsCharPtr(""));
 	} else {
-		bPrepareRequestSucceeded = DoProcessLinksFormsAndFrames(ctx); // no relocations expected here
+		bPrepareRequestSucceeded = DoProcessLinksFormsAndFrames(ctx);  // no relocations expected here
 	}
 	if (tmpStore["CurrentServer"]["UseSSL"].AsLong(0) == 1L) {
 		PrepareConnector(ctx);
@@ -829,7 +831,7 @@ void HttpFlowController::SetupSSLCtx(Anything &sslModuleCfg, Context &ctx) {
 	sslModuleCfg["KeyFileClient"] = "";
 	sslModuleCfg["CertFileClient"] = "";
 	sslModuleCfg["NoCertAndPrivateKey"] = 1L;
-	sslModuleCfg["SSLClientSessionTimeout"] = 86400L;	// one day
+	sslModuleCfg["SSLClientSessionTimeout"] = 86400L;  // one day
 	sslModuleCfg["ClientDHLength"] = 1024L;
 	sslModuleCfg["ClientRSALength"] = 2048L;
 	sslModuleCfg["ClientCipherList"] = "HIGH:-SSLv2:+SSLv3";
@@ -865,15 +867,16 @@ bool HttpFlowController::AnalyseReply(Context &ctx) {
 
 	// check if the request was OK
 	long respCode = tmpStore["Mapper"]["HTTPResponse"][coast::http::constants::protocolCodeSlotname].AsLong(0);
-	String respMsg = tmpStore["Mapper"]["HTTPResponse"][coast::http::constants::protocolMsgSlotname].AsString("no message, possible timeout");
+	String respMsg = tmpStore["Mapper"]["HTTPResponse"][coast::http::constants::protocolMsgSlotname].AsString(
+		"no message, possible timeout");
 
 	if ((respCode != 200L) && (respCode != 302L)) {
 		String eMsg = "";
 		eMsg << "HTTP Response Code from Server is not 200 or 302 but <" << respCode << ">; Message = " << respMsg;
 
-		if (tmpStore["Mapper"].IsDefined("RequestMade")) { // only happens in debug version
+		if (tmpStore["Mapper"].IsDefined("RequestMade")) {	// only happens in debug version
 			eMsg << " In reply to request " << tmpStore["Mapper"]["RequestMade"].AsString("")
-					<< " NOTE:30x relocation requests currently not handled";
+				 << " NOTE:30x relocation requests currently not handled";
 		}
 		HandleTheError(eMsg, tmpStore);
 		boRet = false;
@@ -882,23 +885,23 @@ bool HttpFlowController::AnalyseReply(Context &ctx) {
 
 	fDoRelocate = DoRelocate(ctx);
 	if (boRet && !fDoRelocate) {
-		bool boJump;
+		bool boJump = false;
 		boRet = DoProcessToken(ctx, boJump);
 		if (boJump) {
-			; // possible config step jump as result of token test...
+			;  // possible config step jump as result of token test...
 			tmpStore.Remove("Link");
 			tmpStore.Remove("Frame");
 			tmpStore.Remove("Form");
 			tmpStore.Remove("Token");
 			tmpStore.Remove("ClosePeriodically");
 			tmpStore.Remove("CloseSingleTime");
-			tmpStore.Remove("Label"); // actually ignored at run time...
+			tmpStore.Remove("Label");  // actually ignored at run time...
 			tmpStore["CurrentServer"] = tmpStore["LastValidCurrentServer"];
 			tmpStore.Remove("IsAbsPath");
 		}
 	}
-	Trace( "DoRelocate is: " << fDoRelocate);
-	Trace( "AnalyseReply will return <" << boRet << "> - False is:" << false );
+	Trace("DoRelocate is: " << fDoRelocate);
+	Trace("AnalyseReply will return <" << boRet << "> - False is:" << false);
 
 	tmpStore["CurrentServer"].Remove("MsgBody");
 	tmpStore["CurrentServer"].Remove("Enctype");
@@ -932,27 +935,29 @@ bool HttpFlowController::DoMetaRefreshRelocate(Context &ctx) {
 
 		// input is
 		//    /meta {
-		//		  /refresh "0; URL=https://localhost:2023/fda?X=b64:YnMwOoNvmvJfRaTWrifcPagQcuY95OI9FlOA-$bIM77lo2Bpi2FI9b6u13T51CZSH$-kqY6n$uS8m4KDGd4yAcjrISlx8gNV8o7HyaK5$RoW8E2vUGcXdfKRkwZmyxQ5WPPBknlPONT5MQim"
+		//		  /refresh "0;
+		// URL=https://localhost:2023/fda?X=b64:YnMwOoNvmvJfRaTWrifcPagQcuY95OI9FlOA-$bIM77lo2Bpi2FI9b6u13T51CZSH$-kqY6n$uS8m4KDGd4yAcjrISlx8gNV8o7HyaK5$RoW8E2vUGcXdfKRkwZmyxQ5WPPBknlPONT5MQim"
 		//	afterwards }
 		//	/Server is IP of "localhost"
 		//	/Port is 2023
 		//	/"link34" {
-		//		/href "fda?X=b64:YnMwOoNvmvJfRaTWrifcPagQcuY95OI9FlOA-$bIM77lo2Bpi2FI9b6u13T51CZSH$-kqY6n$uS8m4KDGd4yAcjrISlx8gNV8o7HyaK5$RoW8E2vUGcXdfKRkwZmyxQ5WPPBknlPONT5MQim"
+		//		/href
+		//"fda?X=b64:YnMwOoNvmvJfRaTWrifcPagQcuY95OI9FlOA-$bIM77lo2Bpi2FI9b6u13T51CZSH$-kqY6n$uS8m4KDGd4yAcjrISlx8gNV8o7HyaK5$RoW8E2vUGcXdfKRkwZmyxQ5WPPBknlPONT5MQim"
 		//	  }
-		Trace( "contents are" << myString1 );
+		Trace("contents are" << myString1);
 		long Pos = myString1.Contains("URL");
-		Trace( "pos url is->" << Pos );
+		Trace("pos url is->" << Pos);
 
 		if (Pos > 0) {
 			//<META HTTP-EQUIV="Refresh" CONTENT="10; URL=sons/petitetoune.wav">
 			// but Marcel/FT also deliver
 			//<META HTTP-EQUIV="Refresh" CONTENT="10; URL='sons/petitetoune.wav'">
 
-			myString2 = myString1.SubString(Pos + 4, myString1.Length() - Pos - 4); // 4 = "URL="
-			Trace( "String 1 contents are" << myString2 );
+			myString2 = myString1.SubString(Pos + 4, myString1.Length() - Pos - 4);	 // 4 = "URL="
+			Trace("String 1 contents are" << myString2);
 
 			coast::urlutils::HandleURI2(tmpStore["CurrentServer"], myString2);
-			TraceAny( tmpStore["CurrentServer"], "<-Result of HandledURI" );
+			TraceAny(tmpStore["CurrentServer"], "<-Result of HandledURI");
 			return true;
 		}
 	}
@@ -967,8 +972,8 @@ bool HttpFlowController::DoLocationRelocate(Context &ctx) {
 
 	// HTTP Response code must be 302
 	// Location header contains the whole refresh path
-	if ((tmpStore["Mapper"]["HTTPResponse"][coast::http::constants::protocolCodeSlotname].AsLong(0L) == 302L) && (tmpStore.LookupPath(refresh,
-			"Mapper.HTTPHeader.location"))) {
+	if ((tmpStore["Mapper"]["HTTPResponse"][coast::http::constants::protocolCodeSlotname].AsLong(0L) == 302L) &&
+		(tmpStore.LookupPath(refresh, "Mapper.HTTPHeader.location"))) {
 		{
 			String anyRes = "";
 			OStringStream os(&anyRes);
@@ -979,7 +984,7 @@ bool HttpFlowController::DoLocationRelocate(Context &ctx) {
 		Trace("Location header is: " << refreshURL);
 		if (refreshURL.Length() > 0) {
 			coast::urlutils::HandleURI2(tmpStore["CurrentServer"], refreshURL);
-			TraceAny( tmpStore["CurrentServer"], "<-Result of HandledURI" );
+			TraceAny(tmpStore["CurrentServer"], "<-Result of HandledURI");
 			return true;
 		}
 	}
@@ -991,16 +996,16 @@ bool HttpFlowController::DoLocationRelocate(Context &ctx) {
 bool HttpFlowController::GetFormOrLinkInfo(const String &aTag, const String &aSlotname, Context &ctx, Anything &aResult) {
 	// called for example:
 	// GetFormOrLinkInfo( "Form", "Buttons", ctx, formButtonContents )
-	// looks for "Form" in input CONFIG, then checks to see whether one at least of "slotname" or "slotnr" are defined in this config.
-	// It the finds this stipulated Form in the incoming HTML page.  This is done by physically building up are reference to the expected element
-	// i.e. building the string "PreviousPage.Forms.<form name>" or "PreviousPage.Forms.<form number>" and once this object has been found
-	// then specified parameter aSlotName is searched for and returned.
-	// Thus the above call would extract the Buttons Anything from the Form[number specified in config] revealing which buttons the incoming form has.
-	// This anything is delivered as aResult.
+	// looks for "Form" in input CONFIG, then checks to see whether one at least of "slotname" or "slotnr" are defined in this
+	// config. It the finds this stipulated Form in the incoming HTML page.  This is done by physically building up are
+	// reference to the expected element i.e. building the string "PreviousPage.Forms.<form name>" or "PreviousPage.Forms.<form
+	// number>" and once this object has been found then specified parameter aSlotName is searched for and returned. Thus the
+	// above call would extract the Buttons Anything from the Form[number specified in config] revealing which buttons the
+	// incoming form has. This anything is delivered as aResult.
 	StartTrace(HttpFlowController.GetFormOrLinkInfo);
-	Trace( "Tag-> " << aTag << " Slotname->" << aSlotname );
+	Trace("Tag-> " << aTag << " Slotname->" << aSlotname);
 	// brings together current form from server and config of current step or link of course
-	bool tagFound = true; // initialized to true because only errors should return false, nonfound slot is signaled by Null-Any
+	bool tagFound = true;  // initialized to true because only errors should return false, nonfound slot is signaled by Null-Any
 	Anything configForLinkFrameOrFormEtc;
 	String SlotNrStr;
 	String SlotNameStr;
@@ -1012,7 +1017,7 @@ bool HttpFlowController::GetFormOrLinkInfo(const String &aTag, const String &aSl
 		// Form, link or frame found, a Post has the form:
 		// name=Gisle&email=gisle%40aas.no&gender=m&born=1964&trust=3%25
 		// Post as multipart form data later!?
-		TraceAny( configForLinkFrameOrFormEtc, "<-current Link/Form/Frame config is" );
+		TraceAny(configForLinkFrameOrFormEtc, "<-current Link/Form/Frame config is");
 
 		// from Page, array known as Links or Forms etc.
 		SlotNrStr = "PreviousPage.";
@@ -1026,14 +1031,14 @@ bool HttpFlowController::GetFormOrLinkInfo(const String &aTag, const String &aSl
 
 		// in incoming HTML which form/link/frame are we dealing with? find info in config...
 		if (configForLinkFrameOrFormEtc.IsDefined("slotName")) {
-			SlotNameStr << configForLinkFrameOrFormEtc["slotName"].AsString(""); //e.g."PreviousPage.LinksNameMap.FinXS"
+			SlotNameStr << configForLinkFrameOrFormEtc["slotName"].AsString("");  // e.g."PreviousPage.LinksNameMap.FinXS"
 
 			Trace("Looking up: " << SlotNameStr);
 			Trace("Lookup was successful: " << (myTmpStore.LookupPath(outputLookupResult, SlotNameStr) ? "yes" : "no"));
 
-			if (myTmpStore.LookupPath(outputLookupResult, SlotNameStr)) { // extract slot number from NameMap
-				ActualSlotNrStr = outputLookupResult.AsString(""); // should be single slot anything (?)
-				Trace( "SLOT NUMBER " << ActualSlotNrStr << " found for " << SlotNameStr );
+			if (myTmpStore.LookupPath(outputLookupResult, SlotNameStr)) {  // extract slot number from NameMap
+				ActualSlotNrStr = outputLookupResult.AsString("");		   // should be single slot anything (?)
+				Trace("SLOT NUMBER " << ActualSlotNrStr << " found for " << SlotNameStr);
 				legal = true;
 			} else {
 				String eMsg = "";
@@ -1043,11 +1048,12 @@ bool HttpFlowController::GetFormOrLinkInfo(const String &aTag, const String &aSl
 			}
 		}
 
-		if (ActualSlotNrStr != "") {
-			SlotNrStr << ActualSlotNrStr; //e.g. "PreviousPage.Links.0" -
+		if (!ActualSlotNrStr.empty()) {
+			SlotNrStr << ActualSlotNrStr;  // e.g. "PreviousPage.Links.0" -
 		} else {
 			if (configForLinkFrameOrFormEtc.IsDefined("slotNr")) {
-				SlotNrStr << configForLinkFrameOrFormEtc["slotNr"].AsString("0"); //e.g. "PreviousPage.Links.0" - Note 0 is default
+				SlotNrStr << configForLinkFrameOrFormEtc["slotNr"].AsString(
+					"0");  // e.g. "PreviousPage.Links.0" - Note 0 is default
 				legal = true;
 			}
 		}
@@ -1058,16 +1064,16 @@ bool HttpFlowController::GetFormOrLinkInfo(const String &aTag, const String &aSl
 			return false;
 		}
 
-		Trace( "Looking for named/numbered MATCHING form/link/frame number " << SlotNrStr );
+		Trace("Looking for named/numbered MATCHING form/link/frame number " << SlotNrStr);
 		if (myTmpStore.LookupPath(outputLookupResult, SlotNrStr)) {
-			TraceAny( outputLookupResult, "<- form/link found for formNr" );
+			TraceAny(outputLookupResult, "<- form/link found for formNr");
 
-			aResult = outputLookupResult[aSlotname]; // .AsString(""); // Method
+			aResult = outputLookupResult[aSlotname];  // .AsString(""); // Method
 			tagFound = true;
 		} else {
 			String eMsg = "";
 			eMsg << "Link/Form/Frame with name " << SlotNameStr << " or with number " << SlotNrStr
-					<< " not found in incoming forms/links/frames";
+				 << " not found in incoming forms/links/frames";
 			HandleTheError(eMsg, myTmpStore);
 			return false;
 		}
@@ -1075,7 +1081,8 @@ bool HttpFlowController::GetFormOrLinkInfo(const String &aTag, const String &aSl
 	return tagFound;
 }
 
-bool HttpFlowController::GenericScheduling(Anything &tmpStore, Anything &scheduling, String &currentTimeDate, funcPtr conversionFunction) {
+bool HttpFlowController::GenericScheduling(Anything &tmpStore, Anything &scheduling, String &currentTimeDate,
+										   funcPtr conversionFunction) {
 	// interpret schedule statement...
 	StartTrace(HttpFlowController.GenericScheduling);
 	bool res = true;
@@ -1088,11 +1095,11 @@ bool HttpFlowController::GenericScheduling(Anything &tmpStore, Anything &schedul
 	// process incoming config step.
 	for (long i = 0; i < scheduling.GetSize(); i++) {
 		jumpName = "";
-		jumpNr = -1L; // init
+		jumpNr = -1L;  // init
 		mustBePresent = 0;
 
 		Anything schedulingDef = scheduling[i];
-		TraceAny( schedulingDef, "specific token def is" );
+		TraceAny(schedulingDef, "specific token def is");
 
 		for (long j = 0; j < schedulingDef.GetSize(); j++) {
 			String theString = schedulingDef.SlotName(j);
@@ -1100,11 +1107,11 @@ bool HttpFlowController::GenericScheduling(Anything &tmpStore, Anything &schedul
 
 			if (theString == "FROM") {
 				mustBePresent += 1;
-				tmpFrom = schedulingDef[j].AsString(); // string to scan for in page
+				tmpFrom = schedulingDef[j].AsString();	// string to scan for in page
 				tmpFrom.ToUpper();
 			} else if (theString == "TILL") {
 				mustBePresent += 2;
-				tmpTill = schedulingDef[j].AsString(); // string to scan for in page
+				tmpTill = schedulingDef[j].AsString();	// string to scan for in page
 				tmpTill.ToUpper();
 			} else if (theString == "JUMP") {
 				jumpName = schedulingDef[j].AsString();
@@ -1129,12 +1136,12 @@ bool HttpFlowController::GenericScheduling(Anything &tmpStore, Anything &schedul
 		}
 
 		SystemLog::WriteToStderr(String("From:") << from << " Till:" << till << " currentTimeDate:" << currentTimeDate << "\n");
-		SystemLog::WriteToStderr(
-				String("currentTimeDate.Compare(from):") << (long) currentTimeDate.Compare(from) << "currentTimeDate.Compare(till):"
-						<< (long) currentTimeDate.Compare(till) << "\n");
+		SystemLog::WriteToStderr(String("currentTimeDate.Compare(from):")
+								 << (long)currentTimeDate.Compare(from)
+								 << "currentTimeDate.Compare(till):" << (long)currentTimeDate.Compare(till) << "\n");
 
-		if ((from.Length() > 0) && (till.Length() > 0) && (currentTimeDate.Length() > 0) && (currentTimeDate.Compare(from) >= 0)
-				&& (currentTimeDate.Compare(till) <= 0)) {
+		if ((from.Length() > 0) && (till.Length() > 0) && (currentTimeDate.Length() > 0) &&
+			(currentTimeDate.Compare(from) >= 0) && (currentTimeDate.Compare(till) <= 0)) {
 			// Signal a period where no test is required
 			CheckDoJump(jumpNr, tmpStore);
 			return false;
@@ -1184,7 +1191,7 @@ bool HttpFlowController::PeriodicalScheduling(Context &ctx) {
 long HttpFlowController::ResolveJumpNameToNr(String &jumpName, Anything &tmpStore) {
 	long jumpNr = -1;
 
-	if (jumpName != "") { // jmp specified
+	if (!jumpName.empty()) {  // jmp specified
 		jumpNr = FindJumpNr(jumpName);
 
 		if (jumpNr < 0) {
@@ -1197,19 +1204,18 @@ long HttpFlowController::ResolveJumpNameToNr(String &jumpName, Anything &tmpStor
 }
 
 void HttpFlowController::CheckDoJump(long jumpNr, Anything &tmpStore) {
-
 	if (jumpNr >= 0) {
 		long nextStep = tmpStore["FlowState"]["RequestNr"].AsLong(0);
 
-		if ((nextStep - 1 != jumpNr) // jump to self not allowed
-				&& (nextStep != jumpNr)) { // jump to next done anyway
-			tmpStore["FlowState"]["RequestNr"] = jumpNr; // effect the Jump
+		if ((nextStep - 1 != jumpNr)					  // jump to self not allowed
+			&& (nextStep != jumpNr)) {					  // jump to next done anyway
+			tmpStore["FlowState"]["RequestNr"] = jumpNr;  // effect the Jump
 		}
 	}
 }
 
 void HttpFlowController::GenerateMultipartContent(String &fieldName, ROAnything fieldConfig, ROAnything boundary,
-		String &multipartContents, Context &ctx) {
+												  String &multipartContents, Context &ctx) {
 	StartTrace(HttpFlowController.GenerateMultipartContent);
 
 	//
@@ -1235,30 +1241,29 @@ void HttpFlowController::GenerateMultipartContent(String &fieldName, ROAnything 
 
 	// Content-Type default "text/plain" (other types can be "config'ed" later):
 	{
-		subHeaderString << "Content-Type: text/plain" << "\r\n\r\n";
+		subHeaderString << "Content-Type: text/plain"
+						<< "\r\n\r\n";
 	}
 
 	// Content-Body:
 	if (fieldConfig.IsDefined(slotForFile)) {
 		// Get File content with given Filename for this body:
-		std::iostream *pS = coast::system::OpenIStream(fieldFilename, "", std::ios::in, true); // path will be resolved..
-		if (pS) {
-			int c;
+		std::iostream *pS = coast::system::OpenIStream(fieldFilename, "", std::ios::in, true);	// path will be resolved..
+		if (pS != 0) {
+			int c = 0;
 			while ((c = pS->get()) != EOF) {
-				fieldPartContent.Append((char) c);
+				fieldPartContent.Append((char)c);
 			}
 			delete pS;
 		} else {
-			Trace ( "Could'nt open file with :" << fieldFilename );
+			Trace("Could'nt open file with :" << fieldFilename);
 		}
 	} else {
 		Renderer::RenderOnString(fieldPartContent, ctx, fieldConfig);
 	}
 
 	// Ending (for this part/field):
-	{
-		fieldContent << subHeaderString << fieldPartContent << "\r\n\r\n";
-	}
+	{ fieldContent << subHeaderString << fieldPartContent << "\r\n\r\n"; }
 
 	multipartContents << fieldContent;
 }
@@ -1277,7 +1282,7 @@ void HttpFlowController::DoCleanupAfterStep(Context &ctx, ROAnything roaStepConf
 		long sz = roaStepConfig.GetSize();
 		for (long i = 0; i < sz; i++) {
 			String slotName = roaStepConfig.SlotName(i);
-			if (slotName && slotName != "CurrentServer") {
+			if ((slotName != 0) && slotName != "CurrentServer") {
 				Trace("Slotname to remove : " << slotName);
 				tmpStore.Remove(slotName);
 			}

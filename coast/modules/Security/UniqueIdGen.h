@@ -18,7 +18,7 @@ namespace coast {
 		 Returns a String containing a unique id.
 		 */
 		String generateUniqueId(const String &additionalToken = "NoAdditionaTokenWasSet");
-	}
-}
+	}  // namespace security
+}  // namespace coast
 
 #endif

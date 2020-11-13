@@ -12,11 +12,10 @@
 #include "Socket.h"
 
 //--- EBCDICSocket ---
-//!Socket to an EBCDIC speeking peer
+//! Socket to an EBCDIC speeking peer
 //! Everything you read/write throu the stream of this Socket will be
 //! converted from/to EBCDIC, what you do to the fd will *NOT* be converted!
-class EBCDICSocket : public Socket
-{
+class EBCDICSocket : public Socket {
 	// opens a client side socket connection
 	// and closes it in destructor
 public:
@@ -24,11 +23,10 @@ public:
 	// use socket descriptor
 
 protected:
-
 	virtual std::iostream *DoMakeStream();
 
 private:
-	EBCDICSocket(); // must not use these
+	EBCDICSocket();	 // must not use these
 	EBCDICSocket(const EBCDICSocket &);
 	EBCDICSocket &operator=(const EBCDICSocket &);
 };

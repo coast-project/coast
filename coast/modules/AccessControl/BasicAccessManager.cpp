@@ -7,6 +7,7 @@
  */
 
 #include "BasicAccessManager.h"
+
 #include "AccessController.h"
 #include "OTPList.h"
 #include "Registry.h"
@@ -16,13 +17,12 @@
 
 RegisterAccessManager(BasicAccessManager);
 
-bool BasicAccessManager::Validate(String &uid)
-{
+bool BasicAccessManager::Validate(String &uid) {
 	StartTrace(BasicAccessManager.Validate);
 
 	UserDataAccessController *udac = GetUdac();
 
-	if (udac && udac->Exists(uid)) {
+	if ((udac != 0) && udac->Exists(uid)) {
 		Trace("User '" << uid << "' exists.");
 		return true;
 	}
@@ -30,14 +30,12 @@ bool BasicAccessManager::Validate(String &uid)
 	return false;
 }
 
-bool BasicAccessManager::Validate(Context &ctx, String uid)
-{
+bool BasicAccessManager::Validate(Context &ctx, String uid) {
 	StartTrace(BasicAccessManager.Validate);
 	return Validate(uid);
 }
 
-bool BasicAccessManager::AuthenticateWeak(String uid, String passwd, String &newRole)
-{
+bool BasicAccessManager::AuthenticateWeak(String uid, String passwd, String &newRole) {
 	StartTrace(BasicAccessManager.AuthenticateWeak);
 
 	UserDataAccessController *udac = GetUdac();
@@ -47,7 +45,7 @@ bool BasicAccessManager::AuthenticateWeak(String uid, String passwd, String &new
 	Trace("uid = " << uid);
 	Trace("passwd = " << passwd);
 
-	if ( Validate(uid) && udac && (udac->GetPassword(uid)).IsEqual(passwd) ) {
+	if (Validate(uid) && (udac != 0) && (udac->GetPassword(uid)).IsEqual(passwd)) {
 		newRole = GetAuthSuccessRole();
 		Trace("weak authentication SUCCEEDED. New role = " << newRole);
 		return true;
@@ -57,14 +55,12 @@ bool BasicAccessManager::AuthenticateWeak(String uid, String passwd, String &new
 	return false;
 }
 
-bool BasicAccessManager::AuthenticateWeak(Context &ctx, String uid, String passwd, String &newRole)
-{
+bool BasicAccessManager::AuthenticateWeak(Context &ctx, String uid, String passwd, String &newRole) {
 	StartTrace(BasicAccessManager.AuthenticateWeak);
 	return AuthenticateWeak(uid, passwd, newRole);
 }
 
-bool BasicAccessManager::AuthenticateStrong(String uid, String passwd, String otp, long window, String &newRole)
-{
+bool BasicAccessManager::AuthenticateStrong(String uid, String passwd, String otp, long window, String &newRole) {
 	StartTrace(BasicAccessManager.AuthenticateStrong);
 
 	// perform weak authentication first
@@ -83,8 +79,8 @@ bool BasicAccessManager::AuthenticateStrong(String uid, String passwd, String ot
 		TokenDataAccessController *tdac = GetTdac();
 		OTPList *verifier = GetOTPList();
 
-		if ( udac && tdac && verifier ) {
-			if ( verifier->Verify(udac->GetTokenId(uid), otp, window, tdac) ) {
+		if ((udac != 0) && (tdac != 0) && (verifier != 0)) {
+			if (verifier->Verify(udac->GetTokenId(uid), otp, window, tdac)) {
 				newRole = GetAuthSuccessRole();
 				Trace("strong authentication SUCCEEDED. new role = " << newRole);
 				return true;
@@ -95,28 +91,26 @@ bool BasicAccessManager::AuthenticateStrong(String uid, String passwd, String ot
 	return false;
 }
 
-bool BasicAccessManager::AuthenticateStrong(Context &ctx, String uid, String passwd, String otp, long window, String &newRole)
-{
+bool BasicAccessManager::AuthenticateStrong(Context &ctx, String uid, String passwd, String otp, long window, String &newRole) {
 	StartTrace(BasicAccessManager.AuthenticateStrong);
 	return AuthenticateStrong(uid, passwd, otp, window, newRole);
 }
 
-bool BasicAccessManager::ChangePassword(String uid, String newpwd, String oldpwd)
-{
+bool BasicAccessManager::ChangePassword(String uid, String newpwd, String oldpwd) {
 	StartTrace(BasicAccessManager.ChangePassword);
 
 	UserDataAccessController *udac = GetUdac();
-	if (udac) {
+	if (udac != 0) {
 		Trace("old passwd = " << oldpwd);
 		Trace("new passwd = " << newpwd);
 		Trace("old passwd from db = " << udac->GetPassword(uid));
 
-		if ( !ChangePwdAllowed(uid) ) {
+		if (!ChangePwdAllowed(uid)) {
 			Trace("ChangePassword FAILED. User '" << uid << "' has no right.");
 			return false;
 		}
 		// old password is required (must be correct)
-		if ( !(udac->GetPassword(uid)).IsEqual(oldpwd) ) {
+		if (!(udac->GetPassword(uid)).IsEqual(oldpwd)) {
 			Trace("ChangePassword FAILED. Old password is wrong.");
 			return false;
 		}
@@ -125,61 +119,55 @@ bool BasicAccessManager::ChangePassword(String uid, String newpwd, String oldpwd
 	return false;
 }
 
-bool BasicAccessManager::ChangePassword(Context &ctx, String uid, String newpwd, String oldpwd)
-{
+bool BasicAccessManager::ChangePassword(Context &ctx, String uid, String newpwd, String oldpwd) {
 	StartTrace(BasicAccessManager.ChangePassword);
 	return ChangePassword(uid, newpwd, oldpwd);
 }
 
-bool BasicAccessManager::ResetPassword(String uid)
-{
+bool BasicAccessManager::ResetPassword(String uid) {
 	StartTrace(BasicAccessManager.ResetPassword);
 
-	if ( !ResetPwdAllowed(uid) ) {
+	if (!ResetPwdAllowed(uid)) {
 		Trace("ResetPassword FAILED. User '" << uid << "' has no right.");
 		return false;
 	}
 
 	UserDataAccessController *udac = GetUdac();
-	if (udac) {
+	if (udac != 0) {
 		return udac->SetPassword(uid, uid);
 	}
 	return false;
 }
 
-bool BasicAccessManager::ResetPassword(Context &ctx, String uid)
-{
+bool BasicAccessManager::ResetPassword(Context &ctx, String uid) {
 	StartTrace(BasicAccessManager.ResetPassword);
 	return ResetPassword(uid);
 }
 
-bool BasicAccessManager::IsAllowed(String who, String right)
-{
+bool BasicAccessManager::IsAllowed(String who, String right) {
 	StartTrace(BasicAccessManager.IsAllowed);
 
 	Trace("who = " << who);
 	Trace("right = " << right);
 
 	Anything allowed;
-	if ( !GetAllowedEntitiesFor(who, allowed) ) {
+	if (!GetAllowedEntitiesFor(who, allowed)) {
 		return false;
 	}
 	return allowed.Contains(right);
 }
 
-bool BasicAccessManager::IsAllowed(Context &ctx, String who, String entity)
-{
+bool BasicAccessManager::IsAllowed(Context &ctx, String who, String entity) {
 	StartTrace(BasicAccessManager.IsAllowed);
 	return IsAllowed(who, entity);
 }
 
-bool BasicAccessManager::GetAllowedEntitiesFor(Anything who, Anything &allowed)
-{
+bool BasicAccessManager::GetAllowedEntitiesFor(Anything who, Anything &allowed) {
 	StartTrace(BasicAccessManager.GetAllowedEntitiesFor);
 
 	EntityDataAccessController *edac = GetEdac();
 	UserDataAccessController *udac = GetUdac();
-	if ( !(udac && edac) ) {
+	if (!((udac != 0) && (edac != 0))) {
 		return false;
 	}
 
@@ -193,7 +181,7 @@ bool BasicAccessManager::GetAllowedEntitiesFor(Anything who, Anything &allowed)
 	// is who an user?
 	if (udac->Exists(who.AsCharPtr())) {
 		Anything groups;
-		if ( !udac->GetGroups(who.AsCharPtr(), groups) ) {
+		if (!udac->GetGroups(who.AsCharPtr(), groups)) {
 			Trace("WARNING: No groups given for user '" << who.AsCharPtr() << "'");
 			allowed = Anything(Anything::ArrayMarker());
 		}
@@ -203,89 +191,80 @@ bool BasicAccessManager::GetAllowedEntitiesFor(Anything who, Anything &allowed)
 	return edac->GetAllowedEntitiesForGroup(who.AsCharPtr(), allowed);
 }
 
-bool BasicAccessManager::GetAllowedEntitiesFor(Context &ctx, Anything who, Anything &allowed)
-{
+bool BasicAccessManager::GetAllowedEntitiesFor(Context &ctx, Anything who, Anything &allowed) {
 	StartTrace(BasicAccessManager.GetAllowedEntitiesFor);
 	return GetAllowedEntitiesFor(who, allowed);
 }
 
 // ----------------------- protected helpers -----------------------------
-UserDataAccessController *BasicAccessManager::GetUdac()
-{
+UserDataAccessController *BasicAccessManager::GetUdac() {
 	StartTrace(BasicAccessManager.GetUdac);
 	const char *udacName = Lookup("UserDataAccessController", "");
 	UserDataAccessController *udac = UserDataAccessController::FindUserDataAccessController(udacName);
-	if ( !udac ) {
+	if (udac == 0) {
 		Trace("UserDataAccessController '" << udacName << "' not found. Specified correctly in AccessManager config?");
 	}
 	return udac;
 }
 
-EntityDataAccessController *BasicAccessManager::GetEdac()
-{
+EntityDataAccessController *BasicAccessManager::GetEdac() {
 	StartTrace(BasicAccessManager.GetEdac);
 	const char *edacName = Lookup("EntityDataAccessController", "");
 	EntityDataAccessController *edac = EntityDataAccessController::FindEntityDataAccessController(edacName);
-	if ( !edac ) {
+	if (edac == 0) {
 		Trace("EntityDataAccessController '" << edacName << "' not found. Specified correctly in AccessManager config?");
 	}
 	return edac;
 }
 
-TokenDataAccessController *BasicAccessManager::GetTdac()
-{
+TokenDataAccessController *BasicAccessManager::GetTdac() {
 	StartTrace(BasicAccessManager.GetTdac);
 	const char *tdacName = Lookup("TokenDataAccessController", "");
 	TokenDataAccessController *tdac = TokenDataAccessController::FindTokenDataAccessController(tdacName);
-	if ( !tdac ) {
+	if (tdac == 0) {
 		Trace("TokenDataAccessController '" << tdacName << "' not found. Specified correctly in AccessManager config?");
 	}
 	return tdac;
 }
 
-OTPList *BasicAccessManager::GetOTPList()
-{
+OTPList *BasicAccessManager::GetOTPList() {
 	StartTrace(BasicAccessManager.GetOTPList);
 	const char *otpListName = Lookup("OTPList", "");
 	OTPList *list = OTPList::FindOTPList(otpListName);
-	if ( !list ) {
+	if (list == 0) {
 		Trace("OTPList '" << otpListName << "' not found. Specified correctly in AccessManager config?");
 	}
 	return list;
 }
 
-String BasicAccessManager::GetAuthFailRole()
-{
+String BasicAccessManager::GetAuthFailRole() {
 	StartTrace(BasicAccessManager.GetAuthFailRole);
 	String authFailRole = Lookup("AuthFailRole", "nobody");
 	Trace("auth fail role = " << authFailRole);
 	return authFailRole;
 }
 
-String BasicAccessManager::GetAuthSuccessRole(String)
-{
+String BasicAccessManager::GetAuthSuccessRole(String) {
 	StartTrace(BasicAccessManager.GetAuthSuccessRole);
 	String authSuccRole = Lookup("AuthSuccessRole", "user");
 	Trace("auth success role = " << authSuccRole);
 	return authSuccRole;
 }
 
-bool BasicAccessManager::ChangePwdAllowed(String uid)
-{
+bool BasicAccessManager::ChangePwdAllowed(String uid) {
 	StartTrace(BasicAccessManager.ChangePwdAllowed);
 	ROAnything roaRight;
-	if ( Lookup("RightForPasswdChange", roaRight) ) {
-		return IsAllowed( uid, roaRight.AsCharPtr() );
+	if (Lookup("RightForPasswdChange", roaRight)) {
+		return IsAllowed(uid, roaRight.AsCharPtr());
 	}
 	return true;
 }
 
-bool BasicAccessManager::ResetPwdAllowed(String uid)
-{
+bool BasicAccessManager::ResetPwdAllowed(String uid) {
 	StartTrace(BasicAccessManager.ResetPwdAllowed);
 	ROAnything roaRight;
-	if ( Lookup("RightForPasswdReset", roaRight) ) {
-		return IsAllowed( uid, roaRight.AsCharPtr() );
+	if (Lookup("RightForPasswdReset", roaRight)) {
+		return IsAllowed(uid, roaRight.AsCharPtr());
 	}
 	return true;
 }

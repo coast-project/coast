@@ -9,16 +9,18 @@
 #ifndef _StringTestExtreme_h_
 #define _StringTestExtreme_h_
 
-#include "TestCase.h"
 #include "ITOString.h"
-class StringTestExtreme: public testframework::TestCase {
+#include "TestCase.h"
+
+#include <string>
+
+class StringTestExtreme : public testframework::TestCase {
 protected:
 	String extremelyLongString;
 	std::string trueString;
+
 public:
-	StringTestExtreme(TString tname) :
-		TestCaseType(tname) {
-	}
+	StringTestExtreme(TString tname) : TestCaseType(tname) {}
 	virtual void setUp();
 	static Test *suite();
 	void extremeLength();

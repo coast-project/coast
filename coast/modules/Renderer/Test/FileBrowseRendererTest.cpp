@@ -6,33 +6,29 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "Anything.h"
-#include "StringStream.h"
-#include "Context.h"
-#include "TestSuite.h"
-#include "FormRenderer.h"
 #include "FileBrowseRendererTest.h"
 
-FileBrowseRendererTest::FileBrowseRendererTest(TString tname) : TextFieldRendererTest(tname)
-{
+#include "Anything.h"
+#include "Context.h"
+#include "FormRenderer.h"
+#include "StringStream.h"
+#include "TestSuite.h"
 
-	if (fFieldRenderer) {
-		delete fFieldRenderer;    // base class already initialized this !
-	}
+FileBrowseRendererTest::FileBrowseRendererTest(TString tname) : TextFieldRendererTest(tname) {
+	delete fFieldRenderer;	// base class already initialized this !
+
 	fFieldRenderer = new (coast::storage::Global()) FileBrowseRenderer("FileBrowseRenderer");
 }
 
-FileBrowseRendererTest::~FileBrowseRendererTest()
-{
-	if (fFieldRenderer) {
-		delete fFieldRenderer;
-	}
+FileBrowseRendererTest::~FileBrowseRendererTest() {
+	delete fFieldRenderer;
+
 	fFieldRenderer = 0;
 };
 
-Test *FileBrowseRendererTest::suite ()
+Test *FileBrowseRendererTest::suite()
 /* what: return the whole suite of tests for FileBrowseRendererTest, add all top level
-		 test functions here.
+	 test functions here.
 */
 {
 	TestSuite *testSuite = new TestSuite;
@@ -41,10 +37,10 @@ Test *FileBrowseRendererTest::suite ()
 	return testSuite;
 }
 
-void FileBrowseRendererTest::TestCase0()
-{
+void FileBrowseRendererTest::TestCase0() {
 	fCurrentTestMethod = "TextField-TestCase0";
 	this->TestField0();
+	// clang-format off
 	assertCharPtrEqual( _QUOTE_(<INPUT TYPE="FILE" NAME="fld_the name of field" VALUE="the value of field" SIZE="50" MAXLENGTH="40" the options of field>), fReply.str() );
-
+	// clang-format on
 }

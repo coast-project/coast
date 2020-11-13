@@ -7,42 +7,37 @@
  */
 
 #include "HTMLTreeWriter.h"
-#include "Tracer.h"
+
 #include "SystemLog.h"
+#include "Tracer.h"
 
 //--- HTMLTreeWriter -----------------------------------------------------
-HTMLTreeWriter::HTMLTreeWriter()
-	: fContentText("")
-{
+HTMLTreeWriter::HTMLTreeWriter() : fContentText("") {
 	fStructure = Anything(Anything::ArrayMarker());
 	fStructPos["Tree"] = fStructure;
 	fStructPos["Tag"] = "";
 }
 
-void HTMLTreeWriter::Put(char c )
-{
+void HTMLTreeWriter::Put(char c) {
 	fContentText.Append(c);
 }
 
-void HTMLTreeWriter::Put(Unicode c )
-{
-	Put( (char) c );
+void HTMLTreeWriter::Put(Unicode c) {
+	Put((char)c);
 }
 
-void HTMLTreeWriter::addText()
-{
+void HTMLTreeWriter::addText() {
 	StartTrace(HTMLTreeWriter.addText);
 	fContentText = StripWhiteSpace(fContentText);
-	if (fContentText != "") {
+	if (!fContentText.empty()) {
 		Trace(fContentText);
 		fStructPos["Tree"]["Content"].Append(fContentText);
 		fContentText = "";
 	}
 }
 
-String HTMLTreeWriter::StripWhiteSpace(String &text)
-{
-	StartTrace1(HTMLTreeWriter.StripWhiteSpace, "Text in: >" << text << "<" );
+String HTMLTreeWriter::StripWhiteSpace(String &text) {
+	StartTrace1(HTMLTreeWriter.StripWhiteSpace, "Text in: >" << text << "<");
 
 	String result;
 	String whiteSpace = " \t\r\n";
@@ -50,7 +45,7 @@ String HTMLTreeWriter::StripWhiteSpace(String &text)
 	long textLen = text.Length();
 	long i = 0;
 
-	//skip leading whitespace
+	// skip leading whitespace
 	while (i < textLen && whiteSpace.StrChr(text[i]) >= 0) {
 		i++;
 	}
@@ -67,12 +62,11 @@ String HTMLTreeWriter::StripWhiteSpace(String &text)
 			result << " ";
 		}
 	}
-	Trace("Text out: >" << result << "<" );
+	Trace("Text out: >" << result << "<");
 	return result;
 }
 
-void HTMLTreeWriter::addAttrs(Anything &posToAdd)
-{
+void HTMLTreeWriter::addAttrs(Anything &posToAdd) {
 	StartTrace(HTMLTreeWriter.addAttrs);
 	if (!fAttrStore.IsNull()) {
 		TraceAny(fAttrStore, "Attributes");
@@ -81,17 +75,15 @@ void HTMLTreeWriter::addAttrs(Anything &posToAdd)
 	}
 }
 
-Anything HTMLTreeWriter::PublishResult()
-{
+Anything HTMLTreeWriter::PublishResult() {
 	Anything result;
 	result["Tree"] = fStructure;
 	return result;
 }
 
-void HTMLTreeWriter::NewTag(String &tagname)
-{
+void HTMLTreeWriter::NewTag(String &tagname) {
 	StartTrace1(HTMLTreeWriter.NewTag, "Tag: " << tagname);
-	if (tagname) {
+	if (tagname != 0) {
 		String thisLevelTagName;
 		GetThisLevelTagName(thisLevelTagName);
 
@@ -117,17 +109,15 @@ void HTMLTreeWriter::NewTag(String &tagname)
 	}
 }
 
-void HTMLTreeWriter::GetThisLevelTagName(String &thisLevelTagname)
-{
+void HTMLTreeWriter::GetThisLevelTagName(String &thisLevelTagname) {
 	StartTrace(HTMLTreeWriter.GetThisLevelTagName);
 	thisLevelTagname.Trim(0);
-	if ( fStructPos.IsDefined("Tag") ) {
+	if (fStructPos.IsDefined("Tag")) {
 		thisLevelTagname = fStructPos["Tag"].AsString("");
 	}
 }
 
-void HTMLTreeWriter::EndTag(String &tagname)
-{
+void HTMLTreeWriter::EndTag(String &tagname) {
 	StartTrace1(HTMLTreeWriter.EndTag, "Tag: " << tagname);
 
 	addText();
@@ -142,9 +132,9 @@ void HTMLTreeWriter::EndTag(String &tagname)
 	do {
 		oldLevel = levelOfFailure;
 		GetThisLevelTagName(thisLevelTagName);
-		Trace("This Level ->" << thisLevelTagName );
+		Trace("This Level ->" << thisLevelTagName);
 		levelOfFailure = thisLevelTagName;
-		if ( oldLevel.Length() ) {
+		if (oldLevel.Length() != 0) {
 			levelOfFailure << ".";
 		}
 		levelOfFailure << oldLevel;
@@ -154,13 +144,13 @@ void HTMLTreeWriter::EndTag(String &tagname)
 	} while (stackTop >= 0 && thisLevelTagName != tagname);
 	Trace("stackTop:" << stackTop);
 	fStructPos = anyStructPos;
-	if ( stackTop < 0 && thisLevelTagName != tagname ) {
+	if (stackTop < 0 && thisLevelTagName != tagname) {
 		SYSWARNING("endtag [" << tagname << "] without begin tag at [" << levelOfFailure << "]");
 	} else {
 		stackTop = fStack.GetSize() - 1;
 		do {
 			GetThisLevelTagName(thisLevelTagName);
-			Trace("This Level ->" << thisLevelTagName );
+			Trace("This Level ->" << thisLevelTagName);
 			fStructPos = fStack[stackTop];
 			fStack.Remove(stackTop);
 			stackTop = fStack.GetSize() - 1;
@@ -168,24 +158,21 @@ void HTMLTreeWriter::EndTag(String &tagname)
 	}
 }
 
-void HTMLTreeWriter::Argument(const String &key, const String &value)
-{
+void HTMLTreeWriter::Argument(const String &key, const String &value) {
 	StartTrace1(HTMLTreeWriter.Argument, "key: >" << key << "< Value: >" << value << "<");
-	if (key != "") {
+	if (!key.empty()) {
 		fAttrStore[key] = value;
 	}
 }
 
-Anything HTMLTreeWriter::GetParseTree()
-{
+Anything HTMLTreeWriter::GetParseTree() {
 	return fStructure;
 }
 
-void HTMLTreeWriter::Tag (int type, const char *tagname)
-{
-	if (tagname) {
+void HTMLTreeWriter::Tag(int type, const char *tagname) {
+	if (tagname != 0) {
 		String tn(tagname);
-		if (type == '/') { // End tag
+		if (type == '/') {	// End tag
 			EndTag(tn);
 		} else {
 			NewTag(tn);
@@ -193,8 +180,7 @@ void HTMLTreeWriter::Tag (int type, const char *tagname)
 	}
 }
 
-void HTMLTreeWriter::Comment(const String &comment)
-{
+void HTMLTreeWriter::Comment(const String &comment) {
 	StartTrace1(HTMLTreeWriter.Comment, "Comment: " << comment);
 
 	String thisLevelTagName;
@@ -204,4 +190,3 @@ void HTMLTreeWriter::Comment(const String &comment)
 		fContentText << "<!--" << comment << "-->";
 	}
 }
-

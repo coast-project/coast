@@ -6,24 +6,24 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "FloorRenderer.h"
+
 #include "Anything.h"
 #include "Tracer.h"
-#include "FloorRenderer.h"
 
 //---- FloorRenderer ---------------------------------------------------------------
 RegisterRenderer(FloorRenderer);
 
-FloorRenderer::FloorRenderer(const char *name) : ComparingRenderer(name) { }
+FloorRenderer::FloorRenderer(const char *name) : ComparingRenderer(name) {}
 
-FloorRenderer::~FloorRenderer() { }
+FloorRenderer::~FloorRenderer() {}
 
-long FloorRenderer::FindSlot(String &key, const ROAnything &list)
-{
+long FloorRenderer::FindSlot(String &key, const ROAnything &list) {
 	StartTrace(FloorRenderer.FindSlot);
 
 	long i = 0;
 	long sz = list.GetSize();
-	while ((i < sz) && (key.Compare(list.SlotName(i)) >= 0) ) {
+	while ((i < sz) && (key.Compare(list.SlotName(i)) >= 0)) {
 		++i;
 	}
 	return --i;

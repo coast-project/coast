@@ -9,9 +9,9 @@
 #ifndef ORACLEPOOLEDCONNECTION_H_
 #define ORACLEPOOLEDCONNECTION_H_
 
-#include "OracleEnvironment.h"
-#include "OracleConnection.h"
 #include "IFAObject.h"
+#include "OracleConnection.h"
+#include "OracleEnvironment.h"
 
 //! Connection adapter to handle Oracle specific connections using coast::oracle::ConnectionPool
 /*!
@@ -19,14 +19,14 @@
  * such an object is first requested for OraclePooledConnection::Open, it will allocate the needed resources
  * like an environment and a connection which can then be used to process oracle database requests.
  */
-class OraclePooledConnection: public IFAObject, public coast::AllocatorNewDelete
-{
+class OraclePooledConnection : public IFAObject, public coast::AllocatorNewDelete {
 	OracleEnvironmentPtr fEnvironment;
 	OracleConnectionPtr fConnection;
 	unsigned long fId, fPoolSize, fPoolBuckets;
 	String fServer, fUser;
 	OraclePooledConnection(const OraclePooledConnection &);
 	OraclePooledConnection &operator=(const OraclePooledConnection &);
+
 public:
 	/*! Default ctor
 	 */
@@ -42,20 +42,18 @@ public:
 	 * @param strPassword Password for the given user
 	 * @return true in case we could create necessary objects
 	 */
-	bool Open( String const &strServer, String const &strUsername, String const &strPassword );
+	bool Open(String const &strServer, String const &strUsername, String const &strPassword);
 
 	/*! Close the connection to the backend if it was opened before
 	 * @param bForce when set to true, close the current connection to the back end regardless if a statement is still
 	 * executing.
 	 * @return true in case it was successful
 	 */
-	bool Close( bool bForce = false );
+	bool Close(bool bForce = false);
 
 	/*! Check whether the underlying connection is open
 	 * @return true if we are connected to the back end */
-	bool isOpen() const {
-		return ( fConnection.get() && fConnection->isOpen() );
-	}
+	bool isOpen() const { return ((fConnection.get() != 0) && fConnection->isOpen()); }
 
 	/*! Check whether the underlying connection is open
 	 *
@@ -63,34 +61,24 @@ public:
 	 * @param strUsername Username to verify
 	 * @return true if we are connected to the back end matching server and user too */
 	bool isOpenFor(String const &strServer, String const &strUsername) {
-		return fServer.IsEqual( strServer ) && fUser.IsEqual( strUsername ) && isOpen();
+		return fServer.IsEqual(strServer) && fUser.IsEqual(strUsername) && isOpen();
 	}
 
 	/*! Access the associated environment object
 	 * @return  pointer to OracleEnvironment
 	 */
-	OracleEnvironment *getEnvironment() const {
-		return fEnvironment.get();
-	}
+	OracleEnvironment *getEnvironment() const { return fEnvironment.get(); }
 	/*! Access the associated connection object
 	 * @return  pointer to OracleConnection
 	 */
-	OracleConnection *getConnection() const {
-		return fConnection.get();
-	}
+	OracleConnection *getConnection() const { return fConnection.get(); }
 
-	const String &getServer() const {
-		return fServer;
-	}
-	const String &getUser() const {
-		return fUser;
-	}
+	const String &getServer() const { return fServer; }
+	const String &getUser() const { return fUser; }
 
 protected:
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return NULL;
-	}
+	IFAObject *Clone(Allocator *a) const { return NULL; }
 };
 
 #endif /* ORACLEPOOLEDCONNECTION_H_ */

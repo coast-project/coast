@@ -9,10 +9,10 @@
 #ifndef _TIMERS_H
 #define _TIMERS_H
 
-#include "WDModule.h"
-#include "DiffTimer.h"
 #include "Context.h"
+#include "DiffTimer.h"
 #include "Threads.h"
+#include "WDModule.h"
 #include "boost_or_std/memory.h"
 
 //! Module to enable/disable timing and logging of methods
@@ -20,20 +20,20 @@
 \par Configuration
 \code
 {
-	/DoTiming		long	optional, default 0 (false), timing of methods will be enabled if set to true (>0)
-	/DoLogging		long	optional, default 0 (false), logging of collected timing information will be anabled if set to true (>0)
+  /DoTiming		long	optional, default 0 (false), timing of methods will be enabled if set to true (>0)
+  /DoLogging		long	optional, default 0 (false), logging of collected timing information will be anabled if set to true (>0)
 }
 \endcode
 
-To use this functionality, you have to add, for example, the MethodTimer macro into the scope you want to gather timing information.
-The timing information will be stored in the TmpStore of the given context for later logging.
-To enable logging, the RequestTimeLogger macro has to be put before destroying the context.
-Currently, this call is already present in RequestProcessor to gather Request time informations by default.
+To use this functionality, you have to add, for example, the MethodTimer macro into the scope you want to gather timing
+information. The timing information will be stored in the TmpStore of the given context for later logging. To enable logging,
+the RequestTimeLogger macro has to be put before destroying the context. Currently, this call is already present in
+RequestProcessor to gather Request time informations by default.
 
-But unless you declare the TimeLoggingModule, and configure it to DoTiming and DoLogging nothing will be done - except allocation and destruction of the message String.
+But unless you declare the TimeLoggingModule, and configure it to DoTiming and DoLogging nothing will be done - except
+allocation and destruction of the message String.
 */
-class TimeLoggingModule : public WDModule
-{
+class TimeLoggingModule : public WDModule {
 public:
 	TimeLoggingModule(const char *name);
 
@@ -51,10 +51,10 @@ public:
 	static const char *fgpLogEntryBasePath;
 };
 
-//!helper class to log timing information
-class TimeLogger : public coast::AllocatorNewDelete
-{
+//! helper class to log timing information
+class TimeLogger : public coast::AllocatorNewDelete {
 	friend class TimeLoggerEntry;
+
 public:
 	enum eResolution {
 		eSeconds = DiffTimer::eSeconds,
@@ -70,76 +70,81 @@ public:
 		eMsg,
 		eNestingLevel,
 	};
-	//!starts the timer for request nr
+	//! starts the timer for request nr
 	TimeLogger(const char *pSection, const char *pKey, const String &msg, Context &ctx, TimeLogger::eResolution aResolution);
-	//!stops the timer and prints the results for this request and thread
+	//! stops the timer and prints the results for this request and thread
 	~TimeLogger();
 
 protected:
-	//!message string printed in the destructor
+	//! message string printed in the destructor
 	const String &fMsgStr;
-	//!key that defines the place where the info is stored
-	const char	*fpSection, *fpKey;
-	//!log into the context
+	//! key that defines the place where the info is stored
+	const char *fpSection, *fpKey;
+	//! log into the context
 	Context &fContext;
-	//!timer to measure elapsed time
+	//! timer to measure elapsed time
 	DiffTimer fDiffTimer;
 	//! store unit
 	const char *fpcUnit;
 
 private:
-	//!do not use
+	//! do not use
 	TimeLogger();
-	//!do not use
+	//! do not use
 	TimeLogger(const TimeLogger &);
-	//!do not use
+	//! do not use
 	TimeLogger &operator=(TimeLogger &);
 };
 
 //! Abstracting object to instantiate a TimeLogger object only if global TimeLoggingModule::fgDoTiming is enabled
 /*!
 This level of abstraction is needed to reduce the overhead of always instantiating a DiffTimer object as done in TimeLogger.
-It is also important to have because there is no flexible other way to have time logging enabled/disabled on demand without recompiling everytime.
+It is also important to have because there is no flexible other way to have time logging enabled/disabled on demand without
+recompiling everytime.
 */
 class TimeLoggerEntry {
 	typedef boost_or_std::auto_ptr<TimeLogger> TimeLoggerPtr;
 	TimeLoggerPtr fpLogger;
+
 public:
 	TimeLoggerEntry(const char *pSection, const char *pKey, String &msg, Context &ctx, TimeLogger::eResolution aResolution);
 };
 
-#define MethodTimer(key, msg, ctx)	\
-	MethodTimerName(key, msg, ctx, __LINE__)
+#define MethodTimer(key, msg, ctx) MethodTimerName(key, msg, ctx, __LINE__)
 
-#define MethodTimerName(key, msg, ctx, name)	\
-	String _NAME2_(gsMreggoLemiT,name);			\
-	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT,name)("Method", _QUOTE_(key), _NAME2_(gsMreggoLemiT,name) << msg, ctx, TimeLogger::eMilliseconds)
+#define MethodTimerName(key, msg, ctx, name)                                                                         \
+	String _NAME2_(gsMreggoLemiT, name);                                                                             \
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                                                 \
+	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT, name)("Method", _QUOTE_(key), _NAME2_(gsMreggoLemiT, name) << msg, ctx, \
+												   TimeLogger::eMilliseconds)
 
-#define MethodTimerUnit(key, msg, ctx, res)	\
-	MethodTimerUnitName(key, msg, ctx, res, __LINE__)
+#define MethodTimerUnit(key, msg, ctx, res) MethodTimerUnitName(key, msg, ctx, res, __LINE__)
 
-#define MethodTimerUnitName(key, msg, ctx, res, name)	\
-	String _NAME2_(gsMreggoLemiT,name);			\
-	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT,name)("Method", _QUOTE_(key), _NAME2_(gsMreggoLemiT,name) << msg, ctx, res)
+#define MethodTimerUnitName(key, msg, ctx, res, name) \
+	String _NAME2_(gsMreggoLemiT, name);              \
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */  \
+	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT, name)("Method", _QUOTE_(key), _NAME2_(gsMreggoLemiT, name) << msg, ctx, res)
 
-#define DAAccessTimer(key,msg,ctx)	\
-	DAAccessTimerName(key, msg, ctx, __LINE__)
+#define DAAccessTimer(key, msg, ctx) DAAccessTimerName(key, msg, ctx, __LINE__)
 
-#define DAAccessTimerName(key,msg,ctx,name)	\
-	String _NAME2_(gsMreggoLemiT,name);			\
-	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT,name)("DataAccess", _QUOTE_(key), _NAME2_(gsMreggoLemiT,name) << msg, ctx, TimeLogger::eMilliseconds)
+#define DAAccessTimerName(key, msg, ctx, name)                                                                           \
+	String _NAME2_(gsMreggoLemiT, name);                                                                                 \
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                                                     \
+	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT, name)("DataAccess", _QUOTE_(key), _NAME2_(gsMreggoLemiT, name) << msg, ctx, \
+												   TimeLogger::eMilliseconds)
 
-#define RequestTimer(key,msg,ctx)	\
-	RequestTimerName(key, msg, ctx, __LINE__)
+#define RequestTimer(key, msg, ctx) RequestTimerName(key, msg, ctx, __LINE__)
 
-#define RequestTimerName(key,msg,ctx,name)	\
-	String _NAME2_(gsMreggoLemiT,name);			\
-	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT,name)("Request", _QUOTE_(key), _NAME2_(gsMreggoLemiT,name) << msg, ctx, TimeLogger::eMilliseconds)
+#define RequestTimerName(key, msg, ctx, name)                                                                         \
+	String _NAME2_(gsMreggoLemiT, name);                                                                              \
+	/* NOLINTNEXTLINE(bugprone-macro-parentheses) */                                                                  \
+	TimeLoggerEntry _NAME2_(yrtnEreggoLemiT, name)("Request", _QUOTE_(key), _NAME2_(gsMreggoLemiT, name) << msg, ctx, \
+												   TimeLogger::eMilliseconds)
 
-#define RequestTimeLogger(ctx)						\
-	if ( TimeLoggingModule::fgDoLogging ) {			\
-		String snarTreggoLemiT("TimeLoggingAction");\
-		ctx.Process(snarTreggoLemiT);				\
+#define RequestTimeLogger(ctx)                       \
+	if (TimeLoggingModule::fgDoLogging) {            \
+		String snarTreggoLemiT("TimeLoggingAction"); \
+		(ctx).Process(snarTreggoLemiT);              \
 	}
 
 #endif

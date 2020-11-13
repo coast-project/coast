@@ -19,9 +19,9 @@ class AccessManager;
 \par Configuration
 \code
 {
-	/UserId			rendererspec	mandatory, uid of user to authenticate
-	/Password		rendererspec	mandatory, password of user to authenticate
-	/AccessManager	String			optional, name of AM to use (default AM if not given)
+  /UserId			rendererspec	mandatory, uid of user to authenticate
+  /Password		rendererspec	mandatory, password of user to authenticate
+  /AccessManager	String			optional, name of AM to use (default AM if not given)
 }
 \endcode
 
@@ -30,8 +30,7 @@ method with the given arguments. The transition token is changed to the
 role specified for successful/failing authentication (see config
 of AccessManager for those values).
 */
-class AuthenticateWeakAction : public Action
-{
+class AuthenticateWeakAction : public Action {
 public:
 	//--- constructors
 	/*! \param name defines the name of the action */
@@ -39,16 +38,15 @@ public:
 	~AuthenticateWeakAction() {}
 
 	/*! Returns the result of a AccessManager.AuthenticateWeak
-		method with arguments given in config.
-		\param transitionToken resulting role according to auth. success/failure
-		\param ctx the context the action runs within.
-		\param config the configuration of the action.
-		\return true if authentication was successful
+	  method with arguments given in config.
+	  \param transitionToken resulting role according to auth. success/failure
+	  \param ctx the context the action runs within.
+	  \param config the configuration of the action.
+	  \return true if authentication was successful
 	*/
 	virtual bool DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
 
 protected:
-
 	bool GetAccessManager(ROAnything config, Context &ctx, AccessManager *&am);
 };
 
@@ -58,11 +56,11 @@ protected:
 \par Configuration
 \code
 {
-	/UserId			rendererspec	mandatory, uid of user to authenticate
-	/Password		rendererspec	mandatory, password of user to authenticate
-	/Code			rendererspec	mandatory, code/otp to use for strong auth.
-	/Window			rendererspec	optional, size of accept window (default = 1)
-	/AccessManager	String			optional, name of AM to use (default AM if not given)
+  /UserId			rendererspec	mandatory, uid of user to authenticate
+  /Password		rendererspec	mandatory, password of user to authenticate
+  /Code			rendererspec	mandatory, code/otp to use for strong auth.
+  /Window			rendererspec	optional, size of accept window (default = 1)
+  /AccessManager	String			optional, name of AM to use (default AM if not given)
 }
 \endcode
 
@@ -71,8 +69,7 @@ method with the given arguments. The transition token is changed to the
 role specified for successful/failing authentication (see config
 of AccessManager for those values).
 */
-class AuthenticateStrongAction : public AuthenticateWeakAction
-{
+class AuthenticateStrongAction : public AuthenticateWeakAction {
 public:
 	//--- constructors
 	/*! \param name defines the name of the action */
@@ -80,11 +77,11 @@ public:
 	~AuthenticateStrongAction() {}
 
 	/*! Returns the result of a AccessManager.AuthenticateStrong
-		method with arguments given in config.
-		\param transitionToken resulting role according to auth. success/failure
-		\param ctx the context the action runs within.
-		\param config the configuration of the action.
-		\return true if authentication was successful
+	  method with arguments given in config.
+	  \param transitionToken resulting role according to auth. success/failure
+	  \param ctx the context the action runs within.
+	  \param config the configuration of the action.
+	  \return true if authentication was successful
 	*/
 	virtual bool DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
 };

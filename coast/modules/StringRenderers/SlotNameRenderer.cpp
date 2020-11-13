@@ -7,17 +7,19 @@
  */
 
 #include "SlotNameRenderer.h"
+
 #include "Tracer.h"
+
+#include <ostream>
 
 //---- SlotNameRenderer ---------------------------------------------------------------
 RegisterRenderer(SlotNameRenderer);
 
-SlotNameRenderer::SlotNameRenderer(const char *name) : Renderer(name) { }
+SlotNameRenderer::SlotNameRenderer(const char *name) : Renderer(name) {}
 
-SlotNameRenderer::~SlotNameRenderer() { }
+SlotNameRenderer::~SlotNameRenderer() {}
 
-void SlotNameRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void SlotNameRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(SlotNameRenderer.RenderAll);
 
 	TraceAny(config, "config");
@@ -25,7 +27,7 @@ void SlotNameRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnythi
 	String value, index;
 	ROAnything roaSlotConfig;
 
-	if ( config.LookupPath(roaSlotConfig, "PathName") ) {
+	if (config.LookupPath(roaSlotConfig, "PathName")) {
 		RenderOnString(value, c, roaSlotConfig);
 	} else {
 		Trace("Error in SlotNameRenderer::RenderAll, PathName not defined");
@@ -34,7 +36,7 @@ void SlotNameRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnythi
 	Trace("PathName: [" << value << "]");
 	ROAnything roAnyTemp = c.Lookup(value);
 
-	if ( config.LookupPath(roaSlotConfig, "Index") ) {
+	if (config.LookupPath(roaSlotConfig, "Index")) {
 		RenderOnString(index, c, roaSlotConfig);
 	} else {
 		Trace("Error in SlotNameRenderer::RenderAll, Index not defined");
@@ -43,8 +45,8 @@ void SlotNameRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnythi
 	Trace("Index: [" << index << "]");
 
 	long i = index.AsLong(-1);
-	if ( i >= 0 ) {
-		Trace("SlotName: [" << roAnyTemp.SlotName( i ) << "]");
-		reply << roAnyTemp.SlotName( i );
+	if (i >= 0) {
+		Trace("SlotName: [" << roAnyTemp.SlotName(i) << "]");
+		reply << roAnyTemp.SlotName(i);
 	}
 }

@@ -15,40 +15,39 @@
 /*!
 <B>Manages access controllers (three different types).</B><PRE>
 {
-	# UserDataAccessControllers
-	/User {
-		/UDACImpl1	{ ... names ... }
-		/UDACImpl2	{ ... names ... }
-	}
+  # UserDataAccessControllers
+  /User {
+	/UDACImpl1	{ ... names ... }
+	/UDACImpl2	{ ... names ... }
+  }
 
-	# TokenDataAccessControllers
-	/Token {
-		/TDACImpl	{ ... names ... }
-	}
+  # TokenDataAccessControllers
+  /Token {
+	/TDACImpl	{ ... names ... }
+  }
 
-	# EntityDataAccessControllers
-	/Entity {
-		/EDACImpl	{ ... names ... }
-	}
+  # EntityDataAccessControllers
+  /Entity {
+	/EDACImpl	{ ... names ... }
+  }
 
 e.g.
 
-	/User {
-		/MockUDAC	{ LdapUserData LocalUserData }
-	}
+  /User {
+	/MockUDAC	{ LdapUserData LocalUserData }
+  }
 
-	/Token {
-		/FileTDAC 	{ ActerTokenData }
-	}
+  /Token {
+	/FileTDAC 	{ ActerTokenData }
+  }
 
-	/Entity {
-		/MockEDAC	{ RightSet1 RightSet2 }
-		/FileEDAC	{ PersistentRights }
-	}
+  /Entity {
+	/MockEDAC	{ RightSet1 RightSet2 }
+	/FileEDAC	{ PersistentRights }
+  }
 
 }</PRE>*/
-class AccessControllersModule : public WDModule
-{
+class AccessControllersModule : public WDModule {
 public:
 	AccessControllersModule(const char *);
 	~AccessControllersModule();

@@ -7,36 +7,33 @@
  */
 
 #include "PoolAllocatorTest.h"
+
+#include "MemHeader.h"
 #include "PoolAllocator.h"
 #include "TestSuite.h"
 #include "Tracer.h"
-#include "MemHeader.h"
 
 //---- PoolAllocatorTest ----------------------------------------------------------------
-PoolAllocatorTest::PoolAllocatorTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+PoolAllocatorTest::PoolAllocatorTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(PoolAllocatorTest.Ctor);
 }
 
-PoolAllocatorTest::~PoolAllocatorTest()
-{
+PoolAllocatorTest::~PoolAllocatorTest() {
 	StartTrace(PoolAllocatorTest.Dtor);
 }
 
 // uncomment if something special needs to be done which isnt already done in base class
-//void PoolAllocatorTest::setUp()
+// void PoolAllocatorTest::setUp()
 //{
 //	StartTrace(PoolAllocatorTest.setUp);
 //}
 //
-//void PoolAllocatorTest::tearDown()
+// void PoolAllocatorTest::tearDown()
 //{
 //	StartTrace(PoolAllocatorTest.tearDown);
 //}
 
-void PoolAllocatorTest::ExcessTrackerEltCtorTest()
-{
+void PoolAllocatorTest::ExcessTrackerEltCtorTest() {
 	StartTrace(PoolAllocatorTest.ExcessTrackerEltCtorTest);
 	ExcessTrackerElt aDfltCtor;
 	t_assertm(not aDfltCtor.fTracker, "expected pointer to tracker to be NULL");
@@ -55,8 +52,7 @@ void PoolAllocatorTest::ExcessTrackerEltCtorTest()
 	aCopyCtor.fpNext = NULL;
 }
 
-void PoolAllocatorTest::ExcessTrackerEltGetSizeToPowerOf2Test()
-{
+void PoolAllocatorTest::ExcessTrackerEltGetSizeToPowerOf2Test() {
 	StartTrace(PoolAllocatorTest.ExcessTrackerEltGetSizeToPowerOf2Test);
 	ExcessTrackerElt aDfltCtor;
 	assertEqualm(4, aDfltCtor.GetSizeToPowerOf2(3), "expected correct size");
@@ -68,55 +64,55 @@ void PoolAllocatorTest::ExcessTrackerEltGetSizeToPowerOf2Test()
 	assertEqualm(2147483648UL, aDfltCtor.GetSizeToPowerOf2(1073741825UL), "expected correct size");
 }
 
-void PoolAllocatorTest::ExcessTrackerEltFindTrackerForSizeTest()
-{
+void PoolAllocatorTest::ExcessTrackerEltFindTrackerForSizeTest() {
 	StartTrace(PoolAllocatorTest.ExcessTrackerEltFindTrackerForSizeTest);
 	u_long ulMinPayloadSz = 16UL;
-	Allocator::MemTrackerPtr ptr32(new MemTracker("32")),ptr64(new MemTracker("64")),ptr128(new MemTracker("128"));
+	Allocator::MemTrackerPtr ptr32(new MemTracker("32")), ptr64(new MemTracker("64")), ptr128(new MemTracker("128"));
 	ExcessTrackerElt *pElt128 = new ExcessTrackerElt(ptr128, NULL, ulMinPayloadSz << 3);
 	ExcessTrackerElt *pElt64 = new ExcessTrackerElt(ptr64, pElt128, ulMinPayloadSz << 2);
 	ExcessTrackerElt *pElt32 = new ExcessTrackerElt(ptr32, pElt64, ulMinPayloadSz << 1);
 	t_assertm(pElt128->fpNext == 0, "expected pointer to be equal");
-	t_assertm(not pElt32->FindTrackerForSize(ulMinPayloadSz), "expected no tracker to be found because the smallest tracker[16] was not available");
+	t_assertm(not pElt32->FindTrackerForSize(ulMinPayloadSz),
+			  "expected no tracker to be found because the smallest tracker[16] was not available");
 	t_assertm(ptr32 == pElt32->FindTrackerForSize(ulMinPayloadSz + 1), "expected correct tracker to be found");
 	t_assertm(ptr32 == pElt32->FindTrackerForSize(ulMinPayloadSz << 1), "expected correct tracker to be found");
 	t_assertm(ptr64 == pElt32->FindTrackerForSize((ulMinPayloadSz << 1) + 1), "expected correct tracker to be found");
 	t_assertm(ptr64 == pElt32->FindTrackerForSize(ulMinPayloadSz << 2), "expected correct tracker to be found");
 	t_assertm(ptr128 == pElt32->FindTrackerForSize(ulMinPayloadSz << 3), "expected correct tracker to be found");
-	t_assertm(Allocator::MemTrackerPtr() == pElt32->FindTrackerForSize((ulMinPayloadSz << 3) + 100), "expected correct tracker to be found");
+	t_assertm(Allocator::MemTrackerPtr() == pElt32->FindTrackerForSize((ulMinPayloadSz << 3) + 100),
+			  "expected correct tracker to be found");
 	delete pElt32;
 }
 
-void PoolAllocatorTest::ExcessTrackerEltInsertTrackerForSizeTest()
-{
+void PoolAllocatorTest::ExcessTrackerEltInsertTrackerForSizeTest() {
 	StartTrace(PoolAllocatorTest.ExcessTrackerEltInsertTrackerForSizeTest);
 
 	ExcessTrackerElt aRoot;
-	Allocator::MemTrackerPtr ptr16,ptr32,ptr48,ptr64;
+	Allocator::MemTrackerPtr ptr16, ptr32, ptr48, ptr64;
 	t_assert(&aRoot == aRoot.InsertTrackerForSize(ptr32, 32));
 	t_assertm(aRoot.fTracker == ptr32, "expected pointer to be equal");
 	t_assertm(aRoot.fpNext == NULL, "expected pointer to next element to be equal");
 	assertEqualm(32, aRoot.fulPayloadSize, "expected default bucket size to be the same");
 	ExcessTrackerElt *pElt32 = &aRoot, *pElt64 = NULL, *pElt48 = NULL, *pElt16 = NULL;
-	if ( t_assertm( ( pElt64 = aRoot.InsertTrackerForSize(ptr64, 64)) != NULL, "expected valid new element") ) {
-		t_assertm( pElt64 != &aRoot, "expected new element not to be the root element");
+	if (t_assertm((pElt64 = aRoot.InsertTrackerForSize(ptr64, 64)) != NULL, "expected valid new element")) {
+		t_assertm(pElt64 != &aRoot, "expected new element not to be the root element");
 		t_assertm(pElt64->fTracker == ptr64, "expected pointer to be equal");
 		t_assertm(pElt64->fpNext == NULL, "expected pointer to next element to be equal");
 		assertEqualm(64, pElt64->fulPayloadSize, "expected default bucket size to be the same");
 		t_assertm(aRoot.fTracker == ptr32, "expected pointer to be equal");
 		t_assertm(aRoot.fpNext == pElt64, "expected pointer to next element to be equal");
 		assertEqualm(32, aRoot.fulPayloadSize, "expected default bucket size to be the same");
-		if ( t_assertm( ( pElt48 = aRoot.InsertTrackerForSize(ptr48, 48)) != NULL, "expected valid new element") ) {
-			t_assertm( pElt48 != &aRoot, "expected new element not to be the root element");
-			t_assertm( pElt48 != pElt64, "expected new element not to be the root element");
+		if (t_assertm((pElt48 = aRoot.InsertTrackerForSize(ptr48, 48)) != NULL, "expected valid new element")) {
+			t_assertm(pElt48 != &aRoot, "expected new element not to be the root element");
+			t_assertm(pElt48 != pElt64, "expected new element not to be the root element");
 			t_assertm(pElt48->fTracker == ptr48, "expected pointer to be equal");
 			t_assertm(pElt48->fpNext == pElt64, "expected pointer to next element to be valid");
 			assertEqualm(48, pElt48->fulPayloadSize, "expected default bucket size to be the same");
 			t_assertm(aRoot.fTracker == ptr32, "expected pointer to be equal");
 			t_assertm(aRoot.fpNext == pElt48, "expected pointer to next element to be equal");
 			assertEqualm(32, aRoot.fulPayloadSize, "expected default bucket size to be the same");
-			if ( t_assertm( ( pElt16 = aRoot.InsertTrackerForSize(ptr16, 16)) != NULL, "expected valid new element") ) {
-				t_assertm( pElt16 == &aRoot, "expected new element not to be the root element");
+			if (t_assertm((pElt16 = aRoot.InsertTrackerForSize(ptr16, 16)) != NULL, "expected valid new element")) {
+				t_assertm(pElt16 == &aRoot, "expected new element not to be the root element");
 				t_assertm(pElt16->fTracker == ptr16, "expected pointer to be equal");
 				assertEqualm(16, pElt16->fulPayloadSize, "expected default bucket size to be the same");
 				t_assertm(aRoot.fTracker == ptr16, "expected pointer to be equal");
@@ -130,8 +126,7 @@ void PoolAllocatorTest::ExcessTrackerEltInsertTrackerForSizeTest()
 	}
 }
 
-void PoolAllocatorTest::ExcessTrackerEltTest()
-{
+void PoolAllocatorTest::ExcessTrackerEltTest() {
 	StartTrace(PoolAllocatorTest.ExcessTrackerEltTest);
 	ExcessTrackerElt aRoot, *pElt64 = NULL, *pElt32 = NULL;
 	Allocator::MemTrackerPtr pTrack32 = aRoot[32];
@@ -159,11 +154,11 @@ void PoolAllocatorTest::ExcessTrackerEltTest()
 	assertEqualm(16, aRoot.fulPayloadSize, "expected default bucket size to be the same");
 }
 
-void PoolAllocatorTest::StillUsedBlocksTest()
-{
+void PoolAllocatorTest::StillUsedBlocksTest() {
 	StartTrace(PoolAllocatorTest.StillUsedBlocksTest);
-	// the current implementation allows size testing, eg. tracking of allocated and freed memory only in coast::storage::GetStatisticLevel() >= 1
-	if ( coast::storage::GetStatisticLevel() >= 1 ) {
+	// the current implementation allows size testing, eg. tracking of allocated and freed memory only in
+	// coast::storage::GetStatisticLevel() >= 1
+	if (coast::storage::GetStatisticLevel() >= 1) {
 		PoolAllocator pa(1, 1024, 4);
 		// this alloc should allocate a block of size 16 + coast::memory::AlignedSize<MemoryHeader>::value
 		void *p16 = pa.Calloc(1, 16);
@@ -178,8 +173,7 @@ void PoolAllocatorTest::StillUsedBlocksTest()
 	}
 }
 
-void PoolAllocatorTest::UseExcessMemTest()
-{
+void PoolAllocatorTest::UseExcessMemTest() {
 	StartTrace(PoolAllocatorTest.UseExcessMemTest);
 
 	// allocate only 1024 byte ( 1 * 1024 )
@@ -201,8 +195,7 @@ void PoolAllocatorTest::UseExcessMemTest()
 	assertCompare(MemoryHeader::eFree, equal_to, pH512->fState);
 }
 
-void PoolAllocatorTest::SplitBucketTest()
-{
+void PoolAllocatorTest::SplitBucketTest() {
 	StartTrace(PoolAllocatorTest.SplitBucketTest);
 
 	// allocate only 1024 byte ( 1 * 1024 )
@@ -237,28 +230,26 @@ void PoolAllocatorTest::SplitBucketTest()
 	pa.Free(p256);
 }
 
-void PoolAllocatorTest::XxxTest()
-{
+void PoolAllocatorTest::XxxTest() {
 	StartTrace(PoolAllocatorTest.XxxTest);
-// use the following iterator code sequence if you want to test several things in here
+	// use the following iterator code sequence if you want to test several things in here
 	ROAnything roaCaseConfig;
 	AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
-	while ( aEntryIterator.Next(roaCaseConfig) ) {
+	while (aEntryIterator.Next(roaCaseConfig)) {
 		TString strName;
 		aEntryIterator.SlotName(strName);
-		if ( !strName.Length() ) {
+		if (strName.Length() == 0) {
 			strName << ":" << aEntryIterator.Index();
 		}
 		TraceAny(roaCaseConfig, "Running " << strName << " tests with config:");
-// enable the following when using AnythingStatisticPolicy to time the test
-//		CatchTimeType aTimer(TString("some string to distinguish the different tests at ") << strName, this);
+		// enable the following when using AnythingStatisticPolicy to time the test
+		//		CatchTimeType aTimer(TString("some string to distinguish the different tests at ") << strName, this);
 		t_assertm(false, "test me!");
 	}
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *PoolAllocatorTest::suite()
-{
+Test *PoolAllocatorTest::suite() {
 	StartTrace(PoolAllocatorTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, PoolAllocatorTest, ExcessTrackerEltCtorTest);
@@ -269,8 +260,9 @@ Test *PoolAllocatorTest::suite()
 	ADD_CASE(testSuite, PoolAllocatorTest, StillUsedBlocksTest);
 	ADD_CASE(testSuite, PoolAllocatorTest, UseExcessMemTest);
 	ADD_CASE(testSuite, PoolAllocatorTest, SplitBucketTest);
-//	ADD_CASE(testSuite, PoolAllocatorTest, XxxTest);
-// enable the following line if you want the statistics cought to be exported as comma separated values file for analysis in a spreadsheet application
-//	ADD_CASE(testSuite, PoolAllocatorTest, ExportCsvStatistics);
+	//	ADD_CASE(testSuite, PoolAllocatorTest, XxxTest);
+	// enable the following line if you want the statistics cought to be exported as comma separated values file for analysis in
+	// a spreadsheet application
+	//	ADD_CASE(testSuite, PoolAllocatorTest, ExportCsvStatistics);
 	return testSuite;
 }

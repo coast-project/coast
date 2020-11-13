@@ -7,13 +7,14 @@
  */
 
 #include "TemplateParserTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "TemplateParser.h"
-#include "Renderer.h"
-#include "CacheHandler.h"
+
 #include "AnyUtils.h"
+#include "CacheHandler.h"
+#include "FoundationTestTypes.h"
+#include "Renderer.h"
 #include "StringStream.h"
+#include "TemplateParser.h"
+#include "TestSuite.h"
 
 void TemplateParserTest::BuildEmptyCache() {
 	StartTrace(TemplateParserTest.BuildEmptyCache);
@@ -59,20 +60,26 @@ void TemplateParserTest::BuildSimpleFormNoCache() {
 	StartTrace(TemplateParserTest.BuildSimpleFormCache);
 	TemplateParser p;
 
+	// clang-format off
 	String form(_QUOTE_(<form METHOD=GET action="http:../cgi-bin/doit.cgi">hello world</form>));
+	// clang-format on
 	IStringStream is(form);
 	Anything cache;
 	cache = p.Parse(is);
 	t_assert(!cache.IsNull());
 	t_assert(!cache[0L].IsDefined("FormRenderer"));
+	// clang-format off
 	assertEqual(_QUOTE_(<form method="GET" action="http:../cgi-bin/doit.cgi">hello world</form>), cache[0L].AsCharPtr());
+	// clang-format on
 }
 
 void TemplateParserTest::BuildSimpleRendererSpec() {
 	StartTrace(TemplateParserTest.BuildSimpleRendererSpec);
 	TemplateParser p;
 
+	// clang-format off
 	String templ(_QUOTE_(start <? /ContextLookupRenderer {"name"}?> end));
+	// clang-format on
 	IStringStream is(templ);
 	Anything cache;
 	cache = p.Parse(is);
@@ -87,7 +94,9 @@ void TemplateParserTest::BuildSimpleRendererSpec() {
 void TemplateParserTest::NewStyleMacroPossibleWithinStringValueIssue205() {
 	StartTrace(TemplateParserTest.NewStyleMacroPossibleWithinStringValue);
 	TemplateParser p;
+	// clang-format off
 	String templ(_QUOTE_(start <html><head><? { /Render MetaTags } ?><meta http-equiv="refresh" content="0; URL='<? { /Lookup RelocateURL } ?>'"></head></html> end));
+	// clang-format on
 	IStringStream is(templ);
 	Anything cache;
 	cache = p.Parse(is);
@@ -97,13 +106,18 @@ void TemplateParserTest::NewStyleMacroPossibleWithinStringValueIssue205() {
 	ctx.GetTmpStore()["MetaTags"] = "SomeTagsHere";
 	ctx.GetTmpStore()["RelocateURL"] = "http://some.site/blub?here=there";
 	Renderer::RenderOnString(result, ctx, cache);
-	assertEqual("start <html><head>SomeTagsHere<meta http-equiv=\"refresh\" content=\"0; URL='http://some.site/blub?here=there'\"></head></html> end", result);
+	assertEqual(
+		"start <html><head>SomeTagsHere<meta http-equiv=\"refresh\" content=\"0; "
+		"URL='http://some.site/blub?here=there'\"></head></html> end",
+		result);
 }
 void TemplateParserTest::BuildNestedHTMLSpec() {
 	StartTrace(TemplateParserTest.BuildNestedHTMLSpec);
 	TemplateParser p;
 
+	// clang-format off
 	String templ(_QUOTE_(start <? /ConditionalRenderer {/ContextCondition "name" /Defined ?>Ist "Definiert"<? /Undefined ?>nicht def#<% } %> end)
+	// clang-format on
 	);
 	IStringStream is(templ);
 	Anything cache;
@@ -116,28 +130,34 @@ void TemplateParserTest::BuildNestedHTMLSpec() {
 	result = "";
 	ctx.GetTmpStore()["name"] = "Peter";
 	Renderer::RenderOnString(result, ctx, cache);
+	// clang-format off
 	assertEqual(_QUOTE_(start Ist "Definiert" end), result);
+	// clang-format on
 }
 
 void TemplateParserTest::BuildWithEmptyXHTMLTag() {
 	StartTrace(TemplateParserTest.BuildWithEmptyXHTMLTag);
 	TemplateParser p;
 
+	// clang-format off
 	String form(_QUOTE_(some<br />test<img SRC="foo.jpg" />with <p>));
+	// clang-format on
 	IStringStream is(form);
 	Anything cache;
 	cache = p.Parse(is);
 	t_assert(!cache.IsNull());
+	// clang-format off
 	assertEqual(_QUOTE_(some<br />test<img src="foo.jpg" />with <p>), cache[0L].AsCharPtr());
+	// clang-format on
 }
 void TemplateParserTest::BuildFormWithInputFieldCache() {
 	StartTrace(TemplateParserTest.BuildFormWithInputFieldCache);
 	TemplateParser p;
 
 	// determine Coast actions, PreprocessAction is always defined...
-	String
-			form(
-					"<form method=GET action=PreprocessAction><textarea name=area></textarea><input name=\"foo\" /><input type=submit name=abutton><input type=image name=animage></form>");
+	String form(
+		"<form method=GET action=PreprocessAction><textarea name=area></textarea><input name=\"foo\" /><input type=submit "
+		"name=abutton><input type=image name=animage></form>");
 	IStringStream is(form);
 	Anything cache;
 	cache = p.Parse(is);
@@ -152,16 +172,19 @@ void TemplateParserTest::BuildFormWithInputFieldCache() {
 	String layout;
 	Context ctx;
 	Renderer::RenderOnString(layout, ctx, cache);
+	// clang-format off
 	t_assert(layout.Contains(_QUOTE_(name="fld_area")) >= 0);
 	t_assert(layout.Contains(_QUOTE_(name="fld_foo")) >= 0);
 	t_assert(layout.Contains(_QUOTE_(name="b_abutton")) >= 0);
 	t_assert(layout.Contains(_QUOTE_(name="i_animage")) >= 0);
+	// clang-format on
 	layout = cache[0L]["FormRenderer"]["Layout"][0L].AsCharPtr();
+	// clang-format off
 	t_assert(layout.Contains(_QUOTE_(name="fld_area")) >= 0);
 	t_assert(layout.Contains(_QUOTE_(name="fld_foo")) >= 0);
 	t_assert(layout.Contains(_QUOTE_(name="b_abutton")) >= 0);
 	t_assert(layout.Contains(_QUOTE_(name="i_animage")) >= 0);
-
+	// clang-format on
 }
 void TemplateParserTest::BuildCacheWithMacro() {
 	StartTrace(TemplateParserTest.BuildCacheWithMacro);
@@ -193,7 +216,9 @@ void TemplateParserTest::MacroWithinTag() {
 	Context ctx;
 	ctx.GetTmpStore()["myimage"] = "../images/foo.jpg";
 	Renderer::RenderOnString(result, ctx, cache);
+	// clang-format off
 	assertEqual(_QUOTE_(start <img src="../images/foo.jpg"> end), result);
+	// clang-format on
 }
 void TemplateParserTest::MacroWithinTagWithinQuote() {
 	StartTrace(TemplateParserTest.MacroWithinTagWithinQuote);
@@ -208,7 +233,9 @@ void TemplateParserTest::MacroWithinTagWithinQuote() {
 	Context ctx;
 	ctx.GetTmpStore()["myimage"] = "foo";
 	Renderer::RenderOnString(result, ctx, cache);
+	// clang-format off
 	assertEqual(_QUOTE_(start <img src="../images/foo.jpg"> end), result);
+	// clang-format on
 }
 
 void TemplateParserTest::InvalidMacroTests() {
@@ -220,7 +247,7 @@ void TemplateParserTest::InvalidMacroTests() {
 	InvalidMacroTest("start [[# end");
 	InvalidMacroTest("start [[#w end");
 }
-void TemplateParserTest::InvalidMacroTest(const char * invalidmacro) {
+void TemplateParserTest::InvalidMacroTest(const char *invalidmacro) {
 	StartTrace(TemplateParserTest.InvalidMacroTest);
 	TemplateParser p;
 
@@ -242,7 +269,6 @@ void TemplateParserTest::QuotelessAttributes() {
 	cache = p.Parse(is);
 	t_assert(!cache.IsNull());
 	assertEqual(correctlyquoted, cache[0L].AsCharPtr(""));
-
 }
 void TemplateParserTest::AnythingBracesWrong() {
 	StartTrace(TemplateParserTest.AnythingBracesWrong);
@@ -310,7 +336,7 @@ void TemplateParserTest::BuildFormWithConfiguredTransitionTokens() {
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test * TemplateParserTest::suite() {
+Test *TemplateParserTest::suite() {
 	StartTrace(TemplateParserTest.suite);
 	TestSuite *testSuite = new TestSuite;
 

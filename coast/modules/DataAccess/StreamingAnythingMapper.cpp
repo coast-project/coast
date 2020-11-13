@@ -7,22 +7,24 @@
  */
 
 #include "StreamingAnythingMapper.h"
+
 #include "Timers.h"
+
+#include <ostream>
 
 //---- AnythingToStreamMapper ----------------------------------------------------------------
 RegisterParameterMapper(AnythingToStreamMapper);
 
-bool AnythingToStreamMapper::DoFinalGetStream(const char *key, std::ostream &os, Context &ctx)
-{
+bool AnythingToStreamMapper::DoFinalGetStream(const char *key, std::ostream &os, Context &ctx) {
 	StartTrace1(AnythingToStreamMapper.DoFinalGetStream, NotNull(key));
-	if ( key ) {
+	if (key != 0) {
 		// use the superclass mapper to get the anything
 		Anything anyValue;
 		DoFinalGetAny(key, anyValue, ctx);
 
 		TraceAny(anyValue, "value fetched from context");
 
-		if ( !anyValue.IsNull() ) {
+		if (!anyValue.IsNull()) {
 			DAAccessTimer(AnythingToStreamMapper.DoFinalGetStream, "exporting to stream", ctx);
 			os << anyValue << std::flush;
 			TraceAny(anyValue, "written to stream:");
@@ -36,16 +38,15 @@ bool AnythingToStreamMapper::DoFinalGetStream(const char *key, std::ostream &os,
 //---- StreamToAnythingMapper ----------------------------------------------------------------
 RegisterResultMapper(StreamToAnythingMapper);
 
-bool StreamToAnythingMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, ROAnything script)
-{
+bool StreamToAnythingMapper::DoPutStream(const char *key, std::istream &is, Context &ctx, ROAnything script) {
 	StartTrace1(StreamToAnythingMapper.DoPutStream, NotNull(key));
 	Anything anyResult;
-	bool importok;
+	bool importok = false;
 	{
 		DAAccessTimer(StreamToAnythingMapper.DoPutStream, "importing from stream", ctx);
 		importok = anyResult.Import(is);
 	}
-	if ( importok ) {
+	if (importok) {
 		TraceAny(anyResult, "anything imported from stream:");
 		importok = DoPutAny(key, anyResult, ctx, script);
 	} else {

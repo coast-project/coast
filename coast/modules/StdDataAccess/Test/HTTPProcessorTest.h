@@ -11,23 +11,19 @@
 
 #include "WDBaseTestPolicies.h"
 
-class HTTPProcessorTest: public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
+class HTTPProcessorTest : public testframework::TestCaseWithGlobalConfigDllAndModuleLoading {
 public:
-	HTTPProcessorTest(TString tname) :
-		TestCaseType(tname) {
-	}
-	//!builds up a suite of testcases for this test
+	HTTPProcessorTest(TString tname) : TestCaseType(tname) {}
+	//! builds up a suite of testcases for this test
 	static Test *suite();
 
-	TString getConfigFileName() {
-		return "HTTPProcessorTestConfig";
-	}
+	TString getConfigFileName() { return "HTTPProcessorTestConfig"; }
 	void IsZipEncodingAcceptedByClientTest();
 
-	//!tests input read method
+	//! tests input read method
 	void DoReadInputWithErrorTest();
 
-	//!check multipart handling if content-disposition contains filename
+	//! check multipart handling if content-disposition contains filename
 	void FileUploadTest();
 
 	//! Check HTTP status code and message.

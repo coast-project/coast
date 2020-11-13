@@ -20,12 +20,11 @@
  }
  \endcode
  */
-class StringLengthRenderer: public Renderer {
+class StringLengthRenderer : public Renderer {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	StringLengthRenderer(const char *name) :
-		Renderer(name) {
-	}
+	StringLengthRenderer(const char *name) : Renderer(name) {}
+
 protected:
 	/*! @copydoc Renderer::RenderAll(std::ostream &, Context &, const ROAnything &) */
 	virtual void RenderAll(std::ostream &reply, Context &ctx, const ROAnything &config);

@@ -9,42 +9,40 @@
 #ifndef _AnythingParserTest_h_
 #define _AnythingParserTest_h_
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnythingParserTest : public testframework::TestCase
-{
+#include "TestCase.h"
+class AnythingParserTest : public testframework::TestCase {
 protected:
-	Anything	emptyAny, anyTemp0, anyTemp1,
-				anyTemp2, anyTemp3, anyTemp4;
+	Anything emptyAny, anyTemp0, anyTemp1, anyTemp2, anyTemp3, anyTemp4;
 
-	Anything	storeAndReload( Anything );
-	void		writeResult( String *input , long nrOfElt, const char *path, const char *ext );
-	void		checkImportExport( Anything any, String fileName );
-	void		scanAnything( Anything );
-	Anything	anyOutput;
-	long		lineCounter;
-	void 		assertParsedAsDouble(const char *in, double val, int id);
-	void 		assertParsedAsLong(const char *in, long val, int id);
-	void 		assertParsedAsString(const char *in, int id);
+	Anything storeAndReload(Anything);
+	void writeResult(String *input, long nrOfElt, const char *path, const char *ext);
+	void checkImportExport(Anything any, String fileName);
+	void scanAnything(Anything);
+	Anything anyOutput;
+	long lineCounter;
+	void assertParsedAsDouble(const char *in, double val, int id);
+	void assertParsedAsLong(const char *in, long val, int id);
+	void assertParsedAsString(const char *in, int id);
 
 public:
-	AnythingParserTest (TString tstrName);
-	virtual void			setUp ();
-	static Test				*suite ();
+	AnythingParserTest(TString tstrName);
+	virtual void setUp();
+	static Test *suite();
 
-	void		parseSimpleTypeLong();
-	void 		IntParseSimpleTypeLong(const String &inp, long exp);
-	void		parseSimpleTypeDouble();
-	void		parseSimpleTypeNull();
-	void		parseSimpleTypeCharPtr();
-	void		parseMixedAnything ();
-	void		parseNumber();
-	void		parseOctal();
-	void		parseBinary();
-	void		importEmptyStream();
-	void		readWriteAnything();
-	void		parseTestFiles();
-	void		testObjectParsing();
-	void		testNumberParsing();
+	void parseSimpleTypeLong();
+	void IntParseSimpleTypeLong(const String &inp, long exp);
+	void parseSimpleTypeDouble();
+	void parseSimpleTypeNull();
+	void parseSimpleTypeCharPtr();
+	void parseMixedAnything();
+	void parseNumber();
+	void parseOctal();
+	void parseBinary();
+	void importEmptyStream();
+	void readWriteAnything();
+	void parseTestFiles();
+	void testObjectParsing();
+	void testNumberParsing();
 };
 #endif

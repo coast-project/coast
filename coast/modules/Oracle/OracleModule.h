@@ -9,8 +9,8 @@
 #ifndef _OracleModule_H
 #define _OracleModule_H
 
-#include "WDModule.h"
 #include "ConnectionPool.h"
+#include "WDModule.h"
 #include "boost_or_std/memory.h"
 
 //! Module to initialize Oracle Data Access
@@ -23,22 +23,22 @@
  * @section oms1 OracleModule configuration
  @code
  /OracleModule {
-	 /ConnectionPool {...}
+   /ConnectionPool {...}
  }
  @endcode
  * @par \c ConnectionPool
  * Optional\n
  * @see @ref cps1
  */
-class OracleModule: public WDModule
-{
+class OracleModule : public WDModule {
 	typedef boost_or_std::auto_ptr<coast::oracle::ConnectionPool> ConnectionPoolPtr;
 	ConnectionPoolPtr fpConnectionPool;
+
 public:
 	/*! Name using ctor to register OracleModule in the Registry using the correct name
 	 * @param name Used to register in Registry
 	 */
-	OracleModule( const char *name );
+	OracleModule(const char *name);
 	/*! terminates oracle services */
 	~OracleModule();
 
@@ -46,12 +46,13 @@ public:
 	 * @return pointer to the coast::oracle::ConnectionPool
 	 */
 	coast::oracle::ConnectionPool *GetConnectionPool();
+
 protected:
 	/*! Initialization method called when servers boots up
 	 * @param config Global server configuration to be used for initialization
 	 * @return true in case we could successfully initialize what we wanted
 	 */
-	virtual bool Init( const ROAnything config );
+	virtual bool Init(const ROAnything config);
 	/*! Finalizing method to properly terminate oracle related services when server wants to shut down
 	 * @return true in case termination was successful
 	 */

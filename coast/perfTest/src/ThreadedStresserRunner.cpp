@@ -7,34 +7,31 @@
  */
 
 #include "ThreadedStresserRunner.h"
-#include "DiffTimer.h"
+
 #include "Application.h"
-#include "SystemLog.h"
-#include "StresserThread.h"
+#include "DiffTimer.h"
 #include "MT_Storage.h"
+#include "StresserThread.h"
+#include "SystemLog.h"
 
 RegisterStresser(ThreadedStresserRunner);
 //---- ThreadedStresserRunner ----------------------------------------------------------------
-ThreadedStresserRunner::ThreadedStresserRunner(const char *StresserName)
-	: Stresser(StresserName)
-{
+ThreadedStresserRunner::ThreadedStresserRunner(const char *StresserName) : Stresser(StresserName) {
 	StartTrace(ThreadedStresserRunner.ThreadedStresserRunner);
 }
 
-ThreadedStresserRunner::~ThreadedStresserRunner()
-{
+ThreadedStresserRunner::~ThreadedStresserRunner() {
 	StartTrace(ThreadedStresserRunner.~ThreadedStresserRunner);
 }
 
-long ThreadedStresserRunner::ConfigStressers(long numOfStressers, long &sz, ROAnything &stresser)
-{
+long ThreadedStresserRunner::ConfigStressers(long numOfStressers, long &sz, ROAnything &stresser) {
 	//!@FIXME hack assume one sort of stressers if numOfStressers != 0
 	// Create and Initialize the StresserThreads
 	StartTrace1(ThreadedStresserRunner.ConfigStressers, "NumOfStressers: " << numOfStressers);
 	long numStressers = numOfStressers;
-	if ( Lookup("Stressers", stresser) ) {
+	if (Lookup("Stressers", stresser)) {
 		TraceAny(stresser, "Stressers");
-		if ( numStressers <= 0 ) {
+		if (numStressers <= 0) {
 			sz = stresser.GetSize();
 			for (long i = 0; i < sz; i++) {
 				numStressers += stresser[i].AsLong(0);
@@ -46,8 +43,7 @@ long ThreadedStresserRunner::ConfigStressers(long numOfStressers, long &sz, ROAn
 	return numStressers;
 }
 
-Anything ThreadedStresserRunner::Run(long /* id */)
-{
+Anything ThreadedStresserRunner::Run(long /* id */) {
 	//!@FIXME this method is a bunch of crap and needs a major refactoring!!
 	//!@FIXME for british people: this code is a major disaster
 	StartTrace(ThreadedStresserRunner.Run);
@@ -56,8 +52,8 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 	long numStressers(0);
 	long stressersPending(0);
 	long sz(0);
-	Mutex::ConditionType 	stresserCond;
-	Mutex		stresserMutex(fName);
+	Mutex::ConditionType stresserCond;
+	Mutex stresserMutex(fName);
 	bool hasScriptConfig = false;
 
 	//!@FIXME hack to configure number of threads on the fly from scripting arguments
@@ -66,8 +62,8 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 
 	String appName;
 	Application *application = Application::GetGlobalApplication(appName);
-	if ( application ) {
-		Trace(appName << " application found" );
+	if (application != 0) {
+		Trace(appName << " application found");
 		hasScriptConfig = (application->Lookup("NumberOfThreads", 0L) != 0);
 		numStressers = ConfigStressers(application->Lookup("NumberOfThreads", 0L), sz, stresser);
 		stresserName = application->Lookup("Stresser", "");
@@ -76,7 +72,7 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 	}
 
 	Trace("Number of Stressers: " << numStressers);
-	if ( !Lookup("Stressers", stresser) ) {
+	if (!Lookup("Stressers", stresser)) {
 		Trace("Stressers misconfigured");
 	} else {
 		TraceAny(stresser, "Stressers: ");
@@ -90,14 +86,16 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 		if (!hasScriptConfig) {
 			stresserName = stresser.SlotName(ii);
 			for (long j = 0; j < num; j++) {
-				vastArrayOfStressers[stressersPending].Init(stresserName, stressersPending + 1, &stresserCond, &stresserMutex, &stressersPending);
+				vastArrayOfStressers[stressersPending].Init(stresserName, stressersPending + 1, &stresserCond, &stresserMutex,
+															&stressersPending);
 				stressersPending++;
 			}
 		} else {
 			if (stresserName.Length() == 0) {
 				stresserName = stresser.SlotName(0);
 			}
-			vastArrayOfStressers[stressersPending].Init(stresserName, stressersPending + 1, &stresserCond, &stresserMutex, &stressersPending);
+			vastArrayOfStressers[stressersPending].Init(stresserName, stressersPending + 1, &stresserCond, &stresserMutex,
+														&stressersPending);
 			stressersPending++;
 		}
 	}
@@ -106,9 +104,9 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 	DiffTimer Dt;
 	bool usePool = Lookup("UsePoolStorage", 0L) == 1L;
 	long poolStorageSize = Lookup("PoolStorageSize", 1000L);
-	for (long i1 = 0; i1 < numStressers; i1++ ) {
+	for (long i1 = 0; i1 < numStressers; i1++) {
 		Trace("Starting " << i1);
-		if ( usePool ) {
+		if (usePool) {
 			vastArrayOfStressers[i1].Start(MT_Storage::MakePoolAllocator(poolStorageSize));
 		} else {
 			vastArrayOfStressers[i1].Start();
@@ -117,12 +115,12 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 
 	// wait for all threads to finish
 	{
-		LockUnlockEntry 	me(stresserMutex);
+		LockUnlockEntry me(stresserMutex);
 		Trace("all threads have been started ... " << stressersPending << " pending");
 
-		while ( stressersPending > 0 ) {		   	// modified by terminating threads
-			(void) stresserCond.Wait( stresserMutex );	// release mutex and wait for condition
-			Trace("Got up by signal, still " << stressersPending << " pending") ;
+		while (stressersPending > 0) {				 // modified by terminating threads
+			(void)stresserCond.Wait(stresserMutex);	 // release mutex and wait for condition
+			Trace("Got up by signal, still " << stressersPending << " pending");
 		}
 	}
 
@@ -136,23 +134,23 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 	long totMin = 2000000;
 	long totErr = 0;
 
-	for (long i = 0; i < numStressers; i++ ) {
+	for (long i = 0; i < numStressers; i++) {
 		Anything fullResult = vastArrayOfStressers[i].GetResult();
 
 		TraceAny(fullResult, "Result " << i);
 
 		Anything result, anyResults;
-		if ( !fullResult.LookupPath(result, "Total") ) {
+		if (!fullResult.LookupPath(result, "Total")) {
 			Trace("no Total slot found, trying Results");
 			// not a composit stresser
-			if ( !fullResult.LookupPath(anyResults, "Results") ) {
+			if (!fullResult.LookupPath(anyResults, "Results")) {
 				Trace("no Results slot found, assuming array of testresults");
 				// assume only one resultset at index 0
-				if ( fullResult.GetSize() > 1L ) {
+				if (fullResult.GetSize() > 1L) {
 					SYSWARNING("expected only one resultset!");
 					anyResults = fullResult;
 					TraceAny(anyResults, "array of results found, size:" << anyResults.GetSize());
-				} else if ( fullResult.GetSize() == 1L ) {
+				} else if (fullResult.GetSize() == 1L) {
 					Trace("sinlge result found");
 					result = fullResult[0L];
 				} else {
@@ -160,11 +158,11 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 				}
 			}
 		}
-		if ( anyResults.GetSize() ) {
+		if (anyResults.GetSize() != 0) {
 			result = anyResults[0L];
 			anyResults.Remove(0L);
 		}
-		while ( !result.IsNull() ) {
+		while (!result.IsNull()) {
 			TraceAny(result, "current result");
 			ROAnything roaResult(result);
 			// add this result to the totals
@@ -182,7 +180,7 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 			totErr += roaResult["Error"].AsLong(0);
 			results["Results"].Append(result);
 			result = Anything();
-			if ( anyResults.GetSize() ) {
+			if (anyResults.GetSize() != 0) {
 				result = anyResults[0L];
 				anyResults.Remove(0L);
 			}
@@ -195,7 +193,7 @@ Anything ThreadedStresserRunner::Run(long /* id */)
 	results["Total"]["Min"] = totMin;
 	results["Total"]["Error"] = totErr;
 
-	delete [] vastArrayOfStressers;
+	delete[] vastArrayOfStressers;
 
 	return results;
 }

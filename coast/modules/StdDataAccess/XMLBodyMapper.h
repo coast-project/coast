@@ -24,71 +24,69 @@ Very basic implementation, that just maps XML Tags to Anything slotnames, with t
 \par Example
 \code
 <Team>
-	<Programmer>
-		<Name>Andy Birrer</Name>
-		<Skill>C++</Skill>
-		<Skill>Java</Skill>
-	</Programmer>
-	<Architect>
-		<Name>Peter Sommerlad</Name>
-		<Skill>OO-Design</Skill>
-		<Skill>C++</Skill>
-		<Skill>Design Patterns</Skill>
-	</Architect>
-	<Programmer>
-		<Name>Marcel Rueedi</Name>
-		<Skill>C++</Skill>
-		<Skill>Java</Skill>
-		<Skill>PL1</Skill>
-	</Programmer>
+  <Programmer>
+	<Name>Andy Birrer</Name>
+	<Skill>C++</Skill>
+	<Skill>Java</Skill>
+  </Programmer>
+  <Architect>
+	<Name>Peter Sommerlad</Name>
+	<Skill>OO-Design</Skill>
+	<Skill>C++</Skill>
+	<Skill>Design Patterns</Skill>
+  </Architect>
+  <Programmer>
+	<Name>Marcel Rueedi</Name>
+	<Skill>C++</Skill>
+	<Skill>Java</Skill>
+	<Skill>PL1</Skill>
+  </Programmer>
 </Team>
 \endcode
 Maps to
 \code
 {
-	/Team	{
-		/Programmer {
-			{
-				/Name	"Andy Birrer"
-				/Skill {
-					"C++"
-					"Java"
-				}
-			}
-			{
-				/Name	"Marcel Rueedi"
-				/Skill {
-					"C++"
-					"Java"
-					"PL1"
-				}
-			}
+  /Team	{
+	/Programmer {
+	  {
+		/Name	"Andy Birrer"
+		/Skill {
+		  "C++"
+		  "Java"
 		}
-		/Architect {
-			/Name	"Peter Sommerlad"
-			/Skill {
-				"OO-Design"
-				"C++"
-				"Design Patterns"
-			}
+	  }
+	  {
+		/Name	"Marcel Rueedi"
+		/Skill {
+		  "C++"
+		  "Java"
+		  "PL1"
 		}
+	  }
 	}
+	/Architect {
+	  /Name	"Peter Sommerlad"
+	  /Skill {
+		"OO-Design"
+		"C++"
+		"Design Patterns"
+	  }
+	}
+  }
 }
 \endcode
 */
-class XMLBodyMapper: public ResultMapper {
+class XMLBodyMapper : public ResultMapper {
 	XMLBodyMapper();
 	XMLBodyMapper(const XMLBodyMapper &);
 	XMLBodyMapper &operator=(const XMLBodyMapper &);
+
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	XMLBodyMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	XMLBodyMapper(const char *name) : ResultMapper(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) XMLBodyMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) XMLBodyMapper(fName); }
+
 protected:
 	/*! @copydoc ResultMapper::DoFinalPutStream() */
 	bool DoFinalPutStream(const char *key, std::istream &is, Context &ctx);

@@ -6,21 +6,21 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
+#include "CompareValuesAction.h"
+
 #include "Anything.h"
 #include "Context.h"
 #include "Renderer.h"
 #include "Tracer.h"
-#include "CompareValuesAction.h"
 
 //---- CompareValuesAction ---------------------------------------------------------------
 RegisterAction(CompareValuesAction);
 
-CompareValuesAction::CompareValuesAction(const char *name) : Action(name) { }
+CompareValuesAction::CompareValuesAction(const char *name) : Action(name) {}
 
-CompareValuesAction::~CompareValuesAction() { }
+CompareValuesAction::~CompareValuesAction() {}
 
-bool CompareValuesAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config)
-{
+bool CompareValuesAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	// this is the new method that also gets a config ( similar to Renderer::RenderAll )
 	// write the action code here - you don't have to override DoAction anymore
 	StartTrace(CompareValuesAction.DoExecAction);
@@ -55,17 +55,22 @@ bool CompareValuesAction::DoExecAction(String &transitionToken, Context &ctx, co
 	}
 	Trace("Operator: [" << op << "]");
 
-	if ( op.IsEqual(">") ) {
+	if (op.IsEqual(">")) {
 		return (value1.AsLong(0L) > value2.AsLong(0L));
-	} else if ( op.IsEqual("<") ) {
+	}
+	if (op.IsEqual("<")) {
 		return (value1.AsLong(0L) < value2.AsLong(0L));
-	} else if ( op.IsEqual(">=") ) {
+	}
+	if (op.IsEqual(">=")) {
 		return (value1.AsLong(0L) >= value2.AsLong(0L));
-	} else if ( op.IsEqual("<=") ) {
+	}
+	if (op.IsEqual("<=")) {
 		return (value1.AsLong(0L) <= value2.AsLong(0L));
-	} else if ( op.IsEqual("==") ) {
+	}
+	if (op.IsEqual("==")) {
 		return (value1.AsLong(0L) == value2.AsLong(0L));
-	} else if ( op.IsEqual("!=") ) {
+	}
+	if (op.IsEqual("!=")) {
 		return (value1.AsLong(0L) != value2.AsLong(0L));
 	}
 

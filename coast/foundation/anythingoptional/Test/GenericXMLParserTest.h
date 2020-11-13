@@ -16,8 +16,7 @@
 further explanation of the purpose of the class
 this may contain <B>HTML-Tags</B>
 */
-class GenericXMLParserTest : public testframework::TestCaseWithConfig
-{
+class GenericXMLParserTest : public testframework::TestCaseWithConfig {
 public:
 	//! TestCase constructor
 	//! \param name name of the test
@@ -27,7 +26,7 @@ public:
 	~GenericXMLParserTest();
 
 	//! builds up a suite of testcases for this test
-	static Test *suite ();
+	static Test *suite();
 
 	//! describe this testcase
 	void simpleEmptyTag();

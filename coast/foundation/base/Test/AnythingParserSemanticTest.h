@@ -9,9 +9,9 @@
 #ifndef _AnythingParserSemanticTest_h_
 #define _AnythingParserSemanticTest_h_
 
-#include "TestCase.h"
 #include "Anything.h"
-class AnythingParserSemanticTest: public testframework::TestCase {
+#include "TestCase.h"
+class AnythingParserSemanticTest : public testframework::TestCase {
 protected:
 	Anything emptyAny, anyTemp0, anyTemp1, anyTemp2, anyTemp3, anyTemp4;
 
@@ -23,9 +23,7 @@ protected:
 	long lineCounter;
 
 public:
-	AnythingParserSemanticTest(TString tname) :
-		TestCaseType(tname), lineCounter(0) {
-	}
+	AnythingParserSemanticTest(TString tname) : TestCaseType(tname), lineCounter(0) {}
 	virtual void setUp();
 	static Test *suite();
 

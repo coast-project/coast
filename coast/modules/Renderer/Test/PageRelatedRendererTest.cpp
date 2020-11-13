@@ -6,25 +6,21 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "Anything.h"
-#include "StringStream.h"
-#include "Context.h"
-#include "Page.h"
-#include "TestSuite.h"
-#include "PageRelatedLookupRenderer.h"
 #include "PageRelatedRendererTest.h"
 
+#include "Anything.h"
+#include "Context.h"
+#include "Page.h"
+#include "PageRelatedLookupRenderer.h"
+#include "StringStream.h"
+#include "TestSuite.h"
+
 //---- PageRelatedRendererTest ----------------------------------------------------------------
-PageRelatedRendererTest::PageRelatedRendererTest(TString tname) : TestCaseType(tname)
-{
-}
+PageRelatedRendererTest::PageRelatedRendererTest(TString tname) : TestCaseType(tname) {}
 
-PageRelatedRendererTest::~PageRelatedRendererTest()
-{
-}
+PageRelatedRendererTest::~PageRelatedRendererTest() {}
 
-void PageRelatedRendererTest::trivialTest()
-{
+void PageRelatedRendererTest::trivialTest() {
 	// setup Context 1
 	Anything q1;
 	q1["Test"] = "ContextValueP2";
@@ -84,8 +80,7 @@ void PageRelatedRendererTest::trivialTest()
 	assertEqual("hurray", s4);
 }
 
-Test *PageRelatedRendererTest::suite()
-{
+Test *PageRelatedRendererTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, PageRelatedRendererTest, trivialTest);
 	return testSuite;

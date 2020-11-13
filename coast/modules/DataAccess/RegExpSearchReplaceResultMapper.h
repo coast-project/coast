@@ -17,16 +17,16 @@
  * @section resrrm1 Mapper configuration
 \code
 {
-	/Expressions {
-		{	# optional if only one expression used
-			/Pattern			# either
-			/SimplePattern		# or
-			/MatchFlags
-			/Replacement
-			/ReplaceAll
-		}
-		...
+  /Expressions {
+	{	# optional if only one expression used
+	  /Pattern			# either
+	  /SimplePattern		# or
+	  /MatchFlags
+	  /Replacement
+	  /ReplaceAll
 	}
+	...
+  }
 }
 \endcode
  * @par \c Expressions
@@ -39,7 +39,8 @@
  *
  * @par \c SimplePattern
  * Mandatory, if \c Pattern not specified\n
- * Simple Regular expression pattern used to search within contents of value. The pattern will be filtered through RE::SimplePatternToFullRegularExpression()
+ * Simple Regular expression pattern used to search within contents of value. The pattern will be filtered through
+RE::SimplePatternToFullRegularExpression()
  * to create a valid regular expression string. Simple String or Renderer specification supported.
  *
  * @par \c MatchFlags
@@ -47,7 +48,8 @@
  *
  * @par \c Replacement
  * Mandatory\n
- * Simple String or Renderer specification resulting in a string to be used as replacement for the matching regular expression.\n
+ * Simple String or Renderer specification resulting in a string to be used as replacement for the matching regular
+expression.\n
  * \note Group specific replacement strings like \\1 are not supported yet.
  *
  * @par \c ReplaceAll
@@ -57,20 +59,20 @@
  * @par Example1:
 \code
 /RegExpSearchReplaceResultMapper {
-	/DestinationSlot "MyDestination"
-	/Expressions {
-		{
-			/Pattern "repl\w+ "
-			/Replacement ""
-		}
-		{
-			/SimplePattern " blu*"
-			/Replacement ""
-		}
+  /DestinationSlot "MyDestination"
+  /Expressions {
+	{
+	  /Pattern "repl\w+ "
+	  /Replacement ""
 	}
-	/putkey {
-		/ResultMapper *
+	{
+	  /SimplePattern " blu*"
+	  /Replacement ""
 	}
+  }
+  /putkey {
+	/ResultMapper *
+  }
 }
 @endcode
  * value to put with key \b putkey
@@ -80,21 +82,17 @@ Search replace BlUb in this blubby string
  * resulting output in TmpStore would be:
 @code
 /MyDestination {
-	/putkey	"Search BlUb in this"
+  /putkey	"Search BlUb in this"
 }
 @endcode
 */
-class RegExpSearchReplaceResultMapper: public ResultMapper {
+class RegExpSearchReplaceResultMapper : public ResultMapper {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	RegExpSearchReplaceResultMapper(const char *name) :
-		ResultMapper(name) {
-	}
+	RegExpSearchReplaceResultMapper(const char *name) : ResultMapper(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) RegExpSearchReplaceResultMapper(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) RegExpSearchReplaceResultMapper(fName); }
 
 protected:
 	//! regular expression replacement for simple anything types convertible to String

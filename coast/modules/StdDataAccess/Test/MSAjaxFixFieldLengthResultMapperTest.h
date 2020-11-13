@@ -13,13 +13,11 @@
 
 #include "FoundationTestTypes.h"
 
-class MSAjaxFixFieldLengthResultMapperTest: public testframework::TestCaseWithConfig {
+class MSAjaxFixFieldLengthResultMapperTest : public testframework::TestCaseWithConfig {
 public:
 	//! ConfiguredTestCase constructor
 	//! \param name name of the test
-	MSAjaxFixFieldLengthResultMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	MSAjaxFixFieldLengthResultMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//! builds up a suite of tests
 	static Test *suite();

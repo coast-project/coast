@@ -7,25 +7,25 @@
  */
 
 #include "ServerThreadPoolsManager.h"
-#include "Server.h"
+
 #include "RequestListener.h"
-#include "ServerUtils.h"
 #include "RequestProcessor.h"
+#include "Server.h"
+#include "ServerUtils.h"
 #include "Socket.h"
 
-class WorkerPoolCallBackFactory: public CallBackFactory {
+class WorkerPoolCallBackFactory : public CallBackFactory {
 public:
-	WorkerPoolCallBackFactory(RequestThreadsManager *workerPool) :
-		fWorkerPool(workerPool) {
-	}
+	WorkerPoolCallBackFactory(RequestThreadsManager *workerPool) : fWorkerPool(workerPool) {}
 	virtual AcceptorCallBack *MakeCallBack();
+
 protected:
 	RequestThreadsManager *fWorkerPool;
 };
 RegisterServerPoolsManagerInterface(ServerThreadPoolsManager);
 
-ServerThreadPoolsManager::ServerThreadPoolsManager(const char *ServerThreadPoolsManagerName) :
-	ServerPoolsManagerInterface(ServerThreadPoolsManagerName), fActiveRequests(0), fAcceptors(0) {
+ServerThreadPoolsManager::ServerThreadPoolsManager(const char *ServerThreadPoolsManagerName)
+	: ServerPoolsManagerInterface(ServerThreadPoolsManagerName), fActiveRequests(0), fAcceptors(0) {
 	StartTrace1(ServerThreadPoolsManager.Ctor, "[" << ServerThreadPoolsManagerName << "]");
 }
 
@@ -53,7 +53,7 @@ bool ServerThreadPoolsManager::SetupSocket(Server *server) {
 	ctx.Push("ServerThreadPoolsManager", this);
 
 	fAcceptors = new ListenerPool(new WorkerPoolCallBackFactory(fActiveRequests));
-	if (!fAcceptors) {
+	if (fAcceptors == 0) {
 		const char *msg = "ListenerPool allocation failed";
 		SYSERROR(msg);
 		Trace(msg);
@@ -79,24 +79,24 @@ int ServerThreadPoolsManager::SetupThreadPool(bool reinit, Server *server) {
 	//--- Active Sessions
 	long actSessions = ctx.Lookup("ThreadPoolSize", 25L);
 	long usePoolStorage = ctx.Lookup("UsePoolStorage", 0L);
-	u_long poolStorageSize = (u_long) ctx.Lookup("PoolStorageSize", 1000L);
-	u_long numOfPoolBucketSizes = (u_long) ctx.Lookup("NumOfPoolBucketSizes", 20L);
+	u_long poolStorageSize = (u_long)ctx.Lookup("PoolStorageSize", 1000L);
+	u_long numOfPoolBucketSizes = (u_long)ctx.Lookup("NumOfPoolBucketSizes", 20L);
 
 	Anything args;
 	args["processor"] = server->MakeProcessor();
 
-	if (fActiveRequests && reinit) {
+	if ((fActiveRequests != 0) && reinit) {
 		Trace("re-initializing existing pool");
 		return fActiveRequests->Init(actSessions, usePoolStorage, poolStorageSize, numOfPoolBucketSizes, args);
 	}
-	if (fActiveRequests) {
+	if (fActiveRequests != 0) {
 		Trace("deleting current RequestThreadsManager");
 		delete fActiveRequests;
 		fActiveRequests = 0;
 	}
 	Trace("creating new RequestThreadsManager");
 	fActiveRequests = new RequestThreadsManager(fName);
-	if (fActiveRequests) {
+	if (fActiveRequests != 0) {
 		// Register the WorkerPoolManager with the serverStatisticObserver
 		server->AddStatGatherer2Observe(fActiveRequests);
 		long ret = fActiveRequests->Init(actSessions, usePoolStorage, poolStorageSize, numOfPoolBucketSizes, args);
@@ -106,8 +106,8 @@ int ServerThreadPoolsManager::SetupThreadPool(bool reinit, Server *server) {
 	return -1;
 }
 
-RequestProcessor* ServerThreadPoolsManager::DoGetRequestProcessor() {
-	if (fActiveRequests) {
+RequestProcessor *ServerThreadPoolsManager::DoGetRequestProcessor() {
+	if (fActiveRequests != 0) {
 		return fActiveRequests->GetRequestProcessor();
 	}
 	return 0;
@@ -121,7 +121,7 @@ int ServerThreadPoolsManager::ReInit(Server *server) {
 int ServerThreadPoolsManager::Run(Server *server) {
 	StartTrace(ServerThreadPoolsManager.Run);
 	Assert(fAcceptors);
-	long retVal = fAcceptors->Start(false, 0, 0); // do not use pool storage
+	long retVal = fAcceptors->Start(false, 0, 0);  // do not use pool storage
 	if (retVal == -1) {
 		SYSERROR("server (" << fName << ") start accept loops failed");
 		return retVal;
@@ -157,7 +157,7 @@ void ServerThreadPoolsManager::UnblockRequests() {
 
 int ServerThreadPoolsManager::RequestTermination() {
 	StartTrace(ServerThreadPoolsManager.RequestTermination);
-	if (fAcceptors && (fAcceptors->Terminate(1, 20) != 0)) {
+	if ((fAcceptors != 0) && (fAcceptors->Terminate(1, 20) != 0)) {
 		return -1;
 	}
 	return 0;
@@ -166,47 +166,39 @@ int ServerThreadPoolsManager::RequestTermination() {
 void ServerThreadPoolsManager::Terminate() {
 	StartTrace(ServerThreadPoolsManager.Terminate);
 
-	if (fActiveRequests) {
+	if (fActiveRequests != 0) {
 		String m("Waiting for requests to terminate \n");
 		SystemLog::WriteToStderr(m);
-		fActiveRequests->AwaitEmpty(Lookup("AwaitResetEmpty", 120L)); // wait for the last request to terminate
-		bool reallyterminated = fActiveRequests->Terminate(); // AwaitEmpty() may be obsolete
+		fActiveRequests->AwaitEmpty(Lookup("AwaitResetEmpty", 120L));  // wait for the last request to terminate
+		bool reallyterminated = fActiveRequests->Terminate();		   // AwaitEmpty() may be obsolete
 		m = (reallyterminated ? "done\n" : "OOPS threads not correctly terminated\n");
 		SystemLog::WriteToStderr(m);
-		Assert(reallyterminated); // SOP should we kill the program?
+		Assert(reallyterminated);  // SOP should we kill the program?
 		delete fActiveRequests;
 		fActiveRequests = 0;
 	}
 	SetReady(false);
-	if (fAcceptors) {
+	if (fAcceptors != 0) {
 		delete fAcceptors;
 		fAcceptors = 0;
 	}
 }
 
 long ServerThreadPoolsManager::GetThreadPoolSize() {
-	if (fActiveRequests) {
+	if (fActiveRequests != 0) {
 		return fActiveRequests->GetPoolSize();
 	}
 	return 25;
 }
 
-class ServerCallBack: public AcceptorCallBack {
+class ServerCallBack : public AcceptorCallBack {
 public:
-	ServerCallBack(RequestThreadsManager *poolManager) :
-		fPoolManager(poolManager), fMutex("ServerCallBack"), fRequests(0) {
-	}
+	ServerCallBack(RequestThreadsManager *poolManager) : fPoolManager(poolManager), fMutex("ServerCallBack"), fRequests(0) {}
 	void CallBack(Socket *s);
 
-	void Lock() {
-		fMutex.Lock();
-	}
-	void Unlock() {
-		fMutex.Unlock();
-	}
-	void Wait() {
-		fCond.Wait(fMutex);
-	}
+	void Lock() { fMutex.Lock(); }
+	void Unlock() { fMutex.Unlock(); }
+	void Wait() { fCond.Wait(fMutex); }
 	void Signal() {
 		LockUnlockEntry me(fMutex);
 		fCond.Signal();
@@ -219,7 +211,7 @@ private:
 	ServerCallBack(const ServerCallBack &);
 	ServerCallBack &operator=(const ServerCallBack &);
 
-	RequestThreadsManager *fPoolManager; // the thread pool manager i'm working with
+	RequestThreadsManager *fPoolManager;  // the thread pool manager i'm working with
 	Mutex fMutex;
 	Mutex::ConditionType fCond;
 	long fRequests;
@@ -227,9 +219,9 @@ private:
 
 void ServerCallBack::CallBack(Socket *s) {
 	StartTrace(ServerCallBack.CallBack);
-	if (fPoolManager) {
+	if (fPoolManager != 0) {
 		Anything work;
-		work["socket"] = (IFAObject *) s;
+		work["socket"] = (IFAObject *)s;
 		work["request"] = ++fRequests;
 		TraceAny(work, "work:");
 		fPoolManager->Enter(work, fRequests);

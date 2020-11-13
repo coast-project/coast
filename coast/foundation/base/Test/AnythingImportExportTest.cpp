@@ -7,8 +7,9 @@
  */
 
 #include "AnythingImportExportTest.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
+#include "TestSuite.h"
 
 using namespace coast;
 
@@ -30,17 +31,17 @@ Test *AnythingImportExportTest::suite() {
 }
 
 Anything AnythingImportExportTest::init5DimArray(long anzElt) {
-	long i0, i1;
-	char idx0[3] = { 0 }, idx1[3] = { 0 };
+	long i0 = 0, i1 = 0;
+	char idx0[3] = {0}, idx1[3] = {0};
 	Anything anyInit;
 
 	for (i0 = '0'; i0 < anzElt + '0'; i0++) {
-		long l0 = (long) (i0 - '0');
-		idx0[0L] = (char) i0;
+		long l0 = (long)(i0 - '0');
+		idx0[0L] = (char)i0;
 
 		for (i1 = '0'; i1 < anzElt + '0'; i1++) {
-			long l1 = (long) (i1 - '0');
-			idx1[0L] = (char) i1;
+			long l1 = (long)(i1 - '0');
+			idx1[0L] = (char)i1;
 			anyInit[idx0][idx1] = (l0) + (l1);
 		}
 	}
@@ -48,18 +49,18 @@ Anything AnythingImportExportTest::init5DimArray(long anzElt) {
 }
 
 bool AnythingImportExportTest::check5DimArray(Anything &any0, Anything &any1, long anzElt) {
-	long i0, i1;
-	char idx0[3] = { 0 }, idx1[3] = { 0 };
+	long i0 = 0, i1 = 0;
+	char idx0[3] = {0}, idx1[3] = {0};
 	bool retVal = true;
 	Anything any;
 
 	for (i0 = '0'; i0 < anzElt + '0'; i0++) {
-		idx0[0L] = (char) i0;
+		idx0[0L] = (char)i0;
 		if (any0[idx0].At("0").At("0").At("0").At("0") != any1[idx0].At("0").At("0").At("0").At("0")) {
 			retVal = false;
 		}
 		for (i1 = '0'; i1 < anzElt + '0'; i1++) {
-			idx1[0L] = (char) i1;
+			idx1[0L] = (char)i1;
 			if (any0[idx0][idx1].At("0").At("0").At("0") != any1[idx0][idx1].At("0").At("0").At("0")) {
 				retVal = false;
 			}
@@ -93,59 +94,59 @@ void AnythingImportExportTest::WriteRead0Test() {
 	Anything any1;
 	is >> any1;
 
-	t_assert( AnythingImportExportTest::check5DimArray( any0, any1, 5) == true );
+	t_assert(AnythingImportExportTest::check5DimArray(any0, any1, 5) == true);
 }
 
 void AnythingImportExportTest::WriteRead1Test() {
 	Anything any0 = AnythingImportExportTest::init5DimArray(5);
 
 	std::ostream *os = system::OpenOStream("tmp/anything0", "tst", std::ios::out);
-	if (os) {
+	if (os != 0) {
 		any0.PrintOn(*os, true);
 		delete os;
 	} else {
-		assertEqual( "'write tmp/anything0.tst'", "'could not write tmp/anything0.tst'" );
+		assertEqual("'write tmp/anything0.tst'", "'could not write tmp/anything0.tst'");
 	}
 
 	Anything any1;
 	std::istream *is = system::OpenIStream("tmp/anything0", "tst");
-	if (is) {
+	if (is != 0) {
 		any1.Import(*is);
 		delete is;
 	} else {
-		assertEqual( "'read tmp/anything0.tst'", "'could not read tmp/anything0.tst'" );
+		assertEqual("'read tmp/anything0.tst'", "'could not read tmp/anything0.tst'");
 	}
 
-	t_assert( AnythingImportExportTest::check5DimArray( any0, any1, 5) == true );
+	t_assert(AnythingImportExportTest::check5DimArray(any0, any1, 5) == true);
 }
 
 void AnythingImportExportTest::WriteRead5Test() {
 	Anything any0("Anything: test");
 
 	std::ostream *os = system::OpenOStream("tmp/anything6", "tst", std::ios::out);
-	if (os) {
-		int i;
+	if (os != 0) {
+		int i = 0;
 		for (i = 0; i < 5; i++) {
 			*os << any0;
 		}
 		delete os;
 	} else {
-		assertEqual( "'write tmp/anything6.tst'", "'could not write tmp/anything6.tst'" );
+		assertEqual("'write tmp/anything6.tst'", "'could not write tmp/anything6.tst'");
 	}
 
 	std::istream *is = system::OpenIStream("tmp/anything6", "tst");
-	if (is) {
+	if (is != 0) {
 		Anything any1;
 		*is >> any1;
 		delete is;
-		t_assert( any0 == any1 ); // PATRU ????
-		t_assert( any0.AsCharPtr() == any0.AsCharPtr() );
-		t_assert( any0.AsString() == any0.AsString() );
-		t_assert( any0.GetSize() == any1.GetSize() );
-		t_assert( any0.GetType() == any1.GetType() );
-		t_assert( any0.IsEqual(any1) );
+		t_assert(any0 == any1);	 // PATRU ????
+		t_assert(any0.AsCharPtr() == any0.AsCharPtr());
+		t_assert(any0.AsString() == any0.AsString());
+		t_assert(any0.GetSize() == any1.GetSize());
+		t_assert(any0.GetType() == any1.GetType());
+		t_assert(any0.IsEqual(any1));
 	} else {
-		assertEqual( "'read tmp/anything6.tst'", "'could not read tmp/anything6.tst'" );
+		assertEqual("'read tmp/anything6.tst'", "'could not read tmp/anything6.tst'");
 	}
 }
 
@@ -163,12 +164,12 @@ void AnythingImportExportTest::WriteRead7Test() {
 
 	any1.Import(is);
 
-	t_assert( any0 == any1 ); // equality works for simple StringImpls!
-	assertEqual( any0.AsCharPtr(), any1.AsCharPtr() );
-	t_assert( any0.AsString() == any1[0L].AsString() );
-	assertEqual( any0.GetSize(), any1.GetSize() );
-	t_assert( any0.GetType() == any1.GetType() );
-	t_assert( any0.IsEqual(any1) ); // equality works for simple Strings
+	t_assert(any0 == any1);	 // equality works for simple StringImpls!
+	assertEqual(any0.AsCharPtr(), any1.AsCharPtr());
+	t_assert(any0.AsString() == any1[0L].AsString());
+	assertEqual(any0.GetSize(), any1.GetSize());
+	t_assert(any0.GetType() == any1.GetType());
+	t_assert(any0.IsEqual(any1));  // equality works for simple Strings
 }
 
 void AnythingImportExportTest::WriteRead8Test() {
@@ -177,22 +178,22 @@ void AnythingImportExportTest::WriteRead8Test() {
 	any0 = AnythingImportExportTest::init5DimArray(5);
 
 	std::ostream *os0 = system::OpenOStream("tmp/anything9", "tst", std::ios::out);
-	if (os0) {
+	if (os0 != 0) {
 		any0.Export(*os0, 0);
 		delete os0;
 	} else {
-		assertEqual( "'write tmp/anything9.tst'", "'could not write tmp/anything9.tst'" );
+		assertEqual("'write tmp/anything9.tst'", "'could not write tmp/anything9.tst'");
 	}
 
 	std::istream *is0 = system::OpenIStream("tmp/anything9", "tst");
-	if (is0) {
+	if (is0 != 0) {
 		any1.Import(*is0);
 		delete is0;
 	} else {
-		assertEqual( "'read tmp/anything9.tst'", "'could not read tmp/anything9.tst'" );
+		assertEqual("'read tmp/anything9.tst'", "'could not read tmp/anything9.tst'");
 	}
 
-	t_assert( AnythingImportExportTest::check5DimArray(any0, any1, 5) == true );
+	t_assert(AnythingImportExportTest::check5DimArray(any0, any1, 5) == true);
 }
 
 void AnythingImportExportTest::RefSlotTest() {
@@ -227,7 +228,9 @@ void AnythingImportExportTest::RefSlotTest() {
 	}
 	{
 		// test a reference to a named anything
+		// clang-format off
 		String str(_QUOTE_( {/200 {/a gugus /b gaga}/100 %200}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		anyExpected["200"]["a"] = "gugus";
 		anyExpected["200"]["b"] = "gaga";
@@ -243,7 +246,9 @@ void AnythingImportExportTest::RefSlotTest() {
 	}
 	{
 		// test the inverse order of the reference definition
+		// clang-format off
 		String str(_QUOTE_( {/1 %200 /200 {/a gugus /b gaga}}));
+		// clang-format on
 		IStringStream is(str);
 		Anything anyResult, anyExpected;
 		anyExpected["1"]["a"] = "gugus";
@@ -254,7 +259,9 @@ void AnythingImportExportTest::RefSlotTest() {
 	}
 	{
 		// test a reference to a named slot
+		// clang-format off
 		String str(_QUOTE_( {/200 {/a gugus /b gaga}/100 %200.a}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		anyExpected["200"]["a"] = "gugus";
 		anyExpected["200"]["b"] = "gaga";
@@ -266,7 +273,9 @@ void AnythingImportExportTest::RefSlotTest() {
 	}
 	{
 		// test unnamed references
+		// clang-format off
 		String str(_QUOTE_( {/200 {/a gugus /b gaga /c {%200.a}}/100 {c %200.b}%200.a}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		anyExpected["200"]["a"] = "gugus";
 		anyExpected["200"]["b"] = "gaga";
@@ -280,7 +289,9 @@ void AnythingImportExportTest::RefSlotTest() {
 	}
 	{
 		// test a double linked reference
+		// clang-format off
 		String str(_QUOTE_( {/200 {/a gugus /b gaga /c {%200.a}}/100 {c %200.b}%200.c}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		anyExpected["200"]["a"] = "gugus";
 		anyExpected["200"]["b"] = "gaga";
@@ -294,7 +305,9 @@ void AnythingImportExportTest::RefSlotTest() {
 	}
 	{
 		// test a reference to a unnamed slot
+		// clang-format off
 		String str(_QUOTE_( {/200 {/a gugus /b gaga /c {34}}/100 {c %200.b /e %200.c:0}%200.a}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		anyExpected["200"]["a"] = "gugus";
 		anyExpected["200"]["b"] = "gaga";
@@ -309,7 +322,9 @@ void AnythingImportExportTest::RefSlotTest() {
 	}
 	{
 		// test a unnamed reference to a unnamed slot
+		// clang-format off
 		String str(_QUOTE_( {/200 {/a gugus /b gaga /c {34}}/100 {c %200.b /e %200.c:0}%200.c:0}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		anyExpected["200"]["a"] = "gugus";
 		anyExpected["200"]["b"] = "gaga";
@@ -324,7 +339,9 @@ void AnythingImportExportTest::RefSlotTest() {
 	}
 	{
 		// test a unnamed reference to a unnamed slot with a reference
+		// clang-format off
 		String str(_QUOTE_( {/200 {/a gugus /b gaga /c {%200.a}}/100 {c %200.b /e %200.c:0}%200.a}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		anyExpected["200"]["a"] = "gugus";
 		anyExpected["200"]["b"] = "gaga";
@@ -339,7 +356,9 @@ void AnythingImportExportTest::RefSlotTest() {
 	}
 	{
 		// test a unnamed reference to a unnamed slot with a reference
+		// clang-format off
 		String str(_QUOTE_( {/100 {"a" {/200 "b" /300 %"100:1.200"}}}));
+		// clang-format on
 		Anything anyResult, anyExpected, temp1, temp2;
 
 		temp1["200"] = "b";
@@ -381,9 +400,10 @@ void AnythingImportExportTest::RefSlotTest() {
 		 }
 		 }
 		 */
-		String
-				str(
-						_QUOTE_( {	/P {/T {/T { {	a} {b} {c}}}}/T {/"2002" {/"03" {/"20" {%"P.T.T:0" /"23:21:36" %"P.T.T:1" /"23.22.28" %"P.T.T:2"}}}}}));
+		// clang-format off
+		String str(_QUOTE_(
+			{ /P {/T {/T { {	a} {b} {c}}}}/T {/"2002" {/"03" {/"20" {%"P.T.T:0" /"23:21:36" %"P.T.T:1" /"23.22.28" %"P.T.T:2"}}}}}));
+		// clang-format on
 		Anything anyResult, anyExpected, temp1, temp2;
 
 		anyExpected["P"]["T"]["T"][0L][0L] = "a";
@@ -403,15 +423,16 @@ void AnythingImportExportTest::AnyIncludeTest() {
 	{
 		// Test an include in a unnamed slot with a relativ uri without localhost
 		Anything anyMain, anyIncl, anyRef;
-
+		// clang-format off
 		String strMain(_QUOTE_( {/200 {/a gugus /b gaga}!"file:///include.any"}));
 		String strIncl(_QUOTE_( {/100 {/d foo /e frim}}));
 		String strRef(_QUOTE_( {/200 {/a gugus /b gaga} {/100 {/d foo /e frim}}}));
+		// clang-format on
 		{
 			IStringStream is(strIncl);
 			anyIncl.Import(is);
 			std::iostream *pStream = system::OpenOStream("include", "any");
-			if (pStream) {
+			if (pStream != 0) {
 				anyIncl.Export(*pStream);
 				delete pStream;
 			}
@@ -432,13 +453,15 @@ void AnythingImportExportTest::AnyIncludeTest() {
 
 		String strMain;
 		strMain << "{ /200 { /a gugus /b gaga } !\"file:///" << system::GetFilePath("include", "any") << "\"}";
+		// clang-format off
 		String strIncl(_QUOTE_( {/100 {/d foo /e frim}}));
 		String strRef(_QUOTE_( {/200 {/a gugus /b gaga} {/100 {/d foo /e frim}}}));
+		// clang-format on
 		{
 			IStringStream is(strIncl);
 			anyIncl.Import(is);
 			std::iostream *pStream = system::OpenOStream("include", "any");
-			if (pStream) {
+			if (pStream != 0) {
 				anyIncl.Export(*pStream);
 				delete pStream;
 			}
@@ -458,10 +481,11 @@ void AnythingImportExportTest::AnyIncludeTest() {
 	//	{
 	//		// Test an include in a named slot with a relativ uri with localhost
 	//		Anything anyMain, anyIncl, anyRef;
-	//
+	//		// clang-format off
 	//		String strMain(_QUOTE_({ /200 { /a gugus /b gaga } /300 !"file://localhost/include.any" }));
 	//		String strIncl(_QUOTE_({ /100 { /d foo /e frim } }));
 	//		String strRef (_QUOTE_({ /200 { /a gugus /b gaga } /300 { /100 { /d foo /e frim } } }));
+	//		// clang-format on
 	//		{
 	//			IStringStream is(strIncl);
 	//			anyIncl.Import(is);
@@ -485,10 +509,11 @@ void AnythingImportExportTest::AnyIncludeTest() {
 	//	{
 	//		// Test an include with missing of the file
 	//		Anything anyMain, anyIncl, anyRef;
-	//
+	//		// clang-format off
 	//		String strMain(_QUOTE_({ /200 { /a gugus /b gaga } /300 !"file://localhost/gugus.any" }));
 	//		String strIncl(_QUOTE_({ /100 { /d foo /e frim } }));
 	//		String strRef (_QUOTE_({ /200 { /a gugus /b gaga } /300  * }));
+	//		// clang-format on
 	//		{
 	//			IStringStream is(strIncl);
 	//			anyIncl.Import(is);
@@ -512,15 +537,16 @@ void AnythingImportExportTest::AnyIncludeTest() {
 	{
 		// Test an include with a query for a subtree in the include file
 		Anything anyMain, anyIncl, anyRef;
-
+		// clang-format off
 		String strMain(_QUOTE_( {/200 {/a gugus /b gaga}!"file:///include.any?100.d:0"}));
 		String strIncl(_QUOTE_( {/100 {/d {foo}/e frim}}));
 		String strRef(_QUOTE_( {/200 {/a gugus /b gaga}"foo"}));
+		// clang-format on
 		{
 			IStringStream is(strIncl);
 			anyIncl.Import(is);
 			std::iostream *pStream = system::OpenOStream("include", "any");
-			if (pStream) {
+			if (pStream != 0) {
 				anyIncl.Export(*pStream);
 				delete pStream;
 			}
@@ -538,15 +564,16 @@ void AnythingImportExportTest::AnyIncludeTest() {
 	{
 		// Test an include with a query for a subtree with escaped path and index delims in the include file
 		Anything anyMain, anyIncl, anyRef;
-
+		// clang-format off
 		String strMain(_QUOTE_( {/200 {/a gugus /b gaga}!"file:///include.any?a\.b\.c.d:0.\:bla"}));
 		String strIncl(_QUOTE_( {/"a.b.c" {/d { {/":bla" foo}}/e frim}}));
 		String strRef(_QUOTE_( {/200 {/a gugus /b gaga}"foo"}));
+		// clang-format on
 		{
 			IStringStream is(strIncl);
 			anyIncl.Import(is);
 			std::iostream *pStream = system::OpenOStream("include", "any");
-			if (pStream) {
+			if (pStream != 0) {
 				anyIncl.Export(*pStream);
 				delete pStream;
 			}
@@ -564,15 +591,16 @@ void AnythingImportExportTest::AnyIncludeTest() {
 	{
 		// Test an include with a query for a subtree in the include file that does not exist
 		Anything anyMain, anyIncl, anyRef;
-
+		// clang-format off
 		String strMain(_QUOTE_( {/200 {/a gugus /b gaga}!"file:///include.any?d:0"}));
 		String strIncl(_QUOTE_( {/100 {/d {foo}/e frim}}));
 		String strRef(_QUOTE_( {/200 {/a gugus /b gaga}*}));
+		// clang-format on
 		{
 			IStringStream is(strIncl);
 			anyIncl.Import(is);
 			std::iostream *pStream = system::OpenOStream("include", "any");
-			if (pStream) {
+			if (pStream != 0) {
 				anyIncl.Export(*pStream);
 				delete pStream;
 			}
@@ -600,7 +628,9 @@ void AnythingImportExportTest::ReadFailsTest() {
 void AnythingImportExportTest::RefBug227Test() {
 	{
 		// test an empty Anything at dotted slotname
+		// clang-format off
 		String str(_QUOTE_( {/200 {/"a.b.c" *}/name blub}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		IStringStream is(str);
 		anyResult.Import(is);
@@ -610,7 +640,9 @@ void AnythingImportExportTest::RefBug227Test() {
 	}
 	{
 		// test an unnamed reference
+		// clang-format off
 		String str(_QUOTE_( {/200 {/"a.b.c" *}/name blub /100 {%name /e 123}/300 {%100}}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		IStringStream is(str);
 		anyResult.Import(is);
@@ -626,9 +658,10 @@ void AnythingImportExportTest::RefBug227Test() {
 void AnythingImportExportTest::RefBug231Test() {
 	{
 		// test an unnamed reference
-		String
-				str(
-						_QUOTE_( {	/BackendName blabla /Params {/Name "avt" /Server {/RendererMapper {%BackendName}}/Port 443 /Timeout 10 /UseSSL 1}/a.b.c {3 /NewRef %BackendName}}));
+		// clang-format off
+		String str(_QUOTE_(
+			{ /BackendName blabla /Params {/Name "avt" /Server {/RendererMapper {%BackendName}}/Port 443 /Timeout 10 /UseSSL 1}/a.b.c {3 /NewRef %BackendName}}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		IStringStream is(str);
 		anyResult.Import(is);
@@ -647,7 +680,9 @@ void AnythingImportExportTest::RefBug231Test() {
 void AnythingImportExportTest::RefBug220Test() {
 	{
 		// test escaped reference
+		// clang-format off
 		String str(_QUOTE_( {/"a.b.c" {33}/name blub /300 {%"a\.b\.c:0"}}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		IStringStream is(str);
 		anyResult.Import(is);
@@ -658,7 +693,9 @@ void AnythingImportExportTest::RefBug220Test() {
 	}
 	{
 		// test escaped reference
+		// clang-format off
 		String str(_QUOTE_( {/"a.b.c" {/level1 {/level2 33}}/name blub /300 {%"a\.b\.c.level1.level2"}}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		IStringStream is(str);
 		anyResult.Import(is);
@@ -669,7 +706,9 @@ void AnythingImportExportTest::RefBug220Test() {
 	}
 	{
 		// test escaped reference
+		// clang-format off
 		String str(_QUOTE_( {/"a.b.c" {/":3" {/level2 33}}/name blub /300 {%"a\.b\.c.\:3.level2"}}));
+		// clang-format on
 		Anything anyResult, anyExpected;
 		IStringStream is(str);
 		anyResult.Import(is);

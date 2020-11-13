@@ -7,9 +7,10 @@
  */
 
 #include "AnythingDeepCloneTest.h"
-#include "TestSuite.h"
+
 #include "FoundationTestTypes.h"
 #include "PoolAllocator.h"
+#include "TestSuite.h"
 
 Test *AnythingDeepCloneTest::suite() {
 	TestSuite *testSuite = new TestSuite;
@@ -25,17 +26,17 @@ Test *AnythingDeepCloneTest::suite() {
 }
 
 Anything AnythingDeepCloneTest::init5DimArray(long anzElt) {
-	long i0, i1;
-	char idx0[3] = { 0 }, idx1[3] = { 0 };
+	long i0 = 0, i1 = 0;
+	char idx0[3] = {0}, idx1[3] = {0};
 	Anything anyInit;
 
 	for (i0 = '0'; i0 < anzElt + '0'; i0++) {
-		long l0 = (long) (i0 - '0');
-		idx0[0L] = (char) i0;
+		long l0 = (long)(i0 - '0');
+		idx0[0L] = (char)i0;
 
 		for (i1 = '0'; i1 < anzElt + '0'; i1++) {
-			long l1 = (long) (i1 - '0');
-			idx1[0L] = (char) i1;
+			long l1 = (long)(i1 - '0');
+			idx1[0L] = (char)i1;
 			anyInit[idx0][idx1] = (l0) + (l1);
 		}
 	}
@@ -43,18 +44,18 @@ Anything AnythingDeepCloneTest::init5DimArray(long anzElt) {
 }
 
 bool AnythingDeepCloneTest::check5DimArray(Anything &any0, Anything &any1, long anzElt) {
-	long i0, i1;
-	char idx0[3] = { 0 }, idx1[3] = { 0 };
+	long i0 = 0, i1 = 0;
+	char idx0[3] = {0}, idx1[3] = {0};
 	bool retVal = true;
 	Anything any;
 
 	for (i0 = '0'; i0 < anzElt + '0'; i0++) {
-		idx0[0L] = (char) i0;
+		idx0[0L] = (char)i0;
 		if (any0[idx0].At("0").At("0").At("0").At("0") != any1[idx0].At("0").At("0").At("0").At("0")) {
 			retVal = false;
 		}
 		for (i1 = '0'; i1 < anzElt + '0'; i1++) {
-			idx1[0L] = (char) i1;
+			idx1[0L] = (char)i1;
 			if (any0[idx0][idx1].At("0").At("0").At("0") != any1[idx0][idx1].At("0").At("0").At("0")) {
 				retVal = false;
 			}
@@ -66,71 +67,71 @@ bool AnythingDeepCloneTest::check5DimArray(Anything &any0, Anything &any1, long 
 void AnythingDeepCloneTest::DeepClone0Test() {
 	Anything anyOriginal, anyClone;
 	Anything AnyLong(5L);
-	Anything AnyVoidBuff((void *) "Bytebuffer", 10);
+	Anything AnyVoidBuff((void *)"Bytebuffer", 10);
 	String MyString("Another String");
 	int MyInt = 34;
 	long MyLong = 56;
-	long typeBefore, sizeBefore;
+	long typeBefore = 0, sizeBefore = 0;
 
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
 	// ...
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 
-	anyOriginal = (char *) "Ein String";
+	anyOriginal = (char *)"Ein String";
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( strcmp( anyOriginal.AsCharPtr(), "Ein String" ) == 0 );
-	t_assert( strcmp( anyClone.AsCharPtr(), "Ein String" ) == 0 );
+	t_assert(strcmp(anyOriginal.AsCharPtr(), "Ein String") == 0);
+	t_assert(strcmp(anyClone.AsCharPtr(), "Ein String") == 0);
 
-	anyOriginal = (long) MyInt;
+	anyOriginal = (long)MyInt;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
-	assertCompare( anyOriginal.AsLong(), equal_to, (long)MyInt );
-	assertCompare( anyClone.AsLong(), equal_to, (long)MyInt );
+	assertCompare(anyOriginal.AsLong(), equal_to, (long)MyInt);
+	assertCompare(anyClone.AsLong(), equal_to, (long)MyInt);
 
 	anyOriginal.Append(3L);
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( anyOriginal[0L].AsLong() == MyInt );
-	t_assert( anyClone[0L].AsLong() == MyInt );
-	t_assert( anyOriginal[1].AsLong() == 3 );
-	t_assert( anyClone[1].AsLong() == 3 );
+	t_assert(anyOriginal[0L].AsLong() == MyInt);
+	t_assert(anyClone[0L].AsLong() == MyInt);
+	t_assert(anyOriginal[1].AsLong() == 3);
+	t_assert(anyClone[1].AsLong() == 3);
 
-	//PS: try new assertAnyEqual
+	// PS: try new assertAnyEqual
 	assertAnyEqual(anyOriginal, anyClone);
 
 	anyOriginal.Append("Noch ein String");
@@ -138,223 +139,223 @@ void AnythingDeepCloneTest::DeepClone0Test() {
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( anyOriginal[0L].AsLong() == MyInt );
-	t_assert( anyClone[0L].AsLong() == MyInt );
-	t_assert( anyOriginal[1].AsLong() == 3 );
-	t_assert( anyClone[1].AsLong() == 3 );
-	t_assert( strcmp( anyOriginal[2].AsCharPtr(), "Noch ein String" ) == 0 );
-	t_assert( strcmp( anyClone[2].AsCharPtr(), "Noch ein String" ) == 0 );
+	t_assert(anyOriginal[0L].AsLong() == MyInt);
+	t_assert(anyClone[0L].AsLong() == MyInt);
+	t_assert(anyOriginal[1].AsLong() == 3);
+	t_assert(anyClone[1].AsLong() == 3);
+	t_assert(strcmp(anyOriginal[2].AsCharPtr(), "Noch ein String") == 0);
+	t_assert(strcmp(anyClone[2].AsCharPtr(), "Noch ein String") == 0);
 
 	anyOriginal = MyLong;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
-	assertCompare( anyOriginal.AsLong(), equal_to, MyLong );
-	assertCompare( anyClone.AsLong(), equal_to, MyLong );
+	assertCompare(anyOriginal.AsLong(), equal_to, MyLong);
+	assertCompare(anyClone.AsLong(), equal_to, MyLong);
 
-	anyOriginal = (double) 300.44;
+	anyOriginal = (double)300.44;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
-	assertCompare( anyOriginal.AsDouble(), equal_to, 300.44 );
-	assertCompare( anyClone.AsDouble(), equal_to, 300.44 );
+	assertCompare(anyOriginal.AsDouble(), equal_to, 300.44);
+	assertCompare(anyClone.AsDouble(), equal_to, 300.44);
 
 	anyOriginal = MyString;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( strcmp( anyOriginal.AsCharPtr(), (const char *)MyString ) == 0 );
-	t_assert( strcmp( anyClone.AsCharPtr(), (const char *)MyString ) == 0 );
+	t_assert(strcmp(anyOriginal.AsCharPtr(), (const char *)MyString) == 0);
+	t_assert(strcmp(anyClone.AsCharPtr(), (const char *)MyString) == 0);
 
 	anyOriginal = 1.37;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
-	assertCompare( anyOriginal.AsDouble(), equal_to, 1.37 );
-	assertCompare( anyClone.AsDouble(), equal_to, 1.37 );
+	assertCompare(anyOriginal.AsDouble(), equal_to, 1.37);
+	assertCompare(anyClone.AsDouble(), equal_to, 1.37);
 
 	anyOriginal = AnyLong;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
-	assertCompare( anyOriginal.AsLong(), equal_to, AnyLong.AsLong() );
-	assertCompare( anyClone.AsLong(), equal_to, AnyLong.AsLong() );
+	assertCompare(anyOriginal.AsLong(), equal_to, AnyLong.AsLong());
+	assertCompare(anyClone.AsLong(), equal_to, AnyLong.AsLong());
 
 	anyOriginal = AnythingDeepCloneTest::init5DimArray(5);
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyClone = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
-	t_assert( anyClone.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
+	t_assert(anyClone.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
-	assertCompare( anyClone.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
+	assertCompare(anyClone.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( AnythingDeepCloneTest::check5DimArray( anyOriginal, anyClone, 5 ) == true );
+	t_assert(AnythingDeepCloneTest::check5DimArray(anyOriginal, anyClone, 5) == true);
 }
 
 void AnythingDeepCloneTest::DeepClone1Test() {
 	Anything anyOriginal;
 	Anything AnyLong(5L);
-	Anything AnyVoidBuff((void *) "Bytebuffer", 10);
+	Anything AnyVoidBuff((void *)"Bytebuffer", 10);
 	String MyString("Another String");
 	int MyInt = 34;
 	long MyLong = 56;
-	long typeBefore, sizeBefore;
+	long typeBefore = 0, sizeBefore = 0;
 
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
 	// ...
 
-	anyOriginal = (char *) "Ein String";
+	anyOriginal = (char *)"Ein String";
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( strcmp( anyOriginal.AsCharPtr(), "Ein String" ) == 0 );
+	t_assert(strcmp(anyOriginal.AsCharPtr(), "Ein String") == 0);
 
-	anyOriginal = (long) MyInt;
+	anyOriginal = (long)MyInt;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( anyOriginal.AsLong() == MyInt );
+	t_assert(anyOriginal.AsLong() == MyInt);
 
 	anyOriginal.Append(3L);
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( anyOriginal[0L].AsLong() == MyInt );
-	t_assert( anyOriginal[1].AsLong() == 3 );
+	t_assert(anyOriginal[0L].AsLong() == MyInt);
+	t_assert(anyOriginal[1].AsLong() == 3);
 
 	anyOriginal.Append("Noch ein String");
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( anyOriginal[0L].AsLong() == MyInt );
-	t_assert( anyOriginal[1].AsLong() == 3 );
-	t_assert( strcmp( anyOriginal[2].AsCharPtr(), "Noch ein String" ) == 0 );
+	t_assert(anyOriginal[0L].AsLong() == MyInt);
+	t_assert(anyOriginal[1].AsLong() == 3);
+	t_assert(strcmp(anyOriginal[2].AsCharPtr(), "Noch ein String") == 0);
 
 	anyOriginal = MyLong;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
-	assertCompare( anyOriginal.AsLong(), equal_to, MyLong );
+	assertCompare(anyOriginal.AsLong(), equal_to, MyLong);
 
-	anyOriginal = (double) 300.44;
+	anyOriginal = (double)300.44;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
-	assertCompare( anyOriginal.AsDouble(), equal_to, 300.44 );
+	assertCompare(anyOriginal.AsDouble(), equal_to, 300.44);
 
 	anyOriginal = MyString;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( strcmp( anyOriginal.AsCharPtr(), (const char *)MyString ) == 0 );
+	t_assert(strcmp(anyOriginal.AsCharPtr(), (const char *)MyString) == 0);
 
 	anyOriginal = 1.37;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
-	assertCompare( anyOriginal.AsDouble(), equal_to, 1.37 );
+	assertCompare(anyOriginal.AsDouble(), equal_to, 1.37);
 
 	anyOriginal = AnyLong;
 	typeBefore = anyOriginal.GetType();
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
-	assertCompare( anyOriginal.AsLong(), equal_to, AnyLong.AsLong() );
+	assertCompare(anyOriginal.AsLong(), equal_to, AnyLong.AsLong());
 
 	anyOriginal = AnythingDeepCloneTest::init5DimArray(5);
 	Anything anySave;
@@ -363,16 +364,16 @@ void AnythingDeepCloneTest::DeepClone1Test() {
 	sizeBefore = anyOriginal.GetSize();
 	anyOriginal = anyOriginal.DeepClone();
 	// Check types
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check sizes
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 	// Check values
-	t_assert( AnythingDeepCloneTest::check5DimArray( anyOriginal, anySave, 5 ) == true );
+	t_assert(AnythingDeepCloneTest::check5DimArray(anyOriginal, anySave, 5) == true);
 }
 
 void AnythingDeepCloneTest::DeepClone2Test() {
 	Anything anyOriginal, any0;
-	long i, typeBefore, sizeBefore;
+	long i = 0, typeBefore = 0, sizeBefore = 0;
 
 	for (i = 0; i < 100; i++) {
 		anyOriginal.Append(i);
@@ -383,26 +384,26 @@ void AnythingDeepCloneTest::DeepClone2Test() {
 	any0 = anyOriginal;
 	any0[100] = any0.DeepClone();
 	// Check type of anyOriginal
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check size anyOriginal
-	t_assert( anyOriginal.GetSize() == sizeBefore + 1 );
+	t_assert(anyOriginal.GetSize() == sizeBefore + 1);
 
 	// Check type of any0
-	t_assert( any0.GetType() == AnyArrayType );
+	t_assert(any0.GetType() == AnyArrayType);
 	// Check size anyOriginal
-	t_assert( any0.GetSize() == sizeBefore + 1 );
+	t_assert(any0.GetSize() == sizeBefore + 1);
 	// Check values of any0
 	for (i = 0; i < 100; i++) {
-		t_assert( any0[i] == i );
+		t_assert(any0[i] == i);
 	}
 	for (i = 0; i < 100; i++) {
-		t_assert( any0[100][i] == i );
+		t_assert(any0[100][i] == i);
 	}
 }
 
 void AnythingDeepCloneTest::DeepClone3Test() {
 	Anything anyOriginal, any0;
-	long i, typeBefore, sizeBefore;
+	long i = 0, typeBefore = 0, sizeBefore = 0;
 
 	for (i = 0; i < 100; i++) {
 		anyOriginal.Append(i);
@@ -413,26 +414,26 @@ void AnythingDeepCloneTest::DeepClone3Test() {
 	any0 = anyOriginal;
 	any0[99] = any0.DeepClone();
 	// Check type of anyOriginal
-	t_assert( anyOriginal.GetType() == typeBefore );
+	t_assert(anyOriginal.GetType() == typeBefore);
 	// Check size anyOriginal
-	assertCompare( anyOriginal.GetSize(), equal_to, sizeBefore );
+	assertCompare(anyOriginal.GetSize(), equal_to, sizeBefore);
 
 	// Check type of any0
-	t_assert( any0.GetType() == AnyArrayType );
+	t_assert(any0.GetType() == AnyArrayType);
 	// Check size anyOriginal
-	assertCompare( any0.GetSize(), equal_to, sizeBefore );
+	assertCompare(any0.GetSize(), equal_to, sizeBefore);
 	// Check values of any0
 	for (i = 0; i < 99; i++) {
-		t_assert( any0[i] == i );
+		t_assert(any0[i] == i);
 	}
 	for (i = 0; i < 100; i++) {
-		t_assert( any0[99][i] == i );
+		t_assert(any0[99][i] == i);
 	}
 }
 
 void AnythingDeepCloneTest::DeepClone4Test() {
 	Anything any0, any1;
-	long typeBefore, sizeBefore;
+	long typeBefore = 0, sizeBefore = 0;
 
 	any0.Append(12L);
 	any0.Append(13L);
@@ -445,25 +446,25 @@ void AnythingDeepCloneTest::DeepClone4Test() {
 	// the access increases the size by one
 
 	// Check type
-	t_assert( any0.GetType() == typeBefore );
+	t_assert(any0.GetType() == typeBefore);
 	// Check size
-	assertEqual( sizeBefore + 1, any0.GetSize() );
+	assertEqual(sizeBefore + 1, any0.GetSize());
 	// Check value
-	assertEqual( 12, any0[0L].AsLong(-1) );
-	assertEqual( -2, any0.AsLong(-2) );
+	assertEqual(12, any0[0L].AsLong(-1));
+	assertEqual(-2, any0.AsLong(-2));
 
 	// check clone
-	t_assert( any1.GetType() == AnyNullType );
+	t_assert(any1.GetType() == AnyNullType);
 }
 
 void AnythingDeepCloneTest::DeepClone5Test() {
 	Anything any0, any1 = 1L;
-	t_assert( any0.GetType() == AnyNullType );
-	t_assert( any1.GetType() == AnyLongType );
+	t_assert(any0.GetType() == AnyNullType);
+	t_assert(any1.GetType() == AnyLongType);
 
 	any1 = any0.DeepClone();
-	t_assert( any1.GetType() == AnyNullType );
-} // testeDeepClone5
+	t_assert(any1.GetType() == AnyNullType);
+}  // testeDeepClone5
 
 void AnythingDeepCloneTest::DeepCloneWithRef() {
 	Anything a;
@@ -514,9 +515,10 @@ void AnythingDeepCloneTest::DeepCloneBug232Test() {
 	StartTrace(AnythingDeepCloneTest.DeepCloneBug232Test);
 	{
 		// test escaped reference
-		String
-				str(
-						_QUOTE_( {	/level {/BackendShortName "avt" /BackendName {%level.BackendShortName /Lookup RenderSSODomain}/SSOBackendName {/Lookup RenderSSOPrefix "." %level.BackendName}/ServiceLink {/URL { {/Lookup RenderSSOProtocol}"://" %level.SSOBackendName {/Lookup RenderSSOPort}"/"}/Name "AVT" /Tooltip "Betrieb" /DisplayLoc "ExtServiceLinkList" /DisplayOrder "20"}}}));
+		// clang-format off
+		String str(_QUOTE_(
+			{ /level { /BackendShortName "avt" /BackendName {%level.BackendShortName /Lookup RenderSSODomain}/SSOBackendName {/Lookup RenderSSOPrefix "." %level.BackendName}/ServiceLink {/URL { {/Lookup RenderSSOProtocol}"://" %level.SSOBackendName {/Lookup RenderSSOPort}"/"}/Name "AVT" /Tooltip "Betrieb" /DisplayLoc "ExtServiceLinkList" /DisplayOrder "20"}}}));
+		// clang-format on
 		Anything anyExpected(coast::storage::Global());
 		IStringStream is(str);
 		anyExpected.Import(is);
@@ -533,9 +535,10 @@ void AnythingDeepCloneTest::DeepCloneBug232Test() {
 	}
 	{
 		// test escaped reference
-		String
-				str(
-						_QUOTE_( {	/level {/BackendShortName "avt" /BackendName {%level.BackendShortName /Lookup RenderSSODomain}/SSOBackendName {/Lookup RenderSSOPrefix "." %level.BackendName}/ServiceLink {/URL { {/Lookup RenderSSOProtocol}"://" %level.SSOBackendName {/Lookup RenderSSOPort}"/"}/Name "AVT" /Tooltip "Betrieb" /DisplayLoc "ExtServiceLinkList" /DisplayOrder "20"}}}));
+		// clang-format off
+		String str(_QUOTE_(
+			{ /level { /BackendShortName "avt" /BackendName {%level.BackendShortName /Lookup RenderSSODomain}/SSOBackendName {/Lookup RenderSSOPrefix "." %level.BackendName}/ServiceLink {/URL { {/Lookup RenderSSOProtocol}"://" %level.SSOBackendName {/Lookup RenderSSOPort}"/"}/Name "AVT" /Tooltip "Betrieb" /DisplayLoc "ExtServiceLinkList" /DisplayOrder "20"}}}));
+		// clang-format on
 		Anything anyExpected(coast::storage::Global());
 		IStringStream is(str);
 		anyExpected.Import(is);

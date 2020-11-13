@@ -12,12 +12,11 @@
 #include "Anything.h"
 class Application;
 
-//!single line description of the class
+//! single line description of the class
 //! further explanation of the purpose of the class
 //! this may contain <B>HTML-Tags</B>
 //! ...
-class AppBooter
-{
+class AppBooter {
 	// load the global config file with the information
 	// set in the environment variable COAST_ROOT
 	// or with a minimal relative path
@@ -26,19 +25,19 @@ public:
 	~AppBooter();
 	int Run(int argc, const char *argv[], bool doHalt = true);
 
-	bool Boot(Anything &config); // access the intial config file
+	bool Boot(Anything &config);  // access the intial config file
 	Application *FindApplication(ROAnything config, String &applicationName);
 
 	bool OpenLibs(const Anything &config);
 	bool CloseLibs();
-	bool ReadFromFile(Anything &config, const char *filename); // reading of configuration files
+	bool ReadFromFile(Anything &config, const char *filename);	// reading of configuration files
 	void HandleArgs(int argc, const char *argv[], Anything &config);
 	void SetSignalMask();
 
-	//!sets COAST_ROOT and COAST_PATH if set in args; returns bootfilename
+	//! sets COAST_ROOT and COAST_PATH if set in args; returns bootfilename
 	String PrepareBootFileLoading(const ROAnything &roconfig);
 
-	//!merges command line arguments into global configuration anything
+	//! merges command line arguments into global configuration anything
 	void MergeConfigWithArgs(Anything &config, const Anything &args);
 
 	void Halt(const Anything &config);

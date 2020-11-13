@@ -9,19 +9,18 @@
 #ifndef _PulldownMenuRendererTest_H
 #define _PulldownMenuRendererTest_H
 
-#include "RendererTest.h"
 #include "FieldRendererTest.h"
+#include "RendererTest.h"
 
 //---- PulldownMenuRenderer -----------------------------------------------------------
 
-class PulldownMenuRendererTest : public FieldRendererTest
-{
+class PulldownMenuRendererTest : public FieldRendererTest {
 public:
 	PulldownMenuRendererTest(TString tstrName);
 	virtual ~PulldownMenuRendererTest();
 
-	static Test *suite ();
-	void setUp ();
+	static Test *suite();
+	void setUp();
 
 protected:
 	void TestCaseEmptyConf();
@@ -45,4 +44,4 @@ protected:
 	void TestFaultOptionRendererOld();
 };
 
-#endif		//not defined _PulldownMenuRendererTest_H
+#endif	// not defined _PulldownMenuRendererTest_H

@@ -7,32 +7,28 @@
  */
 
 #include "MTStorageTest2.h"
-#include "TestSuite.h"
-#include "Threads.h"
+
 #include "MT_Storage.h"
 #include "SystemBase.h"
+#include "TestSuite.h"
+#include "Threads.h"
 #if defined(WIN32)
 #include <io.h>
 #endif
 
-class TestWorkerThread: public Thread {
+class TestWorkerThread : public Thread {
 protected:
-	TestWorkerThread(Allocator *a) :
-		Thread("TestWorkerThread", false, true, false, false, a) {
-	}
+	TestWorkerThread(Allocator *a) : Thread("TestWorkerThread", false, true, false, false, a) {}
 };
 
-class DataProviderThread: public TestWorkerThread {
-	Allocator* fDataAllocator;
+class DataProviderThread : public TestWorkerThread {
+	Allocator *fDataAllocator;
 	Anything fData;
-public:
-	DataProviderThread(Allocator* a, Allocator* d) :
-			TestWorkerThread(a), fDataAllocator(d), fData(d) {
-	}
 
-	Anything &GetData() {
-		return fData;
-	}
+public:
+	DataProviderThread(Allocator *a, Allocator *d) : TestWorkerThread(a), fDataAllocator(d), fData(d) {}
+
+	Anything &GetData() { return fData; }
 
 protected:
 	virtual void Run() {
@@ -74,8 +70,7 @@ protected:
 	}
 };
 
-MTStorageTest2::MTStorageTest2(TString tname) :
-	TestCaseType(tname), fGlobal(0), fPool(0) {
+MTStorageTest2::MTStorageTest2(TString tname) : TestCaseType(tname), fGlobal(0), fPool(0) {
 	StartTrace1(MTStorageTest2.Ctor, "ThrdId: " << Thread::MyId());
 }
 
@@ -86,10 +81,10 @@ MTStorageTest2::~MTStorageTest2() {
 void MTStorageTest2::setUp() {
 	StartTrace1(MTStorageTest2.setUp, "ThrdId: " << Thread::MyId());
 	// setting up a hardcoded debug context
-	if (!fGlobal) {
+	if (fGlobal == 0) {
 		fGlobal = coast::storage::Global();
 	}
-	if (!fPool) {
+	if (fPool == 0) {
 		fPool = MT_Storage::MakePoolAllocator(2000, 25, 4711);
 		MT_Storage::RefAllocator(fPool);
 	}
@@ -103,7 +98,7 @@ void MTStorageTest2::tearDown() {
 
 void MTStorageTest2::trivialTest() {
 	StartTrace(MTStorageTest2.trivialTest);
-	t_assert( fGlobal != fPool ); // allocators should be different
+	t_assert(fGlobal != fPool);	 // allocators should be different
 }
 
 void MTStorageTest2::twoThreadTest() {
@@ -123,9 +118,12 @@ void MTStorageTest2::twoThreadTest() {
 	if (coast::storage::GetStatisticLevel() >= 1) {
 		TraceAny(memstats, "memory usage");
 #if defined(POOL_STARTEDHOOK)
-		assertComparem(0L, equal_to, memstats["allocatedOnThreadAllocOnEnterRun"].AsLong(), "Pool Memory should have been left untouched so far");
+		assertComparem(0L, equal_to, memstats["allocatedOnThreadAllocOnEnterRun"].AsLong(),
+					   "Pool Memory should have been left untouched so far");
 #else
-		assertComparem(0L, equal_to, memstats["allocatedOnThreadAllocOnEnterRun"].AsLong(), "everything should have been allocated within pool XXX: changes when semantic of Thread::eStarted changes!");
+		assertComparem(
+			0L, equal_to, memstats["allocatedOnThreadAllocOnEnterRun"].AsLong(),
+			"everything should have been allocated within pool XXX: changes when semantic of Thread::eStarted changes!");
 #endif
 		assertComparem(static_cast<ul_long>(0), equal_to, fPool->CurrentlyAllocated(), "expected fPool to be empty");
 	}
@@ -145,9 +143,10 @@ void MTStorageTest2::twoThreadAssignmentTest() {
 
 	// data should have been copied to global store now
 	assertComparem(static_cast<ul_long>(0), equal_to, fPool->CurrentlyAllocated(), "expected fPool to be empty");
-	// the current implementation allows size testing, eg. tracking of allocated and freed memory only in coast::storage::GetStatisticLevel() >= 1
+	// the current implementation allows size testing, eg. tracking of allocated and freed memory only in
+	// coast::storage::GetStatisticLevel() >= 1
 	if (coast::storage::GetStatisticLevel() >= 1) {
-		assertCompare( fGlobal->CurrentlyAllocated(), greater, l);
+		assertCompare(fGlobal->CurrentlyAllocated(), greater, l);
 	}
 }
 
@@ -160,14 +159,15 @@ void MTStorageTest2::twoThreadCopyConstructorTest() {
 	// wait for other thread to finish
 	t1->CheckState(Thread::eTerminated);
 
-	Anything y(t1->GetData()); // should be equivalent to the use of operator=
+	Anything y(t1->GetData());	// should be equivalent to the use of operator=
 	delete t1;
 
 	// data should have been copied to global store now
 	assertComparem(static_cast<ul_long>(0), equal_to, fPool->CurrentlyAllocated(), "expected fPool to be empty");
-	// the current implementation allows size testing, eg. tracking of allocated and freed memory only in coast::storage::GetStatisticLevel() >= 1
+	// the current implementation allows size testing, eg. tracking of allocated and freed memory only in
+	// coast::storage::GetStatisticLevel() >= 1
 	if (coast::storage::GetStatisticLevel() >= 1) {
-		assertCompare( fGlobal->CurrentlyAllocated(), greater, l);
+		assertCompare(fGlobal->CurrentlyAllocated(), greater, l);
 	}
 }
 
@@ -178,21 +178,22 @@ void MTStorageTest2::twoThreadArrayAccessTest() {
 	{
 		t1->Start(fPool);
 		t1->CheckState(Thread::eRunning);
-		assertCompare( l, equal_to, fGlobal->CurrentlyAllocated());
+		assertCompare(l, equal_to, fGlobal->CurrentlyAllocated());
 
 		// wait for other thread to finish
 		t1->CheckState(Thread::eTerminated);
-		assertCompare( l, equal_to, fGlobal->CurrentlyAllocated());
+		assertCompare(l, equal_to, fGlobal->CurrentlyAllocated());
 		// CAUTION: always pass a reference to long lived Anything to ROAnything! methods
 		//          often return a temporary Anything which is *NOT* suitable to initialize
 		//          a ROAnything...
-		ROAnything sub(t1->GetData()["Sub"]["2"]); // no copy should be necessary for access
-		assertEqual( "ok", sub.AsCharPtr("") );
+		ROAnything sub(t1->GetData()["Sub"]["2"]);	// no copy should be necessary for access
+		assertEqual("ok", sub.AsCharPtr(""));
 
-		Anything copy(t1->GetData()["Sub"]["2"]); // must be copied since allocators dont match
-		// the current implementation allows size testing, eg. tracking of allocated and freed memory only in coast::storage::GetStatisticLevel() >= 1
+		Anything copy(t1->GetData()["Sub"]["2"]);  // must be copied since allocators dont match
+		// the current implementation allows size testing, eg. tracking of allocated and freed memory only in
+		// coast::storage::GetStatisticLevel() >= 1
 		if (coast::storage::GetStatisticLevel() >= 1) {
-			assertCompare( fGlobal->CurrentlyAllocated(), greater, l);
+			assertCompare(fGlobal->CurrentlyAllocated(), greater, l);
 		}
 		delete t1;
 	}
@@ -205,10 +206,10 @@ void MTStorageTest2::reusePoolTest() {
 
 	Allocator *pa = MT_Storage::MakePoolAllocator(3);
 	t_assertm(pa != 0, "expected allocation of PoolAllocator to succeed");
-	if (!pa) {
+	if (pa == 0) {
 		return;
 	}
-	MT_Storage::RefAllocator(pa); // need to refcount poolstorage
+	MT_Storage::RefAllocator(pa);  // need to refcount poolstorage
 	assertEqualm(1L, pa->RefCnt(), "expected refcnt to be 1");
 	DataProviderThread *t1 = new (coast::storage::Global()) DataProviderThread(pa, coast::storage::Global());
 	assertEqualm(2L, pa->RefCnt(), "expected refcnt to be 2");
@@ -235,7 +236,7 @@ void MTStorageTest2::reusePoolTest() {
 	delete t1;
 	assertEqualm(1L, pa->RefCnt(), "expected refcnt to be 1");
 
-	MT_Storage::UnrefAllocator(pa); // need to refcount poolstorage
+	MT_Storage::UnrefAllocator(pa);	 // need to refcount poolstorage
 }
 
 Test *MTStorageTest2::suite() {

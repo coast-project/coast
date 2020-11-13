@@ -7,6 +7,7 @@
  */
 
 #include "SystemLog.h"
+
 #include <cstring>
 
 namespace InitFinisManager {
@@ -17,4 +18,4 @@ namespace InitFinisManager {
 			SystemLog::WriteToStderr(pMsg);
 		}
 	}
-}
+}  // namespace InitFinisManager

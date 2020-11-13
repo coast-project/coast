@@ -54,7 +54,7 @@ class Context;
 //		/BoxQuery		slotname to lookup the QueryTitles of the used SQL
 //	}</PRE>
 //
-//Example:
+// Example:
 //		{ /Call {
 //			/TitlesOnceColsAction {
 //				/BoxColumns		VerfuegbareUserColumns
@@ -65,18 +65,17 @@ class Context;
 //		let the MultifunctionListBoxRenderer use the optimized columns:
 //		/ColList	VerfuegbareUserColumnsOpt
 
-class TitlesOnceColsAction : public Action
-{
+class TitlesOnceColsAction : public Action {
 public:
 	//--- constructors
 	TitlesOnceColsAction(const char *name);
 	~TitlesOnceColsAction();
 
 	//:DoSomething method for configured Actions
-	//!param: transitionToken - (in/out) the event passed by the caller, can be modified.
-	//!param: ctx - the context the action runs within.
-	//!param: config - the configuration of the action.
-	//!retv: true if the action run successfully, false if an error occurred.
+	//! param: transitionToken - (in/out) the event passed by the caller, can be modified.
+	//! param: ctx - the context the action runs within.
+	//! param: config - the configuration of the action.
+	//! retv: true if the action run successfully, false if an error occurred.
 	virtual bool DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config);
 };
 

@@ -7,35 +7,32 @@
  */
 
 #include "LDAPDAICachePolicyTest.h"
+
 #include "LDAPDAICachePolicyModule.h"
 #include "TestSuite.h"
 
 //---- LDAPDAICachePolicyTest ----------------------------------------------------------------
-LDAPDAICachePolicyTest::LDAPDAICachePolicyTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+LDAPDAICachePolicyTest::LDAPDAICachePolicyTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(LDAPDAICachePolicyTest.Ctor);
 }
 
-LDAPDAICachePolicyTest::~LDAPDAICachePolicyTest()
-{
+LDAPDAICachePolicyTest::~LDAPDAICachePolicyTest() {
 	StartTrace(LDAPDAICachePolicyTest.Dtor);
 }
 
-void LDAPDAICachePolicyTest::NoDataReadTest()
-{
+void LDAPDAICachePolicyTest::NoDataReadTest() {
 	StartTrace(LDAPDAICachePolicyTest.NoDataReadTest);
 	WDModule *pModule = WDModule::FindWDModule("LDAPDAICachePolicyModule");
-	if ( t_assertm(pModule != NULL, "expected LDAPDAICachePolicyModule to be registered") ) {
-		t_assertm( !pModule->Init(GetTestCaseConfig()), "LDAPDAICachePolicyModule init should have failed because a relevant dataaccess failed");
+	if (t_assertm(pModule != NULL, "expected LDAPDAICachePolicyModule to be registered")) {
+		t_assertm(!pModule->Init(GetTestCaseConfig()),
+				  "LDAPDAICachePolicyModule init should have failed because a relevant dataaccess failed");
 	}
 }
 
-void LDAPDAICachePolicyTest::ReInitTest()
-{
+void LDAPDAICachePolicyTest::ReInitTest() {
 	StartTrace(LDAPDAICachePolicyTest.ReInitTest);
 	WDModule *pModule = WDModule::FindWDModule("LDAPDAICachePolicyModule");
-	if ( t_assertm(pModule != NULL, "expected LDAPDAICachePolicyModule to be registered") ) {
+	if (t_assertm(pModule != NULL, "expected LDAPDAICachePolicyModule to be registered")) {
 		ROAnything result;
 		t_assert(LDAPDAICacheGetter::Get(result, "TestDA1", ":0.name"));
 		assertEqualm("ifs APPL. User Directory", result.AsString(), "Reset test failed.");
@@ -43,8 +40,8 @@ void LDAPDAICachePolicyTest::ReInitTest()
 		assertEqualm("cn=CH10601-tkgae,dc=tkfpd.hsr.ch", result.AsString(), "Reset test failed.");
 
 		// simulate a WDModule::Reset()
-		if ( t_assertm( pModule->ResetFinis(GetTestCaseConfig()), "ResetFinis should have worked") ) {
-			t_assertm( pModule->ResetInit(GetTestCaseConfig()), "ResetFinis should have worked");
+		if (t_assertm(pModule->ResetFinis(GetTestCaseConfig()), "ResetFinis should have worked")) {
+			t_assertm(pModule->ResetInit(GetTestCaseConfig()), "ResetFinis should have worked");
 		}
 
 		t_assert(LDAPDAICacheGetter::Get(result, "TestDA1Action", ":0.name"));
@@ -54,8 +51,7 @@ void LDAPDAICachePolicyTest::ReInitTest()
 	}
 }
 
-void LDAPDAICachePolicyTest::CallsInARow()
-{
+void LDAPDAICachePolicyTest::CallsInARow() {
 	StartTrace(LDAPDAICachePolicyTest.CallsInARow);
 	ROAnything result;
 	t_assert(LDAPDAICacheGetter::Get(result, "TestDA1", ":0.name"));
@@ -70,8 +66,7 @@ void LDAPDAICachePolicyTest::CallsInARow()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *LDAPDAICachePolicyTest::suite ()
-{
+Test *LDAPDAICachePolicyTest::suite() {
 	StartTrace(LDAPDAICachePolicyTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, LDAPDAICachePolicyTest, NoDataReadTest);

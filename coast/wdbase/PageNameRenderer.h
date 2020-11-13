@@ -23,14 +23,13 @@ or
 *
 \endcode
 */
-class PageNameRenderer : public Renderer
-{
+class PageNameRenderer : public Renderer {
 public:
 	//--- constructors
 	PageNameRenderer(const char *name);
 	virtual ~PageNameRenderer();
 
-	//!Renders the Pagename
+	//! Renders the Pagename
 	//! \param reply out - the stream where the rendered output is written on.
 	//! \param c the context the renderer runs within.
 	//! \param config the configuration of the renderer.

@@ -6,6 +6,7 @@
  * the license that is included with this library/application in the file license.txt.
  */
 #include "TransitionDispatchAction.h"
+
 #include "Context.h"
 #include "SystemLog.h"
 #include "Tracer.h"
@@ -14,14 +15,14 @@ RegisterAction(TransitionDispatchAction);
 
 bool TransitionDispatchAction::DoExecAction(String &transitionToken, Context &ctx, const ROAnything &config) {
 	StartTrace(TransitionDispatchAction.DoExecAction);
-	if (transitionToken.Length()) {
+	if (transitionToken.Length() != 0) {
 		ROAnything nextActionConfig = ctx.Lookup(transitionToken);
 		TraceAny(nextActionConfig, "nextActionConfig");
 		if (!nextActionConfig.IsNull()) {
 			return Action::ExecAction(transitionToken, ctx, nextActionConfig);
-		} else {
-			SYSWARNING("transition config is null, returning false!");
 		}
+		SYSWARNING("transition config is null, returning false!");
+
 	} else {
 		SYSWARNING("transitionToken empty, returning false!");
 	}

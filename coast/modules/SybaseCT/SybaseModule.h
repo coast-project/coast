@@ -20,8 +20,7 @@
 //		}
 //      ...
 //	}</PRE>
-class SybaseModule : public WDModule
-{
+class SybaseModule : public WDModule {
 public:
 	//--- constructors
 	SybaseModule(const char *name);
@@ -32,13 +31,13 @@ public:
 	//:implementers should terminate module expecting destruction
 	virtual bool Finis();
 
-//    //:initializes module after termination for reinitialization; default uses Init; check if this applies
-//    virtual bool ResetInit(const ROAnything config);
-//    //:terminates module for reinitialization; default uses Finis; check if this applies
-//    virtual bool ResetFinis(const ROAnything config);
+	//    //:initializes module after termination for reinitialization; default uses Init; check if this applies
+	//    virtual bool ResetInit(const ROAnything config);
+	//    //:terminates module for reinitialization; default uses Finis; check if this applies
+	//    virtual bool ResetFinis(const ROAnything config);
 
 private:
-	bool		fHasNewDAImpls;
+	bool fHasNewDAImpls;
 };
 
 #endif

@@ -7,11 +7,12 @@
  */
 
 #include "PipeStream.h"
-#include "SystemLog.h"
-#include "SystemBase.h"
+
 #include "Pipe.h"
-#include "Tracer.h"
 #include "Socket.h"
+#include "SystemBase.h"
+#include "SystemLog.h"
+#include "Tracer.h"
 
 using namespace coast;
 
@@ -21,33 +22,26 @@ using namespace coast;
 #endif
 
 PipeStream::PipeStream(Pipe *s, long timeout, long sockbufsz)
-	: iosCoastPipe(s, timeout, sockbufsz, std::ios::in | std::ios::out)
-	, std::iostream(&fPipeBuf)
-{
-}
+	: iosCoastPipe(s, timeout, sockbufsz, std::ios::in | std::ios::out), std::iostream(&fPipeBuf) {}
 
-PipeTimeoutModifier::PipeTimeoutModifier(PipeStream *ioStream, long timeout)
-	: fStream(ioStream)
-{
+PipeTimeoutModifier::PipeTimeoutModifier(PipeStream *ioStream, long timeout) : fStream(ioStream) {
 	fOriginalTimeout = fStream->rdbuf()->GetTimeout();
 	fStream->rdbuf()->SetTimeout(timeout);
 }
 
-PipeTimeoutModifier::~PipeTimeoutModifier()
-{
+PipeTimeoutModifier::~PipeTimeoutModifier() {
 	fStream->rdbuf()->SetTimeout(fOriginalTimeout);
 }
 
 PipeStreamBuf::PipeStreamBuf(Pipe *myPipe, long timeout, long sockbufsz, int mode)
-	: fReadBufStorage(mode &std::ios::in ? sockbufsz : 0L)
-	, fWriteBufStorage(mode &std::ios::out ? sockbufsz : 0L)
-	, fPipe(myPipe)
-	, fTimeout(0)
-	, fReadCount(0)
-	, fWriteCount(0)
-{
+	: fReadBufStorage((mode & std::ios::in) != 0 ? sockbufsz : 0L),
+	  fWriteBufStorage((mode & std::ios::out) != 0 ? sockbufsz : 0L),
+	  fPipe(myPipe),
+	  fTimeout(0),
+	  fReadCount(0),
+	  fWriteCount(0) {
 	StartTrace(PipeStreamBuf.PipeStreamBuf);
-	if (fPipe) {
+	if (fPipe != 0) {
 		// set to non-blocking IO
 		Socket::SetToNonBlocking(fPipe->GetReadFd());
 		Socket::SetToNonBlocking(fPipe->GetWriteFd());
@@ -57,13 +51,12 @@ PipeStreamBuf::PipeStreamBuf(Pipe *myPipe, long timeout, long sockbufsz, int mod
 }
 
 PipeStreamBuf::PipeStreamBuf(const PipeStreamBuf &ssbuf)
-	: fReadBufStorage(ssbuf.fReadBufStorage.Capacity())
-	, fWriteBufStorage(ssbuf.fWriteBufStorage.Capacity())
-	, fPipe(ssbuf.fPipe)
-	, fTimeout(ssbuf.fTimeout)
-	, fReadCount(ssbuf.fReadCount)
-	, fWriteCount(ssbuf.fWriteCount)
-{
+	: fReadBufStorage(ssbuf.fReadBufStorage.Capacity()),
+	  fWriteBufStorage(ssbuf.fWriteBufStorage.Capacity()),
+	  fPipe(ssbuf.fPipe),
+	  fTimeout(ssbuf.fTimeout),
+	  fReadCount(ssbuf.fReadCount),
+	  fWriteCount(ssbuf.fWriteCount) {
 	StartTrace1(PipeStreamBuf.PipeStreamBuf, "copy");
 	int mode = 0;
 	if (fReadBufStorage.Capacity() > 0) {
@@ -75,104 +68,97 @@ PipeStreamBuf::PipeStreamBuf(const PipeStreamBuf &ssbuf)
 	xinit();
 }
 
-void PipeStreamBuf::xinit()
-{
+void PipeStreamBuf::xinit() {
 	StartTrace(PipeStreamBuf.xinit);
-	//setb(start(), end(), 0); // holding area
+	// setb(start(), end(), 0); // holding area
 	setg(0, 0, 0);
 	setp(0, 0);
 }
 
-PipeStreamBuf::~PipeStreamBuf()
-{
+PipeStreamBuf::~PipeStreamBuf() {
 	StartTrace(PipeStreamBuf.~PipeStreamBuf);
-	PipeStreamBuf::sync(); // clear the buffer
+	PipeStreamBuf::sync();	// clear the buffer
 	setg(0, 0, 0);
 	setp(0, 0);
 }
 
-int PipeStreamBuf::overflow( int c )
-{
+int PipeStreamBuf::overflow(int c) {
 	StartTrace1(PipeStreamBuf.overflow, "char [" << (char)c << "] val: " << static_cast<long>(c));
-	if (!pptr()) {
-		setp(startw(), endw());	// reinitialize put area
+	if (pptr() == 0) {
+		setp(startw(), endw());	 // reinitialize put area
 	} else {
-		Assert(pptr() - pbase() <=  fWriteBufStorage.Capacity());
-		if (sync() == EOF) {	// write full buffer
+		Assert(pptr() - pbase() <= fWriteBufStorage.Capacity());
+		if (sync() == EOF) {  // write full buffer
 			return EOF;
 		}
 
-		setp(startw(), endw());	// reinitialize put area
+		setp(startw(), endw());	 // reinitialize put area
 	}
 
-	if (c != EOF && (pptr() < epptr())) // guard against recursion
+	if (c != EOF && (pptr() < epptr()))	 // guard against recursion
 		sputc(c);
-	return 0L;  // return 0 if successful
+	return 0L;	// return 0 if successful
 }
 
-int PipeStreamBuf::underflow()
-{
+int PipeStreamBuf::underflow() {
 	StartTrace(PipeStreamBuf.underflow);
-	int count;
+	int count = 0;
 
-	if (gptr() < egptr()) { //(in_avail())
+	if (gptr() < egptr()) {	 //(in_avail())
 		// data is still available
-		return (int)(unsigned char) * gptr();
+		return (int)(unsigned char)*gptr();
 	}
 
-//	if (pptr()-pbase() > 0)
-//	{
-//		if (sync()==EOF)
-//		    return EOF;
-//	}
+	//	if (pptr()-pbase() > 0)
+	//	{
+	//		if (sync()==EOF)
+	//		    return EOF;
+	//	}
 
 	if ((count = DoRead(startr(), fReadBufStorage.Capacity())) <= 0) {
-		return EOF;    // might mean eofbit or failbit or badbit
+		return EOF;	 // might mean eofbit or failbit or badbit
 	}
 
 	setg(startr(), startr(), startr() + count);
-	return (int)(unsigned char) * gptr();
+	return (int)(unsigned char)*gptr();
 }
 
-int PipeStreamBuf::sync()
-{
+int PipeStreamBuf::sync() {
 	StartTrace(PipeStreamBuf.sync);
-	long count;
+	long count = 0;
 
-	if ( ( (count = pptr() - pbase()) > 0 ) && ( DoWrite(pbase(), count)) == EOF ) {
+	if (((count = pptr() - pbase()) > 0) && (DoWrite(pbase(), count)) == EOF) {
 		return (EOF);
 	}
-	if (pptr()) {
-		setp(startw(), endw());	// reinitialize put area
-//!@FIXME PS this is not always OK for pipes, is it?
+	if (pptr() != 0) {
+		setp(startw(), endw());	 // reinitialize put area
+								 //!@FIXME PS this is not always OK for pipes, is it?
 	}
-	return 0; // no error
+	return 0;  // no error
 }
 
-PipeStreamBuf::pos_type PipeStreamBuf::seekpos(PipeStreamBuf::pos_type p, PipeStreamBuf::openmode mode)
-{
+PipeStreamBuf::pos_type PipeStreamBuf::seekpos(PipeStreamBuf::pos_type p, PipeStreamBuf::openmode mode) {
 	StartTrace1(PipeStreamBuf.seekpos, static_cast<long>(p));
 	sync();
 	return pos_type(0);
 }
 
-PipeStreamBuf::pos_type PipeStreamBuf::seekoff(PipeStreamBuf::off_type of, PipeStreamBuf::seekdir dir, PipeStreamBuf::openmode mode)
-{
+PipeStreamBuf::pos_type PipeStreamBuf::seekoff(PipeStreamBuf::off_type of, PipeStreamBuf::seekdir dir,
+											   PipeStreamBuf::openmode mode) {
 	StartTrace1(PipeStreamBuf.seekoff, static_cast<long>(of));
 	sync();
 	return pos_type(0);
 }
 
-long PipeStreamBuf::DoWrite(const char *bufPtr, long bytes2Send)
-{
+long PipeStreamBuf::DoWrite(const char *bufPtr, long bytes2Send) {
 	StartTrace1(PipeStreamBuf.DoWrite, "bytes2Send:" << bytes2Send);
 	long bytesSent = 0;
-	std::iostream *Ios = fPipe ? fPipe->GetStream() : 0; // neeed for errorhandling
-	long wfd = fPipe ? fPipe->GetWriteFd() : -1;
+	std::iostream *Ios = fPipe != 0 ? fPipe->GetStream() : 0;  // neeed for errorhandling
+	long wfd = fPipe != 0 ? fPipe->GetWriteFd() : -1;
 
 	if (wfd >= 0) {
 		// this also ensures wfd is valid
-		while ( bytes2Send > bytesSent && Ios && Ios->good() ) {
+		while (bytes2Send > bytesSent && (Ios != 0) && Ios->good()) {
 			long nout = 0;
 			do {
 				nout = Socket::write(wfd, (char *)bufPtr + bytesSent, bytes2Send - bytesSent);
@@ -189,30 +175,30 @@ long PipeStreamBuf::DoWrite(const char *bufPtr, long bytes2Send)
 				break;
 			}
 			String logMsg("write on pipe: ");
-			logMsg << static_cast<long>(wfd) << " failed <" << SystemLog::LastSysError() << ">" << " transmitted: " << bytesSent;
+			logMsg << static_cast<long>(wfd) << " failed <" << SystemLog::LastSysError() << ">"
+				   << " transmitted: " << bytesSent;
 			SystemLog::Error(logMsg);
 			Ios->clear(std::ios::badbit);
 		}
-	} else if (Ios) {
+	} else if (Ios != 0) {
 		Ios->clear(std::ios::badbit | std::ios::eofbit | std::ios::failbit);
 	}
-	return (Ios && Ios->good()) ? bytesSent : EOF;
+	return ((Ios != 0) && Ios->good()) ? bytesSent : EOF;
 }
 
-long PipeStreamBuf::DoRead(char *buf, long len) const
-{
+long PipeStreamBuf::DoRead(char *buf, long len) const {
 	StartTrace1(PipeStreamBuf.DoRead, "buflen:" << len);
 	long bytesRead = EOF;
 
-	if (fPipe) {
+	if (fPipe != 0) {
 		std::iostream *ioStream = fPipe->GetStream();
-		if ( fPipe->IsReadyForReading() ) {
+		if (fPipe->IsReadyForReading()) {
 			do {
 				bytesRead = Socket::read(fPipe->GetReadFd(), buf, len);
 				Trace("bytes read:" << bytesRead);
 			} while (bytesRead < 0 && system::SyscallWasInterrupted());
 
-			if ( bytesRead < 0 ) {
+			if (bytesRead < 0) {
 				ioStream->clear(std::ios::badbit);
 				Trace("something went wrong");
 			} else if (0 == bytesRead) {
@@ -228,10 +214,9 @@ long PipeStreamBuf::DoRead(char *buf, long len) const
 	return bytesRead;
 }
 
-std::ostream  &operator<<(std::ostream &os, PipeStreamBuf *ssbuf)
-{
-	StartTrace(PipeStreamBuf.operator << );
-	if (ssbuf) {
+std::ostream &operator<<(std::ostream &os, PipeStreamBuf *ssbuf) {
+	StartTrace(PipeStreamBuf.operator<<);
+	if (ssbuf != 0) {
 		const int bufSz = 4096;
 		char buf[bufSz];
 		long totBytesRead = 0;
@@ -239,7 +224,7 @@ std::ostream  &operator<<(std::ostream &os, PipeStreamBuf *ssbuf)
 		long bytesRead = 0;
 		do {
 			bytesRead = ssbuf->DoRead(buf, bufSz);
-			if ( bytesRead > 0 ) {
+			if (bytesRead > 0) {
 				totBytesRead += bytesRead;
 				SubTrace(content, buf);
 				os.write(buf, bytesRead);
@@ -247,16 +232,16 @@ std::ostream  &operator<<(std::ostream &os, PipeStreamBuf *ssbuf)
 			} else if (bytesRead < 0) {
 				String logMsg("Pipe error on read: ");
 				logMsg << static_cast<long>(errno);
-				SystemLog::Error( logMsg );
-			} // if
+				SystemLog::Error(logMsg);
+			}  // if
 			else {
-				SystemLog::Error( "Pipe closed on read: " );
+				SystemLog::Error("Pipe closed on read: ");
 			}
-		} while ( bytesRead > 0 );
+		} while (bytesRead > 0);
 
 		os.flush();
 		Trace("total bytes read: " << totBytesRead);
-		(void) totBytesRead;
+		(void)totBytesRead;
 	}
 	return os;
 }

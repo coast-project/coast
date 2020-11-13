@@ -7,15 +7,16 @@
  */
 
 #include "SimpleAccessControllers.h"
-#include "Tracer.h"
+
 #include "Context.h"
 #include "DataAccess.h"
+#include "LockUnlockEntry.h"
+#include "Tracer.h"
 
 //---- FileUDAC ----------------------------------------------------------------
 RegisterUserDataAccessController(FileUDAC);
 
-bool FileUDAC::Exists(String userid)
-{
+bool FileUDAC::Exists(String userid) {
 	StartTrace(FileUDAC.Exists);
 
 	LockUnlockEntry me(fUserDataMutex);
@@ -27,8 +28,7 @@ bool FileUDAC::Exists(String userid)
 	return exists;
 }
 
-String FileUDAC::GetTokenId(String userid)
-{
+String FileUDAC::GetTokenId(String userid) {
 	StartTrace(FileUDAC.GetTokenId);
 
 	LockUnlockEntry me(fUserDataMutex);
@@ -40,8 +40,7 @@ String FileUDAC::GetTokenId(String userid)
 	return tid;
 }
 
-String FileUDAC::GetPassword(String userid)
-{
+String FileUDAC::GetPassword(String userid) {
 	StartTrace(FileUDAC.GetPassword);
 
 	LockUnlockEntry me(fUserDataMutex);
@@ -53,12 +52,11 @@ String FileUDAC::GetPassword(String userid)
 	return pwd;
 }
 
-bool FileUDAC::SetPassword(String userid, String newpasswd)
-{
+bool FileUDAC::SetPassword(String userid, String newpasswd) {
 	StartTrace(FileUDAC.SetPassword);
 
 	Trace("uid = " << userid);
-	if ( Exists(userid) ) {
+	if (Exists(userid)) {
 		LockUnlockEntry me(fUserDataMutex);
 		LoadUserData();
 
@@ -69,30 +67,27 @@ bool FileUDAC::SetPassword(String userid, String newpasswd)
 		Trace("new password = " << newpasswd);
 
 		bool saveOk = SaveUserData();
-		if ( !saveOk ) {
+		if (!saveOk) {
 			Trace("SaveUserData failed. Password has not been set.");
 			// undo password change to keep memory + file in sync
 			fUserData[userid]["Password"] = oldpasswd;
 		}
 		return saveOk;
-	} else {
-		Trace("user '" << userid << "' doesn't exist - cannot set password");
-		return false;
 	}
+	Trace("user '" << userid << "' doesn't exist - cannot set password");
+	return false;
 }
 
-bool FileUDAC::ResetPassword(String userid)
-{
+bool FileUDAC::ResetPassword(String userid) {
 	StartTrace(FileUDAC.ResetPassword);
 	return SetPassword(userid, userid);
 }
 
-bool FileUDAC::GetGroups(String userid, Anything &groups)
-{
+bool FileUDAC::GetGroups(String userid, Anything &groups) {
 	StartTrace(FileUDAC.GetGroups);
 
 	Trace("uid = " << userid);
-	if ( !Exists(userid) ) {
+	if (!Exists(userid)) {
 		Trace("user '" << userid << "' doesn't exist - cannot retrieve groups");
 		return false;
 	}
@@ -105,12 +100,11 @@ bool FileUDAC::GetGroups(String userid, Anything &groups)
 	return true;
 }
 
-bool FileUDAC::SetGroups(String userid, ROAnything newgroups)
-{
+bool FileUDAC::SetGroups(String userid, ROAnything newgroups) {
 	StartTrace(FileUDAC.SetGroups);
 
 	Trace("uid = " << userid);
-	if ( !Exists(userid) ) {
+	if (!Exists(userid)) {
 		Trace("user '" << userid << "' doesn't exist - cannot set groups");
 		return false;
 	}
@@ -122,7 +116,7 @@ bool FileUDAC::SetGroups(String userid, ROAnything newgroups)
 	TraceAny(newgroups, "new groups = ");
 
 	bool saveOk = SaveUserData();
-	if ( !saveOk ) {
+	if (!saveOk) {
 		Trace("SaveUserData failed. Groups have not been set.");
 		// undo groups change to keep memory + file in sync
 		fUserData[userid]["Groups"] = oldgroups.DeepClone();
@@ -130,14 +124,13 @@ bool FileUDAC::SetGroups(String userid, ROAnything newgroups)
 	return saveOk;
 }
 
-bool FileUDAC::LoadUserData()
-{
+bool FileUDAC::LoadUserData() {
 	StartTrace(FileUDAC.LoadUserData);
 
 	// only load if not loaded yet
 	if (fUserData.IsNull()) {
 		Context c;
-		if ( DataAccess("ReadUserData").StdExec(c) ) {
+		if (DataAccess("ReadUserData").StdExec(c)) {
 			Trace("Reading UserData succeded.");
 			fUserData = c.Lookup("FileContent").DeepClone(fUserData.GetAllocator());
 			TraceAny(fUserData, "fUserData:");
@@ -149,8 +142,7 @@ bool FileUDAC::LoadUserData()
 	return true;
 }
 
-bool FileUDAC::SaveUserData()
-{
+bool FileUDAC::SaveUserData() {
 	StartTrace(FileUDAC.SaveUserData);
 
 	Context c;
@@ -162,8 +154,7 @@ bool FileUDAC::SaveUserData()
 
 RegisterTokenDataAccessController(FileTDAC);
 
-String FileTDAC::GetSeed(String tokenid)
-{
+String FileTDAC::GetSeed(String tokenid) {
 	StartTrace(FileTDAC.GetSeed);
 
 	LockUnlockEntry me(fTokenDataMutex);
@@ -175,33 +166,30 @@ String FileTDAC::GetSeed(String tokenid)
 	return seed;
 }
 
-unsigned long FileTDAC::GetCount(String tokenid)
-{
+unsigned long FileTDAC::GetCount(String tokenid) {
 	StartTrace(FileTDAC.GetCount);
 
 	LockUnlockEntry me(fTokenDataMutex);
 	LoadTokenData();
 
 	Trace("token id = " << tokenid);
-	if ( fTokenData.IsDefined(tokenid) && fTokenData[tokenid].IsDefined("Count") ) {
+	if (fTokenData.IsDefined(tokenid) && fTokenData[tokenid].IsDefined("Count")) {
 		unsigned long count = static_cast<unsigned long>(((ROAnything)fTokenData)[tokenid]["Count"].AsLong(0L));
 		Trace("count = " << (long)count);
 		return count;
-	} else {
-		Trace("unknown token id (" << tokenid << ") or count not defined");
-		return 0L;
 	}
+	Trace("unknown token id (" << tokenid << ") or count not defined");
+	return 0L;
 }
 
-bool FileTDAC::IncCount(String tokenid, long by)
-{
+bool FileTDAC::IncCount(String tokenid, long by) {
 	StartTrace(FileTDAC.IncCount);
 
 	LockUnlockEntry me(fTokenDataMutex);
 	LoadTokenData();
 
 	Trace("token id = " << tokenid);
-	if ( fTokenData.IsDefined(tokenid) && fTokenData[tokenid].IsDefined("Count") ) {
+	if (fTokenData.IsDefined(tokenid) && fTokenData[tokenid].IsDefined("Count")) {
 		unsigned long oldCount = GetCount(tokenid);
 		Trace("old count = " << (long)oldCount);
 
@@ -210,26 +198,24 @@ bool FileTDAC::IncCount(String tokenid, long by)
 		Trace("new count = " << (long)newCount);
 
 		bool saveOk = SaveTokenData();
-		if ( !saveOk ) {
+		if (!saveOk) {
 			Trace("SaveActerInfo failed. Count was not incremented.");
 			// undo inc counter to keep memory & file in sync
 			fTokenData[tokenid]["Count"] = static_cast<long>(oldCount);
 		}
 		return saveOk;
-	} else {
-		Trace("unknown token id (" << tokenid << ") or count not defined");
-		return false;
 	}
+	Trace("unknown token id (" << tokenid << ") or count not defined");
+	return false;
 }
 
-bool FileTDAC::LoadTokenData()
-{
+bool FileTDAC::LoadTokenData() {
 	StartTrace(FileTDAC.LoadTokenData);
 
 	// only load if not loaded yet
 	if (fTokenData.IsNull()) {
 		Context c;
-		if ( DataAccess("ReadTokenData").StdExec(c) ) {
+		if (DataAccess("ReadTokenData").StdExec(c)) {
 			Trace("Reading TokenData succeded.");
 			fTokenData = c.Lookup("FileContent").DeepClone(fTokenData.GetAllocator());
 			TraceAny(fTokenData, "fTokenData:");
@@ -241,8 +227,7 @@ bool FileTDAC::LoadTokenData()
 	return true;
 }
 
-bool FileTDAC::SaveTokenData()
-{
+bool FileTDAC::SaveTokenData() {
 	StartTrace(FileTDAC.SaveTokenData);
 
 	Context c;
@@ -253,15 +238,14 @@ bool FileTDAC::SaveTokenData()
 //---- FileEDAC ----------------------------------------------------------------
 RegisterEntityDataAccessController(FileEDAC);
 
-bool FileEDAC::GetAllowedEntitiesForGroup(String group, Anything &allowed)
-{
+bool FileEDAC::GetAllowedEntitiesForGroup(String group, Anything &allowed) {
 	StartTrace(FileEDAC.GetAllowedEntitiesForGroup);
 
 	LockUnlockEntry me(fEntityDataMutex);
 	LoadEntityData();
 
 	Trace("group = " << group);
-	if ( !fEntityData.IsDefined(group) ) {
+	if (!fEntityData.IsDefined(group)) {
 		Trace("unknown group '" << group << "' - no permissible entities available");
 		allowed = Anything(Anything::ArrayMarker());
 		return false;
@@ -272,8 +256,7 @@ bool FileEDAC::GetAllowedEntitiesForGroup(String group, Anything &allowed)
 	return true;
 }
 
-bool FileEDAC::GetAllowedEntitiesForGroups(Anything groups, Anything &allowed)
-{
+bool FileEDAC::GetAllowedEntitiesForGroups(Anything groups, Anything &allowed) {
 	StartTrace(FileEDAC.GetAllowedEntitiesForGroups);
 
 	LockUnlockEntry me(fEntityDataMutex);
@@ -286,14 +269,14 @@ bool FileEDAC::GetAllowedEntitiesForGroups(Anything groups, Anything &allowed)
 	String entity;
 
 	for (long i = 0; i < groups.GetSize(); i++) {
-		if ( !GetAllowedEntitiesForGroup(groups[i].AsString(), parts) ) {
+		if (!GetAllowedEntitiesForGroup(groups[i].AsString(), parts)) {
 			return false;
 		}
 
 		// aggregate
 		for (long j = 0; j < parts.GetSize(); j++) {
 			entity = parts[j].AsString();
-			if ( !allowed.Contains(entity) ) {
+			if (!allowed.Contains(entity)) {
 				allowed.Append(entity);
 			}
 		}
@@ -303,8 +286,7 @@ bool FileEDAC::GetAllowedEntitiesForGroups(Anything groups, Anything &allowed)
 	return true;
 }
 
-bool FileEDAC::IsAllowed(String group, String entity)
-{
+bool FileEDAC::IsAllowed(String group, String entity) {
 	StartTrace(FileEDAC.IsAllowed);
 
 	LockUnlockEntry me(fEntityDataMutex);
@@ -314,20 +296,19 @@ bool FileEDAC::IsAllowed(String group, String entity)
 	Trace("entity = " << entity);
 
 	Anything allowed;
-	if ( !GetAllowedEntitiesForGroup(group, allowed) ) {
+	if (!GetAllowedEntitiesForGroup(group, allowed)) {
 		return false;
 	}
 	return allowed.Contains(entity);
 }
 
-bool FileEDAC::LoadEntityData()
-{
+bool FileEDAC::LoadEntityData() {
 	StartTrace(FileEDAC.LoadEntityData);
 
 	// only load if not loaded yet
 	if (fEntityData.IsNull()) {
 		Context c;
-		if ( DataAccess("ReadEntityData").StdExec(c) ) {
+		if (DataAccess("ReadEntityData").StdExec(c)) {
 			Trace("Reading EntityData succeded.");
 			fEntityData = c.Lookup("FileContent").DeepClone(fEntityData.GetAllocator());
 			TraceAny(fEntityData, "fEntityData:");
@@ -339,8 +320,7 @@ bool FileEDAC::LoadEntityData()
 	return true;
 }
 
-bool FileEDAC::SaveEntityData()
-{
+bool FileEDAC::SaveEntityData() {
 	StartTrace(FileEDAC.SaveEntityData);
 
 	Context c;

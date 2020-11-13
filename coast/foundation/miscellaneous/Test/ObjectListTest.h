@@ -11,11 +11,9 @@
 
 #include "TestCase.h"
 
-class ObjectListTest: public testframework::TestCase {
+class ObjectListTest : public testframework::TestCase {
 public:
-	ObjectListTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	ObjectListTest(TString tstrName) : TestCaseType(tstrName) {}
 	static Test *suite();
 	void CtorTest();
 	void DtorTest();

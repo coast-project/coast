@@ -19,35 +19,34 @@
  * Module specific entries are expected within the subslot as defined in DataAccessImpl::gpcConfigPath.
  *
  * @subsection DataAccessImplsModulePurpose Purpose
-    Definition of a root class for data access implementation.
-    It manages all the implementation subclasses in a registry.
-    This class defines the protocol for getting data in and out of a
-    persistency layer.
+	Definition of a root class for data access implementation.
+	It manages all the implementation subclasses in a registry.
+	This class defines the protocol for getting data in and out of a
+	persistency layer.
  *
  * @subsection DataAccessImplsModuleConcurrency Concurrency
-	DataAccessImpls are used in a MT-Environment. One thread per request.
-    If a DataAccessImpl holds state in order to process a single request,
-    it is not thread safe.
-    Therefore it has to be allocated and deleted on a request basis.
+  DataAccessImpls are used in a MT-Environment. One thread per request.
+	If a DataAccessImpl holds state in order to process a single request,
+	it is not thread safe.
+	Therefore it has to be allocated and deleted on a request basis.
  *
  * @subsection DataAccessImplsModuleCollaborations Collaborations
-    An DataAccessImpl is called from the DataAccess object.
-    It calls mapper in order to move the data in and out.
+	An DataAccessImpl is called from the DataAccess object.
+	It calls mapper in order to move the data in and out.
  *
  * @subsection DataAccessImplsModuleErrorhandling Errorhandling
-    Errorhandling is implicit e.g. via parameters moved in and out by the mappers
+	Errorhandling is implicit e.g. via parameters moved in and out by the mappers
  *
  * @subsection DataAccessImplsModuleAssumptions Assumptions
-    The transaction name is unique in the system.
+	The transaction name is unique in the system.
  */
-class DataAccessImplsModule : public WDModule
-{
+class DataAccessImplsModule : public WDModule {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	DataAccessImplsModule(const char *name);
 
 	virtual bool Init(const ROAnything config);
-	virtual bool ResetFinis(const ROAnything );
+	virtual bool ResetFinis(const ROAnything);
 	virtual bool Finis();
 };
 
@@ -56,28 +55,27 @@ public:
 /*! Concrete classes need to implement the Exec() function and perform the access in one call.
  * Parameters needed to configure the data access operation should be retrieved using the supplied ParameterMapper,
  * results should be stored away using the supplied ResultMapper. */
-class DataAccessImpl : public HierarchConfNamed
-{
+class DataAccessImpl : public HierarchConfNamed {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	DataAccessImpl(const char *name);
 
-	static const char* gpcCategory;
-	static const char* gpcConfigPath;
+	static const char *gpcCategory;
+	static const char *gpcConfigPath;
 	//! Name of the configuration Anything file
-	static const char* gpcConfigFileName;
+	static const char *gpcConfigFileName;
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
 	IFAObject *Clone(Allocator *a) const;
 
-	//!protocol provided to implement data access
+	//! protocol provided to implement data access
 	/*! @param ctx The context in which the transaction takes place
 	 * @param input ParameterMapper object that is mapping data from the client space to the data access object on request
 	 * @param output ResultMapper object that maps the result of the access back into client space */
 	virtual bool Exec(Context &ctx, ParameterMapper *input, ResultMapper *output);
 
 	//--- Registration
-	RegCacheDef(DataAccessImpl);	// FindDataAccessImpl()
+	RegCacheDef(DataAccessImpl);  // FindDataAccessImpl()
 
 protected:
 	//! Name of the file in which configurations for DataAccessImpl objects are stored, \ref gpcConfigFileName
@@ -99,25 +97,24 @@ private:
 /*! LoopBackDAImpl can be useful when wanting to test ParameterMapper or ResultMapper implementations.
 @code
 {
-	/transfer {					config entry to specify slots to transfer
-		/FromSlot1	ToSlot1		using ParameterMapper->Get to lookup FromSlot and
-								putting it using ResultMapper->Put to store it at ToSlot
-		/FromSlot2	ToSlot2		...
-		...
-	}
-	/Streaming					optional, 0L/1L/2L/3L, default 0L, defining streaming mode
-								0L or default: no streaming used, using Get(FromSlot, String, Context)
-								1L: ParameterMapper->Get using StringStream, eg. Get(FromSlot, std::ostream, Context, ROAnything)
-									ResultMapper->Put using String, eg. Put(ToSlot, String, Context)
-								2L: ParameterMapper->Get using String, eg. Get(FromSlot, String, Context)
-									ResultMapper->Put using StringStream, eg. Put(ToSlot, std::istream, Context, ROAnything)
-								3L: ParameterMapper->Get using StringStream, eg. Get(FromSlot, std::ostream, Context, ROAnything)
-									ResultMapper->Put using StringStream, eg. Put(ToSlot, std::istream, Context, ROAnything)
+  /transfer {					config entry to specify slots to transfer
+	/FromSlot1	ToSlot1		using ParameterMapper->Get to lookup FromSlot and
+				putting it using ResultMapper->Put to store it at ToSlot
+	/FromSlot2	ToSlot2		...
+	...
+  }
+  /Streaming					optional, 0L/1L/2L/3L, default 0L, defining streaming mode
+				0L or default: no streaming used, using Get(FromSlot, String, Context)
+				1L: ParameterMapper->Get using StringStream, eg. Get(FromSlot, std::ostream, Context, ROAnything)
+				  ResultMapper->Put using String, eg. Put(ToSlot, String, Context)
+				2L: ParameterMapper->Get using String, eg. Get(FromSlot, String, Context)
+				  ResultMapper->Put using StringStream, eg. Put(ToSlot, std::istream, Context, ROAnything)
+				3L: ParameterMapper->Get using StringStream, eg. Get(FromSlot, std::ostream, Context, ROAnything)
+				  ResultMapper->Put using StringStream, eg. Put(ToSlot, std::istream, Context, ROAnything)
 }
 @endcode
  */
-class LoopBackDAImpl: public DataAccessImpl
-{
+class LoopBackDAImpl : public DataAccessImpl {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
 	LoopBackDAImpl(const char *name) : DataAccessImpl(name) {}
@@ -137,4 +134,4 @@ private:
 
 #define RegisterDataAccessImpl(name) RegisterObject(name, DataAccessImpl)
 
-#endif		//not defined _DataAccessImpl_H
+#endif	// not defined _DataAccessImpl_H

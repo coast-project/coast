@@ -7,41 +7,42 @@
  */
 
 #include "ConnectorDAImplTest.h"
-#include "TestSuite.h"
+
+#include "Context.h"
+#include "DataAccess.h"
 #include "FoundationTestTypes.h"
 #include "SocketStream.h"
-#include "DataAccess.h"
 #include "StringStream.h"
-#include "Context.h"
+#include "TestSuite.h"
 #if defined(WIN32)
-#include <io.h>				// for SO_ERROR
+#include <io.h>	 // for SO_ERROR
 #else
-#include <sys/socket.h>		// for SO_ERROR
+#include <sys/socket.h>	 // for SO_ERROR
 #endif
 
-class EchoMsgCallBack: public AcceptorCallBack {
+class EchoMsgCallBack : public AcceptorCallBack {
 	// no locking as only one thread initiates actions and the second thread
 	// only accesses while the first one waits for I/O
 	Anything fLastRequest;
 	Anything fReplyMessage;
 	SimpleCondition fCond;
 	SimpleMutex fMutex;
-public:
-	//!default constructor is empty since class provides only protocol no implementation
-	EchoMsgCallBack() :
-		fReplyMessage("Accepted"), fMutex("EchoMsgCallBackMutex", coast::storage::Current()) {
-	}
 
-	//!call back functionality provides the socket object
+public:
+	//! default constructor is empty since class provides only protocol no implementation
+	EchoMsgCallBack() : fReplyMessage("Accepted"), fMutex("EchoMsgCallBackMutex", coast::storage::Current()) {}
+
+	//! call back functionality provides the socket object
 	//! \param socket the Socket object resulting from the accepted connection
 	virtual void CallBack(Socket *pSocket) {
 		StartTrace(EchoMsgCallBack.CallBack);
-		if (pSocket != 0) { // might be 0 if we run out of memory, not likely
+		if (pSocket != 0) {	 // might be 0 if we run out of memory, not likely
 			LockUnlockEntry aMtxEntry(fMutex);
 			while (true) {
 				std::iostream *Ios = pSocket->GetStream();
+				// NOLINTNEXTLINE(readability-implicit-bool-conversion)
 				if (Ios != 0 && (*Ios)) {
-					TimeoutModifier aTimeoutModifier((SocketStream *) Ios, 10 * 1000);
+					TimeoutModifier aTimeoutModifier((SocketStream *)Ios, 10 * 1000);
 					aTimeoutModifier.Use();
 					Trace("stream valid");
 					// get character from stream, blocking call
@@ -60,7 +61,7 @@ public:
 					anyMessage.Import(*Ios, "importing stream");
 					TraceAny(anyMessage, "Message");
 					fLastRequest = anyMessage;
-					long lRetCode;
+					long lRetCode = 0;
 					if (pSocket->IsReadyForWriting(10 * 1000, lRetCode)) {
 						Trace("sending back reply message");
 						fReplyMessage.PrintOn(*Ios, false).flush();
@@ -80,42 +81,40 @@ public:
 	}
 	virtual void Wait() {
 		// dummy wait to force context switch
-		Thread::Wait(0,1000L);
+		Thread::Wait(0, 1000L);
 	}
 	virtual void Signal() {
 		// dummy wait to force context switch
-		Thread::Wait(0,1000L);
+		Thread::Wait(0, 1000L);
 	}
 
-	//!I return the last message I read
+	//! I return the last message I read
 	virtual Anything &GetLastRequest() {
 		StartTrace(EchoMsgCallBack.GetLastRequest);
 		LockUnlockEntry aMtxEntry(fMutex);
 		return fLastRequest;
 	}
 
-	//!Set the message that I shall return on subsequent requests
+	//! Set the message that I shall return on subsequent requests
 	void SetReplyMessage(Anything &reply) {
 		StartTrace(EchoMsgCallBack.SetReplyMessage);
 		fReplyMessage = reply;
 	}
 };
 
-class AcceptorThread: public Thread {
+class AcceptorThread : public Thread {
 public:
-	AcceptorThread(Acceptor *acceptor) :
-		Thread("AcceptorThread"), fAcceptor(acceptor) {
-	}
+	AcceptorThread(Acceptor *acceptor) : Thread("AcceptorThread"), fAcceptor(acceptor) {}
 	virtual ~AcceptorThread() {
 		StartTrace(AcceptorThread.Dtor);
-		if (fAcceptor) {
-			delete fAcceptor;
-		}
+
+		delete fAcceptor;
+
 		fAcceptor = 0;
 	}
 	void Run() {
 		StartTrace(AcceptorThread.Run);
-		if (fAcceptor) {
+		if (fAcceptor != 0) {
 			fAcceptor->RunAcceptLoop();
 		}
 	}
@@ -123,7 +122,7 @@ public:
 protected:
 	bool DoStartRequestedHook(ROAnything args) {
 		StartTrace(AcceptorThread.DoStartRequestedHook);
-		if (fAcceptor) {
+		if (fAcceptor != 0) {
 			fAcceptor->SetThreadLocal(true);
 			return (fAcceptor->PrepareAcceptLoop() == 0);
 		}
@@ -131,7 +130,7 @@ protected:
 	}
 	void DoTerminationRequestHook(ROAnything) {
 		StartTrace(AcceptorThread.DoTerminationRequestHook);
-		if (fAcceptor) {
+		if (fAcceptor != 0) {
 			fAcceptor->StopAcceptLoop();
 		}
 	}
@@ -141,8 +140,7 @@ private:
 };
 
 //---- ConnectorDAImplTest ----------------------------------------------------------------
-ConnectorDAImplTest::ConnectorDAImplTest(TString strName) :
-	TestCaseType(strName), fCallBack(0), fAcceptorThread(0) {
+ConnectorDAImplTest::ConnectorDAImplTest(TString strName) : TestCaseType(strName), fCallBack(0), fAcceptorThread(0) {
 	StartTrace(ConnectorDAImplTest.ConnectorDAImplTest);
 }
 
@@ -158,10 +156,11 @@ void ConnectorDAImplTest::setUp() {
 	StartTrace(ConnectorDAImplTest.setUp);
 	TraceAny(GetTestCaseConfig(), "TestCaseConfig");
 	fCallBack = new EchoMsgCallBack();
-	fAcceptorThread = new (coast::storage::Global()) AcceptorThread(new Acceptor(GetTestCaseConfig()["Address"].AsString(), GetTestCaseConfig()["Port"].AsLong(), 2, fCallBack));
+	fAcceptorThread = new (coast::storage::Global()) AcceptorThread(
+		new Acceptor(GetTestCaseConfig()["Address"].AsString(), GetTestCaseConfig()["Port"].AsLong(), 2, fCallBack));
 	t_assert(fCallBack != 0);
 	t_assert(fAcceptorThread != 0);
-	if ((fCallBack) && (fAcceptorThread)) {
+	if (((fCallBack) != 0) && ((fAcceptorThread) != 0)) {
 		bool startsuccesful = fAcceptorThread->Start();
 		t_assertm(startsuccesful, "probably bind failed; since thread not started");
 		bool running = fAcceptorThread->CheckState(Thread::eRunning, 3);
@@ -181,7 +180,7 @@ void ConnectorDAImplTest::setUp() {
 
 void ConnectorDAImplTest::tearDown() {
 	StartTrace(ConnectorDAImplTest.tearDown);
-	if (fAcceptorThread) {
+	if (fAcceptorThread != 0) {
 		fAcceptorThread->Terminate();
 		t_assert(fAcceptorThread->CheckState(Thread::eTerminated, 3));
 		delete fAcceptorThread;
@@ -206,7 +205,7 @@ void ConnectorDAImplTest::SendReceiveOnceTest() {
 	Anything anyEnv = GetTestCaseConfig().DeepClone();
 	Context ctx(anyEnv);
 	DataAccess aDA("SendReceiveOnce");
-	if ( t_assert(aDA.StdExec(ctx)) ) {
+	if (t_assert(aDA.StdExec(ctx))) {
 		Anything anyExpected;
 		String strIn = GetTestCaseConfig()["Input"].AsString();
 		IStringStream stream(strIn);
@@ -224,7 +223,7 @@ void ConnectorDAImplTest::RecreateSocketTest() {
 	{
 		DataAccess aDA("RecreateSocket");
 		ctx.GetTmpStore()["Input"] = "{ \"Kurt hat recht\" }";
-		if ( t_assert(aDA.StdExec(ctx)) ) {
+		if (t_assert(aDA.StdExec(ctx))) {
 			Anything anyExpected;
 			String strIn = ctx.GetTmpStore()["Input"].AsString();
 			IStringStream stream(strIn);
@@ -239,7 +238,7 @@ void ConnectorDAImplTest::RecreateSocketTest() {
 		t_assertm(IsSocketValid(socketFd), "expected socket to be valid");
 		DataAccess aDA("SendReceiveOnce");
 		ctx.GetTmpStore()["Input"] = "{ \"Marcel auch\" }";
-		if ( t_assert(aDA.StdExec(ctx)) ) {
+		if (t_assert(aDA.StdExec(ctx))) {
 			Anything anyExpected;
 			String strIn(ctx.GetTmpStore()["Input"].AsString());
 			IStringStream stream(strIn);
@@ -260,7 +259,7 @@ void ConnectorDAImplTest::RecreateClosedSocketTest() {
 	{
 		DataAccess aDA("RecreateSocket");
 		ctx.GetTmpStore()["Input"] = "{ \"Kurt hat recht\" }";
-		if ( t_assert(aDA.StdExec(ctx)) ) {
+		if (t_assert(aDA.StdExec(ctx))) {
 			Anything anyExpected;
 			String strIn = ctx.GetTmpStore()["Input"].AsString();
 			IStringStream stream(strIn);
@@ -279,7 +278,7 @@ void ConnectorDAImplTest::RecreateClosedSocketTest() {
 		Anything anyMessage;
 		anyMessage["CloseConnection"] = 1;
 		ctx.GetTmpStore()["Input"] = anyMessage;
-		if ( t_assert(aDA.StdExec(ctx)) ) {
+		if (t_assert(aDA.StdExec(ctx))) {
 			assertAnyEqual(anyMessage, fCallBack->GetLastRequest());
 		}
 		TraceAny(ctx.GetTmpStore(), "TmpStore");
@@ -291,7 +290,7 @@ void ConnectorDAImplTest::RecreateClosedSocketTest() {
 		t_assertm(IsSocketValid(socketFd), "expected socket to be valid");
 		DataAccess aDA("SendReceiveOnce");
 		ctx.GetTmpStore()["Input"] = "{ \"Marcel auch\" }";
-		if ( t_assert(aDA.StdExec(ctx)) ) {
+		if (t_assert(aDA.StdExec(ctx))) {
 			Anything anyExpected;
 			String strIn(ctx.GetTmpStore()["Input"].AsString());
 			IStringStream stream(strIn);

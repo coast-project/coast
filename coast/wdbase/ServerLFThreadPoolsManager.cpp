@@ -7,24 +7,20 @@
  */
 
 #include "ServerLFThreadPoolsManager.h"
-#include "Server.h"
-#include "LFListenerPool.h"
-#include "WPMStatHandler.h"
-#include "RequestProcessor.h"
 
+#include "LFListenerPool.h"
+#include "RequestProcessor.h"
+#include "Server.h"
+#include "WPMStatHandler.h"
 
 RegisterServerPoolsManagerInterface(ServerLFThreadPoolsManager);
 
 ServerLFThreadPoolsManager::ServerLFThreadPoolsManager(const char *ServerThreadPoolsManagerName)
-	: ServerPoolsManagerInterface(ServerThreadPoolsManagerName)
-	, fLFPool(0)
-	, fThreadPoolSz(25)
-{
+	: ServerPoolsManagerInterface(ServerThreadPoolsManagerName), fLFPool(0), fThreadPoolSz(25) {
 	StartTrace(ServerLFThreadPoolsManager.Ctor);
 }
 
-ServerLFThreadPoolsManager::~ServerLFThreadPoolsManager()
-{
+ServerLFThreadPoolsManager::~ServerLFThreadPoolsManager() {
 	StartTrace(ServerLFThreadPoolsManager.Dtor);
 	RequestTermination();
 	Terminate();
@@ -32,15 +28,13 @@ ServerLFThreadPoolsManager::~ServerLFThreadPoolsManager()
 	fLFPool = 0;
 }
 
-int ServerLFThreadPoolsManager::Init(Server *server)
-{
+int ServerLFThreadPoolsManager::Init(Server *server) {
 	StartTrace(ServerLFThreadPoolsManager.Init);
 	// return 0 in case of success
-	return ( SetupLFPool(server) ? 0 : 1 );
+	return (SetupLFPool(server) ? 0 : 1);
 }
 
-bool ServerLFThreadPoolsManager::SetupLFPool(Server *server)
-{
+bool ServerLFThreadPoolsManager::SetupLFPool(Server *server) {
 	StartTrace(ServerLFThreadPoolsManager.SetupLFPool);
 	Context ctx;
 	ctx.SetServer(server);
@@ -62,24 +56,22 @@ bool ServerLFThreadPoolsManager::SetupLFPool(Server *server)
 	return fLFPool->Init(fThreadPoolSz, listenerPoolConfig, usePoolStorage);
 }
 
-RequestProcessor* ServerLFThreadPoolsManager::DoGetRequestProcessor() {
-	if ( fLFPool && fLFPool->GetReactor() ) {
-		RequestReactor* pReactor = dynamic_cast<RequestReactor*>(fLFPool->GetReactor());
-		if ( pReactor ) {
+RequestProcessor *ServerLFThreadPoolsManager::DoGetRequestProcessor() {
+	if ((fLFPool != 0) && (fLFPool->GetReactor() != 0)) {
+		RequestReactor *pReactor = dynamic_cast<RequestReactor *>(fLFPool->GetReactor());
+		if (pReactor != 0) {
 			return pReactor->GetRequestProcessor();
 		}
 	}
 	return 0;
 }
 
-int ServerLFThreadPoolsManager::ReInit(Server *server)
-{
+int ServerLFThreadPoolsManager::ReInit(Server *server) {
 	StartTrace(ServerLFThreadPoolsManager.ReInit);
 	return 0;
 }
 
-int ServerLFThreadPoolsManager::Run(Server *server)
-{
+int ServerLFThreadPoolsManager::Run(Server *server) {
 	StartTrace(ServerLFThreadPoolsManager.Run);
 	Assert(fLFPool);
 
@@ -91,7 +83,7 @@ int ServerLFThreadPoolsManager::Run(Server *server)
 	u_long numOfPoolBucketSizes = (u_long)ctx.Lookup("NumOfPoolBucketSizes", 20L);
 
 	int retVal = fLFPool->Start(usePoolStorage, poolStorageSize, numOfPoolBucketSizes);
-	if ( retVal != 0 ) {
+	if (retVal != 0) {
 		SYSERROR("server (" << fName << ") start accept loops failed");
 		return retVal;
 	}
@@ -102,8 +94,7 @@ int ServerLFThreadPoolsManager::Run(Server *server)
 	return retVal;
 }
 
-bool ServerLFThreadPoolsManager::BlockRequests(Server *server)
-{
+bool ServerLFThreadPoolsManager::BlockRequests(Server *server) {
 	StartTrace(ServerLFThreadPoolsManager.BlockRequests);
 	fLFPool->BlockRequests();
 
@@ -120,25 +111,22 @@ bool ServerLFThreadPoolsManager::BlockRequests(Server *server)
 	return fLFPool->AwaitEmpty(ctx.Lookup("AwaitResetEmpty", 120L));
 }
 
-void ServerLFThreadPoolsManager::UnblockRequests()
-{
+void ServerLFThreadPoolsManager::UnblockRequests() {
 	StartTrace(ServerLFThreadPoolsManager.UnblockRequests);
 	fLFPool->UnblockRequests();
 }
 
-int ServerLFThreadPoolsManager::RequestTermination()
-{
+int ServerLFThreadPoolsManager::RequestTermination() {
 	StartTrace(ServerLFThreadPoolsManager.RequestTermination);
-	if ( fLFPool ) {
+	if (fLFPool != 0) {
 		fLFPool->RequestTermination();
 	}
 	return 0;
 }
 
-void ServerLFThreadPoolsManager::Terminate()
-{
+void ServerLFThreadPoolsManager::Terminate() {
 	StartTrace(ServerLFThreadPoolsManager.Terminate);
-	if ( fLFPool ) {
+	if (fLFPool != 0) {
 		fLFPool->RequestTermination();
 		fLFPool->Join(20);
 	}
@@ -146,7 +134,6 @@ void ServerLFThreadPoolsManager::Terminate()
 	SetReady(false);
 }
 
-long ServerLFThreadPoolsManager::GetThreadPoolSize()
-{
+long ServerLFThreadPoolsManager::GetThreadPoolSize() {
 	return fThreadPoolSz;
 }

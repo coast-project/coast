@@ -6,31 +6,29 @@
  * the license that is included with this library/application in the file license.txt.
  */
 
-#include "TestSuite.h"
-#include "RE.h"
 #include "RegexTest.h"
-#include "SystemFile.h"
-#include "StringStream.h"
-#include "RECompiler.h"
+
 #include "PoolAllocator.h"
+#include "RE.h"
+#include "RECompiler.h"
+#include "StringStream.h"
+#include "SystemFile.h"
+#include "TestSuite.h"
 #include "TestTimer.h"
 #include "Tracer.h"
 
 using namespace coast;
 
 //---- RegexTest ----------------------------------------------------------------
-RegexTest::RegexTest(TString tstrName) : TestCaseType(tstrName)
-{
+RegexTest::RegexTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(RegexTest.Ctor);
 }
 
-RegexTest::~RegexTest()
-{
+RegexTest::~RegexTest() {
 	StartTrace(RegexTest.Dtor);
 }
 
-void RegexTest::MatchLiteral()
-{
+void RegexTest::MatchLiteral() {
 	StartTrace(RegexTest.MatchLiteral);
 
 	String suspect("hello world!\n");
@@ -39,8 +37,7 @@ void RegexTest::MatchLiteral()
 	t_assert(tomatch.ContainedIn(suspect));
 	t_assert(!tomatch.ContainedIn("foo"));
 }
-void RegexTest::MatchDotDotDot()
-{
+void RegexTest::MatchDotDotDot() {
 	StartTrace(RegexTest.MatchLiteral);
 
 	String suspect("hello world!\n");
@@ -53,10 +50,9 @@ void RegexTest::MatchDotDotDot()
 	assertEqual(3L, l);
 	s = suspect.Length() - 2;
 	l = 0;
-	t_assert(! tomatch.Match(suspect, s, l)); // shor match
+	t_assert(!tomatch.Match(suspect, s, l));  // shor match
 }
-void RegexTest::MatchDot()
-{
+void RegexTest::MatchDot() {
 	StartTrace(RegexTest.MatchLiteral);
 
 	String suspect("hello world!\n");
@@ -108,10 +104,8 @@ void RegexTest::MatchDot()
 	t_assert(!tomatch.Match(suspect, s, l));
 	assertEqual(0L, l);
 	t_assert(!tomatch.ContainedIn(suspect));
-
 }
-void RegexTest::MatchDotStar()
-{
+void RegexTest::MatchDotStar() {
 	StartTrace(RegexTest.MatchLiteral);
 
 	String suspect("hello world!\n");
@@ -123,10 +117,9 @@ void RegexTest::MatchDotStar()
 	t_assert(tomatch.Match(suspect, s, l));
 	assertEqual(0L, s);
 	assertEqual(suspect.Length() - 1, l);
-	Trace( "start:" << s << " len:" << l);
+	Trace("start:" << s << " len:" << l);
 }
-void RegexTest::MatchAStar()
-{
+void RegexTest::MatchAStar() {
 	StartTrace(RegexTest.MatchLiteral);
 
 	String suspect("hello world!\n");
@@ -147,8 +140,7 @@ void RegexTest::MatchAStar()
 	assertEqual(6L, l);
 }
 
-void RegexTest::LeftMostLongestTest()
-{
+void RegexTest::LeftMostLongestTest() {
 	StartTrace(RegexTest.LeftMostLongestTest);
 	RE tomatch("(abcd|abc)(d|)");
 	// does fail for (abc|abcd)(d|) as RE, so
@@ -165,8 +157,7 @@ void RegexTest::LeftMostLongestTest()
 	assertCharPtrEqual("", tomatch.GetMatch(2));
 }
 
-void RegexTest::GetMatchTest()
-{
+void RegexTest::GetMatchTest() {
 	StartTrace(RegexTest.GetMatchTest);
 	{
 		RE tomatch("\\btest\\b");
@@ -183,9 +174,7 @@ void RegexTest::GetMatchTest()
 	}
 }
 
-
-void RegexTest::BackRefTest()
-{
+void RegexTest::BackRefTest() {
 	StartTrace(RegexTest.BackRefTest);
 
 	RE emptybackref("(a)*-\\1b");
@@ -201,8 +190,7 @@ void RegexTest::BackRefTest()
 	t_assert(!complexbackref.ContainedIn("bbbbbbbbb-bbbbbbbbbb"));
 }
 
-void RegexTest::MatchCharTest()
-{
+void RegexTest::MatchCharTest() {
 	StartTrace(RegexTest.MatchCharTest);
 }
 
@@ -211,13 +199,12 @@ void RegexTest::MatchCharTest()
 // with a single character prefix, it seems to be fair enough, otherwise
 // comparison takes too long for useful tests (several seconds)
 static const char *gLiteralExpr = "b.ck-tracking oriented stream-of-solution functions";
-void RegexTest::LargeLiteralTest()
-{
+void RegexTest::LargeLiteralTest() {
 	StartTrace(RegexTest.LargeLiteralTest);
 	RE literal(gLiteralExpr);
 	long s = 0, l = 0;
 	// should be timed:
-	std::istream *pStream = system::OpenStream("LargeLiteralData", "h");
+	std::istream *pStream = system::OpenStream("LargeLiteralData", "txt");
 	if (t_assert(pStream != NULL)) {
 		String largeData;
 		while (pStream->good()) {
@@ -231,14 +218,13 @@ void RegexTest::LargeLiteralTest()
 	delete pStream;
 }
 
-void RegexTest::LargeDotStarTest()
-{
+void RegexTest::LargeDotStarTest() {
 	StartTrace(RegexTest.LargeLiteralTest);
 	const char *gDotStarExpr = "back-tracking .* functions";
 	RE literal(gDotStarExpr);
 	long s = 0, l = 0;
 	// should be timed:
-	std::istream *pStream = system::OpenStream("LargeLiteralData", "h");
+	std::istream *pStream = system::OpenStream("LargeLiteralData", "txt");
 	if (t_assert(pStream != NULL)) {
 		String largeData;
 		while (pStream->good()) {
@@ -252,8 +238,7 @@ void RegexTest::LargeDotStarTest()
 }
 
 #include "ShortLiteralData.h"
-void RegexTest::ShortLiteralTest()
-{
+void RegexTest::ShortLiteralTest() {
 	StartTrace(RegexTest.ShortLiteralTest);
 	RE literal(gLiteralExpr);
 	long s = 0, l = 0;
@@ -262,16 +247,15 @@ void RegexTest::ShortLiteralTest()
 		if (literal.Match(gShortLiteralData[line], s, l)) {
 			assertEqual(l, strlen(gLiteralExpr));
 			assertEqual(4738, line);
-			Trace("short literal matched at line " << (long)line << " with len " << l );
+			Trace("short literal matched at line " << (long)line << " with len " << l);
 		}
 	}
 }
 
-void RegexTest::MatchAnything(long id, Anything aCase)
-{
+void RegexTest::MatchAnything(long id, Anything aCase) {
 	StartTrace(RegexTest.MatchAnything);
 	TraceAny(aCase, "testcase");
-	long lineId = id + 10; // adjust line count offset for easy navigation in RegexTest.any
+	long lineId = id + 10;	// adjust line count offset for easy navigation in RegexTest.any
 	t_assertm(aCase.GetSize() >= 2, TString("short RE testcase spec at\nRegexTest.any:") << lineId);
 	const char *re = aCase[1L].AsCharPtr();
 	RE r(re);
@@ -287,22 +271,23 @@ void RegexTest::MatchAnything(long id, Anything aCase)
 	long s = 0, l = 0;
 	const char *search = aCase[2L].AsCharPtr(0);
 	t_assertm(search != NULL, TString("missing search at ") << lineId);
-	if (!search) {
+	if (search == 0) {
 		return;
 	}
 	bool match = r.Match(search, s, l);
-	t_assertm(match == (expected == 0), TString("expected match result ") << expected << " wrong at\nRegexTest.any:" << lineId << " for >" << re << "< with search >" << search << "<");
+	t_assertm(match == (expected == 0), TString("expected match result ")
+											<< expected << " wrong at\nRegexTest.any:" << lineId << " for >" << re
+											<< "< with search >" << search << "<");
 	assertEqualm(aCase[3L].AsLong(s), s, TString("expected match position wrong at\nRegexTest.any:") << lineId);
 	assertEqualm(aCase[4L].AsLong(l), l, TString("expected match length wrong at\nRegexTest.any:") << lineId);
 }
 //:read config file and do all the tests
-void RegexTest::MatchConfig()
-{
+void RegexTest::MatchConfig() {
 	StartTrace(RegexTest.MatchConfig);
 
 	std::istream *is = system::OpenStream("RegexTest", "any");
 	t_assert(is && is->good());
-	if (!is || !is->good()) {
+	if ((is == 0) || !is->good()) {
 		return;
 	}
 	Anything alltests;
@@ -313,8 +298,7 @@ void RegexTest::MatchConfig()
 	}
 }
 
-void RegexTest::MatchFlagsTest()
-{
+void RegexTest::MatchFlagsTest() {
 	StartTrace(RegexTest.MatchFlagsTest);
 
 	RE r("^.b+$", RE::MATCH_ICASE);
@@ -338,8 +322,7 @@ void RegexTest::MatchFlagsTest()
 	t_assert(!r.ContainedIn("aBBc\naBb"));
 }
 
-void RegexTest::SplitTest()
-{
+void RegexTest::SplitTest() {
 	StartTrace(RegexTest.SplitTest);
 
 	String tosplit("abbbaabbaaabaaaa");
@@ -353,8 +336,7 @@ void RegexTest::SplitTest()
 	assertEqual("aaaa", a[3L].AsCharPtr());
 }
 
-void RegexTest::SubstTest()
-{
+void RegexTest::SubstTest() {
 	StartTrace(RegexTest.SubstTest);
 
 	String tosubst("replace the\tblanks    or tabs\t    within");
@@ -368,13 +350,12 @@ void RegexTest::SubstTest()
 	assertEqual("replace#the#blanks#or#tabs#within", res);
 }
 
-void RegexTest::GrepTest()
-{
+void RegexTest::GrepTest() {
 	StartTrace(RegexTest.GrepTest);
 
 	std::istream *is = system::OpenStream("Tracer", "any");
 	t_assert(is && is->good());
-	if (!is || !is->good()) {
+	if ((is == 0) || !is->good()) {
 		return;
 	}
 	Anything a;
@@ -389,13 +370,12 @@ void RegexTest::GrepTest()
 	TraceAny(res, "zeroes matched");
 }
 
-void RegexTest::GrepSlotNamesTest()
-{
+void RegexTest::GrepSlotNamesTest() {
 	StartTrace(RegexTest.GrepSlotNamesTest);
 
 	std::istream *is = system::OpenStream("Tracer", "any");
 	t_assert(is && is->good());
-	if (!is || !is->good()) {
+	if ((is == 0) || !is->good()) {
 		return;
 	}
 	Anything a;
@@ -411,8 +391,7 @@ void RegexTest::GrepSlotNamesTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *RegexTest::suite ()
-{
+Test *RegexTest::suite() {
 	StartTrace(RegexTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, RegexTest, MatchLiteral);

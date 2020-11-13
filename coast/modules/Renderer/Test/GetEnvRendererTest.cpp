@@ -7,25 +7,23 @@
  */
 
 #include "GetEnvRendererTest.h"
-#include "TestSuite.h"
-#include "Tracer.h"
-#include "SystemBase.h"
+
 #include "Context.h"
 #include "Renderer.h"
+#include "SystemBase.h"
+#include "TestSuite.h"
+#include "Tracer.h"
 
 //---- GetEnvRendererTest ----------------------------------------------------------------
-GetEnvRendererTest::GetEnvRendererTest(TString tstrName) : TestCaseType(tstrName)
-{
+GetEnvRendererTest::GetEnvRendererTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(GetEnvRendererTest.Ctor);
 }
 
-GetEnvRendererTest::~GetEnvRendererTest()
-{
+GetEnvRendererTest::~GetEnvRendererTest() {
 	StartTrace(GetEnvRendererTest.Dtor);
 }
 
-void GetEnvRendererTest::EnvTest()
-{
+void GetEnvRendererTest::EnvTest() {
 	StartTrace(GetEnvRendererTest.EnvTest);
 	String user = coast::system::EnvGet("USER");
 	Context ctx;
@@ -38,8 +36,7 @@ void GetEnvRendererTest::EnvTest()
 }
 
 // builds up a suite of testcases, add a line for each testmethod
-Test *GetEnvRendererTest::suite ()
-{
+Test *GetEnvRendererTest::suite() {
 	StartTrace(GetEnvRendererTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, GetEnvRendererTest, EnvTest);

@@ -41,7 +41,8 @@ class OraclePooledConnection;
  *
  * @par \c DBConnectString
  * \b mandatory \n
- * String value specifying oracle database connection string according to <a href="http://www.oracle.com/technology/tech/oci/instantclient/ic-faq.html#A4428">Oracle-InstantClient FAQ</a>
+ * String value specifying oracle database connection string according to <a
+ *href="http://www.oracle.com/technology/tech/oci/instantclient/ic-faq.html#A4428">Oracle-InstantClient FAQ</a>
  * @par \c DBUser
  * \b mandatory \n
  * String value specifying the database user to connect with
@@ -56,8 +57,8 @@ class OraclePooledConnection;
  * @subsection oracleparametersimplequeries Simple sql queries
  *
  * @par \c SQL
- * \b mandatory if it is one of [select|insert|update|delete|create|drop|alter|...], but not a stored procedure/function or another form of a PL/SQL block\n
- * String value representing the SQL query to execute in valid oracle syntax.
+ * \b mandatory if it is one of [select|insert|update|delete|create|drop|alter|...], but not a stored procedure/function or
+ *another form of a PL/SQL block\n String value representing the SQL query to execute in valid oracle syntax.
  *
  * @subsection oracleparameterprocedurefunction Stored procedure/function
  *
@@ -75,7 +76,8 @@ class OraclePooledConnection;
  * @par \c Params \c . \c PARAMNAME
  * \b mandatory if IN or INOUT parameters, except SYS_REFCURSOR INOUT values\n
  * Values to use as input parameters for stored procedures/functions\n
- * <em>Note that parameter names \b must be specified in upper case letters, oracle is not case preserving/sensitive for parameter names!</em>
+ * <em>Note that parameter names \b must be specified in upper case letters, oracle is not case preserving/sensitive for
+ *parameter names!</em>
  *
  * @subsection oracleparameteroutput Customizing output
  *
@@ -112,7 +114,8 @@ class OraclePooledConnection;
  * @par \c QuerySource
  * This slot will contain the connect string of the back end where the query was executed
  * @par \c Query
- * The executed query string, regardless whether it is a simple query or a stored procedure or function call will be non pretty printed as String
+ * The executed query string, regardless whether it is a simple query or a stored procedure or function call will be non pretty
+ *printed as String
  * @par \c Messages
  * Errors occurring during execution will be appended as textual messages
  *
@@ -145,11 +148,10 @@ class OraclePooledConnection;
  *  - {...}\n
  *  	If the parameter is a resultset [CURSOR|SYS_REFCURSOR]
  */
-class OracleDAImpl: public DataAccessImpl
-{
+class OracleDAImpl : public DataAccessImpl {
 public:
 	/*! @copydoc RegisterableObject::RegisterableObject(const char *) */
-	OracleDAImpl( const char *name );
+	OracleDAImpl(const char *name);
 	~OracleDAImpl();
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
@@ -157,26 +159,26 @@ public:
 
 	//! Implementation of oracle data access
 	/*! @copydetails DataAccessImpl::Exec() */
-	virtual bool Exec( Context &ctx, ParameterMapper *input, ResultMapper *output );
+	virtual bool Exec(Context &ctx, ParameterMapper *input, ResultMapper *output);
 
 private:
-	bool DoPrepareSQL( String &command, Context &ctx, ParameterMapper *in );
-	bool DoPrepareSP( String &command, Context &ctx, ParameterMapper *in );
+	bool DoPrepareSQL(String &command, Context &ctx, ParameterMapper *in);
+	bool DoPrepareSP(String &command, Context &ctx, ParameterMapper *in);
 
-	void ProcessResultSet( OracleResultset &aRSet, ParameterMapper *& in, Context &ctx, ResultMapper *& out,
-						   String strResultPrefix );
+	void ProcessResultSet(OracleResultset &aRSet, ParameterMapper *&in, Context &ctx, ResultMapper *&out,
+						  String strResultPrefix);
 
-	void Error( Context &ctx, ResultMapper *pResultMapper, String str );
+	void Error(Context &ctx, ResultMapper *pResultMapper, String str);
 
-	Anything getMappedInputValues( ParameterMapper *pmapIn, OracleStatement &aStmt, Context &ctx, bool &bIsArrayExecute );
+	Anything getMappedInputValues(ParameterMapper *pmapIn, OracleStatement &aStmt, Context &ctx, bool &bIsArrayExecute);
 
-	bool TryExecuteQuery( ParameterMapper *in, Context &ctx, OraclePooledConnection *& pPooledConnection,
-						  String &server, String &user, String &passwd, ResultMapper *out, bool bRet );
+	bool TryExecuteQuery(ParameterMapper *in, Context &ctx, OraclePooledConnection *&pPooledConnection, String &server,
+						 String &user, String &passwd, ResultMapper *out, bool bRet);
 
 	// compiler supplied functions forbidden due to Clone() interface
 	OracleDAImpl();
-	OracleDAImpl( const OracleDAImpl & );
-	OracleDAImpl &operator =( const OracleDAImpl & );
+	OracleDAImpl(const OracleDAImpl &);
+	OracleDAImpl &operator=(const OracleDAImpl &);
 };
 
 #endif

@@ -7,33 +7,30 @@
  */
 
 #include "UniqueIdGen.h"
+
+#include "DiffTimer.h"
 #include "MD5.h"
 #include "SystemBase.h"
-#include "DiffTimer.h"
+
+#include <unistd.h>
 
 namespace {
-	long const uniqueIdHashLength=32L;
+	long const uniqueIdHashLength = 32L;
 	DiffTimer fUniqueIdTimer;
-	long fHostid=::gethostid();
-	long fPid=coast::system::getpid();
-	long getHostId() {
-		return fHostid;
-	}
-	long getPid() {
-		return fPid;
-	}
-	DiffTimer::tTimeType getDiffTime() {
-		return fUniqueIdTimer.RawDiff();
-	}
-    String hexHash(String const& s) {
+	long fHostid = ::gethostid();
+	long fPid = coast::system::getpid();
+	long getHostId() { return fHostid; }
+	long getPid() { return fPid; }
+	DiffTimer::tTimeType getDiffTime() { return fUniqueIdTimer.RawDiff(); }
+	String hexHash(String const &s) {
 		StartTrace(UniqueIdGen.HexHash);
 		String hash(uniqueIdHashLength);
 		MD5Signer::DoHash(s, hash);
 		String buffer(uniqueIdHashLength);
-		buffer.AppendAsHex(reinterpret_cast<const unsigned char*>(hash.cstr()), hash.Length());
+		buffer.AppendAsHex(reinterpret_cast<const unsigned char *>(hash.cstr()), hash.Length());
 		return buffer;
 	}
-}
+}  // namespace
 
 namespace coast {
 	namespace security {
@@ -41,10 +38,13 @@ namespace coast {
 			StartTrace(UniqueIdGen.generateUniqueId);
 			String buffer(128L);
 			buffer.Append(getDiffTime())
-					.Append('_').Append(getHostId())
-					.Append('_').Append(getPid())
-					.Append('_').Append(coast::security::nextRandomNumber());
-			if (additionalToken.Length()) {
+				.Append('_')
+				.Append(getHostId())
+				.Append('_')
+				.Append(getPid())
+				.Append('_')
+				.Append(coast::security::nextRandomNumber());
+			if (additionalToken.Length() != 0) {
 				buffer.Append('_').Append(additionalToken);
 			}
 			Trace("id before hashing [" << buffer << "]");
@@ -53,5 +53,5 @@ namespace coast {
 			Trace("Resulting UniqueId: [" << ret << "]");
 			return ret;
 		}
-	}
-}
+	}  // namespace security
+}  // namespace coast

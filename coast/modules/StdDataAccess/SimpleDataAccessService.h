@@ -12,25 +12,20 @@
 #include "ServiceHandler.h"
 
 //---- SimpleDataAccessService ----------------------------------------------------------
-//!single line description of the class
+//! single line description of the class
 //! further explanation of the purpose of the class
 //! this may contain <B>HTML-Tags</B>
 //! ...
-class SimpleDataAccessService : public ServiceHandler
-{
+class SimpleDataAccessService : public ServiceHandler {
 public:
-	//!standard named object constructor
-	SimpleDataAccessService(const char *name) :
-		ServiceHandler(name) {
-	}
+	//! standard named object constructor
+	SimpleDataAccessService(const char *name) : ServiceHandler(name) {}
 
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) SimpleDataAccessService(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) SimpleDataAccessService(fName); }
 
 protected:
-	//!handles requested service
+	//! handles requested service
 	virtual bool DoHandleService(std::ostream &os, Context &ctx);
 
 private:

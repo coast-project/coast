@@ -7,40 +7,39 @@
  */
 
 #include "HTTPProcessorTest.h"
-#include "HTTPProcessor.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "StringStream.h"
-#include "StringStreamSocket.h"
-#include "Context.h"
-#include "URLUtils.h"
-#include "Tracer.h"
-#include "Server.h"
+
+#include "AnyIterators.h"
 #include "AnyLookupInterfaceAdapter.h"
 #include "AnyUtils.h"
-#include "Renderer.h"
-#include "AnyIterators.h"
+#include "Context.h"
+#include "FoundationTestTypes.h"
 #include "HTTPConstants.h"
+#include "HTTPProcessor.h"
+#include "Renderer.h"
+#include "Server.h"
+#include "StringStream.h"
+#include "StringStreamSocket.h"
+#include "TestSuite.h"
+#include "Tracer.h"
+#include "URLUtils.h"
 
 namespace {
-	String GetFirstResponseLine(String const &result) {
-		return result.SubString(0L, result.Contains(ENDL));
-	}
-}
+	String GetFirstResponseLine(String const &result) { return result.SubString(0L, result.Contains(ENDL)); }
+}  // namespace
 
 void HTTPProcessorTest::DoReadInputWithErrorTest() {
 	StartTrace(HTTPProcessorTest.DoReadInputWithErrorTest);
 
 	RequestProcessor *httpProcessor = RequestProcessor::FindRequestProcessor("HTTPProcessor");
 	Server *pServer = Server::FindServer("Server");
-	if ( t_assert(pServer) ) {
+	if (t_assert(pServer)) {
 		pServer->GlobalInit(0, 0, ROAnything());
 		Anything anyTmpStore, anyRequest, env;
 		ROAnything caseConfig;
 		AnyExtensions::Iterator<ROAnything, ROAnything, TString> aEntryIterator(GetTestCaseConfig());
 		while (aEntryIterator.Next(caseConfig)) {
 			TString caseName;
-			if ( !aEntryIterator.SlotName(caseName) ) {
+			if (!aEntryIterator.SlotName(caseName)) {
 				caseName << "At index: " << aEntryIterator.Index();
 			}
 			AnyLookupInterfaceAdapter<ROAnything> lia(caseConfig);
@@ -61,7 +60,7 @@ void HTTPProcessorTest::DoReadInputWithErrorTest() {
 			OStringStream oss;
 			ctx.DebugStores("bla", oss, true);
 			Trace(oss.str());
-			if (caseConfig["Expected"].IsDefined("TmpStore") ) {
+			if (caseConfig["Expected"].IsDefined("TmpStore")) {
 				assertAnyCompareEqual(caseConfig["Expected"]["TmpStore"], ctx.GetTmpStore(), caseName, '.', ':');
 			}
 		}
@@ -88,7 +87,7 @@ void HTTPProcessorTest::RenderProtocolStatusWithoutHTTPStatus() {
 	{
 		OStringStream os;
 		httpProcessor->RenderProtocolStatus(os, ctx);
-		assertCharPtrEqual( "HTTP/1.1 200 OK" ENDL "Connection: close" ENDL, os.str() );
+		assertCharPtrEqual("HTTP/1.1 200 OK" ENDL "Connection: close" ENDL, os.str());
 	}
 	{
 		Anything tmpStore;
@@ -96,7 +95,7 @@ void HTTPProcessorTest::RenderProtocolStatusWithoutHTTPStatus() {
 		tmpStore[coast::http::constants::protocolCodeSlotname] = 599L;
 		Context::PushPopEntry<Anything> aEntry(ctx, "blub", tmpStore, "HTTPStatus");
 		httpProcessor->RenderProtocolStatus(os, ctx);
-		assertCharPtrEqual( "HTTP/1.1 599 Unknown Error" ENDL "Connection: close" ENDL, os.str() );
+		assertCharPtrEqual("HTTP/1.1 599 Unknown Error" ENDL "Connection: close" ENDL, os.str());
 	}
 	{
 		OStringStream os;
@@ -105,7 +104,7 @@ void HTTPProcessorTest::RenderProtocolStatusWithoutHTTPStatus() {
 		tmpStore[coast::http::constants::protocolMsgSlotname] = "BlaBla";
 		Context::PushPopEntry<Anything> aEntry(ctx, "blub", tmpStore, "HTTPStatus");
 		httpProcessor->RenderProtocolStatus(os, ctx);
-		assertCharPtrEqual( "HTTP/1.1 413 BlaBla" ENDL "Connection: close" ENDL, os.str() );
+		assertCharPtrEqual("HTTP/1.1 413 BlaBla" ENDL "Connection: close" ENDL, os.str());
 	}
 	{
 		OStringStream os;
@@ -113,7 +112,7 @@ void HTTPProcessorTest::RenderProtocolStatusWithoutHTTPStatus() {
 		tmpStore["ProtocolReplyRenderer"] = "HTTP/8.7 768 BLUB" ENDL;
 		Context::PushPopEntry<Anything> aEntry(ctx, "blub", tmpStore);
 		httpProcessor->RenderProtocolStatus(os, ctx);
-		assertCharPtrEqual( "HTTP/8.7 768 BLUB" ENDL, os.str() );
+		assertCharPtrEqual("HTTP/8.7 768 BLUB" ENDL, os.str());
 	}
 }
 

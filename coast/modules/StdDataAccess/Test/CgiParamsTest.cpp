@@ -7,9 +7,10 @@
  */
 
 #include "CgiParamsTest.h"
+
 #include "CgiParams.h"
-#include "TestSuite.h"
 #include "Context.h"
+#include "TestSuite.h"
 
 void CgiParamsTest::EnvironTest() {
 	StartTrace(CgiParamsTest.EnvironTest);

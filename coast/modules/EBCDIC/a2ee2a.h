@@ -15,4 +15,4 @@
 void ebcdic2ascii(void *dest, const void *srce, size_t count);
 void ascii2ebcdic(void *dest, const void *srce, size_t count);
 
-#endif		//not defined _a2ee2a_H
+#endif	// not defined _a2ee2a_H

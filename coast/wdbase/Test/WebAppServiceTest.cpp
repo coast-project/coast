@@ -7,33 +7,29 @@
  */
 
 #include "WebAppServiceTest.h"
-#include "WebAppService.h"
-#include "TestSuite.h"
 
-WebAppServiceTest::WebAppServiceTest(TString tstrName)
-	: TestCaseType(tstrName)
-{
+#include "TestSuite.h"
+#include "WebAppService.h"
+
+WebAppServiceTest::WebAppServiceTest(TString tstrName) : TestCaseType(tstrName) {
 	StartTrace(WebAppServiceTest.WebAppServiceTest);
 }
 
-TString WebAppServiceTest::getConfigFileName()
-{
+TString WebAppServiceTest::getConfigFileName() {
 	return "WebAppServiceTestConfig";
 }
 
-WebAppServiceTest::~WebAppServiceTest()
-{
+WebAppServiceTest::~WebAppServiceTest() {
 	StartTrace(WebAppServiceTest.Dtor);
 }
 
-void WebAppServiceTest::BuildQueryTest()
-{
+void WebAppServiceTest::BuildQueryTest() {
 	StartTrace(WebAppServiceTest.BuildQueryTest);
 	WebAppService *pService = SafeCast(ServiceHandler::FindServiceHandler("WebAppService"), WebAppService);
 	if (t_assert(pService != NULL)) {
 		ROAnything cConfig;
 		AnyExtensions::Iterator<ROAnything> aEntryIterator(GetConfig()["BuildQueryTest"]);
-		while ( aEntryIterator.Next(cConfig) ) {
+		while (aEntryIterator.Next(cConfig)) {
 			Anything query;
 			ROAnything expected(cConfig["Expected"]);
 			String pathString(cConfig["Path"].AsString()), queryString(cConfig["Query"].AsString());
@@ -43,14 +39,13 @@ void WebAppServiceTest::BuildQueryTest()
 	}
 }
 
-void WebAppServiceTest::Add2QueryTest()
-{
+void WebAppServiceTest::Add2QueryTest() {
 	StartTrace(WebAppServiceTest.Add2QueryTest);
 	WebAppService *pService = SafeCast(ServiceHandler::FindServiceHandler("WebAppService"), WebAppService);
 	if (t_assert(pService != NULL)) {
 		ROAnything cConfig;
 		AnyExtensions::Iterator<ROAnything> aEntryIterator(GetConfig()["Add2QueryTest"]);
-		while ( aEntryIterator.Next(cConfig) ) {
+		while (aEntryIterator.Next(cConfig)) {
 			Anything query(cConfig["Query"].DeepClone()), anyItems(cConfig["Add2Query"].DeepClone());
 			bool bOverWrite = cConfig["OverWrite"].AsBool(false);
 			ROAnything expectedQuery(cConfig["Expected"]);
@@ -60,15 +55,14 @@ void WebAppServiceTest::Add2QueryTest()
 	}
 }
 
-void WebAppServiceTest::DecodeWDQueryTest()
-{
+void WebAppServiceTest::DecodeWDQueryTest() {
 	StartTrace(WebAppServiceTest.DecodeWDQueryTest);
 
 	WebAppService *pService = SafeCast(ServiceHandler::FindServiceHandler("WebAppService"), WebAppService);
 	if (t_assert(pService != NULL)) {
 		ROAnything cConfig;
 		AnyExtensions::Iterator<ROAnything> aEntryIterator(GetConfig()["DecodeWDQueryTest"]);
-		while ( aEntryIterator.Next(cConfig) ) {
+		while (aEntryIterator.Next(cConfig)) {
 			Anything query(cConfig["Query"].DeepClone()), request(cConfig["Request"].DeepClone());
 			ROAnything expectedQuery(cConfig["Expected"]);
 			pService->SplitURI2PathAndQuery(request);
@@ -78,15 +72,14 @@ void WebAppServiceTest::DecodeWDQueryTest()
 	}
 }
 
-void WebAppServiceTest::PrepareRequestTest()
-{
+void WebAppServiceTest::PrepareRequestTest() {
 	StartTrace(WebAppServiceTest.PrepareRequestTest);
 
 	WebAppService *pService = SafeCast(ServiceHandler::FindServiceHandler("WebAppService"), WebAppService);
 	if (t_assert(pService != NULL)) {
 		ROAnything cConfig;
 		AnyExtensions::Iterator<ROAnything> aEntryIterator(GetConfig()["PrepareRequestTest"]);
-		while ( aEntryIterator.Next(cConfig) ) {
+		while (aEntryIterator.Next(cConfig)) {
 			Anything request(cConfig["Request"].DeepClone());
 			Context ctx(request);
 			ROAnything expected(cConfig["Expected"]);
@@ -96,8 +89,7 @@ void WebAppServiceTest::PrepareRequestTest()
 	}
 }
 
-void WebAppServiceTest::SplitURI2PathAndQueryTest()
-{
+void WebAppServiceTest::SplitURI2PathAndQueryTest() {
 	StartTrace(WebAppServiceTest.SplitURI2PathAndQueryTest);
 
 	WebAppService *pService = SafeCast(ServiceHandler::FindServiceHandler("WebAppService"), WebAppService);
@@ -132,8 +124,7 @@ void WebAppServiceTest::SplitURI2PathAndQueryTest()
 }
 
 // builds up a suite of tests, add a line for each testmethod
-Test *WebAppServiceTest::suite ()
-{
+Test *WebAppServiceTest::suite() {
 	StartTrace(WebAppServiceTest.suite);
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, WebAppServiceTest, PrepareRequestTest);

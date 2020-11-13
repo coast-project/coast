@@ -9,57 +9,55 @@
 #ifndef _SSLConnectorTest_H
 #define _SSLConnectorTest_H
 
-#include "FoundationTestTypes.h"
 #include "Anything.h"
+#include "FoundationTestTypes.h"
 
 class SSLConnector;
 
 //---- SSLConnectorTest ----------------------------------------------------------
-//!TestClass for for SSLConnector functionality
+//! TestClass for for SSLConnector functionality
 //! further explanation of the purpose of the class
 //! this may contain <B>HTML-Tags</B>
 //! ...
-class SSLConnectorTest : public testframework::TestCaseWithConfig
-{
+class SSLConnectorTest : public testframework::TestCaseWithConfig {
 public:
-
 	//--- constructors
 	SSLConnectorTest(TString tstrName);
 	~SSLConnectorTest();
 
 	//--- public api
-	//!generate SSLConnector test suite
+	//! generate SSLConnector test suite
 	//! this method generates the tests for the SSLConnector classed
 	//! \return a new test is created by this method
-	static Test *suite ();
+	static Test *suite();
 
-	//!generate set up for SSLConnector test does nothing so far
-	void setUp ();
+	//! generate set up for SSLConnector test does nothing so far
+	void setUp();
 
-	//!delete set up for SSLConnector test does nothing so far
-	void tearDown ();
+	//! delete set up for SSLConnector test does nothing so far
+	void tearDown();
 
 	//--- tests for public api of class SSLConnector
 
-	//!tests SSLConnector constructor with localhost and port 443
+	//! tests SSLConnector constructor with localhost and port 443
 	void simpleConstructorTest();
 
-	//!tests SSLConnector constructor with localhost and port 443 and allocator with pool storage
+	//! tests SSLConnector constructor with localhost and port 443 and allocator with pool storage
 	void allocatorConstructorTest();
 
-	//!tests SSLConnector constructor with localhost and port 443
+	//! tests SSLConnector constructor with localhost and port 443
 	void timeOutTest();
 
-	//!tests SSLConnector constructor with faulty parameters
+	//! tests SSLConnector constructor with faulty parameters
 	void faultyConstructorTest();
 
-	//!tests method GetStream
+	//! tests method GetStream
 	void getStreamTest();
 
-	//!tests method GetSessionID
+	//! tests method GetSessionID
 	void getSessionIDTest();
 
-	//!tests cipher list mismatch
+	//! tests cipher list mismatch
 	void CipherListMismatchTest();
 
 private:
@@ -68,7 +66,6 @@ private:
 	void ConnectAndAssert(ROAnything config, bool connectFails, bool getStreamFails, TString caseName);
 	void ConnectAndAssert(const char *host, long port, long timeout, bool connectFails, bool getStreamFails, TString caseName);
 	void DoConnectAndAssert(SSLConnector &sslConnecor, bool connectFails, bool getStreamFails, TString caseName);
-
 };
 
 #endif

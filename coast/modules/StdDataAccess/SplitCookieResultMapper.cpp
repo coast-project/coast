@@ -7,31 +7,32 @@
  */
 
 #include "SplitCookieResultMapper.h"
+
 #include "AnyIterators.h"
 
 namespace {
 	const char cookieValuesSeparator = ';';
 	const char keyValSeparator = '=';
-	const char * const valueSlotName = "_value_";
-	const char * const attrSlotName = "_attrs_";
+	const char *const valueSlotName = "_value_";
+	const char *const attrSlotName = "_attrs_";
 
-	String splitCookie(String const& strCookie, Anything &anyNamedCookie) {
+	String splitCookie(String const &strCookie, Anything &anyNamedCookie) {
 		StartTrace(SplitCookieResultMapper.splitCookie);
 		String strKeyValue(64L), strKey(32L), strValue(64L);
 		String cookieName(32L);
 		StringTokenizer semiTokenizer(strCookie.cstr(), cookieValuesSeparator);
-		while ( semiTokenizer.NextToken(strKeyValue) ) {
+		while (semiTokenizer.NextToken(strKeyValue)) {
 			StringTokenizer valueTokenizer(strKeyValue, keyValSeparator);
-			if ( valueTokenizer.NextToken(strKey) ) {
+			if (valueTokenizer.NextToken(strKey)) {
 				strKey.TrimWhitespace();
 				strValue = valueTokenizer.GetRemainder();
-				if ( !cookieName.Length() ) {
+				if (cookieName.Length() == 0) {
 					cookieName = strKey;
-					if ( strValue.Length() ) {
+					if (strValue.Length() != 0) {
 						anyNamedCookie[valueSlotName] = strValue;
 					}
 				} else {
-					if ( strValue.Length() ) {
+					if (strValue.Length() != 0) {
 						anyNamedCookie[attrSlotName][strKey] = strValue;
 					} else {
 						anyNamedCookie[attrSlotName].Append(strKey);
@@ -41,7 +42,7 @@ namespace {
 		}
 		return cookieName;
 	}
-}
+}  // namespace
 
 RegisterResultMapper(SplitCookieResultMapper);
 
@@ -51,7 +52,7 @@ bool SplitCookieResultMapper::DoPutAny(const char *key, Anything &value, Context
 	String strCookie(128L), strCookieName;
 	AnyExtensions::Iterator<ROAnything> cookieIterator(value);
 	bool result = true;
-	while ( cookieIterator.Next(roaCookie) ) {
+	while (cookieIterator.Next(roaCookie)) {
 		strCookie = roaCookie.AsString();
 		Trace("current cookie entry [" << strCookie << "]");
 		Anything anyCookie;

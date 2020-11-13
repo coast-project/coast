@@ -12,18 +12,15 @@
 #include "DataAccessImpl.h"
 
 //! DataAccess for performing HTTP Requests, uses meta data defined in HTTPMeta.any
-class DummyDAImpl: public DataAccessImpl {
+class DummyDAImpl : public DataAccessImpl {
 	DummyDAImpl();
 	DummyDAImpl(const DummyDAImpl &);
 	DummyDAImpl &operator=(const DummyDAImpl &);
+
 public:
-	DummyDAImpl(const char *name) :
-		DataAccessImpl(name) {
-	}
+	DummyDAImpl(const char *name) : DataAccessImpl(name) {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) DummyDAImpl(fName);
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) DummyDAImpl(fName); }
 	//! executes the transaction
 	//! \param c The context of the transaction
 	//! \pre fData2Send contains the HTTP-Request
@@ -33,6 +30,7 @@ public:
 protected:
 	virtual bool HandleError(const char *msg, Context &ctx);
 
+	// clang-format off
 	//! simulates a connection to a server, outgoing request is tested, incoming reply is assembled and sent, used when testing ONLY
 	//! author - Mike egoless
 	//! Mappers are configured as in usual case but with this DataAccess object rather than the usual one, e.g. HTTPDAImpl.
@@ -43,6 +41,7 @@ protected:
 	//! \param context the context for this call
 	//! \param in ParameterMapper
 	//! \param out ResultMapper
+	// clang-format on
 	virtual bool DoExec(Context &context, ParameterMapper *in, ResultMapper *out);
 
 	virtual bool RenderReply(String &theReply, Context &context, ResultMapper *out);
@@ -50,4 +49,4 @@ protected:
 	virtual bool BuildRequest(String &request, Context &context, ParameterMapper *in);
 };
 
-#endif		//not defined _DummyDAImpl_H
+#endif	// not defined _DummyDAImpl_H

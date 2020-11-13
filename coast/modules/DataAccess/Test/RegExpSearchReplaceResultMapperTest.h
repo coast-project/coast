@@ -11,13 +11,11 @@
 
 #include "FoundationTestTypes.h"
 
-class RegExpSearchReplaceResultMapperTest: public testframework::TestCaseWithConfig {
+class RegExpSearchReplaceResultMapperTest : public testframework::TestCaseWithConfig {
 public:
 	//! ConfiguredTestCase constructor
 	//! \param name name of the test
-	RegExpSearchReplaceResultMapperTest(TString tstrName) :
-		TestCaseType(tstrName) {
-	}
+	RegExpSearchReplaceResultMapperTest(TString tstrName) : TestCaseType(tstrName) {}
 
 	//! builds up a suite of tests
 	static Test *suite();

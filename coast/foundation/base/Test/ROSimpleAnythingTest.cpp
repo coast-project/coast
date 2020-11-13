@@ -7,40 +7,30 @@
  */
 
 #include "ROSimpleAnythingTest.h"
+
 #include "Anything.h"
 #include "IFAObject.h"
 #include "TestSuite.h"
 
-class DummyROIFAObj: public IFAObject
-{
+class DummyROIFAObj : public IFAObject {
 public:
-	DummyROIFAObj(const char *tst = "foo") { }
+	DummyROIFAObj(const char *tst = "foo") {}
 	/*! @copydoc IFAObject::Clone(Allocator *) const */
-	IFAObject *Clone(Allocator *a) const {
-		return new (a) DummyROIFAObj("dummy");
-	}
+	IFAObject *Clone(Allocator *a) const { return new (a) DummyROIFAObj("dummy"); }
 };
 
-ROSimpleAnythingTest::ROSimpleAnythingTest(TString tname) : TestCaseType(tname)
-{
-}
+ROSimpleAnythingTest::ROSimpleAnythingTest(TString tname) : TestCaseType(tname) {}
 
-ROSimpleAnythingTest::~ROSimpleAnythingTest()
-{
-}
+ROSimpleAnythingTest::~ROSimpleAnythingTest() {}
 
-void ROSimpleAnythingTest::ConstructorsAndConversions()
-{
+void ROSimpleAnythingTest::ConstructorsAndConversions() {
 	EmptyConstructor();
 	AnyConstructor();
-} // ConstructorsAndConversions
+}  // ConstructorsAndConversions
 
-void ROSimpleAnythingTest::AssignmentsAndConversions()
-{
-} // AssignmentsAndConversions
+void ROSimpleAnythingTest::AssignmentsAndConversions() {}  // AssignmentsAndConversions
 
-void ROSimpleAnythingTest::EmptyConstructor()
-{
+void ROSimpleAnythingTest::EmptyConstructor() {
 	ROAnything roTest;
 	DummyROIFAObj dummyIFA;
 
@@ -62,8 +52,7 @@ void ROSimpleAnythingTest::EmptyConstructor()
 	assertEqual((long)&dummyIFA, (long)roTest.AsIFAObject(&dummyIFA));
 }
 
-void ROSimpleAnythingTest::AnyConstructor()
-{
+void ROSimpleAnythingTest::AnyConstructor() {
 	AnyIntConstructor();
 	AnyBoolConstructor();
 	AnyLongConstructor();
@@ -72,8 +61,7 @@ void ROSimpleAnythingTest::AnyConstructor()
 	AnyIFAObjConstructor();
 }
 
-void ROSimpleAnythingTest::AnyIntConstructor()
-{
+void ROSimpleAnythingTest::AnyIntConstructor() {
 	const int cTestVal = 7;
 	Anything anyTest(cTestVal);
 	ROAnything roTest(anyTest);
@@ -97,8 +85,7 @@ void ROSimpleAnythingTest::AnyIntConstructor()
 	assertEqual((long)&dummyIFA, (long)roTest.AsIFAObject(&dummyIFA));
 }
 
-void ROSimpleAnythingTest::AnyBoolConstructor()
-{
+void ROSimpleAnythingTest::AnyBoolConstructor() {
 	const bool cTestVal = true;
 	Anything anyTest(cTestVal);
 	ROAnything roTest(anyTest);
@@ -122,8 +109,7 @@ void ROSimpleAnythingTest::AnyBoolConstructor()
 	assertEqual((long)&dummyIFA, (long)roTest.AsIFAObject(&dummyIFA));
 }
 
-void ROSimpleAnythingTest::AnyLongConstructor()
-{
+void ROSimpleAnythingTest::AnyLongConstructor() {
 	const long cTestVal = 1234L;
 	Anything anyTest(cTestVal);
 	ROAnything roTest(anyTest);
@@ -147,8 +133,7 @@ void ROSimpleAnythingTest::AnyLongConstructor()
 	assertEqual((long)&dummyIFA, (long)roTest.AsIFAObject(&dummyIFA));
 }
 
-void ROSimpleAnythingTest::AnyFloatConstructor()
-{
+void ROSimpleAnythingTest::AnyFloatConstructor() {
 	const float cTestVal = float(22.22);
 	Anything anyTest(cTestVal);
 	ROAnything roTest(anyTest);
@@ -172,8 +157,7 @@ void ROSimpleAnythingTest::AnyFloatConstructor()
 	assertEqual((long)&dummyIFA, (long)roTest.AsIFAObject(&dummyIFA));
 }
 
-void ROSimpleAnythingTest::AnyDoubleConstructor()
-{
+void ROSimpleAnythingTest::AnyDoubleConstructor() {
 	const float cTestVal = float(33.33);
 	Anything anyTest(cTestVal);
 	ROAnything roTest(anyTest);
@@ -197,8 +181,7 @@ void ROSimpleAnythingTest::AnyDoubleConstructor()
 	assertEqual((long)&dummyIFA, (long)roTest.AsIFAObject(&dummyIFA));
 }
 
-void ROSimpleAnythingTest::AnyIFAObjConstructor()
-{
+void ROSimpleAnythingTest::AnyIFAObjConstructor() {
 	DummyROIFAObj cTestVal("foo");
 	Anything anyTest(&cTestVal);
 	ROAnything roTest(anyTest);
@@ -222,8 +205,7 @@ void ROSimpleAnythingTest::AnyIFAObjConstructor()
 	assertEqual((long)&cTestVal, (long)roTest.AsIFAObject(&dummyIFA));
 }
 
-Test *ROSimpleAnythingTest::suite ()
-{
+Test *ROSimpleAnythingTest::suite() {
 	TestSuite *testSuite = new TestSuite;
 	ADD_CASE(testSuite, ROSimpleAnythingTest, ConstructorsAndConversions);
 	ADD_CASE(testSuite, ROSimpleAnythingTest, AssignmentsAndConversions);

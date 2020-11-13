@@ -7,19 +7,20 @@
  */
 
 #include "SessionListManagerTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "URLFilter.h"
+
 #include "Context.h"
+#include "FoundationTestTypes.h"
 #include "SecurityModule.h"
 #include "Server.h"
 #include "TestSession.h"
+#include "TestSuite.h"
 #include "Tracer.h"
+#include "URLFilter.h"
 
 void SessionListManagerTest::tearDown() {
 	StartTrace(SessionListManagerTest.tearDown);
 	Context ctx;
-	ctx.GetTmpStore()["Notify"]["expected"] = (long) Session::eRemoved;
+	ctx.GetTmpStore()["Notify"]["expected"] = (long)Session::eRemoved;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	sessionListManager->ForcedSessionCleanUp(ctx);
 }
@@ -35,7 +36,7 @@ void SessionListManagerTest::InitFinisTest() {
 
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
-	if (sessionListManager) {
+	if (sessionListManager != 0) {
 		t_assertm(sessionListManager->Init(config), "expected SessionListManager module to initialize correctly");
 		assertEqualm(1L, sessionListManager->fMaxSessionsAllowed, "expected fMaxSessionsAllowed to be initialized by config");
 		assertEqualm(0L, sessionListManager->GetNumberOfSessions(), "expected fSessionsCount to be initialized");
@@ -48,9 +49,7 @@ void SessionListManagerTest::InitFinisTest() {
 		assertEqualm(0L, sessionListManager->fMaxSessionsAllowed, "expected fMaxSessionsAllowed to be reset to zero");
 		t_assertm(sessionListManager->fSessionCleaner == 0, "expected fSessionCleaner to be deleted");
 		t_assertm(sessionListManager->fSessionFactory == 0, "expected fSessionFactory to be deleted");
-
 	}
-
 }
 
 void SessionListManagerTest::ReInitTest() {
@@ -74,7 +73,7 @@ void SessionListManagerTest::ReInitTest() {
 
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
-	if (sessionListManager) {
+	if (sessionListManager != 0) {
 		t_assertm(sessionListManager->Init(config1), "expected SessionListManager module to initialize correctly");
 		assertEqualm(1L, sessionListManager->fMaxSessionsAllowed, "expected fMaxSessionsAllowed to be initialized by config");
 		assertEqualm(0L, sessionListManager->GetNumberOfSessions(), "expected fSessionsCount to be initialized");
@@ -108,24 +107,23 @@ void SessionListManagerTest::ReInitTest() {
 		}
 		// reset session in ctx, since sessions
 		// are deleted in Finis of SLM
-		ctx.Push((Session *) 0);
+		ctx.Push((Session *)0);
 
 		t_assertm(sessionListManager->Finis(), "expected SessionListManager module to terminate successfully");
 		assertEqualm(0L, sessionListManager->fMaxSessionsAllowed, "expected fMaxSessionsAllowed to be reset to zero");
 		t_assertm(sessionListManager->fSessionCleaner == 0, "expected fSessionCleaner to be deleted");
 		t_assertm(sessionListManager->fSessionFactory == 0, "expected fSessionFactory to be deleted");
 	}
-
 }
 
 void SessionListManagerTest::CreateSessionTest() {
 	StartTrace(SessionListManagerTest.CreateSessionTest);
 
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
-	if (sessionListManager) {
+	if (sessionListManager != 0) {
 		Context ctx;
 		String sessionId;
 		sessionListManager->fMaxSessionsAllowed = 3;
@@ -160,11 +158,11 @@ void SessionListManagerTest::CreateSessionTest() {
 void SessionListManagerTest::LookupSessionTest() {
 	StartTrace(SessionListManagerTest.LookupSessionTest);
 
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
-	if (sessionListManager) {
+	if (sessionListManager != 0) {
 		sessionListManager->fMaxSessionsAllowed = 10;
 		Context ctx1;
 		String sessionId;
@@ -173,15 +171,14 @@ void SessionListManagerTest::LookupSessionTest() {
 		t_assertm(sessionListManager->GetNumberOfSessions() == 0, "expected sessionListManager to have no sessions");
 		s = sessionListManager->CreateSession(sessionId, ctx1);
 		t_assertm(s != 0, "expected sessionListManager to allocate a session");
-		if (s) {
+		if (s != 0) {
 			t_assertm(sessionListManager->GetNumberOfSessions() == 1, "expected sessionListManager to have one sessions");
 			t_assertm(s->GetId() != 0, "expected session to have an id");
 			t_assertm(s == sessionListManager->fSessions[s->GetId()].AsIFAObject(0), "expected session to be in sessionlist");
 		}
 	}
 	// standard case create a session with a session id defined in query
-	if (sessionListManager) {
-
+	if (sessionListManager != 0) {
 		Anything query;
 		String sessionId = "LookupTest";
 		query["sessionId"] = sessionId;
@@ -192,7 +189,7 @@ void SessionListManagerTest::LookupSessionTest() {
 
 		t_assertm(sessionListManager->GetNumberOfSessions() == 1, "expected sessionListManager to have no sessions");
 		s = sessionListManager->CreateSession(sessionId, ctx);
-		if (s) {
+		if (s != 0) {
 			t_assertm(s != 0, "expected sessionListManager to allocate a session");
 			t_assertm(sessionListManager->GetNumberOfSessions() == 2, "expected sessionListManager to have one sessions");
 			t_assertm(s->GetId() != 0, "expected session to have an id");
@@ -202,7 +199,7 @@ void SessionListManagerTest::LookupSessionTest() {
 
 			s = sessionListManager->LookupSession(sessionId, ctx);
 			t_assertm(s != 0, "expected sessionListManager to find allocated session");
-			if (s) {
+			if (s != 0) {
 				assertEqualm("LookupTest", s->GetId(), "expected sessionId to be 'LookupTest'");
 
 				// simulating sequence when request thread and cleaner thread have a bad overlapping
@@ -229,10 +226,10 @@ void SessionListManagerTest::DisableSessionTest() {
 	StartTrace(SessionListManagerTest.DisableSessionTest);
 
 	// assumes SessionListManager is initialized ok
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
-	if (sessionListManager) {
+	if (sessionListManager != 0) {
 		Anything query;
 		String sessionId = "DisableTest";
 		query["sessionId"] = sessionId;
@@ -268,18 +265,17 @@ void SessionListManagerTest::DisableSessionTest() {
 		assertEqual(0, sessionListManager->fSessions.GetSize());
 		Trace("remaining " << sessionListManager->fSessions.GetSize() << "  Sessions");
 	}
-
 }
 
 void SessionListManagerTest::CleanupSessionTest() {
 	StartTrace(SessionListManagerTest.DisableSessionTest);
 
 	{
-		Session *s;
+		Session *s = NULL;
 		SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 		t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
-		if (sessionListManager) {
+		if (sessionListManager != 0) {
 			Anything query;
 			String sessionId = "DisableTest";
 			query["sessionId"] = sessionId;
@@ -315,18 +311,20 @@ void SessionListManagerTest::CleanupSessionTest() {
 			}
 
 			sessionListManager->CleanupSessions(ctx);
-			assertEqualm(0L, sessionListManager->GetNumberOfSessions(), "expected sessionListManager to have no active sessions");
-			assertEqualm(0L, sessionListManager->fSessions.GetSize(), "expected sessionListManager to have no active sessions in list");
-			assertEqualm(0L, sessionListManager->fDisabledSessions.GetSize(), "expected sessionListManager to have no disabled sessions");
-
+			assertEqualm(0L, sessionListManager->GetNumberOfSessions(),
+						 "expected sessionListManager to have no active sessions");
+			assertEqualm(0L, sessionListManager->fSessions.GetSize(),
+						 "expected sessionListManager to have no active sessions in list");
+			assertEqualm(0L, sessionListManager->fDisabledSessions.GetSize(),
+						 "expected sessionListManager to have no disabled sessions");
 		}
 	}
 	{
-		Session *s;
+		Session *s = NULL;
 		SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 		t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
-		if (sessionListManager) {
+		if (sessionListManager != 0) {
 			Anything query;
 			String sessionId = "DisableTest";
 			query["sessionId"] = sessionId;
@@ -363,10 +361,12 @@ void SessionListManagerTest::CleanupSessionTest() {
 			// the session in DisabledSessions will be removed. The recently created session
 			// will be kept.
 			sessionListManager->CleanupSessions(ctx);
-			assertEqualm(1L, sessionListManager->GetNumberOfSessions(), "expected sessionListManager to have one active sessions");
-			assertEqualm(1L, sessionListManager->fSessions.GetSize(), "expected sessionListManager to have one active sessions in list");
-			assertEqualm(0L, sessionListManager->fDisabledSessions.GetSize(), "expected sessionListManager to have no disabled sessions");
-
+			assertEqualm(1L, sessionListManager->GetNumberOfSessions(),
+						 "expected sessionListManager to have one active sessions");
+			assertEqualm(1L, sessionListManager->fSessions.GetSize(),
+						 "expected sessionListManager to have one active sessions in list");
+			assertEqualm(0L, sessionListManager->fDisabledSessions.GetSize(),
+						 "expected sessionListManager to have no disabled sessions");
 		}
 	}
 }
@@ -374,11 +374,11 @@ void SessionListManagerTest::CleanupSessionTest() {
 void SessionListManagerTest::AddSameSessionNTimesTest() {
 	StartTrace(SessionListManagerTest.AddSameSessionNTimesTest);
 
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
-	if (sessionListManager) {
+	if (sessionListManager != 0) {
 		Anything query;
 		String sessionId = "UseUTwice";
 		sessionListManager->fMaxSessionsAllowed = 10;
@@ -396,9 +396,12 @@ void SessionListManagerTest::AddSameSessionNTimesTest() {
 				t_assertm(s != 0, "expected sessionListManager to allocate a new session");
 				t_assertm(s->GetId() != 0, "expected session to have an id");
 				assertEqual(sessionId, s->GetId());
-				assertEqualm(1L, sessionListManager->GetNumberOfSessions(), "expected sessionListManager to have ONE active sessions");
-				assertEqualm(1L, sessionListManager->fSessions.GetSize(), "expected sessionListManager to have ONE active session in list");
-				assertEqualm(i - 1, sessionListManager->fDisabledSessions.GetSize(), "expected sessionListManager to have  disabled sessions");
+				assertEqualm(1L, sessionListManager->GetNumberOfSessions(),
+							 "expected sessionListManager to have ONE active sessions");
+				assertEqualm(1L, sessionListManager->fSessions.GetSize(),
+							 "expected sessionListManager to have ONE active session in list");
+				assertEqualm(i - 1, sessionListManager->fDisabledSessions.GetSize(),
+							 "expected sessionListManager to have  disabled sessions");
 				s = sessionListManager->LookupSession(sessionId, ctx);
 				if (t_assertm(s != 0, "expected sessionListManager to find test session")) {
 					t_assertm(s->GetId() != 0, "expected session to have an id");
@@ -415,8 +418,10 @@ void SessionListManagerTest::AddSameSessionNTimesTest() {
 		// Because the last session ((i %10) != 0) was not marked invalid, we have ONE active session and zero inactive ones
 		// after CleanupSessions() is done
 		assertEqualm(1L, sessionListManager->GetNumberOfSessions(), "expected sessionListManager to have NO active sessions");
-		assertEqualm(1L, sessionListManager->fSessions.GetSize(), "expected sessionListManager to have no active sessions in list");
-		assertEqualm(0L, sessionListManager->fDisabledSessions.GetSize(), "expected sessionListManager to have no disabled sessions");
+		assertEqualm(1L, sessionListManager->fSessions.GetSize(),
+					 "expected sessionListManager to have no active sessions in list");
+		assertEqualm(0L, sessionListManager->fDisabledSessions.GetSize(),
+					 "expected sessionListManager to have no disabled sessions");
 	}
 }
 
@@ -430,7 +435,7 @@ void SessionListManagerTest::StdFilterQueryTest() {
 	Anything env;
 	Anything filterTags;
 	URLFilter urlFilter("Test");
-	long querySz;
+	long querySz = 0;
 
 	// first setup a state and scramble it
 	Anything state;
@@ -476,7 +481,7 @@ void SessionListManagerTest::SessionListInfoTest() {
 
 	Context ctx;
 	String sessionId;
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	Anything expectedSessionListInfo;
 	Anything resultedSessionListInfo = Anything(Anything::ArrayMarker());
@@ -494,7 +499,8 @@ void SessionListManagerTest::SessionListInfoTest() {
 		expectedSessionListInfo["Pages"] = 1;
 		expectedSessionListInfo["PageSize"] = 3;
 		Anything config;
-		t_assertm(sessionListManager->SessionListInfo(resultedSessionListInfo, ctx, config), "expected SessionListInfo to work");
+		t_assertm(sessionListManager->SessionListInfo(resultedSessionListInfo, ctx, config),
+				  "expected SessionListInfo to work");
 
 		TraceAny(expectedSessionListInfo, "Expected:");
 		TraceAny(resultedSessionListInfo, "Result:");
@@ -509,7 +515,7 @@ void SessionListManagerTest::GetASessionsInfoTest() {
 	Context ctx;
 	String sessionId1;
 	String sessionId2;
-	Session *s1;
+	Session *s1 = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	sessionListManager->fMaxSessionsAllowed = 3;
 	Anything expected;
@@ -518,22 +524,26 @@ void SessionListManagerTest::GetASessionsInfoTest() {
 		s1 = sessionListManager->CreateSession(sessionId1, ctx);
 		t_assertm(s1->Info(expected[sessionId1], ctx), "Expected session info to be available");
 		Anything config;
-		t_assertm(sessionListManager->GetASessionsInfo(resultedSessionListInfo, sessionId1, ctx, config), "Expected GetASessionsInfo to succeed");
+		t_assertm(sessionListManager->GetASessionsInfo(resultedSessionListInfo, sessionId1, ctx, config),
+				  "Expected GetASessionsInfo to succeed");
 		TraceAny(resultedSessionListInfo, "Session Info for: " << sessionId1);
 		TraceAny(expected, "Expected:");
 		assertAnyEqualm(expected, resultedSessionListInfo, "expected session list information to match");
-		t_assertm(!sessionListManager->GetASessionsInfo(resultedSessionListInfo, "dosnotexist", ctx, config), "Expected GetASessionsInfo to fail");
+		t_assertm(!sessionListManager->GetASessionsInfo(resultedSessionListInfo, "dosnotexist", ctx, config),
+				  "Expected GetASessionsInfo to fail");
 
 		sessionListManager->CreateSession(sessionId2, ctx);
 		t_assertm(s1->Info(expected[sessionId1], ctx), "Expected session info to be available");
-		t_assertm(sessionListManager->GetASessionsInfo(resultedSessionListInfo, sessionId1, ctx, config), "Expected GetASessionsInfo to succeed");
+		t_assertm(sessionListManager->GetASessionsInfo(resultedSessionListInfo, sessionId1, ctx, config),
+				  "Expected GetASessionsInfo to succeed");
 		TraceAny(resultedSessionListInfo, "Session Info for: " << sessionId1);
 		TraceAny(expected, "Expected:");
 		// Original session's refcount is incremented in GetASessionsInfo (session in ctx is not equal session for which
 		// GetASessinInfo looks up the session info.
 		expected[sessionId1]["Referenced"] = expected[sessionId1]["Referenced"].AsLong(0L) + 1L;
 		assertAnyEqualm(expected, resultedSessionListInfo, "expected session list information to match");
-		t_assertm(!sessionListManager->GetASessionsInfo(resultedSessionListInfo, "dosnotexist", ctx, config), "Expected GetASessionsInfo to fail");
+		t_assertm(!sessionListManager->GetASessionsInfo(resultedSessionListInfo, "dosnotexist", ctx, config),
+				  "Expected GetASessionsInfo to fail");
 	}
 }
 
@@ -543,7 +553,7 @@ void SessionListManagerTest::SessionFactoryTest() {
 	args["env"]["header"]["USER-AGENT"] = "test agent";
 	args["env"]["header"]["REMOTE_ADDR"] = "127.0.0.1";
 	Context ctx(args);
-	Session *s, *s1;
+	Session *s = NULL, *s1 = NULL;
 	String sessionId("SessionFactoryTest");
 	Anything config1;
 	Anything moduleConfig1;
@@ -563,7 +573,7 @@ void SessionListManagerTest::SessionFactoryTest() {
 
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
-	if (tsm && sessionListManager) {
+	if ((tsm != 0) && (sessionListManager != 0)) {
 		tsm->SetTest(this);
 		t_assertm(sessionListManager->Init(config1), "expected SessionListManager module to initialize correctly");
 		assertEqualm(1L, sessionListManager->fMaxSessionsAllowed, "expected fMaxSessionsAllowed to be initialized by config");
@@ -577,7 +587,7 @@ void SessionListManagerTest::SessionFactoryTest() {
 		t_assertm(sessionListManager->fSessionFactory == 0, "expected fSessionFactory to be deleted");
 
 		t_assertm(sessionListManager->ResetInit(config2), "expected SessionListManager module to initialize correctly");
-		ctx.GetTmpStore()["Notify"]["expected"] = (long) Session::eAdded;
+		ctx.GetTmpStore()["Notify"]["expected"] = (long)Session::eAdded;
 		s = sessionListManager->CreateSession(sessionId, ctx);
 		t_assertm(s != NULL, "expected SessionListManager to create a session");
 		bool isBusy = false;
@@ -600,7 +610,7 @@ void SessionListManagerTest::UniqueInstanceIdTest() {
 
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
-	if (sessionListManager) {
+	if (sessionListManager != 0) {
 		Anything config;
 		sessionListManager->Init(config);
 
@@ -626,18 +636,16 @@ void SessionListManagerTest::NotifyCalled(Session::ESessionEvt evt, Context &ctx
 void SessionListManagerTest::DoPrepareSessionCalled(Context &ctx, Session *session) {
 	StartTrace(SessionListManagerTest.DoPrepareSessionCalled);
 	assertEqual(ctx.Lookup("Session.expected").AsLong(-1), (long)session);
-
 }
 
 void SessionListManagerTest::SessionAccountingTest() {
 	StartTrace(SessionListManagerTest.SessionAccountingTest);
 
-	Session *s;
+	Session *s = NULL;
 	SessionListManager *sessionListManager = SafeCast(WDModule::FindWDModule("SessionListManager"), SessionListManager);
 	t_assertm(sessionListManager != 0, "expected SessionListManager module to be there");
 
-	if (sessionListManager) {
-
+	if (sessionListManager != 0) {
 		Anything config2;
 		Anything moduleConfig2;
 		moduleConfig2["MaxSessionsAllowed"] = 3;
@@ -655,10 +663,10 @@ void SessionListManagerTest::SessionAccountingTest() {
 
 		assertEqualm(0L, sessionListManager->GetNumberOfSessions(), "expected sessionListManager to have no sessions");
 		s = sessionListManager->CreateSession(sessionId, ctx);
-		s->MakeInvalid(ctx); // force timeout of session
+		s->MakeInvalid(ctx);  // force timeout of session
 		assertEqualm(1L, sessionListManager->GetNumberOfSessions(), "expected sessionListManager to have one sessions");
 		s = sessionListManager->CreateSession(sessionId, ctx);
-		s->MakeInvalid(ctx); // force timeout of session
+		s->MakeInvalid(ctx);  // force timeout of session
 		assertEqualm(1L, sessionListManager->GetNumberOfSessions(), "expected sessionListManager to have one sessions");
 		assertEqualm(1L, sessionListManager->fSessions.GetSize(), "expected SessionsList to be one");
 		assertEqualm("SessionAccountingTest", sessionId, "expected Session to be replaced by new one");
@@ -688,5 +696,4 @@ Test *SessionListManagerTest::suite() {
 	ADD_CASE(testSuite, SessionListManagerTest, UniqueInstanceIdTest);
 
 	return testSuite;
-
 }

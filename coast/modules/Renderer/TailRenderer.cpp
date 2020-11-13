@@ -7,18 +7,18 @@
  */
 
 #include "TailRenderer.h"
+
 #include "Tracer.h"
 
 //---- TailRenderer ---------------------------------------------------------------
 
 RegisterRenderer(TailRenderer);
 
-TailRenderer::TailRenderer(const char *name) : Renderer(name) { }
+TailRenderer::TailRenderer(const char *name) : Renderer(name) {}
 
-TailRenderer::~TailRenderer() { }
+TailRenderer::~TailRenderer() {}
 
-void TailRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config)
-{
+void TailRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &config) {
 	StartTrace(TailRenderer.RenderAll);
 
 	String theString;
@@ -27,5 +27,4 @@ void TailRenderer::RenderAll(std::ostream &reply, Context &c, const ROAnything &
 	String delim = config["Delim"].AsCharPtr("=");
 	long pos = theString.StrRChr(delim[0L]);
 	reply << theString.SubString(pos + 1);
-
 }

@@ -39,20 +39,19 @@ required in a given HTML context (see explanations below).
 \par Configuration
 \code
 {
-	/BaseAddr	Rendererspec	optional, protokoll and server part of the URL
-	/Action 	Rendererspec	optional, action token
-	/Params {
-		/nameofparam1 valueOfFirstParam		Rendererspec	optional, name and value of param 1
-		/nameofparam2 valueOfSecondParam	Rendererspec	optional, name and value of param 2
-		...
-	}
+  /BaseAddr	Rendererspec	optional, protokoll and server part of the URL
+  /Action 	Rendererspec	optional, action token
+  /Params {
+	/nameofparam1 valueOfFirstParam		Rendererspec	optional, name and value of param 1
+	/nameofparam2 valueOfSecondParam	Rendererspec	optional, name and value of param 2
+	...
+  }
 }
 \endcode
 
 It contains hook-methods to be overwritten by derived classes.
 */
-class URLPrinter : public Renderer
-{
+class URLPrinter : public Renderer {
 public:
 	URLPrinter(const char *name);
 	URLPrinter(const char *name, char cmdSep, char argSep, char entrySep);
@@ -61,25 +60,31 @@ public:
 protected:
 	//! template method called by RenderAll
 	/*! calls GetState wich collects the link state from the context then RenderPublicState and then RenderPrivateState
-	*/
+	 */
 	virtual void RenderState(std::ostream &reply, Context &c, const ROAnything &config);
 
 	//! render public and private information seperately
 	void RenderScriptName(std::ostream &reply, Context &context);
 	//! renders "beginning" of URL depending on some general configuration setting ( UseBaseURL, BaseAddress, ServicePrefix )
-	/*! The specific configuration slot BaseAddr and content of the environment passed by the HTTP server also generates adr= and port= if given in the "linkstate"
-	*/
+	/*! The specific configuration slot BaseAddr and content of the environment passed by the HTTP server also generates adr=
+	 * and port= if given in the "linkstate"
+	 */
 	virtual void RenderPublicState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state);
 	void RenderPublicPartOfURL(std::ostream &reply, Context &c, const ROAnything &config, Anything &state);
 	//! renders the "private" and usually encoded part of the state put into the URL
-	/*! Different link generation contexts require different names of the parameter (X, X1 and X2) these parameter names are known by the Coast gateway program, that decodes them. the default implemenation is empty.
-	*/
+	/*! Different link generation contexts require different names of the parameter (X, X1 and X2) these parameter names are
+	 * known by the Coast gateway program, that decodes them. the default implemenation is empty.
+	 */
 	virtual void RenderPrivateState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state);
 
 	//! build up additional private state per link
-	/*! It uses the following data structure to derive what parts of the context should be put into the state, and what kind of action should be triggered by the generated URL. The /Params tag allows either explicitely or anonymously to generate paramter string values by arbitrary renderer specifications anonymous parameters are named /P# within the state where # is the position within the /Params list. The /Params mechanism allows to add in detail the amount of state passed via a specific URL and specify this locally at the place where the URL is defined.
-	*/
-	virtual void BuildPrivateState(std::ostream &reply, Context &c, const ROAnything &config,  Anything &state);
+	/*! It uses the following data structure to derive what parts of the context should be put into the state, and what kind of
+	 * action should be triggered by the generated URL. The /Params tag allows either explicitely or anonymously to generate
+	 * paramter string values by arbitrary renderer specifications anonymous parameters are named /P# within the state where #
+	 * is the position within the /Params list. The /Params mechanism allows to add in detail the amount of state passed via a
+	 * specific URL and specify this locally at the place where the URL is defined.
+	 */
+	virtual void BuildPrivateState(std::ostream &reply, Context &c, const ROAnything &config, Anything &state);
 
 	//! encodes state and appends under argName
 	void AppendEncodedState(std::ostream &reply, Context &c, const Anything &state, const char *argName);
@@ -92,6 +97,7 @@ protected:
 	char EntrySep();
 
 	void GetState(Anything &state, Context &c);
+
 private:
 	char fArgSep;
 	char fCmdSep;
@@ -106,8 +112,7 @@ single Form Variable named "X". Its command separator is '?' a la CGI,
 its argument separator '&' and the parameter separator ' '
 following the CGI conventions.
 */
-class FullURLPrinter : public URLPrinter
-{
+class FullURLPrinter : public URLPrinter {
 public:
 	FullURLPrinter(const char *name);
 
@@ -124,8 +129,7 @@ links to the current Coast session are generated on a page.
 Because the base tag does only allow '/' as a separator every element
 is separated by a '/' the private state is denoted by "X1="
 */
-class BaseURLPrinter : public URLPrinter
-{
+class BaseURLPrinter : public URLPrinter {
 public:
 	BaseURLPrinter(const char *name);
 
@@ -140,8 +144,7 @@ protected:
 The BaseURLRenderer is used to generate \<BASE\> tag in the HTML header
 It uses the BaseURLPrinter to generate the necessary URL
 */
-class BaseURLRenderer : public BaseURLPrinter
-{
+class BaseURLRenderer : public BaseURLPrinter {
 public:
 	BaseURLRenderer(const char *name);
 	void RenderAll(std::ostream &reply, Context &c, const ROAnything &data);
@@ -155,8 +158,7 @@ the BaseURLPrinter. It just emits the private state of the URL
 that is relative to the BASE URL. Again parameter separation is
 only possible via '/' and the encoded state is named "X2="
 */
-class SimpleURLPrinter : public URLPrinter
-{
+class SimpleURLPrinter : public URLPrinter {
 public:
 	SimpleURLPrinter(const char *name);
 
@@ -171,12 +173,12 @@ protected:
 \par Configuration
 \code
 {
-	/Action 	Rendererspec	optional, action token
-	/Params {
-		/nameofparam1 valueOfFirstParam		Rendererspec	optional, name and value of param 1
-		/nameofparam2 valueOfSecondParam	Rendererspec	optional, name and value of param 2
-		...
-	}
+  /Action 	Rendererspec	optional, action token
+  /Params {
+	/nameofparam1 valueOfFirstParam		Rendererspec	optional, name and value of param 1
+	/nameofparam2 valueOfSecondParam	Rendererspec	optional, name and value of param 2
+	...
+  }
 }
 \endcode
 
@@ -187,8 +189,7 @@ SimpleURLPrinter when a \<BASE\> tag is used for a page.
 the structure of the possible date is explained at
 the URLPrinter base class:
 */
-class URLRenderer : public Renderer
-{
+class URLRenderer : public Renderer {
 public:
 	URLRenderer(const char *name);
 
@@ -205,18 +206,18 @@ public:
 \par Configuration
 \code
 {
-	/Action 	Rendererspec	optional, action token
-	/Label		Rendererspec	optional, displayed name of the link
-	/Params {
-		/nameofparam1 valueOfFirstParam		Rendererspec	optional, name and value of param 1
-		/nameofparam2 valueOfSecondParam	Rendererspec	optional, name and value of param 2
-		...
-	}
-	/Options {	Anything		optional, options to the A tag
-		/Key	Value			optional, key - value pairs
-		SimpleValue				optional, simple non-value tag
-		...
-	}
+  /Action 	Rendererspec	optional, action token
+  /Label		Rendererspec	optional, displayed name of the link
+  /Params {
+	/nameofparam1 valueOfFirstParam		Rendererspec	optional, name and value of param 1
+	/nameofparam2 valueOfSecondParam	Rendererspec	optional, name and value of param 2
+	...
+  }
+  /Options {	Anything		optional, options to the A tag
+	/Key	Value			optional, key - value pairs
+	SimpleValue				optional, simple non-value tag
+	...
+  }
 }
 \endcode
 
@@ -231,8 +232,7 @@ the called URLRenderer. See URLPrinter for additional
 data elements besides /Label. The additional data is used to
 generate the "private" part of the link.
 */
-class LinkRenderer : public Renderer
-{
+class LinkRenderer : public Renderer {
 public:
 	LinkRenderer(const char *name);
 
@@ -240,17 +240,14 @@ public:
 };
 
 //--- inlines -------------------------
-inline char URLPrinter::ArgSep()
-{
+inline char URLPrinter::ArgSep() {
 	return fArgSep;
 }
-inline char URLPrinter::CmdSep()
-{
+inline char URLPrinter::CmdSep() {
 	return fCmdSep;
 }
-inline char URLPrinter::EntrySep()
-{
+inline char URLPrinter::EntrySep() {
 	return fEntrySep;
 }
 
-#endif		//not defined _URLRenderers_H
+#endif	// not defined _URLRenderers_H

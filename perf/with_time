@@ -1,5 +1,6 @@
 #! /bin/sh
-. `dirname $0`/lib/measure_utils.sh
+# shellcheck source=./lib/measure_utils.sh
+. "$(dirname "$0")"/lib/measure_utils.sh
 set -e
 
 # DIFF COMMAND
@@ -13,12 +14,12 @@ export_as_csv() (
 	header_printed=false
 	printf "testname,archbits,buildcfg,method,"
 
-	for file in $PERF_DIR/time/*-*_*.csv
+	for file in "$PERF_DIR"/time/*-*_*.csv
 	do
 		# finish printing header using first file
 		if ! $header_printed
 		then
-			head -1 $file
+			head -1 "$file"
 			header_printed=true
 		fi
 
@@ -26,21 +27,20 @@ export_as_csv() (
 		# 	* testname
 		#	* archbits
 		# 	* buildcfg
-		eval $(basename -s .csv $file |\
-		sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)/testname="\1" \
-			archbits="\2" buildcfg="\3"/')
+		eval $(basename -s .csv "$file" |\
+		sed -e 's/\(\w\+\)-\([[:digit:]]\+\)_\(\w\+\)/testname="\1" archbits="\2" buildcfg="\3"/')
 
 		# print last CSV record (but never the header) with additional
 		# values prepended
-		tail -n +2 $file | tail -1 | sed -e "s/^/$testname,$archbits,$buildcfg,time,/"
+		tail -n +2 "$file" | tail -1 | sed -e "s/^/$testname,$archbits,$buildcfg,time,/"
 	done
 )
 
-# Measures performance of $TEST_NAMES using `time`.
+# Measures performance of $TEST_NAMES using time.
 #
 # Depends on:
 #   * measure_utils.sh
-#   * `time`
+#   * time
 #   * $TEST_NAMES
 #   * $PERF_DIR
 #   * $BUILDCFG
@@ -52,36 +52,36 @@ export_as_csv() (
 #   * $TIMES
 measure_performance() {
 
-	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force 
+	SCONSFLAGS="--ignore-missing --with-src-boost=3rdparty/boost --with-src-zlib=3rdparty/zlib --with-bin-openssl=3rdparty/openssl --build-cfg=$BUILDCFG --archbits=$ARCHBITS" # --warnlevel=medium --enable-Trace" # --config=force
 	TIMES=${TIMES:-20} # number of times to run each test
 
-	build `cat $TEST_NAMES`
+	build $(cat "$TEST_NAMES")
 
 	##
 	# MEASUREMENT
 	#
 	progress "TIME-BASED MEASUREMENT ..."
-	for TESTNAME in `cat $TEST_NAMES`
+	for TESTNAME in $(cat "$TEST_NAMES")
 	do
-		start $TESTNAME
+		start "$TESTNAME"
 		TIME_RESULT=$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.csv
-		mkdir -p `dirname $TIME_RESULT`
+		mkdir -p "$(dirname "$TIME_RESULT")"
 
 		# write CSV header if file doesn't exist yet
-		if [ ! -e $TIME_RESULT ]
+		if [ ! -e "$TIME_RESULT" ]
 		then
-			echo "start_time,times_run,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps" > $TIME_RESULT
+			echo "start_time,times_run,user[s],system[s],real[s],cpu,maxres[KB],avgres[KB],avgunshared[KB],avgunsharedstack[KB],swaps" > "$TIME_RESULT"
 		fi
 
-		warmup $TESTNAME || continue
+		warmup "$TESTNAME" || continue
 
 		# run test n times and log statistics
 		log="$PERF_DIR/time/${TESTNAME}-${ARCHBITS}_${BUILDCFG}.log"
-		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '\"$START_TIME,$TIMES,%U,%S,%e,%P,%M,%t,%D,%p,%W\"' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x $TIMES -- -all" $TESTNAME > $log 2>&1
+		if log_cmd scons $SCONSFLAGS --run-force --runparams="-x /usr/bin/time -x '-f' -x '\"$START_TIME,$TIMES,%U,%S,%e,%P,%M,%t,%D,%p,%W\"' -x '--output=$TIME_RESULT' -x '--append' -x $NTIMES -x $TIMES -- -all" "$TESTNAME" > $log 2>&1
 		then
-			measurement_successful $TESTNAME
+			measurement_successful "$TESTNAME"
 		else
-			measurement_failed $TESTNAME $log
+			measurement_failed "$TESTNAME" "$log"
 		fi
 	done
 }

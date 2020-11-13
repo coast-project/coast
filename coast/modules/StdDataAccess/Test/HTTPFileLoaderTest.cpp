@@ -7,12 +7,13 @@
  */
 
 #include "HTTPFileLoaderTest.h"
-#include "TestSuite.h"
-#include "FoundationTestTypes.h"
-#include "HTTPFileLoader.h"
-#include "URI2FileNameMapper.h"
+
 #include "Context.h"
+#include "FoundationTestTypes.h"
 #include "HTTPConstants.h"
+#include "HTTPFileLoader.h"
+#include "TestSuite.h"
+#include "URI2FileNameMapper.h"
 
 void HTTPFileLoaderTest::ReplyHeaderTest() {
 	StartTrace(HTTPFileLoaderTest.ReplyHeaderTest);
@@ -82,7 +83,7 @@ void HTTPFileLoaderTest::ExecTest() {
 	String ext("defaultExt");
 	Anything httpHeader;
 
-	tmpStore["DocumentRoot"] = ""; // dummy root should use absolute path
+	tmpStore["DocumentRoot"] = "";	// dummy root should use absolute path
 	tmpStore["REQUEST_URI"] = "/config/TestFile.html";
 
 	t_assertm(hfl.Exec(ctx, &mapin, &mout), "expected success of file loading");
@@ -96,8 +97,9 @@ void HTTPFileLoaderTest::ExecTest() {
 	tmpStore["REQUEST_URI"] = "/config/NotThere<script>alert(\"gugus\")</script>";
 	t_assertm(!hfl.Exec(ctx, &mapin, &mout), "expected failure of file loading");
 	String body(ctx.Lookup("Mapper.HTTPBody", "<"));
+	// clang-format off
 	t_assertm(body.Contains(_QUOTE_(<p>The requested URL <b>/config/NotThere<script>alert("gugus")</script></b> is invalid.</p>)) >= 0, "No tainted content expected.");
-
+	// clang-format on
 	assertEqual(404, ctx.Lookup(String("Mapper.").Append(coast::http::constants::protocolCodeSlotname), 200L));
 	assertEqual("Not Found", ctx.Lookup(String("Mapper.").Append(coast::http::constants::protocolMsgSlotname), "Ok"));
 
@@ -106,9 +108,14 @@ void HTTPFileLoaderTest::ExecTest() {
 	tmpStore["REQUEST_URI"] = "/config/NotReadable";
 	t_assertm(!hfl.Exec(ctx, &mapin, &mout), "expected failure of file loading");
 
-	assertEqualm(403, ctx.Lookup(String("Mapper.").Append(coast::http::constants::protocolCodeSlotname), 200L), "Make sure the file config/NotReadable is not readable");
-	assertEqualm("Forbidden", ctx.Lookup(String("Mapper.").Append(coast::http::constants::protocolMsgSlotname), "Ok"), "Make sure the file config/NotReadable is not readable");
-	assertEqualm("<html><head>\n<title>403 Forbidden</title>\n</head><body>\n<h1>Forbidden</h1>\n<p>The requested URL <b>/config/NotReadable</b> is invalid.</p>\n<hr />\n<address>Coast 2.0 Server</address>\n</body></html>\n", ctx.Lookup("Mapper.HTTPBody", "Ok"), "Wrong error message supplied!");
+	assertEqualm(403, ctx.Lookup(String("Mapper.").Append(coast::http::constants::protocolCodeSlotname), 200L),
+				 "Make sure the file config/NotReadable is not readable");
+	assertEqualm("Forbidden", ctx.Lookup(String("Mapper.").Append(coast::http::constants::protocolMsgSlotname), "Ok"),
+				 "Make sure the file config/NotReadable is not readable");
+	assertEqualm(
+		"<html><head>\n<title>403 Forbidden</title>\n</head><body>\n<h1>Forbidden</h1>\n<p>The requested URL "
+		"<b>/config/NotReadable</b> is invalid.</p>\n<hr />\n<address>Coast 2.0 Server</address>\n</body></html>\n",
+		ctx.Lookup("Mapper.HTTPBody", "Ok"), "Wrong error message supplied!");
 #else
 	cerr << "\nFIXME: file hiding on WIN32" << endl;
 #endif
@@ -134,5 +141,4 @@ Test *HTTPFileLoaderTest::suite() {
 	ADD_CASE(testSuite, HTTPFileLoaderTest, ExecTest);
 
 	return testSuite;
-
 }

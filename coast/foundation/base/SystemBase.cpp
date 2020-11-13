@@ -341,7 +341,7 @@ namespace coast {
 #if defined(WIN32)
 #define vsnprintf _vsnprintf
 #endif
-			va_list args = NULL;
+			va_list args;
 			va_start(args, format);
 			int charsWrittenOrRequired = ::vsnprintf(buf, buf_size, format, args);
 			va_end(args);
